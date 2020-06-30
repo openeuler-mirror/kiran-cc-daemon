@@ -1,3 +1,9 @@
-# Kiran session daemon
+# 控制中心系统设置后端
 
-Daemon for handling the desktop session.
+## 编译安装
+```
+# mkdir build
+# cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+# make
+# make install
+```
