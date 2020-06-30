@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist >
+    <schema id="com.unikylin.kiran.session-daemon" path="/com/unikylin/kiran/session/daemon/">
+        <key name="log-level" type="s">
+            <default>'warning'</default>
+            <summary>the log level is one of fatal, error, critical, warning, message, info and debug.</summary>
+        </key>
+    </schema>
+</schemalist>

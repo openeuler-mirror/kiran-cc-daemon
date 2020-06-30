@@ -1,0 +1,147 @@
+#pragma once
+#include <string>
+#include <vector>
+#include <glibmm.h>
+#include <giomm.h>
+#include "{{ common_h_name }}"
+
+{% for interface in interfaces %}
+{% set namespaces = interface.cpp_namespace_name.split("::") %}
+{% for namespace in namespaces %}
+namespace {{ namespace }} {
+{% endfor %}
+
+class {{ interface.cpp_class_name_stub }} : public sigc::trackable {
+public:
+    {{ interface.cpp_class_name_stub }}();
+    virtual ~{{ interface.cpp_class_name_stub }}();
+
+    {{ interface.cpp_class_name_stub }}(const {{ interface.cpp_class_name_stub }} &other) = delete;
+    {{ interface.cpp_class_name_stub }}({{ interface.cpp_class_name_stub }} &&other) = delete;
+    {{ interface.cpp_class_name_stub }} &operator=(const {{ interface.cpp_class_name_stub }} &other) = delete;
+    {{ interface.cpp_class_name_stub }} &operator=({{ interface.cpp_class_name_stub }} &&other) = delete;
+
+    guint register_object(const Glib::RefPtr<Gio::DBus::Connection> &connection,
+                          const Glib::ustring &object_path);
+    void unregister_object();
+
+    unsigned int usage_count() const {
+        return static_cast<unsigned int>(m_registered_objects.size());
+    }
+
+    class MethodInvocation;
+
+{% for prop in interface.properties %}
+    bool {{ prop.name }}_set({{ prop.cpptype_in }} value);
+{% endfor %}
+protected:
+{% for method in interface.methods %}
+    virtual void {{ method.name }}(
+        {% for arg in method.in_args %}
+        {{ arg.cpptype_in }} {{ arg.name }},
+        {% endfor %}
+        MethodInvocation &invocation) = 0;
+{% endfor %}
+{% for prop in interface.properties %}
+
+    /* Handle the setting of a property
+     * This method will be called as a result of a call to <PropName>_set
+     * and should implement the actual setting of the property value.
+     * Should return true on success and false otherwise.
+     */
+    virtual bool {{ prop.name }}_setHandler({{ prop.cpptype_in }} value) = 0;
+    virtual {{ prop.cpptype_out }} {{ prop.name }}_get() = 0;
+{% endfor %}
+{% for signal in interface.signals %}
+{% if signal is supported_by_sigc %}
+
+    void {{ signal.name }}_emitter(const std::vector<Glib::ustring> &destination_bus_names, {{ signal.args|map(attribute='cpptype_in')|join(', ') }});
+    sigc::signal<void, {{ signal.args|map(attribute='cpptype_in')|join(', ') }}> {{ signal.name }}_signal;
+    sigc::signal<void, const std::vector<Glib::ustring>&, {{ signal.args|map(attribute='cpptype_in')|join(', ') }}> {{ signal.name }}_selectiveSignal;
+{% endif %}
+{% endfor %}
+
+    void on_method_call(const Glib::RefPtr<Gio::DBus::Connection> &connection,
+                        const Glib::ustring &sender,
+                        const Glib::ustring &object_path,
+                        const Glib::ustring &interface_name,
+                        const Glib::ustring &method_name,
+                        const Glib::VariantContainerBase &parameters,
+                        const Glib::RefPtr<Gio::DBus::MethodInvocation> &invocation);
+
+    void on_interface_get_property(Glib::VariantBase& property,
+                                   const Glib::RefPtr<Gio::DBus::Connection> &connection,
+                                   const Glib::ustring &sender,
+                                   const Glib::ustring &object_path,
+                                   const Glib::ustring &interface_name,
+                                   const Glib::ustring &property_name);
+
+    bool on_interface_set_property(
+        const Glib::RefPtr<Gio::DBus::Connection> &connection,
+        const Glib::ustring &sender,
+        const Glib::ustring &object_path,
+        const Glib::ustring &interface_name,
+        const Glib::ustring &property_name,
+        const Glib::VariantBase &value);
+
+private:
+    bool emitSignal(const std::string &propName, Glib::VariantBase &value);
+
+    struct RegisteredObject {
+        guint id;
+        Glib::RefPtr<Gio::DBus::Connection> connection;
+        std::string object_path;
+    };
+
+    Glib::RefPtr<Gio::DBus::NodeInfo> introspection_data;
+    std::vector<RegisteredObject> m_registered_objects;
+    std::string m_interfaceName;
+};
+
+class {{interface.cpp_class_name_stub}}::MethodInvocation {
+public:
+    MethodInvocation(const Glib::RefPtr<Gio::DBus::MethodInvocation> &msg):
+        m_message(msg) {}
+
+    const Glib::RefPtr<Gio::DBus::MethodInvocation> getMessage() {
+        return m_message;
+    }
+
+    void ret(Glib::Error error) {
+        m_message->return_error(error);
+    }
+
+    void returnError(const Glib::ustring &domain, int code, const Glib::ustring &message) {
+        m_message->return_error(domain, code, message);
+    }
+
+    {% for return_types in interface.unique_return_types() %}
+    void ret(
+    {%- for type in return_types -%}
+        {{- type.cpptype_in }} p{{ loop.index0 -}}
+        {{- ", " if not loop.last -}}
+    {%- endfor -%}
+    ) {
+        std::vector<Glib::VariantBase> vlist;
+    {% for type in return_types %}
+        {% if type.signature == "v" %}
+        vlist.push_back(p{{ loop.index0 }});
+        {% else %}
+        {% set index = loop.index0|string %}
+        {{ type.cppvalue_send('var' + index, 'p' + index, interface.cpp_class_name) | indent(2) }}
+        vlist.push_back(var{{ loop.index0 }});
+        {% endif %}
+    {% endfor %}
+
+        m_message->return_value(Glib::Variant<Glib::VariantBase>::create_tuple(vlist));
+    }
+
+{% endfor %}
+private:
+    Glib::RefPtr<Gio::DBus::MethodInvocation> m_message;
+};
+
+{% for namespace in namespaces|reverse %}
+} // {{ namespace }}
+{% endfor %}
+{% endfor %}

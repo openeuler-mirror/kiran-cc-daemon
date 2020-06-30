@@ -1,0 +1,5 @@
+[Kiran Settings Plugin]
+Module=accounts
+Name=Accounts
+Description=Accounts plugin
+Available=true

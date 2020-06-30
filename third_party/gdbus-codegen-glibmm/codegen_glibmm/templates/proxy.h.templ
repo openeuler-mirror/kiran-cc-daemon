@@ -1,0 +1,109 @@
+#pragma once
+#include <string>
+#include <tuple>
+#include <vector>
+#include <glibmm.h>
+#include <giomm.h>
+#include "{{ common_h_name }}"
+
+{% for interface in interfaces %}
+{% set namespaces = interface.cpp_namespace_name.split("::") %}
+{% for namespace in namespaces %}
+namespace {{ namespace }} {
+{% endfor %}
+
+class {{ interface.cpp_class_name_proxy }} : public Glib::ObjectBase {
+public:
+    static void createForBus(Gio::DBus::BusType busType,
+                             Gio::DBus::ProxyFlags proxyFlags,
+                             const std::string &name,
+                             const std::string &objectPath,
+                             const Gio::SlotAsyncReady &slot,
+                             const Glib::RefPtr<Gio::Cancellable> &cancellable = {});
+
+    static Glib::RefPtr<{{ interface.cpp_class_name_proxy }}> createForBusFinish (const Glib::RefPtr<Gio::AsyncResult> &result);
+
+    static Glib::RefPtr<{{ interface.cpp_class_name_proxy }}> createForBus_sync(
+        Gio::DBus::BusType busType,
+        Gio::DBus::ProxyFlags proxyFlags,
+        const std::string &name,
+        const std::string &objectPath,
+        const Glib::RefPtr<Gio::Cancellable> &cancellable = {});
+
+    Glib::RefPtr<Gio::DBus::Proxy> dbusProxy() const { return m_proxy; }
+
+{% for method in interface.methods %}
+    void {{ method.name }}(
+    {% for arg in method.in_args %}
+        {{ arg.cpptype_in }} {{ arg.name }},
+    {% endfor %}
+        const Gio::SlotAsyncReady &slot,
+        const Glib::RefPtr<Gio::Cancellable> &cancellable = {},
+        int timeout_msec = -1);
+
+    void {{ method.name }}_finish (
+        {% for arg in method.out_args %}
+        {{ arg.cpptype_out }} &{{ arg.name }},
+        {% endfor %}
+        const Glib::RefPtr<Gio::AsyncResult> &res);
+
+    {% if method.out_args|length == 0 %}
+    void
+    {% elif method.out_args|length == 1 %}
+    {{ method.out_args[0].cpptype_out }}
+    {% else %}
+    std::tuple<{{ method.out_args|join(', ', attribute='cpptype_out') }}>
+    {% endif %}
+    {{ method.name }}_sync(
+    {% for arg in method.in_args %}
+        {{ arg.cpptype_in }} {{ arg.name }},
+    {%- endfor -%}
+        const Glib::RefPtr<Gio::Cancellable> &cancellable = {},
+        int timeout_msec = -1);
+
+{% endfor %}
+{% for prop in interface.properties %}
+    {% if prop.readable %}
+    {{ prop.cpptype_out }} {{ prop.name }}_get(bool *ok = nullptr);
+    {% endif %}
+    {% if prop.writable %}
+    void {{ prop.name }}_set({{ prop.cpptype_in }}, const Gio::SlotAsyncReady &);
+    void {{ prop.name }}_set_finish(const Glib::RefPtr<Gio::AsyncResult> &);
+    void {{ prop.name }}_set_sync({{ prop.cpptype_in }});
+    {% endif %}
+    sigc::signal<void> &{{ prop.name }}_changed() {
+        return m_{{ prop.name }}_changed;
+    }
+
+{% endfor %}
+{% for signal in interface.signals %}
+{% if signal is supported_by_sigc %}
+    sigc::signal<void, {{ signal.args|map(attribute='cpptype_out')|join(', ') }} > {{ signal.name }}_signal;
+{% endif %}
+{% endfor %}
+
+    void reference() const override {}
+    void unreference() const override {}
+
+protected:
+    Glib::RefPtr<Gio::DBus::Proxy> m_proxy;
+
+private:
+    {{ interface.cpp_class_name_proxy }}(const Glib::RefPtr<Gio::DBus::Proxy> &proxy);
+
+    void handle_signal(const Glib::ustring &sender_name,
+                       const Glib::ustring &signal_name,
+                       const Glib::VariantContainerBase &parameters);
+
+    void handle_properties_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties,
+                                   const std::vector<Glib::ustring> &invalidated_properties);
+
+{% for prop in interface.properties %}
+    sigc::signal<void> m_{{ prop.name }}_changed;
+{% endfor %}
+};
+
+{% for namespace in namespaces|reverse %}
+}// {{ namespace }}
+{% endfor %}
+{% endfor %}
