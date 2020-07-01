@@ -87,7 +87,7 @@ if(OS_LINUX)
     -Wno-missing-braces                # Disable missing braces warning
     )
   list(APPEND KSD_COMPILER_FLAGS    # for C++
-    -fno-rtti                       # Disable real-time type information
+    #-fno-rtti                       # Disable real-time type information
     -Wsign-compare                  # Warn about mixed signed/unsigned type comparisons
     )
   if(COMPILER_GCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8.0)

@@ -2,16 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-19 13:54:36
+ * @LastEditTime : 2020-06-30 20:25:02
  * @Description  : 
- * @FilePath     : /kiran-session-daemon/src/settings-manager.cpp
+ * @FilePath     : /kiran-system-daemon/src/settings-manager.cpp
  */
 
 #include "src/settings-manager.h"
 
 #include <fmt/format.h>
 
-#include "src/log.h"
+#include "lib/log.h"
 
 namespace Kiran
 {

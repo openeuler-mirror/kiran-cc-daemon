@@ -2,17 +2,17 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 14:29:02
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-19 09:49:54
+ * @LastEditTime : 2020-06-30 20:24:48
  * @Description  : 
- * @FilePath     : /kiran-session-daemon/src/plugin-info.cpp
+ * @FilePath     : /kiran-system-daemon/src/plugin-info.cpp
  */
 
 #include "src/plugin-info.h"
 
 #include <fmt/format.h>
 
-#include "src/helper.h"
-#include "src/log.h"
+#include "lib/helper.h"
+#include "lib/log.h"
 
 namespace Kiran
 {

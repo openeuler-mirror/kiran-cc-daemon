@@ -2,20 +2,19 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:46
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-18 19:52:20
+ * @LastEditTime : 2020-07-01 14:00:00
  * @Description  : 
- * @FilePath     : /kiran-session-daemon/src/log.h
+ * @FilePath     : /kiran-system-daemon/lib/log.h
  */
 #pragma once
 
 #include <giomm.h>
 
-#include "src/helper.h"
+#include "lib/common.h"
+#include "lib/helper.h"
 
 namespace Kiran
 {
-#define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : __FILE__)
-
 class ILogger
 {
 public:

@@ -2,15 +2,15 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:55:54
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-19 13:49:18
+ * @LastEditTime : 2020-06-30 20:24:23
  * @Description  : 
- * @FilePath     : /kiran-session-daemon/src/settings-manager.h
+ * @FilePath     : /kiran-system-daemon/src/settings-manager.h
  */
 
 #include <map>
 #include <string>
 
-#include "plugin-info.h"
+#include "src/plugin-info.h"
 
 namespace Kiran
 {

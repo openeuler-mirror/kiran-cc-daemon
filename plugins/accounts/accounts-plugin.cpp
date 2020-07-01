@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:34:09
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 15:11:29
+ * @LastEditTime : 2020-06-30 20:32:01
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-plugin.cpp
  */
@@ -11,6 +11,7 @@
 
 #include <cstdio>
 
+#include "lib/log.h"
 #include "plugins/accounts/accounts-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(AccountsPlugin);
@@ -27,6 +28,9 @@ AccountsPlugin::~AccountsPlugin()
 
 void AccountsPlugin::activate()
 {
+    SETTINGS_PROFILE("active accounts plugin.");
+
+    Log::global_init();
     AccountsManager::global_init();
 }
 

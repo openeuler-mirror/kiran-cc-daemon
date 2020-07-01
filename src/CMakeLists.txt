@@ -36,6 +36,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     ${GLIBMM_LIBRARIES}
     ${GIOMM_LIBRARIES}
     ${GMODULE_LIBRARIES}
+    kiran-lib
     fmt)
 
 install(FILES "${CMAKE_SOURCE_DIR}/src/com.unikylin.Kiran.SystemDaemon.gschema.xml" 

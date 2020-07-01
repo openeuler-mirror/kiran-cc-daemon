@@ -2,15 +2,15 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-17 14:33:24
+ * @LastEditTime : 2020-06-30 20:19:53
  * @Description  : 
- * @FilePath     : /kiran-menu-2.0/root/git/kiran-session-daemon/src/log.cpp
+ * @FilePath     : /kiran-system-daemon/lib/log.cpp
  */
 
-#include "src/log.h"
+#include "lib/log.h"
 
-#include <src/common.h>
-#include <src/helper.h>
+#include <lib/common.h>
+#include <lib/helper.h>
 #include <syslog.h>
 
 #include <sstream>

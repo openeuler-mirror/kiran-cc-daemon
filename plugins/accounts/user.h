@@ -2,20 +2,22 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 15:03:08
+ * @LastEditTime : 2020-06-30 18:00:08
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-dbus.h
+ * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
 
-#include <accounts_dbus_stub.h>
+#include <act/act.h>
+#include <user_dbus_stub.h>
 
 namespace Kiran
 {
-class AccountsDBus : public System::AccountsStub
+class User : public System::Accounts::UserStub
 {
 public:
-    AccountsDBus();
-    virtual ~AccountsDBus();
+    User() = delete;
+    User(ActUser *act_user);
+    virtual ~User();
 
     void init();
 
@@ -31,5 +33,7 @@ private:
     uint32_t dbus_connect_id_;
 
     uint32_t object_register_id_;
+
+    ActUser *act_user_;
 };
 }  // namespace Kiran

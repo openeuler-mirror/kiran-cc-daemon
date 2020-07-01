@@ -2,29 +2,34 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-05 15:21:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-18 19:48:58
+ * @LastEditTime : 2020-07-01 14:39:16
  * @Description  : 
- * @FilePath     : /kiran-session-daemon/src/helper.h
+ * @FilePath     : /kiran-system-daemon/lib/helper.h
  */
 
 #pragma once
 
+#include <stdio.h>
+
 namespace Kiran
 {
+#define CONNECTION(text1, text2) text1##text2
+#define CONNECT(text1, text2) CONNECTION(text1, text2)
+
 class Defer
 {
 public:
-    Defer(std::function<void()> func) : func_(func) {}
-    ~Defer() { func_(); }
+    Defer(std::function<void(std::string)> func, std::string fun_name) : func_(func),
+                                                                         fun_name_(fun_name) {}
+    ~Defer() { func_(fun_name_); }
 
 private:
-    std::function<void()> func_;
+    std::function<void(std::string)> func_;
+    std::string fun_name_;
 };
 
 // helper macro for Defer class
-#define SCOPE_EXIT(block)              \
-    auto _arg_function = __FUNCTION__; \
-    Defer _defer_##__LINE__([&]() block)
+#define SCOPE_EXIT(block) Defer CONNECT(_defer_, __LINE__)([&](std::string _arg_function) block, __FUNCTION__)
 
 #define RETURN_VAL_IF_FALSE(cond, val) \
     {                                  \
