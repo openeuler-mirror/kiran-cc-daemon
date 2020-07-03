@@ -11,6 +11,7 @@
 
 namespace Kiran
 {
+#define ACCOUNTS_DBUS_NAME "com.unikylin.Kiran.System.Accounts"
 enum class AccountsError : int32_t
 {
     ERROR_FAILED,

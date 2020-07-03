@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 20:25:02
+ * @LastEditTime : 2020-07-02 16:46:43
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/settings-manager.cpp
  */
@@ -130,11 +130,11 @@ bool SettingsManager::load_file(const std::string& file_name, std::string& err)
 
 void SettingsManager::dbus_init()
 {
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                 DEFAULT_DBUS_NAME,
-                                                 sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &SettingsManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &SettingsManager::on_name_lost));
+    // this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
+    //                                              DEFAULT_DBUS_NAME,
+    //                                              sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
+    //                                              sigc::mem_fun(this, &SettingsManager::on_name_acquired),
+    //                                              sigc::mem_fun(this, &SettingsManager::on_name_lost));
 }
 
 void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,

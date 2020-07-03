@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:34:09
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 20:32:01
+ * @LastEditTime : 2020-07-02 16:21:49
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-plugin.cpp
  */
@@ -30,7 +30,6 @@ void AccountsPlugin::activate()
 {
     SETTINGS_PROFILE("active accounts plugin.");
 
-    Log::global_init();
     AccountsManager::global_init();
 }
 

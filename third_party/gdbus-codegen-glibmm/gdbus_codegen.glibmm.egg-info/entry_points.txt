@@ -1,3 +1,0 @@
-[console_scripts]
-gdbus-codegen-glibmm3 = codegen_glibmm.codegen_main:codegen_main
-

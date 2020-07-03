@@ -25,7 +25,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 target_compile_definitions(${TARGET_NAME} PRIVATE
     -DKSD_PLUGIN_DIR="${KSD_PLUGIN_DIR}"
-    -DKSD_PLUGIN_EXT="${KSD_PLUGIN_EXT}")
+    -DKSD_PLUGIN_EXT="${KSD_PLUGIN_EXT}"
+    -DKIRAN_SYSTEM_DAEMON_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
 
 target_compile_options(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS}

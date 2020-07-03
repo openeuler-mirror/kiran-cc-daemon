@@ -85,3 +85,6 @@ install(TARGETS ${TARGET_NAME}
 install(FILES "accounts.ksd-plugin.in" 
         DESTINATION  ${KSD_PLUGIN_DIR}
         RENAME "accounts.ksd-plugin")
+
+install(FILES "com.unikylin.Kiran.System.Accounts.conf"
+        DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
