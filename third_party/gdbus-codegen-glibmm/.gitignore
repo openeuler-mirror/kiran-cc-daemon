@@ -1,1 +1,4 @@
 __pycache__/
+build
+codegen_glibmm
+gdbus_codegen.glibmm.egg-info
