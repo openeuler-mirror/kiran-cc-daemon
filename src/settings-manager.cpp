@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-02 16:46:43
+ * @LastEditTime : 2020-07-06 19:45:17
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/settings-manager.cpp
  */
@@ -101,7 +101,7 @@ void SettingsManager::load_dir(const std::string& path)
 
 bool SettingsManager::load_file(const std::string& file_name, std::string& err)
 {
-    SETTINGS_PROFILE("Loading plugin: ", file_name.c_str());
+    SETTINGS_PROFILE("Loading plugin: %s", file_name.c_str());
 
     auto plugin_info = std::make_shared<PluginInfo>();
 
@@ -123,7 +123,11 @@ bool SettingsManager::load_file(const std::string& file_name, std::string& err)
         return false;
     }
 
-    RETURN_VAL_IF_FALSE(plugin_info->activate_plugin(err), false);
+    if (!plugin_info->activate_plugin(err))
+    {
+        this->plugins_.erase(iter.first);
+        return false;
+    }
 
     return true;
 }
@@ -140,11 +144,11 @@ void SettingsManager::dbus_init()
 void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                       Glib::ustring name)
 {
-    for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
-    {
-        auto plugin = iter->second->get_plugin();
-        plugin->register_object(connect);
-    }
+    // for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
+    // {
+    //     auto plugin = iter->second->get_plugin();
+    //     plugin->register_object(connect);
+    // }
 }
 
 void SettingsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,

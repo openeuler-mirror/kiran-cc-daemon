@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:33:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 14:53:16
+ * @LastEditTime : 2020-07-06 10:07:21
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-plugin.h
  */
@@ -17,7 +17,5 @@ public:
     virtual ~AccountsPlugin();
 
     virtual void activate();
-
-    virtual void register_object(const Glib::RefPtr<Gio::DBus::Connection> &connection);
 };
 }  // namespace Kiran

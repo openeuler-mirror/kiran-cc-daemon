@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-03 09:00:22
+ * @LastEditTime : 2020-07-08 09:29:49
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -27,6 +27,14 @@ AccountsManager::AccountsManager() : dbus_connect_id_(0),
                                      object_register_id_(0)
 {
     act_user_manager_ = act_user_manager_get_default();
+}
+
+AccountsManager::~AccountsManager()
+{
+    if (this->dbus_connect_id_)
+    {
+        Gio::DBus::unown_name(this->dbus_connect_id_);
+    }
 }
 
 AccountsManager *AccountsManager::instance_ = nullptr;
@@ -139,6 +147,8 @@ void AccountsManager::FindUserByName(const Glib::ustring &name,
 
 void AccountsManager::signal_user_added(ActUser *act_user, gpointer user_data)
 {
+    SETTINGS_PROFILE("");
+
     AccountsManager *self = (AccountsManager *)user_data;
     g_return_if_fail(self == AccountsManager::get_instance());
 
@@ -151,6 +161,8 @@ void AccountsManager::signal_user_added(ActUser *act_user, gpointer user_data)
 
 void AccountsManager::signal_user_removed(ActUser *act_user, gpointer user_data)
 {
+    SETTINGS_PROFILE("");
+
     AccountsManager *self = (AccountsManager *)user_data;
     g_return_if_fail(self == AccountsManager::get_instance());
 
@@ -163,6 +175,8 @@ void AccountsManager::signal_user_removed(ActUser *act_user, gpointer user_data)
 
 void AccountsManager::init()
 {
+    SETTINGS_PROFILE("");
+
     g_return_if_fail(this->act_user_manager_ != NULL);
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
@@ -287,10 +301,12 @@ void AccountsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
 
 void AccountsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
+    LOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void AccountsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
+    LOG_ERROR("failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

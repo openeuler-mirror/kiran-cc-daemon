@@ -879,9 +879,7 @@
     <property name="PasswordHint" type="s" access="read">
       <doc:doc>
         <doc:description>
-          <doc:para>
-           The password hint for the user.
-          </doc:para>
+          <doc:para>The password hint for the user.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
@@ -889,9 +887,7 @@
     <property name="AutomaticLogin" type="b" access="read">
       <doc:doc>
         <doc:description>
-          <doc:para>
-           Whether automatic login is enabled for the user.
-          </doc:para>
+          <doc:para>Whether automatic login is enabled for the user.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
@@ -911,9 +907,7 @@
     <property name="LocalAccount" type="b" access="read">
       <doc:doc>
         <doc:description>
-          <doc:para>
-          Whether the user is a local account or not.
-          </doc:para>
+          <doc:para>Whether the user is a local account or not.</doc:para>
         </doc:description>
       </doc:doc>
     </property>

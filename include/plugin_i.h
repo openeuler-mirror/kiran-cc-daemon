@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:56:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-19 13:55:50
+ * @LastEditTime : 2020-07-06 10:07:04
  * @Description  : 
- * @FilePath     : /kiran-session-daemon/include/plugin_i.h
+ * @FilePath     : /kiran-system-daemon/include/plugin_i.h
  */
 
 #include <giomm.h>
@@ -15,8 +15,6 @@ class Plugin
 {
 public:
     virtual void activate() = 0;
-
-    virtual void register_object(const Glib::RefPtr<Gio::DBus::Connection> &connection) = 0;
 };
 
 using NewPluginFun = void *(*)(void);

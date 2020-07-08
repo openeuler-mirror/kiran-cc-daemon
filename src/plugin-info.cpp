@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 14:29:02
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 20:24:48
+ * @LastEditTime : 2020-07-06 19:55:41
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/plugin-info.cpp
  */
@@ -99,7 +99,7 @@ bool PluginInfo::load_plugin_module(std::string &err)
 
     this->module_ = std::make_shared<Glib::Module>(path);
 
-    if (this->module_)
+    if (this->module_ && (*this->module_))
     {
         void *new_plugin_fun = nullptr;
         void *del_plugin_fun = nullptr;
@@ -121,7 +121,7 @@ bool PluginInfo::load_plugin_module(std::string &err)
     }
     else
     {
-        err = fmt::format("open module {0} fail.", this->location_);
+        err = fmt::format("open module {0} fail: {1}.", this->location_, this->module_ ? this->module_->get_last_error().c_str() : "unknown");
         return false;
     }
 

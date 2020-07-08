@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:46
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-01 14:00:00
+ * @LastEditTime : 2020-07-06 19:30:14
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/log.h
  */
@@ -123,6 +123,6 @@ private:
     Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() START " fmt "\n",              \
                                            __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__);         \
     SCOPE_EXIT({ Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() END   " fmt "\n", \
-                                                        __FILENAME__, __LINE__, _arg_function, ##__VA_ARGS__); });
+                                                        __FILENAME__, __LINE__, _arg_function.c_str(), ##__VA_ARGS__); });
 
 }  // namespace Kiran

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-05 15:21:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-01 14:39:16
+ * @LastEditTime : 2020-07-06 11:53:52
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/helper.h
  */
@@ -10,6 +10,9 @@
 #pragma once
 
 #include <stdio.h>
+
+#include <functional>
+#include <vector>
 
 namespace Kiran
 {
@@ -90,5 +93,7 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 {
     return hash_compile_time(p);
 }
+
+std::vector<std::string> split_lines(const std::string &s);
 
 }  // namespace Kiran

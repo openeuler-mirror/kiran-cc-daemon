@@ -50,6 +50,7 @@ add_subdirectory(po)
 add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(plugins/accounts)
+add_subdirectory(plugins/timedate)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0" "third_party/fmt-5.2.0")
 

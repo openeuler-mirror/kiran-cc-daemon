@@ -1,0 +1,5 @@
+[Kiran Settings Plugin]
+Module=timedate
+Name=TimeDate
+Description=TimeDate plugin
+Available=true

@@ -33,8 +33,4 @@ void AccountsPlugin::activate()
     AccountsManager::global_init();
 }
 
-void AccountsPlugin::register_object(const Glib::RefPtr<Gio::DBus::Connection> &connection)
-{
-}
-
 }  // namespace Kiran

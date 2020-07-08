@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-03 08:53:35
+ * @LastEditTime : 2020-07-08 09:29:37
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
  */
@@ -17,7 +17,7 @@ class AccountsManager : public System::AccountsStub
 {
 public:
     AccountsManager();
-    virtual ~AccountsManager(){};
+    virtual ~AccountsManager();
 
     static AccountsManager *get_instance() { return instance_; };
 
