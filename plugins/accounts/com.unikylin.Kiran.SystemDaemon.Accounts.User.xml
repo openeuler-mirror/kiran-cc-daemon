@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
-  <interface name="com.unikylin.Kiran.System.Accounts.User">
+  <interface name="com.unikylin.Kiran.SystemDaemon.Accounts.User">
     <method name="SetUserName">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="name" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -19,7 +19,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -35,7 +35,7 @@
     </method>
 
     <method name="SetRealName">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="name" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -50,7 +50,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -70,7 +70,7 @@
     </method>
 
     <method name="SetEmail">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="email" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -90,7 +90,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -110,7 +110,7 @@
     </method>
 
     <method name="SetLanguage">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="language" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -129,7 +129,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -149,8 +149,8 @@
     </method>
 
     <method name="SetXSession">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
-      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_x_session"/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_x_session" />
       <arg name="x_session" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -172,7 +172,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -192,8 +192,8 @@
     </method>
 
     <method name="SetSession">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
-      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_session"/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_session" />
       <arg name="session" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -212,7 +212,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -232,8 +232,8 @@
     </method>
 
     <method name="SetSessionType">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
-      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_session_type"/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_session_type" />
       <arg name="session_type" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -252,7 +252,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -272,7 +272,7 @@
     </method>
 
     <method name="SetLocation">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="location" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -287,7 +287,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -307,7 +307,7 @@
     </method>
 
     <method name="SetHomeDirectory">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="homedir" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -327,7 +327,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -343,7 +343,7 @@
     </method>
 
     <method name="SetShell">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="shell" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -362,7 +362,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -378,7 +378,7 @@
     </method>
 
     <method name="SetIconFile">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="filename" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -393,7 +393,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -413,7 +413,7 @@
     </method>
 
     <method name="SetLocked">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="locked" direction="in" type="b">
         <doc:doc>
           <doc:summary>
@@ -431,7 +431,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -447,11 +447,11 @@
     </method>
 
     <method name="SetAccountType">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="accountType" direction="in" type="i">
         <doc:doc>
           <doc:summary>
-          The new account type, encoded as an integer:
+            The new account type, encoded as an integer:
             <doc:list>
               <doc:item>
                 <doc:term>0</doc:term>
@@ -472,7 +472,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -488,11 +488,11 @@
     </method>
 
     <method name="SetPasswordMode">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="mode" direction="in" type="i">
         <doc:doc>
           <doc:summary>
-          The new password mode, encoded as an integer:
+            The new password mode, encoded as an integer:
             <doc:list>
               <doc:item>
                 <doc:term>0</doc:term>
@@ -521,7 +521,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -537,7 +537,7 @@
     </method>
 
     <method name="SetPassword">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="password" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -563,7 +563,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.user-administration</doc:term>
@@ -579,7 +579,7 @@
     </method>
 
     <method name="SetPasswordHint">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="hint" direction="in" type="s">
         <doc:doc>
           <doc:summary>
@@ -594,7 +594,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
@@ -614,7 +614,7 @@
     </method>
 
     <method name="SetAutomaticLogin">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="enabled" direction="in" type="b">
         <doc:doc>
           <doc:summary>
@@ -634,7 +634,7 @@
           </doc:para>
         </doc:description>
         <doc:permission>
-        The caller needs one of the following PolicyKit authorizations:
+          The caller needs one of the following PolicyKit authorizations:
           <doc:list>
             <doc:item>
               <doc:term>org.freedesktop.accounts.set-login-option</doc:term>
@@ -650,17 +650,17 @@
     </method>
 
     <method name="GetPasswordExpirationPolicy">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
-      <arg name="expiration_time" direction="out" type="x"/>
-      <arg name="last_change_time" direction="out" type="x"/>
-      <arg name="min_days_between_changes" direction="out" type="x"/>
-      <arg name="max_days_between_changes" direction="out" type="x"/>
-      <arg name="days_to_warn" direction="out" type="x"/>
-      <arg name="days_after_expiration_until_lock" direction="out" type="x"/>
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
+      <arg name="expiration_time" direction="out" type="x" />
+      <arg name="last_change_time" direction="out" type="x" />
+      <arg name="min_days_between_changes" direction="out" type="x" />
+      <arg name="max_days_between_changes" direction="out" type="x" />
+      <arg name="days_to_warn" direction="out" type="x" />
+      <arg name="days_after_expiration_until_lock" direction="out" type="x" />
     </method>
 
     <property name="Uid" type="t" access="read">
-      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
           <doc:para>The uid of the user.</doc:para>
@@ -688,7 +688,7 @@
       <doc:doc>
         <doc:description>
           <doc:para>
-          The users account type, encoded as an integer:
+            The users account type, encoded as an integer:
             <doc:list>
               <doc:item>
                 <doc:term>0</doc:term>
@@ -805,7 +805,7 @@
     </property>
 
     <property name="LoginHistory" type="a(xxa{sv})" access="read">
-      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -856,7 +856,7 @@
       <doc:doc>
         <doc:description>
           <doc:para>
-          The password mode for the user account, encoded as an integer:
+            The password mode for the user account, encoded as an integer:
             <doc:list>
               <doc:item>
                 <doc:term>0</doc:term>

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 14:29:02
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 19:55:41
+ * @LastEditTime : 2020-07-14 15:31:13
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/plugin-info.cpp
  */
@@ -18,7 +18,8 @@ namespace Kiran
 {
 #define PLUGIN_GROUP "Kiran Settings Plugin"
 
-PluginInfo::PluginInfo() : available_(false)
+PluginInfo::PluginInfo() : available_(false),
+                           activate_(false)
 {
 }
 
@@ -76,11 +77,53 @@ bool PluginInfo::load_from_file(const std::string &file_name, std::string &err)
 
 bool PluginInfo::activate_plugin(std::string &err)
 {
-    g_return_val_if_fail(this->available_, false);
+    SETTINGS_PROFILE("");
 
-    RETURN_VAL_IF_FALSE(load_plugin_module(err), false);
+    if (!this->available_)
+    {
+        err = fmt::format("Plugin %s is unavaliable.", this->name_.c_str());
+        return false;
+    }
 
-    this->plugin_->activate();
+    if (this->activate_)
+    {
+        LOG_DEBUG("the plugin %s already is activate.", this->name_.c_str());
+        return true;
+    }
+
+    if (!this->plugin_)
+    {
+        RETURN_VAL_IF_FALSE(load_plugin_module(err), false);
+    }
+
+    if (this->plugin_)
+    {
+        this->plugin_->activate();
+        this->activate_ = true;
+    }
+
+    return true;
+}
+
+bool PluginInfo::deactivate_plugin(std::string &err)
+{
+    SETTINGS_PROFILE("");
+
+    if (!this->available_)
+    {
+        err = fmt::format("Plugin %s is unavaliable.", this->name_.c_str());
+        return false;
+    }
+
+    if (!this->activate_ || !this->plugin_)
+    {
+        LOG_DEBUG("the plugin %s already is deactivate.", this->name_.c_str());
+    }
+    else
+    {
+        this->plugin_->deactivate();
+        this->activate_ = false;
+    }
 
     return true;
 }

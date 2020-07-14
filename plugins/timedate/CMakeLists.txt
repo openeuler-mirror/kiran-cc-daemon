@@ -7,7 +7,7 @@ file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
 
 pkg_search_module(SELINUX REQUIRED libselinux)
 
-SET (TIMEDATE_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikylin.Kiran.System.TimeDate.xml)
+SET (TIMEDATE_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikylin.Kiran.SystemDaemon.TimeDate.xml)
 
 SET (TIMEDATE_GENERATED_STUB
     ${CMAKE_BINARY_DIR}/generated/timedate_dbus_stub.cpp
@@ -75,5 +75,8 @@ install(FILES "timedate.ksd-plugin.in"
         DESTINATION  ${KSD_PLUGIN_DIR}
         RENAME "timedate.ksd-plugin")
 
-install(FILES "com.unikylin.Kiran.System.TimeDate.conf"
+install(FILES "com.unikylin.Kiran.SystemDaemon.TimeDate.conf"
         DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
+
+install(FILES "com.unikylin.Kiran.SystemDaemon.TimeDate.policy"
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)

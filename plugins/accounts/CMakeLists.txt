@@ -8,7 +8,7 @@ file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
 pkg_search_module(ACCOUNTS_SERVICE REQUIRED accountsservice)
 
 
-SET (ACCOUNTS_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.System.Accounts.xml)
+SET (ACCOUNTS_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.xml)
 
 SET (ACCOUNTS_GENERATED_STUB
     ${CMAKE_BINARY_DIR}/generated/accounts_dbus_stub.cpp
@@ -27,7 +27,7 @@ ADD_CUSTOM_COMMAND (OUTPUT ${ACCOUNTS_GENERATED_STUB}
                     COMMENT "Generate the stub for the accounts")
 
 
-SET (USER_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.System.Accounts.User.xml)
+SET (USER_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.User.xml)
 
 SET (USER_GENERATED_STUB
     ${CMAKE_BINARY_DIR}/generated/user_dbus_stub.cpp
@@ -86,5 +86,5 @@ install(FILES "accounts.ksd-plugin.in"
         DESTINATION  ${KSD_PLUGIN_DIR}
         RENAME "accounts.ksd-plugin")
 
-install(FILES "com.unikylin.Kiran.System.Accounts.conf"
+install(FILES "com.unikylin.Kiran.SystemDaemon.Accounts.conf"
         DESTINATION ${SYSCONFDIR}/dbus-1/system.d)

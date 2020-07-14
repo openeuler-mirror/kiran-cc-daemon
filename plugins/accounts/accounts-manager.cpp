@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-08 09:29:49
+ * @LastEditTime : 2020-07-14 17:01:13
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -21,10 +21,12 @@
 
 namespace Kiran
 {
-#define ACCOUNTS_OBJECT_PATH "/com/unikylin/Kiran/System/Accounts"
+#define ACCOUNTS_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts"
 
 AccountsManager::AccountsManager() : dbus_connect_id_(0),
-                                     object_register_id_(0)
+                                     object_register_id_(0),
+                                     useradd_handler_id_(0),
+                                     userdel_handler_id_(0)
 {
     act_user_manager_ = act_user_manager_get_default();
 }
@@ -34,6 +36,16 @@ AccountsManager::~AccountsManager()
     if (this->dbus_connect_id_)
     {
         Gio::DBus::unown_name(this->dbus_connect_id_);
+    }
+
+    if (this->useradd_handler_id_)
+    {
+        g_signal_handler_disconnect(this->act_user_manager_, this->useradd_handler_id_);
+    }
+
+    if (this->userdel_handler_id_)
+    {
+        g_signal_handler_disconnect(this->act_user_manager_, this->userdel_handler_id_);
     }
 }
 
@@ -46,6 +58,8 @@ void AccountsManager::global_init()
 
 std::shared_ptr<User> AccountsManager::lookup_user(ActUser *act_user)
 {
+    RETURN_VAL_IF_FALSE(act_user != NULL, nullptr);
+
     std::string user_name = act_user_get_user_name(act_user);
     return lookup_user_by_name(user_name);
 }
@@ -78,19 +92,26 @@ void AccountsManager::CreateUser(const Glib::ustring &name,
                                  gint32 account_type,
                                  MethodInvocation &invocation)
 {
-    g_autoptr(GError) error = NULL;
-    auto act_user = act_user_manager_create_user(this->act_user_manager_, name.c_str(), real_name.c_str(), ActUserAccountType(account_type), &error);
-    auto user = add_user(act_user);
+    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d", name.c_str(), real_name.c_str(), account_type);
 
-    if (user)
+    g_autoptr(GError) error = NULL;
+    if (this->users_.find(name) != this->users_.end())
     {
-        invocation.ret(user->get_object_path());
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_USER_EXISTS), "user is already exist."));
     }
     else
     {
-        std::string err_message = error ? error->message : fmt::format("failed to create user: {0}.", name.raw());
+        auto act_user = act_user_manager_create_user(this->act_user_manager_, name.c_str(), real_name.c_str(), ActUserAccountType(account_type), &error);
+        auto user = lookup_user(act_user);
 
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
+        if (user)
+        {
+            invocation.ret(user->get_object_path());
+        }
+        else
+        {
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), "failed to create user"));
+        }
     }
 }
 
@@ -98,25 +119,35 @@ void AccountsManager::DeleteUser(gint64 id,
                                  bool remove_files,
                                  MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("id: %" PRId64 " remoev_files: %d", id, remove_files);
+
     g_autoptr(GError) error = NULL;
     auto user = lookup_user_by_uid(id);
-    ActUser *act_user = user ? user->get_act_user() : NULL;
-    del_user(act_user);
-    auto ret = act_user_manager_delete_user(this->act_user_manager_, act_user, remove_files, &error);
 
-    if (ret)
+    if (!user)
     {
-        invocation.ret();
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_USER_DOES_NOT_EXIST), "user is not exist."));
     }
     else
     {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), error->message));
+        auto ret = act_user_manager_delete_user(this->act_user_manager_, user->get_act_user(), remove_files, &error);
+
+        if (ret)
+        {
+            invocation.ret();
+        }
+        else
+        {
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), "failed to delete user."));
+        }
     }
 }
 
 void AccountsManager::FindUserById(gint64 id,
                                    MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("id: %" PRId64 " ", id);
+
     auto user = lookup_user_by_uid(id);
     if (user)
     {
@@ -132,6 +163,8 @@ void AccountsManager::FindUserById(gint64 id,
 void AccountsManager::FindUserByName(const Glib::ustring &name,
                                      MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("name %s", name.c_str());
+
     auto user = lookup_user_by_name(name.raw());
 
     if (user)
@@ -145,7 +178,7 @@ void AccountsManager::FindUserByName(const Glib::ustring &name,
     }
 }
 
-void AccountsManager::signal_user_added(ActUser *act_user, gpointer user_data)
+void AccountsManager::signal_user_added(ActUserManager *act_user_manager, ActUser *act_user, gpointer user_data)
 {
     SETTINGS_PROFILE("");
 
@@ -159,7 +192,7 @@ void AccountsManager::signal_user_added(ActUser *act_user, gpointer user_data)
     self->UserAdded_signal.emit(object_path);
 }
 
-void AccountsManager::signal_user_removed(ActUser *act_user, gpointer user_data)
+void AccountsManager::signal_user_removed(ActUserManager *act_user_manager, ActUser *act_user, gpointer user_data)
 {
     SETTINGS_PROFILE("");
 
@@ -187,8 +220,8 @@ void AccountsManager::init()
 
     load_users();
 
-    g_signal_connect(this->act_user_manager_, "user-added", G_CALLBACK(AccountsManager::signal_user_added), this);
-    g_signal_connect(this->act_user_manager_, "user-removed", G_CALLBACK(AccountsManager::signal_user_removed), this);
+    this->useradd_handler_id_ = g_signal_connect(this->act_user_manager_, "user-added", G_CALLBACK(AccountsManager::signal_user_added), this);
+    this->userdel_handler_id_ = g_signal_connect(this->act_user_manager_, "user-removed", G_CALLBACK(AccountsManager::signal_user_removed), this);
 }
 
 void AccountsManager::load_users()
@@ -207,6 +240,10 @@ void AccountsManager::load_users()
 
 std::shared_ptr<User> AccountsManager::add_user(ActUser *act_user)
 {
+    SETTINGS_PROFILE("");
+
+    g_return_val_if_fail(act_user != NULL, nullptr);
+
     auto user = std::make_shared<User>(act_user);
     bool is_added = false;
 
@@ -216,7 +253,7 @@ std::shared_ptr<User> AccountsManager::add_user(ActUser *act_user)
         auto iter = this->users_.emplace(user_name, user);
         if (!iter.second)
         {
-            LOG_DEBUG("failed to inser user %s, it's already exist.", user_name.c_str());
+            LOG_DEBUG("failed to insert user %s, it's already exist.", user_name.c_str());
         }
         else
         {
@@ -286,7 +323,7 @@ void AccountsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
 {
     if (!connect)
     {
-        LOG_ERROR("failed to connect dbus. name: %s", name.c_str());
+        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -295,7 +332,7 @@ void AccountsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     }
     catch (const Glib::Error &e)
     {
-        LOG_ERROR("register object_path %s fail: %s.", ACCOUNTS_OBJECT_PATH, e.what().c_str());
+        LOG_WARNING("register object_path %s fail: %s.", ACCOUNTS_OBJECT_PATH, e.what().c_str());
     }
 }
 
@@ -306,7 +343,7 @@ void AccountsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>
 
 void AccountsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_ERROR("failed to register dbus name: %s", name.c_str());
+    LOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.unikylin.Kiran.SystemDaemon">
+
+        <method name="GetPlugins">
+            <arg type="as" name="plugin_names" direction="out" />
+        </method>
+
+        <method name="GetActivatedPlugins">
+            <arg type="as" name="plugin_names" direction="out" />
+        </method>
+
+        <method name="ActivatePlugin">
+            <arg type="s" name="plugin_name" direction="in" />
+        </method>
+
+        <method name="DeactivatePlugin">
+            <arg type="s" name="plugin_name" direction="in" />
+        </method>
+
+    </interface>
+</node>

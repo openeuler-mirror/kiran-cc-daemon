@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 09:59:51
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 10:06:29
+ * @LastEditTime : 2020-07-14 15:00:14
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-plugin.cpp
  */
@@ -30,6 +30,13 @@ void TimedatePlugin::activate()
     SETTINGS_PROFILE("active timedate plugin.");
 
     TimedateManager::global_init();
+}
+
+void TimedatePlugin::deactivate()
+{
+    SETTINGS_PROFILE("deactive timedate plugin.");
+
+    TimedateManager::global_deinit();
 }
 
 }  // namespace Kiran

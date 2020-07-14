@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-03 15:36:12
+ * @LastEditTime : 2020-07-14 14:04:25
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
  */
@@ -16,7 +16,7 @@
 
 namespace Kiran
 {
-#define ACCOUNTS_USER_OBJECT_PATH "/com/unikylin/Kiran/System/Accounts/User"
+#define ACCOUNTS_USER_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts/User"
 
 User::User(ActUser *act_user) : dbus_connect_id_(0),
                                 object_register_id_(0),
@@ -491,7 +491,7 @@ void User::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, G
     }
     catch (const Glib::Error &e)
     {
-        LOG_ERROR("register object_path %s fail: %s.", this->object_path_.c_str(), e.what().c_str());
+        LOG_WARNING("register object_path %s fail: %s.", this->object_path_.c_str(), e.what().c_str());
     }
 }
 

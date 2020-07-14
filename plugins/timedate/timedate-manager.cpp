@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-08 11:38:33
+ * @LastEditTime : 2020-07-14 20:17:35
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -39,20 +39,21 @@ namespace Kiran
 #define LOCALTIME_TO_ZONEINFO_PATH ".."
 #define MAX_TIMEZONE_LENGTH 256
 
-#define TIMEDATE_DBUS_NAME "com.unikylin.Kiran.System.TimeDate"
-#define TIMEDATE_OBJECT_PATH "/com/unikylin/Kiran/System/TimeDate"
+#define TIMEDATE_DBUS_NAME "com.unikylin.Kiran.SystemDaemon.TimeDate"
+#define TIMEDATE_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/TimeDate"
 
-#define POLKIT_ACTION_SET_TIME "org.freedesktop.timedate1.set-time"
-#define POLKIT_ACTION_SET_NTP_ACTIVE "org.freedesktop.timedate1.set-ntp"
-#define POLKIT_ACTION_SET_RTC_LOCAL "org.freedesktop.timedate1.set-local-rtc"
-#define POLKIT_ACTION_SET_TIMEZONE "org.freedesktop.timedate1.set-timezone"
+#define POLKIT_ACTION_SET_TIME "com.unikylin.kiran.system-daemon.timedate.set-time"
+#define POLKIT_ACTION_SET_NTP_ACTIVE "com.unikylin.kiran.system-daemon.timedate.set-ntp"
+#define POLKIT_ACTION_SET_RTC_LOCAL "com.unikylin.kiran.system-daemon.timedate.set-local-rtc"
+#define POLKIT_ACTION_SET_TIMEZONE "com.unikylin.kiran.system-daemon.timedate.set-timezone"
 #define POLKIT_AUTH_CHECK_TIMEOUT 20
 
 TimedateManager *TimedateManager::instance_ = nullptr;
 const std::vector<std::string> TimedateManager::ntp_units_paths_ = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
 
 TimedateManager::TimedateManager() : dbus_connect_id_(0),
-                                     object_register_id_(0)
+                                     object_register_id_(0),
+                                     running_auth_checks_(0)
 {
 }
 
@@ -83,9 +84,7 @@ void TimedateManager::SetTime(gint64 requested_time,
 
     int64_t request_time = g_get_monotonic_time();
 
-    std::string action = POLKIT_ACTION_SET_TIME;
-
-    start_auth_check(action,
+    start_auth_check(POLKIT_ACTION_SET_TIME,
                      user_interaction,
                      invocation,
                      std::bind(&TimedateManager::funish_set_time, this, std::placeholders::_1, request_time, requested_time, relative));
@@ -119,9 +118,11 @@ void TimedateManager::SetLocalRTC(bool local,
                                   bool user_interaction,
                                   MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("local: %d adjust_system: %d user_interaction: %d.", local, adjust_system, user_interaction);
+
     if (local == is_rtc_local())
     {
-        invocation.ret();
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "the value of the local have not been changed."));
         return;
     }
 
@@ -145,8 +146,7 @@ void TimedateManager::SetNTP(bool active,
 
     if (active == is_ntp_active())
     {
-        LOG_DEBUG("the value of the active is equal to current value.");
-        invocation.ret();
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "the value of the active have not been changed."));
         return;
     }
 
@@ -211,6 +211,7 @@ void TimedateManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std
 {
     SETTINGS_PROFILE("");
     bool authorized = true;
+    bool challenge = false;
     auth_check->cancel_connection.disconnect();
 
     try
@@ -218,7 +219,11 @@ void TimedateManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std
         auto result = this->polkit_proxy_->call_finish(res);
         if (result.gobj())
         {
-            g_variant_get(result.gobj(), "((bba{ss}))", &authorized, NULL, NULL);
+            g_variant_get(result.gobj(), "((bba{ss}))", &authorized, &challenge, NULL);
+        }
+        else
+        {
+            LOG_DEBUG("the result is empty.");
         }
     }
     catch (Glib::Error &e)
@@ -227,6 +232,8 @@ void TimedateManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std
         LOG_WARNING("Failed to check authorization: %s", e.what().c_str());
         authorized = false;
     }
+
+    LOG_DEBUG("authorized: %d challenge: %d.", authorized, challenge);
 
     if (authorized)
     {
@@ -348,7 +355,7 @@ void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_d
         g_error_free(error);
     }
 
-    g_free(hwclock_call);
+    delete hwclock_call;
 }
 
 void TimedateManager::start_hwclock_call(bool hctosys,
@@ -412,7 +419,7 @@ void TimedateManager::start_hwclock_call(bool hctosys,
         return;
     }
 
-    auto hwclock_call = g_new(struct HWClockCall, 1);
+    auto hwclock_call = new HWClockCall();
     hwclock_call->invocation = invocation;
     hwclock_call->handler = handler;
 
@@ -895,7 +902,7 @@ void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     SETTINGS_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_ERROR("failed to connect dbus. name: %s", name.c_str());
+        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -904,7 +911,7 @@ void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     }
     catch (const Glib::Error &e)
     {
-        LOG_ERROR("register object_path %s fail: %s.", TIMEDATE_OBJECT_PATH, e.what().c_str());
+        LOG_WARNING("register object_path %s fail: %s.", TIMEDATE_OBJECT_PATH, e.what().c_str());
     }
 }
 
@@ -915,6 +922,6 @@ void TimedateManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>
 
 void TimedateManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_ERROR("failed to register dbus name: %s", name.c_str());
+    LOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

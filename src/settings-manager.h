@@ -2,10 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:55:54
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-06-30 20:24:23
+ * @LastEditTime : 2020-07-14 15:24:17
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/settings-manager.h
  */
+
+#include <system_daemon_dbus_stub.h>
 
 #include <map>
 #include <string>
@@ -14,7 +16,7 @@
 
 namespace Kiran
 {
-class SettingsManager
+class SettingsManager : public SystemDaemonStub
 {
 public:
     SettingsManager();
@@ -25,6 +27,17 @@ public:
     static void global_init();
 
     static void global_deinit() { delete instance_; };
+
+    std::shared_ptr<PluginInfo> lookup_plugin(const std::string& name);
+
+protected:
+    virtual void GetPlugins(MethodInvocation& invocation);
+
+    virtual void GetActivatedPlugins(MethodInvocation& invocation);
+
+    virtual void ActivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation);
+
+    virtual void DeactivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation);
 
 private:
     void init();
@@ -44,5 +57,7 @@ private:
     std::map<std::string, std::shared_ptr<PluginInfo>> plugins_;
 
     uint32_t dbus_connect_id_;
+
+    uint32_t object_register_id_;
 };
 }  // namespace Kiran

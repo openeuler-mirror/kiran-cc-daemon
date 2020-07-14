@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-03 15:18:11
+ * @LastEditTime : 2020-07-14 15:39:48
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
@@ -12,7 +12,7 @@
 
 namespace Kiran
 {
-class User : public System::Accounts::UserStub
+class User : public SystemDaemon::Accounts::UserStub
 {
 public:
     User() = delete;

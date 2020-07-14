@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-08 09:29:37
+ * @LastEditTime : 2020-07-14 16:18:12
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
  */
@@ -13,7 +13,7 @@
 
 namespace Kiran
 {
-class AccountsManager : public System::AccountsStub
+class AccountsManager : public SystemDaemon::AccountsStub
 {
 public:
     AccountsManager();
@@ -45,8 +45,8 @@ protected:
     virtual void FindUserByName(const Glib::ustring &name,
                                 MethodInvocation &invocation);
 
-    static void signal_user_added(ActUser *act_user, gpointer user_data);
-    static void signal_user_removed(ActUser *act_user, gpointer user_data);
+    static void signal_user_added(ActUserManager *act_user_manager, ActUser *act_user, gpointer user_data);
+    static void signal_user_removed(ActUserManager *act_user_manager, ActUser *act_user, gpointer user_data);
 
 private:
     void init();
@@ -64,10 +64,11 @@ private:
     static AccountsManager *instance_;
 
     uint32_t dbus_connect_id_;
-
     uint32_t object_register_id_;
 
     ActUserManager *act_user_manager_;
+    uint64_t useradd_handler_id_;
+    uint64_t userdel_handler_id_;
 
     std::map<std::string, std::shared_ptr<User>> users_;
     std::map<int64_t, std::weak_ptr<User>> users_by_uid_;

@@ -11,6 +11,9 @@ endif()
 
 set(LIBDIR  ${CMAKE_INSTALL_PREFIX}/lib${LIBSUFFIX} CACHE PATH "Installation directory for libraries")
 set(SYSCONFDIR "/etc" CACHE PATH "Installation directory for configurations")
+set(DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Installation directory for data")
+set(EXECDIR ${CMAKE_INSTALL_PREFIX}/sbin CACHE PATH "Installation directory for executable file")
+
 
 set(KSD_PLUGIN_DIR ${LIBDIR}/kiran-system-daemon)
 set(KSD_PLUGIN_EXT "ksd-plugin")

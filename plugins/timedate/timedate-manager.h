@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-08 09:28:41
+ * @LastEditTime : 2020-07-14 15:40:09
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.h
  */
@@ -13,7 +13,7 @@
 
 namespace Kiran
 {
-class TimedateManager : public System::TimeDateStub
+class TimedateManager : public SystemDaemon::TimeDateStub
 {
 private:
     struct NtpUnit

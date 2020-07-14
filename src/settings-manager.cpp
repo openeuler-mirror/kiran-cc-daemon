@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 19:45:17
+ * @LastEditTime : 2020-07-14 15:34:33
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/settings-manager.cpp
  */
@@ -15,11 +15,11 @@
 
 namespace Kiran
 {
-#define DEFAULT_SETTINGS_PREFIX "com.unikylin.Kiran.SessionDaemon"
+#define SYSTEM_DAEMON_DBUS_NAME "com.unikylin.Kiran.SystemDaemon"
+#define SYSTEM_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon"
 
-#define DEFAULT_DBUS_NAME "com.unikylin.Kiran.SessionDaemon"
-
-SettingsManager::SettingsManager() : dbus_connect_id_(0)
+SettingsManager::SettingsManager() : dbus_connect_id_(0),
+                                     object_register_id_(0)
 {
 }
 
@@ -36,6 +36,75 @@ void SettingsManager::global_init()
 {
     instance_ = new SettingsManager();
     instance_->init();
+}
+
+std::shared_ptr<PluginInfo> SettingsManager::lookup_plugin(const std::string& name)
+{
+    auto iter = this->plugins_.find(name);
+    if (iter != this->plugins_.end())
+    {
+        return iter->second;
+    }
+    return nullptr;
+}
+
+void SettingsManager::GetPlugins(MethodInvocation& invocation)
+{
+    std::vector<Glib::ustring> names;
+    for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
+    {
+        names.push_back(iter->first);
+    }
+    invocation.ret(names);
+}
+
+void SettingsManager::GetActivatedPlugins(MethodInvocation& invocation)
+{
+    std::vector<Glib::ustring> names;
+    for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
+    {
+        if (iter->second && iter->second->activate())
+        {
+            names.push_back(iter->first);
+        }
+    }
+    invocation.ret(names);
+}
+
+void SettingsManager::ActivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation)
+{
+    auto plugin = this->lookup_plugin(plugin_name);
+    if (!plugin)
+    {
+        auto err_message = fmt::format("the plugin {0} is not exist.", plugin_name.raw());
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
+        return;
+    }
+
+    std::string err;
+    if (!plugin->activate_plugin(err))
+    {
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err.c_str()));
+        return;
+    }
+}
+
+void SettingsManager::DeactivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation)
+{
+    auto plugin = this->lookup_plugin(plugin_name);
+    if (!plugin)
+    {
+        auto err_message = fmt::format("the plugin {0} is not exist.", plugin_name.raw());
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
+        return;
+    }
+
+    std::string err;
+    if (!plugin->deactivate_plugin(err))
+    {
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err.c_str()));
+        return;
+    }
 }
 
 void SettingsManager::init()
@@ -107,26 +176,32 @@ bool SettingsManager::load_file(const std::string& file_name, std::string& err)
 
     RETURN_VAL_IF_FALSE(plugin_info->load_from_file(file_name, err), false);
 
-    if (!plugin_info->is_available())
-    {
-        err = fmt::format("Plugin is unavailable");
-        return false;
-    }
-
     auto location = plugin_info->get_location();
+    auto name = plugin_info->get_name();
 
-    auto iter = this->plugins_.emplace(location, plugin_info);
-
-    if (!iter.second)
+    if (this->plugins_.find(name) != this->plugins_.end())
     {
-        err = fmt::format("the location of the plugin {0} is conflict.", plugin_info->get_name());
+        err = fmt::format("the name of the plugin {0} is conflict.", plugin_info->get_name());
         return false;
     }
 
-    if (!plugin_info->activate_plugin(err))
+    auto iter = std::find_if(this->plugins_.begin(), this->plugins_.end(), [&location](const std::pair<std::string, std::shared_ptr<PluginInfo>>& plugin) {
+        return location == plugin.second->get_location();
+    });
+
+    if (iter != this->plugins_.end())
     {
-        this->plugins_.erase(iter.first);
+        err = fmt::format("the location of the plugin {0} is conflict.", plugin_info->get_location());
         return false;
+    }
+    else
+    {
+        this->plugins_.emplace(name, plugin_info);
+    }
+
+    if (plugin_info->available())
+    {
+        return plugin_info->activate_plugin(err);
     }
 
     return true;
@@ -134,31 +209,42 @@ bool SettingsManager::load_file(const std::string& file_name, std::string& err)
 
 void SettingsManager::dbus_init()
 {
-    // this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-    //                                              DEFAULT_DBUS_NAME,
-    //                                              sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
-    //                                              sigc::mem_fun(this, &SettingsManager::on_name_acquired),
-    //                                              sigc::mem_fun(this, &SettingsManager::on_name_lost));
+    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                 SYSTEM_DAEMON_DBUS_NAME,
+                                                 sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
+                                                 sigc::mem_fun(this, &SettingsManager::on_name_acquired),
+                                                 sigc::mem_fun(this, &SettingsManager::on_name_lost));
 }
 
 void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                       Glib::ustring name)
 {
-    // for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
-    // {
-    //     auto plugin = iter->second->get_plugin();
-    //     plugin->register_object(connect);
-    // }
+    SETTINGS_PROFILE("name: %s", name.c_str());
+    if (!connect)
+    {
+        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        return;
+    }
+    try
+    {
+        this->object_register_id_ = this->register_object(connect, SYSTEM_DAEMON_OBJECT_PATH);
+    }
+    catch (const Glib::Error& e)
+    {
+        LOG_WARNING("register object_path %s fail: %s.", SYSTEM_DAEMON_OBJECT_PATH, e.what().c_str());
+    }
 }
 
 void SettingsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                        Glib::ustring name)
 {
+    LOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void SettingsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                    Glib::ustring name)
 {
+    LOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:33:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 10:07:21
+ * @LastEditTime : 2020-07-14 15:01:11
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-plugin.h
  */
@@ -17,5 +17,7 @@ public:
     virtual ~AccountsPlugin();
 
     virtual void activate();
+
+    virtual void deactivate();
 };
 }  // namespace Kiran

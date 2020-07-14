@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:56:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 10:07:04
+ * @LastEditTime : 2020-07-14 14:58:45
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/include/plugin_i.h
  */
@@ -15,6 +15,7 @@ class Plugin
 {
 public:
     virtual void activate() = 0;
+    virtual void deactivate() = 0;
 };
 
 using NewPluginFun = void *(*)(void);

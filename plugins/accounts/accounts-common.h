@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-01 09:30:07
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-01 10:10:04
+ * @LastEditTime : 2020-07-14 15:39:06
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-common.h
  */
@@ -11,7 +11,7 @@
 
 namespace Kiran
 {
-#define ACCOUNTS_DBUS_NAME "com.unikylin.Kiran.System.Accounts"
+#define ACCOUNTS_DBUS_NAME "com.unikylin.Kiran.SystemDaemon.Accounts"
 enum class AccountsError : int32_t
 {
     ERROR_FAILED,
