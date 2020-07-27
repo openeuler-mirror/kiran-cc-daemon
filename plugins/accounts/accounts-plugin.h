@@ -6,6 +6,7 @@
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-plugin.h
  */
+#pragma once
 
 #include "plugin_i.h"
 namespace Kiran

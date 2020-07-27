@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-05 15:21:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 11:53:52
+ * @LastEditTime : 2020-07-27 11:52:53
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/helper.h
  */
@@ -64,6 +64,8 @@ private:
         if (cond) continue;    \
     }
 
+#define POINTER_TO_STRING(p) ((p) ? p : std::string())
+
 using StringHash = uint32_t;
 
 constexpr StringHash prime = 9973;
@@ -95,5 +97,6 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 }
 
 std::vector<std::string> split_lines(const std::string &s);
+std::string str_tolower(const std::string &str);
 
 }  // namespace Kiran
