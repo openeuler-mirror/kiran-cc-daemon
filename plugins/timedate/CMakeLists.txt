@@ -77,6 +77,3 @@ install(FILES "timedate.ksd-plugin.in"
 
 install(FILES "com.unikylin.Kiran.SystemDaemon.TimeDate.conf"
         DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
-
-install(FILES "com.unikylin.Kiran.SystemDaemon.TimeDate.policy"
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)

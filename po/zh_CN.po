@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tangjie02\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-01 17:16+0800\n"
+"POT-Creation-Date: 2020-07-28 09:05+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -17,6 +17,78 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/main.cpp:29
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:1
+msgid "Change your own user data"
+msgstr "更改本用户数据"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:2
+msgid "Authentication is required to change your own user data"
+msgstr "更改本用户数据之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:3
+msgid "Change your own user password"
+msgstr "更改本用户密码"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:4
+msgid "Authentication is required to change your own user password"
+msgstr "更改本用户密码之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:5
+msgid "Manage user accounts"
+msgstr "管理用户账户"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:6
+msgid "Authentication is required to change user data"
+msgstr "更改用户数据之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:7
+msgid "Change the login screen configuration"
+msgstr "更改登录屏幕设置"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:8
+msgid "Authentication is required to change the login screen configuration"
+msgstr "更改登录屏幕设置之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:1
+msgid "Set system time"
+msgstr "设置系统时间"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:2
+msgid "Authentication is required to set the system time."
+msgstr "设置系统时间之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:3
+msgid "Set system timezone"
+msgstr "设置系统时区"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:4
+msgid "Authentication is required to set the system timezone."
+msgstr "设置系统时区之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:5
+msgid "Set RTC to local timezone or UTC"
+msgstr "设置RTC为本地时区或者UTC"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:6
+msgid ""
+"Authentication is required to control whether the RTC stores the local or "
+"UTC time."
+msgstr "设置RTC为本地时区或者UTC之前需要身份验证"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:7
+msgid "Turn network time synchronization on or off"
+msgstr "设置网络时间同步"
+
+#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:8
+msgid ""
+"Authentication is required to control whether network time synchronization "
+"shall be enabled."
+msgstr "设置网络时间同步之前需要身份验证"
+
+#: ../src/main.cpp:39
 msgid "Output version infomation and exit"
 msgstr "输出版本信息并退出"
+
+#: ../src/main.cpp:45
+msgid "Print log to screen."
+msgstr "打印日志到屏幕"

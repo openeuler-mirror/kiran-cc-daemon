@@ -1,0 +1,5 @@
+# List of source files which contain translatable strings.
+[encoding: UTF-8]
+data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in
+data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in
+src/main.cpp
