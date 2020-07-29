@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-28 20:25:34
+ * @LastEditTime : 2020-07-29 17:36:31
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-wrapper.cpp
  */
@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "lib/log.h"
+#include "plugins/accounts/accounts-util.h"
 
 namespace Kiran
 {
@@ -124,33 +125,41 @@ std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
 
 void AccountsWrapper::init()
 {
-    this->passwd_monitor = setup_monitor(PATH_PASSWD, sigc::mem_fun(this, &AccountsWrapper::passwd_changed));
-    this->shadow_monitor = setup_monitor(PATH_SHADOW, sigc::mem_fun(this, &AccountsWrapper::shadow_changed));
-    this->group_monitor = setup_monitor(PATH_GROUP, sigc::mem_fun(this, &AccountsWrapper::group_changed));
-}
+    this->passwd_monitor_ = AccountsUtil::setup_monitor(PATH_PASSWD, sigc::mem_fun(this, &AccountsWrapper::passwd_changed));
+    this->shadow_monitor_ = AccountsUtil::setup_monitor(PATH_SHADOW, sigc::mem_fun(this, &AccountsWrapper::shadow_changed));
+    this->group_monitor_ = AccountsUtil::setup_monitor(PATH_GROUP, sigc::mem_fun(this, &AccountsWrapper::group_changed));
 
-Glib::RefPtr<Gio::FileMonitor> AccountsWrapper::setup_monitor(const std::string &path,
-                                                              const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback)
-{
-    auto file = Gio::File::create_for_path(path);
-    try
-    {
-        auto monitor = file->monitor_file();
-        monitor->signal_changed().connect(callback);
-        return monitor;
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_WARNING("Unable to monitor %s: %s", path, e.what().c_str());
-    }
-
-    return Glib::RefPtr<Gio::FileMonitor>();
+    this->reload_passwd();
+    this->reload_shadow();
 }
 
 void AccountsWrapper::passwd_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
 {
     RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
 
+    this->reload_passwd();
+
+    this->file_changed_.emit(FileChangedType::PASSWD_CHANGED);
+}
+
+void AccountsWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+{
+    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
+
+    this->reload_shadow();
+
+    this->file_changed_.emit(FileChangedType::SHADOW_CHANGED);
+}
+
+void AccountsWrapper::group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+{
+    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
+
+    this->file_changed_.emit(FileChangedType::GROUP_CHANGED);
+}
+
+void AccountsWrapper::reload_passwd()
+{
     auto fp = fopen(PATH_PASSWD, "r");
     if (fp == NULL)
     {
@@ -173,14 +182,9 @@ void AccountsWrapper::passwd_changed(const Glib::RefPtr<Gio::File> &file, const 
         }
 
     } while (pwent != NULL);
-
-    this->file_changed_.emit(FileChangedType::PASSWD_CHANGED);
 }
-
-void AccountsWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+void AccountsWrapper::reload_shadow()
 {
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
-
     auto fp = fopen(PATH_SHADOW, "r");
     if (fp == NULL)
     {
@@ -213,15 +217,6 @@ void AccountsWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const 
     } while (shadow_entry != NULL);
 
     fclose(fp);
-
-    this->file_changed_.emit(FileChangedType::SHADOW_CHANGED);
-}
-
-void AccountsWrapper::group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
-
-    this->file_changed_.emit(FileChangedType::GROUP_CHANGED);
 }
 
 }  // namespace Kiran

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 09:53:08
+ * @LastEditTime : 2020-07-29 15:41:41
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
@@ -43,8 +43,8 @@ public:
     void update_from_passwd_shadow(PasswdShadow passwd_shadow);
     void save_data();
 
-    void freeze_notify() { this->dbus_connect_->freeze_notify(); };
-    void thaw_notify() { this->dbus_connect_->thaw_notify(); };
+    void freeze_notify();
+    void thaw_notify();
 
 public:
     virtual guint64 Uid_get() { return this->uid_; };
@@ -230,7 +230,7 @@ private:
     void become_user(std::shared_ptr<Passwd> passwd);
     void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
 
-    AccountType account_type_from_pwent(Passwd pwent);
+    AccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
     void reset_icon_file();
 
     void update_from_keyfile(std::shared_ptr<Glib::KeyFile> keyfile);
@@ -240,12 +240,7 @@ private:
     void update_local_account_property(bool local);
     void update_system_account_property(bool system);
 
-    void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-
 private:
-    uint32_t dbus_connect_id_;
     Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
 
     uint32_t object_register_id_;

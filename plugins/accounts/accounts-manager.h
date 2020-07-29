@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 08:52:37
+ * @LastEditTime : 2020-07-29 17:48:29
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
  */
@@ -45,11 +45,12 @@ protected:
 private:
     void init();
 
-    void file_changed(FileChangedType type);
-    bool file_changed_timeout();
+    void accounts_file_changed(FileChangedType type);
+    bool accounts_file_changed_timeout();
+    void gdm_custom_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
+    void update_automatic_login();
 
     bool reload_users();
-
     std::map<std::string, std::shared_ptr<User>> load_users();
 
     std::shared_ptr<User> add_new_user_for_pwent(std::shared_ptr<Passwd> pwent, std::shared_ptr<SPwd> spent);
@@ -62,8 +63,8 @@ private:
     void remove_cache_files(const std::string &user_name);
     bool is_explicitly_requested_user(const std::string &user_name);
 
-    bool load_autologin(std::string &name, bool &enabled, std::string &err);
-    bool save_autologin(const std::string &name, bool enabled, std::string &err);
+    bool read_autologin_from_file(std::string &name, bool &enabled, std::string &err);
+    bool save_autologin_to_file(const std::string &name, bool enabled, std::string &err);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
@@ -76,8 +77,9 @@ private:
 
     uint32_t dbus_connect_id_;
     uint32_t object_register_id_;
-
     sigc::connection reload_conn_;
+
+    Glib::RefPtr<Gio::FileMonitor> gdm_custom_monitor_;
 
     std::map<std::string, std::shared_ptr<User>> users_;
     std::weak_ptr<User> autologin_;

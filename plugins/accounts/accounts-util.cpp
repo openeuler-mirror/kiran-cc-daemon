@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 13:42:19
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:38:10
+ * @LastEditTime : 2020-07-29 17:37:19
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-util.cpp
  */
@@ -150,6 +150,24 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
         return false;
     }
     return true;
+}
+
+Glib::RefPtr<Gio::FileMonitor> AccountsUtil::setup_monitor(const std::string &path,
+                                                           const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback)
+{
+    auto file = Gio::File::create_for_path(path);
+    try
+    {
+        auto monitor = file->monitor_file();
+        monitor->signal_changed().connect(callback);
+        return monitor;
+    }
+    catch (const Glib::Error &e)
+    {
+        LOG_WARNING("Unable to monitor %s: %s", path, e.what().c_str());
+    }
+
+    return Glib::RefPtr<Gio::FileMonitor>();
 }
 
 }  // namespace Kiran

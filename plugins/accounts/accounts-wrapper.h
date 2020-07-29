@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:01
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 09:28:06
+ * @LastEditTime : 2020-07-29 17:32:22
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-wrapper.h
  */
@@ -21,8 +21,9 @@
 
 namespace Kiran
 {
-struct Passwd
+class Passwd
 {
+public:
     Passwd() = delete;
     Passwd(struct passwd *passwd)
     {
@@ -46,8 +47,9 @@ struct Passwd
     std::string pw_shell;  /* Shell program.  */
 };
 
-struct SPwd
+class SPwd
 {
+public:
     SPwd() = delete;
     SPwd(struct spwd *sp)
     {
@@ -77,8 +79,9 @@ struct SPwd
     unsigned long int sp_flag;            /* Reserved.  */
 };
 
-struct Group
+class Group
 {
+public:
     Group() = delete;
     Group(struct group *grp)
     {
@@ -104,6 +107,7 @@ enum class FileChangedType
     PASSWD_CHANGED,
     SHADOW_CHANGED,
     GROUP_CHANGED,
+    GDM_CHANGED,
 };
 
 using PasswdShadow = std::pair<std::shared_ptr<Passwd>, std::shared_ptr<SPwd>>;
@@ -137,12 +141,12 @@ public:
 private:
     void init();
 
-    Glib::RefPtr<Gio::FileMonitor> setup_monitor(const std::string &path,
-                                                 const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback);
-
     void passwd_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
     void shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
     void group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
+
+    void reload_passwd();
+    void reload_shadow();
 
 protected:
     sigc::signal<void, FileChangedType> file_changed_;
@@ -150,9 +154,9 @@ protected:
 private:
     static AccountsWrapper *instance_;
 
-    Glib::RefPtr<Gio::FileMonitor> passwd_monitor;
-    Glib::RefPtr<Gio::FileMonitor> shadow_monitor;
-    Glib::RefPtr<Gio::FileMonitor> group_monitor;
+    Glib::RefPtr<Gio::FileMonitor> passwd_monitor_;
+    Glib::RefPtr<Gio::FileMonitor> shadow_monitor_;
+    Glib::RefPtr<Gio::FileMonitor> group_monitor_;
 
     std::map<std::string, std::shared_ptr<Passwd>> passwds_;
     std::map<uint64_t, std::weak_ptr<Passwd>> passwds_by_uid_;

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 08:55:01
+ * @LastEditTime : 2020-07-29 17:47:51
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -89,8 +89,9 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
 
     RETURN_VAL_IF_TRUE(cur_autologin == user && enabled, true);
     RETURN_VAL_IF_TRUE(cur_autologin != user && !enabled, true);
+    auto user_name = user ? user->UserName_get().raw() : std::string();
 
-    if (!this->save_autologin(user->UserName_get(), enabled, err))
+    if (!this->save_autologin_to_file(user_name, enabled, err))
     {
         err = fmt::format("failed to save autologin info to configuration file: {0}", err);
         return false;
@@ -101,11 +102,8 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
         cur_autologin->AutomaticLogin_set(false);
     }
 
-    if (enabled)
-    {
-        user->AutomaticLogin_set(true);
-        this->autologin_ = user;
-    }
+    user->AutomaticLogin_set(enabled);
+    this->autologin_ = enabled ? user : nullptr;
 
     return true;
 }
@@ -198,12 +196,14 @@ void AccountsManager::init()
                                                  sigc::mem_fun(this, &AccountsManager::on_name_acquired),
                                                  sigc::mem_fun(this, &AccountsManager::on_name_lost));
 
-    this->passwd_wrapper_->signal_file_changed().connect(sigc::mem_fun(this, &AccountsManager::file_changed));
+    this->passwd_wrapper_->signal_file_changed().connect(sigc::mem_fun(this, &AccountsManager::accounts_file_changed));
+    this->gdm_custom_monitor_ = AccountsUtil::setup_monitor(PATH_GDM_CUSTOM, sigc::mem_fun(this, &AccountsManager::gdm_custom_changed));
 
-    load_users();
+    reload_users();
+    update_automatic_login();
 }
 
-void AccountsManager::file_changed(FileChangedType type)
+void AccountsManager::accounts_file_changed(FileChangedType type)
 {
     SETTINGS_PROFILE("");
 
@@ -213,16 +213,45 @@ void AccountsManager::file_changed(FileChangedType type)
     }
 
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
-    this->reload_conn_ = timeout.connect(sigc::mem_fun(this, &AccountsManager::file_changed_timeout), 500);
+    this->reload_conn_ = timeout.connect(sigc::mem_fun(this, &AccountsManager::accounts_file_changed_timeout), 500);
 }
 
-bool AccountsManager::file_changed_timeout()
+bool AccountsManager::accounts_file_changed_timeout()
 {
     SETTINGS_PROFILE("");
 
     reload_users();
 
     return false;
+}
+
+void AccountsManager::gdm_custom_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+{
+    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
+
+    this->update_automatic_login();
+    return;
+}
+
+void AccountsManager::update_automatic_login()
+{
+    std::string name;
+    bool enabled;
+    std::string err;
+    if (!this->read_autologin_from_file(name, enabled, err))
+    {
+        LOG_WARNING("failed to load gdms custom.conf: %s", err.c_str());
+        return;
+    }
+    std::shared_ptr<User> user;
+    if (name.length() > 0)
+    {
+        user = this->find_and_create_user_by_name(name);
+    }
+
+    this->set_automatic_login(user, enabled, err);
 }
 
 bool AccountsManager::reload_users()
@@ -251,8 +280,9 @@ bool AccountsManager::reload_users()
         auto iter2 = new_users.find(iter->first);
         if (iter2 == new_users.end())
         {
-            this->UserAdded_signal.emit(iter->second->get_object_path());
+            this->UserDeleted_signal.emit(iter->second->get_object_path());
             iter->second->dbus_unregister();
+            this->remove_cache_files(iter->second->UserName_get());
         }
     }
 
@@ -263,9 +293,8 @@ bool AccountsManager::reload_users()
         if (iter2 == this->users_.end())
         {
             iter->second->dbus_register();
-            this->UserDeleted_signal.emit(iter->second->get_object_path());
+            this->UserAdded_signal.emit(iter->second->get_object_path());
         }
-        iter->second->thaw_notify();
     }
 
     this->users_ = new_users;
@@ -275,53 +304,51 @@ bool AccountsManager::reload_users()
 
 std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 {
+    SETTINGS_PROFILE("");
+
+    auto passwds_shadows = this->passwd_wrapper_->get_passwds_shadows();
     std::map<std::string, std::shared_ptr<User>> users;
 
-    auto passwds_shadows = AccountsWrapper::get_instance()->get_passwds_shadows();
     for (auto iter = passwds_shadows.begin(); iter != passwds_shadows.end(); ++iter)
     {
         std::shared_ptr<User> user;
-        auto &pwent = iter->first;
-        // auto &spent = iter->second;
+        auto pwent = iter->first;
 
-        /* Skip system users... */
+        /* Skip system users that don't be in explicitly requested list */
         if (!this->is_explicitly_requested_user(pwent->pw_name) &&
             !UserClassify::is_human(pwent->pw_uid, pwent->pw_name, pwent->pw_shell))
         {
-            LOG_DEBUG("skipping user: %s", pwent->pw_name);
+            LOG_DEBUG("skip user: %s", pwent->pw_name.c_str());
             continue;
         }
 
-        auto user_iter = users.find(pwent->pw_name);
+        auto old_iter = this->users_.find(pwent->pw_name);
 
-        if (user_iter == users.end())
+        if (old_iter == this->users_.end())
         {
-            auto user_iter2 = this->users_.find(pwent->pw_name);
-
-            if (user_iter2 == this->users_.end())
-            {
-                user = std::make_shared<User>(pwent->pw_uid);
-            }
-            else
-            {
-                user = user_iter2->second;
-            }
-
-            /* freeze & update users not already in the new list */
-            user->freeze_notify();
-            user->update_from_passwd_shadow(*iter);
-
-            users.emplace(user->UserName_get(), user);
-            LOG_DEBUG("loaded user: %s", user->UserName_get().c_str());
+            user = std::make_shared<User>(pwent->pw_uid);
         }
         else
         {
-            user = user_iter->second;
+            user = old_iter->second;
+        }
+
+        user->update_from_passwd_shadow(*iter);
+        auto new_iter = users.emplace(user->UserName_get().raw(), user);
+
+        if (!new_iter.second)
+        {
+            LOG_WARNING("exist same user_name: %s", pwent->pw_name.c_str());
+        }
+        else
+        {
+            LOG_DEBUG("add user: %s", pwent->pw_name.c_str());
         }
 
         if (!this->is_explicitly_requested_user(pwent->pw_name))
         {
             user->set_cached(true);
+            user->save_data();
         }
     }
     return users;
@@ -347,7 +374,7 @@ std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Pa
 
 std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
 {
-    auto pwent = AccountsWrapper::get_instance()->get_passwd_by_uid(uid);
+    auto pwent = this->passwd_wrapper_->get_passwd_by_uid(uid);
     if (!pwent)
     {
         LOG_DEBUG("unable to lookup uid %u", (uint32_t)uid);
@@ -357,7 +384,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
     auto user = this->lookup_user_by_uid(uid);
     if (!user)
     {
-        auto spent = AccountsWrapper::get_instance()->get_spwd_by_name(pwent->pw_name);
+        auto spent = this->passwd_wrapper_->get_spwd_by_name(pwent->pw_name);
         user = this->add_new_user_for_pwent(pwent, spent);
         this->explicitly_requested_users_.insert(pwent->pw_name);
     }
@@ -367,7 +394,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
 
 std::shared_ptr<User> AccountsManager::find_and_create_user_by_name(const std::string &user_name)
 {
-    auto pwent = AccountsWrapper::get_instance()->get_passwd_by_name(user_name);
+    auto pwent = this->passwd_wrapper_->get_passwd_by_name(user_name);
     if (!pwent)
     {
         LOG_DEBUG("unable to lookup name %s", user_name.c_str());
@@ -377,7 +404,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_name(const std::s
     auto user = this->lookup_user_by_name(user_name);
     if (!user)
     {
-        auto spent = AccountsWrapper::get_instance()->get_spwd_by_name(pwent->pw_name);
+        auto spent = this->passwd_wrapper_->get_spwd_by_name(pwent->pw_name);
         user = this->add_new_user_for_pwent(pwent, spent);
         this->explicitly_requested_users_.insert(pwent->pw_name);
     }
@@ -404,7 +431,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
                                                 const Glib::ustring &fullname,
                                                 gint32 account_type)
 {
-    auto pwent = AccountsWrapper::get_instance()->get_passwd_by_name(name);
+    auto pwent = this->passwd_wrapper_->get_passwd_by_name(name);
 
     if (pwent)
     {
@@ -478,12 +505,9 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     user->set_cached(false);
 
-    if (this->get_autologin_user() == user)
+    if (!this->set_automatic_login(user, false, err))
     {
-        if (!this->set_automatic_login(user, false, err))
-        {
-            LOG_WARNING("%s", err.c_str());
-        }
+        LOG_WARNING("%s", err.c_str());
     }
 
     this->remove_cache_files(user->UserName_get());
@@ -524,7 +548,7 @@ bool AccountsManager::is_explicitly_requested_user(const std::string &user_name)
     return (this->explicitly_requested_users_.find(user_name) != this->explicitly_requested_users_.end());
 }
 
-bool AccountsManager::load_autologin(std::string &name, bool &enabled, std::string &err)
+bool AccountsManager::read_autologin_from_file(std::string &name, bool &enabled, std::string &err)
 {
     Glib::KeyFile keyfile;
 
@@ -561,7 +585,7 @@ bool AccountsManager::load_autologin(std::string &name, bool &enabled, std::stri
     return true;
 }
 
-bool AccountsManager::save_autologin(const std::string &name, bool enabled, std::string &err)
+bool AccountsManager::save_autologin_to_file(const std::string &name, bool enabled, std::string &err)
 {
     Glib::KeyFile keyfile;
     try
@@ -574,8 +598,24 @@ bool AccountsManager::save_autologin(const std::string &name, bool enabled, std:
         return false;
     }
 
-    keyfile.set_string("daemon", "AutomaticLoginEnable", enabled ? "True" : "False");
-    keyfile.set_string("daemon", "AutomaticLogin", name);
+    if (!name.empty())
+    {
+        keyfile.set_string("daemon", "AutomaticLoginEnable", enabled ? "True" : "False");
+        keyfile.set_string("daemon", "AutomaticLogin", name);
+    }
+    else
+    {
+        try
+        {
+            keyfile.remove_key("daemon", "AutomaticLoginEnable");
+            keyfile.remove_key("daemon", "AutomaticLogin");
+        }
+        catch (const Glib::Error &e)
+        {
+            err = e.what().raw();
+            return false;
+        }
+    }
 
     auto data = keyfile.to_data();
     try

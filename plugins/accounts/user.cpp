@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 09:46:04
+ * @LastEditTime : 2020-07-29 17:54:22
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
  */
@@ -13,6 +13,8 @@
 #include <gio/gunixinputstream.h>
 #include <glib/gstdio.h>
 #include <grp.h>
+
+#include <cinttypes>
 
 #include "lib/auth-manager.h"
 #include "lib/log.h"
@@ -26,8 +28,7 @@ namespace Kiran
 #define ACCOUNTS_USER_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts/User"
 #define ADMIN_GROUP "wheel"
 
-User::User(uint64_t uid) : dbus_connect_id_(0),
-                           object_register_id_(0),
+User::User(uint64_t uid) : object_register_id_(0),
                            uid_(uid)
 
 {
@@ -41,21 +42,24 @@ User::~User()
 
 void User::dbus_register()
 {
+    SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
     this->object_path_ = fmt::format(ACCOUNTS_USER_OBJECT_PATH "/{0}", this->Uid_get());
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                 ACCOUNTS_DBUS_NAME,
-                                                 sigc::mem_fun(this, &User::on_bus_acquired),
-                                                 sigc::mem_fun(this, &User::on_name_acquired),
-                                                 sigc::mem_fun(this, &User::on_name_lost));
+    try
+    {
+        this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SYSTEM);
+    }
+    catch (const Glib::Error &e)
+    {
+        LOG_WARNING("failed to get system bus: %s.", e.what().c_str());
+        return;
+    }
+
+    this->object_register_id_ = this->register_object(this->dbus_connect_, this->object_path_.c_str());
 }
 
 void User::dbus_unregister()
 {
-    if (this->dbus_connect_id_)
-    {
-        Gio::DBus::unown_name(this->dbus_connect_id_);
-        this->dbus_connect_id_ = 0;
-    }
+    SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
 
     if (this->object_register_id_)
     {
@@ -68,7 +72,7 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
 {
     Glib::ustring real_name;
 
-    this->dbus_connect_->freeze_notify();
+    this->freeze_notify();
 
     this->passwd_ = passwd_shadow.first;
     this->spwd_ = passwd_shadow.second;
@@ -89,7 +93,7 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
     this->RealName_set(real_name);
     this->Uid_set(this->passwd_->pw_uid);
 
-    auto account_type = this->account_type_from_pwent(*this->passwd_);
+    auto account_type = this->account_type_from_pwent(this->passwd_);
     this->AccountType_set(int32_t(account_type));
 
     this->UserName_set(this->passwd_->pw_name);
@@ -134,12 +138,14 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
 
     auto is_system_account = !UserClassify::is_human(this->passwd_->pw_uid, this->passwd_->pw_name, this->passwd_->pw_shell);
     this->SystemAccount_set(is_system_account);
+    this->LocalAccount_set(!is_system_account);
 
-    this->dbus_connect_->thaw_notify();
+    this->thaw_notify();
 }
 
 void User::save_data()
 {
+    SETTINGS_PROFILE("UserName: %s", this->UserName_get().c_str());
     this->save_to_keyfile(this->keyfile_);
     try
     {
@@ -155,9 +161,28 @@ void User::save_data()
     }
 }
 
+void User::freeze_notify()
+{
+    SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
+    if (this->dbus_connect_)
+    {
+        this->dbus_connect_->freeze_notify();
+    }
+}
+
+void User::thaw_notify()
+{
+    SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
+    if (this->dbus_connect_)
+    {
+        this->dbus_connect_->thaw_notify();
+    }
+}
+
 #define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
     void User::fun(MethodInvocation &invocation)                                                                \
     {                                                                                                           \
+        SETTINGS_PROFILE("");                                                                                   \
         std::string action_id = this->get_auth_action(invocation, auth);                                        \
         RETURN_IF_TRUE(action_id.empty());                                                                      \
                                                                                                                 \
@@ -173,6 +198,7 @@ void User::save_data()
     void User::fun(type1 value,                                                                                        \
                    MethodInvocation &invocation)                                                                       \
     {                                                                                                                  \
+        SETTINGS_PROFILE("");                                                                                          \
         std::string action_id = this->get_auth_action(invocation, auth);                                               \
         RETURN_IF_TRUE(action_id.empty());                                                                             \
                                                                                                                        \
@@ -189,6 +215,7 @@ void User::save_data()
                    type2 value2,                                                                                                \
                    MethodInvocation &invocation)                                                                                \
     {                                                                                                                           \
+        SETTINGS_PROFILE("");                                                                                                   \
         std::string action_id = this->get_auth_action(invocation, auth);                                                        \
         RETURN_IF_TRUE(action_id.empty());                                                                                      \
                                                                                                                                 \
@@ -481,11 +508,17 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
         std::string groups_join;
         for (auto i = 0; i < (int)groups.size(); ++i)
         {
-            if (groups[i] != admin_gid || account_type == int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR))
+            if (groups[i] != admin_gid)
             {
                 groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), groups[i]);
             }
         }
+
+        if (account_type == int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR))
+        {
+            groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), admin_gid);
+        }
+
         SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->UserName_get().raw());
         this->AccountType_set(account_type);
     }
@@ -587,12 +620,14 @@ void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocat
                    this->spwd_->sp_inact);
 }
 
-AccountType User::account_type_from_pwent(Passwd pwent)
+AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
 {
+    g_return_val_if_fail(passwd, AccountType::ACCOUNT_TYPE_STANDARD);
+
     struct group *grp;
     gint i;
 
-    if (pwent.pw_uid == 0)
+    if (passwd->pw_uid == 0)
     {
         LOG_DEBUG("user is root so account type is administrator");
         return AccountType::ACCOUNT_TYPE_ADMINISTRATOR;
@@ -607,7 +642,7 @@ AccountType User::account_type_from_pwent(Passwd pwent)
 
     for (i = 0; grp->gr_mem[i] != NULL; i++)
     {
-        if (g_strcmp0(grp->gr_mem[i], pwent.pw_name.c_str()) == 0)
+        if (g_strcmp0(grp->gr_mem[i], passwd->pw_name.c_str()) == 0)
         {
             return AccountType::ACCOUNT_TYPE_ADMINISTRATOR;
         }
@@ -659,7 +694,7 @@ void User::reset_icon_file()
 
 void User::update_from_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
 {
-    this->dbus_connect_->freeze_notify();
+    this->freeze_notify();
 
     SET_STR_VALUE_FROM_KEYFILE("Language", Language_set);
     SET_STR_VALUE_FROM_KEYFILE("XSession", XSession_set);
@@ -676,7 +711,7 @@ void User::update_from_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
     // user_set_cached(user, TRUE);
     // user_set_saved(user, TRUE);
 
-    this->dbus_connect_->thaw_notify();
+    this->thaw_notify();
 }
 
 #define SET_STR_VALUE_TO_KEYFILE(key, fun)       \
@@ -699,7 +734,10 @@ void User::update_from_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
 
 void User::save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
 {
-    keyfile->remove_group("User");
+    if (keyfile->has_group("User"))
+    {
+        IGNORE_EXCEPTION(keyfile->remove_group("User"));
+    }
 
     SET_STR_VALUE_TO_KEYFILE("Email", Email_get);
     SET_STR_VALUE_TO_KEYFILE("Language", Language_get);
@@ -730,26 +768,4 @@ void User::update_system_account_property(bool system)
     this->SystemAccount_set(system);
 }
 
-void User::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    try
-    {
-        this->dbus_connect_ = connect;
-        this->object_register_id_ = this->register_object(connect, this->object_path_.c_str());
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_WARNING("register object_path %s fail: %s.", this->object_path_.c_str(), e.what().c_str());
-    }
-}
-
-void User::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
-}
-
-void User::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
-}
 }  // namespace Kiran
