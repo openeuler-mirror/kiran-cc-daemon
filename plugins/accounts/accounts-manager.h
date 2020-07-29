@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:35:34
+ * @LastEditTime : 2020-07-29 08:52:37
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
  */
@@ -10,7 +10,7 @@
 
 #include <accounts_dbus_stub.h>
 
-#include "plugins/accounts/passwd-wrapper.h"
+#include "plugins/accounts/accounts-wrapper.h"
 #include "plugins/accounts/user-classify.h"
 #include "plugins/accounts/user.h"
 
@@ -20,12 +20,12 @@ class AccountsManager : public SystemDaemon::AccountsStub
 {
 public:
     AccountsManager() = delete;
-    AccountsManager(PasswdWrapper *passwd_wrapper);
+    AccountsManager(AccountsWrapper *passwd_wrapper);
     virtual ~AccountsManager();
 
     static AccountsManager *get_instance() { return instance_; };
 
-    static void global_init(PasswdWrapper *passwd_wrapper);
+    static void global_init(AccountsWrapper *passwd_wrapper);
 
     static void global_deinit() { delete instance_; };
 
@@ -33,7 +33,7 @@ public:
     std::shared_ptr<User> lookup_user_by_uid(int64_t uid);
     std::shared_ptr<User> get_autologin_user();
 
-    bool set_automatic_login(std::shared_ptr<User> user, bool enabled);
+    bool set_automatic_login(std::shared_ptr<User> user, bool enabled, std::string &err);
 
 protected:
     virtual void ListCachedUsers(MethodInvocation &invocation);
@@ -72,7 +72,7 @@ private:
 private:
     static AccountsManager *instance_;
 
-    PasswdWrapper *passwd_wrapper_;
+    AccountsWrapper *passwd_wrapper_;
 
     uint32_t dbus_connect_id_;
     uint32_t object_register_id_;

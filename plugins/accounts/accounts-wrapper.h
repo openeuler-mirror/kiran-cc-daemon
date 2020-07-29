@@ -2,13 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:01
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:50:36
+ * @LastEditTime : 2020-07-29 09:28:06
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/passwd-wrapper.h
+ * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-wrapper.h
  */
 #pragma once
 
 #include <giomm.h>
+#include <grp.h>
 #include <pwd.h>
 #include <shadow.h>
 
@@ -76,6 +77,28 @@ struct SPwd
     unsigned long int sp_flag;            /* Reserved.  */
 };
 
+struct Group
+{
+    Group() = delete;
+    Group(struct group *grp)
+    {
+        RETURN_IF_FALSE(grp != NULL);
+
+        this->gr_name = POINTER_TO_STRING(grp->gr_name);
+        this->gr_passwd = POINTER_TO_STRING(grp->gr_passwd);
+        this->gr_gid = grp->gr_gid;
+        for (auto pos = grp->gr_mem; pos != NULL && *pos != NULL; ++pos)
+        {
+            this->gr_mem.push_back(*pos);
+        }
+    }
+
+    std::string gr_name;             /* Group name.	*/
+    std::string gr_passwd;           /* Password.	*/
+    uint32_t gr_gid;                 /* Group ID.	*/
+    std::vector<std::string> gr_mem; /* Member list.	*/
+};
+
 enum class FileChangedType
 {
     PASSWD_CHANGED,
@@ -85,14 +108,14 @@ enum class FileChangedType
 
 using PasswdShadow = std::pair<std::shared_ptr<Passwd>, std::shared_ptr<SPwd>>;
 
-class PasswdWrapper
+class AccountsWrapper
 {
     // using FileChangedCallBack = void (Kiran::PasswdWrapper::*)(const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent);
 
 public:
-    PasswdWrapper();
+    AccountsWrapper();
 
-    static PasswdWrapper *get_instance() { return instance_; };
+    static AccountsWrapper *get_instance() { return instance_; };
 
     static void global_init();
 
@@ -103,8 +126,13 @@ public:
     std::shared_ptr<Passwd> get_passwd_by_name(const std::string &user_name);
     std::shared_ptr<Passwd> get_passwd_by_uid(uint64_t uid);
     std::shared_ptr<SPwd> get_spwd_by_name(const std::string &user_name);
+    std::shared_ptr<Group> get_group_by_name(const std::string &group_name);
+    std::vector<uint32_t> get_user_groups(const std::string &user, uint32_t group);
 
-    sigc::signal<void, FileChangedType> &signal_file_changed() { return this->file_changed_; };
+    sigc::signal<void, FileChangedType> &signal_file_changed()
+    {
+        return this->file_changed_;
+    };
 
 private:
     void init();
@@ -120,7 +148,7 @@ protected:
     sigc::signal<void, FileChangedType> file_changed_;
 
 private:
-    static PasswdWrapper *instance_;
+    static AccountsWrapper *instance_;
 
     Glib::RefPtr<Gio::FileMonitor> passwd_monitor;
     Glib::RefPtr<Gio::FileMonitor> shadow_monitor;

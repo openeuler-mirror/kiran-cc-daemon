@@ -14,6 +14,8 @@ pkg_search_module(GLIBMM REQUIRED glibmm-2.4)
 pkg_search_module(GIOMM REQUIRED giomm-2.4)
 pkg_search_module(GTHREAD REQUIRED gthread-2.0)
 pkg_search_module(GMODULE REQUIRED gmodule-2.0)
+pkg_search_module(GIOUNIX REQUIRED gio-unix-2.0)
+
 
 find_program(GDBUS-CODEGEN-GLIBMM-FOUND gdbus-codegen-glibmm3 PATHS ${CMAKE_BINARY_DIR}/bin/)
 

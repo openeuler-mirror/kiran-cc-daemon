@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-05 15:21:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 11:52:53
+ * @LastEditTime : 2020-07-28 16:44:46
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/helper.h
  */
@@ -62,6 +62,17 @@ private:
 #define CONTINUE_IF_TRUE(cond) \
     {                          \
         if (cond) continue;    \
+    }
+
+#define IGNORE_EXCEPTION(expr)       \
+    {                                \
+        try                          \
+        {                            \
+            expr;                    \
+        }                            \
+        catch (const Glib::Error &e) \
+        {                            \
+        }                            \
     }
 
 #define POINTER_TO_STRING(p) ((p) ? p : std::string())

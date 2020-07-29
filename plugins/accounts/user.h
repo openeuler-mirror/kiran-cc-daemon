@@ -2,13 +2,13 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:35:12
+ * @LastEditTime : 2020-07-29 09:53:08
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
 #pragma once
 
-#include <plugins/accounts/passwd-wrapper.h>
+#include <plugins/accounts/accounts-wrapper.h>
 #include <user_dbus_stub.h>
 
 namespace Kiran
@@ -28,7 +28,7 @@ enum class PasswordMode
     PASSWORD_MODE_LAST
 };
 
-class User : public SystemDaemon::Accounts::UserStub
+class User : public SystemDaemon::Accounts::UserStub, public std::enable_shared_from_this<User>
 {
 public:
     User() = delete;
@@ -61,7 +61,7 @@ public:
     virtual Glib::ustring Location_get() { return this->location_; };
     virtual guint64 LoginFrequency_get() { return this->login_frequency_; };
     virtual gint64 LoginTime_get() { return this->login_time_; };
-    virtual std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> LoginHistory_get();
+    // virtual std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> LoginHistory_get();
     virtual Glib::ustring IconFile_get() { return this->icon_file_; };
     virtual bool Saved_get() { return this->saved_; };
     virtual bool Locked_get() { return this->locked_; };
@@ -73,7 +73,8 @@ public:
 
 public:
     bool get_cached() { return this->cached_; };
-    void set_cached(bool cached) { this->cached_ = cached; }
+    void set_cached(bool cached) { this->cached_ = cached; };
+    bool get_gid() { return this->passwd_->pw_gid; };
 
 protected:
     virtual void SetUserName(const Glib::ustring &name, MethodInvocation &invocation);
@@ -165,7 +166,7 @@ protected:
         this->login_time_ = value;
         return true;
     };
-    virtual bool LoginHistory_setHandler(const std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> &value);
+    // virtual bool LoginHistory_setHandler(const std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> &value);
     virtual bool IconFile_setHandler(const Glib::ustring &value)
     {
         this->icon_file_ = value;
@@ -208,25 +209,26 @@ protected:
     };
 
 private:
-    std::string get_change_user_data_action(MethodInvocation &invocation);
-    std::string get_change_password_action(MethodInvocation &invocation);
-    void change_user_name_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &name);
-    void change_real_name_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &name);
-    void change_email_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &email);
-    void change_language_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &language);
-    void change_x_session_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &x_session);
-    void change_session_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &session);
-    void change_session_type_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &session_type);
-    void change_location_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &location);
-    void change_home_dir_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &home_dir);
-    void change_shell_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &shell);
-    void change_icon_file_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &icon_file);
-    void change_locked_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, bool locked);
-    void change_account_type_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t account_type);
-    void change_password_mode_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t password_mode);
-    void change_password_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &password, const Glib::ustring &password_hint);
-    void change_password_hint_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &password_hint);
-    void change_auto_login_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, bool auto_login);
+    std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
+    void change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
+    void change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
+    void change_email_authorized_cb(MethodInvocation invocation, const Glib::ustring &email);
+    void change_language_authorized_cb(MethodInvocation invocation, const Glib::ustring &language);
+    void change_x_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &x_session);
+    void change_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &session);
+    void change_session_type_authorized_cb(MethodInvocation invocation, const Glib::ustring &session_type);
+    void change_location_authorized_cb(MethodInvocation invocation, const Glib::ustring &location);
+    void change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir);
+    void change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell);
+    void change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file);
+    void change_locked_authorized_cb(MethodInvocation invocation, bool locked);
+    void change_account_type_authorized_cb(MethodInvocation invocation, int32_t account_type);
+    void change_password_mode_authorized_cb(MethodInvocation invocation, int32_t password_mode);
+    void change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint);
+    void change_password_hint_authorized_cb(MethodInvocation invocation, const Glib::ustring &password_hint);
+    void change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login);
+    void become_user(std::shared_ptr<Passwd> passwd);
+    void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
 
     AccountType account_type_from_pwent(Passwd pwent);
     void reset_icon_file();

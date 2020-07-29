@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 13:42:10
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:35:46
+ * @LastEditTime : 2020-07-29 09:29:44
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-util.h
  */
@@ -13,6 +13,18 @@
 
 namespace Kiran
 {
+#define SPAWN_WITH_LOGIN_UID(invocation, ...)                                                               \
+    {                                                                                                       \
+        std::vector<std::string> argv = {__VA_ARGS__};                                                      \
+        std::string err;                                                                                    \
+        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))                        \
+        {                                                                                                   \
+            err = fmt::format("running '{0}' failed: {1}", argv[0], err);                                   \
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err.c_str())); \
+            return;                                                                                         \
+        }                                                                                                   \
+    }
+
 class AccountsUtil
 {
 public:

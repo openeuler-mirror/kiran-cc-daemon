@@ -2,11 +2,11 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:45:45
+ * @LastEditTime : 2020-07-28 20:25:34
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/passwd-wrapper.cpp
+ * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-wrapper.cpp
  */
-#include "plugins/accounts/passwd-wrapper.h"
+#include "plugins/accounts/accounts-wrapper.h"
 
 #include <utility>
 
@@ -18,18 +18,18 @@ namespace Kiran
 #define PATH_SHADOW "/etc/shadow"
 #define PATH_GROUP "/etc/group"
 
-PasswdWrapper::PasswdWrapper()
+AccountsWrapper::AccountsWrapper()
 {
 }
 
-PasswdWrapper *PasswdWrapper::instance_ = nullptr;
-void PasswdWrapper::global_init()
+AccountsWrapper *AccountsWrapper::instance_ = nullptr;
+void AccountsWrapper::global_init()
 {
-    instance_ = new PasswdWrapper();
+    instance_ = new AccountsWrapper();
     instance_->init();
 }
 
-std::vector<PasswdShadow> PasswdWrapper::get_passwds_shadows()
+std::vector<PasswdShadow> AccountsWrapper::get_passwds_shadows()
 {
     std::vector<PasswdShadow> passwds_shadows;
 
@@ -48,7 +48,7 @@ std::vector<PasswdShadow> PasswdWrapper::get_passwds_shadows()
 
     return passwds_shadows;
 }
-std::shared_ptr<Passwd> PasswdWrapper::get_passwd_by_name(const std::string &user_name)
+std::shared_ptr<Passwd> AccountsWrapper::get_passwd_by_name(const std::string &user_name)
 {
     auto iter = this->passwds_.find(user_name);
     if (iter != this->passwds_.end())
@@ -65,7 +65,7 @@ std::shared_ptr<Passwd> PasswdWrapper::get_passwd_by_name(const std::string &use
     return nullptr;
 }
 
-std::shared_ptr<Passwd> PasswdWrapper::get_passwd_by_uid(uint64_t uid)
+std::shared_ptr<Passwd> AccountsWrapper::get_passwd_by_uid(uint64_t uid)
 {
     auto iter = this->passwds_by_uid_.find(uid);
     if (iter != this->passwds_by_uid_.end() && !iter->second.expired())
@@ -81,7 +81,7 @@ std::shared_ptr<Passwd> PasswdWrapper::get_passwd_by_uid(uint64_t uid)
     return nullptr;
 }
 
-std::shared_ptr<SPwd> PasswdWrapper::get_spwd_by_name(const std::string &user_name)
+std::shared_ptr<SPwd> AccountsWrapper::get_spwd_by_name(const std::string &user_name)
 {
     auto iter = this->spwds_.find(user_name);
     if (iter != this->spwds_.end())
@@ -97,15 +97,40 @@ std::shared_ptr<SPwd> PasswdWrapper::get_spwd_by_name(const std::string &user_na
     return nullptr;
 }
 
-void PasswdWrapper::init()
+std::shared_ptr<Group> AccountsWrapper::get_group_by_name(const std::string &group_name)
 {
-    this->passwd_monitor = setup_monitor(PATH_PASSWD, sigc::mem_fun(this, &PasswdWrapper::passwd_changed));
-    this->shadow_monitor = setup_monitor(PATH_SHADOW, sigc::mem_fun(this, &PasswdWrapper::shadow_changed));
-    this->group_monitor = setup_monitor(PATH_GROUP, sigc::mem_fun(this, &PasswdWrapper::group_changed));
+    auto grp = getgrnam(group_name.c_str());
+    if (grp == NULL)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return std::make_shared<Group>(grp);
+    }
 }
 
-Glib::RefPtr<Gio::FileMonitor> PasswdWrapper::setup_monitor(const std::string &path,
-                                                            const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback)
+std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
+                                                       uint32_t group)
+{
+    int32_t ngroups = 0;
+    auto res = getgrouplist(user.c_str(), group, NULL, &ngroups);
+
+    auto groups = g_new(gid_t, ngroups);
+    res = getgrouplist(user.c_str(), group, groups, &ngroups);
+
+    return std::vector<uint32_t>(groups, groups + res);
+}
+
+void AccountsWrapper::init()
+{
+    this->passwd_monitor = setup_monitor(PATH_PASSWD, sigc::mem_fun(this, &AccountsWrapper::passwd_changed));
+    this->shadow_monitor = setup_monitor(PATH_SHADOW, sigc::mem_fun(this, &AccountsWrapper::shadow_changed));
+    this->group_monitor = setup_monitor(PATH_GROUP, sigc::mem_fun(this, &AccountsWrapper::group_changed));
+}
+
+Glib::RefPtr<Gio::FileMonitor> AccountsWrapper::setup_monitor(const std::string &path,
+                                                              const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback)
 {
     auto file = Gio::File::create_for_path(path);
     try
@@ -122,7 +147,7 @@ Glib::RefPtr<Gio::FileMonitor> PasswdWrapper::setup_monitor(const std::string &p
     return Glib::RefPtr<Gio::FileMonitor>();
 }
 
-void PasswdWrapper::passwd_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+void AccountsWrapper::passwd_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
 {
     RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
 
@@ -152,7 +177,7 @@ void PasswdWrapper::passwd_changed(const Glib::RefPtr<Gio::File> &file, const Gl
     this->file_changed_.emit(FileChangedType::PASSWD_CHANGED);
 }
 
-void PasswdWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+void AccountsWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
 {
     RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
 
@@ -192,7 +217,7 @@ void PasswdWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const Gl
     this->file_changed_.emit(FileChangedType::SHADOW_CHANGED);
 }
 
-void PasswdWrapper::group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
+void AccountsWrapper::group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
 {
     RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
 

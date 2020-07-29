@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:52:01
+ * @LastEditTime : 2020-07-29 09:46:04
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
  */
@@ -10,12 +10,14 @@
 #include "plugins/accounts/user.h"
 
 #include <fmt/format.h>
+#include <gio/gunixinputstream.h>
 #include <glib/gstdio.h>
 #include <grp.h>
 
 #include "lib/auth-manager.h"
 #include "lib/log.h"
 #include "plugins/accounts/accounts-common.h"
+#include "plugins/accounts/accounts-manager.h"
 #include "plugins/accounts/accounts-util.h"
 #include "plugins/accounts/user-classify.h"
 
@@ -153,11 +155,25 @@ void User::save_data()
     }
 }
 
-#define USER_START_AUTH_CHECK(fun, callback, type)                                                                     \
-    void User::fun(type value,                                                                                         \
+#define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
+    void User::fun(MethodInvocation &invocation)                                                                \
+    {                                                                                                           \
+        std::string action_id = this->get_auth_action(invocation, auth);                                        \
+        RETURN_IF_TRUE(action_id.empty());                                                                      \
+                                                                                                                \
+        AuthManager::get_instance()->start_auth_check(action_id,                                                \
+                                                      TRUE,                                                     \
+                                                      invocation.getMessage(),                                  \
+                                                      std::bind(&User::callback, this, std::placeholders::_1)); \
+                                                                                                                \
+        return;                                                                                                 \
+    }
+
+#define USER_SET_ONE_PROP_AUTH(fun, callback, auth, type1)                                                             \
+    void User::fun(type1 value,                                                                                        \
                    MethodInvocation &invocation)                                                                       \
     {                                                                                                                  \
-        std::string action_id = this->get_change_user_data_action(invocation);                                         \
+        std::string action_id = this->get_auth_action(invocation, auth);                                               \
         RETURN_IF_TRUE(action_id.empty());                                                                             \
                                                                                                                        \
         AuthManager::get_instance()->start_auth_check(action_id,                                                       \
@@ -168,12 +184,12 @@ void User::save_data()
         return;                                                                                                        \
     }
 
-#define USER_START_AUTH_CHECK_PASSWORD(fun, callback, type1, type2)                                                             \
+#define USER_SET_TWO_PROP_AUTH(fun, callback, auth, type1, type2)                                                               \
     void User::fun(type1 value1,                                                                                                \
                    type2 value2,                                                                                                \
                    MethodInvocation &invocation)                                                                                \
     {                                                                                                                           \
-        std::string action_id = this->get_change_password_action(invocation);                                                   \
+        std::string action_id = this->get_auth_action(invocation, auth);                                                        \
         RETURN_IF_TRUE(action_id.empty());                                                                                      \
                                                                                                                                 \
         AuthManager::get_instance()->start_auth_check(action_id,                                                                \
@@ -184,50 +200,41 @@ void User::save_data()
         return;                                                                                                                 \
     }
 
-#define USER_START_AUTH_CHECK_ADMIN(fun, callback, type)                                                               \
-    void User::fun(type value,                                                                                         \
-                   MethodInvocation &invocation)                                                                       \
-    {                                                                                                                  \
-        AuthManager::get_instance()->start_auth_check(AUTH_USER_ADMIN,                                                 \
-                                                      TRUE,                                                            \
-                                                      invocation.getMessage(),                                         \
-                                                      std::bind(&User::callback, this, std::placeholders::_1, value)); \
-                                                                                                                       \
-        return;                                                                                                        \
-    }
+USER_SET_ONE_PROP_AUTH(SetUserName, change_user_name_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetRealName, change_real_name_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetEmail, change_email_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetLanguage, change_language_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetXSession, change_x_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetSession, change_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetSessionType, change_session_type_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetLocation, change_location_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetHomeDirectory, change_home_dir_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetShell, change_shell_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetIconFile, change_icon_file_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetLocked, change_locked_authorized_cb, AUTH_USER_ADMIN, bool);
+USER_SET_ONE_PROP_AUTH(SetAccountType, change_account_type_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
+USER_SET_ONE_PROP_AUTH(SetPasswordMode, change_password_mode_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
+USER_SET_TWO_PROP_AUTH(SetPassword, change_password_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetPasswordHint, change_password_hint_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetAutomaticLogin, change_auto_login_authorized_cb, AUTH_USER_ADMIN, bool);
+USER_SET_ZERO_PROP_AUTH(GetPasswordExpirationPolicy, get_password_expiration_policy_authorized_cb, AUTH_CHANGE_OWN_USER_DATA);
 
-USER_START_AUTH_CHECK_ADMIN(SetUserName, change_user_name_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetRealName, change_real_name_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetEmail, change_email_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetLanguage, change_language_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetXSession, change_x_session_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetSession, change_session_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetSessionType, change_session_type_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetLocation, change_location_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK_ADMIN(SetHomeDirectory, change_home_dir_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK_ADMIN(SetShell, change_shell_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetIconFile, change_icon_file_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK_ADMIN(SetLocked, change_locked_authorized_cb, bool);
-USER_START_AUTH_CHECK(SetAccountType, change_account_type_authorized_cb, int32_t);
-USER_START_AUTH_CHECK(SetPasswordMode, change_password_mode_authorized_cb, int32_t);
-USER_START_AUTH_CHECK_PASSWORD(SetPassword, change_password_authorized_cb, const Glib::ustring &, const Glib::ustring &);
-USER_START_AUTH_CHECK(SetPasswordHint, change_password_hint_authorized_cb, const Glib::ustring &);
-USER_START_AUTH_CHECK_ADMIN(SetAutomaticLogin, change_auto_login_authorized_cb, bool);
-
-std::string User::get_change_user_data_action(MethodInvocation &invocation)
+std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
 {
+    RETURN_VAL_IF_TRUE(own_action == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
+
     std::string action_id;
     int32_t uid;
 
     if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
     {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), "identifying caller failed"));
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "identifying caller failed"));
         return std::string();
     }
 
     if (this->Uid_get() == (uid_t)uid)
     {
-        return AUTH_CHANGE_OWN_USER_DATA;
+        return own_action;
     }
     else
     {
@@ -235,173 +242,349 @@ std::string User::get_change_user_data_action(MethodInvocation &invocation)
     }
 }
 
-std::string User::get_change_password_action(MethodInvocation &invocation)
+void User::change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
 {
-    std::string action_id;
-    int32_t uid;
+    SETTINGS_PROFILE("UserName: %s", name.c_str());
 
-    if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
-    {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), "identifying caller failed"));
-        return std::string();
-    }
-
-    if (this->Uid_get() == (uid_t)uid)
-    {
-        return AUTH_CHANGE_OWN_PASSWORD;
-    }
-    else
-    {
-        return AUTH_USER_ADMIN;
-    }
-}
-
-void User::change_user_name_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &name)
-{
     if (this->UserName_get() != name)
     {
         auto old_name = this->UserName_get();
-        LOG_DEBUG("change name of user '%s' (%d) to '%s'",
-                  old_name.c_str(),
-                  (int32_t)this->Uid_get(),
-                  name.c_str());
 
-        std::vector<std::string> argv = {"/usr/sbin/usermod", "-l", name, "--", this->UserName_get().raw()};
-        std::string err;
-
-        if (!AccountsUtil::spawn_with_login_uid(invocation, argv, err))
-        {
-            err = fmt::format("running '{0}' failed: {1}", argv[0], err);
-            invocation->return_error(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err.c_str()));
-            return;
-        }
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-l", name, "--", this->UserName_get().raw());
 
         this->UserName_set(name);
         this->move_extra_data(old_name, name);
     }
 
-    INVOCATION_RETURN(invocation);
+    invocation.ret();
 }
 
-void User::change_real_name_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &name)
+void User::change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
 {
+    SETTINGS_PROFILE("RealName: %s", name.c_str());
     if (this->RealName_get() != name)
     {
-        LOG_DEBUG("change real name of user '%s' (%d) to '%s'",
-                  this->UserName_get().c_str(),
-                  (int32_t)this->Uid_get(),
-                  name.c_str());
-
-        std::vector<std::string> argv = {"/usr/sbin/usermod", "-c", name, "--", this->UserName_get().raw()};
-        std::string err;
-
-        if (!AccountsUtil::spawn_with_login_uid(invocation, argv, err))
-        {
-            err = fmt::format("running '{0}' failed: {1}", argv[0], err);
-            invocation->return_error(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err.c_str()));
-            return;
-        }
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-c", name, "--", this->UserName_get().raw());
 
         this->RealName_set(name);
     }
 
-    INVOCATION_RETURN(invocation);
+    invocation.ret();
 }
 
-#define USER_START_AUTH_CHECK_CB(fun, prop)                                                                \
-    void User::fun(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &value) \
-    {                                                                                                      \
-        if (this->prop##_get() != value)                                                                   \
-        {                                                                                                  \
-            this->prop##_set(value);                                                                       \
-            this->save_data();                                                                             \
-        }                                                                                                  \
-                                                                                                           \
-        INVOCATION_RETURN(invocation);                                                                     \
+#define USER_AUTH_CHECK_CB(fun, prop)                                       \
+    void User::fun(MethodInvocation invocation, const Glib::ustring &value) \
+    {                                                                       \
+        SETTINGS_PROFILE(#prop ": %s", value.c_str());                      \
+        if (this->prop##_get() != value)                                    \
+        {                                                                   \
+            this->prop##_set(value);                                        \
+            this->save_data();                                              \
+        }                                                                   \
+                                                                            \
+        invocation.ret();                                                   \
     }
 
-USER_START_AUTH_CHECK_CB(change_email_authorized_cb, Email);
-USER_START_AUTH_CHECK_CB(change_language_authorized_cb, Language);
-USER_START_AUTH_CHECK_CB(change_x_session_authorized_cb, XSession);
-USER_START_AUTH_CHECK_CB(change_session_authorized_cb, Session);
-USER_START_AUTH_CHECK_CB(change_session_type_authorized_cb, SessionType);
-USER_START_AUTH_CHECK_CB(change_location_authorized_cb, Location);
+USER_AUTH_CHECK_CB(change_email_authorized_cb, Email);
+USER_AUTH_CHECK_CB(change_language_authorized_cb, Language);
+USER_AUTH_CHECK_CB(change_x_session_authorized_cb, XSession);
+USER_AUTH_CHECK_CB(change_session_authorized_cb, Session);
+USER_AUTH_CHECK_CB(change_session_type_authorized_cb, SessionType);
+USER_AUTH_CHECK_CB(change_location_authorized_cb, Location);
 
-void User::change_home_dir_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &home_dir)
+void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir)
 {
+    SETTINGS_PROFILE("HomeDir: %s", home_dir.c_str());
+
     if (this->HomeDirectory_get() != home_dir)
     {
-        LOG_DEBUG("change home directory of user '%s' (%d) to '%s'",
-                  this->UserName_get().c_str(),
-                  (int32_t)this->Uid_get(),
-                  home_dir.c_str());
-
-        std::vector<std::string> argv = {"/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->UserName_get().raw()};
-        std::string err;
-
-        if (!AccountsUtil::spawn_with_login_uid(invocation, argv, err))
-        {
-            err = fmt::format("running '{0}' failed: {1}", argv[0], err);
-            invocation->return_error(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err.c_str()));
-            return;
-        }
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->UserName_get().raw())
 
         this->HomeDirectory_set(home_dir);
         this->reset_icon_file();
     }
-    INVOCATION_RETURN(invocation);
+    invocation.ret();
 }
 
-void User::change_shell_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &shell)
+void User::change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell)
 {
+    SETTINGS_PROFILE("Shell: %s", shell.c_str());
+
     if (this->Shell_get() != shell)
     {
-        LOG_DEBUG("change shell of user '%s' (%d) to '%s'",
-                  this->UserName_get().c_str(),
-                  (int32_t)this->Uid_get(),
-                  shell.c_str());
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->UserName_get().raw());
+        this->Shell_set(shell);
+    }
+    invocation.ret();
+}
 
-        std::vector<std::string> argv = {"/usr/sbin/usermod", "-s", shell, "--", this->UserName_get().raw()};
-        std::string err;
+void User::become_user(std::shared_ptr<Passwd> passwd)
+{
+}
 
-        if (!AccountsUtil::spawn_with_login_uid(invocation, argv, err))
+void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file)
+{
+    SETTINGS_PROFILE("IconFile: %s", icon_file.c_str());
+
+    auto filename = icon_file;
+
+    do
+    {
+        if (icon_file.empty())
         {
-            err = fmt::format("running '{0}' failed: {1}", argv[0], err);
-            invocation->return_error(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err.c_str()));
+            auto path = Glib::build_filename(ICONDIR, this->UserName_get());
+            g_remove(path.c_str());
+            break;
+        }
+
+        auto file = Gio::File::create_for_path(icon_file);
+        filename = file->get_path();
+        Glib::RefPtr<Gio::FileInfo> file_info;
+        try
+        {
+            file_info = file->query_info(G_FILE_ATTRIBUTE_UNIX_MODE "," G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_SIZE);
+        }
+        catch (const Glib::Error &e)
+        {
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), e.what().c_str()));
             return;
         }
 
-        this->Shell_set(shell);
+        auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
+
+        if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
+        {
+            auto err_message = fmt::format("file '{0}' is not a regular file", filename.raw());
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            return;
+        }
+
+        if (size > 1048576)
+        {
+            auto err_message = fmt::format("file '%s' is too large to be used as an icon", filename.raw());
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            return;
+        }
+
+        auto mode = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_UNIX_MODE);
+        if ((mode & S_IROTH) != 0 && Glib::str_has_prefix(filename, ICONDIR))
+        {
+            break;
+        }
+
+        // copy file to directory ICONDIR
+        int32_t uid;
+        if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
+        {
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to copy file, could not determine caller UID"));
+            return;
+        }
+
+        auto dest_path = Glib::build_filename(ICONDIR, this->UserName_get());
+        auto dest_file = Gio::File::create_for_path(dest_path);
+        Glib::RefPtr<Gio::FileOutputStream> output;
+        try
+        {
+            output = dest_file->replace();
+        }
+        catch (const Glib::Error &e)
+        {
+            auto err_message = fmt::format("creating file '{0}' failed: {1}", dest_path, e.what().raw());
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            return;
+        }
+
+        std::vector<std::string> argv = {"/bin/cat", filename.raw()};
+        auto pwent = AccountsWrapper::get_instance()->get_passwd_by_uid(uid);
+
+        int32_t std_out;
+        try
+        {
+            Glib::spawn_async_with_pipes(std::string(),
+                                         argv,
+                                         Glib::SPAWN_DEFAULT,
+                                         sigc::bind(sigc::mem_fun(this, &User::become_user), pwent),
+                                         nullptr,
+                                         nullptr,
+                                         &std_out,
+                                         nullptr);
+        }
+        catch (const Glib::Error &e)
+        {
+            auto err_message = fmt::format("reading file '{0}' failed: {1}", filename.raw(), e.what().raw());
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            return;
+        }
+
+        auto input = Glib::wrap(g_unix_input_stream_new(std_out, false));
+        gssize bytes = 0;
+        std::string err;
+        try
+        {
+            bytes = output->splice(input, Gio::OUTPUT_STREAM_SPLICE_CLOSE_TARGET);
+        }
+        catch (const Glib::Error &e)
+        {
+            err = e.what().raw();
+        }
+
+        if (bytes < 0 || (uint64_t)bytes != size)
+        {
+            auto err_message = fmt::format("copying file '{0}' to '{1}' failed: {2}", filename.raw(), dest_path, err.c_str());
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            IGNORE_EXCEPTION(dest_file->remove());
+            return;
+        }
+        filename = dest_path;
+    } while (0);
+
+    this->IconFile_set(filename);
+    this->save_data();
+}
+
+void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
+{
+    SETTINGS_PROFILE("Locked: %d", locked);
+
+    if (this->Locked_get() != locked)
+    {
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->UserName_get().raw());
+        this->Locked_set(locked);
+        if (this->AutomaticLogin_get() && locked)
+        {
+            std::string err;
+            if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), false, err))
+            {
+                LOG_WARNING("%s", err.c_str());
+            }
+            this->AutomaticLogin_set(false);
+        }
     }
-    INVOCATION_RETURN(invocation);
+    invocation.ret();
 }
 
-void User::change_icon_file_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &icon_file)
+void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_t account_type)
 {
+    SETTINGS_PROFILE("AccountType: %d", account_type);
+
+    if (this->AccountType_get() != account_type)
+    {
+        auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
+        if (!grp)
+        {
+            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to set account type: " ADMIN_GROUP " group not found"));
+            return;
+        }
+        auto admin_gid = grp->gr_gid;
+
+        auto groups = AccountsWrapper::get_instance()->get_user_groups(this->UserName_get(), this->get_gid());
+        std::string groups_join;
+        for (auto i = 0; i < (int)groups.size(); ++i)
+        {
+            if (groups[i] != admin_gid || account_type == int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR))
+            {
+                groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), groups[i]);
+            }
+        }
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->UserName_get().raw());
+        this->AccountType_set(account_type);
+    }
+    invocation.ret();
 }
 
-void User::change_locked_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, bool locked)
+void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32_t password_mode)
 {
+    SETTINGS_PROFILE("PasswordMode: %d", password_mode);
+
+    if (this->PasswordMode_get() != password_mode)
+    {
+        this->freeze_notify();
+
+        if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN) ||
+            password_mode == int32_t(PasswordMode::PASSWORD_MODE_NONE))
+        {
+            SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/passwd", "-d", "--", this->UserName_get().raw());
+
+            if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN))
+            {
+                SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/chage", "-d", "0", "--", this->UserName_get().raw());
+            }
+
+            this->PasswordHint_set(std::string());
+        }
+        else if (this->Locked_get())
+        {
+            SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-U", "--", this->UserName_get().raw());
+        }
+        this->Locked_set(false);
+        this->PasswordMode_set(password_mode);
+        this->save_data();
+        this->thaw_notify();
+    }
+
+    invocation.ret();
 }
 
-void User::change_account_type_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t account_type)
+void User::change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint)
 {
+    SETTINGS_PROFILE("Password: %s PasswordHint: %s", password.c_str(), password_hint.c_str());
+
+    this->freeze_notify();
+
+    std::vector<std::string> argv = {"/usr/sbin/usermod", "-p", password.raw(), "--", this->UserName_get().raw()};
+    std::string err;
+    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
+    {
+        err = fmt::format("running '{0}' failed: {1}", argv[0], err);
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err.c_str()));
+        return;
+    }
+
+    this->PasswordMode_set(int32_t(PasswordMode::PASSWORD_MODE_REGULAR));
+    this->Locked_set(false);
+    this->PasswordHint_set(password_hint);
+    this->save_data();
+
+    this->thaw_notify();
+    invocation.ret();
 }
 
-void User::change_password_mode_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t password_mode)
+USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, PasswordHint);
+
+void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login)
 {
+    SETTINGS_PROFILE("AutoLogin: %d", auto_login);
+
+    if (this->Locked_get())
+    {
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to change automatic login: user is locked"));
+        return;
+    }
+    std::string err;
+    if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), auto_login, err))
+    {
+        auto err_message = fmt::format("failed to change automatic login: {0}", err);
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+        return;
+    }
+    invocation.ret();
 }
 
-void User::change_password_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &password, const Glib::ustring &password_hint)
+void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocation)
 {
-}
+    SETTINGS_PROFILE("");
+    if (!this->spwd_)
+    {
+        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "account expiration policy unknown to accounts service"));
+        return;
+    }
 
-void User::change_password_hint_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, const Glib::ustring &password_hint)
-{
-}
-
-void User::change_auto_login_authorized_cb(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, bool auto_login)
-{
+    invocation.ret(this->spwd_->sp_expire,
+                   this->spwd_->sp_lstchg,
+                   this->spwd_->sp_min,
+                   this->spwd_->sp_max,
+                   this->spwd_->sp_warn,
+                   this->spwd_->sp_inact);
 }
 
 AccountType User::account_type_from_pwent(Passwd pwent)

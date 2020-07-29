@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 16:37:44
+ * @LastEditTime : 2020-07-29 08:55:01
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -25,9 +25,9 @@ namespace Kiran
 {
 #define ACCOUNTS_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts"
 
-AccountsManager::AccountsManager(PasswdWrapper *passwd_wrapper) : passwd_wrapper_(passwd_wrapper),
-                                                                  dbus_connect_id_(0),
-                                                                  object_register_id_(0)
+AccountsManager::AccountsManager(AccountsWrapper *passwd_wrapper) : passwd_wrapper_(passwd_wrapper),
+                                                                    dbus_connect_id_(0),
+                                                                    object_register_id_(0)
 {
 }
 
@@ -45,7 +45,7 @@ AccountsManager::~AccountsManager()
 }
 
 AccountsManager *AccountsManager::instance_ = nullptr;
-void AccountsManager::global_init(PasswdWrapper *passwd_wrapper)
+void AccountsManager::global_init(AccountsWrapper *passwd_wrapper)
 {
     instance_ = new AccountsManager(passwd_wrapper);
     instance_->init();
@@ -83,18 +83,16 @@ std::shared_ptr<User> AccountsManager::get_autologin_user()
     return nullptr;
 }
 
-bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabled)
+bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabled, std::string &err)
 {
     std::shared_ptr<User> cur_autologin = this->get_autologin_user();
 
     RETURN_VAL_IF_TRUE(cur_autologin == user && enabled, true);
     RETURN_VAL_IF_TRUE(cur_autologin != user && !enabled, true);
 
-    std::string err;
-
     if (!this->save_autologin(user->UserName_get(), enabled, err))
     {
-        LOG_WARNING("failed to save autologin info to configuration file: %s", err.c_str());
+        err = fmt::format("failed to save autologin info to configuration file: {0}", err);
         return false;
     }
 
@@ -279,7 +277,7 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 {
     std::map<std::string, std::shared_ptr<User>> users;
 
-    auto passwds_shadows = PasswdWrapper::get_instance()->get_passwds_shadows();
+    auto passwds_shadows = AccountsWrapper::get_instance()->get_passwds_shadows();
     for (auto iter = passwds_shadows.begin(); iter != passwds_shadows.end(); ++iter)
     {
         std::shared_ptr<User> user;
@@ -349,7 +347,7 @@ std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Pa
 
 std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
 {
-    auto pwent = PasswdWrapper::get_instance()->get_passwd_by_uid(uid);
+    auto pwent = AccountsWrapper::get_instance()->get_passwd_by_uid(uid);
     if (!pwent)
     {
         LOG_DEBUG("unable to lookup uid %u", (uint32_t)uid);
@@ -359,7 +357,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
     auto user = this->lookup_user_by_uid(uid);
     if (!user)
     {
-        auto spent = PasswdWrapper::get_instance()->get_spwd_by_name(pwent->pw_name);
+        auto spent = AccountsWrapper::get_instance()->get_spwd_by_name(pwent->pw_name);
         user = this->add_new_user_for_pwent(pwent, spent);
         this->explicitly_requested_users_.insert(pwent->pw_name);
     }
@@ -369,7 +367,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
 
 std::shared_ptr<User> AccountsManager::find_and_create_user_by_name(const std::string &user_name)
 {
-    auto pwent = PasswdWrapper::get_instance()->get_passwd_by_name(user_name);
+    auto pwent = AccountsWrapper::get_instance()->get_passwd_by_name(user_name);
     if (!pwent)
     {
         LOG_DEBUG("unable to lookup name %s", user_name.c_str());
@@ -379,7 +377,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_name(const std::s
     auto user = this->lookup_user_by_name(user_name);
     if (!user)
     {
-        auto spent = PasswdWrapper::get_instance()->get_spwd_by_name(pwent->pw_name);
+        auto spent = AccountsWrapper::get_instance()->get_spwd_by_name(pwent->pw_name);
         user = this->add_new_user_for_pwent(pwent, spent);
         this->explicitly_requested_users_.insert(pwent->pw_name);
     }
@@ -406,7 +404,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
                                                 const Glib::ustring &fullname,
                                                 gint32 account_type)
 {
-    auto pwent = PasswdWrapper::get_instance()->get_passwd_by_name(name);
+    auto pwent = AccountsWrapper::get_instance()->get_passwd_by_name(name);
 
     if (pwent)
     {
@@ -466,6 +464,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
         return;
     }
 
+    std::string err;
     auto user = this->find_and_create_user_by_id(uid);
 
     if (!user)
@@ -481,7 +480,10 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     if (this->get_autologin_user() == user)
     {
-        this->set_automatic_login(user, false);
+        if (!this->set_automatic_login(user, false, err))
+        {
+            LOG_WARNING("%s", err.c_str());
+        }
     }
 
     this->remove_cache_files(user->UserName_get());
@@ -498,7 +500,6 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
         argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "--", user->UserName_get().raw()});
     }
 
-    std::string err;
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
         auto err_message = fmt::format("running '{0}' failed: {1}", argv[0], err);

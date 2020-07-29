@@ -804,7 +804,7 @@
       </doc:doc>
     </property>
 
-    <property name="LoginHistory" type="a(xxa{sv})" access="read">
+    <!--<property name="LoginHistory" type="a(xxa{sv})" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
@@ -820,7 +820,7 @@
           </doc:para>
         </doc:description>
       </doc:doc>
-    </property>
+    </property>-->
 
     <property name="IconFile" type="s" access="read">
       <doc:doc>

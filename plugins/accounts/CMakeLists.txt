@@ -8,6 +8,7 @@ file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
 pkg_search_module(ACCOUNTS_SERVICE REQUIRED accountsservice)
 
 
+
 SET (ACCOUNTS_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.xml)
 
 SET (ACCOUNTS_GENERATED_STUB
@@ -64,6 +65,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${GLIBMM_INCLUDE_DIRS}
     ${GIOMM_INCLUDE_DIRS}
     ${ACCOUNTS_SERVICE_INCLUDE_DIRS}
+    ${GIOUNIX_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
 
@@ -75,6 +77,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     ${GLIBMM_LIBRARIES}
     ${GIOMM_LIBRARIES}
     ${ACCOUNTS_SERVICE_LIBRARIES}
+    ${GIOUNIX_LIBRARIES}
     kiran-lib
     fmt)
 
