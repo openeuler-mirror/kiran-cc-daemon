@@ -1,8 +1,0 @@
-[Unit]
-Description=System Daemon Service
-
-[Service]
-Type=dbus
-BusName=com.unikylin.Kiran.SystemDaemon
-ExecStart=@EXECDIR@/kiran-system-daemon
-

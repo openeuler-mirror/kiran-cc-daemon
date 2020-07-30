@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 10:28:14
+ * @LastEditTime : 2020-07-30 11:45:15
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -139,7 +139,7 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     }
     else
     {
-        auto err_message = fmt::format("Failed to look up user with name {0}.", name);
+        auto err_message = fmt::format("Failed to look up user with name {0}.", name.raw());
         invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
     }
 
