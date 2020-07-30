@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 10:23:44
+ * @LastEditTime : 2020-07-30 15:43:49
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
@@ -22,8 +22,11 @@ enum class AccountType
 
 enum class PasswordMode
 {
+    // 正常情况
     PASSWORD_MODE_REGULAR,
+    // 登陆时需要设置密码
     PASSWORD_MODE_SET_AT_LOGIN,
+    // 设置为无密码登陆
     PASSWORD_MODE_NONE,
     PASSWORD_MODE_LAST
 };
@@ -67,30 +70,42 @@ public:
     virtual Glib::ustring PasswordHint_get() { return this->password_hint_; };
     virtual bool AutomaticLogin_get() { return this->automatic_login_; };
     virtual bool SystemAccount_get() { return this->system_account_; };
-    virtual bool LocalAccount_get() { return this->local_account_; };
 
 public:
-    bool get_cached() { return this->cached_; };
-    void set_cached(bool cached) { this->cached_ = cached; };
     bool get_gid() { return this->passwd_->pw_gid; };
 
 protected:
+    // 设置用户名
     virtual void SetUserName(const Glib::ustring &name, MethodInvocation &invocation);
+    //设置用户真实姓名
     virtual void SetRealName(const Glib::ustring &name, MethodInvocation &invocation);
+    // 设置用户邮箱
     virtual void SetEmail(const Glib::ustring &email, MethodInvocation &invocation);
+    // 设置用户使用语言
     virtual void SetLanguage(const Glib::ustring &language, MethodInvocation &invocation);
+    // 设置桌面会话(mate, gnome, etc..)
     virtual void SetXSession(const Glib::ustring &x_session, MethodInvocation &invocation);
     virtual void SetSession(const Glib::ustring &session, MethodInvocation &invocation);
     virtual void SetSessionType(const Glib::ustring &session_type, MethodInvocation &invocation);
+    // 设置用户主目录
     virtual void SetHomeDirectory(const Glib::ustring &homedir, MethodInvocation &invocation);
+    // 设置用户登陆shell
     virtual void SetShell(const Glib::ustring &shell, MethodInvocation &invocation);
+    // 设置用户头像文件路径
     virtual void SetIconFile(const Glib::ustring &filename, MethodInvocation &invocation);
+    // 是否锁定用户
     virtual void SetLocked(bool locked, MethodInvocation &invocation);
+    // 设置用户类型，分为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
     virtual void SetAccountType(gint32 accountType, MethodInvocation &invocation);
+    // 设置密码模式，同时会对用户解除锁定
     virtual void SetPasswordMode(gint32 mode, MethodInvocation &invocation);
+    // 设置用户密码
     virtual void SetPassword(const Glib::ustring &password, const Glib::ustring &hint, MethodInvocation &invocation);
+    // 设置用户密码提示
     virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);
+    // 设置用户是否自动登陆
     virtual void SetAutomaticLogin(bool enabled, MethodInvocation &invocation);
+    // 获取用户密码过期信息
     virtual void GetPasswordExpirationPolicy(MethodInvocation &invocation);
 
     virtual bool Uid_setHandler(guint64 value)
@@ -179,11 +194,6 @@ protected:
         this->system_account_ = value;
         return true;
     };
-    virtual bool LocalAccount_setHandler(bool value)
-    {
-        this->local_account_ = value;
-        return true;
-    };
 
 private:
     std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
@@ -194,7 +204,6 @@ private:
     void change_x_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &x_session);
     void change_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &session);
     void change_session_type_authorized_cb(MethodInvocation invocation, const Glib::ustring &session_type);
-    // void change_location_authorized_cb(MethodInvocation invocation, const Glib::ustring &location);
     void change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir);
     void change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell);
     void change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file);
@@ -212,9 +221,6 @@ private:
 
     void save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile);
     void move_extra_data(const std::string &old_name, const std::string &new_name);
-
-    void update_local_account_property(bool local);
-    void update_system_account_property(bool system);
 
 private:
     Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
@@ -244,8 +250,6 @@ private:
     Glib::ustring password_hint_;
     bool automatic_login_;
     bool system_account_;
-    bool local_account_;
-    bool cached_;
 
     std::shared_ptr<Glib::KeyFile> keyfile_;
 };

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 10:12:35
+ * @LastEditTime : 2020-07-30 15:16:24
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
  */
@@ -35,10 +35,15 @@ public:
     bool set_automatic_login(std::shared_ptr<User> user, bool enabled, std::string &err);
 
 protected:
-    virtual void ListCachedUsers(MethodInvocation &invocation);
+    // 获取非系统用户的DBusObjectPath，非系统用户一般为用户自己创建的账号。例如root为系统账户
+    virtual void GetNonSystemUsers(MethodInvocation &invocation);
+    // 通过uid获取用户的DBusObjectPath，如果DBusObjectPath不存在则会创建一个新的。
     virtual void FindUserById(guint64 uid, MethodInvocation &invocation);
+    // 通过name获取用户的DBusObjectPath
     virtual void FindUserByName(const Glib::ustring &name, MethodInvocation &invocation);
-    virtual void CreateUser(const Glib::ustring &name, const Glib::ustring &fullname, gint32 account_type, MethodInvocation &invocation);
+    // 创建一个用户，用户可以为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
+    virtual void CreateUser(const Glib::ustring &name, const Glib::ustring &realname, gint32 account_type, MethodInvocation &invocation);
+    // 删除一个用户
     virtual void DeleteUser(guint64 uid, bool remove_files, MethodInvocation &invocation);
 
 private:
@@ -55,8 +60,8 @@ private:
     std::shared_ptr<User> add_new_user_for_pwent(std::shared_ptr<Passwd> pwent, std::shared_ptr<SPwd> spent);
     std::shared_ptr<User> find_and_create_user_by_id(uint64_t uid);
     std::shared_ptr<User> find_and_create_user_by_name(const std::string &user_name);
-    bool list_cached_users_idle(MethodInvocation invocation);
-    void create_user_authorized_cb(MethodInvocation invocation, const Glib::ustring &name, const Glib::ustring &fullname, gint32 account_type);
+    bool list_non_system_users_idle(MethodInvocation invocation);
+    void create_user_authorized_cb(MethodInvocation invocation, const Glib::ustring &name, const Glib::ustring &realname, gint32 account_type);
     void delete_user_authorized_cb(MethodInvocation invocation, uint64_t uid, bool remove_files);
 
     bool is_explicitly_requested_user(const std::string &user_name);

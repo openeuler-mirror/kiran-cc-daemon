@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 11:45:15
+ * @LastEditTime : 2020-07-30 15:16:42
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -95,16 +95,16 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
     return true;
 }
 
-void AccountsManager::ListCachedUsers(MethodInvocation &invocation)
+void AccountsManager::GetNonSystemUsers(MethodInvocation &invocation)
 {
     if (this->reload_conn_)
     {
         auto idle = Glib::MainContext::get_default()->signal_idle();
-        idle.connect(sigc::bind(sigc::mem_fun(this, &AccountsManager::list_cached_users_idle), invocation));
+        idle.connect(sigc::bind(sigc::mem_fun(this, &AccountsManager::list_non_system_users_idle), invocation));
     }
     else
     {
-        this->list_cached_users_idle(invocation);
+        this->list_non_system_users_idle(invocation);
     }
 }
 
@@ -401,26 +401,26 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_name(const std::s
     return user;
 }
 
-bool AccountsManager::list_cached_users_idle(MethodInvocation invocation)
+bool AccountsManager::list_non_system_users_idle(MethodInvocation invocation)
 {
-    std::vector<Glib::DBusObjectPathString> cached_users;
+    std::vector<Glib::DBusObjectPathString> non_system_users;
     for (auto iter = this->users_.begin(); iter != this->users_.end(); ++iter)
     {
-        if (iter->second->get_cached())
+        if (!iter->second->SystemAccount_get())
         {
-            cached_users.push_back(iter->second->get_object_path());
+            non_system_users.push_back(iter->second->get_object_path());
         }
     }
-    invocation.ret(cached_users);
+    invocation.ret(non_system_users);
     return false;
 }
 
 void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
                                                 const Glib::ustring &name,
-                                                const Glib::ustring &fullname,
+                                                const Glib::ustring &realname,
                                                 gint32 account_type)
 {
-    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d", name.c_str(), fullname.c_str(), account_type);
+    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d", name.c_str(), realname.c_str(), account_type);
     auto pwent = this->passwd_wrapper_->get_passwd_by_name(name);
 
     if (pwent)
@@ -436,10 +436,10 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     switch (account_type)
     {
         case int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR):
-            argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", fullname.raw(), "-G", ADMIN_GROUP, "--", name.raw()});
+            argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "-G", ADMIN_GROUP, "--", name.raw()});
             break;
         case int32_t(AccountType::ACCOUNT_TYPE_STANDARD):
-            argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", fullname.raw(), "--", name.raw()});
+            argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "--", name.raw()});
             break;
         default:
         {
@@ -461,7 +461,6 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     auto user = this->find_and_create_user_by_name(name);
     if (user)
     {
-        user->LocalAccount_set(true);
         user->SystemAccount_set(false);
         user->save_cache_file();
         invocation.ret(user->get_object_path());

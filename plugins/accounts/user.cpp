@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 10:28:33
+ * @LastEditTime : 2020-07-30 15:14:43
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
  */
@@ -33,9 +33,7 @@ User::User(uint64_t uid) : object_register_id_(0),
                            locked_(false),
                            password_mode_(0),
                            automatic_login_(0),
-                           system_account_(false),
-                           local_account_(false),
-                           cached_(false)
+                           system_account_(false)
 
 {
     this->keyfile_ = std::make_shared<Glib::KeyFile>();
@@ -144,7 +142,6 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
 
     auto is_system_account = !UserClassify::is_human(this->passwd_->pw_uid, this->passwd_->pw_name, this->passwd_->pw_shell);
     this->SystemAccount_set(is_system_account);
-    this->LocalAccount_set(!is_system_account);
 
     this->thaw_notify();
 }
@@ -177,7 +174,7 @@ void User::save_cache_file()
         auto filename = Glib::build_filename(USERDIR, this->UserName_get());
         Glib::file_set_contents(filename, data);
 
-        this->set_cached(true);
+        this->SystemAccount_set(false);
     }
     catch (const Glib::Error &e)
     {
@@ -232,13 +229,12 @@ void User::load_cache_file()
     SET_STR_VALUE_FROM_KEYFILE("Session", Session_set);
     SET_STR_VALUE_FROM_KEYFILE("SessionType", SessionType_set);
     SET_STR_VALUE_FROM_KEYFILE("Email", Email_set);
-    // SET_STR_VALUE_FROM_KEYFILE("Location", Location_set);
     SET_STR_VALUE_FROM_KEYFILE("PasswordHint", PasswordHint_set);
     SET_STR_VALUE_FROM_KEYFILE("Icon", IconFile_set);
-    SET_BOOL_VALUE_FROM_KEYFILE("SystemAccount", SystemAccount_set);
+    // SET_BOOL_VALUE_FROM_KEYFILE("SystemAccount", SystemAccount_set);
 
     this->keyfile_ = keyfile;
-    this->set_cached(true);
+    this->SystemAccount_set(false);
 
     this->thaw_notify();
 }
@@ -250,7 +246,6 @@ void User::remove_cache_file()
 
     auto icon_filename = Glib::build_filename(ICONDIR, this->UserName_get());
     g_remove(icon_filename.c_str());
-    this->set_cached(false);
 }
 
 #define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
@@ -782,16 +777,6 @@ void User::move_extra_data(const std::string &old_name, const std::string &new_n
     auto old_filename = Glib::build_filename(USERDIR, old_name);
     auto new_filename = Glib::build_filename(USERDIR, new_name);
     g_rename(old_filename.c_str(), new_filename.c_str());
-}
-
-void User::update_local_account_property(bool local)
-{
-    this->LocalAccount_set(local);
-}
-
-void User::update_system_account_property(bool system)
-{
-    this->SystemAccount_set(system);
 }
 
 }  // namespace Kiran
