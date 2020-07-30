@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 15:16:42
+ * @LastEditTime : 2020-07-30 16:39:29
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -76,7 +76,7 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
 
     RETURN_VAL_IF_TRUE(cur_autologin == user && enabled, true);
     RETURN_VAL_IF_TRUE(cur_autologin != user && !enabled, true);
-    auto user_name = user ? user->UserName_get().raw() : std::string();
+    auto user_name = user ? user->user_name_get().raw() : std::string();
 
     if (!this->save_autologin_to_file(user_name, enabled, err))
     {
@@ -86,10 +86,10 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
 
     if (cur_autologin)
     {
-        cur_autologin->AutomaticLogin_set(false);
+        cur_autologin->automatic_login_set(false);
     }
 
-    user->AutomaticLogin_set(enabled);
+    user->automatic_login_set(enabled);
     this->autologin_ = enabled ? user : nullptr;
 
     return true;
@@ -254,7 +254,7 @@ bool AccountsManager::reload_users()
     for (auto iter = new_users.begin(); iter != new_users.end(); ++iter)
     {
         auto user = iter->second;
-        if (!user->SystemAccount_get())
+        if (!user->system_account_get())
         {
             ++number_of_normal_users;
         }
@@ -321,7 +321,7 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
         }
 
         user->update_from_passwd_shadow(*iter);
-        auto new_iter = users.emplace(user->UserName_get().raw(), user);
+        auto new_iter = users.emplace(user->user_name_get().raw(), user);
 
         if (!new_iter.second)
         {
@@ -347,10 +347,10 @@ std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Pa
     auto user = std::make_shared<User>(pwent->pw_uid);
     user->update_from_passwd_shadow(std::make_pair(pwent, spent));
     user->dbus_register();
-    auto iter = this->users_.emplace(user->UserName_get(), user);
+    auto iter = this->users_.emplace(user->user_name_get(), user);
     if (!iter.second)
     {
-        LOG_WARNING("user %s is already exist.", user->UserName_get().c_str());
+        LOG_WARNING("user %s is already exist.", user->user_name_get().c_str());
         return iter.first->second;
     }
     else
@@ -406,7 +406,7 @@ bool AccountsManager::list_non_system_users_idle(MethodInvocation invocation)
     std::vector<Glib::DBusObjectPathString> non_system_users;
     for (auto iter = this->users_.begin(); iter != this->users_.end(); ++iter)
     {
-        if (!iter->second->SystemAccount_get())
+        if (!iter->second->system_account_get())
         {
             non_system_users.push_back(iter->second->get_object_path());
         }
@@ -461,7 +461,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     auto user = this->find_and_create_user_by_name(name);
     if (user)
     {
-        user->SystemAccount_set(false);
+        user->system_account_set(false);
         user->save_cache_file();
         invocation.ret(user->get_object_path());
     }
@@ -491,7 +491,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
         return;
     }
 
-    LOG_DEBUG("delete user '%s' (%d)", user->UserName_get().c_str(), (int32_t)uid);
+    LOG_DEBUG("delete user '%s' (%d)", user->user_name_get().c_str(), (int32_t)uid);
 
     if (!this->set_automatic_login(user, false, err))
     {
@@ -504,11 +504,11 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     if (remove_files)
     {
-        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "-r", "--", user->UserName_get().raw()});
+        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "-r", "--", user->user_name_get().raw()});
     }
     else
     {
-        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "--", user->UserName_get().raw()});
+        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "--", user->user_name_get().raw()});
     }
 
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))

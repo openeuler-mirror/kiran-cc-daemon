@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-14 15:40:09
+ * @LastEditTime : 2020-07-30 17:19:49
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.h
  */
@@ -10,6 +10,8 @@
 #include <timedate_dbus_stub.h>
 
 #include <functional>
+
+#include "lib/auth-manager.h"
 
 namespace Kiran
 {
@@ -22,22 +24,10 @@ private:
         std::string sort_name;
     };
 
-    using AuthCheckHandler = std::function<void(MethodInvocation &)>;
-
-    struct AuthCheck
-    {
-        AuthCheck(MethodInvocation &inv) : invocation(inv){};
-        Glib::RefPtr<Gio::Cancellable> cancellable;
-        sigc::connection cancel_connection;
-        std::string cancel_string;
-        MethodInvocation invocation;
-        AuthCheckHandler handler;
-    };
-
     struct HWClockCall
     {
-        std::shared_ptr<MethodInvocation> invocation;
-        AuthCheckHandler handler;
+        Glib::RefPtr<Gio::DBus::MethodInvocation> invocation;
+        AuthManager::AuthCheckHandler handler;
     };
 
 public:
@@ -53,17 +43,13 @@ public:
 protected:
     virtual void SetTime(gint64 requested_time,
                          bool relative,
-                         bool user_interaction,
                          MethodInvocation &invocation);
     virtual void SetTimezone(const Glib::ustring &time_zone,
-                             bool user_interaction,
                              MethodInvocation &invocation);
     virtual void SetLocalRTC(bool local,
                              bool adjust_system,
-                             bool user_interaction,
                              MethodInvocation &invocation);
     virtual void SetNTP(bool active,
-                        bool user_interaction,
                         MethodInvocation &invocation);
 
     /* Handle the setting of a property
@@ -125,10 +111,6 @@ protected:
 private:
     void init();
 
-    void finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::shared_ptr<AuthCheck> auth_check);
-    bool cancel_auth_check(std::shared_ptr<AuthCheck> auth_check);
-    void start_auth_check(const std::string &action, bool user_interaction, MethodInvocation &invocation, AuthCheckHandler handler);
-
     Glib::VariantContainerBase call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters);
     bool call_systemd_noresult(const std::string &method_name, const Glib::VariantContainerBase &parameters);
 
@@ -136,8 +118,8 @@ private:
     void start_hwclock_call(bool hctosys,
                             bool local,
                             bool utc,
-                            std::shared_ptr<MethodInvocation> invocation,
-                            AuthCheckHandler handler);
+                            Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
+                            AuthManager::AuthCheckHandler handler);
 
     void read_ntp_units();
     bool is_ntp_active();
@@ -145,19 +127,19 @@ private:
     uint64_t get_system_time(void);
     uint64_t get_rtc_time(void);
 
-    void funish_set_time(MethodInvocation &invocation, int64_t request_time, int64_t requested_time, bool relative);
+    void funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative);
 
     std::string get_timezone(void);
     void set_localtime_file_context(const std::string &path);
     void update_kernel_utc_offset();
     bool check_timezone_name(const std::string &name);
-    void finish_set_timezone(MethodInvocation &invocation, std::string time_zone);
+    void finish_set_timezone(MethodInvocation invocation, std::string time_zone);
 
     bool is_rtc_local(void);
-    void finish_set_rtc_local_hwclock(MethodInvocation &invocation, bool local);
-    void finish_set_rtc_local(MethodInvocation &invocation, bool local, bool adjust_system);
+    void finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local);
+    void finish_set_rtc_local(MethodInvocation invocation, bool local, bool adjust_system);
 
-    void finish_set_ntp_active(MethodInvocation &invocation, bool active);
+    void finish_set_ntp_active(MethodInvocation invocation, bool active);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
@@ -176,7 +158,5 @@ private:
     Glib::RefPtr<Gio::DBus::Proxy> polkit_proxy_;
 
     std::vector<NtpUnit> ntp_units_;
-
-    int32_t running_auth_checks_;
 };
 }  // namespace Kiran

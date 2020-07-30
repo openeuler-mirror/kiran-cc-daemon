@@ -106,7 +106,7 @@
 
     <method name="SetAccountType">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
-      <arg name="accountType" direction="in" type="i">
+      <arg name="account_type" direction="in" type="i">
         <doc:doc>
           <doc:summary>
             The new account type, encoded as an integer:
@@ -192,7 +192,7 @@
       <arg name="days_after_expiration_until_lock" direction="out" type="x" />
     </method>
 
-    <property name="Uid" type="t" access="read">
+    <property name="uid" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
@@ -201,7 +201,7 @@
       </doc:doc>
     </property>
 
-    <property name="UserName" type="s" access="read">
+    <property name="user_name" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>The username of the user.</doc:para>
@@ -209,7 +209,7 @@
       </doc:doc>
     </property>
 
-    <property name="RealName" type="s" access="read">
+    <property name="real_name" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>The users real name.</doc:para>
@@ -217,7 +217,7 @@
       </doc:doc>
     </property>
 
-    <property name="AccountType" type="i" access="read">
+    <property name="account_type" type="i" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -237,7 +237,7 @@
       </doc:doc>
     </property>
 
-    <property name="HomeDirectory" type="s" access="read">
+    <property name="home_directory" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -247,7 +247,7 @@
       </doc:doc>
     </property>
 
-    <property name="Shell" type="s" access="read">
+    <property name="shell" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -257,7 +257,7 @@
       </doc:doc>
     </property>
 
-    <property name="Email" type="s" access="read">
+    <property name="email" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -267,7 +267,7 @@
       </doc:doc>
     </property>
 
-    <property name="Language" type="s" access="read">
+    <property name="language" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -277,7 +277,7 @@
       </doc:doc>
     </property>
 
-    <property name="Session" type="s" access="read">
+    <property name="session" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -287,7 +287,7 @@
       </doc:doc>
     </property>
 
-    <property name="SessionType" type="s" access="read">
+    <property name="session_type" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -297,7 +297,7 @@
       </doc:doc>
     </property>
 
-    <property name="XSession" type="s" access="read">
+    <property name="x_session" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -308,7 +308,7 @@
     </property>
 
 
-    <property name="IconFile" type="s" access="read">
+    <property name="icon_file" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -319,7 +319,7 @@
     </property>
 
 
-    <property name="Locked" type="b" access="read">
+    <property name="locked" type="b" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -329,7 +329,7 @@
       </doc:doc>
     </property>
 
-    <property name="PasswordMode" type="i" access="read">
+    <property name="password_mode" type="i" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
@@ -353,7 +353,7 @@
       </doc:doc>
     </property>
 
-    <property name="PasswordHint" type="s" access="read">
+    <property name="password_hint" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>The password hint for the user.</doc:para>
@@ -361,7 +361,7 @@
       </doc:doc>
     </property>
 
-    <property name="AutomaticLogin" type="b" access="read">
+    <property name="automatic_login" type="b" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>Whether automatic login is enabled for the user.</doc:para>
@@ -369,7 +369,7 @@
       </doc:doc>
     </property>
 
-    <property name="SystemAccount" type="b" access="read">
+    <property name="system_account" type="b" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>

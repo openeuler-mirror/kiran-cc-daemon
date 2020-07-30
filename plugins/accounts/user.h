@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 15:43:49
+ * @LastEditTime : 2020-07-30 16:38:22
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
@@ -53,23 +53,23 @@ public:
     void remove_cache_file();
 
 public:
-    virtual guint64 Uid_get() { return this->uid_; };
-    virtual Glib::ustring UserName_get() { return this->user_name_; };
-    virtual Glib::ustring RealName_get() { return this->real_name_; };
-    virtual gint32 AccountType_get() { return this->account_type_; };
-    virtual Glib::ustring HomeDirectory_get() { return this->home_directory_; };
-    virtual Glib::ustring Shell_get() { return this->shell_; };
-    virtual Glib::ustring Email_get() { return this->email_; };
-    virtual Glib::ustring Language_get() { return this->language_; };
-    virtual Glib::ustring Session_get() { return this->session_; };
-    virtual Glib::ustring SessionType_get() { return this->session_type_; };
-    virtual Glib::ustring XSession_get() { return this->xsession_; };
-    virtual Glib::ustring IconFile_get() { return this->icon_file_; };
-    virtual bool Locked_get() { return this->locked_; };
-    virtual gint32 PasswordMode_get() { return this->password_mode_; };
-    virtual Glib::ustring PasswordHint_get() { return this->password_hint_; };
-    virtual bool AutomaticLogin_get() { return this->automatic_login_; };
-    virtual bool SystemAccount_get() { return this->system_account_; };
+    virtual guint64 uid_get() { return this->uid_; };
+    virtual Glib::ustring user_name_get() { return this->user_name_; };
+    virtual Glib::ustring real_name_get() { return this->real_name_; };
+    virtual gint32 account_type_get() { return this->account_type_; };
+    virtual Glib::ustring home_directory_get() { return this->home_directory_; };
+    virtual Glib::ustring shell_get() { return this->shell_; };
+    virtual Glib::ustring email_get() { return this->email_; };
+    virtual Glib::ustring language_get() { return this->language_; };
+    virtual Glib::ustring session_get() { return this->session_; };
+    virtual Glib::ustring session_type_get() { return this->session_type_; };
+    virtual Glib::ustring x_session_get() { return this->xsession_; };
+    virtual Glib::ustring icon_file_get() { return this->icon_file_; };
+    virtual bool locked_get() { return this->locked_; };
+    virtual gint32 password_mode_get() { return this->password_mode_; };
+    virtual Glib::ustring password_hint_get() { return this->password_hint_; };
+    virtual bool automatic_login_get() { return this->automatic_login_; };
+    virtual bool system_account_get() { return this->system_account_; };
 
 public:
     bool get_gid() { return this->passwd_->pw_gid; };
@@ -108,88 +108,88 @@ protected:
     // 获取用户密码过期信息
     virtual void GetPasswordExpirationPolicy(MethodInvocation &invocation);
 
-    virtual bool Uid_setHandler(guint64 value)
+    virtual bool uid_setHandler(guint64 value)
     {
         this->uid_ = value;
         return true;
     };
-    virtual bool UserName_setHandler(const Glib::ustring &value)
+    virtual bool user_name_setHandler(const Glib::ustring &value)
     {
         this->user_name_ = value;
         return true;
     };
-    virtual bool RealName_setHandler(const Glib::ustring &value)
+    virtual bool real_name_setHandler(const Glib::ustring &value)
     {
         this->real_name_ = value;
         return true;
     };
-    virtual bool AccountType_setHandler(gint32 value)
+    virtual bool account_type_setHandler(gint32 value)
     {
         this->account_type_ = value;
         return true;
     };
-    virtual bool HomeDirectory_setHandler(const Glib::ustring &value)
+    virtual bool home_directory_setHandler(const Glib::ustring &value)
     {
         this->home_directory_ = value;
         return true;
     };
-    virtual bool Shell_setHandler(const Glib::ustring &value)
+    virtual bool shell_setHandler(const Glib::ustring &value)
     {
         this->shell_ = value;
         return true;
     };
-    virtual bool Email_setHandler(const Glib::ustring &value)
+    virtual bool email_setHandler(const Glib::ustring &value)
     {
         this->email_ = value;
         return true;
     };
-    virtual bool Language_setHandler(const Glib::ustring &value)
+    virtual bool language_setHandler(const Glib::ustring &value)
     {
         this->language_ = value;
         return true;
     };
-    virtual bool Session_setHandler(const Glib::ustring &value)
+    virtual bool session_setHandler(const Glib::ustring &value)
     {
         this->session_ = value;
         return true;
     };
-    virtual bool SessionType_setHandler(const Glib::ustring &value)
+    virtual bool session_type_setHandler(const Glib::ustring &value)
     {
         this->session_type_ = value;
         return true;
     };
-    virtual bool XSession_setHandler(const Glib::ustring &value)
+    virtual bool x_session_setHandler(const Glib::ustring &value)
     {
         this->xsession_ = value;
         return true;
     };
 
-    virtual bool IconFile_setHandler(const Glib::ustring &value)
+    virtual bool icon_file_setHandler(const Glib::ustring &value)
     {
         this->icon_file_ = value;
         return true;
     };
-    virtual bool Locked_setHandler(bool value)
+    virtual bool locked_setHandler(bool value)
     {
         this->locked_ = value;
         return true;
     };
-    virtual bool PasswordMode_setHandler(gint32 value)
+    virtual bool password_mode_setHandler(gint32 value)
     {
         this->password_mode_ = value;
         return true;
     };
-    virtual bool PasswordHint_setHandler(const Glib::ustring &value)
+    virtual bool password_hint_setHandler(const Glib::ustring &value)
     {
         this->password_hint_ = value;
         return true;
     };
-    virtual bool AutomaticLogin_setHandler(bool value)
+    virtual bool automatic_login_setHandler(bool value)
     {
         this->automatic_login_ = value;
         return true;
     };
-    virtual bool SystemAccount_setHandler(bool value)
+    virtual bool system_account_setHandler(bool value)
     {
         this->system_account_ = value;
         return true;

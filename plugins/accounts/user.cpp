@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 15:14:43
+ * @LastEditTime : 2020-07-30 16:36:45
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
  */
@@ -47,7 +47,7 @@ User::~User()
 void User::dbus_register()
 {
     SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
-    this->object_path_ = fmt::format(ACCOUNTS_USER_OBJECT_PATH "/{0}", this->Uid_get());
+    this->object_path_ = fmt::format(ACCOUNTS_USER_OBJECT_PATH "/{0}", this->uid_get());
     try
     {
         this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SYSTEM);
@@ -94,15 +94,15 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
         }
     }
 
-    this->RealName_set(real_name);
-    this->Uid_set(this->passwd_->pw_uid);
+    this->real_name_set(real_name);
+    this->uid_set(this->passwd_->pw_uid);
 
     auto account_type = this->account_type_from_pwent(this->passwd_);
-    this->AccountType_set(int32_t(account_type));
+    this->account_type_set(int32_t(account_type));
 
-    this->UserName_set(this->passwd_->pw_name);
-    this->HomeDirectory_set(this->passwd_->pw_dir);
-    this->Shell_set(this->passwd_->pw_shell);
+    this->user_name_set(this->passwd_->pw_name);
+    this->home_directory_set(this->passwd_->pw_dir);
+    this->shell_set(this->passwd_->pw_shell);
     this->reset_icon_file();
 
     std::shared_ptr<std::string> passwd;
@@ -120,7 +120,7 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
         locked = false;
     }
 
-    this->Locked_set(locked);
+    this->locked_set(locked);
 
     PasswordMode mode;
 
@@ -138,10 +138,10 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
         mode = PasswordMode::PASSWORD_MODE_SET_AT_LOGIN;
     }
 
-    this->PasswordMode_set(int32_t(mode));
+    this->password_mode_set(int32_t(mode));
 
     auto is_system_account = !UserClassify::is_human(this->passwd_->pw_uid, this->passwd_->pw_name, this->passwd_->pw_shell);
-    this->SystemAccount_set(is_system_account);
+    this->system_account_set(is_system_account);
 
     this->thaw_notify();
 }
@@ -166,19 +166,19 @@ void User::thaw_notify()
 
 void User::save_cache_file()
 {
-    SETTINGS_PROFILE("UserName: %s", this->UserName_get().c_str());
+    SETTINGS_PROFILE("UserName: %s", this->user_name_get().c_str());
     this->save_to_keyfile(this->keyfile_);
     try
     {
         auto data = this->keyfile_->to_data();
-        auto filename = Glib::build_filename(USERDIR, this->UserName_get());
+        auto filename = Glib::build_filename(USERDIR, this->user_name_get());
         Glib::file_set_contents(filename, data);
 
-        this->SystemAccount_set(false);
+        this->system_account_set(false);
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("Saving data for user %s failed: %s", this->UserName_get().c_str(), e.what().c_str());
+        LOG_WARNING("Saving data for user %s failed: %s", this->user_name_get().c_str(), e.what().c_str());
     }
 }
 
@@ -210,7 +210,7 @@ void User::save_cache_file()
 
 void User::load_cache_file()
 {
-    auto filename = Glib::build_filename(USERDIR, this->UserName_get());
+    auto filename = Glib::build_filename(USERDIR, this->user_name_get());
     auto keyfile = std::make_shared<Glib::KeyFile>();
     try
     {
@@ -224,27 +224,27 @@ void User::load_cache_file()
 
     this->freeze_notify();
 
-    SET_STR_VALUE_FROM_KEYFILE("Language", Language_set);
-    SET_STR_VALUE_FROM_KEYFILE("XSession", XSession_set);
-    SET_STR_VALUE_FROM_KEYFILE("Session", Session_set);
-    SET_STR_VALUE_FROM_KEYFILE("SessionType", SessionType_set);
-    SET_STR_VALUE_FROM_KEYFILE("Email", Email_set);
-    SET_STR_VALUE_FROM_KEYFILE("PasswordHint", PasswordHint_set);
-    SET_STR_VALUE_FROM_KEYFILE("Icon", IconFile_set);
+    SET_STR_VALUE_FROM_KEYFILE("Language", language_set);
+    SET_STR_VALUE_FROM_KEYFILE("XSession", x_session_set);
+    SET_STR_VALUE_FROM_KEYFILE("Session", session_set);
+    SET_STR_VALUE_FROM_KEYFILE("SessionType", session_type_set);
+    SET_STR_VALUE_FROM_KEYFILE("Email", email_set);
+    SET_STR_VALUE_FROM_KEYFILE("PasswordHint", password_hint_set);
+    SET_STR_VALUE_FROM_KEYFILE("Icon", icon_file_set);
     // SET_BOOL_VALUE_FROM_KEYFILE("SystemAccount", SystemAccount_set);
 
     this->keyfile_ = keyfile;
-    this->SystemAccount_set(false);
+    this->system_account_set(false);
 
     this->thaw_notify();
 }
 
 void User::remove_cache_file()
 {
-    auto user_filename = Glib::build_filename(USERDIR, this->UserName_get());
+    auto user_filename = Glib::build_filename(USERDIR, this->user_name_get());
     g_remove(user_filename.c_str());
 
-    auto icon_filename = Glib::build_filename(ICONDIR, this->UserName_get());
+    auto icon_filename = Glib::build_filename(ICONDIR, this->user_name_get());
     g_remove(icon_filename.c_str());
 }
 
@@ -328,7 +328,7 @@ std::string User::get_auth_action(MethodInvocation &invocation, const std::strin
         return std::string();
     }
 
-    if (this->Uid_get() == (uid_t)uid)
+    if (this->uid_get() == (uid_t)uid)
     {
         return own_action;
     }
@@ -342,13 +342,13 @@ void User::change_user_name_authorized_cb(MethodInvocation invocation, const Gli
 {
     SETTINGS_PROFILE("UserName: %s", name.c_str());
 
-    if (this->UserName_get() != name)
+    if (this->user_name_get() != name)
     {
-        auto old_name = this->UserName_get();
+        auto old_name = this->user_name_get();
 
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-l", name, "--", this->UserName_get().raw());
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-l", name, "--", this->user_name_get().raw());
 
-        this->UserName_set(name);
+        this->user_name_set(name);
         this->move_extra_data(old_name, name);
     }
 
@@ -358,11 +358,11 @@ void User::change_user_name_authorized_cb(MethodInvocation invocation, const Gli
 void User::change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
 {
     SETTINGS_PROFILE("RealName: %s", name.c_str());
-    if (this->RealName_get() != name)
+    if (this->real_name_get() != name)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-c", name, "--", this->UserName_get().raw());
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-c", name, "--", this->user_name_get().raw());
 
-        this->RealName_set(name);
+        this->real_name_set(name);
     }
 
     invocation.ret();
@@ -381,22 +381,21 @@ void User::change_real_name_authorized_cb(MethodInvocation invocation, const Gli
         invocation.ret();                                                   \
     }
 
-USER_AUTH_CHECK_CB(change_email_authorized_cb, Email);
-USER_AUTH_CHECK_CB(change_language_authorized_cb, Language);
-USER_AUTH_CHECK_CB(change_x_session_authorized_cb, XSession);
-USER_AUTH_CHECK_CB(change_session_authorized_cb, Session);
-USER_AUTH_CHECK_CB(change_session_type_authorized_cb, SessionType);
-// USER_AUTH_CHECK_CB(change_location_authorized_cb, Location);
+USER_AUTH_CHECK_CB(change_email_authorized_cb, email);
+USER_AUTH_CHECK_CB(change_language_authorized_cb, language);
+USER_AUTH_CHECK_CB(change_x_session_authorized_cb, x_session);
+USER_AUTH_CHECK_CB(change_session_authorized_cb, session);
+USER_AUTH_CHECK_CB(change_session_type_authorized_cb, session_type);
 
 void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir)
 {
     SETTINGS_PROFILE("HomeDir: %s", home_dir.c_str());
 
-    if (this->HomeDirectory_get() != home_dir)
+    if (this->home_directory_get() != home_dir)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->UserName_get().raw())
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw())
 
-        this->HomeDirectory_set(home_dir);
+        this->home_directory_set(home_dir);
         this->reset_icon_file();
     }
     invocation.ret();
@@ -406,10 +405,10 @@ void User::change_shell_authorized_cb(MethodInvocation invocation, const Glib::u
 {
     SETTINGS_PROFILE("Shell: %s", shell.c_str());
 
-    if (this->Shell_get() != shell)
+    if (this->shell_get() != shell)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->UserName_get().raw());
-        this->Shell_set(shell);
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->user_name_get().raw());
+        this->shell_set(shell);
     }
     invocation.ret();
 }
@@ -428,7 +427,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
     {
         if (icon_file.empty())
         {
-            auto path = Glib::build_filename(ICONDIR, this->UserName_get());
+            auto path = Glib::build_filename(ICONDIR, this->user_name_get());
             g_remove(path.c_str());
             break;
         }
@@ -476,7 +475,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
             return;
         }
 
-        auto dest_path = Glib::build_filename(ICONDIR, this->UserName_get());
+        auto dest_path = Glib::build_filename(ICONDIR, this->user_name_get());
         auto dest_file = Gio::File::create_for_path(dest_path);
         Glib::RefPtr<Gio::FileOutputStream> output;
         try
@@ -534,7 +533,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         filename = dest_path;
     } while (0);
 
-    this->IconFile_set(filename);
+    this->icon_file_set(filename);
     this->save_cache_file();
 }
 
@@ -542,18 +541,18 @@ void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
 {
     SETTINGS_PROFILE("Locked: %d", locked);
 
-    if (this->Locked_get() != locked)
+    if (this->locked_get() != locked)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->UserName_get().raw());
-        this->Locked_set(locked);
-        if (this->AutomaticLogin_get() && locked)
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->user_name_get().raw());
+        this->locked_set(locked);
+        if (this->automatic_login_get() && locked)
         {
             std::string err;
             if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), false, err))
             {
                 LOG_WARNING("%s", err.c_str());
             }
-            this->AutomaticLogin_set(false);
+            this->automatic_login_set(false);
         }
     }
     invocation.ret();
@@ -563,7 +562,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
 {
     SETTINGS_PROFILE("AccountType: %d", account_type);
 
-    if (this->AccountType_get() != account_type)
+    if (this->account_type_get() != account_type)
     {
         auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
         if (!grp)
@@ -573,7 +572,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
         }
         auto admin_gid = grp->gr_gid;
 
-        auto groups = AccountsWrapper::get_instance()->get_user_groups(this->UserName_get(), this->get_gid());
+        auto groups = AccountsWrapper::get_instance()->get_user_groups(this->user_name_get(), this->get_gid());
         std::string groups_join;
         for (auto i = 0; i < (int)groups.size(); ++i)
         {
@@ -588,8 +587,8 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
             groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), admin_gid);
         }
 
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->UserName_get().raw());
-        this->AccountType_set(account_type);
+        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->user_name_get().raw());
+        this->account_type_set(account_type);
     }
     invocation.ret();
 }
@@ -598,28 +597,28 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
 {
     SETTINGS_PROFILE("PasswordMode: %d", password_mode);
 
-    if (this->PasswordMode_get() != password_mode)
+    if (this->password_mode_get() != password_mode)
     {
         this->freeze_notify();
 
         if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN) ||
             password_mode == int32_t(PasswordMode::PASSWORD_MODE_NONE))
         {
-            SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/passwd", "-d", "--", this->UserName_get().raw());
+            SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/passwd", "-d", "--", this->user_name_get().raw());
 
             if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN))
             {
-                SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/chage", "-d", "0", "--", this->UserName_get().raw());
+                SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/chage", "-d", "0", "--", this->user_name_get().raw());
             }
 
-            this->PasswordHint_set(std::string());
+            this->password_hint_set(std::string());
         }
-        else if (this->Locked_get())
+        else if (this->locked_get())
         {
-            SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-U", "--", this->UserName_get().raw());
+            SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-U", "--", this->user_name_get().raw());
         }
-        this->Locked_set(false);
-        this->PasswordMode_set(password_mode);
+        this->locked_set(false);
+        this->password_mode_set(password_mode);
         this->save_cache_file();
         this->thaw_notify();
     }
@@ -633,7 +632,7 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
 
     this->freeze_notify();
 
-    std::vector<std::string> argv = {"/usr/sbin/usermod", "-p", password.raw(), "--", this->UserName_get().raw()};
+    std::vector<std::string> argv = {"/usr/sbin/usermod", "-p", password.raw(), "--", this->user_name_get().raw()};
     std::string err;
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
@@ -642,22 +641,22 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
         return;
     }
 
-    this->PasswordMode_set(int32_t(PasswordMode::PASSWORD_MODE_REGULAR));
-    this->Locked_set(false);
-    this->PasswordHint_set(password_hint);
+    this->password_mode_set(int32_t(PasswordMode::PASSWORD_MODE_REGULAR));
+    this->locked_set(false);
+    this->password_hint_set(password_hint);
     this->save_cache_file();
 
     this->thaw_notify();
     invocation.ret();
 }
 
-USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, PasswordHint);
+USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, password_hint);
 
 void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login)
 {
     SETTINGS_PROFILE("AutoLogin: %d", auto_login);
 
-    if (this->Locked_get())
+    if (this->locked_get())
     {
         invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to change automatic login: user is locked"));
         return;
@@ -722,8 +721,8 @@ AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
 
 void User::reset_icon_file()
 {
-    auto icon_file = this->IconFile_get();
-    auto home_dir = this->HomeDirectory_get();
+    auto icon_file = this->icon_file_get();
+    auto home_dir = this->home_directory_get();
 
     bool icon_is_default = (icon_file == this->default_icon_file_);
 
@@ -731,7 +730,7 @@ void User::reset_icon_file()
 
     if (icon_is_default)
     {
-        this->IconFile_set(this->default_icon_file_);
+        this->icon_file_set(this->default_icon_file_);
     }
 }
 
@@ -760,16 +759,16 @@ void User::save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
         IGNORE_EXCEPTION(keyfile->remove_group("User"));
     }
 
-    SET_STR_VALUE_TO_KEYFILE("Email", Email_get);
-    SET_STR_VALUE_TO_KEYFILE("Language", Language_get);
-    SET_STR_VALUE_TO_KEYFILE("Session", Session_get);
-    SET_STR_VALUE_TO_KEYFILE("SessionType", SessionType_get);
-    SET_STR_VALUE_TO_KEYFILE("XSession", XSession_get);
+    SET_STR_VALUE_TO_KEYFILE("Email", email_get);
+    SET_STR_VALUE_TO_KEYFILE("Language", language_get);
+    SET_STR_VALUE_TO_KEYFILE("Session", session_get);
+    SET_STR_VALUE_TO_KEYFILE("SessionType", session_type_get);
+    SET_STR_VALUE_TO_KEYFILE("XSession", x_session_get);
     // SET_STR_VALUE_TO_KEYFILE("Location", Location_get);
-    SET_STR_VALUE_TO_KEYFILE("PasswordHint", PasswordHint_get);
-    SET_STR_VALUE_TO_KEYFILE("Icon", IconFile_get);
+    SET_STR_VALUE_TO_KEYFILE("PasswordHint", password_hint_get);
+    SET_STR_VALUE_TO_KEYFILE("Icon", icon_file_get);
 
-    keyfile->set_boolean("User", "SystemAccount", this->SystemAccount_get());
+    keyfile->set_boolean("User", "SystemAccount", this->system_account_get());
 }
 
 void User::move_extra_data(const std::string &old_name, const std::string &new_name)

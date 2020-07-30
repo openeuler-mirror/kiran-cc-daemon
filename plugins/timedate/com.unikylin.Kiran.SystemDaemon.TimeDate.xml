@@ -4,25 +4,23 @@
   <interface name="com.unikylin.Kiran.SystemDaemon.TimeDate">
 
     <method name="SetTime">
-      <arg type="x" name="requested_time" direction="in" />
+      <arg type="x" name="requested_time" direction="in">
+        <doc:doc><doc:summary></doc:summary></doc:doc>
+      </arg>
       <arg type="b" name="relative" direction="in" />
-      <arg type="b" name="user_interaction" direction="in" />
     </method>
 
     <method name="SetTimezone">
       <arg type="s" name="time_zone" direction="in" />
-      <arg type="b" name="user_interaction" direction="in" />
     </method>
 
     <method name="SetLocalRTC">
       <arg type="b" name="local" direction="in" />
       <arg type="b" name="adjust_system" direction="in" />
-      <arg type="b" name="user_interaction" direction="in" />
     </method>
 
     <method name="SetNTP">
       <arg type="b" name="active" direction="in" />
-      <arg type="b" name="user_interaction" direction="in" />
     </method>
 
     <property name="Timezone" type="s" access="read"></property>

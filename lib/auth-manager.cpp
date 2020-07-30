@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 14:43:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 13:48:43
+ * @LastEditTime : 2020-07-30 16:56:51
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/auth-manager.cpp
  */
@@ -21,6 +21,7 @@ namespace Kiran
 AuthManager *AuthManager::instance_ = nullptr;
 void AuthManager::global_init()
 {
+    SETTINGS_PROFILE("instance: %p", instance_);
     instance_ = new AuthManager();
     instance_->init();
 }

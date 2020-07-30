@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 09:59:51
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-14 15:00:14
+ * @LastEditTime : 2020-07-30 17:01:28
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-plugin.cpp
  */
@@ -10,6 +10,7 @@
 
 #include <cstdio>
 
+#include "lib/auth-manager.h"
 #include "lib/log.h"
 #include "plugins/timedate/timedate-manager.h"
 

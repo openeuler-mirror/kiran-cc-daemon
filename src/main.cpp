@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-03 11:11:49
+ * @LastEditTime : 2020-07-30 17:00:45
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/main.cpp
  */
@@ -12,6 +12,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
+#include "lib/auth-manager.h"
 #include "lib/log.h"
 #include "src/settings-manager.h"
 
@@ -75,6 +76,7 @@ int main(int argc, char* argv[])
 
     auto loop = Glib::MainLoop::create();
 
+    Kiran::AuthManager::global_init();
     Kiran::SettingsManager::global_init();
 
     loop->run();

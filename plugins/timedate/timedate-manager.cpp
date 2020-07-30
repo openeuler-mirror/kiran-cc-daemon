@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-14 20:17:35
+ * @LastEditTime : 2020-07-30 17:25:04
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cinttypes>
 
 #include "lib/common.h"
 #include "lib/log.h"
@@ -52,8 +53,7 @@ TimedateManager *TimedateManager::instance_ = nullptr;
 const std::vector<std::string> TimedateManager::ntp_units_paths_ = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
 
 TimedateManager::TimedateManager() : dbus_connect_id_(0),
-                                     object_register_id_(0),
-                                     running_auth_checks_(0)
+                                     object_register_id_(0)
 {
 }
 
@@ -73,9 +73,9 @@ void TimedateManager::global_init()
 
 void TimedateManager::SetTime(gint64 requested_time,
                               bool relative,
-                              bool user_interaction,
                               MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("RequestedTime: %" PRId64 " Relative: %d", requested_time, relative);
     if (is_ntp_active())
     {
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "NTP unit is active"));
@@ -84,16 +84,16 @@ void TimedateManager::SetTime(gint64 requested_time,
 
     int64_t request_time = g_get_monotonic_time();
 
-    start_auth_check(POLKIT_ACTION_SET_TIME,
-                     user_interaction,
-                     invocation,
-                     std::bind(&TimedateManager::funish_set_time, this, std::placeholders::_1, request_time, requested_time, relative));
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_TIME,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::funish_set_time, this, std::placeholders::_1, request_time, requested_time, relative));
 }
 
 void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
-                                  bool user_interaction,
                                   MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("TimeZone: %s.", time_zone.c_str());
     if (!check_timezone_name(time_zone))
     {
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS, "Invalid timezone"));
@@ -107,18 +107,17 @@ void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
         return;
     }
 
-    start_auth_check(POLKIT_ACTION_SET_TIMEZONE,
-                     user_interaction,
-                     invocation,
-                     std::bind(&TimedateManager::finish_set_timezone, this, std::placeholders::_1, time_zone));
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_TIMEZONE,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::finish_set_timezone, this, std::placeholders::_1, time_zone));
 }
 
 void TimedateManager::SetLocalRTC(bool local,
                                   bool adjust_system,
-                                  bool user_interaction,
                                   MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("local: %d adjust_system: %d user_interaction: %d.", local, adjust_system, user_interaction);
+    SETTINGS_PROFILE("local: %d adjust_system: %d.", local, adjust_system);
 
     if (local == is_rtc_local())
     {
@@ -126,17 +125,16 @@ void TimedateManager::SetLocalRTC(bool local,
         return;
     }
 
-    start_auth_check(POLKIT_ACTION_SET_RTC_LOCAL,
-                     user_interaction,
-                     invocation,
-                     std::bind(&TimedateManager::finish_set_rtc_local, this, std::placeholders::_1, local, adjust_system));
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_RTC_LOCAL,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::finish_set_rtc_local, this, std::placeholders::_1, local, adjust_system));
 }
 
 void TimedateManager::SetNTP(bool active,
-                             bool user_interaction,
                              MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("active: %d user_interaction: %d", active, user_interaction);
+    SETTINGS_PROFILE("active: %d.", active);
 
     if (this->ntp_units_.size() == 0)
     {
@@ -150,10 +148,10 @@ void TimedateManager::SetNTP(bool active,
         return;
     }
 
-    start_auth_check(POLKIT_ACTION_SET_NTP_ACTIVE,
-                     user_interaction,
-                     invocation,
-                     std::bind(&TimedateManager::finish_set_ntp_active, this, std::placeholders::_1, active));
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_NTP_ACTIVE,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::finish_set_ntp_active, this, std::placeholders::_1, active));
 }
 
 Glib::ustring TimedateManager::Timezone_get()
@@ -207,104 +205,6 @@ void TimedateManager::init()
     this->read_ntp_units();
 }
 
-void TimedateManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::shared_ptr<AuthCheck> auth_check)
-{
-    SETTINGS_PROFILE("");
-    bool authorized = true;
-    bool challenge = false;
-    auth_check->cancel_connection.disconnect();
-
-    try
-    {
-        auto result = this->polkit_proxy_->call_finish(res);
-        if (result.gobj())
-        {
-            g_variant_get(result.gobj(), "((bba{ss}))", &authorized, &challenge, NULL);
-        }
-        else
-        {
-            LOG_DEBUG("the result is empty.");
-        }
-    }
-    catch (Glib::Error &e)
-    {
-        Gio::DBus::ErrorUtils::strip_remote_error(e);
-        LOG_WARNING("Failed to check authorization: %s", e.what().c_str());
-        authorized = false;
-    }
-
-    LOG_DEBUG("authorized: %d challenge: %d.", authorized, challenge);
-
-    if (authorized)
-    {
-        (auth_check->handler)(auth_check->invocation);
-    }
-    else
-    {
-        auth_check->invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_AUTH_FAILED, "Not authorized"));
-    }
-
-    g_return_if_fail(this->running_auth_checks_ > 0);
-    this->running_auth_checks_--;
-}
-
-bool TimedateManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
-{
-    SETTINGS_PROFILE("");
-    auth_check->cancellable->cancel();
-
-    Glib::VariantContainerBase base(g_variant_new("(s)", auth_check->cancel_string.c_str()), false);
-
-    try
-    {
-        this->polkit_proxy_->call_sync("CancelCheckAuthorization", base);
-    }
-    catch (Glib::Error &e)
-    {
-        Gio::DBus::ErrorUtils::strip_remote_error(e);
-        LOG_WARNING("Failed to cancel authorization check: %s", e.what().c_str());
-    }
-
-    // auth_check->cancel_connection.disconnect();
-
-    return false;
-}
-
-void TimedateManager::start_auth_check(const std::string &action, bool user_interaction, MethodInvocation &invocation, AuthCheckHandler handler)
-{
-    SETTINGS_PROFILE("");
-    std::shared_ptr<AuthCheck> auth_check = std::make_shared<AuthCheck>(invocation);
-    auto timeout = Glib::MainContext::get_default()->signal_timeout();
-
-    auth_check->cancellable = Gio::Cancellable::create();
-    auth_check->cancel_connection = timeout.connect_seconds(sigc::bind(&TimedateManager::cancel_auth_check, this, auth_check), POLKIT_AUTH_CHECK_TIMEOUT);
-    auth_check->cancel_string = fmt::format("cancel{0}", (void *)&auth_check->cancel_connection);
-
-    auth_check->handler = handler;
-
-    GVariantBuilder builder1;
-    GVariantBuilder builder2;
-
-    LOG_DEBUG("action: %s user_interaction: %d sender: %s. cancel_string: %s",
-              action.c_str(),
-              user_interaction,
-              invocation.getMessage()->get_sender().c_str(),
-              auth_check->cancel_string.c_str());
-
-    g_variant_builder_init(&builder1, G_VARIANT_TYPE("a{sv}"));
-    g_variant_builder_add(&builder1, "{sv}", "name", g_variant_new_string(invocation.getMessage()->get_sender().c_str()));
-    g_variant_builder_init(&builder2, G_VARIANT_TYPE("a{ss}"));
-
-    auto parameters = g_variant_new("((sa{sv})sa{ss}us)", "system-bus-name", &builder1,
-                                    action.c_str(), &builder2, user_interaction ? 1 : 0, auth_check->cancel_string.c_str());
-
-    Glib::VariantContainerBase base(parameters, false);
-    Gio::SlotAsyncReady res = sigc::bind(sigc::mem_fun(this, &TimedateManager::finish_auth_check), auth_check);
-    this->polkit_proxy_->call("CheckAuthorization", res, base);
-
-    this->running_auth_checks_++;
-}
-
 Glib::VariantContainerBase TimedateManager::call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters)
 {
     SETTINGS_PROFILE("method_name: %s.", method_name.c_str());
@@ -341,7 +241,7 @@ void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_d
     if (g_spawn_check_exit_status(status, &error))
     {
         if (hwclock_call->handler && hwclock_call->invocation)
-            (hwclock_call->handler)(*(hwclock_call->invocation.get()));
+            (hwclock_call->handler)(hwclock_call->invocation);
     }
     else
     {
@@ -349,7 +249,7 @@ void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_d
         if (hwclock_call->invocation)
         {
             auto err_message = fmt::format("hwclock failed: %s", error->message);
-            hwclock_call->invocation->ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
+            hwclock_call->invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
         }
 
         g_error_free(error);
@@ -361,8 +261,8 @@ void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_d
 void TimedateManager::start_hwclock_call(bool hctosys,
                                          bool local,
                                          bool utc,
-                                         std::shared_ptr<MethodInvocation> invocation,
-                                         AuthCheckHandler handler)
+                                         Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
+                                         AuthManager::AuthCheckHandler handler)
 {
     std::vector<std::string> argv;
     std::vector<std::string> envp;
@@ -373,7 +273,7 @@ void TimedateManager::start_hwclock_call(bool hctosys,
     {
         if (invocation)
         {
-            invocation->ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "No RTC device"));
+            invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "No RTC device"));
         }
         return;
     }
@@ -414,7 +314,7 @@ void TimedateManager::start_hwclock_call(bool hctosys,
         LOG_WARNING("%s\n", e.what().c_str());
         if (invocation)
         {
-            invocation->ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, e.what().c_str()));
+            invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, e.what().c_str()));
         }
         return;
     }
@@ -587,7 +487,7 @@ uint64_t TimedateManager::get_rtc_time(void)
     return (uint64_t)rtc_time * 1000000;
 }
 
-void TimedateManager::funish_set_time(MethodInvocation &invocation, int64_t request_time, int64_t requested_time, bool relative)
+void TimedateManager::funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative)
 {
     struct timeval tv;
     struct timex tx;
@@ -634,7 +534,7 @@ void TimedateManager::funish_set_time(MethodInvocation &invocation, int64_t requ
     {
         invocation.ret();
         /* Set the RTC to the new system time */
-        start_hwclock_call(false, false, false, nullptr, nullptr);
+        start_hwclock_call(false, false, false, Glib::RefPtr<Gio::DBus::MethodInvocation>(), nullptr);
     }
 }
 
@@ -746,7 +646,7 @@ bool TimedateManager::check_timezone_name(const std::string &name)
     return true;
 }
 
-void TimedateManager::finish_set_timezone(MethodInvocation &invocation, std::string time_zone)
+void TimedateManager::finish_set_timezone(MethodInvocation invocation, std::string time_zone)
 {
     auto link = fmt::format("{0}{1}{2}", LOCALTIME_TO_ZONEINFO_PATH, ZONEINFO_PATH, time_zone);
     auto tmp = fmt::format("%s.%06u", LOCALTIME_PATH, g_random_int());
@@ -771,7 +671,7 @@ void TimedateManager::finish_set_timezone(MethodInvocation &invocation, std::str
         /* RTC in local needs to be set for the new timezone */
         if (is_rtc_local())
         {
-            start_hwclock_call(false, false, false, nullptr, nullptr);
+            start_hwclock_call(false, false, false, Glib::RefPtr<Gio::DBus::MethodInvocation>(), nullptr);
         }
         successed = true;
     } while (0);
@@ -805,24 +705,24 @@ bool TimedateManager::is_rtc_local(void)
     return false;
 }
 
-void TimedateManager::finish_set_rtc_local_hwclock(MethodInvocation &invocation, bool local)
+void TimedateManager::finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local)
 {
     this->LocalRTC_set(local);
     invocation.ret();
 }
 
-void TimedateManager::finish_set_rtc_local(MethodInvocation &invocation,
+void TimedateManager::finish_set_rtc_local(MethodInvocation invocation,
                                            bool local,
                                            bool adjust_system)
 {
     start_hwclock_call(adjust_system,
                        local,
                        !local,
-                       std::make_shared<MethodInvocation>(invocation),
+                       invocation.getMessage(),
                        std::bind(&TimedateManager::finish_set_rtc_local_hwclock, this, std::placeholders::_1, local));
 }
 
-void TimedateManager::finish_set_ntp_active(MethodInvocation &invocation, bool active)
+void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool active)
 {
     SETTINGS_PROFILE("");
 
