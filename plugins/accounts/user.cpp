@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 17:54:22
+ * @LastEditTime : 2020-07-30 10:28:33
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
  */
@@ -29,7 +29,13 @@ namespace Kiran
 #define ADMIN_GROUP "wheel"
 
 User::User(uint64_t uid) : object_register_id_(0),
-                           uid_(uid)
+                           uid_(uid),
+                           locked_(false),
+                           password_mode_(0),
+                           automatic_login_(0),
+                           system_account_(false),
+                           local_account_(false),
+                           cached_(false)
 
 {
     this->keyfile_ = std::make_shared<Glib::KeyFile>();
@@ -143,24 +149,6 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
     this->thaw_notify();
 }
 
-void User::save_data()
-{
-    SETTINGS_PROFILE("UserName: %s", this->UserName_get().c_str());
-    this->save_to_keyfile(this->keyfile_);
-    try
-    {
-        auto data = this->keyfile_->to_data();
-        auto filename = Glib::build_filename(USERDIR, this->UserName_get());
-        Glib::file_set_contents(filename, data);
-
-        this->Saved_set(true);
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_WARNING("Saving data for user %s failed: %s", this->UserName_get().c_str(), e.what().c_str());
-    }
-}
-
 void User::freeze_notify()
 {
     SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
@@ -177,6 +165,92 @@ void User::thaw_notify()
     {
         this->dbus_connect_->thaw_notify();
     }
+}
+
+void User::save_cache_file()
+{
+    SETTINGS_PROFILE("UserName: %s", this->UserName_get().c_str());
+    this->save_to_keyfile(this->keyfile_);
+    try
+    {
+        auto data = this->keyfile_->to_data();
+        auto filename = Glib::build_filename(USERDIR, this->UserName_get());
+        Glib::file_set_contents(filename, data);
+
+        this->set_cached(true);
+    }
+    catch (const Glib::Error &e)
+    {
+        LOG_WARNING("Saving data for user %s failed: %s", this->UserName_get().c_str(), e.what().c_str());
+    }
+}
+
+#define SET_STR_VALUE_FROM_KEYFILE(key, fun)           \
+    {                                                  \
+        try                                            \
+        {                                              \
+            auto s = keyfile->get_string("User", key); \
+            this->fun(s);                              \
+        }                                              \
+        catch (const Glib::KeyFileError &e)            \
+        {                                              \
+            LOG_DEBUG("%s", e.what().c_str());         \
+        }                                              \
+    }
+
+#define SET_BOOL_VALUE_FROM_KEYFILE(key, fun)           \
+    {                                                   \
+        try                                             \
+        {                                               \
+            auto b = keyfile->get_boolean("User", key); \
+            this->fun(b);                               \
+        }                                               \
+        catch (const Glib::KeyFileError &e)             \
+        {                                               \
+            LOG_DEBUG("%s", e.what().c_str());          \
+        }                                               \
+    }
+
+void User::load_cache_file()
+{
+    auto filename = Glib::build_filename(USERDIR, this->UserName_get());
+    auto keyfile = std::make_shared<Glib::KeyFile>();
+    try
+    {
+        keyfile->load_from_file(filename);
+    }
+    catch (const Glib::Error &e)
+    {
+        LOG_WARNING("failed to load file %s: %s.", filename.c_str(), e.what().c_str());
+        return;
+    }
+
+    this->freeze_notify();
+
+    SET_STR_VALUE_FROM_KEYFILE("Language", Language_set);
+    SET_STR_VALUE_FROM_KEYFILE("XSession", XSession_set);
+    SET_STR_VALUE_FROM_KEYFILE("Session", Session_set);
+    SET_STR_VALUE_FROM_KEYFILE("SessionType", SessionType_set);
+    SET_STR_VALUE_FROM_KEYFILE("Email", Email_set);
+    // SET_STR_VALUE_FROM_KEYFILE("Location", Location_set);
+    SET_STR_VALUE_FROM_KEYFILE("PasswordHint", PasswordHint_set);
+    SET_STR_VALUE_FROM_KEYFILE("Icon", IconFile_set);
+    SET_BOOL_VALUE_FROM_KEYFILE("SystemAccount", SystemAccount_set);
+
+    this->keyfile_ = keyfile;
+    this->set_cached(true);
+
+    this->thaw_notify();
+}
+
+void User::remove_cache_file()
+{
+    auto user_filename = Glib::build_filename(USERDIR, this->UserName_get());
+    g_remove(user_filename.c_str());
+
+    auto icon_filename = Glib::build_filename(ICONDIR, this->UserName_get());
+    g_remove(icon_filename.c_str());
+    this->set_cached(false);
 }
 
 #define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
@@ -234,7 +308,7 @@ USER_SET_ONE_PROP_AUTH(SetLanguage, change_language_authorized_cb, AUTH_CHANGE_O
 USER_SET_ONE_PROP_AUTH(SetXSession, change_x_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetSession, change_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetSessionType, change_session_type_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetLocation, change_location_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
+// USER_SET_ONE_PROP_AUTH(SetLocation, change_location_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetHomeDirectory, change_home_dir_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetShell, change_shell_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetIconFile, change_icon_file_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
@@ -306,7 +380,7 @@ void User::change_real_name_authorized_cb(MethodInvocation invocation, const Gli
         if (this->prop##_get() != value)                                    \
         {                                                                   \
             this->prop##_set(value);                                        \
-            this->save_data();                                              \
+            this->save_cache_file();                                        \
         }                                                                   \
                                                                             \
         invocation.ret();                                                   \
@@ -317,7 +391,7 @@ USER_AUTH_CHECK_CB(change_language_authorized_cb, Language);
 USER_AUTH_CHECK_CB(change_x_session_authorized_cb, XSession);
 USER_AUTH_CHECK_CB(change_session_authorized_cb, Session);
 USER_AUTH_CHECK_CB(change_session_type_authorized_cb, SessionType);
-USER_AUTH_CHECK_CB(change_location_authorized_cb, Location);
+// USER_AUTH_CHECK_CB(change_location_authorized_cb, Location);
 
 void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir)
 {
@@ -388,7 +462,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
 
         if (size > 1048576)
         {
-            auto err_message = fmt::format("file '%s' is too large to be used as an icon", filename.raw());
+            auto err_message = fmt::format("file '{0}' is too large to be used as an icon", filename.raw());
             invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
             return;
         }
@@ -466,7 +540,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
     } while (0);
 
     this->IconFile_set(filename);
-    this->save_data();
+    this->save_cache_file();
 }
 
 void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
@@ -551,7 +625,7 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
         }
         this->Locked_set(false);
         this->PasswordMode_set(password_mode);
-        this->save_data();
+        this->save_cache_file();
         this->thaw_notify();
     }
 
@@ -576,7 +650,7 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
     this->PasswordMode_set(int32_t(PasswordMode::PASSWORD_MODE_REGULAR));
     this->Locked_set(false);
     this->PasswordHint_set(password_hint);
-    this->save_data();
+    this->save_cache_file();
 
     this->thaw_notify();
     invocation.ret();
@@ -666,54 +740,6 @@ void User::reset_icon_file()
     }
 }
 
-#define SET_STR_VALUE_FROM_KEYFILE(key, fun)           \
-    {                                                  \
-        try                                            \
-        {                                              \
-            auto s = keyfile->get_string("User", key); \
-            this->fun(s);                              \
-        }                                              \
-        catch (const Glib::KeyFileError &e)            \
-        {                                              \
-            LOG_DEBUG("%s", e.what().c_str());         \
-        }                                              \
-    }
-
-#define SET_BOOL_VALUE_FROM_KEYFILE(key, fun)           \
-    {                                                   \
-        try                                             \
-        {                                               \
-            auto b = keyfile->get_boolean("User", key); \
-            this->fun(b);                               \
-        }                                               \
-        catch (const Glib::KeyFileError &e)             \
-        {                                               \
-            LOG_DEBUG("%s", e.what().c_str());          \
-        }                                               \
-    }
-
-void User::update_from_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
-{
-    this->freeze_notify();
-
-    SET_STR_VALUE_FROM_KEYFILE("Language", Language_set);
-    SET_STR_VALUE_FROM_KEYFILE("XSession", XSession_set);
-    SET_STR_VALUE_FROM_KEYFILE("XSession", Session_set);
-    SET_STR_VALUE_FROM_KEYFILE("Session", Session_set);
-    SET_STR_VALUE_FROM_KEYFILE("SessionType", SessionType_set);
-    SET_STR_VALUE_FROM_KEYFILE("Email", Email_set);
-    SET_STR_VALUE_FROM_KEYFILE("Location", Location_set);
-    SET_STR_VALUE_FROM_KEYFILE("PasswordHint", PasswordHint_set);
-    SET_STR_VALUE_FROM_KEYFILE("Icon", IconFile_set);
-    SET_BOOL_VALUE_FROM_KEYFILE("SystemAccount", SystemAccount_set);
-
-    this->keyfile_ = keyfile;
-    // user_set_cached(user, TRUE);
-    // user_set_saved(user, TRUE);
-
-    this->thaw_notify();
-}
-
 #define SET_STR_VALUE_TO_KEYFILE(key, fun)       \
     {                                            \
         auto s = this->fun();                    \
@@ -744,7 +770,7 @@ void User::save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
     SET_STR_VALUE_TO_KEYFILE("Session", Session_get);
     SET_STR_VALUE_TO_KEYFILE("SessionType", SessionType_get);
     SET_STR_VALUE_TO_KEYFILE("XSession", XSession_get);
-    SET_STR_VALUE_TO_KEYFILE("Location", Location_get);
+    // SET_STR_VALUE_TO_KEYFILE("Location", Location_get);
     SET_STR_VALUE_TO_KEYFILE("PasswordHint", PasswordHint_get);
     SET_STR_VALUE_TO_KEYFILE("Icon", IconFile_get);
 

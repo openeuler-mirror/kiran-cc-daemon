@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 17:48:29
+ * @LastEditTime : 2020-07-30 10:12:35
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
  */
@@ -30,7 +30,6 @@ public:
     static void global_deinit() { delete instance_; };
 
     std::shared_ptr<User> lookup_user_by_name(const std::string &user_name);
-    std::shared_ptr<User> lookup_user_by_uid(int64_t uid);
     std::shared_ptr<User> get_autologin_user();
 
     bool set_automatic_login(std::shared_ptr<User> user, bool enabled, std::string &err);
@@ -60,7 +59,6 @@ private:
     void create_user_authorized_cb(MethodInvocation invocation, const Glib::ustring &name, const Glib::ustring &fullname, gint32 account_type);
     void delete_user_authorized_cb(MethodInvocation invocation, uint64_t uid, bool remove_files);
 
-    void remove_cache_files(const std::string &user_name);
     bool is_explicitly_requested_user(const std::string &user_name);
 
     bool read_autologin_from_file(std::string &name, bool &enabled, std::string &err);
@@ -83,7 +81,6 @@ private:
 
     std::map<std::string, std::shared_ptr<User>> users_;
     std::weak_ptr<User> autologin_;
-    std::map<int64_t, std::weak_ptr<User>> users_by_uid_;
     std::set<std::string> explicitly_requested_users_;
 };
 }  // namespace Kiran

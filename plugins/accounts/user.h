@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 15:41:41
+ * @LastEditTime : 2020-07-30 10:23:44
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
@@ -41,10 +41,13 @@ public:
     Glib::DBusObjectPathString get_object_path() { return this->object_path_; }
 
     void update_from_passwd_shadow(PasswdShadow passwd_shadow);
-    void save_data();
 
     void freeze_notify();
     void thaw_notify();
+
+    void save_cache_file();
+    void load_cache_file();
+    void remove_cache_file();
 
 public:
     virtual guint64 Uid_get() { return this->uid_; };
@@ -58,12 +61,7 @@ public:
     virtual Glib::ustring Session_get() { return this->session_; };
     virtual Glib::ustring SessionType_get() { return this->session_type_; };
     virtual Glib::ustring XSession_get() { return this->xsession_; };
-    virtual Glib::ustring Location_get() { return this->location_; };
-    virtual guint64 LoginFrequency_get() { return this->login_frequency_; };
-    virtual gint64 LoginTime_get() { return this->login_time_; };
-    // virtual std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> LoginHistory_get();
     virtual Glib::ustring IconFile_get() { return this->icon_file_; };
-    virtual bool Saved_get() { return this->saved_; };
     virtual bool Locked_get() { return this->locked_; };
     virtual gint32 PasswordMode_get() { return this->password_mode_; };
     virtual Glib::ustring PasswordHint_get() { return this->password_hint_; };
@@ -84,7 +82,6 @@ protected:
     virtual void SetXSession(const Glib::ustring &x_session, MethodInvocation &invocation);
     virtual void SetSession(const Glib::ustring &session, MethodInvocation &invocation);
     virtual void SetSessionType(const Glib::ustring &session_type, MethodInvocation &invocation);
-    virtual void SetLocation(const Glib::ustring &location, MethodInvocation &invocation);
     virtual void SetHomeDirectory(const Glib::ustring &homedir, MethodInvocation &invocation);
     virtual void SetShell(const Glib::ustring &shell, MethodInvocation &invocation);
     virtual void SetIconFile(const Glib::ustring &filename, MethodInvocation &invocation);
@@ -151,30 +148,10 @@ protected:
         this->xsession_ = value;
         return true;
     };
-    virtual bool Location_setHandler(const Glib::ustring &value)
-    {
-        this->location_ = value;
-        return true;
-    };
-    virtual bool LoginFrequency_setHandler(guint64 value)
-    {
-        this->login_frequency_ = value;
-        return true;
-    };
-    virtual bool LoginTime_setHandler(gint64 value)
-    {
-        this->login_time_ = value;
-        return true;
-    };
-    // virtual bool LoginHistory_setHandler(const std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> &value);
+
     virtual bool IconFile_setHandler(const Glib::ustring &value)
     {
         this->icon_file_ = value;
-        return true;
-    };
-    virtual bool Saved_setHandler(bool value)
-    {
-        this->saved_ = value;
         return true;
     };
     virtual bool Locked_setHandler(bool value)
@@ -217,7 +194,7 @@ private:
     void change_x_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &x_session);
     void change_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &session);
     void change_session_type_authorized_cb(MethodInvocation invocation, const Glib::ustring &session_type);
-    void change_location_authorized_cb(MethodInvocation invocation, const Glib::ustring &location);
+    // void change_location_authorized_cb(MethodInvocation invocation, const Glib::ustring &location);
     void change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir);
     void change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell);
     void change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file);
@@ -233,7 +210,6 @@ private:
     AccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
     void reset_icon_file();
 
-    void update_from_keyfile(std::shared_ptr<Glib::KeyFile> keyfile);
     void save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile);
     void move_extra_data(const std::string &old_name, const std::string &new_name);
 
@@ -262,12 +238,7 @@ private:
     Glib::ustring session_;
     Glib::ustring session_type_;
     Glib::ustring xsession_;
-    Glib::ustring location_;
-    uint64_t login_frequency_;
-    int64_t login_time_;
-    // std::vector<std::tuple<gint64, gint64, std::map<Glib::ustring, Glib::VariantBase>>> LoginHistory;
     Glib::ustring icon_file_;
-    bool saved_;
     bool locked_;
     int32_t password_mode_;
     Glib::ustring password_hint_;

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 17:47:51
+ * @LastEditTime : 2020-07-30 10:28:14
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -57,19 +57,6 @@ std::shared_ptr<User> AccountsManager::lookup_user_by_name(const std::string &us
     if (iter != this->users_.end())
     {
         return iter->second;
-    }
-    return nullptr;
-}
-
-std::shared_ptr<User> AccountsManager::lookup_user_by_uid(int64_t uid)
-{
-    auto iter = this->users_by_uid_.find(uid);
-    if (iter != this->users_by_uid_.end())
-    {
-        if (!iter->second.expired())
-        {
-            return iter->second.lock();
-        }
     }
     return nullptr;
 }
@@ -133,7 +120,7 @@ void AccountsManager::FindUserById(guint64 uid, MethodInvocation &invocation)
     }
     else
     {
-        auto err_message = fmt::format("Failed to look up user with id %" PRIu64 ".", uid);
+        auto err_message = fmt::format("Failed to look up user with id {0}", uid);
         invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
     }
 
@@ -152,7 +139,7 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     }
     else
     {
-        auto err_message = fmt::format("Failed to look up user with name %s.", name.c_str());
+        auto err_message = fmt::format("Failed to look up user with name {0}.", name);
         invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
     }
 
@@ -282,7 +269,7 @@ bool AccountsManager::reload_users()
         {
             this->UserDeleted_signal.emit(iter->second->get_object_path());
             iter->second->dbus_unregister();
-            this->remove_cache_files(iter->second->UserName_get());
+            iter->second->remove_cache_file();
         }
     }
 
@@ -347,8 +334,7 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 
         if (!this->is_explicitly_requested_user(pwent->pw_name))
         {
-            user->set_cached(true);
-            user->save_data();
+            user->load_cache_file();
         }
     }
     return users;
@@ -356,6 +342,8 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 
 std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Passwd> pwent, std::shared_ptr<SPwd> spent)
 {
+    SETTINGS_PROFILE("UserName: %s.", pwent->pw_name.c_str());
+
     auto user = std::make_shared<User>(pwent->pw_uid);
     user->update_from_passwd_shadow(std::make_pair(pwent, spent));
     user->dbus_register();
@@ -374,6 +362,7 @@ std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Pa
 
 std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
 {
+    SETTINGS_PROFILE("uid: %" PRIu64, uid);
     auto pwent = this->passwd_wrapper_->get_passwd_by_uid(uid);
     if (!pwent)
     {
@@ -381,7 +370,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
         return nullptr;
     }
 
-    auto user = this->lookup_user_by_uid(uid);
+    auto user = this->lookup_user_by_name(pwent->pw_name);
     if (!user)
     {
         auto spent = this->passwd_wrapper_->get_spwd_by_name(pwent->pw_name);
@@ -431,6 +420,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
                                                 const Glib::ustring &fullname,
                                                 gint32 account_type)
 {
+    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d", name.c_str(), fullname.c_str(), account_type);
     auto pwent = this->passwd_wrapper_->get_passwd_by_name(name);
 
     if (pwent)
@@ -453,7 +443,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
             break;
         default:
         {
-            auto err_message = fmt::format("Don't know how to add user of type %d", int32_t(account_type));
+            auto err_message = fmt::format("Don't know how to add user of type {0}", int32_t(account_type));
             invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
             return;
         }
@@ -473,7 +463,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     {
         user->LocalAccount_set(true);
         user->SystemAccount_set(false);
-        user->save_data();
+        user->save_cache_file();
         invocation.ret(user->get_object_path());
     }
     else
@@ -485,6 +475,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
 void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uint64_t uid, bool remove_files)
 {
+    SETTINGS_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
     if (uid == 0)
     {
         invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), "Refuse to delete root user"));
@@ -503,15 +494,12 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     LOG_DEBUG("delete user '%s' (%d)", user->UserName_get().c_str(), (int32_t)uid);
 
-    user->set_cached(false);
-
     if (!this->set_automatic_login(user, false, err))
     {
         LOG_WARNING("%s", err.c_str());
     }
 
-    this->remove_cache_files(user->UserName_get());
-    user->Saved_set(false);
+    user->remove_cache_file();
 
     std::vector<std::string> argv;
 
@@ -532,15 +520,6 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
     }
 
     invocation.ret();
-}
-
-void AccountsManager::remove_cache_files(const std::string &user_name)
-{
-    auto user_filename = Glib::build_filename(USERDIR, user_name);
-    g_remove(user_filename.c_str());
-
-    auto icon_filename = Glib::build_filename(ICONDIR, user_name);
-    g_remove(icon_filename.c_str());
 }
 
 bool AccountsManager::is_explicitly_requested_user(const std::string &user_name)

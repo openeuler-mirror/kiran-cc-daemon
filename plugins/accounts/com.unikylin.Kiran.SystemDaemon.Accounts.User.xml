@@ -271,41 +271,6 @@
       </doc:doc>
     </method>
 
-    <method name="SetLocation">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
-      <arg name="location" direction="in" type="s">
-        <doc:doc>
-          <doc:summary>
-          The new location as a freeform string.
-          </doc:summary>
-        </doc:doc>
-      </arg>
-      <doc:doc>
-        <doc:description>
-          <doc:para>
-          Sets the users location.
-          </doc:para>
-        </doc:description>
-        <doc:permission>
-          The caller needs one of the following PolicyKit authorizations:
-          <doc:list>
-            <doc:item>
-              <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
-              <doc:definition>To change his own location</doc:definition>
-            </doc:item>
-            <doc:item>
-              <doc:term>org.freedesktop.accounts.user-administration</doc:term>
-              <doc:definition>To change the location of another user</doc:definition>
-            </doc:item>
-          </doc:list>
-        </doc:permission>
-        <doc:errors>
-          <doc:error name="org.freedesktop.Accounts.Error.PermissionDenied">if the caller lacks the appropriate PolicyKit authorization</doc:error>
-          <doc:error name="org.freedesktop.Accounts.Error.Failed">if the operation failed</doc:error>
-        </doc:errors>
-      </doc:doc>
-    </method>
-
     <method name="SetHomeDirectory">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="" />
       <arg name="homedir" direction="in" type="s">
@@ -774,53 +739,6 @@
       </doc:doc>
     </property>
 
-    <property name="Location" type="s" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>
-          The users location.
-          </doc:para>
-        </doc:description>
-      </doc:doc>
-    </property>
-
-    <property name="LoginFrequency" type="t" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>
-          How often the user has logged in.
-          </doc:para>
-        </doc:description>
-      </doc:doc>
-    </property>
-
-    <property name="LoginTime" type="x" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>
-          The last login time.
-          </doc:para>
-        </doc:description>
-      </doc:doc>
-    </property>
-
-    <!--<property name="LoginHistory" type="a(xxa{sv})" access="read">
-      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
-      <doc:doc>
-        <doc:description>
-          <doc:para>
-          The login history for this user.
-          Each entry in the array represents a login session. The first two
-          members are the login time and logout time, as timestamps (seconds since the epoch). If the session is still running, the logout time
-          is 0.
-          </doc:para>
-          <doc:para>
-          The a{sv} member is a dictionary containing additional information
-          about the session. Possible members include 'type' (with values like ':0', 'tty0', 'pts/0' etc).
-          </doc:para>
-        </doc:description>
-      </doc:doc>
-    </property>-->
 
     <property name="IconFile" type="s" access="read">
       <doc:doc>
@@ -832,15 +750,6 @@
       </doc:doc>
     </property>
 
-    <property name="Saved" type="b" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>
-           Whether the users account has retained state
-          </doc:para>
-        </doc:description>
-      </doc:doc>
-    </property>
 
     <property name="Locked" type="b" access="read">
       <doc:doc>
