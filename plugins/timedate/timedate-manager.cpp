@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-31 09:20:27
+ * @LastEditTime : 2020-07-31 09:49:54
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -154,32 +154,32 @@ void TimedateManager::SetNTP(bool active,
                                                   std::bind(&TimedateManager::finish_set_ntp_active, this, std::placeholders::_1, active));
 }
 
-Glib::ustring TimedateManager::Timezone_get()
+Glib::ustring TimedateManager::time_zone_get()
 {
     return get_timezone();
 }
 
-bool TimedateManager::LocalRTC_get()
+bool TimedateManager::local_rtc_get()
 {
     return this->is_rtc_local();
 }
 
-bool TimedateManager::CanNTP_get()
+bool TimedateManager::can_ntp_get()
 {
     return (this->ntp_units_.size() > 0);
 }
 
-bool TimedateManager::NTP_get()
+bool TimedateManager::ntp_get()
 {
     return this->is_ntp_active();
 }
 
-guint64 TimedateManager::TimeUSec_get()
+guint64 TimedateManager::system_time_get()
 {
     return this->get_system_time();
 }
 
-guint64 TimedateManager::RTCTimeUSec_get()
+guint64 TimedateManager::rtc_time_get()
 {
     return get_rtc_time();
 }
@@ -647,7 +647,7 @@ void TimedateManager::finish_set_timezone(MethodInvocation invocation, std::stri
             break;
         }
 
-        this->Timezone_set(time_zone);
+        this->time_zone_set(time_zone);
 
         update_kernel_utc_offset();
 
@@ -690,7 +690,7 @@ bool TimedateManager::is_rtc_local(void)
 
 void TimedateManager::finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local)
 {
-    this->LocalRTC_set(local);
+    this->local_rtc_set(local);
     invocation.ret();
 }
 
@@ -775,7 +775,7 @@ void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool ac
             call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
         }
 
-        this->NTP_set(active);
+        this->ntp_set(active);
         invocation.ret();
     }
 }

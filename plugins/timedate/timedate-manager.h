@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-31 09:20:42
+ * @LastEditTime : 2020-07-31 09:48:18
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.h
  */
@@ -62,48 +62,48 @@ protected:
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool Timezone_setHandler(const Glib::ustring &value) { return true; };
-    virtual Glib::ustring Timezone_get();
+    virtual bool time_zone_setHandler(const Glib::ustring &value) { return true; };
+    virtual Glib::ustring time_zone_get();
 
     /* Handle the setting of a property
      * This method will be called as a result of a call to <PropName>_set
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool LocalRTC_setHandler(bool value) { return true; };
-    virtual bool LocalRTC_get();
+    virtual bool local_rtc_setHandler(bool value) { return true; };
+    virtual bool local_rtc_get();
 
     /* Handle the setting of a property
      * This method will be called as a result of a call to <PropName>_set
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool CanNTP_setHandler(bool value) { return true; };
-    virtual bool CanNTP_get();
+    virtual bool can_ntp_setHandler(bool value) { return true; };
+    virtual bool can_ntp_get();
 
     /* Handle the setting of a property
      * This method will be called as a result of a call to <PropName>_set
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool NTP_setHandler(bool value) { return true; };
-    virtual bool NTP_get();
+    virtual bool ntp_setHandler(bool value) { return true; };
+    virtual bool ntp_get();
 
     /* Handle the setting of a property
      * This method will be called as a result of a call to <PropName>_set
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool TimeUSec_setHandler(guint64 value) { return true; };
-    virtual guint64 TimeUSec_get();
+    virtual bool system_time_setHandler(guint64 value) { return true; };
+    virtual guint64 system_time_get();
 
     /* Handle the setting of a property
      * This method will be called as a result of a call to <PropName>_set
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool RTCTimeUSec_setHandler(guint64 value) { return true; };
-    virtual guint64 RTCTimeUSec_get();
+    virtual bool rtc_time_setHandler(guint64 value) { return true; };
+    virtual guint64 rtc_time_get();
 
 private:
     void init();

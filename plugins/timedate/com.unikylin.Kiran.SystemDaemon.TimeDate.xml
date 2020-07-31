@@ -53,7 +53,7 @@
       </doc:doc>
     </method>
 
-    <property name="Timezone" type="s" access="read">
+    <property name="time_zone" type="s" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>The system timezone.</doc:para>
@@ -61,32 +61,32 @@
       </doc:doc>
     </property>
 
-    <property name="LocalRTC" type="b" access="read">
+    <property name="local_rtc" type="b" access="read">
       <doc:doc>
         <doc:description>
-          <doc:para>the RTC timescale, local or UTC.</doc:para>
+          <doc:para>The RTC timescale, local or UTC.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
 
-    <property name="CanNTP" type="b" access="read">
+    <property name="can_ntp" type="b" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
-          <doc:para>whether the NTP server is avaliable.</doc:para>
+          <doc:para>Whether the NTP server is avaliable.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
 
-    <property name="NTP" type="b" access="read">
+    <property name="ntp" type="b" access="read">
       <doc:doc>
         <doc:description>
-          <doc:para>whether the NTP server is enable.</doc:para>
+          <doc:para>Whether the NTP server is enable.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
 
-    <property name="TimeUSec" type="t" access="read">
+    <property name="system_time" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
@@ -95,11 +95,11 @@
       </doc:doc>
     </property>
 
-    <property name="RTCTimeUSec" type="t" access="read">
+    <property name="rtc_time" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
       <doc:doc>
         <doc:description>
-          <doc:para>the hardware time in microsecond.</doc:para>
+          <doc:para>The hardware time in microsecond.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
