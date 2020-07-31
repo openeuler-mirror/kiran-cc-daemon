@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 17:25:04
+ * @LastEditTime : 2020-07-31 09:20:27
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -172,11 +172,6 @@ bool TimedateManager::CanNTP_get()
 bool TimedateManager::NTP_get()
 {
     return this->is_ntp_active();
-}
-
-bool TimedateManager::NTPSynchronized_get()
-{
-    return this->get_clock_synchronized();
 }
 
 guint64 TimedateManager::TimeUSec_get()
@@ -432,18 +427,6 @@ bool TimedateManager::is_ntp_active()
     {
         return false;
     }
-}
-
-bool TimedateManager::get_clock_synchronized(void)
-{
-    struct timex t;
-
-    /* Consider the system clock synchronized if the maximum error reported
-	   by adjtimex() is smaller than 10 seconds. Ignore the STA_UNSYNC flag
-	   as it may be set to prevent the kernel from touching the RTC. */
-    t.modes = 0;
-
-    return (adjtimex(&t) >= 0 && t.maxerror < 10000000);
 }
 
 uint64_t TimedateManager::get_system_time(void)

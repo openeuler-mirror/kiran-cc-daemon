@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 16:38:22
+ * @LastEditTime : 2020-07-31 08:57:23
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
  */
@@ -99,7 +99,7 @@ protected:
     virtual void SetAccountType(gint32 accountType, MethodInvocation &invocation);
     // 设置密码模式，同时会对用户解除锁定
     virtual void SetPasswordMode(gint32 mode, MethodInvocation &invocation);
-    // 设置用户密码
+    // 设置用户密码，同时会对用户解除锁定
     virtual void SetPassword(const Glib::ustring &password, const Glib::ustring &hint, MethodInvocation &invocation);
     // 设置用户密码提示
     virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);

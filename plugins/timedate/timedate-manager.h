@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 17:19:49
+ * @LastEditTime : 2020-07-31 09:20:42
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.h
  */
@@ -41,14 +41,19 @@ public:
     static void global_deinit() { delete instance_; };
 
 protected:
+    // 设置系统(软件)时间，如果relative为真，则设置相对时间，否则为绝对时间，时间单位为微妙
     virtual void SetTime(gint64 requested_time,
                          bool relative,
                          MethodInvocation &invocation);
+    // 设置系统时区
     virtual void SetTimezone(const Glib::ustring &time_zone,
                              MethodInvocation &invocation);
+    // 调整硬件时钟设置，如果local为true则按本地时区进行存储，否则按UTC存储，adjust_system为true则将硬件时间同步到系统时间，否则将系统时间同步到硬件时间
     virtual void SetLocalRTC(bool local,
                              bool adjust_system,
                              MethodInvocation &invocation);
+
+    // 是否开启网络时间同步
     virtual void SetNTP(bool active,
                         MethodInvocation &invocation);
 
@@ -89,14 +94,6 @@ protected:
      * and should implement the actual setting of the property value.
      * Should return true on success and false otherwise.
      */
-    virtual bool NTPSynchronized_setHandler(bool value) { return true; };
-    virtual bool NTPSynchronized_get();
-
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool TimeUSec_setHandler(guint64 value) { return true; };
     virtual guint64 TimeUSec_get();
 
@@ -123,7 +120,6 @@ private:
 
     void read_ntp_units();
     bool is_ntp_active();
-    bool get_clock_synchronized(void);
     uint64_t get_system_time(void);
     uint64_t get_rtc_time(void);
 

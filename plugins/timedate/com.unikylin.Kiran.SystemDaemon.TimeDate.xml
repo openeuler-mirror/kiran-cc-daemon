@@ -5,44 +5,103 @@
 
     <method name="SetTime">
       <arg type="x" name="requested_time" direction="in">
-        <doc:doc><doc:summary></doc:summary></doc:doc>
+        <doc:doc><doc:summary>Time to set in microsecond</doc:summary></doc:doc>
       </arg>
-      <arg type="b" name="relative" direction="in" />
+      <arg type="b" name="relative" direction="in" >
+        <doc:doc><doc:summary>Sets relative time since current time if true. Otherwise, sets the time since the Epoch</doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets system time.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetTimezone">
-      <arg type="s" name="time_zone" direction="in" />
+      <arg type="s" name="time_zone" direction="in" >
+        <doc:doc><doc:summary>Timezone</doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets system timezone.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetLocalRTC">
-      <arg type="b" name="local" direction="in" />
-      <arg type="b" name="adjust_system" direction="in" />
+      <arg type="b" name="local" direction="in">
+        <doc:doc><doc:summary>The RTC timescale is Local if true. Otherwise, the RTC timescale is UTC.</doc:summary></doc:doc>
+      </arg>
+      <arg type="b" name="adjust_system" direction="in">
+        <doc:doc><doc:summary>Sets the system time from the RTC if true. Otherwise, sets the RTC from the system time.</doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Changes hardware clock time.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetNTP">
-      <arg type="b" name="active" direction="in" />
+      <arg type="b" name="active" direction="in">
+        <doc:doc><doc:summary>Enable NTP if true. Otherwise, Disable NTP.</doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Enable or disable network time synchronization.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
-    <property name="Timezone" type="s" access="read"></property>
+    <property name="Timezone" type="s" access="read">
+      <doc:doc>
+        <doc:description>
+          <doc:para>The system timezone.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
 
-    <property name="LocalRTC" type="b" access="read"></property>
+    <property name="LocalRTC" type="b" access="read">
+      <doc:doc>
+        <doc:description>
+          <doc:para>the RTC timescale, local or UTC.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
 
     <property name="CanNTP" type="b" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <doc:doc>
+        <doc:description>
+          <doc:para>whether the NTP server is avaliable.</doc:para>
+        </doc:description>
+      </doc:doc>
     </property>
 
-    <property name="NTP" type="b" access="read"></property>
-
-    <property name="NTPSynchronized" type="b" access="read">
-      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+    <property name="NTP" type="b" access="read">
+      <doc:doc>
+        <doc:description>
+          <doc:para>whether the NTP server is enable.</doc:para>
+        </doc:description>
+      </doc:doc>
     </property>
 
     <property name="TimeUSec" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <doc:doc>
+        <doc:description>
+          <doc:para>The system time in microsecond.</doc:para>
+        </doc:description>
+      </doc:doc>
     </property>
 
     <property name="RTCTimeUSec" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <doc:doc>
+        <doc:description>
+          <doc:para>the hardware time in microsecond.</doc:para>
+        </doc:description>
+      </doc:doc>
     </property>
   </interface>
 </node>

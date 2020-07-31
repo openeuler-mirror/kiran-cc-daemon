@@ -9,6 +9,11 @@
           <doc:summary>The new username.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users username. Note that it is usually not allowed to have multiple users with the same username.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetRealName">
@@ -18,6 +23,11 @@
           <doc:summary>The new name, typically in the form "Firstname Lastname".</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users real name.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetEmail">
@@ -27,6 +37,11 @@
           <doc:summary>The new email address.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users email address.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetLanguage">
@@ -36,6 +51,11 @@
           <doc:summary>The new language, as a locale specification like "de_DE.UTF-8".</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users language.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetXSession">
@@ -46,6 +66,11 @@
           <doc:summary>The new xsession to start (e.g. "gnome")</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users x session.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetSession">
@@ -56,6 +81,11 @@
           <doc:summary>The new session to start (e.g. "gnome-xorg")</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users wayland or x session.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetSessionType">
@@ -66,6 +96,11 @@
           <doc:summary>The type of the new session to start (e.g. "wayland" or "x11")</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the session type of the users session.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetHomeDirectory">
@@ -75,6 +110,11 @@
           <doc:summary>The new homedir as an absolute path.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users home directory.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetShell">
@@ -84,6 +124,11 @@
           <doc:summary>The new user shell.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users shell.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetIconFile">
@@ -93,6 +138,11 @@
           <doc:summary>The absolute filename of a png file to use as the users icon.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users icon.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetLocked">
@@ -102,6 +152,11 @@
           <doc:summary>Whether to lock or unlock the users account.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Locks or unlocks a users account.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetAccountType">
@@ -123,6 +178,11 @@
           </doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Changes the users account type.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetPasswordMode">
@@ -148,6 +208,11 @@
           </doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Changes the users password mode. Note that changing the password mode has the side-effect of unlocking the account.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetPassword">
@@ -162,6 +227,11 @@
           <doc:summary>The password hint.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets a new password for this user. Note that setting a password has the side-effect of unlocking the account.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetPasswordHint">
@@ -171,6 +241,11 @@
           <doc:summary>The password hint.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Sets the users password hint.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="SetAutomaticLogin">
@@ -180,6 +255,14 @@
           <doc:summary>Whether to enable automatic login for this user.</doc:summary>
         </doc:doc>
       </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Enables or disables automatic login for a user.
+          Note that usually only one user can have automatic login
+          enabled, so turning it on for a user will disable it for
+          the previously configured autologin user.</doc:para>
+        </doc:description>
+      </doc:doc>
     </method>
 
     <method name="GetPasswordExpirationPolicy">
