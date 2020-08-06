@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 17:00:45
+ * @LastEditTime : 2020-08-05 10:51:22
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/src/main.cpp
+ * @FilePath     : /kiran-menu-2.0/home/tangjie02/git/kiran-system-daemon/src/main.cpp
  */
 
 #include <gio/gio.h>

@@ -9,43 +9,8 @@ pkg_search_module(ACCOUNTS_SERVICE REQUIRED accountsservice)
 
 
 
-SET (ACCOUNTS_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.xml)
-
-SET (ACCOUNTS_GENERATED_STUB
-    ${CMAKE_BINARY_DIR}/generated/accounts_dbus_stub.cpp
-    ${CMAKE_BINARY_DIR}/generated/accounts_dbus_stub.h
-    ${CMAKE_BINARY_DIR}/generated/accounts_dbus_common.cpp
-    ${CMAKE_BINARY_DIR}/generated/accounts_dbus_common.h
-)
-
-ADD_CUSTOM_COMMAND (OUTPUT ${ACCOUNTS_GENERATED_STUB}
-                    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/generated/
-                    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/lib/python3.6/site-packages/ 
-                            ${GDBUS_CODEGEN} --generate-cpp-code=${CMAKE_BINARY_DIR}/generated/accounts_dbus
-                                        --interface-prefix=com.unikylin.
-                                        ${ACCOUNTS_INTROSPECTION_XML}
-                    DEPENDS ${ACCOUNTS_INTROSPECTION_XML}
-                    COMMENT "Generate the stub for the accounts")
-
-
-SET (USER_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.User.xml)
-
-SET (USER_GENERATED_STUB
-    ${CMAKE_BINARY_DIR}/generated/user_dbus_stub.cpp
-    ${CMAKE_BINARY_DIR}/generated/user_dbus_stub.h
-    ${CMAKE_BINARY_DIR}/generated/user_dbus_common.cpp
-    ${CMAKE_BINARY_DIR}/generated/user_dbus_common.h
-)
-
-ADD_CUSTOM_COMMAND (OUTPUT ${USER_GENERATED_STUB}
-                    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/generated/
-                    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/lib/python3.6/site-packages/ 
-                            ${GDBUS_CODEGEN} --generate-cpp-code=${CMAKE_BINARY_DIR}/generated/user_dbus
-                                        --interface-prefix=com.unikylin.
-                                        ${USER_INTROSPECTION_XML}
-                    DEPENDS ${USER_INTROSPECTION_XML}
-                    COMMENT "Generate the stub for the user")
-
+GEN_DBUS_STUB(ACCOUNTS accounts ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.xml)
+GEN_DBUS_STUB(USER user ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.User.xml)
 
 
 add_library(${TARGET_NAME} SHARED

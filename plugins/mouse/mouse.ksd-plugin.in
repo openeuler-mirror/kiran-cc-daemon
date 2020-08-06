@@ -1,0 +1,5 @@
+[Kiran Settings Plugin]
+Module=mouse
+Name=Mouse
+Description=Mouse plugin
+Available=true

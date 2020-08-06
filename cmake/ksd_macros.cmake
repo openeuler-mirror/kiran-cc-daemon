@@ -24,3 +24,28 @@ macro(SET_COMMON_SHARED_LINKER_FLAGS)
     list_join(KSD_LINKER_FLAGS_DEBUG " " CMAKE_SHARED_LINKER_FLAGS_DEBUG)
     list_join(KSD_LINKER_FLAGS_RELEASE " " CMAKE_SHARED_LINKER_FLAGS_RELEASE)
 endmacro()
+
+
+
+
+macro(GEN_DBUS_STUB UPPER LOWER XML_PATH)
+
+    SET (${UPPER}_INTROSPECTION_XML ${XML_PATH})
+
+    SET (${UPPER}_GENERATED_STUB
+        ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_stub.cpp
+        ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_stub.h
+        ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_common.cpp
+        ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_common.h
+    )
+
+    ADD_CUSTOM_COMMAND (OUTPUT ${${UPPER}_GENERATED_STUB}
+                        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/generated/
+                        COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/lib/python3.6/site-packages/ 
+                                ${GDBUS_CODEGEN} --generate-cpp-code=${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus
+                                            --interface-prefix=com.unikylin.
+                                            ${${UPPER}_INTROSPECTION_XML}
+                        DEPENDS ${${UPPER}_INTROSPECTION_XML}
+                        COMMENT "Generate the stub for the ${LOWER}")
+
+endmacro()

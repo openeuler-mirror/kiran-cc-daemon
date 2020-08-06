@@ -7,25 +7,8 @@ file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
 
 pkg_search_module(SELINUX REQUIRED libselinux)
 
-SET (TIMEDATE_INTROSPECTION_XML ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikylin.Kiran.SystemDaemon.TimeDate.xml)
 
-SET (TIMEDATE_GENERATED_STUB
-    ${CMAKE_BINARY_DIR}/generated/timedate_dbus_stub.cpp
-    ${CMAKE_BINARY_DIR}/generated/timedate_dbus_stub.h
-    ${CMAKE_BINARY_DIR}/generated/timedate_dbus_common.cpp
-    ${CMAKE_BINARY_DIR}/generated/timedate_dbus_common.h
-)
-
-ADD_CUSTOM_COMMAND (OUTPUT ${TIMEDATE_GENERATED_STUB}
-                    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/generated/
-                    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/lib/python3.6/site-packages/ 
-                            ${GDBUS_CODEGEN} --generate-cpp-code=${CMAKE_BINARY_DIR}/generated/timedate_dbus
-                                        --interface-prefix=com.unikylin.
-                                        ${TIMEDATE_INTROSPECTION_XML}
-                    DEPENDS ${TIMEDATE_INTROSPECTION_XML}
-                    COMMENT "Generate the stub for the timedate")
-
-
+GEN_DBUS_STUB(TIMEDATE timedate ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikylin.Kiran.SystemDaemon.TimeDate.xml)
 
 
 add_library(${TARGET_NAME} SHARED

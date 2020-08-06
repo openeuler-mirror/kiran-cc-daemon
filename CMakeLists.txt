@@ -15,6 +15,7 @@ pkg_search_module(GIOMM REQUIRED giomm-2.4)
 pkg_search_module(GTHREAD REQUIRED gthread-2.0)
 pkg_search_module(GMODULE REQUIRED gmodule-2.0)
 pkg_search_module(GIOUNIX REQUIRED gio-unix-2.0)
+pkg_search_module(GDKMM3 REQUIRED gdkmm-3.0)
 
 
 find_program(GDBUS-CODEGEN-GLIBMM-FOUND gdbus-codegen-glibmm3 PATHS ${CMAKE_BINARY_DIR}/bin/)
@@ -54,6 +55,8 @@ add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(plugins/accounts)
 add_subdirectory(plugins/timedate)
+add_subdirectory(plugins/mouse)
+#add_subdirectory(plugins/touchpad)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0" "third_party/fmt-5.2.0")
 
