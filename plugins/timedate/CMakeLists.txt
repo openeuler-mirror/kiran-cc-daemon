@@ -52,11 +52,10 @@ endif()
 
 
 install(TARGETS ${TARGET_NAME}
-        DESTINATION  ${KSD_PLUGIN_DIR})
+        DESTINATION  ${KCC_PLUGIN_DIR}/system)
 
 install(FILES "timedate.ksd-plugin.in" 
-        DESTINATION  ${KSD_PLUGIN_DIR}
+        DESTINATION  ${KCC_PLUGIN_DIR}/system
         RENAME "timedate.ksd-plugin")
 
-install(FILES "com.unikylin.Kiran.SystemDaemon.TimeDate.conf"
-        DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
+

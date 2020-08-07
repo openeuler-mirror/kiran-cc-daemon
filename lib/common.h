@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 18:16:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-06 15:15:21
+ * @LastEditTime : 2020-08-07 15:52:24
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/common.h
  */
@@ -11,9 +11,9 @@ namespace Kiran
 {
 #define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : __FILE__)
 
-#define GETTEXT_PACKAGE "kiran-system-daemon"
+#define GETTEXT_PACKAGE "kiran-cc-daemon"
 
-#define SESSION_DAEMON_SCHEMA "com.unikylin.kiran.system-daemon"
+#define CC_DAEMON_SCHEMA "com.unikylin.kiran.cc-daemon"
 
 #define SCHEMA_LOG_LEVEL "log-level"
 

@@ -15,8 +15,8 @@ set(DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Installation directory for
 set(EXECDIR ${CMAKE_INSTALL_PREFIX}/bin CACHE PATH "Installation directory for executable file")
 
 
-set(KSD_PLUGIN_DIR ${LIBDIR}/kiran-system-daemon)
-set(KSD_PLUGIN_EXT "ksd-plugin")
+set(KCC_PLUGIN_DIR ${LIBDIR}/kiran-cc-daemon)
+set(KCC_PLUGIN_EXT "ksd-plugin")
 
 
 # Determine the platform.

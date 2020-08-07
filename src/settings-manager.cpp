@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-14 15:34:33
+ * @LastEditTime : 2020-08-07 15:43:20
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/settings-manager.cpp
  */
@@ -15,8 +15,8 @@
 
 namespace Kiran
 {
-#define SYSTEM_DAEMON_DBUS_NAME "com.unikylin.Kiran.SystemDaemon"
-#define SYSTEM_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon"
+#define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.CCDaemon"
+#define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/CCDaemon"
 
 SettingsManager::SettingsManager() : dbus_connect_id_(0),
                                      object_register_id_(0)
@@ -125,7 +125,7 @@ void SettingsManager::load_all()
     SETTINGS_PROFILE("");
 
     // load system plugins
-    load_dir(KSD_PLUGIN_DIR G_DIR_SEPARATOR_S);
+    load_dir(KCC_PLUGIN_DIR G_DIR_SEPARATOR_S);
 
     // connect and regist dbus
     dbus_init();
@@ -143,7 +143,7 @@ void SettingsManager::load_dir(const std::string& path)
         {
             auto name = *iter;
 
-            if (!Glib::str_has_suffix(name, KSD_PLUGIN_EXT))
+            if (!Glib::str_has_suffix(name, KCC_PLUGIN_EXT))
             {
                 continue;
             }
@@ -209,11 +209,29 @@ bool SettingsManager::load_file(const std::string& file_name, std::string& err)
 
 void SettingsManager::dbus_init()
 {
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                 SYSTEM_DAEMON_DBUS_NAME,
-                                                 sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &SettingsManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &SettingsManager::on_name_lost));
+#ifdef KCC_TYPE
+    switch (shash(KCC_TYPE))
+    {
+    case "system"_hash:
+        this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                     CC_DAEMON_DBUS_NAME,
+                                                     sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
+                                                     sigc::mem_fun(this, &SettingsManager::on_name_acquired),
+                                                     sigc::mem_fun(this, &SettingsManager::on_name_lost));
+        break;
+    case "session"_hash:
+        this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
+                                                     CC_DAEMON_DBUS_NAME,
+                                                     sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
+                                                     sigc::mem_fun(this, &SettingsManager::on_name_acquired),
+                                                     sigc::mem_fun(this, &SettingsManager::on_name_lost));
+        break;
+    default:
+        LOG_WARNING("unknow KCC_TYPE: %s", " " KCC_TYPE);
+    }
+#else
+    LOG_WARNING("KCC_TYPE is undefine.");
+#endif
 }
 
 void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
@@ -227,11 +245,11 @@ void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>&
     }
     try
     {
-        this->object_register_id_ = this->register_object(connect, SYSTEM_DAEMON_OBJECT_PATH);
+        this->object_register_id_ = this->register_object(connect, CC_DAEMON_OBJECT_PATH);
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", SYSTEM_DAEMON_OBJECT_PATH, e.what().c_str());
+        LOG_WARNING("register object_path %s fail: %s.", CC_DAEMON_OBJECT_PATH, e.what().c_str());
     }
 }
 

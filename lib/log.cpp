@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-02 16:22:22
+ * @LastEditTime : 2020-08-07 15:52:15
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/log.cpp
  */
@@ -50,38 +50,38 @@ void Log::try_append(GLogLevelFlags log_level, const char *format, ...)
 
     switch (log_level & G_LOG_LEVEL_MASK)
     {
-        case G_LOG_FLAG_FATAL:
-            priority = LOG_EMERG;
-            oss << "[FATAL]";
-            break;
-        case G_LOG_LEVEL_ERROR:
-            priority = LOG_ERR;
-            oss << "[ERROR]";
-            break;
-        case G_LOG_LEVEL_CRITICAL:
-            priority = LOG_CRIT;
-            oss << "[CRITICAL]";
-            break;
-        case G_LOG_LEVEL_WARNING:
-            priority = LOG_WARNING;
-            oss << "[WARNING]";
-            break;
-        case G_LOG_LEVEL_MESSAGE:
-            priority = LOG_NOTICE;
-            oss << "[MESSAGE]";
-            break;
-        case G_LOG_LEVEL_INFO:
-            priority = LOG_INFO;
-            oss << "[INFO]";
-            break;
-        case G_LOG_LEVEL_DEBUG:
-            priority = LOG_DEBUG;
-            oss << "[DEBUG]";
-            break;
-        default:
-            priority = LOG_DEBUG;
-            oss << "[UNKNOWN]";
-            break;
+    case G_LOG_FLAG_FATAL:
+        priority = LOG_EMERG;
+        oss << "[FATAL]";
+        break;
+    case G_LOG_LEVEL_ERROR:
+        priority = LOG_ERR;
+        oss << "[ERROR]";
+        break;
+    case G_LOG_LEVEL_CRITICAL:
+        priority = LOG_CRIT;
+        oss << "[CRITICAL]";
+        break;
+    case G_LOG_LEVEL_WARNING:
+        priority = LOG_WARNING;
+        oss << "[WARNING]";
+        break;
+    case G_LOG_LEVEL_MESSAGE:
+        priority = LOG_NOTICE;
+        oss << "[MESSAGE]";
+        break;
+    case G_LOG_LEVEL_INFO:
+        priority = LOG_INFO;
+        oss << "[INFO]";
+        break;
+    case G_LOG_LEVEL_DEBUG:
+        priority = LOG_DEBUG;
+        oss << "[DEBUG]";
+        break;
+    default:
+        priority = LOG_DEBUG;
+        oss << "[UNKNOWN]";
+        break;
     }
 
     va_list arg_ptr;
@@ -101,34 +101,34 @@ void Log::try_append(GLogLevelFlags log_level, const char *format, ...)
 
 void Log::init()
 {
-    auto settings = Gio::Settings::create(SESSION_DAEMON_SCHEMA);
+    auto settings = Gio::Settings::create(CC_DAEMON_SCHEMA);
     auto log_level = settings->get_string(SCHEMA_LOG_LEVEL);
 
     switch (shash(log_level.c_str()))
     {
-        case "fatal"_hash:
-            this->log_level_ = G_LOG_FLAG_FATAL;
-            break;
-        case "error"_hash:
-            this->log_level_ = G_LOG_LEVEL_ERROR;
-            break;
-        case "critical"_hash:
-            this->log_level_ = G_LOG_LEVEL_CRITICAL;
-            break;
-        case "warning"_hash:
-            this->log_level_ = G_LOG_LEVEL_WARNING;
-            break;
-        case "message"_hash:
-            this->log_level_ = G_LOG_LEVEL_MESSAGE;
-            break;
-        case "info"_hash:
-            this->log_level_ = G_LOG_LEVEL_INFO;
-            break;
-        case "debug"_hash:
-            this->log_level_ = G_LOG_LEVEL_DEBUG;
-            break;
-        default:
-            this->log_level_ = G_LOG_LEVEL_WARNING;
+    case "fatal"_hash:
+        this->log_level_ = G_LOG_FLAG_FATAL;
+        break;
+    case "error"_hash:
+        this->log_level_ = G_LOG_LEVEL_ERROR;
+        break;
+    case "critical"_hash:
+        this->log_level_ = G_LOG_LEVEL_CRITICAL;
+        break;
+    case "warning"_hash:
+        this->log_level_ = G_LOG_LEVEL_WARNING;
+        break;
+    case "message"_hash:
+        this->log_level_ = G_LOG_LEVEL_MESSAGE;
+        break;
+    case "info"_hash:
+        this->log_level_ = G_LOG_LEVEL_INFO;
+        break;
+    case "debug"_hash:
+        this->log_level_ = G_LOG_LEVEL_DEBUG;
+        break;
+    default:
+        this->log_level_ = G_LOG_LEVEL_WARNING;
     }
 
     g_log_set_default_handler(log_handler, this);

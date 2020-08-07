@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.2)
 
-project(kiran-system-daemon VERSION 2.0)
+project(kiran-cc-daemon VERSION 2.0)
 
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")

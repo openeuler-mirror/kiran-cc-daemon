@@ -2,12 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:55:54
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 16:01:31
+ * @LastEditTime : 2020-08-07 15:18:06
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/src/settings-manager.h
  */
 
-#include <system_daemon_dbus_stub.h>
+#include <cc_daemon_dbus_stub.h>
 
 #include <map>
 #include <string>
@@ -16,7 +16,7 @@
 
 namespace Kiran
 {
-class SettingsManager : public SystemDaemonStub
+class SettingsManager : public CCDaemonStub
 {
 public:
     SettingsManager();

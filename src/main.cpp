@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-05 10:51:22
+ * @LastEditTime : 2020-08-07 15:33:28
  * @Description  : 
- * @FilePath     : /kiran-menu-2.0/home/tangjie02/git/kiran-system-daemon/src/main.cpp
+ * @FilePath     : /kiran-system-daemon/src/main.cpp
  */
 
 #include <gio/gio.h>
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     Kiran::Log::global_init();
 
     Glib::OptionContext context;
-    Glib::OptionGroup group("kiran-system-daemon", "kiran-system-daemon option group");
+    Glib::OptionGroup group("kiran-cc-daemon", "kiran-cc-daemon option group");
 
     // version
     Glib::OptionEntry version_entry;
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     show_log_entry.set_description(N_("Print log to screen."));
 
     group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
-        g_print("kiran-system-daemon: 2.0\n");
+        g_print("kiran-cc-daemon: 2.0\n");
         return false;
     });
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     });
 
     setlocale(LC_ALL, "");
-    bindtextdomain(GETTEXT_PACKAGE, KIRAN_SYSTEM_DAEMON_LOCALEDIR);
+    bindtextdomain(GETTEXT_PACKAGE, KCC_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     textdomain(GETTEXT_PACKAGE);
 

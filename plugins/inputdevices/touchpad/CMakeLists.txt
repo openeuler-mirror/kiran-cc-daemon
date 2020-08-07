@@ -39,8 +39,8 @@ target_link_libraries(${TARGET_NAME} PRIVATE
 
 
 install(TARGETS ${TARGET_NAME}
-        DESTINATION  ${KSD_PLUGIN_DIR})
+        DESTINATION  ${KCC_PLUGIN_DIR}/session)
 
 install(FILES "touchpad.ksd-plugin.in" 
-        DESTINATION  ${KSD_PLUGIN_DIR}
+        DESTINATION  ${KCC_PLUGIN_DIR}/session
         RENAME "touchpad.ksd-plugin")
