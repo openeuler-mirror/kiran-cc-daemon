@@ -1,0 +1,5 @@
+[Kiran Settings Plugin]
+Module=touchpad
+Name=TouchPad
+Description=TouchPad plugin
+Available=true

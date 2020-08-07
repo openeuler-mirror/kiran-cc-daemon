@@ -2,18 +2,18 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-05 15:21:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-28 16:44:46
+ * @LastEditTime : 2020-08-07 11:31:38
  * @Description  : 
  * @FilePath     : /kiran-system-daemon/lib/helper.h
  */
 
 #pragma once
 
+#include <fmt/format.h>
 #include <stdio.h>
 
 #include <functional>
 #include <vector>
-
 namespace Kiran
 {
 #define CONNECTION(text1, text2) text1##text2
@@ -109,5 +109,20 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 
 std::vector<std::string> split_lines(const std::string &s);
 std::string str_tolower(const std::string &str);
+
+template <class T>
+std::string join_vector(const std::vector<T> &vec, const std::string &join_chars)
+{
+    std::string str;
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
+        str += fmt::format("{0}", vec[i]);
+        if (i + 1 < vec.size())
+        {
+            str += fmt::format("{0}", join_chars);
+        }
+    }
+    return str;
+}
 
 }  // namespace Kiran

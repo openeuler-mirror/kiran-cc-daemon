@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:21
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-06 15:04:07
+ * @LastEditTime : 2020-08-07 09:43:26
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/mouse/device-helper.h
+ * @FilePath     : /kiran-system-daemon/plugins/inputdevices/common/device-helper.h
  */
 #pragma once
 
@@ -34,7 +34,7 @@ public:
     // 判断设备是否为触摸板
     bool is_touchpad();
     // 设置属性值
-    void set_property(const std::string &property_name, bool property_value);
+    void set_property(const std::string &property_name, const std::vector<bool> &property_value);
     void set_property(const std::string &property_name, float property_value);
 
     operator bool() const

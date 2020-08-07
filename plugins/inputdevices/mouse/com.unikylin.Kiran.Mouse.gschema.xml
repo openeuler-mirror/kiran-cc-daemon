@@ -7,13 +7,20 @@
         </key>
 
         <key name="motion-acceleration" type="d">
-            <default>-1</default>
-            <summary>Acceleration multiplier for mouse motion.  A value of -1 is the system default.</summary>
+            <default>5.5</default>
+            <range min="1" max="10" />
+            <summary>Acceleration multiplier for mouse motion.</summary>
         </key>
 
         <key name="middle-emulation-enabled" type="b">
             <default>false</default>
             <summary>Enables middle mouse button emulation through simultaneous left and right button click.</summary>
+        </key>
+
+        <key name="natural-scroll" type="b">
+            <default>false</default>
+            <summary>Enables or disables natural scroll. "Natural scrolling”is the terminology for moving the content in the direction of scrolling, 
+            i.e. moving the wheel or fingers down moves the page down.</summary>
         </key>
     </schema>
 </schemalist>

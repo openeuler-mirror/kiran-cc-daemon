@@ -2,12 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-06 15:42:41
+ * @LastEditTime : 2020-08-07 11:28:26
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/device-helper.cpp
+ * @FilePath     : /kiran-system-daemon/plugins/inputdevices/common/device-helper.cpp
  */
 
-#include "lib/device-helper.h"
+#include "plugins/inputdevices/common/device-helper.h"
 
 #include "lib/log.h"
 namespace Kiran
@@ -97,9 +97,12 @@ bool DeviceHelper::is_touchpad()
     return false;
 }
 
-void DeviceHelper::set_property(const std::string &property_name, bool property_value)
+void DeviceHelper::set_property(const std::string &property_name, const std::vector<bool> &property_value)
 {
-    SETTINGS_PROFILE("property_name: %s property_value: %d.", property_name.c_str(), property_value);
+    SETTINGS_PROFILE("property_name: %s property_value: %s.",
+                     property_name.c_str(),
+                     join_vector(property_value, ",").c_str());
+
     RETURN_IF_TRUE(this->device_ == NULL);
 
     unsigned long nitems, bytes_after;
@@ -111,7 +114,6 @@ void DeviceHelper::set_property(const std::string &property_name, bool property_
     RETURN_IF_TRUE(property == None);
 
     auto display = gdk_display_get_default();
-
     gdk_x11_display_error_trap_push(display);
     auto rc = XGetDeviceProperty(GDK_DISPLAY_XDISPLAY(display),
                                  this->device_,
@@ -128,7 +130,18 @@ void DeviceHelper::set_property(const std::string &property_name, bool property_
 
     if (rc == Success && actual_type == XA_INTEGER && actual_format == 8 && nitems > 0)
     {
-        data[0] = property_value ? 1 : 0;
+        if (property_value.size() > nitems)
+        {
+            LOG_WARNING("ignore the remaining %d value. the number of property set: %d, the number of real device property: %d.",
+                        property_value.size() - nitems,
+                        property_value.size(),
+                        nitems);
+        }
+        int num = std::min(nitems, property_value.size());
+        for (int i = 0; i < num; ++i)
+        {
+            data[i] = property_value[i] ? 1 : 0;
+        }
         XChangeDeviceProperty(GDK_DISPLAY_XDISPLAY(display),
                               this->device_,
                               property,
