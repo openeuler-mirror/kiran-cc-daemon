@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:19:19
+ * @LastEditTime : 2020-08-10 11:03:43
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
@@ -34,6 +34,10 @@ DeviceHelper::~DeviceHelper()
         auto display = gdk_display_get_default();
         XCloseDevice(GDK_DISPLAY_XDISPLAY(display), this->device_);
     }
+}
+std::string DeviceHelper::get_device_name()
+{
+    return this->device_info_ ? this->device_info_->name : "";
 }
 
 Atom DeviceHelper::get_atom(const std::string &property_name)
@@ -99,7 +103,8 @@ bool DeviceHelper::is_touchpad()
 
 void DeviceHelper::set_property(const std::string &property_name, const std::vector<bool> &property_value)
 {
-    SETTINGS_PROFILE("property_name: %s property_value: %s.",
+    SETTINGS_PROFILE("device_name: %s property_name: %s property_value: %s.",
+                     this->device_info_->name,
                      property_name.c_str(),
                      join_vector(property_value, ",").c_str());
 

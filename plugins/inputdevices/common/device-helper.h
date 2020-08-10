@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:21
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:19:01
+ * @LastEditTime : 2020-08-10 11:02:49
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.h
  */
@@ -27,6 +27,8 @@ public:
     DeviceHelper(XDeviceInfo *device_info);
     virtual ~DeviceHelper();
 
+    // 获取设备名
+    std::string get_device_name();
     // 获取属性名对应的Atom，如果不存在不会新建且返回None
     Atom get_atom(const std::string &property_name);
     // 判断设备是否存在指定的属性名

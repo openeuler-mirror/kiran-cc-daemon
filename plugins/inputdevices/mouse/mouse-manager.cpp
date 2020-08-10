@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:25:25
+ * @LastEditTime : 2020-08-10 11:05:02
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
@@ -179,7 +179,7 @@ SET_PROP_TO_DEVICES(set_natural_scroll_to_device);
 
 void MouseManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
 
     if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
         !device_helper->is_touchpad())
@@ -190,7 +190,7 @@ void MouseManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> devic
 
 void MouseManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
 
     if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
         !device_helper->is_touchpad())
@@ -210,7 +210,7 @@ void MouseManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelpe
 
 void MouseManager::set_middle_emulation_enabled_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
 
     if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
         !device_helper->is_touchpad())
@@ -221,7 +221,7 @@ void MouseManager::set_middle_emulation_enabled_to_device(std::shared_ptr<Device
 
 void MouseManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
 
     if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
         !device_helper->is_touchpad())
