@@ -17,14 +17,14 @@
         </key>
 
         <key name="click-method" type="i">
-            <default>0</default>
+            <default>1</default>
             <range min="0" max="1" />
             <summary>Enables a click method. Permitted methods are buttonareas and clickfinger, respectively conreesponding to 0 and 1.</summary>
         </key>
 
         <key name="scroll-method" type="i">
             <default>0</default>
-            <range min="0" max="7" />
+            <range min="0" max="2" />
             <summary>Enables a scroll method. Permitted methods are twofinger, edge and button, respectively conrresponding to 0, 1 and 2.</summary>
         </key>
 

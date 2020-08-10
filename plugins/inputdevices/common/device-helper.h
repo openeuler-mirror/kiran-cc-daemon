@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:21
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 09:43:26
+ * @LastEditTime : 2020-08-10 09:19:01
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/inputdevices/common/device-helper.h
+ * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.h
  */
 #pragma once
 

@@ -2,15 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 11:23:16
+ * @LastEditTime : 2020-08-10 10:19:55
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
 
 #include "plugins/inputdevices/touchpad/touchpad-manager.h"
 
 #include "lib/helper.h"
 #include "lib/log.h"
+#include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran
 {
@@ -72,6 +73,7 @@ void TouchPadManager::Reset(MethodInvocation &invocation)
 #define PROP_SET_HANDLER(prop, type, key, set_fun)        \
     bool TouchPadManager::prop##_setHandler(type value)   \
     {                                                     \
+        SETTINGS_PROFILE("");                             \
         RETURN_VAL_IF_TRUE(value == this->prop##_, true); \
                                                           \
         this->prop##_ = value;                            \
@@ -93,7 +95,16 @@ void TouchPadManager::init()
 {
     SETTINGS_PROFILE("");
 
+    if (!XInputHelper::supports_xinput_devices())
+    {
+        LOG_WARNING("XInput is not supported, not applying any settings.");
+        return;
+    }
+
     this->load_from_settings();
+    this->set_all_prop_to_devices();
+
+    this->touchpad_settings_->signal_changed().connect(sigc::mem_fun(this, &TouchPadManager::settings_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  TOUCHPAD_DBUS_NAME,
@@ -121,33 +132,49 @@ void TouchPadManager::load_from_settings()
 
 void TouchPadManager::settings_changed(const Glib::ustring &key)
 {
+    SETTINGS_PROFILE("key: %s.", key.c_str());
+
     switch (shash(key.c_str()))
     {
     case "left-handed"_hash:
-        this->left_handed_set(this->touchpad_settings_->get_boolean(TOUCHPAD_SCHEMA_LEFT_HANDED));
+        this->left_handed_set(this->touchpad_settings_->get_boolean(key));
         break;
     case "disable-while-typing"_hash:
-        this->disable_while_typing_set(this->touchpad_settings_->get_boolean(TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING));
+        this->disable_while_typing_set(this->touchpad_settings_->get_boolean(key));
         break;
     case "tap-to-click"_hash:
-        this->tap_to_click_set(this->touchpad_settings_->get_boolean(TOUCHPAD_SCHEMA_TAP_TO_CLICK));
+        this->tap_to_click_set(this->touchpad_settings_->get_boolean(key));
         break;
     case "click-method"_hash:
-        this->click_method_set(this->touchpad_settings_->get_int(TOUCHPAD_SCHEMA_CLICK_METHOD));
+        this->click_method_set(this->touchpad_settings_->get_int(key));
         break;
     case "scroll-method"_hash:
-        this->scroll_method_set(this->touchpad_settings_->get_int(TOUCHPAD_SCHEMA_SCROLL_METHOD));
+        this->scroll_method_set(this->touchpad_settings_->get_int(key));
         break;
     case "natural-scroll"_hash:
-        this->natural_scroll_set(this->touchpad_settings_->get_boolean(TOUCHPAD_SCHEMA_NATURAL_SCROLL));
+        this->natural_scroll_set(this->touchpad_settings_->get_boolean(key));
         break;
     case "touchpad-enabled"_hash:
-        this->touchpad_enabled_set(this->touchpad_settings_->get_boolean(TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED));
+        this->touchpad_enabled_set(this->touchpad_settings_->get_boolean(key));
         break;
     case "motion-acceleration"_hash:
-        this->motion_acceleration_set(this->touchpad_settings_->get_double(TOUCHPAD_SCHEMA_MOTION_ACCELERATION));
+        this->motion_acceleration_set(this->touchpad_settings_->get_double(key));
+        break;
+    default:
         break;
     }
+}
+
+void TouchPadManager::set_all_prop_to_devices()
+{
+    this->set_left_handed_to_devices();
+    this->set_disable_while_typing_to_devices();
+    this->set_tap_to_click_to_devices();
+    this->set_click_method_to_devices();
+    this->set_scroll_method_to_devices();
+    this->set_natural_scroll_to_devices();
+    this->set_touchpad_enabled_to_devices();
+    this->set_motion_acceleration_to_devices();
 }
 
 #define SET_PROP_TO_DEVICES(set_device_fun)                                                                 \

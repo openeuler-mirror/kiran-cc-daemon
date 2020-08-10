@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 11:28:26
+ * @LastEditTime : 2020-08-10 09:19:19
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/inputdevices/common/device-helper.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
 
 #include "plugins/inputdevices/common/device-helper.h"

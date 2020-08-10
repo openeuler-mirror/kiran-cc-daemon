@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 11:18:32
+ * @LastEditTime : 2020-08-10 10:16:16
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/inputdevices/touchpad/touchpad-manager.h
+ * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.h
  */
 
 #pragma once
@@ -55,21 +55,21 @@ protected:
     // 滚动窗口的方式，分为twofinger, edge和button三种方式。
     // twofinger表示用两指滑动触摸板来达到滚动效果；edge表示滑动触摸板右边边缘来达到滚动效果；button表示操作键盘中间的红色按钮(部分机型存在)来达到滚动效果。
     virtual bool scroll_method_setHandler(gint32 value);
-    // 设置自然滚动，开启自然滚动后可以滚动屏幕中的窗口内容，具体的滚动方式可以通过设置scroll method来实现。
+    // 设置自然滚动，如果设置为false，触摸板滑动方向与页面滚动方向相同，否则相反。具体的滚动方式可以通过设置scroll method来实现。
     virtual bool natural_scroll_setHandler(bool value);
     // 开启或禁用所有触摸板
     virtual bool touchpad_enabled_setHandler(bool value);
+    // 设置移动加速
     virtual bool motion_acceleration_setHandler(double value);
 
     virtual bool left_handed_get() { return this->left_handed_; };
     virtual bool disable_while_typing_get() { return this->disable_while_typing_; };
     virtual bool tap_to_click_get() { return this->tap_to_click_; };
     virtual gint32 click_method_get() { return this->click_method_; };
-    virtual gint32 scroll_method_get();
-    virtual bool natural_scroll_get();
-    virtual bool touchpad_enabled_get();
-    virtual double motion_acceleration_get();
-    virtual gint32 motion_threshold_get();
+    virtual gint32 scroll_method_get() { return this->scroll_method_; };
+    virtual bool natural_scroll_get() { return this->natural_scroll_; };
+    virtual bool touchpad_enabled_get() { return this->touchpad_enabled_; };
+    virtual double motion_acceleration_get() { return this->motion_acceleration_; };
 
 private:
     void init();
@@ -77,6 +77,7 @@ private:
     void load_from_settings();
     void settings_changed(const Glib::ustring &key);
 
+    void set_all_prop_to_devices();
     void set_left_handed_to_devices();
     void set_disable_while_typing_to_devices();
     void set_tap_to_click_to_devices();
