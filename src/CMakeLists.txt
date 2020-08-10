@@ -24,6 +24,7 @@ target_include_directories(${TARGET_SYSTEM_DAEMON} PUBLIC
     ${GLIBMM_INCLUDE_DIRS}
     ${GIOMM_INCLUDE_DIRS} 
     ${GMODULE_INCLUDE_DIRS}
+    ${GDKMM3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
 target_compile_definitions(${TARGET_SYSTEM_DAEMON} PRIVATE
@@ -41,6 +42,7 @@ target_link_libraries(${TARGET_SYSTEM_DAEMON} PRIVATE
     ${GLIBMM_LIBRARIES}
     ${GIOMM_LIBRARIES}
     ${GMODULE_LIBRARIES}
+    ${GDKMM3_LIBRARIES}
     kiran-lib
     fmt)
 
@@ -64,6 +66,7 @@ target_include_directories(${TARGET_SESSION_DAEMON} PUBLIC
     ${GLIBMM_INCLUDE_DIRS}
     ${GIOMM_INCLUDE_DIRS} 
     ${GMODULE_INCLUDE_DIRS}
+    ${GDKMM3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
 target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
@@ -81,6 +84,7 @@ target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
     ${GLIBMM_LIBRARIES}
     ${GIOMM_LIBRARIES}
     ${GMODULE_LIBRARIES}
+    ${GDKMM3_LIBRARIES}
     kiran-lib
     fmt)
 

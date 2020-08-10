@@ -2,15 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 10:30:00
+ * @LastEditTime : 2020-08-10 09:25:25
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
 
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
 #include "lib/helper.h"
 #include "lib/log.h"
+#include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran
 {
@@ -20,7 +21,6 @@ namespace Kiran
 #define MOUSE_SCHEMA_ID "com.unikylin.kiran.mouse"
 #define MOUSE_SCHEMA_LEFT_HANDED "left-handed"
 #define MOUSE_SCHEMA_MOTION_ACCELERATION "motion-acceleration"
-#define MOUSE_SCHEMA_DRAG_THRESHOLD "drag-threshold"
 #define MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED "middle-emulation-enabled"
 #define MOUSE_SCHEMA_NATURAL_SCROLL "natural-scroll"
 
@@ -86,7 +86,16 @@ void MouseManager::init()
 {
     SETTINGS_PROFILE("");
 
+    if (!XInputHelper::supports_xinput_devices())
+    {
+        LOG_WARNING("XInput is not supported, not applying any settings.");
+        return;
+    }
+
     this->load_from_settings();
+    this->set_all_prop_to_devices();
+
+    this->mouse_settings_->signal_changed().connect(sigc::mem_fun(this, &MouseManager::settings_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  MOUSE_DBUS_NAME,
@@ -103,48 +112,64 @@ void MouseManager::load_from_settings()
     {
         this->left_handed_ = this->mouse_settings_->get_boolean(MOUSE_SCHEMA_LEFT_HANDED);
         this->motion_acceleration_ = this->mouse_settings_->get_double(MOUSE_SCHEMA_MOTION_ACCELERATION);
+        this->middle_emulation_enabled_ = this->mouse_settings_->get_boolean(MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED);
+        this->natural_scroll_ = this->mouse_settings_->get_boolean(MOUSE_SCHEMA_NATURAL_SCROLL);
     }
 }
 
 void MouseManager::settings_changed(const Glib::ustring &key)
 {
+    SETTINGS_PROFILE("key: %s.", key.c_str());
+
     switch (shash(key.c_str()))
     {
     case "left-handed"_hash:
-        this->left_handed_set(this->mouse_settings_->get_boolean(MOUSE_SCHEMA_LEFT_HANDED));
+        this->left_handed_set(this->mouse_settings_->get_boolean(key));
         break;
     case "motion-acceleration"_hash:
-        this->motion_acceleration_set(this->mouse_settings_->get_double(MOUSE_SCHEMA_MOTION_ACCELERATION));
+        this->motion_acceleration_set(this->mouse_settings_->get_double(key));
         break;
     case "middle-emulation-enabled"_hash:
-        this->middle_emulation_enabled_set(this->mouse_settings_->get_boolean(MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED));
+        this->middle_emulation_enabled_set(this->mouse_settings_->get_boolean(key));
         break;
     case "natural-scroll"_hash:
-        this->natural_scroll_set(this->mouse_settings_->get_boolean(MOUSE_SCHEMA_NATURAL_SCROLL));
+        this->natural_scroll_set(this->mouse_settings_->get_boolean(key));
+        break;
+    default:
         break;
     }
 }
 
-#define SET_PROP_TO_DEVICES(set_device_fun)                                                                 \
-    void MouseManager::set_device_fun##s()                                                                  \
-    {                                                                                                       \
-        SETTINGS_PROFILE("");                                                                               \
-        int32_t n_devices = 0;                                                                              \
-        auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices); \
-                                                                                                            \
-        for (auto i = 0; i < n_devices; i++)                                                                \
-        {                                                                                                   \
-            auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);                          \
-            if (device_helper)                                                                              \
-            {                                                                                               \
-                set_device_fun(device_helper);                                                              \
-            }                                                                                               \
-        }                                                                                                   \
-                                                                                                            \
-        if (devices_info != NULL)                                                                           \
-        {                                                                                                   \
-            XFreeDeviceList(devices_info);                                                                  \
-        }                                                                                                   \
+void MouseManager::set_all_prop_to_devices()
+{
+    this->set_left_handed_to_devices();
+    this->set_motion_acceleration_to_devices();
+    this->set_middle_emulation_enabled_to_devices();
+    this->set_natural_scroll_to_devices();
+}
+
+#define SET_PROP_TO_DEVICES(set_device_fun)                                               \
+    void MouseManager::set_device_fun##s()                                                \
+    {                                                                                     \
+        SETTINGS_PROFILE("");                                                             \
+        int32_t n_devices = 0;                                                            \
+        auto display = gdk_display_get_default();                                         \
+        g_return_if_fail(display != NULL);                                                \
+        auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(display), &n_devices); \
+                                                                                          \
+        for (auto i = 0; i < n_devices; i++)                                              \
+        {                                                                                 \
+            auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);        \
+            if (device_helper)                                                            \
+            {                                                                             \
+                set_device_fun(device_helper);                                            \
+            }                                                                             \
+        }                                                                                 \
+                                                                                          \
+        if (devices_info != NULL)                                                         \
+        {                                                                                 \
+            XFreeDeviceList(devices_info);                                                \
+        }                                                                                 \
     }
 
 SET_PROP_TO_DEVICES(set_left_handed_to_device);

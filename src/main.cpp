@@ -2,11 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 15:33:28
+ * @LastEditTime : 2020-08-10 09:01:52
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/src/main.cpp
+ * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
 
+#include <gdk/gdk.h>
 #include <gio/gio.h>
 #include <glib-unix.h>
 #include <glib.h>
@@ -76,6 +77,7 @@ int main(int argc, char* argv[])
 
     auto loop = Glib::MainLoop::create();
 
+    gdk_init(NULL, NULL);
     Kiran::AuthManager::global_init();
     Kiran::SettingsManager::global_init();
 
