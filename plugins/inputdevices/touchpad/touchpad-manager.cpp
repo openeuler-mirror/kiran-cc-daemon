@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 11:04:40
+ * @LastEditTime : 2020-08-10 11:08:52
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
@@ -210,7 +210,7 @@ SET_PROP_TO_DEVICES(set_motion_acceleration_to_device);
 
 void TouchPadManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_LEFT_HANDED) &&
         device_helper->is_touchpad())
@@ -221,7 +221,7 @@ void TouchPadManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> de
 
 void TouchPadManager::set_disable_while_typing_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING) &&
         device_helper->is_touchpad())
@@ -232,7 +232,7 @@ void TouchPadManager::set_disable_while_typing_to_device(std::shared_ptr<DeviceH
 
 void TouchPadManager::set_tap_to_click_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_TAPPING_ENABLED) &&
         device_helper->is_touchpad())
@@ -243,7 +243,7 @@ void TouchPadManager::set_tap_to_click_to_device(std::shared_ptr<DeviceHelper> d
 
 void TouchPadManager::set_click_method_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_CLICK_METHOD) &&
         device_helper->is_touchpad())
@@ -265,7 +265,7 @@ void TouchPadManager::set_click_method_to_device(std::shared_ptr<DeviceHelper> d
 
 void TouchPadManager::set_scroll_method_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_SCROLL_METHOD) &&
         device_helper->is_touchpad())
@@ -290,7 +290,7 @@ void TouchPadManager::set_scroll_method_to_device(std::shared_ptr<DeviceHelper> 
 
 void TouchPadManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_NATURAL_SCROLL) &&
         device_helper->is_touchpad())
@@ -301,7 +301,7 @@ void TouchPadManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper>
 
 void TouchPadManager::set_touchpad_enabled_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_DEVICE_ENABLED) &&
         device_helper->is_touchpad())
@@ -312,7 +312,7 @@ void TouchPadManager::set_touchpad_enabled_to_device(std::shared_ptr<DeviceHelpe
 
 void TouchPadManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name());
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_ACCEL_SPEED) &&
         device_helper->is_touchpad())

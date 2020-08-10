@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 11:03:43
+ * @LastEditTime : 2020-08-10 11:08:12
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
@@ -37,7 +37,7 @@ DeviceHelper::~DeviceHelper()
 }
 std::string DeviceHelper::get_device_name()
 {
-    return this->device_info_ ? this->device_info_->name : "";
+    return this->device_info_ ? this->device_info_->name : "NONE";
 }
 
 Atom DeviceHelper::get_atom(const std::string &property_name)
