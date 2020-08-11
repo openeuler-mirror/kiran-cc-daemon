@@ -47,6 +47,10 @@ Atom DeviceHelper::get_atom(const std::string &property_name)
 
 bool DeviceHelper::has_property(const std::string &property_name)
 {
+    SETTINGS_PROFILE("device_name: %s property_name: %s.",
+		      this->get_device_name().c_str(),
+		      property_name.c_str());
+
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
     Atom actual_type;
@@ -84,6 +88,8 @@ bool DeviceHelper::has_property(const std::string &property_name)
 
 bool DeviceHelper::is_touchpad()
 {
+    SETTINGS_PROFILE("device_name: %s.", this->get_device_name().c_str());
+
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
     auto display = gdk_display_get_default();
