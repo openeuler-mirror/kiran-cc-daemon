@@ -23,7 +23,7 @@
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
       <doc:doc>
         <doc:description>
-          <doc:para>Acceleration multiplier for mouse motion. the range the value is [1,10], the default value is 5.5.</doc:para>
+          <doc:para>Acceleration multiplier for mouse motion. the range the value is [-1,1], the default value is 0.</doc:para>
         </doc:description>
       </doc:doc>
     </property>
