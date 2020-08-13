@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 10:16:16
+ * @LastEditTime : 2020-08-13 09:56:22
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.h
  */
@@ -69,7 +69,7 @@ protected:
     // 开启或禁用所有触摸板
     virtual bool touchpad_enabled_setHandler(bool value);
 
-    // 设置移动加速
+    // 设置移动加速，范围为[-1,1]
     virtual bool motion_acceleration_setHandler(double value);
 
     virtual bool left_handed_get() { return this->left_handed_; };
@@ -87,7 +87,7 @@ private:
     void load_from_settings();
     void settings_changed(const Glib::ustring &key);
 
-    void set_all_prop_to_devices();
+    void set_all_props_to_devices();
     void set_left_handed_to_devices();
     void set_disable_while_typing_to_devices();
     void set_tap_to_click_to_devices();

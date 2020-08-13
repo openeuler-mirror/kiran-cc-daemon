@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:52:53
+ * @LastEditTime : 2020-08-13 09:56:05
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.h
  */
@@ -32,7 +32,7 @@ protected:
 
     // 设置左手模式，会对鼠标左键和右键的功能进行互换
     virtual bool left_handed_setHandler(bool value);
-    // 设置移动加速，范围为[1,10]
+    // 设置移动加速，范围为[-1,1]
     virtual bool motion_acceleration_setHandler(double value);
     // 暂不支持
     virtual bool double_click_setHandler(gint32 value);
@@ -53,7 +53,7 @@ private:
     void load_from_settings();
     void settings_changed(const Glib::ustring &key);
 
-    void set_all_prop_to_devices();
+    void set_all_props_to_devices();
     void set_left_handed_to_devices();
     void set_motion_acceleration_to_devices();
     void set_middle_emulation_enabled_to_devices();

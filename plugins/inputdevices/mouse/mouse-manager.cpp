@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-11 16:13:13
+ * @LastEditTime : 2020-08-13 10:24:49
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
@@ -79,10 +79,10 @@ void MouseManager::Reset(MethodInvocation &invocation)
         return true;                                                                \
     }
 
-PROP_SET_HANDLER(left_handed, bool, "left-handed", boolean);
-PROP_SET_HANDLER(motion_acceleration, double, "motion-acceleration", double);
-PROP_SET_HANDLER(middle_emulation_enabled, bool, "middle-emulation-enabled", boolean);
-PROP_SET_HANDLER(natural_scroll, bool, "natural-scroll", boolean);
+PROP_SET_HANDLER(left_handed, bool, MOUSE_SCHEMA_LEFT_HANDED, boolean);
+PROP_SET_HANDLER(motion_acceleration, double, MOUSE_SCHEMA_MOTION_ACCELERATION, double);
+PROP_SET_HANDLER(middle_emulation_enabled, bool, MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED, boolean);
+PROP_SET_HANDLER(natural_scroll, bool, MOUSE_SCHEMA_NATURAL_SCROLL, boolean);
 
 bool MouseManager::double_click_setHandler(gint32 value)
 {
@@ -100,7 +100,7 @@ void MouseManager::init()
     }
 
     this->load_from_settings();
-    this->set_all_prop_to_devices();
+    this->set_all_props_to_devices();
 
     this->mouse_settings_->signal_changed().connect(sigc::mem_fun(this, &MouseManager::settings_changed));
 
@@ -130,16 +130,16 @@ void MouseManager::settings_changed(const Glib::ustring &key)
 
     switch (shash(key.c_str()))
     {
-    case "left-handed"_hash:
+    case CONNECT(MOUSE_SCHEMA_LEFT_HANDED, _hash):
         this->left_handed_set(this->mouse_settings_->get_boolean(key));
         break;
-    case "motion-acceleration"_hash:
+    case CONNECT(MOUSE_SCHEMA_MOTION_ACCELERATION, _hash):
         this->motion_acceleration_set(this->mouse_settings_->get_double(key));
         break;
-    case "middle-emulation-enabled"_hash:
+    case CONNECT(MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED, _hash):
         this->middle_emulation_enabled_set(this->mouse_settings_->get_boolean(key));
         break;
-    case "natural-scroll"_hash:
+    case CONNECT(MOUSE_SCHEMA_NATURAL_SCROLL, _hash):
         this->natural_scroll_set(this->mouse_settings_->get_boolean(key));
         break;
     default:
@@ -147,7 +147,7 @@ void MouseManager::settings_changed(const Glib::ustring &key)
     }
 }
 
-void MouseManager::set_all_prop_to_devices()
+void MouseManager::set_all_props_to_devices()
 {
     this->set_left_handed_to_devices();
     this->set_motion_acceleration_to_devices();

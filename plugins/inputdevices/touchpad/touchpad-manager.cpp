@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-11 16:13:45
+ * @LastEditTime : 2020-08-13 09:07:28
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
@@ -17,6 +17,8 @@ namespace Kiran
 {
 #define TOUCHPAD_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.TouchPad"
 #define TOUCHPAD_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/TouchPad"
+
+#define X_HASH(X) CONNECT(X, _hash)
 
 #define TOUCHPAD_SCHEMA_ID "com.unikylin.kiran.touchpad"
 #define TOUCHPAD_SCHEMA_LEFT_HANDED "left-handed"
@@ -95,14 +97,14 @@ void TouchPadManager::Reset(MethodInvocation &invocation)
         return true;                                                                   \
     }
 
-PROP_SET_HANDLER(left_handed, bool, "left-handed", boolean);
-PROP_SET_HANDLER(disable_while_typing, bool, "disable-while-typing", boolean);
-PROP_SET_HANDLER(tap_to_click, bool, "tap-to-click", boolean);
-PROP_SET_HANDLER(click_method, gint32, "click-method", int);
-PROP_SET_HANDLER(scroll_method, gint32, "scroll-method", int);
-PROP_SET_HANDLER(natural_scroll, bool, "natural-scroll", boolean);
-PROP_SET_HANDLER(touchpad_enabled, bool, "touchpad-enabled", boolean);
-PROP_SET_HANDLER(motion_acceleration, double, "motion-acceleration", double);
+PROP_SET_HANDLER(left_handed, bool, TOUCHPAD_SCHEMA_LEFT_HANDED, boolean);
+PROP_SET_HANDLER(disable_while_typing, bool, TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING, boolean);
+PROP_SET_HANDLER(tap_to_click, bool, TOUCHPAD_SCHEMA_TAP_TO_CLICK, boolean);
+PROP_SET_HANDLER(click_method, gint32, TOUCHPAD_SCHEMA_CLICK_METHOD, int);
+PROP_SET_HANDLER(scroll_method, gint32, TOUCHPAD_SCHEMA_SCROLL_METHOD, int);
+PROP_SET_HANDLER(natural_scroll, bool, TOUCHPAD_SCHEMA_NATURAL_SCROLL, boolean);
+PROP_SET_HANDLER(touchpad_enabled, bool, TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED, boolean);
+PROP_SET_HANDLER(motion_acceleration, double, TOUCHPAD_SCHEMA_MOTION_ACCELERATION, double);
 
 void TouchPadManager::init()
 {
@@ -115,7 +117,7 @@ void TouchPadManager::init()
     }
 
     this->load_from_settings();
-    this->set_all_prop_to_devices();
+    this->set_all_props_to_devices();
 
     this->touchpad_settings_->signal_changed().connect(sigc::mem_fun(this, &TouchPadManager::settings_changed));
 
@@ -149,28 +151,28 @@ void TouchPadManager::settings_changed(const Glib::ustring &key)
 
     switch (shash(key.c_str()))
     {
-    case "left-handed"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_LEFT_HANDED, _hash):
         this->left_handed_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "disable-while-typing"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING, _hash):
         this->disable_while_typing_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "tap-to-click"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_TAP_TO_CLICK, _hash):
         this->tap_to_click_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "click-method"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_CLICK_METHOD, _hash):
         this->click_method_set(this->touchpad_settings_->get_int(key));
         break;
-    case "scroll-method"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_SCROLL_METHOD, _hash):
         this->scroll_method_set(this->touchpad_settings_->get_int(key));
         break;
-    case "natural-scroll"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_NATURAL_SCROLL, _hash):
         this->natural_scroll_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "touchpad-enabled"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED, _hash):
         this->touchpad_enabled_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "motion-acceleration"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_MOTION_ACCELERATION, _hash):
         this->motion_acceleration_set(this->touchpad_settings_->get_double(key));
         break;
     default:
@@ -178,7 +180,7 @@ void TouchPadManager::settings_changed(const Glib::ustring &key)
     }
 }
 
-void TouchPadManager::set_all_prop_to_devices()
+void TouchPadManager::set_all_props_to_devices()
 {
     this->set_left_handed_to_devices();
     this->set_disable_while_typing_to_devices();
