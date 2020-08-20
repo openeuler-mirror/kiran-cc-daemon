@@ -1,20 +1,19 @@
 /*
  * @Author       : tangjie02
- * @Date         : 2020-06-05 15:22:03
+ * @Date         : 2020-08-17 15:13:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 11:54:56
+ * @LastEditTime : 2020-08-20 14:15:55
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/helper.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/str-util.cpp
  */
-#include "lib/helper.h"
+
+#include "lib/str-util.h"
 
 #include <algorithm>
-#include <string>
-#include <vector>
 
 namespace Kiran
 {
-std::vector<std::string> split_lines(const std::string& s)
+std::vector<std::string> StrUtil::split_lines(const std::string& s)
 {
     std::vector<std::string> ret;
     size_t i = 0;
@@ -52,11 +51,42 @@ std::vector<std::string> split_lines(const std::string& s)
     return ret;
 }
 
-std::string str_tolower(const std::string& str)
+std::string StrUtil::tolower(const std::string& str)
 {
     std::string new_str = str;
-    std::transform(new_str.begin(), new_str.end(), new_str.begin(), tolower);
+    std::transform(new_str.begin(), new_str.end(), new_str.begin(), ::tolower);
     return new_str;
 }
 
+std::string StrUtil::toupper(const std::string& str)
+{
+    std::string new_str = str;
+    std::transform(new_str.begin(), new_str.end(), new_str.begin(), ::toupper);
+    return new_str;
+}
+
+std::vector<std::string> StrUtil::split_with_char(const std::string& s, char delimiter, bool is_merge_delimiter)
+{
+    std::vector<std::string> v;
+    size_t start = 0;
+    size_t i = 0;
+    while (i < s.length())
+    {
+        if (delimiter == s[i])
+        {
+            if (i > start || !is_merge_delimiter)
+            {
+                v.push_back(s.substr(start, i - start));
+            }
+            i++;
+            start = i;
+        }
+        else
+        {
+            i++;
+        }
+    }
+    v.push_back(s.substr(start, s.length() - start));
+    return v;
+}
 }  // namespace Kiran

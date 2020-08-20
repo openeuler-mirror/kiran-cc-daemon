@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 16:39:29
+ * @LastEditTime : 2020-08-19 17:34:42
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
  */
 
 #include "plugins/accounts/accounts-manager.h"
@@ -16,14 +16,16 @@
 #include <cstdint>
 
 #include "lib/auth-manager.h"
-#include "lib/helper.h"
+#include "lib/cc-dbus-error.h"
 #include "lib/log.h"
-#include "plugins/accounts/accounts-common.h"
+#include "lib/str-util.h"
 #include "plugins/accounts/accounts-util.h"
 
 namespace Kiran
 {
+#define ACCOUNTS_DBUS_NAME "com.unikylin.Kiran.SystemDaemon.Accounts"
 #define ACCOUNTS_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts"
+#define PATH_GDM_CUSTOM "/etc/gdm/custom.conf"
 
 AccountsManager::AccountsManager(AccountsWrapper *passwd_wrapper) : passwd_wrapper_(passwd_wrapper),
                                                                     dbus_connect_id_(0),
@@ -121,7 +123,7 @@ void AccountsManager::FindUserById(guint64 uid, MethodInvocation &invocation)
     else
     {
         auto err_message = fmt::format("Failed to look up user with id {0}", uid);
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
     }
 
     return;
@@ -140,7 +142,7 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     else
     {
         auto err_message = fmt::format("Failed to look up user with name {0}.", name.raw());
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
     }
 
     return;
@@ -426,7 +428,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     if (pwent)
     {
         auto err_message = fmt::format("A user with name '{0}' already exists", name.raw());
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_USER_EXISTS), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_USER_EXISTS), err_message.c_str()));
         return;
     }
 
@@ -435,26 +437,26 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     std::vector<std::string> argv;
     switch (account_type)
     {
-        case int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR):
-            argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "-G", ADMIN_GROUP, "--", name.raw()});
-            break;
-        case int32_t(AccountType::ACCOUNT_TYPE_STANDARD):
-            argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "--", name.raw()});
-            break;
-        default:
-        {
-            auto err_message = fmt::format("Don't know how to add user of type {0}", int32_t(account_type));
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
-            return;
-        }
+    case int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR):
+        argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "-G", ADMIN_GROUP, "--", name.raw()});
         break;
+    case int32_t(AccountType::ACCOUNT_TYPE_STANDARD):
+        argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "--", name.raw()});
+        break;
+    default:
+    {
+        auto err_message = fmt::format("Don't know how to add user of type {0}", int32_t(account_type));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
+        return;
+    }
+    break;
     }
 
     std::string err;
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
         auto err_message = fmt::format("running '{0}' failed: {1}", argv[0], err);
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
         return;
     }
 
@@ -468,7 +470,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     else
     {
         auto err_message = fmt::format("failed to find or create user {0}.", name.raw());
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
     }
 }
 
@@ -477,7 +479,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
     SETTINGS_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
     if (uid == 0)
     {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), "Refuse to delete root user"));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), "Refuse to delete root user"));
         return;
     }
 
@@ -487,7 +489,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
     if (!user)
     {
         auto err_message = fmt::format("No user with uid {0} found", uid);
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_USER_DOES_NOT_EXIST), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_USER_DOES_NOT_EXIST), err_message.c_str()));
         return;
     }
 
@@ -514,7 +516,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
         auto err_message = fmt::format("running '{0}' failed: {1}", argv[0], err);
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, static_cast<int32_t>(AccountsError::ERROR_FAILED), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
         return;
     }
 
@@ -543,7 +545,7 @@ bool AccountsManager::read_autologin_from_file(std::string &name, bool &enabled,
     try
     {
         auto enabled_value = keyfile.get_string("daemon", "AutomaticLoginEnable");
-        enabled_value = str_tolower(enabled_value);
+        enabled_value = StrUtil::tolower(enabled_value);
         if (enabled_value == "true" || enabled_value == "1")
         {
             enabled = true;

@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 set (TARGET_NAME timedate)
 
-file(GLOB_RECURSE MOUSE_H_FILES ./*.h)
-file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
+file(GLOB_RECURSE TIMEDATE_H_FILES ./*.h)
+file(GLOB_RECURSE TIMEDATE_CPP_FILES ./*.cpp)
 
 pkg_search_module(SELINUX REQUIRED libselinux)
 
@@ -12,8 +12,8 @@ GEN_DBUS_STUB(TIMEDATE timedate ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikyli
 
 
 add_library(${TARGET_NAME} SHARED
-    ${MOUSE_H_FILES}
-    ${MOUSE_CPP_FILES}
+    ${TIMEDATE_H_FILES}
+    ${TIMEDATE_CPP_FILES}
     ${TIMEDATE_GENERATED_STUB})
 
 

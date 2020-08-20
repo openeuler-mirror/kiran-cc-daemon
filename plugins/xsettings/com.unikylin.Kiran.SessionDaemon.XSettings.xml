@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.unikylin.Kiran.SessionDaemon.XSettings">
+
+        <property name="double_click_time" type="i" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Maximum time allowed between two clicks for them to be considered a double click (in milliseconds).</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+
+    </interface>
+</node>

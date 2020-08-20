@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 10:16:16
+ * @LastEditTime : 2020-08-13 09:56:22
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.h
  */
@@ -44,22 +44,32 @@ public:
 protected:
     virtual void Reset(MethodInvocation &invocation);
 
-    // 设置左手模式，如果为真，那么触摸板单击和双击效果切换
+    // 设置左手模式，如果为真，那么触摸板左键和右键效果切换，这里只会切换BUTTON_AREAS模式下点击
+    // 触摸板下方左右区域触发的左键和右键效果，不会切换1/2指轻击触摸板触发的效果
     virtual bool left_handed_setHandler(bool value);
+
     // 设置在用键盘打字时触摸板无效
     virtual bool disable_while_typing_setHandler(bool value);
+
     // 开启敲击触摸板和鼠标按键之间的映射行为。默认情况下1/2/3指敲击分别对应鼠标左键/右键/中键
     virtual bool tap_to_click_setHandler(bool value);
-    // 设置点击触摸板的方式，当设置为BUTTON_AREAS时，触摸板划分左中右三块区域，按下这三块区域分别对应左键/右键/中键；当设置为CLICK_FINGER时，可以通过1/2/3指轻击触摸板来触发左键/右键/中键
+
+    // 设置点击触摸板的方式，当设置为BUTTON_AREAS(0)时，触摸板下方会划分左中右三块区域，
+    // 这三块区域分别对应鼠标左/中/右键，当然你也可以通过1/2/3指轻击上方区域触发左/右/中键；
+    // 当设置为CLICK_FINGER(1)时，只能通过1/2/3指轻击触摸板(不划分上下区域)来触发左键/右键/中键
     virtual bool click_method_setHandler(gint32 value);
+
     // 滚动窗口的方式，分为twofinger, edge和button三种方式。
     // twofinger表示用两指滑动触摸板来达到滚动效果；edge表示滑动触摸板右边边缘来达到滚动效果；button表示操作键盘中间的红色按钮(部分机型存在)来达到滚动效果。
     virtual bool scroll_method_setHandler(gint32 value);
+
     // 设置自然滚动，如果设置为false，触摸板滑动方向与页面滚动方向相同，否则相反。具体的滚动方式可以通过设置scroll method来实现。
     virtual bool natural_scroll_setHandler(bool value);
+
     // 开启或禁用所有触摸板
     virtual bool touchpad_enabled_setHandler(bool value);
-    // 设置移动加速
+
+    // 设置移动加速，范围为[-1,1]
     virtual bool motion_acceleration_setHandler(double value);
 
     virtual bool left_handed_get() { return this->left_handed_; };
@@ -77,7 +87,7 @@ private:
     void load_from_settings();
     void settings_changed(const Glib::ustring &key);
 
-    void set_all_prop_to_devices();
+    void set_all_props_to_devices();
     void set_left_handed_to_devices();
     void set_disable_while_typing_to_devices();
     void set_tap_to_click_to_devices();

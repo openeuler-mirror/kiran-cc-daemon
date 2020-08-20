@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-31 09:49:54
+ * @LastEditTime : 2020-08-17 15:26:25
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.cpp
  */
 
 #include "plugins/timedate/timedate-manager.h"
@@ -24,6 +24,7 @@
 
 #include "lib/common.h"
 #include "lib/log.h"
+#include "lib/str-util.h"
 
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
@@ -349,7 +350,7 @@ void TimedateManager::read_ntp_units()
                     continue;
                 }
 
-                auto lines = split_lines(contents);
+                auto lines = StrUtil::split_lines(contents);
 
                 for (auto line_iter = lines.begin(); line_iter != lines.end(); ++line_iter)
                 {

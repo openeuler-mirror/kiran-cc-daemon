@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.unikylin.Kiran.SessionDaemon.Keyboard">
+        <method name="AddLayout">
+            <arg type="s" name="layout" direction="in">
+                <doc:doc>
+                    <doc:summary>Layout name. example us, cn, etc</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Add an user layout to usr layout lists.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="DelLayout">
+            <arg type="s" name="layout" direction="in">
+                <doc:doc>
+                    <doc:summary>Layout name. example us, cn, etc</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Delete an user layout from usr layout lists.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="GetValidLayouts">
+            <arg type="a{ss}" name="layouts" direction="out">
+                <doc:doc>
+                    <doc:summary>All valid layout list.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get all valid layout list from the file /usr/share/X11/xkb/rules/base.xml</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="AddLayoutOption">
+            <arg type="s" name="option" direction="in">
+                <doc:doc>
+                    <doc:summary>layout option.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>add layout option.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="DelLayoutOption">
+            <arg type="s" name="option" direction="in">
+                <doc:doc>
+                    <doc:summary>layout option.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>delete layout option.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="ClearLayoutOption">
+            <doc:doc>
+                <doc:description>
+                    <doc:para>clear layout option.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <property name="repeat_enabled" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="repeat_delay" type="i" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The delay time in ms after the initial press of an auto-repeating key and the first generated repeat event.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="repeat_interval" type="i" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The delay time in ms between all subsequent generated repeat events.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+
+        <property name="layouts" type="as" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Keyboard layouts.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="options" type="as" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Keyboard options.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+    </interface>
+</node>

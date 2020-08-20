@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:19:19
+ * @LastEditTime : 2020-08-20 10:03:05
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
@@ -10,6 +10,7 @@
 #include "plugins/inputdevices/common/device-helper.h"
 
 #include "lib/log.h"
+#include "lib/str-util.h"
 namespace Kiran
 {
 DeviceHelper::DeviceHelper(XDeviceInfo *device_info) : device_info_(device_info),
@@ -35,6 +36,10 @@ DeviceHelper::~DeviceHelper()
         XCloseDevice(GDK_DISPLAY_XDISPLAY(display), this->device_);
     }
 }
+std::string DeviceHelper::get_device_name()
+{
+    return this->device_info_ ? this->device_info_->name : "NONE";
+}
 
 Atom DeviceHelper::get_atom(const std::string &property_name)
 {
@@ -43,6 +48,10 @@ Atom DeviceHelper::get_atom(const std::string &property_name)
 
 bool DeviceHelper::has_property(const std::string &property_name)
 {
+    SETTINGS_PROFILE("device_name: %s property_name: %s.",
+                     this->get_device_name().c_str(),
+                     property_name.c_str());
+
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
     Atom actual_type;
@@ -80,6 +89,8 @@ bool DeviceHelper::has_property(const std::string &property_name)
 
 bool DeviceHelper::is_touchpad()
 {
+    SETTINGS_PROFILE("device_name: %s.", this->get_device_name().c_str());
+
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
     auto display = gdk_display_get_default();
@@ -99,9 +110,10 @@ bool DeviceHelper::is_touchpad()
 
 void DeviceHelper::set_property(const std::string &property_name, const std::vector<bool> &property_value)
 {
-    SETTINGS_PROFILE("property_name: %s property_value: %s.",
+    SETTINGS_PROFILE("device_name: %s property_name: %s property_value: %s.",
+                     this->device_info_->name,
                      property_name.c_str(),
-                     join_vector(property_value, ",").c_str());
+                     StrUtil::join(property_value, ",").c_str());
 
     RETURN_IF_TRUE(this->device_ == NULL);
 

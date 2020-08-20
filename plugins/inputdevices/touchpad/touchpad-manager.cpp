@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 10:19:55
+ * @LastEditTime : 2020-08-20 09:57:54
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
@@ -17,6 +17,8 @@ namespace Kiran
 {
 #define TOUCHPAD_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.TouchPad"
 #define TOUCHPAD_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/TouchPad"
+
+#define X_HASH(X) CONNECT(X, _hash)
 
 #define TOUCHPAD_SCHEMA_ID "com.unikylin.kiran.touchpad"
 #define TOUCHPAD_SCHEMA_LEFT_HANDED "left-handed"
@@ -68,28 +70,41 @@ void TouchPadManager::global_init()
 
 void TouchPadManager::Reset(MethodInvocation &invocation)
 {
+    this->left_handed_set(false);
+    this->disable_while_typing_set(false);
+    this->tap_to_click_set(true);
+    this->click_method_set(0);
+    this->scroll_method_set(0);
+    this->natural_scroll_set(false);
+    this->touchpad_enabled_set(true);
+    this->motion_acceleration_set(0);
 }
 
-#define PROP_SET_HANDLER(prop, type, key, set_fun)        \
-    bool TouchPadManager::prop##_setHandler(type value)   \
-    {                                                     \
-        SETTINGS_PROFILE("");                             \
-        RETURN_VAL_IF_TRUE(value == this->prop##_, true); \
-                                                          \
-        this->prop##_ = value;                            \
-        this->touchpad_settings_->set_fun(key, value);    \
-        this->set_##prop##_to_devices();                  \
-        return true;                                      \
+#define PROP_SET_HANDLER(prop, type, key, type2)                                       \
+    bool TouchPadManager::prop##_setHandler(type value)                                \
+    {                                                                                  \
+        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());             \
+        RETURN_VAL_IF_TRUE(value == this->prop##_, false);                             \
+        if (g_settings_get_##type2(this->touchpad_settings_->gobj(), key) != value)    \
+        {                                                                              \
+            if (!g_settings_set_##type2(this->touchpad_settings_->gobj(), key, value)) \
+            {                                                                          \
+                return false;                                                          \
+            }                                                                          \
+        }                                                                              \
+        this->prop##_ = value;                                                         \
+        this->set_##prop##_to_devices();                                               \
+        return true;                                                                   \
     }
 
-PROP_SET_HANDLER(left_handed, bool, "left-handed", set_boolean);
-PROP_SET_HANDLER(disable_while_typing, bool, "disable-while-typing", set_boolean);
-PROP_SET_HANDLER(tap_to_click, bool, "tap-to-click", set_boolean);
-PROP_SET_HANDLER(click_method, gint32, "click-method", set_int);
-PROP_SET_HANDLER(scroll_method, gint32, "scroll-method", set_int);
-PROP_SET_HANDLER(natural_scroll, bool, "natural-scroll", set_boolean);
-PROP_SET_HANDLER(touchpad_enabled, bool, "touchpad-enabled", set_boolean);
-PROP_SET_HANDLER(motion_acceleration, double, "motion-acceleration", set_double);
+PROP_SET_HANDLER(left_handed, bool, TOUCHPAD_SCHEMA_LEFT_HANDED, boolean);
+PROP_SET_HANDLER(disable_while_typing, bool, TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING, boolean);
+PROP_SET_HANDLER(tap_to_click, bool, TOUCHPAD_SCHEMA_TAP_TO_CLICK, boolean);
+PROP_SET_HANDLER(click_method, gint32, TOUCHPAD_SCHEMA_CLICK_METHOD, int);
+PROP_SET_HANDLER(scroll_method, gint32, TOUCHPAD_SCHEMA_SCROLL_METHOD, int);
+PROP_SET_HANDLER(natural_scroll, bool, TOUCHPAD_SCHEMA_NATURAL_SCROLL, boolean);
+PROP_SET_HANDLER(touchpad_enabled, bool, TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED, boolean);
+PROP_SET_HANDLER(motion_acceleration, double, TOUCHPAD_SCHEMA_MOTION_ACCELERATION, double);
 
 void TouchPadManager::init()
 {
@@ -102,7 +117,7 @@ void TouchPadManager::init()
     }
 
     this->load_from_settings();
-    this->set_all_prop_to_devices();
+    this->set_all_props_to_devices();
 
     this->touchpad_settings_->signal_changed().connect(sigc::mem_fun(this, &TouchPadManager::settings_changed));
 
@@ -136,28 +151,28 @@ void TouchPadManager::settings_changed(const Glib::ustring &key)
 
     switch (shash(key.c_str()))
     {
-    case "left-handed"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_LEFT_HANDED, _hash):
         this->left_handed_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "disable-while-typing"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING, _hash):
         this->disable_while_typing_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "tap-to-click"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_TAP_TO_CLICK, _hash):
         this->tap_to_click_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "click-method"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_CLICK_METHOD, _hash):
         this->click_method_set(this->touchpad_settings_->get_int(key));
         break;
-    case "scroll-method"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_SCROLL_METHOD, _hash):
         this->scroll_method_set(this->touchpad_settings_->get_int(key));
         break;
-    case "natural-scroll"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_NATURAL_SCROLL, _hash):
         this->natural_scroll_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "touchpad-enabled"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED, _hash):
         this->touchpad_enabled_set(this->touchpad_settings_->get_boolean(key));
         break;
-    case "motion-acceleration"_hash:
+    case CONNECT(TOUCHPAD_SCHEMA_MOTION_ACCELERATION, _hash):
         this->motion_acceleration_set(this->touchpad_settings_->get_double(key));
         break;
     default:
@@ -165,7 +180,7 @@ void TouchPadManager::settings_changed(const Glib::ustring &key)
     }
 }
 
-void TouchPadManager::set_all_prop_to_devices()
+void TouchPadManager::set_all_props_to_devices()
 {
     this->set_left_handed_to_devices();
     this->set_disable_while_typing_to_devices();
@@ -210,7 +225,7 @@ SET_PROP_TO_DEVICES(set_motion_acceleration_to_device);
 
 void TouchPadManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_LEFT_HANDED) &&
         device_helper->is_touchpad())
@@ -221,7 +236,7 @@ void TouchPadManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> de
 
 void TouchPadManager::set_disable_while_typing_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING) &&
         device_helper->is_touchpad())
@@ -232,7 +247,7 @@ void TouchPadManager::set_disable_while_typing_to_device(std::shared_ptr<DeviceH
 
 void TouchPadManager::set_tap_to_click_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_TAPPING_ENABLED) &&
         device_helper->is_touchpad())
@@ -243,7 +258,7 @@ void TouchPadManager::set_tap_to_click_to_device(std::shared_ptr<DeviceHelper> d
 
 void TouchPadManager::set_click_method_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_CLICK_METHOD) &&
         device_helper->is_touchpad())
@@ -265,7 +280,7 @@ void TouchPadManager::set_click_method_to_device(std::shared_ptr<DeviceHelper> d
 
 void TouchPadManager::set_scroll_method_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_SCROLL_METHOD) &&
         device_helper->is_touchpad())
@@ -290,7 +305,7 @@ void TouchPadManager::set_scroll_method_to_device(std::shared_ptr<DeviceHelper> 
 
 void TouchPadManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_NATURAL_SCROLL) &&
         device_helper->is_touchpad())
@@ -301,7 +316,7 @@ void TouchPadManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper>
 
 void TouchPadManager::set_touchpad_enabled_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_DEVICE_ENABLED) &&
         device_helper->is_touchpad())
@@ -312,21 +327,12 @@ void TouchPadManager::set_touchpad_enabled_to_device(std::shared_ptr<DeviceHelpe
 
 void TouchPadManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(TOUCHPAD_PROP_ACCEL_SPEED) &&
         device_helper->is_touchpad())
     {
-        float motion_accel = 0;
-        if (this->motion_acceleration_ < 1 || this->motion_acceleration_ > 10)
-        {
-            motion_accel = 0;
-        }
-        else
-        {
-            motion_accel = (this->motion_acceleration_ - 1) * 2 / 9 - 1;
-        }
-        device_helper->set_property(TOUCHPAD_PROP_ACCEL_SPEED, motion_accel);
+        device_helper->set_property(TOUCHPAD_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
     }
 }
 

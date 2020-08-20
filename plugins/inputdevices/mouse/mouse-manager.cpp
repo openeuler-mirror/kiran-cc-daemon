@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:25:25
+ * @LastEditTime : 2020-08-20 09:57:35
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
@@ -59,23 +59,30 @@ void MouseManager::Reset(MethodInvocation &invocation)
     this->left_handed_set(false);
     this->motion_acceleration_set(0);
     this->middle_emulation_enabled_set(false);
+    this->natural_scroll_set(false);
 }
 
-#define PROP_SET_HANDLER(prop, type, key, set_fun)        \
-    bool MouseManager::prop##_setHandler(type value)      \
-    {                                                     \
-        RETURN_VAL_IF_TRUE(value == this->prop##_, true); \
-                                                          \
-        this->prop##_ = value;                            \
-        this->mouse_settings_->set_fun(key, value);       \
-        this->set_##prop##_to_devices();                  \
-        return true;                                      \
+#define PROP_SET_HANDLER(prop, type, key, type2)                                    \
+    bool MouseManager::prop##_setHandler(type value)                                \
+    {                                                                               \
+        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());          \
+        RETURN_VAL_IF_TRUE(value == this->prop##_, false);                          \
+        if (g_settings_get_##type2(this->mouse_settings_->gobj(), key) != value)    \
+        {                                                                           \
+            if (!g_settings_set_##type2(this->mouse_settings_->gobj(), key, value)) \
+            {                                                                       \
+                return false;                                                       \
+            }                                                                       \
+        }                                                                           \
+        this->prop##_ = value;                                                      \
+        this->set_##prop##_to_devices();                                            \
+        return true;                                                                \
     }
 
-PROP_SET_HANDLER(left_handed, bool, "left-handed", set_boolean);
-PROP_SET_HANDLER(motion_acceleration, double, "motion-acceleration", set_double);
-PROP_SET_HANDLER(middle_emulation_enabled, bool, "middle-emulation-enabled", set_boolean);
-PROP_SET_HANDLER(natural_scroll, bool, "natural-scroll", set_boolean);
+PROP_SET_HANDLER(left_handed, bool, MOUSE_SCHEMA_LEFT_HANDED, boolean);
+PROP_SET_HANDLER(motion_acceleration, double, MOUSE_SCHEMA_MOTION_ACCELERATION, double);
+PROP_SET_HANDLER(middle_emulation_enabled, bool, MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED, boolean);
+PROP_SET_HANDLER(natural_scroll, bool, MOUSE_SCHEMA_NATURAL_SCROLL, boolean);
 
 bool MouseManager::double_click_setHandler(gint32 value)
 {
@@ -93,7 +100,7 @@ void MouseManager::init()
     }
 
     this->load_from_settings();
-    this->set_all_prop_to_devices();
+    this->set_all_props_to_devices();
 
     this->mouse_settings_->signal_changed().connect(sigc::mem_fun(this, &MouseManager::settings_changed));
 
@@ -123,16 +130,16 @@ void MouseManager::settings_changed(const Glib::ustring &key)
 
     switch (shash(key.c_str()))
     {
-    case "left-handed"_hash:
+    case CONNECT(MOUSE_SCHEMA_LEFT_HANDED, _hash):
         this->left_handed_set(this->mouse_settings_->get_boolean(key));
         break;
-    case "motion-acceleration"_hash:
+    case CONNECT(MOUSE_SCHEMA_MOTION_ACCELERATION, _hash):
         this->motion_acceleration_set(this->mouse_settings_->get_double(key));
         break;
-    case "middle-emulation-enabled"_hash:
+    case CONNECT(MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED, _hash):
         this->middle_emulation_enabled_set(this->mouse_settings_->get_boolean(key));
         break;
-    case "natural-scroll"_hash:
+    case CONNECT(MOUSE_SCHEMA_NATURAL_SCROLL, _hash):
         this->natural_scroll_set(this->mouse_settings_->get_boolean(key));
         break;
     default:
@@ -140,7 +147,7 @@ void MouseManager::settings_changed(const Glib::ustring &key)
     }
 }
 
-void MouseManager::set_all_prop_to_devices()
+void MouseManager::set_all_props_to_devices()
 {
     this->set_left_handed_to_devices();
     this->set_motion_acceleration_to_devices();
@@ -179,7 +186,7 @@ SET_PROP_TO_DEVICES(set_natural_scroll_to_device);
 
 void MouseManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
         !device_helper->is_touchpad())
@@ -190,27 +197,18 @@ void MouseManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> devic
 
 void MouseManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
         !device_helper->is_touchpad())
     {
-        float motion_accel = 0;
-        if (this->motion_acceleration_ < 1 || this->motion_acceleration_ > 10)
-        {
-            motion_accel = 0;
-        }
-        else
-        {
-            motion_accel = (this->motion_acceleration_ - 1) * 2 / 9 - 1;
-        }
-        device_helper->set_property(MOUSE_PROP_ACCEL_SPEED, motion_accel);
+        device_helper->set_property(MOUSE_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
     }
 }
 
 void MouseManager::set_middle_emulation_enabled_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
         !device_helper->is_touchpad())
@@ -221,7 +219,7 @@ void MouseManager::set_middle_emulation_enabled_to_device(std::shared_ptr<Device
 
 void MouseManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper> device_helper)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
 
     if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
         !device_helper->is_touchpad())
