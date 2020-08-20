@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 11:08:12
+ * @LastEditTime : 2020-08-20 10:03:05
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
@@ -10,6 +10,7 @@
 #include "plugins/inputdevices/common/device-helper.h"
 
 #include "lib/log.h"
+#include "lib/str-util.h"
 namespace Kiran
 {
 DeviceHelper::DeviceHelper(XDeviceInfo *device_info) : device_info_(device_info),
@@ -48,8 +49,8 @@ Atom DeviceHelper::get_atom(const std::string &property_name)
 bool DeviceHelper::has_property(const std::string &property_name)
 {
     SETTINGS_PROFILE("device_name: %s property_name: %s.",
-		      this->get_device_name().c_str(),
-		      property_name.c_str());
+                     this->get_device_name().c_str(),
+                     property_name.c_str());
 
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
@@ -112,7 +113,7 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
     SETTINGS_PROFILE("device_name: %s property_name: %s property_value: %s.",
                      this->device_info_->name,
                      property_name.c_str(),
-                     join_vector(property_value, ",").c_str());
+                     StrUtil::join(property_value, ",").c_str());
 
     RETURN_IF_TRUE(this->device_ == NULL);
 

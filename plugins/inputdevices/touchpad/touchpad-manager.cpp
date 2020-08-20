@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-13 09:07:28
+ * @LastEditTime : 2020-08-20 09:57:54
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
@@ -83,7 +83,7 @@ void TouchPadManager::Reset(MethodInvocation &invocation)
 #define PROP_SET_HANDLER(prop, type, key, type2)                                       \
     bool TouchPadManager::prop##_setHandler(type value)                                \
     {                                                                                  \
-        SETTINGS_PROFILE("");                                                          \
+        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());             \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                             \
         if (g_settings_get_##type2(this->touchpad_settings_->gobj(), key) != value)    \
         {                                                                              \

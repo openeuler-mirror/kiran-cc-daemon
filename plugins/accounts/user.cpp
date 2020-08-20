@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 16:36:45
+ * @LastEditTime : 2020-08-19 17:31:58
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/user.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.cpp
  */
 
 #include "plugins/accounts/user.h"
@@ -17,16 +17,17 @@
 #include <cinttypes>
 
 #include "lib/auth-manager.h"
+#include "lib/cc-dbus-error.h"
 #include "lib/log.h"
-#include "plugins/accounts/accounts-common.h"
 #include "plugins/accounts/accounts-manager.h"
 #include "plugins/accounts/accounts-util.h"
 #include "plugins/accounts/user-classify.h"
 
 namespace Kiran
 {
+#define USERDIR "/var/lib/AccountsService/users"
+#define ICONDIR "/var/lib/AccountsService/icons"
 #define ACCOUNTS_USER_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts/User"
-#define ADMIN_GROUP "wheel"
 
 User::User(uint64_t uid) : object_register_id_(0),
                            uid_(uid),
@@ -324,7 +325,7 @@ std::string User::get_auth_action(MethodInvocation &invocation, const std::strin
 
     if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
     {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "identifying caller failed"));
+        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "identifying caller failed"));
         return std::string();
     }
 
@@ -441,7 +442,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), e.what().c_str()));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), e.what().c_str()));
             return;
         }
 
@@ -450,14 +451,14 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
         {
             auto err_message = fmt::format("file '{0}' is not a regular file", filename.raw());
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
             return;
         }
 
         if (size > 1048576)
         {
             auto err_message = fmt::format("file '{0}' is too large to be used as an icon", filename.raw());
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
             return;
         }
 
@@ -471,7 +472,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         int32_t uid;
         if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
         {
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to copy file, could not determine caller UID"));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "failed to copy file, could not determine caller UID"));
             return;
         }
 
@@ -485,7 +486,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         catch (const Glib::Error &e)
         {
             auto err_message = fmt::format("creating file '{0}' failed: {1}", dest_path, e.what().raw());
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
             return;
         }
 
@@ -507,7 +508,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         catch (const Glib::Error &e)
         {
             auto err_message = fmt::format("reading file '{0}' failed: {1}", filename.raw(), e.what().raw());
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
             return;
         }
 
@@ -526,7 +527,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         if (bytes < 0 || (uint64_t)bytes != size)
         {
             auto err_message = fmt::format("copying file '{0}' to '{1}' failed: {2}", filename.raw(), dest_path, err.c_str());
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
             IGNORE_EXCEPTION(dest_file->remove());
             return;
         }
@@ -567,7 +568,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
         auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
         if (!grp)
         {
-            invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to set account type: " ADMIN_GROUP " group not found"));
+            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "failed to set account type: " ADMIN_GROUP " group not found"));
             return;
         }
         auto admin_gid = grp->gr_gid;
@@ -637,7 +638,7 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
         err = fmt::format("running '{0}' failed: {1}", argv[0], err);
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err.c_str()));
         return;
     }
 
@@ -658,14 +659,14 @@ void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool aut
 
     if (this->locked_get())
     {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "failed to change automatic login: user is locked"));
+        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "failed to change automatic login: user is locked"));
         return;
     }
     std::string err;
     if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), auto_login, err))
     {
         auto err_message = fmt::format("failed to change automatic login: {0}", err);
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), err_message.c_str()));
+        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
         return;
     }
     invocation.ret();
@@ -676,7 +677,7 @@ void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocat
     SETTINGS_PROFILE("");
     if (!this->spwd_)
     {
-        invocation.ret(Glib::Error(ACCOUNTS_ERROR, int32_t(AccountsError::ERROR_FAILED), "account expiration policy unknown to accounts service"));
+        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "account expiration policy unknown to accounts service"));
         return;
     }
 

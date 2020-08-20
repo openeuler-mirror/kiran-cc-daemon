@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-13 10:24:49
+ * @LastEditTime : 2020-08-20 09:57:35
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
@@ -65,7 +65,7 @@ void MouseManager::Reset(MethodInvocation &invocation)
 #define PROP_SET_HANDLER(prop, type, key, type2)                                    \
     bool MouseManager::prop##_setHandler(type value)                                \
     {                                                                               \
-        SETTINGS_PROFILE("");                                                       \
+        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());          \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                          \
         if (g_settings_get_##type2(this->mouse_settings_->gobj(), key) != value)    \
         {                                                                           \

@@ -5,12 +5,12 @@
         <method name="AddLayout">
             <arg type="s" name="layout" direction="in">
                 <doc:doc>
-                    <doc:summary>layout name. example us, cn, etc</doc:summary>
+                    <doc:summary>Layout name. example us, cn, etc</doc:summary>
                 </doc:doc>
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>add an user layout to usr layout lists.</doc:para>
+                    <doc:para>Add an user layout to usr layout lists.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -18,12 +18,25 @@
         <method name="DelLayout">
             <arg type="s" name="layout" direction="in">
                 <doc:doc>
-                    <doc:summary>layout name. example us, cn, etc</doc:summary>
+                    <doc:summary>Layout name. example us, cn, etc</doc:summary>
                 </doc:doc>
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>delete an user layout from usr layout lists.</doc:para>
+                    <doc:para>Delete an user layout from usr layout lists.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="GetValidLayouts">
+            <arg type="a{ss}" name="layouts" direction="out">
+                <doc:doc>
+                    <doc:summary>All valid layout list.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get all valid layout list from the file /usr/share/X11/xkb/rules/base.xml</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -90,20 +103,11 @@
         </property>
 
 
-        <property name="model" type="s" access="readwrite">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Keyboard Model.</doc:para>
-                </doc:description>
-            </doc:doc>
-        </property>
-
         <property name="layouts" type="as" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
-                    <doc:para>Keyboard layout.</doc:para>
+                    <doc:para>Keyboard layouts.</doc:para>
                 </doc:description>
             </doc:doc>
         </property>

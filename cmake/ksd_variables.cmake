@@ -118,7 +118,8 @@ if(FORCE_DEBUG_INFO)
 endif()
 list(APPEND KSD_LINKER_FLAGS
   -fPIC                              # Generate position-independent code for shared libraries
-  #-Wl,--fatal-warnings              # Treat warnings as errors
+  -Wl,--fatal-warnings               # Treat warnings as errors
+  -Wno-deprecated-declarations       # Disable deprecated declarations warning
   #-Wl,-z,noexecstack                # Mark the stack as non-executable (security feature)
   #-Wl,-z,relro                      # Mark relocation sections as read-only (security feature)
   )
