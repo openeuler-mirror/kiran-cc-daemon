@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 18:16:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 15:52:24
+ * @LastEditTime : 2020-08-26 13:57:13
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/common.h
+ * @FilePath     : /kiran-cc-daemon/lib/common.h
  */
 
 namespace Kiran
@@ -25,5 +25,16 @@ namespace Kiran
 #define POLKIT_NAME "org.freedesktop.PolicyKit1"
 #define POLKIT_PATH "/org/freedesktop/PolicyKit1/Authority"
 #define POLKIT_INTERFACE "org.freedesktop.PolicyKit1.Authority"
+
+#define CHECK_XMLPP_ELEMENT(node, err)                                                                       \
+    {                                                                                                        \
+        const auto element = dynamic_cast<const xmlpp::Element *>(node);                                     \
+                                                                                                             \
+        if (!element)                                                                                        \
+        {                                                                                                    \
+            err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str()); \
+            return false;                                                                                    \
+        }                                                                                                    \
+    }
 
 }  // namespace Kiran

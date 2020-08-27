@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist >
+    <schema id="com.unikylin.kiran.keybinding" path="/com/unikylin/kiran/keybinding/">
+        <key name="shortcuts" type="a{sv}">
+            <default>''</default>
+            <description>The custom shortcuts that the key is shortcut name and the value contains action and keybinding. For example， ['terminal': ('/bin/bash', '&lt;ctrl&gt;T')].</description>
+        </key>
+    </schema>
+</schemalist>

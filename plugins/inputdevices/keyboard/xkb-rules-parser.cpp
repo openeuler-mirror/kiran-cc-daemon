@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-18 09:47:39
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 13:50:29
+ * @LastEditTime : 2020-08-26 13:57:38
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/xkb-rules-parser.cpp
  */
@@ -40,17 +40,6 @@ bool XkbRulesParser::parse(XkbRules &xkb_rules, std::string &err)
     }
     return true;
 }
-
-#define CHECK_XMLPP_ELEMENT(node, err)                                                                       \
-    {                                                                                                        \
-        const auto element = dynamic_cast<const xmlpp::Element *>(node);                                     \
-                                                                                                             \
-        if (!element)                                                                                        \
-        {                                                                                                    \
-            err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str()); \
-            return false;                                                                                    \
-        }                                                                                                    \
-    }
 
 bool XkbRulesParser::process_config_registry(const xmlpp::Node *node, XkbRules &xkb_rules, std::string &err)
 {

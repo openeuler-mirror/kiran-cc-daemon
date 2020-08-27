@@ -5,10 +5,14 @@
 
     <method name="SetTime">
       <arg type="x" name="requested_time" direction="in">
-        <doc:doc><doc:summary>Time to set in microsecond</doc:summary></doc:doc>
+        <doc:doc>
+          <doc:summary>Time to set in microsecond</doc:summary>
+        </doc:doc>
       </arg>
-      <arg type="b" name="relative" direction="in" >
-        <doc:doc><doc:summary>Sets relative time since current time if true. Otherwise, sets the time since the Epoch</doc:summary></doc:doc>
+      <arg type="b" name="relative" direction="in">
+        <doc:doc>
+          <doc:summary>Sets relative time since current time if true. Otherwise, sets the time since the Epoch</doc:summary>
+        </doc:doc>
       </arg>
       <doc:doc>
         <doc:description>
@@ -18,8 +22,10 @@
     </method>
 
     <method name="SetTimezone">
-      <arg type="s" name="time_zone" direction="in" >
-        <doc:doc><doc:summary>Timezone</doc:summary></doc:doc>
+      <arg type="s" name="time_zone" direction="in">
+        <doc:doc>
+          <doc:summary>Timezone</doc:summary>
+        </doc:doc>
       </arg>
       <doc:doc>
         <doc:description>
@@ -30,10 +36,14 @@
 
     <method name="SetLocalRTC">
       <arg type="b" name="local" direction="in">
-        <doc:doc><doc:summary>The RTC timescale is Local if true. Otherwise, the RTC timescale is UTC.</doc:summary></doc:doc>
+        <doc:doc>
+          <doc:summary>The RTC timescale is Local if true. Otherwise, the RTC timescale is UTC.</doc:summary>
+        </doc:doc>
       </arg>
       <arg type="b" name="adjust_system" direction="in">
-        <doc:doc><doc:summary>Sets the system time from the RTC if true. Otherwise, sets the RTC from the system time.</doc:summary></doc:doc>
+        <doc:doc>
+          <doc:summary>Sets the system time from the RTC if true. Otherwise, sets the RTC from the system time.</doc:summary>
+        </doc:doc>
       </arg>
       <doc:doc>
         <doc:description>
@@ -44,7 +54,9 @@
 
     <method name="SetNTP">
       <arg type="b" name="active" direction="in">
-        <doc:doc><doc:summary>Enable NTP if true. Otherwise, Disable NTP.</doc:summary></doc:doc>
+        <doc:doc>
+          <doc:summary>Enable NTP if true. Otherwise, Disable NTP.</doc:summary>
+        </doc:doc>
       </arg>
       <doc:doc>
         <doc:description>

@@ -5,8 +5,6 @@ set (TARGET_NAME keyboard)
 file(GLOB_RECURSE KEYBOARD_H_FILES ./*.h)
 file(GLOB_RECURSE KEYBOARD_CPP_FILES ./*.cpp)
 
-pkg_search_module(LIBXML2 REQUIRED libxml++-2.6)
-
 
 GEN_DBUS_STUB(KEYBOARD keyboard ${CMAKE_SOURCE_DIR}/plugins/inputdevices/keyboard/com.unikylin.Kiran.SessionDaemon.Keyboard.xml)
 
@@ -35,8 +33,6 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/generated
-    ${GLIBMM_INCLUDE_DIRS}
-    ${GIOMM_INCLUDE_DIRS}
     ${GDKMM3_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIRS})
 
@@ -50,8 +46,6 @@ target_compile_options(${TARGET_NAME} PRIVATE
     -L${LIBDIR})
 
 target_link_libraries(${TARGET_NAME} PRIVATE
-    ${GLIBMM_LIBRARIES}
-    ${GIOMM_LIBRARIES}
     ${GDKMM3_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     inputdevices-common

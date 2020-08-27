@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-20 11:49:39
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 16:58:04
+ * @LastEditTime : 2020-08-26 13:56:56
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/iso-translation.cpp
  */
@@ -127,17 +127,6 @@ bool ISOTranslation::load_iso_file(const std::string &iso_basename,
     }
     return true;
 }
-
-#define CHECK_XMLPP_ELEMENT(node, err)                                                                       \
-    {                                                                                                        \
-        const auto element = dynamic_cast<const xmlpp::Element *>(node);                                     \
-                                                                                                             \
-        if (!element)                                                                                        \
-        {                                                                                                    \
-            err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str()); \
-            return false;                                                                                    \
-        }                                                                                                    \
-    }
 
 bool ISOTranslation::process_iso_entries(const xmlpp::Node *node,
                                          const std::string &iso_basename,

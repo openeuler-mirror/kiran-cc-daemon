@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:21
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 11:02:49
+ * @LastEditTime : 2020-08-25 15:03:04
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.h
  */
