@@ -18,7 +18,7 @@
                     <doc:summary>The keystroke combination.</doc:summary>
                 </doc:doc>
             </arg>
-            <arg type="s" name="id" direction="out">
+            <arg type="s" name="uid" direction="out">
                 <doc:doc>
                     <doc:summary>The unique ID to identify the shortcut.</doc:summary>
                 </doc:doc>
@@ -30,33 +30,163 @@
             </doc:doc>
         </method>
 
-        <method name="DeleteCustomShortcut">
+        <method name="ModifyCustomShortcut">
+            <arg type="s" name="uid" direction="in">
+                <doc:doc>
+                    <doc:summary>The unique ID to identify the shortcut.</doc:summary>
+                </doc:doc>
+            </arg>
             <arg type="s" name="name" direction="in">
                 <doc:doc>
                     <doc:summary>The shortcut name.</doc:summary>
                 </doc:doc>
             </arg>
+            <arg type="s" name="action" direction="in">
+                <doc:doc>
+                    <doc:summary>Execute command.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="s" name="key_combination" direction="in">
+                <doc:doc>
+                    <doc:summary>The keystroke combination.</doc:summary>
+                </doc:doc>
+            </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>Delete a custom shortcut.</doc:para>
+                    <doc:para>Modify existed custom shortcut.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="DeleteCustomShortcut">
+            <arg type="s" name="uid" direction="in">
+                <doc:doc>
+                    <doc:summary>The unique ID to identify the shortcut.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Delete existed custom shortcut.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="GetCustomShortcut">
+            <arg type="s" name="uid" direction="in">
+                <doc:doc>
+                    <doc:summary>The unique ID to identify the shortcut.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="(ssss)" name="shortcut" direction="out">
+                <doc:doc>
+                    <doc:summary>The struct contains uid, name, action and key_combination.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get custom shortcut.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
 
         <method name="ListCustomShortcuts">
-            <arg type="a{sv}" name="shortcuts" direction="out">
+            <arg type="a(ssss)" name="shortcuts" direction="out">
                 <doc:doc>
-                    <doc:summary>The custom shortcuts.</doc:summary>
+                    <doc:summary>The struct in array contains uid, name, action and key_combination.</doc:summary>
                 </doc:doc>
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>list custom shortcuts.</doc:para>
+                    <doc:para>List custom shortcuts.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
 
+        <method name="ModifySystemShortcut">
+            <arg type="s" name="uid" direction="in">
+                <doc:doc>
+                    <doc:summary>The unique ID to identify the shortcut.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="s" name="key_combination" direction="in">
+                <doc:doc>
+                    <doc:summary>The keystroke combination.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Modify existed system shortcut.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
 
+        <method name="GetSystemShortcut">
+            <arg type="s" name="uid" direction="in">
+                <doc:doc>
+                    <doc:summary>The unique ID to identify the shortcut.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="(ssss)" name="shortcut" direction="out">
+                <doc:doc>
+                    <doc:summary>The struct contains uid, kind, name and key_combination.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get system shortcut.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="ListSystemShortcuts">
+            <arg type="a(ssss)" name="shortcuts" direction="out">
+                <doc:doc>
+                    <doc:summary>The struct in array contains uid, kind, name and key_combination.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>List system shortcuts.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="ListShortcuts">
+            <arg type="a(ssss)" name="shortcuts" direction="out">
+                <doc:doc>
+                    <doc:summary>The struct in array contains uid, kind, name and key_combination.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>List all shortcuts that contain custom shortcuts and system shortcuts.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <signal name="Added">
+            <arg type="(ss)" name="result">
+                <doc:doc>
+                    <doc:summary>The struct contains uid and kind.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="Deleted">
+            <arg type="(ss)" name="result">
+                <doc:doc>
+                    <doc:summary>The struct contains uid and kind.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="Changed">
+            <arg type="(ss)" name="result">
+                <doc:doc>
+                    <doc:summary>The struct contains uid and kind.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
 
     </interface>
 </node>

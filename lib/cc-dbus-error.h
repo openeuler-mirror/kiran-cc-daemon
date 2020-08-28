@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-19 17:20:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 09:52:05
+ * @LastEditTime : 2020-08-27 15:06:16
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/cc-dbus-error.h
  */
@@ -15,6 +15,7 @@ namespace Kiran
 enum class CCError : int32_t
 {
     // Common
+    SUCCESS,
     ERROR_FAILED,
     ERROR_NOT_SUPPORTED,
     ERROR_PERMISSION_DENIED,
@@ -25,6 +26,9 @@ enum class CCError : int32_t
     // Accounts
     ERROR_USER_EXISTS,
     ERROR_USER_DOES_NOT_EXIST,
+
+    // Keybinding
+    ERROR_GEN_SHORTCUT_ID,
 
     NUM_ERRORS
 };

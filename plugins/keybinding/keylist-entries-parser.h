@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:52:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-26 14:23:44
+ * @LastEditTime : 2020-08-27 14:45:50
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.h
  */
@@ -12,8 +12,6 @@
 #include <map>
 #include <memory>
 #include <vector>
-
-#include "plugins/keybinding/keybinding-shortcut.h"
 
 namespace xmlpp
 {

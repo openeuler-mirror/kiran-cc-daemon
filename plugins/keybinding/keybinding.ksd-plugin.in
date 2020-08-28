@@ -1,5 +1,5 @@
 [Kiran Settings Plugin]
-Module=keybingding
-Name=Keybingding
-Description=Keybingding plugin
+Module=keybinding
+Name=Keybinding
+Description=Keybinding plugin
 Available=true
