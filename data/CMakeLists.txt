@@ -32,6 +32,8 @@ if (SYSTEMD_FOUND)
             DESTINATION ${SYSTEM_UNIT_DIR})
 endif()
 
+install(FILES ${PROJECT_BINARY_DIR}/data/com.unikylin.Kiran.SystemDaemon.service
+        DESTINATION ${DATADIR}/dbus-1/services)
 
 # conf files
 file(GLOB CONF_FILES ./*.conf)

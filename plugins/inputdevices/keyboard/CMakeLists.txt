@@ -23,12 +23,6 @@ if (NOT XKB_DATA_ROOT_DIR)
 endif()
 set(XKB_BASE "${XKB_DATA_ROOT_DIR}/X11/xkb")
 
-pkg_get_variable(ISO_CODES_PREFIX iso-codes prefix)
-
-if (NOT ISO_CODES_PREFIX)
-    set(ISO_CODES_PREFIX "/usr")
-endif()
-
 target_include_directories(${TARGET_NAME} PUBLIC 
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
@@ -38,8 +32,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 
 target_compile_definitions(${TARGET_NAME} PRIVATE
-    -DKCC_XKB_BASE="${XKB_BASE}"
-    -DKCC_ISO_CODES_PREFIX="${ISO_CODES_PREFIX}")
+    -DKCC_XKB_BASE="${XKB_BASE}")
 
 target_compile_options(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS}

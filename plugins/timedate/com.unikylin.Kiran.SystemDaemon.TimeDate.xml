@@ -34,6 +34,19 @@
       </doc:doc>
     </method>
 
+    <method name="GetZoneList">
+      <arg type="a(ssx)" name="zone_list" direction="out">
+        <doc:doc>
+          <doc:summary>Zone list</doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>Get zone list. The element of the list contains zone name, locale zone name and GMT.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
     <method name="SetLocalRTC">
       <arg type="b" name="local" direction="in">
         <doc:doc>

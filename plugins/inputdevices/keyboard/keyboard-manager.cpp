@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-12 16:25:51
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 16:55:05
+ * @LastEditTime : 2020-08-31 11:47:06
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/keyboard-manager.cpp
  */
@@ -11,9 +11,9 @@
 #include <X11/XKBlib.h>
 
 #include "lib/cc-dbus-error.h"
+#include "lib/iso-translation.h"
 #include "lib/log.h"
 #include "lib/str-util.h"
-#include "plugins/inputdevices/keyboard/iso-translation.h"
 #include "plugins/inputdevices/keyboard/xkb-rules-parser.h"
 
 namespace Kiran
@@ -34,7 +34,6 @@ namespace Kiran
 #define SETXKBMAP "setxkbmap"
 
 #define DEFAULT_XKB_RULES_FILE KCC_XKB_BASE "/rules/base.xml"
-#define ISO_CODES_DIR KCC_ISO_CODES_PREFIX "/share/xml/iso-codes/"
 #define DEFAULT_DESC_DELIMETERS " (,)"
 
 KeyboardManager::KeyboardManager() : dbus_connect_id_(0),
@@ -330,19 +329,17 @@ void KeyboardManager::load_xkb_rules()
         return;
     }
 
-    ISOTranslation iso_translation(ISO_CODES_DIR);
-
     for (size_t i = 0; i < xkb_rules.layouts.size(); ++i)
     {
         auto &layout_name = xkb_rules.layouts[i].name;
-        auto country_name = iso_translation.get_locale_country_name(StrUtil::toupper(layout_name));
+        auto country_name = ISOTranslation::get_instance()->get_locale_country_name(StrUtil::toupper(layout_name));
         if (country_name.length() > 0)
         {
             this->valid_layouts_[layout_name] = country_name;
         }
         else
         {
-            this->valid_layouts_[layout_name] = iso_translation.get_locale_string(xkb_rules.layouts[i].description, DEFAULT_DESC_DELIMETERS);
+            this->valid_layouts_[layout_name] = ISOTranslation::get_instance()->get_locale_string(xkb_rules.layouts[i].description, DEFAULT_DESC_DELIMETERS);
         }
 
         // LOG_DEBUG("name: %s value: %s.", layout_name.c_str(), this->valid_layouts_[layout_name].c_str());
@@ -350,7 +347,7 @@ void KeyboardManager::load_xkb_rules()
         for (size_t j = 0; j < xkb_rules.layouts[i].variants.size(); ++j)
         {
             auto layout_variant = layout_name + " " + xkb_rules.layouts[i].variants[j].name;
-            auto variant_desc = iso_translation.get_locale_string(xkb_rules.layouts[i].variants[j].description, DEFAULT_DESC_DELIMETERS);
+            auto variant_desc = ISOTranslation::get_instance()->get_locale_string(xkb_rules.layouts[i].variants[j].description, DEFAULT_DESC_DELIMETERS);
             auto desciption = this->valid_layouts_[layout_name] + " " + variant_desc;
             this->valid_layouts_[layout_variant] = desciption;
 

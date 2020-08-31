@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=com.unikylin.Kiran.SystemDaemon
+Exec=@EXECDIR@/kiran-system-daemon
+User=root
+SystemdService=kiran-system-daemon.service

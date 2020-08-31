@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-31 09:48:18
+ * @LastEditTime : 2020-08-31 13:34:28
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-manager.h
+ * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.h
  */
 
 #include <timedate_dbus_stub.h>
@@ -15,6 +15,13 @@
 
 namespace Kiran
 {
+struct ZoneInfo
+{
+    std::string country_code;
+    std::string coordinates;
+    std::string tz;
+};
+
 class TimedateManager : public SystemDaemon::TimeDateStub
 {
 private:
@@ -48,65 +55,37 @@ protected:
     // 设置系统时区
     virtual void SetTimezone(const Glib::ustring &time_zone,
                              MethodInvocation &invocation);
+
+    // 获取时区列表
+    virtual void GetZoneList(MethodInvocation &invocation);
+
     // 调整硬件时钟设置，如果local为true则按本地时区进行存储，否则按UTC存储，adjust_system为true则将硬件时间同步到系统时间，否则将系统时间同步到硬件时间
     virtual void SetLocalRTC(bool local,
                              bool adjust_system,
                              MethodInvocation &invocation);
 
     // 是否开启网络时间同步
-    virtual void SetNTP(bool active,
-                        MethodInvocation &invocation);
+    virtual void SetNTP(bool active, MethodInvocation &invocation);
 
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool time_zone_setHandler(const Glib::ustring &value) { return true; };
-    virtual Glib::ustring time_zone_get();
 
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool local_rtc_setHandler(bool value) { return true; };
-    virtual bool local_rtc_get();
-
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool can_ntp_setHandler(bool value) { return true; };
-    virtual bool can_ntp_get();
-
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool ntp_setHandler(bool value) { return true; };
-    virtual bool ntp_get();
-
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool system_time_setHandler(guint64 value) { return true; };
-    virtual guint64 system_time_get();
-
-    /* Handle the setting of a property
-     * This method will be called as a result of a call to <PropName>_set
-     * and should implement the actual setting of the property value.
-     * Should return true on success and false otherwise.
-     */
     virtual bool rtc_time_setHandler(guint64 value) { return true; };
+
+    virtual Glib::ustring time_zone_get();
+    virtual bool local_rtc_get();
+    virtual bool can_ntp_get();
+    virtual bool ntp_get();
+    virtual guint64 system_time_get();
     virtual guint64 rtc_time_get();
 
 private:
     void init();
+
+    std::vector<ZoneInfo> get_zone_infos();
 
     Glib::VariantContainerBase call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters);
     bool call_systemd_noresult(const std::string &method_name, const Glib::VariantContainerBase &parameters);
@@ -119,19 +98,13 @@ private:
                             AuthManager::AuthCheckHandler handler);
 
     void read_ntp_units();
-    bool is_ntp_active();
-    uint64_t get_system_time(void);
-    uint64_t get_rtc_time(void);
-
     void funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative);
 
-    std::string get_timezone(void);
     void set_localtime_file_context(const std::string &path);
     void update_kernel_utc_offset();
     bool check_timezone_name(const std::string &name);
     void finish_set_timezone(MethodInvocation invocation, std::string time_zone);
 
-    bool is_rtc_local(void);
     void finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local);
     void finish_set_rtc_local(MethodInvocation invocation, bool local, bool adjust_system);
 

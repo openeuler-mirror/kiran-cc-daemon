@@ -10,6 +10,7 @@ pkg_search_module(SELINUX REQUIRED libselinux)
 
 GEN_DBUS_STUB(TIMEDATE timedate ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikylin.Kiran.SystemDaemon.TimeDate.xml)
 
+add_subdirectory(po-timezones)
 
 add_library(${TARGET_NAME} SHARED
     ${TIMEDATE_H_FILES}
@@ -27,6 +28,9 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${GIOMM_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
+
+target_compile_definitions(${TARGET_NAME} PRIVATE
+    -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
 
 target_compile_options(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS}
