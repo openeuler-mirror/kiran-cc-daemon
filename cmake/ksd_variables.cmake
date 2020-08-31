@@ -82,7 +82,8 @@ list(APPEND KSD_COMPILER_FLAGS
   -Wall                           # Enable all warnings
   -Werror                         # Treat warnings as errors
   -Wno-unused-value               # Disable unused value warning
-  -Wno-missing-braces                # Disable missing braces warning
+  -Wno-missing-braces             # Disable missing braces warning
+  -Wno-deprecated-declarations    # Disable deprecated declarations warning
   )
 list(APPEND KSD_COMPILER_FLAGS    # for C++
   #-fno-rtti                       # Disable real-time type information

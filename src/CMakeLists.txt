@@ -21,14 +21,13 @@ target_include_directories(${TARGET_SYSTEM_DAEMON} PUBLIC
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/generated
-    ${GLIBMM_INCLUDE_DIRS}
     ${GIOMM_INCLUDE_DIRS} 
     ${GMODULE_INCLUDE_DIRS}
-    ${GDKMM3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
 target_compile_definitions(${TARGET_SYSTEM_DAEMON} PRIVATE
     -DKCC_TYPE="system"
+    -DKCC_SYSTEM_TYPE
     -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/system"
     -DKCC_PLUGIN_EXT="${KCC_PLUGIN_EXT}"
     -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
@@ -39,10 +38,8 @@ target_compile_options(${TARGET_SYSTEM_DAEMON} PRIVATE
 
 
 target_link_libraries(${TARGET_SYSTEM_DAEMON} PRIVATE
-    ${GLIBMM_LIBRARIES}
     ${GIOMM_LIBRARIES}
     ${GMODULE_LIBRARIES}
-    ${GDKMM3_LIBRARIES}
     kiran-lib
     fmt)
 
@@ -63,14 +60,13 @@ target_include_directories(${TARGET_SESSION_DAEMON} PUBLIC
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/generated
-    ${GLIBMM_INCLUDE_DIRS}
-    ${GIOMM_INCLUDE_DIRS} 
     ${GMODULE_INCLUDE_DIRS}
     ${GDKMM3_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
 target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
     -DKCC_TYPE="session"
+    -DKCC_SESSION_TYPE
     -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/session"
     -DKCC_PLUGIN_EXT="${KCC_PLUGIN_EXT}"
     -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
@@ -81,8 +77,6 @@ target_compile_options(${TARGET_SESSION_DAEMON} PRIVATE
 
 
 target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
-    ${GLIBMM_LIBRARIES}
-    ${GIOMM_LIBRARIES}
     ${GMODULE_LIBRARIES}
     ${GDKMM3_LIBRARIES}
     kiran-lib

@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 15:43:20
+ * @LastEditTime : 2020-08-31 16:03:29
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/src/settings-manager.cpp
+ * @FilePath     : /kiran-cc-daemon/src/settings-manager.cpp
  */
 
 #include "src/settings-manager.h"
@@ -15,8 +15,17 @@
 
 namespace Kiran
 {
+#ifdef KCC_SYSTEM_TYPE
+#define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.SystemDaemon"
+#define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon"
+#elif KCC_SESSION_TYPE
+#define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.SessionDaemon"
+#define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon"
+#else
 #define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.CCDaemon"
 #define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/CCDaemon"
+#error need to define KCC_SYSTEM_TYPE or KCC_SESSION_TYPE
+#endif
 
 SettingsManager::SettingsManager() : dbus_connect_id_(0),
                                      object_register_id_(0)
@@ -209,30 +218,21 @@ bool SettingsManager::load_file(const std::string& file_name, std::string& err)
 
 void SettingsManager::dbus_init()
 {
-#ifdef KCC_TYPE
-    switch (shash(KCC_TYPE))
-    {
-    case "system"_hash:
-        this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                     CC_DAEMON_DBUS_NAME,
-                                                     sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
-                                                     sigc::mem_fun(this, &SettingsManager::on_name_acquired),
-                                                     sigc::mem_fun(this, &SettingsManager::on_name_lost));
-        break;
-    case "session"_hash:
-        this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                     CC_DAEMON_DBUS_NAME,
-                                                     sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
-                                                     sigc::mem_fun(this, &SettingsManager::on_name_acquired),
-                                                     sigc::mem_fun(this, &SettingsManager::on_name_lost));
-        break;
-    default:
-        LOG_WARNING("unknow KCC_TYPE: %s", " " KCC_TYPE);
-    }
-#else
-    LOG_WARNING("KCC_TYPE is undefine.");
+#ifdef KCC_SYSTEM_TYPE
+    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                 CC_DAEMON_DBUS_NAME,
+                                                 sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
+                                                 sigc::mem_fun(this, &SettingsManager::on_name_acquired),
+                                                 sigc::mem_fun(this, &SettingsManager::on_name_lost));
+#elif KCC_SESSION_TYPE
+
+    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
+                                                 CC_DAEMON_DBUS_NAME,
+                                                 sigc::mem_fun(this, &SettingsManager::on_bus_acquired),
+                                                 sigc::mem_fun(this, &SettingsManager::on_name_acquired),
+                                                 sigc::mem_fun(this, &SettingsManager::on_name_lost));
 #endif
-}
+}  // namespace Kiran
 
 void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                       Glib::ustring name)

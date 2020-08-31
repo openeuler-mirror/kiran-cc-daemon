@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 15:52:15
+ * @LastEditTime : 2020-08-31 16:22:23
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/log.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/log.cpp
  */
 
 #include "lib/log.h"
@@ -101,7 +101,7 @@ void Log::try_append(GLogLevelFlags log_level, const char *format, ...)
 
 void Log::init()
 {
-    auto settings = Gio::Settings::create(CC_DAEMON_SCHEMA);
+    /*auto settings = Gio::Settings::create(CC_DAEMON_SCHEMA);
     auto log_level = settings->get_string(SCHEMA_LOG_LEVEL);
 
     switch (shash(log_level.c_str()))
@@ -129,7 +129,7 @@ void Log::init()
         break;
     default:
         this->log_level_ = G_LOG_LEVEL_WARNING;
-    }
+    }*/
 
     g_log_set_default_handler(log_handler, this);
 }

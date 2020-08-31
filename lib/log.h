@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:46
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-06 14:59:53
+ * @LastEditTime : 2020-08-31 16:24:02
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/log.h
+ * @FilePath     : /kiran-cc-daemon/lib/log.h
  */
 #pragma once
 
@@ -35,6 +35,8 @@ public:
     static void global_deinit() { delete instance_; }
 
     inline GLogLevelFlags get_level() { return this->log_level_; }
+
+    void set_log_level(GLogLevelFlags log_level) { this->log_level_ = log_level; }
 
     void set_logger(ILogger *logger) { logger_ = logger; }
 

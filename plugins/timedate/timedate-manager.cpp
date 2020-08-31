@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-17 15:26:25
+ * @LastEditTime : 2020-08-31 15:26:37
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -11,6 +11,7 @@
 
 #include <fcntl.h>
 #include <fmt/format.h>
+#include <glib/gi18n.h>
 #include <linux/rtc.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -23,8 +24,10 @@
 #include <cinttypes>
 
 #include "lib/common.h"
+#include "lib/iso-translation.h"
 #include "lib/log.h"
 #include "lib/str-util.h"
+#include "plugins/timedate/timedate-util.h"
 
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
@@ -38,8 +41,12 @@ namespace Kiran
 
 #define LOCALTIME_PATH "/etc/localtime"
 #define ZONEINFO_PATH "/usr/share/zoneinfo/"
+#define ZONE_TABLE "zone.tab"
+#define ZONE_TABLE_MIN_COLUMN 3
 #define LOCALTIME_TO_ZONEINFO_PATH ".."
 #define MAX_TIMEZONE_LENGTH 256
+
+#define TIMEZONE_DOMAIN "kiran-cc-daemon-timezones"
 
 #define TIMEDATE_DBUS_NAME "com.unikylin.Kiran.SystemDaemon.TimeDate"
 #define TIMEDATE_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/TimeDate"
@@ -77,7 +84,7 @@ void TimedateManager::SetTime(gint64 requested_time,
                               MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("RequestedTime: %" PRId64 " Relative: %d", requested_time, relative);
-    if (is_ntp_active())
+    if (this->ntp_get())
     {
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "NTP unit is active"));
         return;
@@ -101,7 +108,7 @@ void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
         return;
     }
 
-    auto current_timezone = get_timezone();
+    auto current_timezone = this->time_zone_get();
     if (current_timezone == time_zone)
     {
         invocation.ret();
@@ -114,13 +121,28 @@ void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
                                                   std::bind(&TimedateManager::finish_set_timezone, this, std::placeholders::_1, time_zone));
 }
 
+void TimedateManager::GetZoneList(MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("");
+    std::vector<std::tuple<Glib::ustring, Glib::ustring, int64_t>> result;
+
+    auto zone_infos = this->get_zone_infos();
+    for (auto &zone_info : zone_infos)
+    {
+        auto local_zone_name = dgettext(TIMEZONE_DOMAIN, zone_info.tz.c_str());
+        auto gmt = TimedateUtil::get_gmt_offset(zone_info.tz);
+        result.push_back(std::make_tuple(zone_info.tz, std::string(local_zone_name), gmt));
+    }
+    invocation.ret(result);
+}
+
 void TimedateManager::SetLocalRTC(bool local,
                                   bool adjust_system,
                                   MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("local: %d adjust_system: %d.", local, adjust_system);
 
-    if (local == is_rtc_local())
+    if (local == this->local_rtc_get())
     {
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "the value of the local have not been changed."));
         return;
@@ -143,7 +165,7 @@ void TimedateManager::SetNTP(bool active,
         return;
     }
 
-    if (active == is_ntp_active())
+    if (active == this->ntp_get())
     {
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "the value of the active have not been changed."));
         return;
@@ -157,37 +179,140 @@ void TimedateManager::SetNTP(bool active,
 
 Glib::ustring TimedateManager::time_zone_get()
 {
-    return get_timezone();
+    SETTINGS_PROFILE("");
+    g_autofree gchar *link = NULL;
+
+    link = g_file_read_link(LOCALTIME_PATH, NULL);
+    if (!link)
+    {
+        return std::string();
+    }
+
+    auto zone = g_strrstr(link, ZONEINFO_PATH);
+    if (!zone)
+    {
+        return std::string();
+    }
+
+    zone += strlen(ZONEINFO_PATH);
+
+    return Glib::ustring(zone);
 }
 
 bool TimedateManager::local_rtc_get()
 {
-    return this->is_rtc_local();
+    SETTINGS_PROFILE("");
+    std::string contents;
+    try
+    {
+        contents = Glib::file_get_contents(ADJTIME_PATH);
+    }
+    catch (const Glib::FileError &e)
+    {
+        return false;
+    }
+
+    if (contents.find("LOCAL") != std::string::npos)
+    {
+        return true;
+    }
+    return false;
 }
 
 bool TimedateManager::can_ntp_get()
 {
+    SETTINGS_PROFILE("");
     return (this->ntp_units_.size() > 0);
 }
 
 bool TimedateManager::ntp_get()
 {
-    return this->is_ntp_active();
+    SETTINGS_PROFILE("");
+    if (this->ntp_units_.size() <= 0)
+    {
+        return false;
+    }
+
+    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", this->ntp_units_.front().name.c_str())));
+
+    if (!result.gobj())
+    {
+        return false;
+    }
+
+    g_return_val_if_fail(result.get_n_children() > 0, false);
+    auto path_base = result.get_child();
+    auto unit_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(path_base).get();
+
+    auto proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, unit_path, SYSTEMD_UNIT_INTERFACE);
+    g_return_val_if_fail(proxy, false);
+
+    Glib::VariantBase state;
+
+    proxy->get_cached_property(state, "ActiveState");
+    g_return_val_if_fail(state.gobj() != NULL, false);
+
+    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(state).get();
+
+    if (state_str == "active" || state_str == "activating")
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 guint64 TimedateManager::system_time_get()
 {
-    return this->get_system_time();
+    SETTINGS_PROFILE("");
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 guint64 TimedateManager::rtc_time_get()
 {
-    return get_rtc_time();
+    SETTINGS_PROFILE("");
+    struct rtc_time rtc;
+    struct tm tm;
+    time_t rtc_time = 0;
+    int fd, r;
+
+    fd = open(RTC_DEVICE, O_RDONLY);
+    if (fd < 0)
+    {
+        return 0;
+    }
+
+    r = ioctl(fd, RTC_RD_TIME, &rtc);
+    close(fd);
+    if (r)
+    {
+        return 0;
+    }
+
+    tm.tm_sec = rtc.tm_sec;
+    tm.tm_min = rtc.tm_min;
+    tm.tm_hour = rtc.tm_hour;
+    tm.tm_mday = rtc.tm_mday;
+    tm.tm_mon = rtc.tm_mon;
+    tm.tm_year = rtc.tm_year;
+    tm.tm_isdst = 0;
+
+    /* This is the raw time as if the RTC was in UTC */
+    rtc_time = timegm(&tm);
+
+    return (uint64_t)rtc_time * 1000000;
 }
 
 void TimedateManager::init()
 {
     SETTINGS_PROFILE("");
+
+    bindtextdomain(TIMEZONE_DOMAIN, KCC_LOCALEDIR);
+    bind_textdomain_codeset(TIMEZONE_DOMAIN, "UTF-8");
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
                                                  TIMEDATE_DBUS_NAME,
@@ -199,6 +324,49 @@ void TimedateManager::init()
     this->polkit_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, POLKIT_NAME, POLKIT_PATH, POLKIT_INTERFACE);
 
     this->read_ntp_units();
+}
+
+std::vector<ZoneInfo> TimedateManager::get_zone_infos()
+{
+    std::vector<ZoneInfo> zone_infos;
+
+    auto file_path = Glib::build_filename(ZONEINFO_PATH, ZONE_TABLE);
+
+    std::string contents;
+    try
+    {
+        contents = Glib::file_get_contents(file_path);
+    }
+    catch (const Glib::FileError &e)
+    {
+        LOG_WARNING("failed to get file contents: %s.", file_path.c_str());
+        return zone_infos;
+    }
+
+    auto lines = StrUtil::split_lines(contents);
+
+    for (auto &line : lines)
+    {
+        if (line[0] == '#' || line.length() == 0)
+        {
+            continue;
+        }
+        auto regex = Glib::Regex::create("\\s+");
+        std::vector<std::string> tokens = regex->split(line);
+        if (tokens.size() >= ZONE_TABLE_MIN_COLUMN)
+        {
+            ZoneInfo zone_info;
+            zone_info.country_code = tokens[0];
+            zone_info.coordinates = tokens[1];
+            zone_info.tz = tokens[2];
+            zone_infos.push_back(std::move(zone_info));
+        }
+        else
+        {
+            LOG_WARNING("ignore line: %s, the line is less than %d columns.", line.c_str(), ZONE_TABLE_MIN_COLUMN);
+        }
+    }
+    return zone_infos;
 }
 
 Glib::VariantContainerBase TimedateManager::call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters)
@@ -390,87 +558,6 @@ void TimedateManager::read_ntp_units()
     this->ntp_units_.erase(iter, this->ntp_units_.end());
 }
 
-bool TimedateManager::is_ntp_active()
-{
-    SETTINGS_PROFILE("");
-
-    if (this->ntp_units_.size() <= 0)
-    {
-        return false;
-    }
-
-    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", this->ntp_units_.front().name.c_str())));
-
-    if (!result.gobj())
-    {
-        return false;
-    }
-
-    g_return_val_if_fail(result.get_n_children() > 0, false);
-    auto path_base = result.get_child();
-    auto unit_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(path_base).get();
-
-    auto proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, unit_path, SYSTEMD_UNIT_INTERFACE);
-    g_return_val_if_fail(proxy, false);
-
-    Glib::VariantBase state;
-
-    proxy->get_cached_property(state, "ActiveState");
-    g_return_val_if_fail(state.gobj() != NULL, false);
-
-    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(state).get();
-
-    if (state_str == "active" || state_str == "activating")
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-uint64_t TimedateManager::get_system_time(void)
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
-}
-
-uint64_t TimedateManager::get_rtc_time(void)
-{
-    struct rtc_time rtc;
-    struct tm tm;
-    time_t rtc_time = 0;
-    int fd, r;
-
-    fd = open(RTC_DEVICE, O_RDONLY);
-    if (fd < 0)
-    {
-        return 0;
-    }
-
-    r = ioctl(fd, RTC_RD_TIME, &rtc);
-    close(fd);
-    if (r)
-    {
-        return 0;
-    }
-
-    tm.tm_sec = rtc.tm_sec;
-    tm.tm_min = rtc.tm_min;
-    tm.tm_hour = rtc.tm_hour;
-    tm.tm_mday = rtc.tm_mday;
-    tm.tm_mon = rtc.tm_mon;
-    tm.tm_year = rtc.tm_year;
-    tm.tm_isdst = 0;
-
-    /* This is the raw time as if the RTC was in UTC */
-    rtc_time = timegm(&tm);
-
-    return (uint64_t)rtc_time * 1000000;
-}
-
 void TimedateManager::funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative)
 {
     struct timeval tv;
@@ -520,27 +607,6 @@ void TimedateManager::funish_set_time(MethodInvocation invocation, int64_t reque
         /* Set the RTC to the new system time */
         start_hwclock_call(false, false, false, Glib::RefPtr<Gio::DBus::MethodInvocation>(), nullptr);
     }
-}
-
-std::string TimedateManager::get_timezone(void)
-{
-    g_autofree gchar *link = NULL;
-
-    link = g_file_read_link(LOCALTIME_PATH, NULL);
-    if (!link)
-    {
-        return std::string();
-    }
-
-    auto zone = g_strrstr(link, ZONEINFO_PATH);
-    if (!zone)
-    {
-        return std::string();
-    }
-
-    zone += strlen(ZONEINFO_PATH);
-
-    return std::string(zone);
 }
 
 void TimedateManager::set_localtime_file_context(const std::string &path)
@@ -653,7 +719,7 @@ void TimedateManager::finish_set_timezone(MethodInvocation invocation, std::stri
         update_kernel_utc_offset();
 
         /* RTC in local needs to be set for the new timezone */
-        if (is_rtc_local())
+        if (this->local_rtc_get())
         {
             start_hwclock_call(false, false, false, Glib::RefPtr<Gio::DBus::MethodInvocation>(), nullptr);
         }
@@ -668,25 +734,6 @@ void TimedateManager::finish_set_timezone(MethodInvocation invocation, std::stri
     {
         invocation.ret();
     }
-}
-
-bool TimedateManager::is_rtc_local(void)
-{
-    std::string contents;
-    try
-    {
-        contents = Glib::file_get_contents(ADJTIME_PATH);
-    }
-    catch (const Glib::FileError &e)
-    {
-        return false;
-    }
-
-    if (contents.find("LOCAL") != std::string::npos)
-    {
-        return true;
-    }
-    return false;
 }
 
 void TimedateManager::finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local)

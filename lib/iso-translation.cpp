@@ -2,12 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-20 11:49:39
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 16:58:04
+ * @LastEditTime : 2020-08-31 11:45:04
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/iso-translation.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/iso-translation.cpp
  */
 
-#include "plugins/inputdevices/keyboard/iso-translation.h"
+#include "lib/iso-translation.h"
 
 #include <glib/gi18n.h>
 #include <libxml++/libxml++.h>
@@ -17,29 +17,16 @@
 #define ISO_3166 "iso_3166"
 #define ISO_639 "iso_639"
 
+#define ISO_CODES_DIR KCC_ISO_CODES_PREFIX "/share/xml/iso-codes/"
 #define ISO_LOCALEDIR KCC_ISO_CODES_PREFIX "/share/locale"
 
 namespace Kiran
 {
-ISOTranslation::ISOTranslation(const std::string &iso_dir) : iso_dir_(iso_dir)
+ISOTranslation *ISOTranslation::instance_ = nullptr;
+void ISOTranslation::global_init()
 {
-    std::string err;
-
-    bindtextdomain(ISO_3166, ISO_LOCALEDIR);
-    bind_textdomain_codeset(ISO_3166, "UTF-8");
-
-    bindtextdomain(ISO_639, ISO_LOCALEDIR);
-    bind_textdomain_codeset(ISO_639, "UTF-8");
-
-    if (!load_iso_file(ISO_3166, {"alpha_2_code"}, this->countrys_, err))
-    {
-        LOG_WARNING("failed to load %s: %s.", ISO_3166, err.c_str());
-    }
-
-    if (!load_iso_file(ISO_639, {"iso_639_2B_code", "iso_639_2T_code"}, this->languages_, err))
-    {
-        LOG_WARNING("failed to load %s: %s.", ISO_639, err.c_str());
-    }
+    instance_ = new ISOTranslation();
+    instance_->init();
 }
 
 std::string ISOTranslation::get_country_name(const std::string &code)
@@ -102,6 +89,27 @@ std::string ISOTranslation::get_locale_string(const std::string &str)
     return str;
 }
 
+void ISOTranslation::init()
+{
+    std::string err;
+
+    bindtextdomain(ISO_3166, ISO_LOCALEDIR);
+    bind_textdomain_codeset(ISO_3166, "UTF-8");
+
+    bindtextdomain(ISO_639, ISO_LOCALEDIR);
+    bind_textdomain_codeset(ISO_639, "UTF-8");
+
+    if (!load_iso_file(ISO_3166, {"alpha_2_code"}, this->countrys_, err))
+    {
+        LOG_WARNING("failed to load %s: %s.", ISO_3166, err.c_str());
+    }
+
+    if (!load_iso_file(ISO_639, {"iso_639_2B_code", "iso_639_2T_code"}, this->languages_, err))
+    {
+        LOG_WARNING("failed to load %s: %s.", ISO_639, err.c_str());
+    }
+}
+
 bool ISOTranslation::load_iso_file(const std::string &iso_basename,
                                    const std::vector<std::string> &code_attr_names,
                                    std::map<std::string, std::string> &result,
@@ -113,7 +121,7 @@ bool ISOTranslation::load_iso_file(const std::string &iso_basename,
     {
         xmlpp::DomParser parser;
         parser.set_throw_messages(true);
-        parser.parse_file(this->iso_dir_ + iso_basename + ".xml");
+        parser.parse_file(ISO_CODES_DIR + iso_basename + ".xml");
         if (parser)
         {
             const auto root_node = parser.get_document()->get_root_node();
@@ -127,17 +135,6 @@ bool ISOTranslation::load_iso_file(const std::string &iso_basename,
     }
     return true;
 }
-
-#define CHECK_XMLPP_ELEMENT(node, err)                                                                       \
-    {                                                                                                        \
-        const auto element = dynamic_cast<const xmlpp::Element *>(node);                                     \
-                                                                                                             \
-        if (!element)                                                                                        \
-        {                                                                                                    \
-            err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str()); \
-            return false;                                                                                    \
-        }                                                                                                    \
-    }
 
 bool ISOTranslation::process_iso_entries(const xmlpp::Node *node,
                                          const std::string &iso_basename,

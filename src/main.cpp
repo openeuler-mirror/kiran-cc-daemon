@@ -2,18 +2,21 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-10 09:01:52
+ * @LastEditTime : 2020-08-31 16:55:54
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
 
+#ifdef KCC_SESSION_TYPE
 #include <gdk/gdk.h>
+#endif
 #include <gio/gio.h>
 #include <glib-unix.h>
 #include <glib.h>
 #include <glib/gi18n.h>
 
 #include "lib/auth-manager.h"
+#include "lib/iso-translation.h"
 #include "lib/log.h"
 #include "src/settings-manager.h"
 
@@ -40,6 +43,12 @@ int main(int argc, char* argv[])
     version_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
     version_entry.set_description(N_("Output version infomation and exit"));
 
+    // verbose
+    Glib::OptionEntry verbose_entry;
+    verbose_entry.set_long_name("verbose");
+    verbose_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
+    verbose_entry.set_description(N_("Set log level to debug."));
+
     // show-log
     Glib::OptionEntry show_log_entry;
     show_log_entry.set_long_name("show-log");
@@ -49,6 +58,11 @@ int main(int argc, char* argv[])
     group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
         g_print("kiran-cc-daemon: 2.0\n");
         return false;
+    });
+
+    group.add_entry(verbose_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
+        Kiran::Log::get_instance()->set_log_level(G_LOG_LEVEL_DEBUG);
+        return true;
     });
 
     group.add_entry(show_log_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
@@ -77,8 +91,11 @@ int main(int argc, char* argv[])
 
     auto loop = Glib::MainLoop::create();
 
+#ifdef KCC_SESSION_TYPE
     gdk_init(NULL, NULL);
+#endif
     Kiran::AuthManager::global_init();
+    Kiran::ISOTranslation::global_init();
     Kiran::SettingsManager::global_init();
 
     loop->run();
