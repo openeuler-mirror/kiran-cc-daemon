@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 16:03:29
+ * @LastEditTime : 2020-08-31 17:48:08
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/settings-manager.cpp
  */
@@ -59,6 +59,7 @@ std::shared_ptr<PluginInfo> SettingsManager::lookup_plugin(const std::string& na
 
 void SettingsManager::GetPlugins(MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("");
     std::vector<Glib::ustring> names;
     for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
     {
@@ -69,6 +70,7 @@ void SettingsManager::GetPlugins(MethodInvocation& invocation)
 
 void SettingsManager::GetActivatedPlugins(MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("");
     std::vector<Glib::ustring> names;
     for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
     {
@@ -82,6 +84,7 @@ void SettingsManager::GetActivatedPlugins(MethodInvocation& invocation)
 
 void SettingsManager::ActivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("plugin name: %s.", plugin_name.c_str());
     auto plugin = this->lookup_plugin(plugin_name);
     if (!plugin)
     {
@@ -96,10 +99,13 @@ void SettingsManager::ActivatePlugin(const Glib::ustring& plugin_name, MethodInv
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err.c_str()));
         return;
     }
+
+    invocation.ret();
 }
 
 void SettingsManager::DeactivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("plugin name: %s.", plugin_name.c_str());
     auto plugin = this->lookup_plugin(plugin_name);
     if (!plugin)
     {
@@ -114,6 +120,8 @@ void SettingsManager::DeactivatePlugin(const Glib::ustring& plugin_name, MethodI
         invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err.c_str()));
         return;
     }
+
+    invocation.ret();
 }
 
 void SettingsManager::init()
