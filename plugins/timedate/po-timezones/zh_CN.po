@@ -1575,7 +1575,7 @@ msgid "Asia/Famagusta"
 msgstr "亚洲/法马古斯塔"
 
 msgid "Europe/Busingen"
-msgstr "欧洲/商业"
+msgstr "欧洲/布辛根"
 
 msgid "Asia/Qostanay"
 msgstr "亚洲/卡塔尔"
@@ -1605,7 +1605,7 @@ msgid "Asia/Khandyga"
 msgstr "亚洲/坎迪加"
 
 msgid "Asia/Ust-Nera"
-msgstr "亚洲/美国"
+msgstr "亚洲/乌斯季挪拉"
 
 msgid "Asia/Srednekolymsk"
 msgstr "亚洲/斯雷德内科利姆斯克"
