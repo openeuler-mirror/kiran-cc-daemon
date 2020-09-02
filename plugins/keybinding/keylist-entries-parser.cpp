@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:53:14
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-26 14:27:05
+ * @LastEditTime : 2020-09-01 10:16:44
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.cpp
  */
@@ -55,7 +55,6 @@ bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string 
 
 bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyListEntries &keylist_entries, std::string &err)
 {
-    SETTINGS_PROFILE("node_name: %s.", node ? node->get_name().c_str() : "null");
     const auto element = dynamic_cast<const xmlpp::Element *>(node);
 
     if (!element)

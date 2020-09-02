@@ -2,13 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 16:55:54
+ * @LastEditTime : 2020-09-02 11:05:20
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
 
 #ifdef KCC_SESSION_TYPE
-#include <gdk/gdk.h>
+#include <gdkmm.h>
+#include <gdkmm/wrap_init.h>
 #endif
 #include <gio/gio.h>
 #include <glib-unix.h>
@@ -33,6 +34,11 @@ int main(int argc, char* argv[])
 {
     Gio::init();
     Kiran::Log::global_init();
+
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, KCC_LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
 
     Glib::OptionContext context;
     Glib::OptionGroup group("kiran-cc-daemon", "kiran-cc-daemon option group");
@@ -70,13 +76,7 @@ int main(int argc, char* argv[])
         return true;
     });
 
-    setlocale(LC_ALL, "");
-    bindtextdomain(GETTEXT_PACKAGE, KCC_LOCALEDIR);
-    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-    textdomain(GETTEXT_PACKAGE);
-
-    // context.set_translate_func([](const Glib::ustring& str) -> Glib::ustring { g_print("%s\n", str.c_str()); return _(str.c_str()); });
-    context.set_translation_domain(GETTEXT_PACKAGE);
+    group.set_translation_domain(GETTEXT_PACKAGE);
     context.set_main_group(group);
 
     try
@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
 
 #ifdef KCC_SESSION_TYPE
     gdk_init(NULL, NULL);
+    Gdk::wrap_init();
 #endif
     Kiran::AuthManager::global_init();
     Kiran::ISOTranslation::global_init();

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:15
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 18:18:39
+ * @LastEditTime : 2020-09-01 14:57:29
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.cpp
  */
@@ -36,7 +36,7 @@ CCError SystemShortCutManager::modify(const std::string &uid,
 {
     SETTINGS_PROFILE("uid: %s keycomb: %s.", uid.c_str(), key_combination.c_str());
 
-    if (ShortCutHelper::get_key_state(key_combination) == INVALID_KEYSTATE)
+    if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
     {
         err = fmt::format("the key combination is invalid: {0}", key_combination);
         return CCError::ERROR_INVALID_PARAMETER;
@@ -105,7 +105,7 @@ void SystemShortCutManager::init()
 
             if (system_shortcut->kind.length() == 0 ||
                 system_shortcut->name.length() == 0 ||
-                ShortCutHelper::get_key_state(system_shortcut->key_combination) == INVALID_KEYSTATE)
+                ShortCutHelper::get_keystate(system_shortcut->key_combination) == INVALID_KEYSTATE)
             {
                 LOG_WARNING("the system shortcut is invalid. kind: %s name: %s keycomb: %s.",
                             system_shortcut->kind.c_str(),
@@ -142,7 +142,7 @@ void SystemShortCutManager::settings_changed(const Glib::ustring &key, const Gli
     {
         auto value = settings->get_string(key);
         if (system_shortcut->key_combination != value &&
-            ShortCutHelper::get_key_state(value) != INVALID_KEYSTATE)
+            ShortCutHelper::get_keystate(value) != INVALID_KEYSTATE)
         {
             system_shortcut->key_combination = value;
             this->system_shortcut_changed_.emit(uid);
