@@ -2,15 +2,13 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 16:22:23
+ * @LastEditTime : 2020-09-02 14:28:48
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/log.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/base/log.cpp
  */
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 
-#include <lib/common.h>
-#include <lib/helper.h>
 #include <syslog.h>
 
 #include <sstream>

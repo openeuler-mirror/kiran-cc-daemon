@@ -2,15 +2,13 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 10:03:05
+ * @LastEditTime : 2020-09-02 15:17:01
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
 
 #include "plugins/inputdevices/common/device-helper.h"
 
-#include "lib/log.h"
-#include "lib/str-util.h"
 namespace Kiran
 {
 DeviceHelper::DeviceHelper(XDeviceInfo *device_info) : device_info_(device_info),

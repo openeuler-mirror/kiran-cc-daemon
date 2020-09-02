@@ -2,15 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-01 09:50:21
+ * @LastEditTime : 2020-09-02 15:22:58
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
 
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
-#include "lib/helper.h"
-#include "lib/log.h"
+#include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran

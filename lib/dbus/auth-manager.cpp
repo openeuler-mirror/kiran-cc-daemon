@@ -2,17 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 14:43:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 16:56:51
+ * @LastEditTime : 2020-09-02 14:37:49
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/auth-manager.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/dbus/auth-manager.cpp
  */
 
-#include "lib/auth-manager.h"
-
-#include <fmt/format.h>
-
-#include "lib/common.h"
-#include "lib/log.h"
+#include "lib/dbus/auth-manager.h"
 
 namespace Kiran
 {

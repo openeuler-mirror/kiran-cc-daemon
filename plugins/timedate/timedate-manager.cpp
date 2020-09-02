@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 15:26:37
+ * @LastEditTime : 2020-09-02 15:28:26
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -23,10 +23,7 @@
 #include <algorithm>
 #include <cinttypes>
 
-#include "lib/common.h"
-#include "lib/iso-translation.h"
-#include "lib/log.h"
-#include "lib/str-util.h"
+#include "lib/base/base.h"
 #include "plugins/timedate/timedate-util.h"
 
 #ifdef HAVE_SELINUX

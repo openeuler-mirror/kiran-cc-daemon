@@ -2,17 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:34:09
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 17:01:36
+ * @LastEditTime : 2020-09-02 15:10:19
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-plugin.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-plugin.cpp
  */
 
 #include "plugins/accounts/accounts-plugin.h"
 
 #include <cstdio>
 
-#include "lib/auth-manager.h"
-#include "lib/log.h"
+#include "lib/base/log.h"
 #include "plugins/accounts/accounts-manager.h"
 #include "plugins/accounts/accounts-wrapper.h"
 

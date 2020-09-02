@@ -2,16 +2,15 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 14:28:54
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-14 14:56:15
+ * @LastEditTime : 2020-09-02 14:55:19
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/src/plugin-info.h
+ * @FilePath     : /kiran-cc-daemon/src/plugin-info.h
  */
-
-#include <giomm.h>
 
 #include <memory>
 #include <string>
 
+#include "lib/base/base.h"
 #include "plugin_i.h"
 
 namespace Kiran

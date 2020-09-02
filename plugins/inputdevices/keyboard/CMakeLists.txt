@@ -24,9 +24,7 @@ endif()
 set(XKB_BASE "${XKB_DATA_ROOT_DIR}/X11/xkb")
 
 target_include_directories(${TARGET_NAME} PUBLIC 
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/include
-    ${CMAKE_BINARY_DIR}/generated
+    ${PROJECT_BINARY_DIR}/generated
     ${GDKMM3_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIRS})
 
@@ -35,14 +33,14 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
     -DKCC_XKB_BASE="${XKB_BASE}")
 
 target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_LINKER_FLAGS}
-    -L${LIBDIR})
+    ${KSD_LINKER_FLAGS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GDKMM3_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     inputdevices-common
-    fmt)
+    lib-base
+    lib-iso)
 
 
 install(TARGETS ${TARGET_NAME}

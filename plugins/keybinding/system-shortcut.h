@@ -2,14 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 11:41:42
+ * @LastEditTime : 2020-09-02 15:26:38
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.h
  */
 
 #pragma once
 
-#include "lib/cc-dbus-error.h"
+#include "lib/dbus/cc-dbus-error.h"
 #include "plugins/keybinding/keylist-entries-parser.h"
 #include "plugins/keybinding/shortcut-helper.h"
 

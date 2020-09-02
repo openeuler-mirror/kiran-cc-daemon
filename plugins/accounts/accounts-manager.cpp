@@ -2,23 +2,20 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-19 17:34:42
+ * @LastEditTime : 2020-09-02 15:13:16
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
  */
 
 #include "plugins/accounts/accounts-manager.h"
 
-#include <fmt/format.h>
 #include <glib/gstdio.h>
 
 #include <cinttypes>
 #include <cstdint>
 
-#include "lib/auth-manager.h"
-#include "lib/cc-dbus-error.h"
-#include "lib/log.h"
-#include "lib/str-util.h"
+#include "lib/base/base.h"
+#include "lib/dbus/dbus.h"
 #include "plugins/accounts/accounts-util.h"
 
 namespace Kiran

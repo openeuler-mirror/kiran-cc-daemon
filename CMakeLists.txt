@@ -54,7 +54,7 @@ add_subdirectory(po)
 add_subdirectory(data)
 add_subdirectory(lib)
 add_subdirectory(src)
-add_subdirectory(plugins)
+#add_subdirectory(plugins)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0" "third_party/fmt-5.2.0")
 

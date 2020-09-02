@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:05:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 10:55:27
+ * @LastEditTime : 2020-09-02 15:25:16
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/custom-shortcut.h
  */
@@ -11,7 +11,7 @@
 #include <gdkmm.h>
 #include <glib/gi18n.h>
 
-#include "lib/cc-dbus-error.h"
+#include "lib/dbus/cc-dbus-error.h"
 #include "plugins/keybinding/shortcut-helper.h"
 
 namespace Kiran

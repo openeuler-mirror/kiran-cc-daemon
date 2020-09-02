@@ -1,21 +1,44 @@
 /*
  * @Author       : tangjie02
- * @Date         : 2020-06-05 15:21:58
+ * @Date         : 2020-05-29 18:16:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 10:03:20
+ * @LastEditTime : 2020-09-02 14:28:16
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/helper.h
+ * @FilePath     : /kiran-cc-daemon/lib/base/def.h
  */
 
 #pragma once
 
 #include <fmt/format.h>
-#include <stdio.h>
 
+#include <cstdio>
 #include <functional>
 #include <vector>
+
 namespace Kiran
 {
+#define GETTEXT_PACKAGE "kiran-cc-daemon"
+
+#define SYSTEMD_NAME "org.freedesktop.systemd1"
+#define SYSTEMD_PATH "/org/freedesktop/systemd1"
+#define SYSTEMD_MANAGER_INTERFACE "org.freedesktop.systemd1.Manager"
+#define SYSTEMD_UNIT_INTERFACE "org.freedesktop.systemd1.Unit"
+
+#define POLKIT_NAME "org.freedesktop.PolicyKit1"
+#define POLKIT_PATH "/org/freedesktop/PolicyKit1/Authority"
+#define POLKIT_INTERFACE "org.freedesktop.PolicyKit1.Authority"
+
+#define CHECK_XMLPP_ELEMENT(node, err)                                                                       \
+    {                                                                                                        \
+        const auto element = dynamic_cast<const xmlpp::Element *>(node);                                     \
+                                                                                                             \
+        if (!element)                                                                                        \
+        {                                                                                                    \
+            err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str()); \
+            return false;                                                                                    \
+        }                                                                                                    \
+    }
+
 #define CONNECTION(text1, text2) text1##text2
 #define CONNECT(text1, text2) CONNECTION(text1, text2)
 

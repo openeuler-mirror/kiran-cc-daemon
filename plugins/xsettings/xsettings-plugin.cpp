@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:34:09
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-11 16:26:50
+ * @LastEditTime : 2020-09-02 15:29:39
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-plugin.cpp
  */
@@ -11,7 +11,7 @@
 
 #include <cstdio>
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 #include "plugins/xsettings/xsettings-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(XSettingsPlugin);

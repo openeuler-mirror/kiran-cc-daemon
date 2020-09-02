@@ -2,13 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:01
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 17:32:22
+ * @LastEditTime : 2020-09-02 15:11:04
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-wrapper.h
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-wrapper.h
  */
 #pragma once
 
-#include <giomm.h>
 #include <grp.h>
 #include <pwd.h>
 #include <shadow.h>
@@ -17,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "lib/helper.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {

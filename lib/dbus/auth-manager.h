@@ -2,14 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 14:43:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-27 13:47:26
+ * @LastEditTime : 2020-09-02 14:57:52
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/lib/auth-manager.h
+ * @FilePath     : /kiran-cc-daemon/lib/dbus/auth-manager.h
  */
 
 #pragma once
 
-#include <giomm.h>
+#include "lib/base/base.h"
 
 namespace Kiran
 {

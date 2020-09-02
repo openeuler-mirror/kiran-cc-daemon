@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <giomm.h>
+#include "lib/base/base.h"
 
 // xlib.h must be defined after gdkmm giomm header file.
 #include <X11/Xatom.h>

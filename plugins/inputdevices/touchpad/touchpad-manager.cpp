@@ -2,15 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-01 09:50:14
+ * @LastEditTime : 2020-09-02 15:24:25
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
 
 #include "plugins/inputdevices/touchpad/touchpad-manager.h"
 
-#include "lib/helper.h"
-#include "lib/log.h"
+#include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran

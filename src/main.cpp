@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 11:05:20
+ * @LastEditTime : 2020-09-02 14:54:40
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
@@ -11,14 +11,13 @@
 #include <gdkmm.h>
 #include <gdkmm/wrap_init.h>
 #endif
-#include <gio/gio.h>
+
 #include <glib-unix.h>
-#include <glib.h>
 #include <glib/gi18n.h>
 
-#include "lib/auth-manager.h"
-#include "lib/iso-translation.h"
-#include "lib/log.h"
+#include "lib/base/base.h"
+#include "lib/dbus/auth-manager.h"
+#include "lib/iso/iso-translation.h"
 #include "src/settings-manager.h"
 
 class ScreenLogger : public Kiran::ILogger

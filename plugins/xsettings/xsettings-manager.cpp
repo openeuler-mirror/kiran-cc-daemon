@@ -9,7 +9,7 @@
 
 #include "plugins/xsettings/xsettings-manager.h"
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 
 namespace Kiran
 {

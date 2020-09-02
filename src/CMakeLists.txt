@@ -7,10 +7,8 @@ file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 
 GEN_DBUS_STUB(CC_DAEMON cc_daemon ${CMAKE_SOURCE_DIR}/src/com.unikylin.Kiran.CCDaemon.xml)
 
-
 # system daemon
 set (TARGET_SYSTEM_DAEMON kiran-system-daemon)
-
 
 add_executable(${TARGET_SYSTEM_DAEMON} 
     ${CORE_H_FILES}
@@ -18,12 +16,8 @@ add_executable(${TARGET_SYSTEM_DAEMON}
     ${CC_DAEMON_GENERATED_STUB})
 
 target_include_directories(${TARGET_SYSTEM_DAEMON} PUBLIC 
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/include
-    ${CMAKE_BINARY_DIR}/generated
-    ${GIOMM_INCLUDE_DIRS} 
-    ${GMODULE_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
+    ${PROJECT_BINARY_DIR}/generated
+    ${GMODULE_INCLUDE_DIRS})
 
 target_compile_definitions(${TARGET_SYSTEM_DAEMON} PRIVATE
     -DKCC_TYPE="system"
@@ -33,15 +27,13 @@ target_compile_definitions(${TARGET_SYSTEM_DAEMON} PRIVATE
     -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
 
 target_compile_options(${TARGET_SYSTEM_DAEMON} PRIVATE
-    ${KSD_LINKER_FLAGS}
-    -L${LIBDIR})
-
+    ${KSD_LINKER_FLAGS})
 
 target_link_libraries(${TARGET_SYSTEM_DAEMON} PRIVATE
-    ${GIOMM_LIBRARIES}
     ${GMODULE_LIBRARIES}
-    kiran-lib
-    fmt)
+    lib-base
+    lib-dbus
+    lib-iso)
 
 
 install(TARGETS ${TARGET_SYSTEM_DAEMON}
@@ -57,12 +49,9 @@ add_executable(${TARGET_SESSION_DAEMON}
     ${CC_DAEMON_GENERATED_STUB})
 
 target_include_directories(${TARGET_SESSION_DAEMON} PUBLIC 
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/include
-    ${CMAKE_BINARY_DIR}/generated
+    ${PROJECT_BINARY_DIR}/generated
     ${GMODULE_INCLUDE_DIRS}
-    ${GDKMM3_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
+    ${GDKMM3_INCLUDE_DIRS})
 
 target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
     -DKCC_TYPE="session"
@@ -72,15 +61,15 @@ target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
     -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
 
 target_compile_options(${TARGET_SESSION_DAEMON} PRIVATE
-    ${KSD_LINKER_FLAGS}
-    -L${LIBDIR})
+    ${KSD_LINKER_FLAGS})
 
 
 target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
     ${GMODULE_LIBRARIES}
     ${GDKMM3_LIBRARIES}
-    kiran-lib
-    fmt)
+    lib-base
+    lib-dbus
+    lib-iso)
 
 
 install(TARGETS ${TARGET_SESSION_DAEMON}

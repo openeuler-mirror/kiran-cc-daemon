@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:00
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 10:36:13
+ * @LastEditTime : 2020-09-02 15:25:26
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/custom-shortcut.cpp
  */
@@ -12,8 +12,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
 
-#include "lib/log.h"
-#include "lib/str-util.h"
+#include "lib/base/base.h"
 #include "plugins/keybinding/shortcut-helper.h"
 
 namespace Kiran

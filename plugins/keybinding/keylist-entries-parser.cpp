@@ -2,17 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:53:14
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 11:36:21
+ * @LastEditTime : 2020-09-02 15:26:16
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.cpp
  */
 
 #include "plugins/keybinding/keylist-entries-parser.h"
 
-#include <glibmm.h>
 #include <libxml++/libxml++.h>
 
-#include "lib/log.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {
