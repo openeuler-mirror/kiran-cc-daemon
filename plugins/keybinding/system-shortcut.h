@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-01 09:15:59
+ * @LastEditTime : 2020-09-02 11:41:42
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.h
  */
@@ -10,6 +10,7 @@
 #pragma once
 
 #include "lib/cc-dbus-error.h"
+#include "plugins/keybinding/keylist-entries-parser.h"
 #include "plugins/keybinding/shortcut-helper.h"
 
 namespace Kiran
@@ -50,6 +51,8 @@ private:
     void init();
 
     void settings_changed(const Glib::ustring &key, const Glib::RefPtr<Gio::Settings> settings);
+
+    bool should_show_key(const KeyListEntry &entry);
 
 private:
     static SystemShortCutManager *instance_;

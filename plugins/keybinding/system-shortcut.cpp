@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:15
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-01 14:57:29
+ * @LastEditTime : 2020-09-02 11:56:31
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.cpp
  */
@@ -13,7 +13,6 @@
 
 #include "lib/log.h"
 #include "lib/str-util.h"
-#include "plugins/keybinding/keylist-entries-parser.h"
 
 namespace Kiran
 {
@@ -72,6 +71,7 @@ std::shared_ptr<SystemShortCut> SystemShortCutManager::get(const std::string &ui
 
 void SystemShortCutManager::init()
 {
+    SETTINGS_PROFILE("");
     KeyListEntriesParser parser(MATECC_KEYBINDINGS_DIR);
     std::vector<KeyListEntries> keys;
     std::string err;
@@ -96,28 +96,37 @@ void SystemShortCutManager::init()
 
         for (auto &keylist_entry : keylist_entries.entries_)
         {
-            auto system_shortcut = std::make_shared<SystemShortCut>();
-            system_shortcut->kind = dgettext(package.c_str(), keylist_entries.name.c_str());
-            system_shortcut->name = dgettext(package.c_str(), keylist_entry.description.c_str());
-            system_shortcut->settings = system_settings;
-            system_shortcut->settings_key = keylist_entry.name;
-            system_shortcut->key_combination = system_settings->get_string(keylist_entry.name);
+            if (!this->should_show_key(keylist_entry))
+            {
+                LOG_DEBUG("the system shortcut should not show. type: %s, name: %s, description: %s.",
+                          keylist_entries.name.c_str(),
+                          keylist_entry.name.c_str(),
+                          keylist_entry.description.c_str());
+                continue;
+            }
 
-            if (system_shortcut->kind.length() == 0 ||
-                system_shortcut->name.length() == 0 ||
-                ShortCutHelper::get_keystate(system_shortcut->key_combination) == INVALID_KEYSTATE)
+            auto shortcut = std::make_shared<SystemShortCut>();
+            shortcut->kind = dgettext(package.c_str(), keylist_entries.name.c_str());
+            shortcut->name = dgettext(package.c_str(), keylist_entry.description.c_str());
+            shortcut->settings = system_settings;
+            shortcut->settings_key = keylist_entry.name;
+            shortcut->key_combination = system_settings->get_string(keylist_entry.name);
+
+            if (shortcut->kind.length() == 0 ||
+                shortcut->name.length() == 0 ||
+                ShortCutHelper::get_keystate(shortcut->key_combination) == INVALID_KEYSTATE)
             {
                 LOG_WARNING("the system shortcut is invalid. kind: %s name: %s keycomb: %s.",
-                            system_shortcut->kind.c_str(),
-                            system_shortcut->name.c_str(),
-                            system_shortcut->key_combination.c_str());
+                            shortcut->kind.c_str(),
+                            shortcut->name.c_str(),
+                            shortcut->key_combination.c_str());
                 continue;
             }
 
             auto uid = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5,
                                                         keylist_entries.schema + "+" + keylist_entry.name);
 
-            auto iter = this->system_shortcuts_.emplace(uid, system_shortcut);
+            auto iter = this->system_shortcuts_.emplace(uid, shortcut);
             if (!iter.second)
             {
                 LOG_WARNING("exists the same system shortcut, uid: %s schema: %s key: %s.",
@@ -148,5 +157,30 @@ void SystemShortCutManager::settings_changed(const Glib::ustring &key, const Gli
             this->system_shortcut_changed_.emit(uid);
         }
     }
+}
+
+bool SystemShortCutManager::should_show_key(const KeyListEntry &entry)
+{
+    RETURN_VAL_IF_TRUE(entry.comparison.length() == 0, true);
+    RETURN_VAL_IF_TRUE(entry.key.length() == 0, false);
+    RETURN_VAL_IF_TRUE(entry.schema.length() == 0, false);
+
+    auto settings = Gio::Settings::create(entry.schema);
+    auto valuel = settings->get_int(entry.key);
+    auto valuer = std::stoll(entry.value);
+
+    switch (shash(entry.comparison.c_str()))
+    {
+    case "gt"_hash:
+        return valuel > valuer;
+    case "lt"_hash:
+        return valuel < valuer;
+    case "eq"_hash:
+        return valuel == valuer;
+    default:
+        return false;
+    }
+
+    return false;
 }
 }  // namespace Kiran
