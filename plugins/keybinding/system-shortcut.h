@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "lib/dbus/cc-dbus-error.h"
+#include "lib/base/base.h"
 #include "plugins/keybinding/keylist-entries-parser.h"
 #include "plugins/keybinding/shortcut-helper.h"
 

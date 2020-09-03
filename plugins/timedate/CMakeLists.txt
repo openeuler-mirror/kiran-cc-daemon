@@ -33,7 +33,8 @@ target_compile_options(${TARGET_NAME} PRIVATE
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GIOMM_LIBRARIES}
-    lib-base)
+    lib-base
+    lib-dbus)
 
 if (SELINUX_MODULE_NAME)
     target_include_directories(${TARGET_NAME} PUBLIC 

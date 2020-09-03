@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:15
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-03 09:14:16
+ * @LastEditTime : 2020-09-03 09:31:03
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.cpp
  */
@@ -11,7 +11,6 @@
 
 #include <glib/gi18n.h>
 
-#include "lib/base/base.h"
 #include "lib/display/EWMH.h"
 
 namespace Kiran

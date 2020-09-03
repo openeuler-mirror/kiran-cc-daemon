@@ -11,7 +11,7 @@
 #include <gdkmm.h>
 #include <glib/gi18n.h>
 
-#include "lib/dbus/cc-dbus-error.h"
+#include "lib/base/base.h"
 #include "plugins/keybinding/shortcut-helper.h"
 
 namespace Kiran
