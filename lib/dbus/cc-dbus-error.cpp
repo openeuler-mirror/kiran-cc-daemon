@@ -2,12 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-19 17:20:34
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 15:06:50
+ * @LastEditTime : 2020-09-02 14:39:43
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/cc-dbus-error.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/dbus/cc-dbus-error.cpp
  */
 
-#include "lib/cc-dbus-error.h"
+#include "lib/dbus/cc-dbus-error.h"
 
 namespace Kiran
 {
@@ -20,7 +20,9 @@ static const GDBusErrorEntry cc_error_entries[] =
      {int32_t(CCError::ERROR_UNKNOWN), "com.unikylin.Kiran.CC.Error.Unknown"},
      {int32_t(CCError::ERROR_USER_EXISTS), "com.unikylin.Kiran.CC.Error.UserExists"},
      {int32_t(CCError::ERROR_USER_DOES_NOT_EXIST), "com.unikylin.Kiran.CC.Error.UserDoesNotExist"},
-     {int32_t(CCError::ERROR_GEN_SHORTCUT_ID), "com.unikylin.Kiran.CC.Error.GenShortCutID"}};
+     {int32_t(CCError::ERROR_GEN_SHORTCUT_ID), "com.unikylin.Kiran.CC.Error.GenShortCutID"},
+     {int32_t(CCError::ERROR_GRAB_KEYCOMB), "com.unikylin.Kiran.CC.Error.GrabKeyComb"},
+     {int32_t(CCError::ERROR_KEYCOMB_CONFLICT), "com.unikylin.Kiran.CC.Error.KeyCombConflict"}};
 
 GQuark cc_error_quark(void)
 {

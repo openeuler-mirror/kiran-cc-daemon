@@ -11,7 +11,7 @@
 
 #include <cstdio>
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 #include "plugins/inputdevices/touchpad/touchpad-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(TouchPadPlugin);

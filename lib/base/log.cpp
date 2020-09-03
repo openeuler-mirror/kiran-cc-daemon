@@ -2,15 +2,13 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 16:22:23
+ * @LastEditTime : 2020-09-02 15:48:30
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/log.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/base/log.cpp
  */
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 
-#include <lib/common.h>
-#include <lib/helper.h>
 #include <syslog.h>
 
 #include <sstream>
@@ -22,20 +20,18 @@ Log::Log() : log_level_(G_LOG_LEVEL_WARNING),
 {
 }
 
-Log::~Log()
-{
-}
-
 Log *Log::instance_ = nullptr;
-Log *Log::get_instance()
-{
-    return instance_;
-}
-
 void Log::global_init()
 {
+    RETURN_IF_TRUE(instance_);
     instance_ = new Log();
     instance_->init();
+}
+
+void Log::global_deinit()
+{
+    delete instance_;
+    instance_ = nullptr;
 }
 
 void Log::try_append(GLogLevelFlags log_level, const char *format, ...)

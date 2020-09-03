@@ -2,15 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 09:57:54
+ * @LastEditTime : 2020-09-02 15:24:25
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
  */
 
 #include "plugins/inputdevices/touchpad/touchpad-manager.h"
 
-#include "lib/helper.h"
-#include "lib/log.h"
+#include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran
@@ -201,6 +200,12 @@ void TouchPadManager::set_all_props_to_devices()
                                                                                                             \
         for (auto i = 0; i < n_devices; i++)                                                                \
         {                                                                                                   \
+            if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||                                \
+                strcmp(devices_info[i].name, "Virtual core keyboard") == 0)                                 \
+            {                                                                                               \
+                LOG_DEBUG("ignore device: %s.", devices_info[i].name);                                      \
+                continue;                                                                                   \
+            }                                                                                               \
             auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);                          \
             if (device_helper)                                                                              \
             {                                                                                               \

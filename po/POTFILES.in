@@ -3,3 +3,4 @@
 data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in
 data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in
 src/main.cpp
+plugins/keybinding/custom-shortcut.h

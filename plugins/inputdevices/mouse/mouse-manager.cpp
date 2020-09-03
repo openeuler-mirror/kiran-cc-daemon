@@ -2,15 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 09:57:35
+ * @LastEditTime : 2020-09-02 15:22:58
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
  */
 
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
-#include "lib/helper.h"
-#include "lib/log.h"
+#include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran
@@ -155,28 +154,32 @@ void MouseManager::set_all_props_to_devices()
     this->set_natural_scroll_to_devices();
 }
 
-#define SET_PROP_TO_DEVICES(set_device_fun)                                               \
-    void MouseManager::set_device_fun##s()                                                \
-    {                                                                                     \
-        SETTINGS_PROFILE("");                                                             \
-        int32_t n_devices = 0;                                                            \
-        auto display = gdk_display_get_default();                                         \
-        g_return_if_fail(display != NULL);                                                \
-        auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(display), &n_devices); \
-                                                                                          \
-        for (auto i = 0; i < n_devices; i++)                                              \
-        {                                                                                 \
-            auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);        \
-            if (device_helper)                                                            \
-            {                                                                             \
-                set_device_fun(device_helper);                                            \
-            }                                                                             \
-        }                                                                                 \
-                                                                                          \
-        if (devices_info != NULL)                                                         \
-        {                                                                                 \
-            XFreeDeviceList(devices_info);                                                \
-        }                                                                                 \
+#define SET_PROP_TO_DEVICES(set_device_fun)                                                                 \
+    void MouseManager::set_device_fun##s()                                                                  \
+    {                                                                                                       \
+        SETTINGS_PROFILE("");                                                                               \
+        int32_t n_devices = 0;                                                                              \
+        auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices); \
+                                                                                                            \
+        for (auto i = 0; i < n_devices; i++)                                                                \
+        {                                                                                                   \
+            if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||                                \
+                strcmp(devices_info[i].name, "Virtual core keyboard") == 0)                                 \
+            {                                                                                               \
+                LOG_DEBUG("ignore device: %s.", devices_info[i].name);                                      \
+                continue;                                                                                   \
+            }                                                                                               \
+            auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);                          \
+            if (device_helper)                                                                              \
+            {                                                                                               \
+                set_device_fun(device_helper);                                                              \
+            }                                                                                               \
+        }                                                                                                   \
+                                                                                                            \
+        if (devices_info != NULL)                                                                           \
+        {                                                                                                   \
+            XFreeDeviceList(devices_info);                                                                  \
+        }                                                                                                   \
     }
 
 SET_PROP_TO_DEVICES(set_left_handed_to_device);

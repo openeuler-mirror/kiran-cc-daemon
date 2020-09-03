@@ -19,20 +19,17 @@ SET_COMMON_SHARED_LINKER_FLAGS()
 
 
 target_include_directories(${TARGET_NAME} PUBLIC 
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/include
-    ${CMAKE_BINARY_DIR}/generated
+    ${PROJECT_BINARY_DIR}/generated
     ${GDKMM3_INCLUDE_DIRS})
 
 
 target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_LINKER_FLAGS}
-    -L${LIBDIR})
+    ${KSD_LINKER_FLAGS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GDKMM3_LIBRARIES}
     inputdevices-common
-    fmt)
+    lib-base)
 
 
 install(TARGETS ${TARGET_NAME}

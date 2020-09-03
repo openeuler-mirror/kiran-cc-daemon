@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-19 17:31:58
+ * @LastEditTime : 2020-09-02 15:13:59
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.cpp
  */
@@ -16,9 +16,8 @@
 
 #include <cinttypes>
 
-#include "lib/auth-manager.h"
-#include "lib/cc-dbus-error.h"
-#include "lib/log.h"
+#include "lib/base/base.h"
+#include "lib/dbus/dbus.h"
 #include "plugins/accounts/accounts-manager.h"
 #include "plugins/accounts/accounts-util.h"
 #include "plugins/accounts/user-classify.h"

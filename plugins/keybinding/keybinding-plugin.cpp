@@ -2,14 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:34:09
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 17:50:50
+ * @LastEditTime : 2020-09-02 15:25:53
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keybinding-plugin.cpp
  */
 
 #include "plugins/keybinding/keybinding-plugin.h"
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 #include "plugins/keybinding/custom-shortcut.h"
 #include "plugins/keybinding/keybinding-manager.h"
 #include "plugins/keybinding/system-shortcut.h"

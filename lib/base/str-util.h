@@ -2,17 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-17 15:13:15
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-20 14:15:46
+ * @LastEditTime : 2020-09-02 14:32:04
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/str-util.h
+ * @FilePath     : /kiran-cc-daemon/lib/base/str-util.h
  */
 #pragma once
 
-#include <fmt/format.h>
-#include <giomm.h>
-
 #include <string>
 #include <vector>
+
+#include "lib/base/base.h"
 
 namespace fmt
 {

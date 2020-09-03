@@ -2,15 +2,15 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-24 16:20:07
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 17:49:22
+ * @LastEditTime : 2020-09-02 20:40:36
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keybinding-manager.cpp
  */
 
 #include "plugins/keybinding/keybinding-manager.h"
 
-#include "lib/cc-dbus-error.h"
-#include "lib/log.h"
+#include "lib/base/log.h"
+#include "lib/dbus/cc-dbus-error.h"
 
 namespace Kiran
 {
@@ -179,7 +179,7 @@ void KeybindingManager::ListShortcuts(MethodInvocation &invocation)
 
 void KeybindingManager::init()
 {
-    this->system_shorcut_manager_->signal_system_shortcut_changed().connect(sigc::mem_fun(this, &KeybindingManager::system_shortcut_changed));
+    this->system_shorcut_manager_->signal_shortcut_changed().connect(sigc::mem_fun(this, &KeybindingManager::system_shortcut_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  KEYBINDING_DBUS_NAME,
@@ -187,13 +187,22 @@ void KeybindingManager::init()
                                                  sigc::mem_fun(this, &KeybindingManager::on_name_acquired),
                                                  sigc::mem_fun(this, &KeybindingManager::on_name_lost));
 }
-
-void KeybindingManager::system_shortcut_changed(const std::string &uid)
+void KeybindingManager::system_shortcut_added(std::shared_ptr<SystemShortCut> system_shortcut)
 {
-    auto system_shortcut = this->system_shorcut_manager_->get(uid);
     if (system_shortcut)
     {
-        this->Changed_signal.emit(std::make_tuple(uid, system_shortcut->kind));
+    }
+}
+
+void KeybindingManager::system_shortcut_deleted(std::shared_ptr<SystemShortCut> system_shortcut)
+{
+}
+
+void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> system_shortcut)
+{
+    if (system_shortcut)
+    {
+        this->Changed_signal.emit(std::make_tuple(system_shortcut->uid, system_shortcut->kind));
     }
 }
 

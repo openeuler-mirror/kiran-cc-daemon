@@ -2,16 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-18 17:34:09
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-06 15:59:24
+ * @LastEditTime : 2020-09-02 15:23:07
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/inputdevices/mouse/mouse-plugin.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-plugin.cpp
  */
 
 #include "plugins/inputdevices/mouse/mouse-plugin.h"
 
 #include <cstdio>
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(MousePlugin);

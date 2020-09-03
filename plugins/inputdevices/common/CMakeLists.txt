@@ -16,9 +16,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 
 target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_COMPILER_FLAGS}
-    -L${LIBDIR})
+    ${KSD_COMPILER_FLAGS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GDKMM3_LIBRARIES}
-    kiran-lib)
+    lib-base)

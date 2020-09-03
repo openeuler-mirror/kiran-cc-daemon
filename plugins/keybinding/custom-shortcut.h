@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:05:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 17:57:21
+ * @LastEditTime : 2020-09-02 15:25:16
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/custom-shortcut.h
  */
@@ -11,7 +11,7 @@
 #include <gdkmm.h>
 #include <glib/gi18n.h>
 
-#include "lib/cc-dbus-error.h"
+#include "lib/dbus/cc-dbus-error.h"
 #include "plugins/keybinding/shortcut-helper.h"
 
 namespace Kiran
@@ -21,12 +21,14 @@ namespace Kiran
 struct CustomShortCut
 {
     CustomShortCut() = default;
-    CustomShortCut(const std::string &n, const std::string k, const std::string &a) : name(n),
-                                                                                      key_combination(k),
-                                                                                      action(a) {}
+    CustomShortCut(const std::string &n, const std::string a, const std::string &k) : name(n),
+                                                                                      action(a),
+                                                                                      key_combination(k)
+    {
+    }
     std::string name;
-    std::string key_combination;
     std::string action;
+    std::string key_combination;
 };
 
 class CustomShortCutManager
@@ -42,15 +44,17 @@ public:
     static void global_deinit() { delete instance_; };
 
     // 添加自定义快捷键
-    std::pair<std::string, CCError> add(std::shared_ptr<CustomShortCut> custom_shortcut, std::string &err);
+    std::pair<std::string, CCError> add(std::shared_ptr<CustomShortCut> shortcut, std::string &err);
     // 修改自定义快捷键，如果uid不存在则返回错误
-    CCError modify(const std::string &uid, std::shared_ptr<CustomShortCut> custom_shortcut, std::string &err);
+    CCError modify(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut, std::string &err);
     // 删除自定义快捷键
     CCError remove(const std::string &uid, std::string &err);
     // 获取自定义快捷键
     std::shared_ptr<CustomShortCut> get(const std::string &uid);
     // 获取所有自定义快捷键
     std::map<std::string, std::shared_ptr<CustomShortCut>> get();
+    // 通过keycomb搜索快捷键
+    std::string lookup_shortcut(const std::string &keycomb);
 
     // 自定义快捷键变化信号。
     // 如果第一个CustomShortCut为空，则为新增快捷键；
@@ -60,18 +64,29 @@ public:
 
 private:
     void init();
+    // 初始化需要使用的修饰符
+    void init_modifiers();
+    // 获取NumLock修饰键，NumLock修饰键可能对应Mod1-Mod5中的其中一个。
+    uint32_t get_numlock_modifier();
     // 生成自定义快捷键唯一ID
     std::string gen_uid();
     // 校验自定义快捷键是否合法
-    bool check_valid(std::shared_ptr<CustomShortCut> custom_shortcut, std::string &err);
+    bool check_valid(std::shared_ptr<CustomShortCut> shortcut, std::string &err);
     // 设置自定义快捷键，如果uid不存在则创建，不做合法性校验
-    void change_and_save(const std::string &uid, std::shared_ptr<CustomShortCut> custom_shortcut);
+    void change_and_save(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut);
+    // 保存自定义按键到文件
     bool save_to_file();
+    // 抓取组合按键或者取消抓取组合按键
+    bool grab_keycomb_change(const std::string &key_comb, bool grab, std::string &err);
+    bool grab_keystate_change(const KeyState &keystate, bool grab, std::string &err);
 
-    static GdkFilterReturn window_event(GdkXEvent *xevent, GdkEvent *event, gpointer data);
+    static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
 
 private:
     static CustomShortCutManager *instance_;
+
+    uint32_t ignored_mods_;
+    uint32_t used_mods_;
 
     Glib::Rand rand_;
 

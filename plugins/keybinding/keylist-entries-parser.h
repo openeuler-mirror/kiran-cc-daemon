@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:52:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 14:45:50
+ * @LastEditTime : 2020-09-02 17:03:13
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.h
  */
@@ -24,6 +24,11 @@ struct KeyListEntry
     std::string name;
     // 按键组合描述
     std::string description;
+    // 如果schema:key  comparison value 成立，则entry可用
+    std::string schema;
+    std::string key;
+    std::string value;
+    std::string comparison;
 };
 
 struct KeyListEntries
@@ -34,6 +39,8 @@ struct KeyListEntries
     std::string package;
     // 按键绑定所属分类
     std::string name;
+    // 窗口管理器按键绑定组名
+    std::string wm_name;
     // 具体的按键绑定列表
     std::vector<KeyListEntry> entries_;
 };

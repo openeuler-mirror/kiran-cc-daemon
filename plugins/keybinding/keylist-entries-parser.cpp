@@ -2,17 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:53:14
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-26 14:27:05
+ * @LastEditTime : 2020-09-02 16:59:17
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.cpp
  */
 
 #include "plugins/keybinding/keylist-entries-parser.h"
 
-#include <glibmm.h>
 #include <libxml++/libxml++.h>
 
-#include "lib/log.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {
@@ -55,7 +54,6 @@ bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string 
 
 bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyListEntries &keylist_entries, std::string &err)
 {
-    SETTINGS_PROFILE("node_name: %s.", node ? node->get_name().c_str() : "null");
     const auto element = dynamic_cast<const xmlpp::Element *>(node);
 
     if (!element)
@@ -76,6 +74,9 @@ bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyL
             break;
         case "name"_hash:
             keylist_entries.name = child->get_value().raw();
+            break;
+        case "wm_name"_hash:
+            keylist_entries.wm_name = child->get_value().raw();
             break;
         default:
             break;
@@ -123,6 +124,18 @@ bool KeyListEntriesParser::process_keylist_entry(const xmlpp::Node *node, KeyLis
             break;
         case "description"_hash:
             keylist_entry.description = child->get_value().raw();
+            break;
+        case "schema"_hash:
+            keylist_entry.schema = child->get_value().raw();
+            break;
+        case "key"_hash:
+            keylist_entry.key = child->get_value().raw();
+            break;
+        case "value"_hash:
+            keylist_entry.value = child->get_value().raw();
+            break;
+        case "comparison"_hash:
+            keylist_entry.comparison = child->get_value().raw();
             break;
         default:
             break;

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:15
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 18:18:39
+ * @LastEditTime : 2020-09-03 09:14:16
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.cpp
  */
@@ -11,9 +11,8 @@
 
 #include <glib/gi18n.h>
 
-#include "lib/log.h"
-#include "lib/str-util.h"
-#include "plugins/keybinding/keylist-entries-parser.h"
+#include "lib/base/base.h"
+#include "lib/display/EWMH.h"
 
 namespace Kiran
 {
@@ -36,34 +35,34 @@ CCError SystemShortCutManager::modify(const std::string &uid,
 {
     SETTINGS_PROFILE("uid: %s keycomb: %s.", uid.c_str(), key_combination.c_str());
 
-    if (ShortCutHelper::get_key_state(key_combination) == INVALID_KEYSTATE)
+    if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
     {
         err = fmt::format("the key combination is invalid: {0}", key_combination);
         return CCError::ERROR_INVALID_PARAMETER;
     }
 
-    auto system_shortcut = this->get(uid);
-    if (!system_shortcut)
+    auto shortcut = this->get(uid);
+    if (!shortcut)
     {
         err = fmt::format("not found uid '{0}'", uid);
         return CCError::ERROR_INVALID_PARAMETER;
     }
 
-    if (system_shortcut->key_combination == key_combination)
+    if (shortcut->key_combination == key_combination)
     {
         return CCError::SUCCESS;
     }
 
-    system_shortcut->key_combination = key_combination;
-    system_shortcut->settings->set_string(system_shortcut->settings_key, system_shortcut->key_combination);
-    this->system_shortcut_changed_.emit(uid);
+    shortcut->key_combination = key_combination;
+    shortcut->settings->set_string(shortcut->settings_key, shortcut->key_combination);
+    this->shortcut_changed_.emit(shortcut);
     return CCError::SUCCESS;
 }
 
 std::shared_ptr<SystemShortCut> SystemShortCutManager::get(const std::string &uid)
 {
-    auto iter = this->system_shortcuts_.find(uid);
-    if (iter != this->system_shortcuts_.end())
+    auto iter = this->shortcuts_.find(uid);
+    if (iter != this->shortcuts_.end())
     {
         return iter->second;
     }
@@ -72,6 +71,16 @@ std::shared_ptr<SystemShortCut> SystemShortCutManager::get(const std::string &ui
 
 void SystemShortCutManager::init()
 {
+    SETTINGS_PROFILE("");
+    this->load_system_shortcuts(this->shortcuts_);
+
+    EWMH::get_instance()->signal_wm_window_change().connect(sigc::mem_fun(this, &SystemShortCutManager::wm_window_changed));
+}
+
+void SystemShortCutManager::load_system_shortcuts(std::map<std::string, std::shared_ptr<SystemShortCut>> &shortcuts)
+{
+    SETTINGS_PROFILE("");
+
     KeyListEntriesParser parser(MATECC_KEYBINDINGS_DIR);
     std::vector<KeyListEntries> keys;
     std::string err;
@@ -80,6 +89,8 @@ void SystemShortCutManager::init()
         LOG_WARNING("failed to parse %s: %s.", MATECC_KEYBINDINGS_DIR, err.c_str());
         return;
     }
+
+    auto wm_keybindings = EWMH::get_instance()->get_wm_keybindings();
 
     for (auto &keylist_entries : keys)
     {
@@ -91,37 +102,53 @@ void SystemShortCutManager::init()
             continue;
         }
 
+        if (keylist_entries.wm_name.length() > 0 &&
+            std::find(wm_keybindings.begin(), wm_keybindings.end(), keylist_entries.wm_name) == wm_keybindings.end())
+        {
+            LOG_DEBUG("cannot match current window manager: %s.", keylist_entries.wm_name.c_str());
+            continue;
+        }
+
         bindtextdomain(package.c_str(), KCC_LOCALEDIR);
         bind_textdomain_codeset(package.c_str(), "UTF-8");
 
         for (auto &keylist_entry : keylist_entries.entries_)
         {
-            auto system_shortcut = std::make_shared<SystemShortCut>();
-            system_shortcut->kind = dgettext(package.c_str(), keylist_entries.name.c_str());
-            system_shortcut->name = dgettext(package.c_str(), keylist_entry.description.c_str());
-            system_shortcut->settings = system_settings;
-            system_shortcut->settings_key = keylist_entry.name;
-            system_shortcut->key_combination = system_settings->get_string(keylist_entry.name);
-
-            if (system_shortcut->kind.length() == 0 ||
-                system_shortcut->name.length() == 0 ||
-                ShortCutHelper::get_key_state(system_shortcut->key_combination) == INVALID_KEYSTATE)
+            if (!this->should_show_key(keylist_entry))
             {
-                LOG_WARNING("the system shortcut is invalid. kind: %s name: %s keycomb: %s.",
-                            system_shortcut->kind.c_str(),
-                            system_shortcut->name.c_str(),
-                            system_shortcut->key_combination.c_str());
+                LOG_DEBUG("the system shortcut should not show. type: %s, name: %s, description: %s.",
+                          keylist_entries.name.c_str(),
+                          keylist_entry.name.c_str(),
+                          keylist_entry.description.c_str());
                 continue;
             }
 
-            auto uid = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5,
-                                                        keylist_entries.schema + "+" + keylist_entry.name);
+            auto shortcut = std::make_shared<SystemShortCut>();
+            shortcut->kind = dgettext(package.c_str(), keylist_entries.name.c_str());
+            shortcut->name = dgettext(package.c_str(), keylist_entry.description.c_str());
+            shortcut->settings = system_settings;
+            shortcut->settings_key = keylist_entry.name;
+            shortcut->key_combination = system_settings->get_string(keylist_entry.name);
 
-            auto iter = this->system_shortcuts_.emplace(uid, system_shortcut);
+            if (shortcut->kind.length() == 0 ||
+                shortcut->name.length() == 0 ||
+                ShortCutHelper::get_keystate(shortcut->key_combination) == INVALID_KEYSTATE)
+            {
+                LOG_WARNING("the system shortcut is invalid. kind: %s name: %s keycomb: %s.",
+                            shortcut->kind.c_str(),
+                            shortcut->name.c_str(),
+                            shortcut->key_combination.c_str());
+                continue;
+            }
+
+            shortcut->uid = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5,
+                                                             keylist_entries.schema + "+" + keylist_entry.name);
+
+            auto iter = shortcuts.emplace(shortcut->uid, shortcut);
             if (!iter.second)
             {
                 LOG_WARNING("exists the same system shortcut, uid: %s schema: %s key: %s.",
-                            uid.c_str(),
+                            shortcut->uid.c_str(),
                             keylist_entries.schema.c_str(),
                             keylist_entry.name.c_str());
                 continue;
@@ -131,22 +158,79 @@ void SystemShortCutManager::init()
     }
 }
 
+void SystemShortCutManager::wm_window_changed()
+{
+    auto old_shortcuts = std::move(this->shortcuts_);
+    this->load_system_shortcuts(this->shortcuts_);
+
+    // 查找新增和修改的快捷键
+    for (auto &shortcut : this->shortcuts_)
+    {
+        auto iter = old_shortcuts.find(shortcut.first);
+        if (iter == old_shortcuts.end())
+        {
+            this->shortcut_added_.emit(shortcut.second);
+        }
+        else if (iter->second->kind != shortcut.second->kind ||
+                 iter->second->name != shortcut.second->name ||
+                 iter->second->key_combination != shortcut.second->key_combination)
+        {
+            this->shortcut_changed_.emit(shortcut.second);
+        }
+    }
+
+    // 查找删除的快捷键
+    for (auto &shortcut : old_shortcuts)
+    {
+        auto iter = this->shortcuts_.find(shortcut.first);
+        if (iter == this->shortcuts_.end())
+        {
+            this->shortcut_deleted_.emit(shortcut.second);
+        }
+    }
+}
+
 void SystemShortCutManager::settings_changed(const Glib::ustring &key, const Glib::RefPtr<Gio::Settings> settings)
 {
     auto uid = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5,
                                                 (settings->property_schema_id().get_value() + "+" + key).raw());
 
-    auto system_shortcut = this->get(uid);
+    auto shortcut = this->get(uid);
 
-    if (system_shortcut)
+    if (shortcut)
     {
         auto value = settings->get_string(key);
-        if (system_shortcut->key_combination != value &&
-            ShortCutHelper::get_key_state(value) != INVALID_KEYSTATE)
+        if (shortcut->key_combination != value &&
+            ShortCutHelper::get_keystate(value) != INVALID_KEYSTATE)
         {
-            system_shortcut->key_combination = value;
-            this->system_shortcut_changed_.emit(uid);
+            shortcut->key_combination = value;
+            this->shortcut_changed_.emit(shortcut);
         }
     }
+}
+
+bool SystemShortCutManager::should_show_key(const KeyListEntry &entry)
+{
+    RETURN_VAL_IF_TRUE(entry.comparison.length() == 0, true);
+    RETURN_VAL_IF_TRUE(entry.key.length() == 0, false);
+    RETURN_VAL_IF_TRUE(entry.schema.length() == 0, false);
+
+    auto settings = Gio::Settings::create(entry.schema);
+    auto valuel = settings->get_int(entry.key);
+    auto valuer = std::stoll(entry.value);
+
+    switch (shash(entry.comparison.c_str()))
+    {
+    case "gt"_hash:
+        return valuel > valuer;
+    case "lt"_hash:
+        return valuel < valuer;
+    case "eq"_hash:
+        return valuel == valuer;
+    default:
+        return false;
+    }
+
+    return false;
 }
 }  // namespace Kiran

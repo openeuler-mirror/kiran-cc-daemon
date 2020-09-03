@@ -2,15 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 17:36:31
+ * @LastEditTime : 2020-09-02 15:11:14
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-wrapper.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-wrapper.cpp
  */
 #include "plugins/accounts/accounts-wrapper.h"
 
 #include <utility>
 
-#include "lib/log.h"
 #include "plugins/accounts/accounts-util.h"
 
 namespace Kiran

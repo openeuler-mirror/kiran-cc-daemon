@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-12 16:25:51
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 11:47:06
+ * @LastEditTime : 2020-09-02 15:20:47
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/keyboard-manager.cpp
  */
@@ -10,10 +10,9 @@
 
 #include <X11/XKBlib.h>
 
-#include "lib/cc-dbus-error.h"
-#include "lib/iso-translation.h"
-#include "lib/log.h"
-#include "lib/str-util.h"
+#include "lib/base/base.h"
+#include "lib/dbus/dbus.h"
+#include "lib/iso/iso-translation.h"
 #include "plugins/inputdevices/keyboard/xkb-rules-parser.h"
 
 namespace Kiran

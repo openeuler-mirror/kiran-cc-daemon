@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-18 09:47:39
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-26 13:57:38
+ * @LastEditTime : 2020-09-02 15:21:03
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/xkb-rules-parser.cpp
  */
@@ -11,7 +11,7 @@
 
 #include <libxml++/libxml++.h>
 
-#include "lib/log.h"
+#include "lib/base/log.h"
 
 namespace Kiran
 {

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 13:34:28
+ * @LastEditTime : 2020-09-02 15:28:44
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.h
  */
@@ -11,7 +11,7 @@
 
 #include <functional>
 
-#include "lib/auth-manager.h"
+#include "lib/dbus/dbus.h"
 
 namespace Kiran
 {

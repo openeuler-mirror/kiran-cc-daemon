@@ -9,9 +9,7 @@
 #include "plugins/accounts/accounts-util.h"
 
 #include <fcntl.h>
-#include <fmt/format.h>
 
-#include "lib/log.h"
 namespace Kiran
 {
 bool AccountsUtil::get_caller_pid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, GPid &pid)

@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-20 11:49:32
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-31 11:45:13
+ * @LastEditTime : 2020-09-02 15:49:23
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/iso-translation.h
+ * @FilePath     : /kiran-cc-daemon/lib/iso/iso-translation.h
  */
 
 #pragma once
@@ -30,7 +30,7 @@ public:
 
     static void global_init();
 
-    static void global_deinit() { delete instance_; };
+    static void global_deinit();
 
 public:
     // 通过code获得城市/地区的名字

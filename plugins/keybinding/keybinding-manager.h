@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-24 16:19:21
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-27 17:35:43
+ * @LastEditTime : 2020-09-02 20:39:50
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keybinding-manager.h
  */
@@ -64,7 +64,9 @@ private:
 private:
     void init();
 
-    void system_shortcut_changed(const std::string &uid);
+    void system_shortcut_added(std::shared_ptr<SystemShortCut> system_shortcut);
+    void system_shortcut_deleted(std::shared_ptr<SystemShortCut> system_shortcut);
+    void system_shortcut_changed(std::shared_ptr<SystemShortCut> system_shortcut);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
