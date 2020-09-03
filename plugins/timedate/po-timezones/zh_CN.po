@@ -188,6 +188,9 @@ msgstr "非洲/突尼斯"
 msgid "Africa/Windhoek"
 msgstr "非洲/温得和克"
 
+msgid "Africa/Juba"
+msgstr "非洲/朱巴"
+
 msgid "America/Adak"
 msgstr "美洲/阿达克"
 
@@ -230,7 +233,7 @@ msgid "Catamarca (CT), Chubut (CH)"
 msgstr "卡塔马卡（CT）,丘布特（CH）"
 
 msgid "America/Argentina/ComodRivadavia"
-msgstr "美洲∕阿根廷∕科莫多罗里瓦达维亚"
+msgstr "美洲/阿根廷/科莫多罗里瓦达维亚"
 
 msgid "America/Argentina/Cordoba"
 msgstr "美洲/阿根廷/科尔多瓦"
@@ -261,7 +264,7 @@ msgid "Mendoza (MZ)"
 msgstr "门多萨（MZ）"
 
 msgid "America/Argentina/Rio_Gallegos"
-msgstr "美洲∕阿根廷∕里奥加耶戈斯"
+msgstr "美洲/阿根廷/里奥加耶戈斯"
 
 #. comment for time zone America/Argentina/Rio_Gallegos
 msgid "Santa Cruz (SC)"
@@ -309,7 +312,7 @@ msgid "America/Asuncion"
 msgstr "美洲/阿孙西翁"
 
 msgid "America/Atikokan"
-msgstr "美洲∕阿蒂科肯"
+msgstr "美洲/阿蒂科肯"
 
 #. comment for time zone America/Atikokan
 msgid "Eastern Standard Time - Atikokan, Ontario and Southampton I, Nunavut"
@@ -346,7 +349,7 @@ msgid "America/Belize"
 msgstr "美洲/伯利茲"
 
 msgid "America/Blanc-Sablon"
-msgstr "美洲∕布朗萨布隆"
+msgstr "美洲/布朗萨布隆"
 
 #. comment for time zone America/Blanc-Sablon
 msgid "Atlantic Standard Time - Quebec - Lower North Shore"
@@ -596,7 +599,7 @@ msgid "Eastern Time - Indiana - Crawford County"
 msgstr "东部时间——印地安那——克劳福德县"
 
 msgid "America/Indiana/Petersburg"
-msgstr "美洲∕印第安那∕彼得斯堡"
+msgstr "美洲/印第安那/彼得斯堡"
 
 #. comment for time zone America/Indiana/Petersburg
 msgid "Eastern Time - Indiana - Pike County"
@@ -606,7 +609,7 @@ msgid "America/Indianapolis"
 msgstr "美洲/印第安纳波利斯"
 
 msgid "America/Indiana/Tell_City"
-msgstr "美洲∕印第安纳∕特尔城"
+msgstr "美洲/印第安纳/特尔城"
 
 #. comment for time zone America/Indiana/Tell_City
 msgid "Central Time - Indiana - Perry County"
@@ -620,14 +623,14 @@ msgid "Eastern Time - Indiana - Switzerland County"
 msgstr "东部时间——印地安纳——瑞士县"
 
 msgid "America/Indiana/Vincennes"
-msgstr "美洲∕印第安纳∕温森斯"
+msgstr "美洲/印第安纳/温森斯"
 
 #. comment for time zone America/Indiana/Vincennes
 msgid "Eastern Time - Indiana - Daviess, Dubois, Knox & Martin Counties"
 msgstr "东部时间——印地安纳——戴维斯，杜波依斯，诺克斯和马丁县"
 
 msgid "America/Indiana/Winamac"
-msgstr "美洲∕印第安纳∕威纳马克"
+msgstr "美洲/印第安纳/威纳马克"
 
 #. comment for time zone America/Indiana/Winamac
 msgid "Eastern Time - Indiana - Pulaski County"
@@ -675,7 +678,7 @@ msgid "Eastern Time - Kentucky - Wayne County"
 msgstr "东部时间——肯塔基——韦恩县"
 
 msgid "America/Knox_IN"
-msgstr "美洲∕诺克斯（印第安纳）"
+msgstr "美洲/诺克斯（印第安纳）"
 
 msgid "America/La_Paz"
 msgstr "美洲/拉巴斯"
@@ -711,7 +714,7 @@ msgid "E Amazonas"
 msgstr "亚马逊东部"
 
 msgid "America/Marigot"
-msgstr "美洲∕马里戈特"
+msgstr "美洲/马里戈特"
 
 msgid "America/Martinique"
 msgstr "美洲/马蒂尼克"
@@ -758,7 +761,7 @@ msgid "America/Miquelon"
 msgstr "美洲/密克隆"
 
 msgid "America/Moncton"
-msgstr "美洲∕蒙克顿"
+msgstr "美洲/蒙克顿"
 
 #. comment for time zone America/Moncton
 msgid "Atlantic Time - New Brunswick"
@@ -818,14 +821,14 @@ msgid "Atlantic islands"
 msgstr "大西洋群岛"
 
 msgid "America/North_Dakota/Center"
-msgstr "美洲∕北达科他∕中部"
+msgstr "美洲/北达科他/中部"
 
 #. comment for time zone America/North_Dakota/Center
 msgid "Central Time - North Dakota - Oliver County"
 msgstr "中部时间——北达科他——奥利弗县"
 
 msgid "America/North_Dakota/New_Salem"
-msgstr "美洲∕北达科他∕纽沙伦"
+msgstr "美洲/北达科他/纽沙伦"
 
 #. comment for time zone America/North_Dakota/New_Salem
 msgid "Central Time - North Dakota - Morton County (except Mandan area)"
@@ -862,7 +865,7 @@ msgid "America/Port-au-Prince"
 msgstr "美洲/太子港"
 
 msgid "America/Porto_Acre"
-msgstr "美洲∕阿克里港"
+msgstr "美洲/阿克里港"
 
 msgid "America/Port_of_Spain"
 msgstr "美洲/西班牙港"
@@ -906,7 +909,7 @@ msgid "Central Standard Time - Saskatchewan - most locations"
 msgstr "中部标准时间——萨斯喀彻温——大部分地区"
 
 msgid "America/Resolute"
-msgstr "美洲∕雷索卢特"
+msgstr "美洲/雷索卢特"
 
 #. comment for time zone America/Resolute
 msgid "Eastern Standard Time - Resolute, Nunavut"
@@ -964,7 +967,7 @@ msgid "Mountain Time - Navajo"
 msgstr "山地时间——纳瓦霍"
 
 msgid "America/St_Barthelemy"
-msgstr "美洲∕圣巴泰勒米"
+msgstr "美洲/圣巴泰勒米"
 
 msgid "America/St_Johns"
 msgstr "美洲/圣约翰斯"
@@ -1034,7 +1037,7 @@ msgid "Pacific Time - west British Columbia"
 msgstr "太平洋时间——不列颠哥伦比亚西部"
 
 msgid "America/Virgin"
-msgstr "美洲∕维尔京"
+msgstr "美洲/维尔京"
 
 msgid "America/Whitehorse"
 msgstr "美洲/怀特霍斯"
@@ -1059,6 +1062,30 @@ msgstr "阿拉斯加时间——阿拉斯加“锅柄”（狭长地带）颈"
 
 msgid "America/Yellowknife"
 msgstr "美洲/耶洛奈夫"
+
+msgid "America/Kralendijk"
+msgstr "美洲/克拉伦迪克"
+
+msgid "America/Creston"
+msgstr "美洲/克雷斯顿"
+
+msgid "America/Fort_Nelson"
+msgstr "美洲/纳尔逊堡"
+
+msgid "America/Punta_Arenas"
+msgstr "美洲/蓬塔阿里纳斯"
+
+msgid "America/Lower_Princes"
+msgstr "美洲/下丘王子"
+
+msgid "America/North_Dakota/Beulah"
+msgstr "美洲/北达科他州/贝拉"
+
+msgid "America/Sitka"
+msgstr "美洲/锡特卡"
+
+msgid "America/Metlakatla"
+msgstr "美洲/梅特拉卡特"
 
 #. comment for time zone America/Yellowknife
 msgid "Mountain Time - central Northwest Territories"
@@ -1114,7 +1141,7 @@ msgid "Palmer Station, Anvers Island"
 msgstr "帕默站，安弗斯岛"
 
 msgid "Antarctica/Rothera"
-msgstr "南极洲∕罗瑟拉"
+msgstr "南极洲/罗瑟拉"
 
 #. comment for time zone Antarctica/Rothera
 msgid "Rothera Station, Adelaide Island"
@@ -1136,6 +1163,9 @@ msgstr "昭和站，翁古尔岛东部"
 
 msgid "Antarctica/Vostok"
 msgstr "南极洲/东方"
+
+msgid "Antarctica/Troll"
+msgstr "南极洲/巨魔"
 
 #. comment for time zone Antarctica/Vostok
 msgid "Vostok Station, S Magnetic Pole"
@@ -1178,7 +1208,7 @@ msgid "Asia/Ashgabat"
 msgstr "亚洲/阿什哈巴德"
 
 msgid "Asia/Ashkhabad"
-msgstr "亚洲∕阿什哈巴德"
+msgstr "亚洲/阿什哈巴德"
 
 msgid "Asia/Baghdad"
 msgstr "亚洲/巴格达"
@@ -1205,27 +1235,27 @@ msgid "Asia/Calcutta"
 msgstr "亚洲/加尔各答"
 
 msgid "Asia/Choibalsan"
-msgstr "亚洲∕乔巴山"
+msgstr "亚洲/乔巴山"
 
 #. comment for time zone Asia/Choibalsan
 msgid "Dornod, Sukhbaatar"
 msgstr "东方，苏赫巴托尔"
 
 msgid "Asia/Chongqing"
-msgstr "亚洲∕重庆"
+msgstr "亚洲/重庆"
 
 #. comment for time zone Asia/Chongqing
 msgid "central China - Sichuan, Yunnan, Guangxi, Shaanxi, Guizhou, etc."
 msgstr "中国中部——四川，云南，广西，陕西，贵州等。"
 
 msgid "Asia/Chungking"
-msgstr "亚洲∕重庆"
+msgstr "亚洲/重庆"
 
 msgid "Asia/Colombo"
 msgstr "亚洲/科伦坡"
 
 msgid "Asia/Dacca"
-msgstr "亚洲∕达卡"
+msgstr "亚洲/达卡"
 
 msgid "Asia/Damascus"
 msgstr "亚洲/大马士革"
@@ -1253,7 +1283,7 @@ msgid "Heilongjiang (except Mohe), Jilin"
 msgstr "黑龙江（漠河除外），吉林"
 
 msgid "Asia/Ho_Chi_Minh"
-msgstr "亚洲∕胡志明"
+msgstr "亚洲/胡志明"
 
 msgid "Asia/Hong_Kong"
 msgstr "亚洲/香港"
@@ -1359,7 +1389,7 @@ msgid "Moscow+08 - Magadan"
 msgstr "莫斯科+08——马加丹"
 
 msgid "Asia/Makassar"
-msgstr "亚洲∕望加锡"
+msgstr "亚洲/望加锡"
 
 #. comment for time zone Asia/Makassar
 msgid "east & south Borneo, Celebes, Bali, Nusa Tengarra, west Timor"
@@ -1396,7 +1426,7 @@ msgid "Moscow+03 - west Siberia"
 msgstr "莫斯科+03——西伯利亚西部"
 
 msgid "Asia/Oral"
-msgstr "亚洲∕奥勒尔"
+msgstr "亚洲/奥勒尔"
 
 #. comment for time zone Asia/Oral
 msgid "West Kazakhstan"
@@ -1419,7 +1449,7 @@ msgid "Asia/Qatar"
 msgstr "亚洲/卡塔尔"
 
 msgid "Asia/Qyzylorda"
-msgstr "亚洲∕克孜勒奥尔达"
+msgstr "亚洲/克孜勒奥尔达"
 
 #. comment for time zone Asia/Qyzylorda
 msgid "Qyzylorda (Kyzylorda, Kzyl-Orda)"
@@ -1444,7 +1474,7 @@ msgid "Asia/Saigon"
 msgstr "亚洲/西贡"
 
 msgid "Asia/Sakhalin"
-msgstr "亚洲∕萨哈林"
+msgstr "亚洲/萨哈林"
 
 #. comment for time zone Asia/Sakhalin
 msgid "Moscow+07 - Sakhalin Island"
@@ -1487,7 +1517,7 @@ msgid "Asia/Tehran"
 msgstr "亚洲/德黑兰"
 
 msgid "Asia/Tel_Aviv"
-msgstr "亚洲∕特拉维夫"
+msgstr "亚洲/特拉维夫"
 
 msgid "Asia/Thimbu"
 msgstr "亚洲/廷布"
@@ -1541,6 +1571,45 @@ msgstr "莫斯科+02——乌拉尔山脉"
 msgid "Asia/Yerevan"
 msgstr "亚洲/埃里温"
 
+msgid "Asia/Famagusta"
+msgstr "亚洲/法马古斯塔"
+
+msgid "Europe/Busingen"
+msgstr "欧洲/布辛根"
+
+msgid "Asia/Qostanay"
+msgstr "亚洲/卡塔尔"
+
+msgid "Asia/Atyrau"
+msgstr "亚洲/阿特劳"
+
+msgid "Asia/Yangon"
+msgstr "亚洲/仰光"
+
+msgid "Pacific/Bougainville"
+msgstr "太平洋/布干维尔"
+
+msgid "Asia/Hebron"
+msgstr "亚洲/希伯伦"
+
+msgid "Asia/Barnaul"
+msgstr "亚洲/巴诺"
+
+msgid "Asia/Tomsk"
+msgstr "亚洲/托木斯克"
+
+msgid "Asia/Chita"
+msgstr "亚洲/奇塔"
+
+msgid "Asia/Khandyga"
+msgstr "亚洲/坎迪加"
+
+msgid "Asia/Ust-Nera"
+msgstr "亚洲/乌斯季挪拉"
+
+msgid "Asia/Srednekolymsk"
+msgstr "亚洲/斯雷德内科利姆斯克"
+
 msgid "Atlantic/Azores"
 msgstr "大西洋/阿索雷斯"
 
@@ -1590,10 +1659,10 @@ msgid "Atlantic/St_Helena"
 msgstr "大西洋/圣海伦纳"
 
 msgid "Australia/ACT"
-msgstr "澳洲∕澳大利亚首都地区"
+msgstr "澳洲/澳大利亚首都地区"
 
 msgid "Australia/Adelaide"
-msgstr "澳洲∕阿德莱德"
+msgstr "澳洲/阿德莱德"
 
 #. comment for time zone Australia/Adelaide
 msgid "South Australia"
@@ -1607,17 +1676,17 @@ msgid "Queensland - most locations"
 msgstr "昆士兰——大部分地区"
 
 msgid "Australia/Broken_Hill"
-msgstr "澳洲∕布罗肯希尔"
+msgstr "澳洲/布罗肯希尔"
 
 #. comment for time zone Australia/Broken_Hill
 msgid "New South Wales - Yancowinna"
 msgstr "新南威尔士——扬科维纳"
 
 msgid "Australia/Canberra"
-msgstr "澳洲∕堪培拉"
+msgstr "澳洲/堪培拉"
 
 msgid "Australia/Currie"
-msgstr "澳洲∕柯里"
+msgstr "澳洲/柯里"
 
 #. comment for time zone Australia/Currie
 msgid "Tasmania - King Island"
@@ -1645,7 +1714,7 @@ msgid "Tasmania - most locations"
 msgstr "塔斯马尼亚——大部分地区"
 
 msgid "Australia/LHI"
-msgstr "澳洲∕豪勋爵岛"
+msgstr "澳洲/豪勋爵岛"
 
 msgid "Australia/Lindeman"
 msgstr "澳洲/林德曼"
@@ -1669,10 +1738,10 @@ msgid "Victoria"
 msgstr "维多利亚"
 
 msgid "Australia/North"
-msgstr "澳洲∕北部"
+msgstr "澳洲/北部"
 
 msgid "Australia/NSW"
-msgstr "澳洲∕新南威尔士"
+msgstr "澳洲/新南威尔士"
 
 msgid "Australia/Perth"
 msgstr "澳洲/珀斯"
@@ -1685,7 +1754,7 @@ msgid "Australia/Queensland"
 msgstr "澳洲/昆士兰"
 
 msgid "Australia/South"
-msgstr "澳洲∕南部"
+msgstr "澳洲/南部"
 
 msgid "Australia/Sydney"
 msgstr "澳洲/悉尼"
@@ -1695,64 +1764,64 @@ msgid "New South Wales - most locations"
 msgstr "新南威尔士——大部分地区"
 
 msgid "Australia/Tasmania"
-msgstr "澳洲∕塔斯马尼亚"
+msgstr "澳洲/塔斯马尼亚"
 
 msgid "Australia/Victoria"
-msgstr "澳洲∕维多利亚"
+msgstr "澳洲/维多利亚"
 
 msgid "Australia/West"
-msgstr "澳洲∕西部"
+msgstr "澳洲/西部"
 
 msgid "Australia/Yancowinna"
-msgstr "澳洲∕扬科维纳"
+msgstr "澳洲/扬科维纳"
 
 msgid "Brazil/Acre"
-msgstr "巴西∕阿克里"
+msgstr "巴西/阿克里"
 
 msgid "Brazil/DeNoronha"
-msgstr "巴西∕迪诺罗尼亚"
+msgstr "巴西/迪诺罗尼亚"
 
 msgid "Brazil/East"
-msgstr "巴西∕东部"
+msgstr "巴西/东部"
 
 msgid "Brazil/West"
-msgstr "巴西∕西部"
+msgstr "巴西/西部"
 
 msgid "Canada/Atlantic"
-msgstr "加拿大∕大西洋沿岸"
+msgstr "加拿大/大西洋沿岸"
 
 msgid "Canada/Central"
-msgstr "加拿大∕中部"
+msgstr "加拿大/中部"
 
 msgid "Canada/Eastern"
-msgstr "加拿大∕东部"
+msgstr "加拿大/东部"
 
 msgid "Canada/East-Saskatchewan"
-msgstr "加拿大∕萨斯喀彻温东部"
+msgstr "加拿大/萨斯喀彻温东部"
 
 msgid "Canada/Mountain"
-msgstr "加拿大∕山地"
+msgstr "加拿大/山地"
 
 msgid "Canada/Newfoundland"
-msgstr "加拿大∕纽芬兰"
+msgstr "加拿大/纽芬兰"
 
 msgid "Canada/Pacific"
-msgstr "加拿大∕太平洋沿岸"
+msgstr "加拿大/太平洋沿岸"
 
 msgid "Canada/Saskatchewan"
-msgstr "加拿大∕萨斯喀彻温"
+msgstr "加拿大/萨斯喀彻温"
 
 msgid "Canada/Yukon"
-msgstr "加拿大∕育空"
+msgstr "加拿大/育空"
 
 msgid "CET"
 msgstr "CET（欧洲中部时间）"
 
 msgid "Chile/Continental"
-msgstr "智利∕大陆"
+msgstr "智利/大陆"
 
 msgid "Chile/EasterIsland"
-msgstr "智利∕复活节岛"
+msgstr "智利/复活节岛"
 
 msgid "CST6CDT"
 msgstr "CST（美国中部标准时间）6CDT（美国中部夏令时间）"
@@ -1923,19 +1992,19 @@ msgid "Europe/Gibraltar"
 msgstr "欧洲/直布罗陀"
 
 msgid "Europe/Guernsey"
-msgstr "欧洲∕根西"
+msgstr "欧洲/根西"
 
 msgid "Europe/Helsinki"
 msgstr "欧洲/赫尔辛基"
 
 msgid "Europe/Isle_of_Man"
-msgstr "欧洲∕马恩岛"
+msgstr "欧洲/马恩岛"
 
 msgid "Europe/Istanbul"
 msgstr "欧洲/伊斯坦布尔"
 
 msgid "Europe/Jersey"
-msgstr "欧洲∕耶尔赛"
+msgstr "欧洲/耶尔赛"
 
 msgid "Europe/Kaliningrad"
 msgstr "欧洲/加里宁格勒"
@@ -1966,7 +2035,7 @@ msgid "Europe/Malta"
 msgstr "欧洲/马尔他"
 
 msgid "Europe/Mariehamn"
-msgstr "欧洲∕玛丽港"
+msgstr "欧洲/玛丽港"
 
 msgid "Europe/Minsk"
 msgstr "欧洲/明思克"
@@ -2038,7 +2107,7 @@ msgid "Europe/Tirane"
 msgstr "欧洲/地拉那"
 
 msgid "Europe/Tiraspol"
-msgstr "欧洲∕蒂拉斯波尔"
+msgstr "欧洲/蒂拉斯波尔"
 
 msgid "Europe/Uzhgorod"
 msgstr "欧洲/乌日戈罗德"
@@ -2060,7 +2129,7 @@ msgid "Europe/Vilnius"
 msgstr "欧洲/维尔纽斯"
 
 msgid "Europe/Volgograd"
-msgstr "欧洲∕伏尔加格勒"
+msgstr "欧洲/伏尔加格勒"
 
 #. comment for time zone Europe/Volgograd
 msgid "Moscow+00 - Caspian Sea"
@@ -2081,6 +2150,18 @@ msgstr "扎波罗热，卢甘斯克东部/扎波罗热，卢甘斯克东部"
 
 msgid "Europe/Zurich"
 msgstr "欧洲/苏黎世"
+
+msgid "Europe/Kirov"
+msgstr "欧洲/基洛夫"
+
+msgid "Europe/Astrakhan"
+msgstr "欧洲/阿斯特拉罕"
+
+msgid "Europe/Saratov"
+msgstr "欧洲/萨拉托夫"
+
+msgid "Europe/Ulyanovsk"
+msgstr "欧洲/乌里扬诺夫斯克"
 
 msgid "Factory"
 msgstr "工厂"
@@ -2174,22 +2255,22 @@ msgid "MET"
 msgstr "MET（欧洲中部时间）"
 
 msgid "Mexico/BajaNorte"
-msgstr "墨西哥∕下北加州"
+msgstr "墨西哥/下北加州"
 
 msgid "Mexico/BajaSur"
-msgstr "墨西哥∕下南加州"
+msgstr "墨西哥/下南加州"
 
 msgid "Mexico/General"
-msgstr "墨西哥∕普通地区"
+msgstr "墨西哥/普通地区"
 
 msgid "Mideast/Riyadh87"
-msgstr "中东∕利雅德87"
+msgstr "中东/利雅德87"
 
 msgid "Mideast/Riyadh88"
-msgstr "中东∕利雅德88"
+msgstr "中东/利雅德88"
 
 msgid "Mideast/Riyadh89"
-msgstr "中东∕利雅德89"
+msgstr "中东/利雅德89"
 
 msgid "MST"
 msgstr "MST（山地标准时间）"
@@ -2361,7 +2442,7 @@ msgid "Pacific/Saipan"
 msgstr "太平洋/塞班"
 
 msgid "Pacific/Samoa"
-msgstr "太平洋∕萨摩亚"
+msgstr "太平洋/萨摩亚"
 
 msgid "Pacific/Tahiti"
 msgstr "太平洋/塔希提岛"
