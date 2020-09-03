@@ -33,7 +33,9 @@ target_compile_options(${TARGET_NAME} PRIVATE
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GDKMM3_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    lib-base)
+    lib-base
+    lib-display
+    lib-dbus)
 
 
 install(TARGETS ${TARGET_NAME}

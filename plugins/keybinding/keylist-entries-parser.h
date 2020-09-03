@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:52:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 11:34:35
+ * @LastEditTime : 2020-09-02 17:03:13
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.h
  */
@@ -39,6 +39,8 @@ struct KeyListEntries
     std::string package;
     // 按键绑定所属分类
     std::string name;
+    // 窗口管理器按键绑定组名
+    std::string wm_name;
     // 具体的按键绑定列表
     std::vector<KeyListEntry> entries_;
 };

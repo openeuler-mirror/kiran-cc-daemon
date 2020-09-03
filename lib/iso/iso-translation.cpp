@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-20 11:49:39
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:47:56
+ * @LastEditTime : 2020-09-02 15:49:53
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/iso/iso-translation.cpp
  */
@@ -25,8 +25,15 @@ namespace Kiran
 ISOTranslation *ISOTranslation::instance_ = nullptr;
 void ISOTranslation::global_init()
 {
+    RETURN_IF_TRUE(instance_);
     instance_ = new ISOTranslation();
     instance_->init();
+}
+
+void ISOTranslation::global_deinit()
+{
+    delete instance_;
+    instance_ = nullptr;
 }
 
 std::string ISOTranslation::get_country_name(const std::string &code)

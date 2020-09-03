@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 16:03:46
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:21:38
+ * @LastEditTime : 2020-09-02 15:49:04
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/base/log.h
  */
@@ -27,13 +27,13 @@ class Log
 public:
     Log();
     Log(const Log &) = delete;
-    virtual ~Log();
+    virtual ~Log(){};
 
-    static Log *get_instance();
+    static Log *get_instance() { return instance_; };
 
     static void global_init();
 
-    static void global_deinit() { delete instance_; }
+    static void global_deinit();
 
     inline GLogLevelFlags get_level() { return this->log_level_; }
 

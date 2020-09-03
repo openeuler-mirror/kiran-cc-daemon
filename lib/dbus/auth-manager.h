@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 14:43:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:57:52
+ * @LastEditTime : 2020-09-02 15:46:48
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/dbus/auth-manager.h
  */
@@ -29,7 +29,7 @@ public:
 
     static void global_init();
 
-    static void global_deinit() { delete instance_; };
+    static void global_deinit();
 
     using AuthCheckHandler = std::function<void(const Glib::RefPtr<Gio::DBus::MethodInvocation>)>;
 

@@ -69,7 +69,8 @@ target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
     ${GDKMM3_LIBRARIES}
     lib-base
     lib-dbus
-    lib-iso)
+    lib-iso
+    lib-display)
 
 
 install(TARGETS ${TARGET_SESSION_DAEMON}

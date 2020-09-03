@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-27 11:06:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:26:38
+ * @LastEditTime : 2020-09-02 17:50:49
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.h
  */
@@ -17,6 +17,7 @@ namespace Kiran
 {
 struct SystemShortCut
 {
+    std::string uid;
     std::string kind;
     std::string name;
     std::string key_combination;
@@ -43,12 +44,21 @@ public:
     // 获取系统快捷键
     std::shared_ptr<SystemShortCut> get(const std::string &uid);
 
-    const std::map<std::string, std::shared_ptr<SystemShortCut>> &get() const { return this->system_shortcuts_; }
+    const std::map<std::string, std::shared_ptr<SystemShortCut>> &get() const { return this->shortcuts_; }
 
-    sigc::signal<void, const std::string &> signal_system_shortcut_changed() const { return this->system_shortcut_changed_; }
+    // 新增系统快捷键
+    sigc::signal<void, std::shared_ptr<SystemShortCut>> signal_shortcut_added() const { return this->shortcut_added_; }
+    // 删除系统快捷键
+    sigc::signal<void, std::shared_ptr<SystemShortCut>> signal_shortcut_deleted() const { return this->shortcut_deleted_; }
+    // 系统快捷键修改
+    sigc::signal<void, std::shared_ptr<SystemShortCut>> signal_shortcut_changed() const { return this->shortcut_changed_; }
 
 private:
     void init();
+
+    void load_system_shortcuts(std::map<std::string, std::shared_ptr<SystemShortCut>> &shortcuts);
+
+    void wm_window_changed();
 
     void settings_changed(const Glib::ustring &key, const Glib::RefPtr<Gio::Settings> settings);
 
@@ -57,9 +67,11 @@ private:
 private:
     static SystemShortCutManager *instance_;
 
-    sigc::signal<void, const std::string &> system_shortcut_changed_;
+    sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_added_;
+    sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_deleted_;
+    sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_changed_;
 
-    std::map<std::string, std::shared_ptr<SystemShortCut>> system_shortcuts_;
+    std::map<std::string, std::shared_ptr<SystemShortCut>> shortcuts_;
 };
 
 }  // namespace Kiran

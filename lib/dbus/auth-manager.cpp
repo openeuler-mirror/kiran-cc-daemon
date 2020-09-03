@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 14:43:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:37:49
+ * @LastEditTime : 2020-09-02 15:47:09
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/dbus/auth-manager.cpp
  */
@@ -17,8 +17,15 @@ AuthManager *AuthManager::instance_ = nullptr;
 void AuthManager::global_init()
 {
     SETTINGS_PROFILE("instance: %p", instance_);
+    RETURN_IF_TRUE(instance_);
     instance_ = new AuthManager();
     instance_->init();
+}
+
+void AuthManager::global_deinit()
+{
+    delete instance_;
+    instance_ = nullptr;
 }
 
 AuthManager::AuthManager() : running_auth_checks_(0)

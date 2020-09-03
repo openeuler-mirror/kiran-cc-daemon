@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-26 11:53:14
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:26:16
+ * @LastEditTime : 2020-09-02 16:59:17
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.cpp
  */
@@ -74,6 +74,9 @@ bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyL
             break;
         case "name"_hash:
             keylist_entries.name = child->get_value().raw();
+            break;
+        case "wm_name"_hash:
+            keylist_entries.wm_name = child->get_value().raw();
             break;
         default:
             break;
