@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 14:43:40
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:47:09
+ * @LastEditTime : 2020-09-03 13:42:40
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/dbus/auth-manager.cpp
  */
@@ -100,13 +100,18 @@ void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::sh
     bool authorized = true;
     bool challenge = false;
     auth_check->cancel_connection.disconnect();
-
     try
     {
         auto result = this->polkit_proxy_->call_finish(res);
         if (result.gobj())
         {
-            g_variant_get(result.gobj(), "((bba{ss}))", &authorized, &challenge, NULL);
+            auto v1 = result.get_child(0);
+            auto v2 = Glib::VariantBase::cast_dynamic<Glib::VariantContainerBase>(v1);
+            auto v3 = v2.get_child(0);
+            auto v4 = v2.get_child(1);
+            authorized = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v3).get();
+            challenge = Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v4).get();
+            // g_variant_get(result.gobj(), "((bba{ss}))", &authorized, &challenge, NULL);
         }
         else
         {
@@ -117,6 +122,11 @@ void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::sh
     {
         Gio::DBus::ErrorUtils::strip_remote_error(e);
         LOG_WARNING("Failed to check authorization: %s", e.what().c_str());
+        authorized = false;
+    }
+    catch (std::exception &e)
+    {
+        LOG_WARNING("Failed to check authorization: %s", e.what());
         authorized = false;
     }
 
