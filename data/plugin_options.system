@@ -1,0 +1,9 @@
+[accounts]
+Name=Accounts
+Description=Accounts plugin
+Available=true
+
+[timedate]
+Name=TimeDate
+Description=TimeDate plugin
+Available=true

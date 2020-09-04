@@ -16,7 +16,6 @@ set(EXECDIR ${CMAKE_INSTALL_PREFIX}/bin CACHE PATH "Installation directory for e
 
 
 set(KCC_PLUGIN_DIR ${LIBDIR}/kiran-cc-daemon)
-set(KCC_PLUGIN_EXT "ksd-plugin")
 
 
 # Determine the platform.

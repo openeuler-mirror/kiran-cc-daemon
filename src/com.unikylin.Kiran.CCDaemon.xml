@@ -4,19 +4,19 @@
     <interface name="com.unikylin.Kiran.CCDaemon">
 
         <method name="GetPlugins">
-            <arg type="as" name="plugin_names" direction="out" />
+            <arg type="as" name="ids" direction="out" />
         </method>
 
         <method name="GetActivatedPlugins">
-            <arg type="as" name="plugin_names" direction="out" />
+            <arg type="as" name="ids" direction="out" />
         </method>
 
         <method name="ActivatePlugin">
-            <arg type="s" name="plugin_name" direction="in" />
+            <arg type="s" name="id" direction="in" />
         </method>
 
         <method name="DeactivatePlugin">
-            <arg type="s" name="plugin_name" direction="in" />
+            <arg type="s" name="id" direction="in" />
         </method>
 
     </interface>

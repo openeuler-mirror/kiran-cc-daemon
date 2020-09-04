@@ -54,3 +54,12 @@ endforeach()
 
 install(CODE "execute_process(COMMAND glib-compile-schemas \"${CMAKE_INSTALL_PREFIX}/share/glib-2.0/schemas/\")")
 
+
+#plugins configuration
+install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.session
+        DESTINATION ${KCC_PLUGIN_DIR}/session
+        RENAME plugin_options)
+
+install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.system
+        DESTINATION ${KCC_PLUGIN_DIR}/system
+        RENAME plugin_options)

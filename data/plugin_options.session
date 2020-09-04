@@ -1,0 +1,24 @@
+[keyboard]
+Name=Keyboard
+Description=Keyboard plugin
+Available=true
+
+[mouse]
+Name=Mouse
+Description=Mouse plugin
+Available=true
+
+[touchpad]
+Name=TouchPad
+Description=TouchPad plugin
+Available=true
+
+[keybinding]
+Name=Keybinding
+Description=Keybinding plugin
+Available=true
+
+[xsettings]
+Name=XSettings
+Description=XSettings plugin
+Available=true
