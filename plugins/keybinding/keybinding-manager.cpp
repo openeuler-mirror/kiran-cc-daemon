@@ -2,15 +2,12 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-24 16:20:07
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 20:40:36
+ * @LastEditTime : 2020-09-03 09:31:23
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keybinding-manager.cpp
  */
 
 #include "plugins/keybinding/keybinding-manager.h"
-
-#include "lib/base/log.h"
-#include "lib/dbus/cc-dbus-error.h"
 
 namespace Kiran
 {

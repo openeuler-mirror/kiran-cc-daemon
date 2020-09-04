@@ -1,13 +1,13 @@
 /*
  * @Author       : tangjie02
- * @Date         : 2020-08-19 17:20:34
+ * @Date         : 2020-09-03 09:27:56
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:39:43
+ * @LastEditTime : 2020-09-03 09:28:20
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/dbus/cc-dbus-error.cpp
+ * @FilePath     : /kiran-cc-daemon/lib/base/error.cpp
  */
 
-#include "lib/dbus/cc-dbus-error.h"
+#include "lib/base/error.h"
 
 namespace Kiran
 {
@@ -38,5 +38,4 @@ GQuark cc_error_quark(void)
 
     return (GQuark)quark_volatile;
 }
-
 }  // namespace Kiran
