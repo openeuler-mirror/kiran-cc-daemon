@@ -18,6 +18,8 @@ pkg_search_module(GIOUNIX REQUIRED gio-unix-2.0)
 pkg_search_module(GDKMM3 REQUIRED gdkmm-3.0)
 pkg_search_module(LIBXML2 REQUIRED libxml++-2.6)
 pkg_search_module(X11 REQUIRED x11)
+pkg_search_module(XERCES REQUIRED xerces-c)
+
 
 
 find_program(GDBUS-CODEGEN-GLIBMM-FOUND gdbus-codegen-glibmm3 PATHS ${CMAKE_BINARY_DIR}/bin/)

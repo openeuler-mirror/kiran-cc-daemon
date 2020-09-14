@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.unikylin.Kiran.SessionDaemon.Display.Monitor">
+        <method name="SetMode">
+            <arg type="u" name="index" direction="in">
+                <doc:doc>
+                    <doc:summary>The index for property modes.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set mode by index in property modes.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetModeBySize">
+            <arg type="q" name="width" direction="in">
+                <doc:doc>
+                    <doc:summary>The resolution in x-direction.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="q" name="height" direction="in">
+                <doc:doc>
+                    <doc:summary>The resolution in y-direction.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set mode by size.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetPosition">
+            <arg type="i" name="x" direction="in">
+                <doc:doc>
+                    <doc:summary>The x-direction position.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="i" name="y" direction="in">
+                <doc:doc>
+                    <doc:summary>The y-direction position.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the position within the screen region..</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetReflect">
+            <arg type="u" name="index" direction="in">
+                <doc:doc>
+                    <doc:summary>The index for property reflects.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the reflection by index in property reflects.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetRotation">
+            <arg type="u" name="index" direction="in">
+                <doc:doc>
+                    <doc:summary>The index for property rotations.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the reflection. Rotation can be one of 'normal', 'left', 'right' or 'inverted'. 
+                    This causes the output contents to be rotated in the specified direction. 'right' specifies a
+                    clockwise rotation of the picture  and  'left'  specifies  a counter-clockwise rotation.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetRefreshRate">
+            <arg type="d" name="refresh_rate" direction="in" />
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set refresh rate which is the number of times a display's image is repainted or refreshed per second.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <property name="x" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Indicates the position of this CRTC within the screen region.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="y" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Indicates the position of this CRTC within the screen region.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="width" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Indicates the width of the area within the screen presented by this CRTC.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="height" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Indicates the height of the area within the screen presented by this CRTC.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="rotation" type="q" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The current rotation. Rotation can be one of 'normal', 'left', 'right' or 'inverted'. This causes the output contents to be rotated in the specified direction.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="reflect" type="q" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The current reflection. Reflection can be one of 'normal' 'x', 'y' or 'xy'. This causes the output contents to be reflected across the specified axes.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="refresh_rate" type="d" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The current refresh rate.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="rotations" type="aq" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Contains the set of rotations supported by the CRTC.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+
+        <property name="reflects" type="aq" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Contains the set of reflections supported by the CRTC.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="current_mode" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The current used mode.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="modes" type="au" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>All avaliable modes which element contains width, height and refresh rate. For exapmle: [(1920,1080, 60.0),(1680, 1050, 59.95)].</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="npreferred" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The first npreferred modes in modes are preferred by the monitor in some way; for fixed-pixed devices,
+                    this would generally indicate which modes match the resolution of the output device.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+    </interface>
+</node>

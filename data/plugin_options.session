@@ -22,3 +22,8 @@ Available=true
 Name=XSettings
 Description=XSettings plugin
 Available=true
+
+[display]
+Name=Display
+Description=Display plugin
+Available=true

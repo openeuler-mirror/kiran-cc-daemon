@@ -397,8 +397,6 @@ bool CustomShortCutManager::grab_keystate_change(const KeyState &keystate, bool 
 
 GdkFilterReturn CustomShortCutManager::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    SETTINGS_PROFILE("type: %d.", ((XEvent *)gdk_event)->type);
-
     XEvent *xevent = (XEvent *)gdk_event;
     RETURN_VAL_IF_TRUE(xevent->type != KeyPress, GDK_FILTER_CONTINUE);
 
