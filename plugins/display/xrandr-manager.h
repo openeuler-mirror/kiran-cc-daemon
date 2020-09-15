@@ -62,23 +62,23 @@ struct OutputInfo
 };
 using OutputInfoVec = std::vector<std::shared_ptr<OutputInfo>>;
 
-enum class RotationType : uint16_t
+enum RotationType : uint16_t
 {
     ROTATION_0 = (1 << 0),
     ROTATION_90 = (1 << 1),
     ROTATION_180 = (1 << 2),
     ROTATION_270 = (1 << 3),
 };
-using RotationTypeVec = std::vector<RotationType>;
+using RotationTypeVec = std::vector<uint16_t>;
 
-enum class ReflectType : uint16_t
+enum ReflectType : uint16_t
 {
     REFLECT_NORMAL = 0,
     REFLECT_X = (1 << 4),
     REFLECT_Y = (1 << 5),
     REFLECT_XY = (1 << 4) + (1 << 5)
 };
-using ReflectTypeVec = std::vector<ReflectType>;
+using ReflectTypeVec = std::vector<uint16_t>;
 
 #define ROTATION_ALL_MASK 0xf
 #define REFLECT_ALL_MASK 0x30
@@ -153,8 +153,10 @@ public:
 
     // 根据id获取output/crtc/mode信息
     std::shared_ptr<OutputInfo> get_output(RROutput id);
+    std::shared_ptr<OutputInfo> get_output_by_name(const std::string& name);
     std::shared_ptr<CrtcInfo> get_crtc(RRCrtc id);
     std::shared_ptr<ModeInfo> get_mode(RRMode id);
+    ModeInfoVec get_modes(const std::vector<uint32_t>& ids);
 
     // 获取所有的outputs
     OutputInfoVec get_outputs();
@@ -171,9 +173,9 @@ public:
     // 获取最佳的mode列表
     ModeInfoVec get_prefer_modes(std::shared_ptr<OutputInfo> output);
 
-    // 根据EDID和name生成uuid
-    std::string gen_uuid(RROutput id);
-    std::string gen_uuid(std::shared_ptr<OutputInfo> output_info);
+    // 根据EDID和name生成uid
+    std::string gen_uid(RROutput id);
+    std::string gen_uid(std::shared_ptr<OutputInfo> output_info);
 
     sigc::signal<void> signal_resources_changed() { return this->resources_changed_; }
 

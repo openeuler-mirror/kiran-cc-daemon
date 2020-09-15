@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist >
+    <enum id="com.unikylin.kiran.display.display-mode">
+        <value value="0" nick="mirrors" />
+        <value value="1" nick="extend" />
+    </enum>
+
+    <schema id="com.unikylin.kiran.display" path="/com/unikylin/kiran/display/">
+
+        <key name="display-mode" enum="com.unikylin.kiran.display.display-mode">
+            <default>'extend'</default>
+            <summary>The dispaly mode for these connected monitors.</summary>
+        </key>
+
+    </schema>
+</schemalist>

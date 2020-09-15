@@ -17,7 +17,6 @@ set(DISPLAY_OUTPUT ${PROJECT_BINARY_DIR}/plugins/display/display.hxx
 
 add_custom_command(OUTPUT ${DISPLAY_OUTPUT}
                    COMMAND ${XSDCXX} cxx-tree --std c++11 
-                                              --namespace-map http://www.unikylin.com=Kiran 
                                               --namespace-map =Kiran 
                                               --type-naming ucc
                                               --generate-serialization

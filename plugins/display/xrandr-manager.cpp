@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 11:25:37
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-07 11:56:03
+ * @LastEditTime : 2020-09-15 15:43:10
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-output.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/display/xrandr-manager.cpp
  */
 
 #include "plugins/display/xrandr-manager.h"
@@ -129,6 +129,18 @@ std::shared_ptr<OutputInfo> XrandrManager::get_output(RROutput id)
     return nullptr;
 }
 
+std::shared_ptr<OutputInfo> XrandrManager::get_output_by_name(const std::string& name)
+{
+    for (auto& iter : this->outputs_)
+    {
+        if (iter.second->name == name)
+        {
+            return iter.second;
+        }
+    }
+    return nullptr;
+}
+
 std::shared_ptr<CrtcInfo> XrandrManager::get_crtc(RRCrtc id)
 {
     auto iter = this->crtcs_.find(id);
@@ -147,6 +159,20 @@ std::shared_ptr<ModeInfo> XrandrManager::get_mode(RRMode id)
         return iter->second;
     }
     return nullptr;
+}
+
+ModeInfoVec XrandrManager::get_modes(const std::vector<uint32_t>& ids)
+{
+    ModeInfoVec modes;
+    for (const auto& mode_id : ids)
+    {
+        auto mode = this->get_mode(mode_id);
+        if (mode)
+        {
+            modes.push_back(mode);
+        }
+    }
+    return modes;
 }
 
 OutputInfoVec XrandrManager::get_outputs()
@@ -265,13 +291,13 @@ ModeInfoVec XrandrManager::get_prefer_modes(std::shared_ptr<OutputInfo> output)
     return modes;
 }
 
-std::string XrandrManager::gen_uuid(RROutput id)
+std::string XrandrManager::gen_uid(RROutput id)
 {
     auto output_info = this->get_output(id);
-    return this->gen_uuid(output_info);
+    return this->gen_uid(output_info);
 }
 
-std::string XrandrManager::gen_uuid(std::shared_ptr<OutputInfo> output_info)
+std::string XrandrManager::gen_uid(std::shared_ptr<OutputInfo> output_info)
 {
     RETURN_VAL_IF_FALSE(output_info, std::string());
     if (output_info->edid.empty())

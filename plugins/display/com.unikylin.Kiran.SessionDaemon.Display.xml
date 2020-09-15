@@ -2,6 +2,33 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
     <interface name="com.unikylin.Kiran.SessionDaemon.Display">
+        <method name="ListMonitors">
+            <arg type="as" name="monitors" direction="out">
+                <doc:doc>
+                    <doc:summary>The object path list.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get the object paths for all the outputs.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SwitchMode">
+            <arg type="u" name="mode" direction="in">
+                <doc:doc>
+                    <doc:summary>The dispaly mode for these connected monitors.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The modes contain mirrors(0) and extend(1). The mirrors indicates all monitors have the same pos and size.
+                     The extend indicates all monitors is extended horizontally.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
         <method name="ApplyChanges">
             <doc:doc>
                 <doc:description>
@@ -26,18 +53,22 @@
             </doc:doc>
         </method>
 
-        <method name="ListOutputs">
-            <arg type="as" name="outputs" direction="out">
-                <doc:doc>
-                    <doc:summary>The object path list.</doc:summary>
-                </doc:doc>
-            </arg>
+        <property name="mode" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
-                    <doc:para>Get the object paths for all the outputs.</doc:para>
+                    <doc:para>The dispaly mode for these connected monitors.</doc:para>
                 </doc:description>
             </doc:doc>
-        </method>
+        </property>
+
+        <signal name="MonitorsChanged">
+            <arg name="placeholder" type="b">
+                <doc:doc>
+                    <doc:summary>The placeholder.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
 
     </interface>
 </node>

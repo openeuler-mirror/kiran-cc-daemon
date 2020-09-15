@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 11:25:37
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-07 11:56:03
+ * @LastEditTime : 2020-09-15 15:42:20
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-output.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.cpp
  */
 
 #include "plugins/display/display-monitor.h"
@@ -14,8 +14,6 @@
 
 namespace Kiran
 {
-#define DISPLAY_MONITOR_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Display/Monitor"
-
 DisplayMonitor::DisplayMonitor(const MonitorInfo &monitor_info) : object_register_id_(0),
                                                                   monitor_info_(monitor_info)
 {
@@ -26,9 +24,27 @@ DisplayMonitor::~DisplayMonitor()
     this->dbus_unregister();
 }
 
+void DisplayMonitor::update(const MonitorInfo &monitor_info)
+{
+    this->monitor_info_.uid = monitor_info.uid;
+    this->id_set(monitor_info.id);
+    this->name_set(monitor_info.name);
+    this->connected_set(monitor_info.connected);
+    this->enabled_set(monitor_info.enabled);
+    this->x_set(monitor_info.x);
+    this->y_set(monitor_info.y);
+    this->rotation_set(monitor_info.rotation);
+    this->reflect_set(monitor_info.reflect);
+    this->rotations_set(monitor_info.rotations);
+    this->reflects_set(monitor_info.reflects);
+    this->current_mode_set(monitor_info.mode);
+    this->modes_set(std::vector<uint32_t>(monitor_info.modes.begin(), monitor_info.modes.end()));
+    this->npreferred_set(monitor_info.npreferred);
+}
+
 void DisplayMonitor::dbus_register()
 {
-    this->object_path_ = fmt::format(DISPLAY_MONITOR_OBJECT_PATH "/{0}", this->monitor_info_.id);
+    this->object_path_ = fmt::format(DISPLAY_MONITOR_OBJECT_PATH "{0}", this->monitor_info_.id);
     try
     {
         this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SESSION);
@@ -51,26 +67,28 @@ void DisplayMonitor::dbus_unregister()
     }
 }
 
+std::shared_ptr<ModeInfo> DisplayMonitor::get_best_mode()
+{
+    RETURN_VAL_IF_TRUE(this->monitor_info_.modes.size() == 0, nullptr);
+    return XrandrManager::get_instance()->get_mode(this->monitor_info_.modes[0]);
+}
+
 void DisplayMonitor::set(const MonitorBaseInfo &base)
 {
     this->x_set(base.x);
     this->y_set(base.y);
-    this->width_set(base.width);
-    this->height_set(base.height);
     this->rotation_set(uint16_t(base.rotation));
     this->reflect_set(uint16_t(base.reflect));
-    this->refresh_rate_set(base.refresh_rate);
+    this->current_mode_set(base.mode);
 }
 
 void DisplayMonitor::get(MonitorBaseInfo &base)
 {
     base.x = this->x_get();
     base.y = this->y_get();
-    base.width = this->width_get();
-    base.height = this->height_get();
     base.rotation = RotationType(this->rotation_get());
     base.reflect = ReflectType(this->reflect_get());
-    base.refresh_rate = this->refresh_rate_get();
+    base.mode = this->current_mode_get();
 }
 
 std::string DisplayMonitor::generate_cmdline()
@@ -78,7 +96,13 @@ std::string DisplayMonitor::generate_cmdline()
     std::string result;
     std::string tmp;
 
-    tmp = fmt::format("--output {0} --pos {1}x{2} -rotation {3} --reflect {4}",
+    if (!this->monitor_info_.enabled)
+    {
+        result = fmt::format("--output {0} --off", this->monitor_info_.name);
+        return result;
+    }
+
+    tmp = fmt::format("--output {0} --pos {1}x{2} --rotation {3} --reflect {4}",
                       this->monitor_info_.name,
                       this->monitor_info_.x,
                       this->monitor_info_.y,
@@ -99,46 +123,157 @@ std::string DisplayMonitor::generate_cmdline()
     return result;
 }
 
-void DisplayMonitor::SetMode(guint32 index, MethodInvocation &invocation)
+ModeInfoVec DisplayMonitor::get_modes_by_size(uint32_t width, uint32_t height)
 {
-    SETTINGS_PROFILE("index: %u.", index);
-
-    if (index >= this->monitor_info_.modes.size())
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the index must be less than %u.", this->monitor_info_.modes.size());
-    }
-
-    this->current_mode_set(this->monitor_info_.modes[index]);
-    invocation.ret();
-}
-
-void DisplayMonitor::SetModeBySize(guint16 width, guint16 height, MethodInvocation &invocation)
-{
-    SETTINGS_PROFILE("width: %u, height: %u.", width, height);
-
-    RRMode match_mode_id = 0;
-
+    ModeInfoVec modes;
     for (const auto &mode_id : this->monitor_info_.modes)
     {
         auto mode = XrandrManager::get_instance()->get_mode(mode_id);
-
-        if (mode &&
-            mode->width == width &&
-            mode->height == height)
+        if (!mode)
         {
-            match_mode_id = mode_id;
-            break;
+            LOG_WARNING("cannot find mode %u.", mode_id);
+            continue;
+        }
+        if (mode->width == width && mode->height == height)
+        {
+            modes.push_back(mode);
         }
     }
+    return modes;
+}
 
-    if (match_mode_id)
+std::shared_ptr<ModeInfo> DisplayMonitor::match_best_mode(uint32_t width, uint32_t height, double refresh_rate)
+{
+    auto modes = this->get_modes_by_size(width, height);
+
+    std::shared_ptr<ModeInfo> match_mode;
+
+    for (auto &mode : modes)
     {
-        this->current_mode_set(match_mode_id);
+        if (!match_mode ||
+            (fabs(match_mode->refresh_rate - refresh_rate) > fabs(mode->refresh_rate - refresh_rate)))
+        {
+            match_mode = mode;
+        }
+    }
+    return match_mode;
+}
+
+std::vector<guint16> DisplayMonitor::rotations_get()
+{
+    std::vector<guint16> rotations;
+    for (const auto &rotation : this->monitor_info_.rotations)
+    {
+        rotations.push_back(uint16_t(rotation));
+    }
+    return rotations;
+}
+
+std::vector<guint16> DisplayMonitor::reflects_get()
+{
+    std::vector<guint16> reflects;
+    for (const auto &reflect : this->monitor_info_.reflects)
+    {
+        reflects.push_back(uint16_t(reflect));
+    }
+    return reflects;
+}
+
+std::vector<guint32> DisplayMonitor::modes_get()
+{
+    std::vector<guint32> result;
+
+    for (const auto &mode : this->monitor_info_.modes)
+    {
+        result.push_back(mode);
+    }
+    return result;
+}
+
+void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
+{
+    this->enabled_set(enabled);
+    invocation.ret();
+}
+
+void DisplayMonitor::ListModes(MethodInvocation &invocation)
+{
+    std::vector<std::tuple<guint32, guint32, guint32, double>> result;
+    for (const auto &mode_id : this->monitor_info_.modes)
+    {
+        auto monitor = XrandrManager::get_instance()->get_mode(mode_id);
+        if (monitor)
+        {
+            result.push_back(*monitor.get());
+        }
+        else
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "exist null mode in  mode list.");
+        }
+    }
+    invocation.ret(std::move(result));
+}
+
+void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
+{
+    std::vector<std::tuple<guint32, guint32, guint32, double>> result;
+    for (int i = 0; i < this->monitor_info_.npreferred && i < (int)this->monitor_info_.modes.size(); ++i)
+    {
+        auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.modes[i]);
+        if (monitor)
+        {
+            result.push_back(*monitor.get());
+        }
+        else
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "exist null mode in preferred mode list.");
+        }
+    }
+    invocation.ret(std::move(result));
+}
+
+void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
+{
+    std::tuple<guint32, guint32, guint32, double> result;
+    auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
+    if (monitor)
+    {
+        result = *monitor.get();
+        invocation.ret(result);
+    }
+    else
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "the current mode is not exist.");
+    }
+}
+
+void DisplayMonitor::SetMode(guint32 id, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("mode id: %u.", id);
+
+    if (this->find_index_by_mode_id(id) < 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the mode id {0} is not exist in mode list.", id);
+    }
+
+    this->current_mode_set(id);
+    invocation.ret();
+}
+
+void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("width: %u, height: %u.", width, height);
+
+    auto modes = this->get_modes_by_size(width, height);
+
+    if (modes.size() > 0)
+    {
+        this->current_mode_set(modes[0]->id);
         invocation.ret();
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "cannot match mode %ux%u.", width, height);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "cannot match mode {0}x{1}.", width, height);
     }
 }
 
@@ -149,29 +284,23 @@ void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocatio
     invocation.ret();
 }
 
-void DisplayMonitor::SetReflect(guint32 index, MethodInvocation &invocation)
+void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 {
-    if (index > this->monitor_info_.reflects.size())
+    if (this->find_index_by_rotation(RotationType(rotation)) < 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the index must be less than %u.", this->monitor_info_.reflects.size());
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the rotation {0} is not exist in rotation list.", rotation);
     }
-    this->reflect_set(uint16_t(this->monitor_info_.reflects[index]));
+    this->rotation_set(rotation);
     invocation.ret();
 }
 
-void DisplayMonitor::SetRotation(guint32 index, MethodInvocation &invocation)
+void DisplayMonitor::SetReflect(guint16 reflect, MethodInvocation &invocation)
 {
-    if (index > this->monitor_info_.rotations.size())
+    if (this->find_index_by_reflect(ReflectType(reflect)) < 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the index must be less than %u.", this->monitor_info_.rotations.size());
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the reflect {0} is not exist in reflect list.", reflect);
     }
-    this->rotation_set(uint16_t(this->monitor_info_.rotations[index]));
-    invocation.ret();
-}
-
-void DisplayMonitor::SetRefreshRate(double refresh_rate, MethodInvocation &invocation)
-{
-    this->reflect_set(refresh_rate);
+    this->reflect_set(reflect);
     invocation.ret();
 }
 
@@ -185,14 +314,25 @@ void DisplayMonitor::SetRefreshRate(double refresh_rate, MethodInvocation &invoc
 
 #define SET_SIMPLE_PROP1(prop, type) SET_SIMPLE_PROP2(prop, type, type)
 
+SET_SIMPLE_PROP1(connected, bool);
+SET_SIMPLE_PROP1(enabled, bool);
 SET_SIMPLE_PROP1(x, gint32);
 SET_SIMPLE_PROP1(y, gint32);
-SET_SIMPLE_PROP1(width, guint32);
-SET_SIMPLE_PROP1(height, guint32);
 SET_SIMPLE_PROP2(rotation, guint16, RotationType);
 SET_SIMPLE_PROP2(reflect, guint16, ReflectType);
-SET_SIMPLE_PROP1(refresh_rate, double);
 SET_SIMPLE_PROP1(npreferred, gint32);
+
+bool DisplayMonitor::id_setHandler(guint32 value)
+{
+    // UnSupported
+    return false;
+}
+
+bool DisplayMonitor::name_setHandler(const Glib::ustring &value)
+{
+    // UnSupported
+    return false;
+}
 
 bool DisplayMonitor::rotations_setHandler(const std::vector<guint16> &value)
 {
@@ -230,35 +370,39 @@ bool DisplayMonitor::modes_setHandler(const std::vector<guint32> &value)
     return true;
 }
 
-std::vector<guint16> DisplayMonitor::rotations_get()
+int32_t DisplayMonitor::find_index_by_mode_id(uint32_t mode_id)
 {
-    std::vector<guint16> rotations;
-    for (const auto &rotation : this->monitor_info_.rotations)
+    for (int32_t i = 0; i < (int32_t)this->monitor_info_.modes.size(); ++i)
     {
-        rotations.push_back(uint16_t(rotation));
+        if (this->monitor_info_.modes[i] == mode_id)
+        {
+            return i;
+        }
     }
-    return rotations;
+    return -1;
 }
 
-std::vector<guint16> DisplayMonitor::reflects_get()
+int32_t DisplayMonitor::find_index_by_rotation(RotationType rotation)
 {
-    std::vector<guint16> reflects;
-    for (const auto &reflect : this->monitor_info_.reflects)
+    for (int32_t i = 0; i < (int32_t)this->monitor_info_.rotations.size(); ++i)
     {
-        reflects.push_back(uint16_t(reflect));
+        if (this->monitor_info_.rotations[i] == rotation)
+        {
+            return i;
+        }
     }
-    return reflects;
+    return -1;
 }
 
-std::vector<guint32> DisplayMonitor::modes_get()
+int32_t DisplayMonitor::find_index_by_reflect(ReflectType reflect)
 {
-    std::vector<guint32> result;
-
-    for (const auto &mode : this->monitor_info_.modes)
+    for (int32_t i = 0; i < (int32_t)this->monitor_info_.reflects.size(); ++i)
     {
-        result.push_back(mode);
+        if (this->monitor_info_.reflects[i] == reflect)
+        {
+            return i;
+        }
     }
-    return result;
+    return -1;
 }
-
 }  // namespace Kiran

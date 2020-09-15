@@ -2,8 +2,7 @@
 
 
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.unikylin.com"
-    xmlns="http://www.unikylin.com">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
     <xsd:simpleType name="CloneConfigType">
         <xsd:restriction base="xsd:string">
@@ -33,7 +32,7 @@
 
     <xsd:complexType name="MonitorConfigInfo">
         <xsd:sequence>
-            <xsd:element name="uuid" type="xsd:string" />
+            <xsd:element name="uid" type="xsd:string" />
             <xsd:element name="x" type="xsd:int" />
             <xsd:element name="y" type="xsd:int" />
             <xsd:element name="width" type="xsd:unsignedInt" />
@@ -46,8 +45,8 @@
 
     <xsd:complexType name="ScreenConfigInfo">
         <xsd:sequence>
-            <xsd:element name="clone" type="CloneConfigType" />
-            <xsd:element name="primary" type="xsd:string" />
+            <xsd:element name="clone" type="CloneConfigType" default="no" />
+            <xsd:element name="primary" type="xsd:string" default="" />
             <xsd:element name="monitor" type="MonitorConfigInfo" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>

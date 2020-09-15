@@ -101,7 +101,7 @@ void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvoca
     auto custom_shortcut = CustomShortCutManager::get_instance()->get(uid.raw());
     if (!custom_shortcut)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "not found custom shortcut: %s.", uid.c_str());
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "not found custom shortcut: {0}.", uid.c_str());
     }
     invocation.ret(std::make_tuple(uid, custom_shortcut->name, custom_shortcut->action, custom_shortcut->key_combination));
 }
@@ -139,7 +139,7 @@ void KeybindingManager::GetSystemShortcut(const Glib::ustring &uid, MethodInvoca
     auto system_shortcut = this->system_shorcut_manager_->get(uid);
     if (!system_shortcut)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "not found system shortcut '%s'", uid.c_str());
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "not found system shortcut '{0}'", uid.c_str());
     }
     invocation.ret(std::make_tuple(uid, system_shortcut->kind, system_shortcut->name, system_shortcut->key_combination));
 }
