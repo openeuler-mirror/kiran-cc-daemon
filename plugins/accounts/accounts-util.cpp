@@ -110,7 +110,9 @@ void AccountsUtil::get_caller_loginuid(const Glib::RefPtr<Gio::DBus::MethodInvoc
 void AccountsUtil::setup_loginuid(const std::string &id)
 {
     auto fd = open("/proc/self/loginuid", O_WRONLY);
-    write(fd, id.c_str(), id.length());
+    if (write(fd, id.c_str(), id.length()) != (int)id.length()) {
+        LOG_WARNING("Failed to write loginuid '%s'\n", id.c_str());
+    }
     close(fd);
 }
 
