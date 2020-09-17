@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 
 find_program(INTLTOOL-MERGE NAMES "intltool-merge" REQUIRED)
+
+if(build-system-daemon)
 pkg_search_module(SYSTEMD REQUIRED systemd)
 
 
@@ -42,8 +44,9 @@ foreach(CONF_FILE IN LISTS CONF_FILES)
     install(FILES ${CONF_FILE}
             DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
 endforeach()
+endif()
 
-
+if(build-session-daemon)
 # gschema.xml
 file(GLOB GSCHEMA_XML_FILES ./*.gschema.xml)
 
@@ -53,4 +56,4 @@ foreach(GSCHEMA_XML_FILE IN LISTS GSCHEMA_XML_FILES)
 endforeach()
 
 install(CODE "execute_process(COMMAND glib-compile-schemas \"${CMAKE_INSTALL_PREFIX}/share/glib-2.0/schemas/\")")
-
+endif()
