@@ -15,10 +15,6 @@ set(DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Installation directory for
 set(EXECDIR ${CMAKE_INSTALL_PREFIX}/bin CACHE PATH "Installation directory for executable file")
 
 
-set(KCC_PLUGIN_DIR ${LIBDIR}/kiran-cc-daemon)
-set(KCC_PLUGIN_EXT "ksd-plugin")
-
-
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   set(OS_MACOSX 1)
@@ -42,14 +38,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
   set(COMPILER_MSVC 1)
-endif()
-
-if(NOT DEFINED PROJECT_ARCH)
-  if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-    set(PROJECT_ARCH "x86_64")
-  else()
-    set(PROJECT_ARCH "x86")
-  endif()
 endif()
 
 if(${CMAKE_GENERATOR} STREQUAL "Ninja")
@@ -139,25 +127,3 @@ list(APPEND KSD_COMPILER_DEFINES_RELEASE
   )
 
 include(CheckCXXCompilerFlag)
-
-if(PROJECT_ARCH STREQUAL "x86_64")
-  # 64-bit architecture.
-  list(APPEND KSD_COMPILER_FLAGS
-    -m64
-    -march=x86-64
-    )
-  list(APPEND KSD_LINKER_FLAGS
-    -m64
-    )
-elseif(PROJECT_ARCH STREQUAL "x86")
-  # 32-bit architecture.
-  list(APPEND KSD_COMPILER_FLAGS
-    -msse2
-    -mfpmath=sse
-    -mmmx
-    -m32
-    )
-  list(APPEND KSD_LINKER_FLAGS
-    -m32
-    )
-endif()

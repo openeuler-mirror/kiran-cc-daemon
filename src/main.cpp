@@ -27,7 +27,7 @@ class ScreenLogger : public Kiran::ILogger
 public:
     void write_log(const char* buff, uint32_t len)
     {
-        g_print(buff);
+        g_print("%s\n", buff);
     }
 };
 

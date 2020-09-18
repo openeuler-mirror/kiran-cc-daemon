@@ -7,6 +7,7 @@ file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 
 GEN_DBUS_STUB(CC_DAEMON cc_daemon ${CMAKE_SOURCE_DIR}/src/com.unikylin.Kiran.CCDaemon.xml)
 
+if(build-system-daemon)
 # system daemon
 set (TARGET_SYSTEM_DAEMON kiran-system-daemon)
 
@@ -39,7 +40,9 @@ target_link_libraries(${TARGET_SYSTEM_DAEMON} PRIVATE
 install(TARGETS ${TARGET_SYSTEM_DAEMON}
         DESTINATION ${EXECDIR})
 
+endif()
 
+if(build-session-daemon)
 # session daemon
 set (TARGET_SESSION_DAEMON kiran-session-daemon)
 
@@ -75,3 +78,5 @@ target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
 
 install(TARGETS ${TARGET_SESSION_DAEMON}
         DESTINATION ${EXECDIR})
+
+endif()
