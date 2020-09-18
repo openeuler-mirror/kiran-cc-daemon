@@ -1,6 +1,11 @@
 
 cmake_minimum_required(VERSION 3.2)
 
+include(GNUInstallDirs)
+
+set(KCC_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/kiran-cc-daemon)
+set(KCC_PLUGIN_EXT "ksd-plugin")
+
 if(build-system-daemon)
 add_subdirectory(accounts)
 add_subdirectory(timedate)
