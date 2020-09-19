@@ -23,7 +23,7 @@
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>The modes contain mirrors(0) and extend(1). The mirrors indicates all monitors have the same pos and size.
+                    <doc:para>The modes contain mirrors(0), extend(1), custom(2) and auto(3). The mirrors indicates all monitors have the same pos and size.
                      The extend indicates all monitors is extended horizontally.</doc:para>
                 </doc:description>
             </doc:doc>

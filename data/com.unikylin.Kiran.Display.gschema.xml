@@ -3,12 +3,14 @@
     <enum id="com.unikylin.kiran.display.display-mode">
         <value value="0" nick="mirrors" />
         <value value="1" nick="extend" />
+        <value value="2" nick="custom" />
+        <value value="3" nick="auto" />
     </enum>
 
     <schema id="com.unikylin.kiran.display" path="/com/unikylin/kiran/display/">
 
         <key name="display-mode" enum="com.unikylin.kiran.display.display-mode">
-            <default>'extend'</default>
+            <default>'auto'</default>
             <summary>The dispaly mode for these connected monitors.</summary>
         </key>
 

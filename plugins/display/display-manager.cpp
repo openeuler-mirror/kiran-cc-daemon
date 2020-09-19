@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 09:52:57
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-15 16:20:40
+ * @LastEditTime : 2020-09-16 08:54:30
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.cpp
  */
@@ -69,7 +69,7 @@ void DisplayManager::SwitchMode(guint32 mode, MethodInvocation &invocation)
     SETTINGS_PROFILE("mode: %u.", mode);
 
     std::string err;
-    if (!this->switch_mode(mode, err))
+    if (!this->switch_mode(DisplayMode(mode), err))
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to switch mode: {0}", err);
     }
@@ -92,7 +92,7 @@ void DisplayManager::ResetChanges(MethodInvocation &invocation)
     SETTINGS_PROFILE("");
 
     std::string err;
-    if (!this->apply_display_config(err))
+    if (!this->apply_config(err))
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to apply monitors config: {0}.", err);
     }
@@ -190,7 +190,14 @@ void DisplayManager::Save(MethodInvocation &invocation)
 
 bool DisplayManager::mode_setHandler(guint32 value)
 {
+    RETURN_VAL_IF_TRUE(this->mode_ == DisplayMode(value), true);
+
     this->mode_ = DisplayMode(value);
+
+    if (this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_MODE) != int32_t(this->mode_))
+    {
+        this->display_settings_->set_enum(DISPLAY_SCHEMA_ID_MODE, int32_t(this->mode_));
+    }
     return true;
 }
 
@@ -199,22 +206,10 @@ void DisplayManager::init()
     SETTINGS_PROFILE("");
 
     this->load_settings();
+    this->load_monitors();
+    this->load_config();
 
     this->display_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::settings_changed));
-
-    this->load_monitors();
-
-    std::string err;
-    if (!this->load_display_config(err))
-    {
-        LOG_WARNING("failed to load monitors file: %s.", err.c_str());
-    }
-
-    if (!this->apply_display_config(err))
-    {
-        LOG_WARNING("failed to apply monitors config: %s.", err.c_str());
-    }
-
     this->xrandr_manager_->signal_resources_changed().connect(sigc::mem_fun(this, &DisplayManager::resources_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
@@ -222,6 +217,12 @@ void DisplayManager::init()
                                                  sigc::mem_fun(this, &DisplayManager::on_bus_acquired),
                                                  sigc::mem_fun(this, &DisplayManager::on_name_acquired),
                                                  sigc::mem_fun(this, &DisplayManager::on_name_lost));
+
+    std::string err;
+    if (!this->switch_mode(this->mode_, err))
+    {
+        LOG_WARNING("failed to switch mode to %u.", uint32_t(this->mode_));
+    }
 }
 
 void DisplayManager::load_settings()
@@ -295,7 +296,7 @@ void DisplayManager::load_monitors()
     }
 }
 
-bool DisplayManager::load_display_config(std::string &err)
+void DisplayManager::load_config()
 {
     if (Glib::file_test(this->config_file_path_, Glib::FILE_TEST_EXISTS))
     {
@@ -305,27 +306,31 @@ bool DisplayManager::load_display_config(std::string &err)
         }
         catch (const xml_schema::Exception &e)
         {
-            err = e.what();
-            return false;
+            LOG_WARNING("failed to load file: %s: %s", this->config_file_path_.c_str(), e.what());
+            this->display_config_ = nullptr;
         }
-        return true;
     }
     else
     {
-        err = fmt::format("file {0} is not exist.", this->config_file_path_);
-        return false;
+        LOG_DEBUG("file {0} is not exist.", this->config_file_path_);
     }
+    return;
 }
 
-bool DisplayManager::apply_display_config(std::string &err)
+bool DisplayManager::apply_config(std::string &err)
 {
     SETTINGS_PROFILE("");
 
-    RETURN_VAL_IF_FALSE(this->display_config_, true);
+    if (!this->display_config_)
+    {
+        err = fmt::format("the config is empty.");
+        return false;
+    }
 
     auto monitors_id = this->get_monitors_uid();
-
     const auto &screens = this->display_config_->screen();
+    bool result = false;
+
     for (const auto &screen : screens)
     {
         const auto &monitors = screen.monitor();
@@ -333,11 +338,18 @@ bool DisplayManager::apply_display_config(std::string &err)
         if (monitors_id == monitors_config_id)
         {
             LOG_DEBUG("match ids: %s.", monitors_id.c_str());
-            RETURN_VAL_IF_FALSE(this->apply_screen_config(screen, err), false);
-            break;
+            if (this->apply_screen_config(screen, err))
+            {
+                result = true;
+                break;
+            }
         }
     }
-    return true;
+    if (!result)
+    {
+        err = fmt::format("failed to apply config: %s.", err.c_str());
+    }
+    return result;
 }
 
 bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, std::string &err)
@@ -398,30 +410,37 @@ bool DisplayManager::apply(std::string &err)
     return true;
 }
 
-bool DisplayManager::switch_mode(uint32_t mode, std::string &err)
+bool DisplayManager::switch_mode(DisplayMode mode, std::string &err)
 {
-    RETURN_VAL_IF_TRUE(this->mode_get() == mode, true);
-
+    SETTINGS_PROFILE("mode: %u.", uint32_t(mode));
     switch (mode)
     {
-    case uint32_t(DisplayMode::MIRRORS):
+    case DisplayMode::MIRRORS:
         RETURN_VAL_IF_FALSE(this->switch_to_mirrors(err), false);
         break;
-    case uint32_t(DisplayMode::EXTEND):
+    case DisplayMode::EXTEND:
         RETURN_VAL_IF_FALSE(this->switch_to_extend(err), false);
         break;
+    case DisplayMode::CUSTOM:
+        RETURN_VAL_IF_FALSE(this->switch_to_custom(err), false);
+        break;
+    case DisplayMode::AUTO:
+        RETURN_VAL_IF_FALSE(this->switch_to_auto(err), false);
+        break;
     default:
-        err = fmt::format("unknown mode: {0}.", mode);
+        err = fmt::format("unknown mode: {0}.", uint32_t(mode));
         return false;
     }
 
     RETURN_VAL_IF_FALSE(this->apply(err), false);
-    this->mode_set(mode);
+    this->mode_set(uint32_t(mode));
     return true;
 }
 
 bool DisplayManager::switch_to_mirrors(std::string &err)
 {
+    SETTINGS_PROFILE("");
+
     auto monitors = this->get_connected_monitors();
     auto modes = this->monitors_common_modes(monitors);
 
@@ -480,6 +499,8 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
 
 bool DisplayManager::switch_to_extend(std::string &err)
 {
+    SETTINGS_PROFILE("");
+
     int32_t startx = 0;
     for (const auto &iter : this->monitors_)
     {
@@ -505,6 +526,30 @@ bool DisplayManager::switch_to_extend(std::string &err)
     }
 
     return true;
+}
+
+bool DisplayManager::switch_to_custom(std::string &err)
+{
+    SETTINGS_PROFILE("");
+
+    return this->apply_config(err);
+}
+
+bool DisplayManager::switch_to_auto(std::string &err)
+{
+    SETTINGS_PROFILE("");
+
+    RETURN_VAL_IF_TRUE(this->switch_to_custom(err), true);
+    LOG_DEBUG("%s", err.c_str());
+
+    RETURN_VAL_IF_TRUE(this->switch_to_extend(err), true);
+    LOG_DEBUG("%s", err.c_str());
+
+    RETURN_VAL_IF_TRUE(this->switch_to_mirrors(err), true);
+    LOG_DEBUG("%s", err.c_str());
+
+    err = fmt::format("failed to set auto mode.");
+    return false;
 }
 
 std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor(uint32_t id)
@@ -594,7 +639,22 @@ bool DisplayManager::save_to_file(std::string &err)
 
 void DisplayManager::resources_changed()
 {
+    SETTINGS_PROFILE("");
+    auto old_monitor_num = this->monitors_.size();
+    auto new_monitor_num = this->xrandr_manager_->get_connected_outputs().size();
+
     this->load_monitors();
+
+    // 如果连接设备的数量不相等，说明有设备被删除或者新设备加入
+    // 因此重新设置参数
+    if (old_monitor_num != new_monitor_num)
+    {
+        std::string err;
+        if (!this->switch_mode(this->mode_, err))
+        {
+            LOG_WARNING("failed to switch mode: %s", err.c_str());
+        }
+    }
     this->MonitorsChanged_signal.emit(true);
 }
 
@@ -607,11 +667,7 @@ void DisplayManager::settings_changed(const Glib::ustring &key)
     case CONNECT(DISPLAY_SCHEMA_ID_MODE, _hash):
     {
         auto mode = this->display_settings_->get_enum(key);
-        std::string err;
-        if (!this->switch_mode(mode, err))
-        {
-            LOG_WARNING("failed to switch mode: %s.", err.c_str());
-        }
+        this->mode_set(mode);
     }
     break;
     }

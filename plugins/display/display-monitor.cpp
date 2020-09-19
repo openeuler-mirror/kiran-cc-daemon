@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 11:25:37
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-15 15:42:20
+ * @LastEditTime : 2020-09-15 16:39:15
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.cpp
  */
@@ -14,6 +14,18 @@
 
 namespace Kiran
 {
+MonitorInfo::MonitorInfo() : id(0),
+                             connected(false),
+                             enabled(false),
+                             x(0),
+                             y(0),
+                             rotation(RotationType::ROTATION_0),
+                             reflect(ReflectType::REFLECT_NORMAL),
+                             mode(0),
+                             npreferred(0)
+{
+}
+
 DisplayMonitor::DisplayMonitor(const MonitorInfo &monitor_info) : object_register_id_(0),
                                                                   monitor_info_(monitor_info)
 {
@@ -102,23 +114,24 @@ std::string DisplayMonitor::generate_cmdline()
         return result;
     }
 
-    tmp = fmt::format("--output {0} --pos {1}x{2} --rotation {3} --reflect {4}",
-                      this->monitor_info_.name,
-                      this->monitor_info_.x,
-                      this->monitor_info_.y,
-                      DisplayUtil::rotation_to_str(this->monitor_info_.rotation),
-                      DisplayUtil::reflect_to_str(this->monitor_info_.reflect));
-    result.append(std::move(tmp));
-
     auto mode = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
-    if (mode)
+
+    // 如果mode不存在,说明没有分配crtc,因此使用自动分配模式
+    if (!mode)
     {
-        tmp = fmt::format(" --mode {0}x{1} --rate {2}",
-                          mode->width,
-                          mode->height,
-                          mode->refresh_rate);
-        result.append(std::move(tmp));
+        result = fmt::format("--output {0} --auto", this->monitor_info_.name);
+        return result;
     }
+
+    result = fmt::format("--output {0} --pos {1}x{2} --rotation {3} --reflect {4} --mode {5}x{6} --rate {7}",
+                         this->monitor_info_.name,
+                         this->monitor_info_.x,
+                         this->monitor_info_.y,
+                         DisplayUtil::rotation_to_str(this->monitor_info_.rotation),
+                         DisplayUtil::reflect_to_str(this->monitor_info_.reflect),
+                         mode->width,
+                         mode->height,
+                         mode->refresh_rate);
 
     return result;
 }

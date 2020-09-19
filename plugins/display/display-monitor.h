@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 11:25:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-15 15:41:26
+ * @LastEditTime : 2020-09-15 16:34:04
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.h
  */
@@ -19,6 +19,7 @@ namespace Kiran
 
 struct MonitorInfo
 {
+    MonitorInfo();
     // id
     RROutput id;
     // uid
