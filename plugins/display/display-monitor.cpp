@@ -10,6 +10,7 @@
 #include "plugins/display/display-monitor.h"
 
 #include "lib/base/base.h"
+#include "plugins/display/display-manager.h"
 #include "plugins/display/display-util.h"
 
 namespace Kiran
@@ -85,25 +86,7 @@ std::shared_ptr<ModeInfo> DisplayMonitor::get_best_mode()
     return XrandrManager::get_instance()->get_mode(this->monitor_info_.modes[0]);
 }
 
-void DisplayMonitor::set(const MonitorBaseInfo &base)
-{
-    this->x_set(base.x);
-    this->y_set(base.y);
-    this->rotation_set(uint16_t(base.rotation));
-    this->reflect_set(uint16_t(base.reflect));
-    this->current_mode_set(base.mode);
-}
-
-void DisplayMonitor::get(MonitorBaseInfo &base)
-{
-    base.x = this->x_get();
-    base.y = this->y_get();
-    base.rotation = RotationType(this->rotation_get());
-    base.reflect = ReflectType(this->reflect_get());
-    base.mode = this->current_mode_get();
-}
-
-std::string DisplayMonitor::generate_cmdline()
+std::string DisplayMonitor::generate_cmdline(const std::string &priamry)
 {
     std::string result;
     std::string tmp;
@@ -123,7 +106,7 @@ std::string DisplayMonitor::generate_cmdline()
         return result;
     }
 
-    result = fmt::format("--output {0} --pos {1}x{2} --rotation {3} --reflect {4} --mode {5}x{6} --rate {7}",
+    result = fmt::format("--output {0} --pos {1}x{2} --rotation {3} --reflect {4} --mode {5}x{6} --rate {7} {8}",
                          this->monitor_info_.name,
                          this->monitor_info_.x,
                          this->monitor_info_.y,
@@ -131,7 +114,8 @@ std::string DisplayMonitor::generate_cmdline()
                          DisplayUtil::reflect_to_str(this->monitor_info_.reflect),
                          mode->width,
                          mode->height,
-                         mode->refresh_rate);
+                         mode->refresh_rate,
+                         this->monitor_info_.name == priamry ? "--primary" : "");
 
     return result;
 }
@@ -205,6 +189,12 @@ std::vector<guint32> DisplayMonitor::modes_get()
 
 void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 {
+    // 当小于2个显示器开启时，不允许再关闭剩余的显示器
+    if (!enabled && DisplayManager::get_instance()->get_enabled_monitors().size() <= 1)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "cannot disable the monitor, because the number of the enabled monitor is less than 1.");
+    }
+
     this->enabled_set(enabled);
     invocation.ret();
 }

@@ -49,14 +49,7 @@ struct MonitorInfo
     int npreferred;
 };
 
-struct MonitorBaseInfo
-{
-    int32_t x;
-    int32_t y;
-    RotationType rotation;
-    ReflectType reflect;
-    RRMode mode;
-};
+
 
 class DisplayMonitor : public SessionDaemon::Display::MonitorStub
 {
@@ -76,11 +69,8 @@ public:
     // 获取最佳的mode,一般时可用mode列表的第一个
     std::shared_ptr<ModeInfo> get_best_mode();
 
-    void set(const MonitorBaseInfo &base);
-    void get(MonitorBaseInfo &base);
-
     // 生成设置monitor生效的命令参数，参数传递给xrandr命令执行
-    std::string generate_cmdline();
+    std::string generate_cmdline(const std::string &primary);
 
     // 通过大小获取可用的mode列表
     ModeInfoVec get_modes_by_size(uint32_t width, uint32_t height);

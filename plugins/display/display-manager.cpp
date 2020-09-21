@@ -19,14 +19,14 @@ namespace Kiran
 #define DISPLAY_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Display"
 
 #define DISPLAY_SCHEMA_ID "com.unikylin.kiran.display"
-#define DISPLAY_SCHEMA_ID_MODE "display-mode"
+#define DISPLAY_SCHEMA_ID_STYLE "display-style"
 
 #define DISPLAY_FILE_NAME "display.xml"
 #define MONITOR_JOIN_CHAR ","
 #define XRANDR_CMD "xrandr"
 
 DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(xrandr_manager),
-                                                                mode_(DisplayMode::EXTEND),
+                                                                default_style_(DisplayStyle::EXTEND),
                                                                 dbus_connect_id_(0),
                                                                 object_register_id_(0)
 {
@@ -52,6 +52,32 @@ void DisplayManager::global_init(XrandrManager *xrandr_manager)
     instance_->init();
 }
 
+DisplayMonitorVec DisplayManager::get_connected_monitors()
+{
+    DisplayMonitorVec monitors;
+    for (const auto &iter : this->monitors_)
+    {
+        if (iter.second->connected_get())
+        {
+            monitors.push_back(iter.second);
+        }
+    }
+    return monitors;
+}
+
+DisplayMonitorVec DisplayManager::get_enabled_monitors()
+{
+    DisplayMonitorVec monitors;
+    for (const auto &iter : this->monitors_)
+    {
+        if (iter.second->enabled_get())
+        {
+            monitors.push_back(iter.second);
+        }
+    }
+    return monitors;
+}
+
 void DisplayManager::ListMonitors(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
@@ -64,15 +90,22 @@ void DisplayManager::ListMonitors(MethodInvocation &invocation)
     invocation.ret(object_paths);
 }
 
-void DisplayManager::SwitchMode(guint32 mode, MethodInvocation &invocation)
+void DisplayManager::SwitchStyle(guint32 style, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("mode: %u.", mode);
+    SETTINGS_PROFILE("style: %u.", style);
 
     std::string err;
-    if (!this->switch_mode(DisplayMode(mode), err))
+    if (!this->switch_style(DisplayStyle(style), err))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to switch mode: {0}", err);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err);
     }
+    invocation.ret();
+}
+
+void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("style: %u", style);
+    this->default_style_set(style);
     invocation.ret();
 }
 
@@ -99,6 +132,13 @@ void DisplayManager::ResetChanges(MethodInvocation &invocation)
     invocation.ret();
 }
 
+void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("");
+    this->primary_set(name);
+    invocation.ret();
+}
+
 void DisplayManager::Save(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
@@ -110,73 +150,25 @@ void DisplayManager::Save(MethodInvocation &invocation)
 
     auto monitors_uid = this->get_monitors_uid();
     auto &c_screens = this->display_config_->screen();
-    ScreenConfigInfo *match_screen = NULL;
+    bool matched = false;
+    ScreenConfigInfo used_config("");
 
+    this->fill_screen_config(used_config);
     for (auto &c_screen : c_screens)
     {
         auto &c_monitors = c_screen.monitor();
         auto c_monitors_uid = this->get_c_monitors_uid(c_monitors);
         if (monitors_uid == c_monitors_uid)
         {
-            match_screen = &c_screen;
+            c_screen = used_config;
+            matched = true;
             break;
         }
     }
 
-    if (match_screen)
+    if (!matched)
     {
-        for (auto &c_monitor : match_screen->monitor())
-        {
-            auto monitor = this->get_monitor_by_uid(c_monitor.uid());
-            if (!monitor)
-            {
-                DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to get monitor for {0}.", c_monitor.uid().c_str());
-            }
-            MonitorBaseInfo base;
-            monitor->get(base);
-
-            auto mode = this->xrandr_manager_->get_mode(base.mode);
-            if (!mode)
-            {
-                DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to get mode for monitor: {0}.", c_monitor.uid().c_str());
-            }
-            c_monitor.x(base.x);
-            c_monitor.y(base.y);
-            c_monitor.width(mode->width);
-            c_monitor.height(mode->height);
-            c_monitor.rotation(DisplayUtil::rotation_to_str(base.rotation));
-            c_monitor.reflect(DisplayUtil::reflect_to_str(base.reflect));
-            c_monitor.refresh_rate(mode->refresh_rate);
-        }
-    }
-    else
-    {
-        ScreenConfigInfo new_screen("no", "");
-
-        for (auto &iter : this->monitors_)
-        {
-            MonitorBaseInfo base;
-            iter.second->get(base);
-
-            auto mode = this->xrandr_manager_->get_mode(base.mode);
-            if (!mode)
-            {
-                DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to get mode for monitor: {0}.", iter.second->get_uid());
-            }
-
-            MonitorConfigInfo c_monitor(iter.second->get_uid(),
-                                        base.x,
-                                        base.y,
-                                        mode->width,
-                                        mode->height,
-                                        DisplayUtil::rotation_to_str(base.rotation),
-                                        DisplayUtil::reflect_to_str(base.reflect),
-                                        mode->refresh_rate);
-
-            new_screen.monitor().push_back(std::move(c_monitor));
-        }
-
-        this->display_config_->screen().push_back(new_screen);
+        this->display_config_->screen().push_back(used_config);
     }
 
     std::string err;
@@ -188,16 +180,22 @@ void DisplayManager::Save(MethodInvocation &invocation)
     invocation.ret();
 }
 
-bool DisplayManager::mode_setHandler(guint32 value)
+bool DisplayManager::default_style_setHandler(guint32 value)
 {
-    RETURN_VAL_IF_TRUE(this->mode_ == DisplayMode(value), true);
+    RETURN_VAL_IF_TRUE(this->default_style_ == DisplayStyle(value), true);
 
-    this->mode_ = DisplayMode(value);
+    this->default_style_ = DisplayStyle(value);
 
-    if (this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_MODE) != int32_t(this->mode_))
+    if (this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_STYLE) != int32_t(this->default_style_))
     {
-        this->display_settings_->set_enum(DISPLAY_SCHEMA_ID_MODE, int32_t(this->mode_));
+        this->display_settings_->set_enum(DISPLAY_SCHEMA_ID_STYLE, int32_t(this->default_style_));
     }
+    return true;
+}
+
+bool DisplayManager::primary_setHandler(const Glib::ustring &value)
+{
+    this->primary_ = value.raw();
     return true;
 }
 
@@ -219,9 +217,9 @@ void DisplayManager::init()
                                                  sigc::mem_fun(this, &DisplayManager::on_name_lost));
 
     std::string err;
-    if (!this->switch_mode(this->mode_, err))
+    if (!this->switch_style(this->default_style_, err))
     {
-        LOG_WARNING("failed to switch mode to %u.", uint32_t(this->mode_));
+        LOG_WARNING("failed to switch style to %u.", uint32_t(this->default_style_));
     }
 }
 
@@ -231,7 +229,7 @@ void DisplayManager::load_settings()
 
     if (this->display_settings_)
     {
-        this->mode_ = DisplayMode(this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_MODE));
+        this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_STYLE));
     }
 }
 
@@ -330,6 +328,7 @@ bool DisplayManager::apply_config(std::string &err)
     auto monitors_id = this->get_monitors_uid();
     const auto &screens = this->display_config_->screen();
     bool result = false;
+    std::string err2;
 
     for (const auto &screen : screens)
     {
@@ -338,7 +337,7 @@ bool DisplayManager::apply_config(std::string &err)
         if (monitors_id == monitors_config_id)
         {
             LOG_DEBUG("match ids: %s.", monitors_id.c_str());
-            if (this->apply_screen_config(screen, err))
+            if (this->apply_screen_config(screen, err2))
             {
                 result = true;
                 break;
@@ -347,7 +346,11 @@ bool DisplayManager::apply_config(std::string &err)
     }
     if (!result)
     {
-        err = fmt::format("failed to apply config: %s.", err.c_str());
+        if (err2.size() == 0)
+        {
+            err2 = fmt::format("not found match config for {0}.", monitors_id);
+        }
+        err = fmt::format("failed to apply config: {0}.", err2);
     }
     return result;
 }
@@ -355,6 +358,8 @@ bool DisplayManager::apply_config(std::string &err)
 bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, std::string &err)
 {
     const auto &c_monitors = screen_config.monitor();
+
+    this->primary_set(screen_config.primary());
 
     for (const auto &c_monitor : c_monitors)
     {
@@ -367,23 +372,78 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
             continue;
         }
 
-        auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
-
-        if (!mode)
+        if (c_monitor.name() != monitor->name_get())
         {
-            LOG_WARNING("cannot find mode for %s.", uid.c_str());
+            LOG_WARNING("the name is mismatch. config name: %s, monitor name: %s.",
+                        c_monitor.name().c_str(),
+                        monitor->name_get().c_str());
+            continue;
         }
 
-        MonitorBaseInfo base = {x : c_monitor.x(),
-                                y : c_monitor.y(),
-                                rotation : DisplayUtil::str_to_rotation(c_monitor.rotation()),
-                                reflect : DisplayUtil::str_to_reflect(c_monitor.reflect()),
-                                mode : mode->id};
-        monitor->set(base);
+        auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
+
+        if (!c_monitor.enabled() || !mode)
+        {
+            monitor->enabled_set(false);
+            monitor->x_set(0);
+            monitor->y_set(0);
+            monitor->rotation_set(uint16_t(RotationType::ROTATION_0));
+            monitor->reflect_set(uint16_t(ReflectType::REFLECT_NORMAL));
+            monitor->current_mode_set(0);
+        }
+        else
+        {
+            monitor->enabled_set(true);
+            monitor->x_set(c_monitor.x());
+            monitor->y_set(c_monitor.y());
+            monitor->rotation_set(uint16_t(DisplayUtil::str_to_rotation(c_monitor.rotation())));
+            monitor->reflect_set(uint16_t(DisplayUtil::str_to_reflect(c_monitor.reflect())));
+            monitor->current_mode_set(mode->id);
+        }
     }
 
     RETURN_VAL_IF_FALSE(this->apply(err), false);
     return true;
+}
+
+void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
+{
+    screen_config.primary(this->primary_);
+
+    for (auto &iter : this->monitors_)
+    {
+        auto mode = this->xrandr_manager_->get_mode(iter.second->current_mode_get());
+
+        if (!mode || !iter.second->enabled_get())
+        {
+            MonitorConfigInfo c_monitor(iter.second->get_uid(),
+                                        iter.second->name_get().raw(),
+                                        false,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        DisplayUtil::rotation_to_str(RotationType::ROTATION_0),
+                                        DisplayUtil::reflect_to_str(ReflectType::REFLECT_NORMAL),
+                                        0.0);
+
+            screen_config.monitor().push_back(std::move(c_monitor));
+        }
+        else
+        {
+            MonitorConfigInfo c_monitor(iter.second->get_uid(),
+                                        iter.second->name_get().raw(),
+                                        true,
+                                        iter.second->x_get(),
+                                        iter.second->y_get(),
+                                        mode->width,
+                                        mode->height,
+                                        DisplayUtil::rotation_to_str(RotationType(iter.second->rotation_get())),
+                                        DisplayUtil::reflect_to_str(ReflectType(iter.second->reflect_get())),
+                                        mode->refresh_rate);
+            screen_config.monitor().push_back(std::move(c_monitor));
+        }
+    }
 }
 
 bool DisplayManager::apply(std::string &err)
@@ -392,7 +452,7 @@ bool DisplayManager::apply(std::string &err)
 
     for (const auto &monitor : this->monitors_)
     {
-        auto tmp = monitor.second->generate_cmdline();
+        auto tmp = monitor.second->generate_cmdline(this->primary_);
         cmdline.push_back(' ');
         cmdline.append(tmp);
     }
@@ -410,30 +470,29 @@ bool DisplayManager::apply(std::string &err)
     return true;
 }
 
-bool DisplayManager::switch_mode(DisplayMode mode, std::string &err)
+bool DisplayManager::switch_style(DisplayStyle style, std::string &err)
 {
-    SETTINGS_PROFILE("mode: %u.", uint32_t(mode));
-    switch (mode)
+    SETTINGS_PROFILE("style: %u.", uint32_t(style));
+    switch (style)
     {
-    case DisplayMode::MIRRORS:
+    case DisplayStyle::MIRRORS:
         RETURN_VAL_IF_FALSE(this->switch_to_mirrors(err), false);
         break;
-    case DisplayMode::EXTEND:
+    case DisplayStyle::EXTEND:
         RETURN_VAL_IF_FALSE(this->switch_to_extend(err), false);
         break;
-    case DisplayMode::CUSTOM:
+    case DisplayStyle::CUSTOM:
         RETURN_VAL_IF_FALSE(this->switch_to_custom(err), false);
         break;
-    case DisplayMode::AUTO:
+    case DisplayStyle::AUTO:
         RETURN_VAL_IF_FALSE(this->switch_to_auto(err), false);
         break;
     default:
-        err = fmt::format("unknown mode: {0}.", uint32_t(mode));
+        err = fmt::format("unknown style: {0}.", uint32_t(style));
         return false;
     }
 
     RETURN_VAL_IF_FALSE(this->apply(err), false);
-    this->mode_set(uint32_t(mode));
     return true;
 }
 
@@ -574,19 +633,6 @@ std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_uid(const std::st
     return nullptr;
 }
 
-DisplayMonitorVec DisplayManager::get_connected_monitors()
-{
-    DisplayMonitorVec monitors;
-    for (const auto &iter : this->monitors_)
-    {
-        if (iter.second->connected_get())
-        {
-            monitors.push_back(iter.second);
-        }
-    }
-    return monitors;
-}
-
 std::string DisplayManager::get_monitors_uid()
 {
     std::vector<std::string> result;
@@ -650,9 +696,9 @@ void DisplayManager::resources_changed()
     if (old_monitor_num != new_monitor_num)
     {
         std::string err;
-        if (!this->switch_mode(this->mode_, err))
+        if (!this->switch_style(this->default_style_, err))
         {
-            LOG_WARNING("failed to switch mode: %s", err.c_str());
+            LOG_WARNING("%s", err.c_str());
         }
     }
     this->MonitorsChanged_signal.emit(true);
@@ -664,10 +710,10 @@ void DisplayManager::settings_changed(const Glib::ustring &key)
 
     switch (shash(key.c_str()))
     {
-    case CONNECT(DISPLAY_SCHEMA_ID_MODE, _hash):
+    case CONNECT(DISPLAY_SCHEMA_ID_STYLE, _hash):
     {
-        auto mode = this->display_settings_->get_enum(key);
-        this->mode_set(mode);
+        auto style = this->display_settings_->get_enum(key);
+        this->default_style_set(style);
     }
     break;
     }

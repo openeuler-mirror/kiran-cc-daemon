@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist >
-    <enum id="com.unikylin.kiran.display.display-mode">
+    <enum id="com.unikylin.kiran.display.display-style">
         <value value="0" nick="mirrors" />
         <value value="1" nick="extend" />
         <value value="2" nick="custom" />
@@ -9,9 +9,9 @@
 
     <schema id="com.unikylin.kiran.display" path="/com/unikylin/kiran/display/">
 
-        <key name="display-mode" enum="com.unikylin.kiran.display.display-mode">
+        <key name="display-style" enum="com.unikylin.kiran.display.display-style">
             <default>'auto'</default>
-            <summary>The dispaly mode for these connected monitors.</summary>
+            <summary>The dispaly style for these connected monitors.</summary>
         </key>
 
     </schema>

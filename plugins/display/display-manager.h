@@ -23,7 +23,7 @@ namespace Kiran
 // 1. 程序第一次启动
 // 2. 有连接设备删除和添加时
 // 3. 显示调用dbus接口进行切换显示模式
-enum class DisplayMode : uint32_t
+enum class DisplayStyle : uint32_t
 {
     // 所有显示器显示内容相同
     MIRRORS,
@@ -47,20 +47,32 @@ public:
 
     static void global_deinit() { delete instance_; };
 
+    // 目前所有monitor都是已连接的,未连接的暂时未创建DisplayMonitor
+    DisplayMonitorVec get_connected_monitors();
+    // 获取开启的显示器
+    DisplayMonitorVec get_enabled_monitors();
+
 protected:
     // 获取所有monitor的object path
     virtual void ListMonitors(MethodInvocation& invocation);
     // 切换显示模式
-    virtual void SwitchMode(guint32 mode, MethodInvocation& invocation);
+    virtual void SwitchStyle(guint32 style, MethodInvocation& invocation);
+    // 设置默认显示模式，默认显示模式会在程序第一次启动或者有连接的显示设备删除和添加时进行启用。
+    virtual void SetDefaultStyle(guint32 style, MethodInvocation& invocation);
     // 应用之前通过dbus调用做的修改
     virtual void ApplyChanges(MethodInvocation& invocation);
     // 恢复之前通过dbus调用做的修改
     virtual void ResetChanges(MethodInvocation& invocation);
+    // 设置主显示器
+    virtual void SetPrimary(const Glib::ustring& name, MethodInvocation& invocation);
     // 将之前的修改保存到文件，保存之后无法再恢复到之前的修改状态
     virtual void Save(MethodInvocation& invocation);
 
-    virtual bool mode_setHandler(guint32 value);
-    virtual guint32 mode_get() { return uint32_t(this->mode_); };
+    virtual bool default_style_setHandler(guint32 value);
+    virtual bool primary_setHandler(const Glib::ustring& value);
+
+    virtual guint32 default_style_get() { return uint32_t(this->default_style_); };
+    virtual Glib::ustring primary_get() { return this->primary_; };
 
 private:
     void init();
@@ -71,34 +83,32 @@ private:
     // 加载配置文件
     void load_config();
 
+    // 应用配置到monitors_中，这里先要根据monitor_ids进行匹配找到对应的ScreenConfigInfo，然后再调用apply_screen_config。
     bool apply_config(std::string& err);
+    // 应用配置到monitors_中
     bool apply_screen_config(const ScreenConfigInfo& screen_config, std::string& err);
+    // 从monitors_提取参数填充配置
+    void fill_screen_config(ScreenConfigInfo& screen_config);
 
-    // 应用之前的修改
+    // 让monitors_中的参数实际生效，执行xrandr命令
     bool apply(std::string& err);
 
     // 切换显示模式
-    bool switch_mode(DisplayMode mode, std::string& err);
-
+    bool switch_style(DisplayStyle style, std::string& err);
     // 切换到镜像模式
     bool switch_to_mirrors(std::string& err);
     // 获取在所有monitor中都可用的mode列表
     ModeInfoVec monitors_common_modes(const DisplayMonitorVec& monitors);
-
     // 切换到扩展模式
     bool switch_to_extend(std::string& err);
-
     // 切换到自定义模式
     bool switch_to_custom(std::string& err);
-
     // 切换到自动模式
     bool switch_to_auto(std::string& err);
 
     // 获取monitor
     std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
     std::shared_ptr<DisplayMonitor> get_monitor_by_uid(const std::string& uid);
-    // 目前所有monitor都是已连接的,未连接的暂时未创建monitor,这个逻辑先预留
-    DisplayMonitorVec get_connected_monitors();
 
     // 将uid进行排序后拼接
     std::string get_monitors_uid();
@@ -126,7 +136,8 @@ private:
     std::unique_ptr<DisplayConfigInfo> display_config_;
 
     Glib::RefPtr<Gio::Settings> display_settings_;
-    DisplayMode mode_;
+    DisplayStyle default_style_;
+    std::string primary_;
 
     std::map<uint32_t, std::shared_ptr<DisplayMonitor>> monitors_;
 

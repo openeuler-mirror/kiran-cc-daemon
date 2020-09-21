@@ -306,9 +306,9 @@ std::string XrandrManager::gen_uid(std::shared_ptr<OutputInfo> output_info)
     }
 
     auto edid_md5 = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5, output_info->edid);
-    // auto regex = Glib::Regex::create("-?[1-9][0-9]*$");
-    // auto name = regex->replace(output_info->name, 0, "");
-    return output_info->name + edid_md5;
+    auto regex = Glib::Regex::create("-[1-9][0-9]*$");
+    auto name = regex->replace(output_info->name, 0, "", static_cast<Glib::RegexMatchFlags>(0));
+    return name + "-" + edid_md5;
 }
 
 void XrandrManager::init()

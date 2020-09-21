@@ -15,16 +15,33 @@
             </doc:doc>
         </method>
 
-        <method name="SwitchMode">
-            <arg type="u" name="mode" direction="in">
+        <method name="SwitchStyle">
+            <arg type="u" name="style" direction="in">
                 <doc:doc>
-                    <doc:summary>The dispaly mode for these connected monitors.</doc:summary>
+                    <doc:summary>The dispaly style for these connected monitors.</doc:summary>
                 </doc:doc>
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>The modes contain mirrors(0), extend(1), custom(2) and auto(3). The mirrors indicates all monitors have the same pos and size.
-                     The extend indicates all monitors is extended horizontally.</doc:para>
+                    <doc:para>The display styles contain mirrors(0), extend(1), custom(2) and auto(3). 
+                    The mirrors indicates all monitors have the same pos and size;
+                    The extend indicates all monitors is extended horizontally;
+                    The custom is set from local configuration display.xml;
+                    The auto is set by the order of custom, extend, mirrors until success.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetDefaultStyle">
+            <arg type="u" name="style" direction="in">
+                <doc:doc>
+                    <doc:summary>The default display style.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the default display style. The display styles contain mirrors(0), extend(1), custom(2) and auto(3).
+                    Used when the program starts running or new monitor device is added or existing monitor device is deleted.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -45,6 +62,19 @@
             </doc:doc>
         </method>
 
+        <method name="SetPrimary">
+            <arg type="s" name="name" direction="in">
+                <doc:doc>
+                    <doc:summary>The name of the monitor.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the primary monitor by name.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
         <method name="Save">
             <doc:doc>
                 <doc:description>
@@ -53,11 +83,20 @@
             </doc:doc>
         </method>
 
-        <property name="mode" type="u" access="read">
+        <property name="default_style" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
-                    <doc:para>The dispaly mode for these connected monitors.</doc:para>
+                    <doc:para>The default display style. </doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="primary" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The name of the primary monitor.</doc:para>
                 </doc:description>
             </doc:doc>
         </property>
