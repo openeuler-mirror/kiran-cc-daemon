@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 set (TARGET_NAME accounts)
 
-file(GLOB_RECURSE MOUSE_H_FILES ./*.h)
-file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
+file(GLOB_RECURSE CORE_H_FILES ./*.h)
+file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 
 
 GEN_DBUS_STUB(ACCOUNTS accounts ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.SystemDaemon.Accounts.xml)
@@ -11,8 +11,8 @@ GEN_DBUS_STUB(USER user ${CMAKE_SOURCE_DIR}/plugins/accounts/com.unikylin.Kiran.
 
 
 add_library(${TARGET_NAME} SHARED
-    ${MOUSE_H_FILES}
-    ${MOUSE_CPP_FILES}
+    ${CORE_H_FILES}
+    ${CORE_CPP_FILES}
     ${ACCOUNTS_GENERATED_STUB}
     ${USER_GENERATED_STUB})
 

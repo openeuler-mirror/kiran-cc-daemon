@@ -43,14 +43,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   set(COMPILER_MSVC 1)
 endif()
 
-if(NOT DEFINED PROJECT_ARCH)
-  if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-    set(PROJECT_ARCH "x86_64")
-  else()
-    set(PROJECT_ARCH "x86")
-  endif()
-endif()
-
 if(${CMAKE_GENERATOR} STREQUAL "Ninja")
   set(GEN_NINJA 1)
 elseif(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
@@ -138,25 +130,3 @@ list(APPEND KSD_COMPILER_DEFINES_RELEASE
   )
 
 include(CheckCXXCompilerFlag)
-
-if(PROJECT_ARCH STREQUAL "x86_64")
-  # 64-bit architecture.
-  list(APPEND KSD_COMPILER_FLAGS
-    -m64
-    -march=x86-64
-    )
-  list(APPEND KSD_LINKER_FLAGS
-    -m64
-    )
-elseif(PROJECT_ARCH STREQUAL "x86")
-  # 32-bit architecture.
-  list(APPEND KSD_COMPILER_FLAGS
-    -msse2
-    -mfpmath=sse
-    -mmmx
-    -m32
-    )
-  list(APPEND KSD_LINKER_FLAGS
-    -m32
-    )
-endif()
