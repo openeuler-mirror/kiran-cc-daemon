@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:55:54
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-07 15:18:06
+ * @LastEditTime : 2020-09-04 16:07:59
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/src/settings-manager.h
+ * @FilePath     : /kiran-cc-daemon/src/settings-manager.h
  */
 
 #include <cc_daemon_dbus_stub.h>
@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 
-#include "src/plugin-info.h"
+#include "src/plugin-helper.h"
 
 namespace Kiran
 {
@@ -28,23 +28,21 @@ public:
 
     static void global_deinit() { delete instance_; };
 
-    std::shared_ptr<PluginInfo> lookup_plugin(const std::string& name);
+    std::shared_ptr<PluginHelper> lookup_plugin(const std::string& id);
 
 protected:
     virtual void GetPlugins(MethodInvocation& invocation);
 
     virtual void GetActivatedPlugins(MethodInvocation& invocation);
 
-    virtual void ActivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation);
+    virtual void ActivatePlugin(const Glib::ustring& id, MethodInvocation& invocation);
 
-    virtual void DeactivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation);
+    virtual void DeactivatePlugin(const Glib::ustring& id, MethodInvocation& invocation);
 
 private:
     void init();
 
-    void load_all();
-    void load_dir(const std::string& path);
-    bool load_file(const std::string& file_name, std::string& err);
+    void load_plugins(const std::string& file_name);
 
     void dbus_init();
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
@@ -54,7 +52,7 @@ private:
 private:
     static SettingsManager* instance_;
 
-    std::map<std::string, std::shared_ptr<PluginInfo>> plugins_;
+    std::map<std::string, std::shared_ptr<PluginHelper>> plugins_;
 
     uint32_t dbus_connect_id_;
 

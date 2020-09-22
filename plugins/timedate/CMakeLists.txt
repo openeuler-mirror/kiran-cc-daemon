@@ -51,8 +51,4 @@ endif()
 install(TARGETS ${TARGET_NAME}
         DESTINATION  ${KCC_PLUGIN_DIR}/system)
 
-install(FILES "timedate.ksd-plugin.in" 
-        DESTINATION  ${KCC_PLUGIN_DIR}/system
-        RENAME "timedate.ksd-plugin")
-
 

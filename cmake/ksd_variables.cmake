@@ -15,6 +15,9 @@ set(DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Installation directory for
 set(EXECDIR ${CMAKE_INSTALL_PREFIX}/bin CACHE PATH "Installation directory for executable file")
 
 
+set(KCC_PLUGIN_DIR ${LIBDIR}/kiran-cc-daemon)
+
+
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   set(OS_MACOSX 1)

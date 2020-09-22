@@ -24,7 +24,6 @@ target_compile_definitions(${TARGET_SYSTEM_DAEMON} PRIVATE
     -DKCC_TYPE="system"
     -DKCC_SYSTEM_TYPE
     -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/system"
-    -DKCC_PLUGIN_EXT="${KCC_PLUGIN_EXT}"
     -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
 
 target_compile_options(${TARGET_SYSTEM_DAEMON} PRIVATE
@@ -60,7 +59,6 @@ target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
     -DKCC_TYPE="session"
     -DKCC_SESSION_TYPE
     -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/session"
-    -DKCC_PLUGIN_EXT="${KCC_PLUGIN_EXT}"
     -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
 
 target_compile_options(${TARGET_SESSION_DAEMON} PRIVATE

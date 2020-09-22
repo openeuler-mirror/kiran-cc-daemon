@@ -12,6 +12,11 @@
 #include <fmt/format.h>
 #include <giomm.h>
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "lib/base/def.h"
 #include "lib/base/error.h"
 #include "lib/base/log.h"

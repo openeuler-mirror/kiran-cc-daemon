@@ -8,9 +8,6 @@
  */
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "lib/base/base.h"
 
 namespace fmt

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:54:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:56:02
+ * @LastEditTime : 2020-09-04 16:11:24
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/settings-manager.cpp
  */
@@ -25,6 +25,8 @@ namespace Kiran
 #error need to define KCC_SYSTEM_TYPE or KCC_SESSION_TYPE
 #endif
 
+#define PLUGIN_CONFIG_NAME "plugin_options"
+
 SettingsManager::SettingsManager() : dbus_connect_id_(0),
                                      object_register_id_(0)
 {
@@ -45,9 +47,9 @@ void SettingsManager::global_init()
     instance_->init();
 }
 
-std::shared_ptr<PluginInfo> SettingsManager::lookup_plugin(const std::string& name)
+std::shared_ptr<PluginHelper> SettingsManager::lookup_plugin(const std::string& id)
 {
-    auto iter = this->plugins_.find(name);
+    auto iter = this->plugins_.find(id);
     if (iter != this->plugins_.end())
     {
         return iter->second;
@@ -58,65 +60,59 @@ std::shared_ptr<PluginInfo> SettingsManager::lookup_plugin(const std::string& na
 void SettingsManager::GetPlugins(MethodInvocation& invocation)
 {
     SETTINGS_PROFILE("");
-    std::vector<Glib::ustring> names;
+    std::vector<Glib::ustring> ids;
     for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
     {
-        names.push_back(iter->first);
+        ids.push_back(iter->first);
     }
-    invocation.ret(names);
+    invocation.ret(ids);
 }
 
 void SettingsManager::GetActivatedPlugins(MethodInvocation& invocation)
 {
     SETTINGS_PROFILE("");
-    std::vector<Glib::ustring> names;
+    std::vector<Glib::ustring> ids;
     for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
     {
         if (iter->second && iter->second->activate())
         {
-            names.push_back(iter->first);
+            ids.push_back(iter->first);
         }
     }
-    invocation.ret(names);
+    invocation.ret(ids);
 }
 
-void SettingsManager::ActivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation)
+void SettingsManager::ActivatePlugin(const Glib::ustring& id, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("plugin name: %s.", plugin_name.c_str());
-    auto plugin = this->lookup_plugin(plugin_name);
+    SETTINGS_PROFILE("plugin id: %s.", id.c_str());
+    auto plugin = this->lookup_plugin(id);
     if (!plugin)
     {
-        auto err_message = fmt::format("the plugin {0} is not exist.", plugin_name.raw());
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "the plugin {0} is not exist.", id.c_str());
     }
 
     std::string err;
     if (!plugin->activate_plugin(err))
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
     }
 
     invocation.ret();
 }
 
-void SettingsManager::DeactivatePlugin(const Glib::ustring& plugin_name, MethodInvocation& invocation)
+void SettingsManager::DeactivatePlugin(const Glib::ustring& id, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("plugin name: %s.", plugin_name.c_str());
-    auto plugin = this->lookup_plugin(plugin_name);
+    SETTINGS_PROFILE("plugin id: %s.", id.c_str());
+    auto plugin = this->lookup_plugin(id);
     if (!plugin)
     {
-        auto err_message = fmt::format("the plugin {0} is not exist.", plugin_name.raw());
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "the plugin {0} is not exist.", id.c_str());
     }
 
     std::string err;
     if (!plugin->deactivate_plugin(err))
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
     }
 
     invocation.ret();
@@ -132,94 +128,50 @@ void SettingsManager::init()
         return;
     }
 
-    load_all();
-}
-
-void SettingsManager::load_all()
-{
-    SETTINGS_PROFILE("");
-
-    // load system plugins
-    load_dir(KCC_PLUGIN_DIR G_DIR_SEPARATOR_S);
+    // load  plugins
+    auto plugin_config_path = Glib::build_filename(KCC_PLUGIN_DIR, PLUGIN_CONFIG_NAME);
+    this->load_plugins(plugin_config_path);
 
     // connect and regist dbus
-    dbus_init();
+    this->dbus_init();
 }
 
-void SettingsManager::load_dir(const std::string& path)
+void SettingsManager::load_plugins(const std::string& file_name)
 {
-    SETTINGS_PROFILE("Loading settings plugins from dir: %s", path.c_str());
+    SETTINGS_PROFILE("file_name: %s.", file_name.c_str());
+
+    Glib::KeyFile plugins_file;
 
     try
     {
-        Glib::Dir d(path);
-        std::string err;
-        for (auto iter = d.begin(); iter != d.end(); ++iter)
+        plugins_file.load_from_file(file_name);
+
+        for (const auto& group : plugins_file.get_groups())
         {
-            auto name = *iter;
-
-            if (!Glib::str_has_suffix(name, KCC_PLUGIN_EXT))
+            PluginInfo info;
+            info.id = group;
+            info.name = plugins_file.get_string(group, "Name");
+            info.description = plugins_file.get_string(group, "Description");
+            auto available = plugins_file.get_boolean(group, "Available");
+            if (available)
             {
-                continue;
-            }
-
-            auto file_name = Glib::build_filename(path, name);
-            if (!Glib::file_test(file_name, Glib::FILE_TEST_IS_REGULAR))
-            {
-                LOG_WARNING("the type of file %s isn't regular.", file_name.c_str());
-                continue;
-            }
-
-            if (!load_file(file_name, err))
-            {
-                LOG_WARNING("load file %s fail: %s.", file_name.c_str(), err.c_str());
+                auto plugin_helper = std::make_shared<PluginHelper>(info);
+                std::string err;
+                if (!plugin_helper->activate_plugin(err))
+                {
+                    LOG_WARNING("failed to load plugin: %s.", err.c_str());
+                }
+                else
+                {
+                    this->plugins_.emplace(info.id, plugin_helper);
+                }
             }
         }
     }
-    catch (const Glib::Exception& e)
+    catch (const Glib::Error& e)
     {
-        LOG_WARNING("open dir %s error: %s", path.c_str(), e.what().c_str());
-        return;
+        LOG_WARNING("failed to load plugins: %s.", e.what().c_str());
     }
-}
-
-bool SettingsManager::load_file(const std::string& file_name, std::string& err)
-{
-    SETTINGS_PROFILE("Loading plugin: %s", file_name.c_str());
-
-    auto plugin_info = std::make_shared<PluginInfo>();
-
-    RETURN_VAL_IF_FALSE(plugin_info->load_from_file(file_name, err), false);
-
-    auto location = plugin_info->get_location();
-    auto name = plugin_info->get_name();
-
-    if (this->plugins_.find(name) != this->plugins_.end())
-    {
-        err = fmt::format("the name of the plugin {0} is conflict.", plugin_info->get_name());
-        return false;
-    }
-
-    auto iter = std::find_if(this->plugins_.begin(), this->plugins_.end(), [&location](const std::pair<std::string, std::shared_ptr<PluginInfo>>& plugin) {
-        return location == plugin.second->get_location();
-    });
-
-    if (iter != this->plugins_.end())
-    {
-        err = fmt::format("the location of the plugin {0} is conflict.", plugin_info->get_location());
-        return false;
-    }
-    else
-    {
-        this->plugins_.emplace(name, plugin_info);
-    }
-
-    if (plugin_info->available())
-    {
-        return plugin_info->activate_plugin(err);
-    }
-
-    return true;
 }
 
 void SettingsManager::dbus_init()

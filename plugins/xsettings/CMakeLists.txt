@@ -31,9 +31,3 @@ target_link_libraries(${TARGET_NAME} PRIVATE
 
 install(TARGETS ${TARGET_NAME}
         DESTINATION  ${KCC_PLUGIN_DIR}/session)
-
-install(FILES "xsettings.ksd-plugin.in" 
-        DESTINATION  ${KCC_PLUGIN_DIR}/session
-        RENAME "xsettings.ksd-plugin")
-
-
