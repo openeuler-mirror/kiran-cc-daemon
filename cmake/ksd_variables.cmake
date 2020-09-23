@@ -1,21 +1,9 @@
 
 
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-
-if ("${LIB64}" STREQUAL "TRUE")
-    set(LIBSUFFIX 64)
-else()
-    set(LIBSUFFIX "")
-endif()
-
-set(LIBDIR  ${CMAKE_INSTALL_PREFIX}/lib${LIBSUFFIX} CACHE PATH "Installation directory for libraries")
+include(GNUInstallDirs)
 set(SYSCONFDIR "/etc" CACHE PATH "Installation directory for configurations")
-set(DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Installation directory for data")
-set(EXECDIR ${CMAKE_INSTALL_PREFIX}/bin CACHE PATH "Installation directory for executable file")
-
-
-set(KCC_PLUGIN_DIR ${LIBDIR}/kiran-cc-daemon)
+set(KCC_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/kiran-cc-daemon)
 
 
 # Determine the platform.
@@ -55,10 +43,6 @@ if(NOT CMAKE_BUILD_TYPE AND (GEN_NINJA OR GEN_MAKEFILES))
   set(CMAKE_BUILD_TYPE Release)
   message(STATUS "No CMAKE_BUILD_TYPE value selected, using ${CMAKE_BUILD_TYPE}")
 endif()
-
-option(STATIC_LINK_CRT "link c++ runtime library statically" OFF)
-option(FORCE_DEBUG_INFO "enable debug info in release version" OFF)
-option(LOW_GLIBC_VERSION "make binary which can distribute to environments which have lower GLIBC" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED on)

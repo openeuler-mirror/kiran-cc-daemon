@@ -35,7 +35,7 @@ if(build-system-daemon)
     endif()
 
     install(FILES ${PROJECT_BINARY_DIR}/data/com.unikylin.Kiran.SystemDaemon.service
-            DESTINATION ${DATADIR}/dbus-1/system-services)
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files
     file(GLOB CONF_FILES ./*.conf)

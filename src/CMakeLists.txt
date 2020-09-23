@@ -37,7 +37,7 @@ target_link_libraries(${TARGET_SYSTEM_DAEMON} PRIVATE
 
 
 install(TARGETS ${TARGET_SYSTEM_DAEMON}
-        DESTINATION ${EXECDIR})
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
 
@@ -75,6 +75,6 @@ target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
 
 
 install(TARGETS ${TARGET_SESSION_DAEMON}
-        DESTINATION ${EXECDIR})
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
