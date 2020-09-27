@@ -9,7 +9,7 @@ Wants=nss-user-lookup.target
 [Service]
 Type=dbus
 BusName=com.unikylin.Kiran.SystemDaemon
-ExecStart=@CMAKE_INSTALL_BINDIR@/kiran-system-daemon
+ExecStart=@KCC_INSTALL_BINDIR@/kiran-system-daemon
 
 [Install]
 # We pull this in by graphical.target instead of waiting for the bus
