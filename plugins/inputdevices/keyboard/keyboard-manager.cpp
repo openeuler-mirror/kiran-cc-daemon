@@ -204,7 +204,7 @@ AUTO_REPEAT_SET_HANDLER(repeat_interval, gint32, KEYBOARD_SCHEMA_REPEAT_INTERVAL
 
 bool KeyboardManager::layouts_setHandler(const std::vector<Glib::ustring> &value)
 {
-    SETTINGS_PROFILE("value: %s.", StrUtil::join(value, ",").c_str());
+    SETTINGS_PROFILE("value: %s.", StrUtils::join(value, ",").c_str());
 
     auto layouts = value;
 
@@ -242,7 +242,7 @@ bool KeyboardManager::layouts_setHandler(const std::vector<Glib::ustring> &value
 
 bool KeyboardManager::options_setHandler(const std::vector<Glib::ustring> &value)
 {
-    SETTINGS_PROFILE("value: %s.", StrUtil::join(value, ",").c_str());
+    SETTINGS_PROFILE("value: %s.", StrUtils::join(value, ",").c_str());
     if (this->options_.size() == value.size() &&
         std::equal(this->options_.begin(), this->options_.end(), value.begin()))
     {
@@ -331,7 +331,7 @@ void KeyboardManager::load_xkb_rules()
     for (size_t i = 0; i < xkb_rules.layouts.size(); ++i)
     {
         auto &layout_name = xkb_rules.layouts[i].name;
-        auto country_name = ISOTranslation::get_instance()->get_locale_country_name(StrUtil::toupper(layout_name));
+        auto country_name = ISOTranslation::get_instance()->get_locale_country_name(StrUtils::toupper(layout_name));
         if (country_name.length() > 0)
         {
             this->valid_layouts_[layout_name] = country_name;
@@ -393,13 +393,13 @@ void KeyboardManager::set_auto_repeat()
 
 bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
 {
-    SETTINGS_PROFILE("layouts: %s.", StrUtil::join(layouts, ";").c_str());
+    SETTINGS_PROFILE("layouts: %s.", StrUtils::join(layouts, ";").c_str());
 
     std::string join_layouts;
     std::string join_variants;
     for (auto iter = layouts.begin(); iter != layouts.end(); ++iter)
     {
-        auto layout_variant = StrUtil::split_with_char(*iter, ' ', true);
+        auto layout_variant = StrUtils::split_with_char(*iter, ' ', true);
 
         if (layout_variant.size() == 1)
         {
@@ -445,7 +445,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
 
 bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
 {
-    SETTINGS_PROFILE("options: %s.", StrUtil::join(options, ";").c_str());
+    SETTINGS_PROFILE("options: %s.", StrUtils::join(options, ";").c_str());
 
     try
     {

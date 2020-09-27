@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 13:42:19
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-29 17:37:19
+ * @LastEditTime : 2020-09-29 09:47:26
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-util.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-util.cpp
  */
 #include "plugins/accounts/accounts-util.h"
 
@@ -110,7 +110,8 @@ void AccountsUtil::get_caller_loginuid(const Glib::RefPtr<Gio::DBus::MethodInvoc
 void AccountsUtil::setup_loginuid(const std::string &id)
 {
     auto fd = open("/proc/self/loginuid", O_WRONLY);
-    if (write(fd, id.c_str(), id.length()) != (int)id.length()) {
+    if (write(fd, id.c_str(), id.length()) != (int)id.length())
+    {
         LOG_WARNING("Failed to write loginuid '%s'\n", id.c_str());
     }
     close(fd);
@@ -150,24 +151,6 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
         return false;
     }
     return true;
-}
-
-Glib::RefPtr<Gio::FileMonitor> AccountsUtil::setup_monitor(const std::string &path,
-                                                           const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback)
-{
-    auto file = Gio::File::create_for_path(path);
-    try
-    {
-        auto monitor = file->monitor_file();
-        monitor->signal_changed().connect(callback);
-        return monitor;
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_WARNING("Unable to monitor %s: %s", path.c_str(), e.what().c_str());
-    }
-
-    return Glib::RefPtr<Gio::FileMonitor>();
 }
 
 }  // namespace Kiran

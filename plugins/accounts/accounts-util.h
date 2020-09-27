@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 13:42:10
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:10:50
+ * @LastEditTime : 2020-09-29 09:47:19
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-util.h
  */
@@ -45,8 +45,5 @@ public:
     static bool spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                      const Glib::ArrayHandle<std::string> argv,
                                      std::string &err);
-
-    static Glib::RefPtr<Gio::FileMonitor> setup_monitor(const std::string &path,
-                                                        const sigc::slot<void, const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent> &callback);
 };
 }  // namespace Kiran

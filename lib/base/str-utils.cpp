@@ -7,13 +7,13 @@
  * @FilePath     : /kiran-cc-daemon/lib/base/str-util.cpp
  */
 
-#include "lib/base/str-util.h"
+#include "lib/base/str-utils.h"
 
 #include <algorithm>
 
 namespace Kiran
 {
-std::vector<std::string> StrUtil::split_lines(const std::string& s)
+std::vector<std::string> StrUtils::split_lines(const std::string& s)
 {
     std::vector<std::string> ret;
     size_t i = 0;
@@ -51,21 +51,21 @@ std::vector<std::string> StrUtil::split_lines(const std::string& s)
     return ret;
 }
 
-std::string StrUtil::tolower(const std::string& str)
+std::string StrUtils::tolower(const std::string& str)
 {
     std::string new_str = str;
     std::transform(new_str.begin(), new_str.end(), new_str.begin(), ::tolower);
     return new_str;
 }
 
-std::string StrUtil::toupper(const std::string& str)
+std::string StrUtils::toupper(const std::string& str)
 {
     std::string new_str = str;
     std::transform(new_str.begin(), new_str.end(), new_str.begin(), ::toupper);
     return new_str;
 }
 
-std::vector<std::string> StrUtil::split_with_char(const std::string& s, char delimiter, bool is_merge_delimiter)
+std::vector<std::string> StrUtils::split_with_char(const std::string& s, char delimiter, bool is_merge_delimiter)
 {
     std::vector<std::string> v;
     size_t start = 0;

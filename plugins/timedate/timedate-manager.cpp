@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:02:03
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:28:26
+ * @LastEditTime : 2020-09-29 16:47:58
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.cpp
  */
@@ -24,6 +24,7 @@
 #include <cinttypes>
 
 #include "lib/base/base.h"
+#include "plugins/timedate/timedate-def.h"
 #include "plugins/timedate/timedate-util.h"
 
 #ifdef HAVE_SELINUX
@@ -37,16 +38,15 @@
 
 namespace Kiran
 {
-#define ADJTIME_PATH "/etc/adjtime"
 #define HWCLOCK_PATH "/sbin/hwclock"
 #define RTC_DEVICE "/dev/rtc"
 
-#define LOCALTIME_PATH "/etc/localtime"
-#define ZONEINFO_PATH "/usr/share/zoneinfo/"
 #define ZONE_TABLE "zone.tab"
 #define ZONE_TABLE_MIN_COLUMN 3
 #define LOCALTIME_TO_ZONEINFO_PATH ".."
 #define MAX_TIMEZONE_LENGTH 256
+
+#define UNIT_PROP_ACTIVE_STATE "ActiveState"
 
 #define TIMEZONE_DOMAIN "kiran-cc-daemon-timezones"
 
@@ -63,7 +63,9 @@ TimedateManager *TimedateManager::instance_ = nullptr;
 const std::vector<std::string> TimedateManager::ntp_units_paths_ = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
 
 TimedateManager::TimedateManager() : dbus_connect_id_(0),
-                                     object_register_id_(0)
+                                     object_register_id_(0),
+                                     local_rtc_(false),
+                                     ntp_active_(false)
 {
 }
 
@@ -161,15 +163,15 @@ void TimedateManager::SetNTP(bool active,
 {
     SETTINGS_PROFILE("active: %d.", active);
 
-    if (this->ntp_units_.size() == 0)
+    if (active == this->ntp_get())
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "No NTP unit available"));
+        invocation.ret();
         return;
     }
 
-    if (active == this->ntp_get())
+    if (this->ntp_unit_name_.length() == 0)
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "the value of the active have not been changed."));
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "No NTP unit available"));
         return;
     }
 
@@ -179,91 +181,22 @@ void TimedateManager::SetNTP(bool active,
                                                   std::bind(&TimedateManager::finish_set_ntp_active, this, std::placeholders::_1, active));
 }
 
-Glib::ustring TimedateManager::time_zone_get()
+bool TimedateManager::time_zone_setHandler(const Glib::ustring &value)
 {
-    SETTINGS_PROFILE("");
-    g_autofree gchar *link = NULL;
-
-    link = g_file_read_link(LOCALTIME_PATH, NULL);
-    if (!link)
-    {
-        return std::string();
-    }
-
-    auto zone = g_strrstr(link, ZONEINFO_PATH);
-    if (!zone)
-    {
-        return std::string();
-    }
-
-    zone += strlen(ZONEINFO_PATH);
-
-    return Glib::ustring(zone);
+    this->time_zone_ = value.raw();
+    return true;
 }
 
-bool TimedateManager::local_rtc_get()
+bool TimedateManager::local_rtc_setHandler(bool value)
 {
-    SETTINGS_PROFILE("");
-    std::string contents;
-    try
-    {
-        contents = Glib::file_get_contents(ADJTIME_PATH);
-    }
-    catch (const Glib::FileError &e)
-    {
-        return false;
-    }
-
-    if (contents.find("LOCAL") != std::string::npos)
-    {
-        return true;
-    }
-    return false;
+    this->local_rtc_ = value;
+    return true;
 }
 
-bool TimedateManager::can_ntp_get()
+bool TimedateManager::ntp_setHandler(bool value)
 {
-    SETTINGS_PROFILE("");
-    return (this->ntp_units_.size() > 0);
-}
-
-bool TimedateManager::ntp_get()
-{
-    SETTINGS_PROFILE("");
-    if (this->ntp_units_.size() <= 0)
-    {
-        return false;
-    }
-
-    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", this->ntp_units_.front().name.c_str())));
-
-    if (!result.gobj())
-    {
-        return false;
-    }
-
-    g_return_val_if_fail(result.get_n_children() > 0, false);
-    auto path_base = result.get_child();
-    auto unit_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(path_base).get();
-
-    auto proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, unit_path, SYSTEMD_UNIT_INTERFACE);
-    g_return_val_if_fail(proxy, false);
-
-    Glib::VariantBase state;
-
-    proxy->get_cached_property(state, "ActiveState");
-    g_return_val_if_fail(state.gobj() != NULL, false);
-
-    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(state).get();
-
-    if (state_str == "active" || state_str == "activating")
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    this->ntp_active_ = value;
+    return true;
 }
 
 guint64 TimedateManager::system_time_get()
@@ -325,7 +258,237 @@ void TimedateManager::init()
     this->systemd_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, SYSTEMD_PATH, SYSTEMD_MANAGER_INTERFACE);
     this->polkit_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, POLKIT_NAME, POLKIT_PATH, POLKIT_INTERFACE);
 
-    this->read_ntp_units();
+    this->tz_monitor_ = FileUtils::make_monitor_file(LOCALTIME_PATH, sigc::mem_fun(this, &TimedateManager::time_zone_changed));
+    this->adjtime_monitor_ = FileUtils::make_monitor_file(ADJTIME_PATH, sigc::mem_fun(this, &TimedateManager::adjtime_changed));
+    for (const auto &unit_dir : this->ntp_units_paths_)
+    {
+        auto unit_monitor = FileUtils::make_monitor_directory(unit_dir, sigc::mem_fun(this, &TimedateManager::ntp_unit_changed));
+        this->ntp_unit_monitors_.push_back(unit_monitor);
+    }
+
+    this->time_zone_ = TimedateUtil::get_timezone();
+    this->local_rtc_ = TimedateUtil::is_local_rtc();
+    this->init_ntp_units();
+    this->ntp_active_ = this->ntp_is_active();
+}
+
+void TimedateManager::init_ntp_units()
+{
+    auto ntp_units = this->get_ntp_units();
+    std::string err;
+
+    this->ntp_unit_name_.clear();
+    for (auto &ntp_unit : ntp_units)
+    {
+        if (ntp_unit == ntp_units.front())
+        {
+            this->ntp_unit_name_ = ntp_unit;
+            continue;
+        }
+
+        if (!this->stop_ntp_unit(ntp_unit, err))
+        {
+            LOG_WARNING("%s", err.c_str());
+        }
+    }
+
+    auto unit_object_path = this->get_unit_object_path();
+
+    if (unit_object_path.length() > 0)
+    {
+        this->ntp_unit_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, unit_object_path, SYSTEMD_UNIT_INTERFACE);
+
+        if (this->ntp_unit_proxy_)
+        {
+            this->ntp_unit_proxy_->signal_properties_changed().connect(sigc::mem_fun(this, &TimedateManager::ntp_unit_props_changed));
+        }
+        else
+        {
+            LOG_WARNING("Failed to create dbus proxy. Object path: %s.", unit_object_path.c_str());
+        }
+    }
+}
+
+std::vector<std::string> TimedateManager::get_ntp_units()
+{
+    SETTINGS_PROFILE("");
+    std::vector<std::string> ntp_units;
+
+    for (auto iter = this->ntp_units_paths_.begin(); iter != this->ntp_units_paths_.end(); ++iter)
+    {
+        auto &unit_dir = *iter;
+        try
+        {
+            Glib::Dir dir(unit_dir);
+
+            for (auto dir_iter = dir.begin(); dir_iter != dir.end(); ++dir_iter)
+            {
+                auto entry = *dir_iter;
+                auto path = fmt::format("{0}/{1}", unit_dir, entry);
+                std::string contents;
+
+                try
+                {
+                    contents = Glib::file_get_contents(path);
+                }
+                catch (const Glib::FileError &e)
+                {
+                    LOG_WARNING("Failed to get contents of the file %s: %s", path.c_str(), e.what().c_str());
+                    continue;
+                }
+
+                auto lines = StrUtils::split_lines(contents);
+
+                for (auto line_iter = lines.begin(); line_iter != lines.end(); ++line_iter)
+                {
+                    auto line = *line_iter;
+                    if (line.length() == 0 || line.at(0) == '#')
+                    {
+                        LOG_DEBUG("The line %s is ingored. Length: %d", line.c_str(), line.length());
+                        continue;
+                    }
+
+                    if (!call_systemd_noresult("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", line.c_str()), false)))
+                    {
+                        LOG_DEBUG("Failed to LoadUnit: %s.", line.c_str());
+                        continue;
+                    }
+
+                    LOG_DEBUG("Insert ntp unit: %s %s.", line.c_str(), entry.c_str());
+                    ntp_units.push_back(line);
+                }
+            }
+        }
+        catch (const Glib::FileError &e)
+        {
+            LOG_DEBUG("%s", e.what().c_str());
+        }
+    }
+
+    // Remove duplicates.
+    auto iter = std::unique(ntp_units.begin(), ntp_units.end());
+    ntp_units.erase(iter, ntp_units.end());
+    return ntp_units;
+}
+
+bool TimedateManager::start_ntp_unit(const std::string &name, std::string &err)
+{
+    SETTINGS_PROFILE("name: %s.", name.c_str());
+
+    GVariantBuilder builder;
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
+
+    if (!call_systemd_noresult("StartUnit", Glib::VariantContainerBase(g_variant_new("(ss)", name.c_str(), "replace"), false)))
+    {
+        err = fmt::format("Failed to start NTP unit: {0}.", name);
+        return false;
+    }
+    else
+    {
+        g_variant_builder_add(&builder, "s", name.c_str());
+        call_systemd_noresult("EnableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asb)", &builder, FALSE), false));
+        call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
+    }
+    return true;
+}
+
+bool TimedateManager::stop_ntp_unit(const std::string &name, std::string &err)
+{
+    SETTINGS_PROFILE("name: %s.", name.c_str());
+
+    GVariantBuilder builder;
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
+
+    if (!call_systemd_noresult("StopUnit", Glib::VariantContainerBase(g_variant_new("(ss)", name.c_str(), "replace"), false)))
+    {
+        err = fmt::format("Failed to stop NTP unit: {0}.", name);
+        return false;
+    }
+    else
+    {
+        g_variant_builder_add(&builder, "s", name.c_str());
+        call_systemd_noresult("DisableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asb)", &builder, FALSE), false));
+        call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
+    }
+    return true;
+}
+
+bool TimedateManager::ntp_is_active()
+{
+    RETURN_VAL_IF_FALSE(this->ntp_unit_proxy_, false);
+
+    Glib::VariantBase state;
+    this->ntp_unit_proxy_->get_cached_property(state, UNIT_PROP_ACTIVE_STATE);
+    RETURN_VAL_IF_FALSE(state.gobj() != NULL, false);
+
+    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(state).get();
+
+    return (state_str == "active" || state_str == "activating");
+}
+
+void TimedateManager::ntp_unit_props_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties,
+                                             const std::vector<Glib::ustring> &invalidated_properties)
+{
+    auto iter = changed_properties.find(UNIT_PROP_ACTIVE_STATE);
+    RETURN_IF_TRUE(iter == changed_properties.end());
+
+    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(iter->second).get();
+
+    if (state_str == "active" || state_str == "activating")
+    {
+        this->ntp_set(true);
+    }
+    else
+    {
+        this->ntp_set(false);
+    }
+}
+
+void TimedateManager::time_zone_changed(const Glib::RefPtr<Gio::File> &file,
+                                        const Glib::RefPtr<Gio::File> &other_file,
+                                        Gio::FileMonitorEvent event_type)
+{
+    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
+
+    auto tz = TimedateUtil::get_timezone();
+    this->time_zone_set(tz);
+}
+
+void TimedateManager::adjtime_changed(const Glib::RefPtr<Gio::File> &file,
+                                      const Glib::RefPtr<Gio::File> &other_file,
+                                      Gio::FileMonitorEvent event_type)
+{
+    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
+
+    this->local_rtc_set(TimedateUtil::is_local_rtc());
+}
+
+void TimedateManager::ntp_unit_changed(const Glib::RefPtr<Gio::File> &file,
+                                       const Glib::RefPtr<Gio::File> &other_file,
+                                       Gio::FileMonitorEvent event_type)
+{
+    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
+                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
+
+    this->init_ntp_units();
+}
+
+std::string TimedateManager::get_unit_object_path()
+{
+    RETURN_VAL_IF_TRUE(this->ntp_unit_name_.size() <= 0, std::string());
+
+    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", this->ntp_unit_name_.c_str())));
+    RETURN_VAL_IF_FALSE(result.gobj(), std::string());
+    RETURN_VAL_IF_FALSE(result.get_n_children() > 0, std::string());
+
+    auto path_base = result.get_child();
+    auto object_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(path_base).get();
+    return object_path;
 }
 
 std::vector<ZoneInfo> TimedateManager::get_zone_infos()
@@ -345,7 +508,7 @@ std::vector<ZoneInfo> TimedateManager::get_zone_infos()
         return zone_infos;
     }
 
-    auto lines = StrUtil::split_lines(contents);
+    auto lines = StrUtils::split_lines(contents);
 
     for (auto &line : lines)
     {
@@ -490,74 +653,6 @@ void TimedateManager::start_hwclock_call(bool hctosys,
     hwclock_call->handler = handler;
 
     g_child_watch_add(pid, (GChildWatchFunc)(TimedateManager::finish_hwclock_call), hwclock_call);
-}
-
-void TimedateManager::read_ntp_units()
-{
-    SETTINGS_PROFILE("");
-    this->ntp_units_.clear();
-
-    for (auto iter = ntp_units_paths_.begin(); iter != ntp_units_paths_.end(); ++iter)
-    {
-        auto &unit_dir = *iter;
-        try
-        {
-            Glib::Dir dir(unit_dir);
-
-            for (auto dir_iter = dir.begin(); dir_iter != dir.end(); ++dir_iter)
-            {
-                auto entry = *dir_iter;
-                auto path = fmt::format("{0}/{1}", unit_dir, entry);
-                std::string contents;
-
-                try
-                {
-                    contents = Glib::file_get_contents(path);
-                }
-                catch (const Glib::FileError &e)
-                {
-                    LOG_WARNING("failed to get contents of the file %s: %s", path.c_str(), e.what().c_str());
-                    continue;
-                }
-
-                auto lines = StrUtil::split_lines(contents);
-
-                for (auto line_iter = lines.begin(); line_iter != lines.end(); ++line_iter)
-                {
-                    auto line = *line_iter;
-                    if (line.length() == 0 || line.at(0) == '#')
-                    {
-                        LOG_DEBUG("the line %s is ingored. length: %d", line.c_str(), line.length());
-                        continue;
-                    }
-
-                    if (!call_systemd_noresult("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", line.c_str()), false)))
-                    {
-                        LOG_DEBUG("failed to LoadUnit: %s.", line.c_str());
-                        continue;
-                    }
-
-                    LOG_DEBUG("insert ntp unit: %s %s.", line.c_str(), entry.c_str());
-                    this->ntp_units_.emplace_back(NtpUnit{line, entry});
-                }
-            }
-        }
-        catch (const Glib::FileError &e)
-        {
-            LOG_DEBUG("%s", e.what().c_str());
-        }
-    }
-
-    // Sort the units by name
-    std::stable_sort(this->ntp_units_.begin(), this->ntp_units_.end(), [](const NtpUnit &a, const NtpUnit &b) -> bool {
-        return a.name < b.name;
-    });
-
-    // Remove duplicates.
-    auto iter = std::unique(this->ntp_units_.begin(), this->ntp_units_.end(), [](NtpUnit &a, NtpUnit &b) -> bool {
-        return a.name == b.name;
-    });
-    this->ntp_units_.erase(iter, this->ntp_units_.end());
 }
 
 void TimedateManager::funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative)
@@ -758,76 +853,24 @@ void TimedateManager::finish_set_rtc_local(MethodInvocation invocation,
 void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool active)
 {
     SETTINGS_PROFILE("");
-
-    GVariantBuilder builder1, builder2;
-    int enable = 0;
-    int disable = 0;
-    std::string failed_name;
-
-    /* Reload the list to get new NTP units installed on the system */
-    this->read_ntp_units();
-
-    /* Start and enable the first NTP unit if active is true. Stop and disable
-    	   everything else. Errors are ignored for other units than first. */
-
-    for (auto iter = this->ntp_units_.begin(); iter != this->ntp_units_.end(); ++iter)
+    std::string err;
+    bool result = false;
+    if (active)
     {
-        auto &unit_name = iter->name;
-
-        if (iter == this->ntp_units_.begin() && active)
-        {
-            if (!call_systemd_noresult("StartUnit", Glib::VariantContainerBase(g_variant_new("(ss)", unit_name.c_str(), "replace"), false)) &&
-                iter == this->ntp_units_.begin())
-            {
-                failed_name = unit_name;
-                break;
-            }
-            if (!enable++)
-                g_variant_builder_init(&builder1, G_VARIANT_TYPE("as"));
-            g_variant_builder_add(&builder1, "s", unit_name.c_str());
-            LOG_DEBUG("start NTP unit: %s.", unit_name.c_str());
-        }
-        else
-        {
-            if (!call_systemd_noresult("StopUnit", Glib::VariantContainerBase(g_variant_new("(ss)", unit_name.c_str(), "replace"), false)) &&
-                iter == this->ntp_units_.begin())
-            {
-                failed_name = unit_name;
-                break;
-            }
-            if (!disable++)
-                g_variant_builder_init(&builder2, G_VARIANT_TYPE("as"));
-            g_variant_builder_add(&builder2, "s", unit_name.c_str());
-            LOG_DEBUG("stop NTP unit: %s.", unit_name.c_str());
-        }
-    }
-
-    if (failed_name.length() > 0)
-    {
-        std::string err_message = fmt::format("Failed to start/stop NTP unit: {0}.", failed_name);
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
+        result = this->start_ntp_unit(this->ntp_unit_name_, err);
     }
     else
     {
-        if (enable)
-        {
-            call_systemd_noresult("EnableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asbb)", &builder1, FALSE, TRUE), false));
-        }
-
-        if (disable)
-        {
-            call_systemd_noresult("DisableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asb)", &builder2, FALSE), false));
-        }
-
-        /* This seems to be needed to update the unit state reported by systemd */
-        if (enable || disable)
-        {
-            call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
-        }
-
-        this->ntp_set(active);
-        invocation.ret();
+        result = this->stop_ntp_unit(this->ntp_unit_name_, err);
     }
+
+    if (!result)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+    }
+
+    this->ntp_set(active);
+    invocation.ret();
 }
 
 void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)

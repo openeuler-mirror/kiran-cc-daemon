@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-23 09:50:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:11:14
+ * @LastEditTime : 2020-09-29 09:47:45
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-wrapper.cpp
  */
@@ -124,9 +124,9 @@ std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
 
 void AccountsWrapper::init()
 {
-    this->passwd_monitor_ = AccountsUtil::setup_monitor(PATH_PASSWD, sigc::mem_fun(this, &AccountsWrapper::passwd_changed));
-    this->shadow_monitor_ = AccountsUtil::setup_monitor(PATH_SHADOW, sigc::mem_fun(this, &AccountsWrapper::shadow_changed));
-    this->group_monitor_ = AccountsUtil::setup_monitor(PATH_GROUP, sigc::mem_fun(this, &AccountsWrapper::group_changed));
+    this->passwd_monitor_ = FileUtils::make_monitor_file(PATH_PASSWD, sigc::mem_fun(this, &AccountsWrapper::passwd_changed));
+    this->shadow_monitor_ = FileUtils::make_monitor_file(PATH_SHADOW, sigc::mem_fun(this, &AccountsWrapper::shadow_changed));
+    this->group_monitor_ = FileUtils::make_monitor_file(PATH_GROUP, sigc::mem_fun(this, &AccountsWrapper::group_changed));
 
     this->reload_passwd();
     this->reload_shadow();
