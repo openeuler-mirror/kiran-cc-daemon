@@ -2,8 +2,12 @@
 
 
 include(GNUInstallDirs)
+
+set(KCC_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(KCC_INSTALL_BINDIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+
 set(SYSCONFDIR "/etc" CACHE PATH "Installation directory for configurations")
-set(KCC_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/kiran-cc-daemon)
+set(KCC_PLUGIN_DIR ${KCC_INSTALL_LIBDIR}/kiran-cc-daemon)
 
 
 # Determine the platform.
