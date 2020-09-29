@@ -386,7 +386,7 @@ bool TimedateManager::start_ntp_unit(const std::string &name, std::string &err)
     else
     {
         g_variant_builder_add(&builder, "s", name.c_str());
-        call_systemd_noresult("EnableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asb)", &builder, FALSE), false));
+        call_systemd_noresult("EnableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asbb)", &builder, FALSE, TRUE), false));
         call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
     }
     return true;
