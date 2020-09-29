@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-06 10:01:58
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:28:44
+ * @LastEditTime : 2020-09-29 16:49:42
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.h
  */
@@ -25,12 +25,6 @@ struct ZoneInfo
 class TimedateManager : public SystemDaemon::TimeDateStub
 {
 private:
-    struct NtpUnit
-    {
-        std::string name;
-        std::string sort_name;
-    };
-
     struct HWClockCall
     {
         Glib::RefPtr<Gio::DBus::MethodInvocation> invocation;
@@ -67,23 +61,39 @@ protected:
     // 是否开启网络时间同步
     virtual void SetNTP(bool active, MethodInvocation &invocation);
 
-    virtual bool time_zone_setHandler(const Glib::ustring &value) { return true; };
-
-    virtual bool local_rtc_setHandler(bool value) { return true; };
+    virtual bool time_zone_setHandler(const Glib::ustring &value);
+    virtual bool local_rtc_setHandler(bool value);
     virtual bool can_ntp_setHandler(bool value) { return true; };
-    virtual bool ntp_setHandler(bool value) { return true; };
+    virtual bool ntp_setHandler(bool value);
     virtual bool system_time_setHandler(guint64 value) { return true; };
     virtual bool rtc_time_setHandler(guint64 value) { return true; };
 
-    virtual Glib::ustring time_zone_get();
-    virtual bool local_rtc_get();
-    virtual bool can_ntp_get();
-    virtual bool ntp_get();
+    virtual Glib::ustring time_zone_get() { return this->time_zone_; };
+    virtual bool local_rtc_get() { return this->local_rtc_; };
+    virtual bool can_ntp_get() { return this->ntp_unit_name_.length() > 0; };
+    virtual bool ntp_get() { return this->ntp_active_; };
     virtual guint64 system_time_get();
     virtual guint64 rtc_time_get();
 
 private:
     void init();
+    void init_ntp_units();
+    // 获取可用的时间同步服务
+    std::vector<std::string> get_ntp_units();
+    // 开启NTP服务
+    bool start_ntp_unit(const std::string &name, std::string &err);
+    // 停止NTP服务
+    bool stop_ntp_unit(const std::string &name, std::string &err);
+    // NTP服务是否开启
+    bool ntp_is_active();
+
+    // 监控信号变化处理
+    void ntp_unit_props_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties, const std::vector<Glib::ustring> &invalidated_properties);
+    void time_zone_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
+    void adjtime_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
+    void ntp_unit_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
+
+    std::string get_unit_object_path();
 
     std::vector<ZoneInfo> get_zone_infos();
 
@@ -97,7 +107,6 @@ private:
                             Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                             AuthManager::AuthCheckHandler handler);
 
-    void read_ntp_units();
     void funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative);
 
     void set_localtime_file_context(const std::string &path);
@@ -126,6 +135,15 @@ private:
     Glib::RefPtr<Gio::DBus::Proxy> systemd_proxy_;
     Glib::RefPtr<Gio::DBus::Proxy> polkit_proxy_;
 
-    std::vector<NtpUnit> ntp_units_;
+    std::string ntp_unit_name_;
+    Glib::RefPtr<Gio::DBus::Proxy> ntp_unit_proxy_;
+
+    Glib::RefPtr<Gio::FileMonitor> tz_monitor_;
+    Glib::RefPtr<Gio::FileMonitor> adjtime_monitor_;
+    std::vector<Glib::RefPtr<Gio::FileMonitor>> ntp_unit_monitors_;
+
+    std::string time_zone_;
+    bool local_rtc_;
+    bool ntp_active_;
 };
 }  // namespace Kiran

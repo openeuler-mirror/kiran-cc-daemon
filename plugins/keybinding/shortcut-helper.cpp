@@ -21,7 +21,7 @@ namespace Kiran
 KeyState ShortCutHelper::get_keystate(const std::string &key_comb)
 {
     RETURN_VAL_IF_TRUE(key_comb.length() == 0, NULL_KEYSTATE);
-    RETURN_VAL_IF_TRUE(StrUtil::tolower(key_comb) == SHORTCUT_KEYCOMB_DISABLE, NULL_KEYSTATE);
+    RETURN_VAL_IF_TRUE(StrUtils::tolower(key_comb) == SHORTCUT_KEYCOMB_DISABLE, NULL_KEYSTATE);
 
     KeyState key_state;
     size_t cur_pos = 0;
@@ -35,7 +35,7 @@ KeyState ShortCutHelper::get_keystate(const std::string &key_comb)
             {
                 return INVALID_KEYSTATE;
             }
-            auto token = StrUtil::tolower(key_comb.substr(cur_pos, gt_pos - cur_pos + 1));
+            auto token = StrUtils::tolower(key_comb.substr(cur_pos, gt_pos - cur_pos + 1));
             cur_pos = gt_pos + 1;
             switch (shash(token.c_str()))
             {

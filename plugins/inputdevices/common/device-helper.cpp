@@ -111,7 +111,7 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
     SETTINGS_PROFILE("device_name: %s property_name: %s property_value: %s.",
                      this->device_info_->name,
                      property_name.c_str(),
-                     StrUtil::join(property_value, ",").c_str());
+                     StrUtils::join(property_value, ",").c_str());
 
     RETURN_IF_TRUE(this->device_ == NULL);
 

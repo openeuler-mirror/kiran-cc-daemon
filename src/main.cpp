@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 17:00:34
+ * @LastEditTime : 2020-09-29 16:51:23
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
@@ -27,7 +27,7 @@ class ScreenLogger : public Kiran::ILogger
 public:
     void write_log(const char* buff, uint32_t len)
     {
-        g_print("%s\n", buff);
+        g_print("%s", buff);
     }
 };
 

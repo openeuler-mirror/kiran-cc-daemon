@@ -31,11 +31,11 @@ struct formatter<Glib::ustring>
 
 namespace Kiran
 {
-class StrUtil
+class StrUtils
 {
 public:
-    StrUtil(){};
-    virtual ~StrUtil(){};
+    StrUtils(){};
+    virtual ~StrUtils(){};
 
     static std::vector<std::string> split_lines(const std::string &s);
     static std::string tolower(const std::string &str);
@@ -47,7 +47,7 @@ public:
 };
 
 template <class T>
-std::string StrUtil::join(const std::vector<T> &vec, const std::string &join_chars)
+std::string StrUtils::join(const std::vector<T> &vec, const std::string &join_chars)
 {
     std::string str;
     for (size_t i = 0; i < vec.size(); ++i)

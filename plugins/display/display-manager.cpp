@@ -641,7 +641,7 @@ std::string DisplayManager::get_monitors_uid()
         result.push_back(iter.second->get_uid());
     }
     std::sort(result.begin(), result.end(), std::less<std::string>());
-    return StrUtil::join(result, MONITOR_JOIN_CHAR);
+    return StrUtils::join(result, MONITOR_JOIN_CHAR);
 }
 
 std::string DisplayManager::get_c_monitors_uid(const ScreenConfigInfo::MonitorSequence &monitors)
@@ -652,7 +652,7 @@ std::string DisplayManager::get_c_monitors_uid(const ScreenConfigInfo::MonitorSe
         result.push_back(monitor.uid());
     }
     std::sort(result.begin(), result.end(), std::less<std::string>());
-    return StrUtil::join(result, MONITOR_JOIN_CHAR);
+    return StrUtils::join(result, MONITOR_JOIN_CHAR);
 }
 
 bool DisplayManager::save_to_file(std::string &err)

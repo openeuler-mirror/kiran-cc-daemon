@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:13:16
+ * @LastEditTime : 2020-09-29 11:25:17
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -183,7 +183,7 @@ void AccountsManager::init()
                                                  sigc::mem_fun(this, &AccountsManager::on_name_lost));
 
     this->passwd_wrapper_->signal_file_changed().connect(sigc::mem_fun(this, &AccountsManager::accounts_file_changed));
-    this->gdm_custom_monitor_ = AccountsUtil::setup_monitor(PATH_GDM_CUSTOM, sigc::mem_fun(this, &AccountsManager::gdm_custom_changed));
+    this->gdm_custom_monitor_ = FileUtils::make_monitor_file(PATH_GDM_CUSTOM, sigc::mem_fun(this, &AccountsManager::gdm_custom_changed));
 
     reload_users();
     update_automatic_login();
@@ -542,7 +542,7 @@ bool AccountsManager::read_autologin_from_file(std::string &name, bool &enabled,
     try
     {
         auto enabled_value = keyfile.get_string("daemon", "AutomaticLoginEnable");
-        enabled_value = StrUtil::tolower(enabled_value);
+        enabled_value = StrUtils::tolower(enabled_value);
         if (enabled_value == "true" || enabled_value == "1")
         {
             enabled = true;

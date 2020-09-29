@@ -20,4 +20,5 @@
 #include "lib/base/def.h"
 #include "lib/base/error.h"
 #include "lib/base/log.h"
-#include "lib/base/str-util.h"
+#include "lib/base/str-utils.h"
+#include "lib/base/file-utils.h"
