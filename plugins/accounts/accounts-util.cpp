@@ -164,7 +164,7 @@ Glib::RefPtr<Gio::FileMonitor> AccountsUtil::setup_monitor(const std::string &pa
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("Unable to monitor %s: %s", path, e.what().c_str());
+        LOG_WARNING("Unable to monitor %s: %s", path.c_str(), e.what().c_str());
     }
 
     return Glib::RefPtr<Gio::FileMonitor>();

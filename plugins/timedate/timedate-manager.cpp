@@ -30,6 +30,11 @@
 #include <selinux/selinux.h>
 #endif
 
+/* This may be missing in libc headers */
+#ifndef ADJ_SETOFFSET
+#define ADJ_SETOFFSET 0x0100
+#endif
+
 namespace Kiran
 {
 #define ADJTIME_PATH "/etc/adjtime"
