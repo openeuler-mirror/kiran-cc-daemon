@@ -148,14 +148,19 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
 void AccountsManager::CreateUser(const Glib::ustring &name,
                                  const Glib::ustring &real_name,
                                  gint32 account_type,
+                                 gint64 uid,
                                  MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d", name.c_str(), real_name.c_str(), account_type);
+    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d uid: %" PRIu64 ".",
+                     name.c_str(),
+                     real_name.c_str(),
+                     account_type,
+                     uid);
 
     AuthManager::get_instance()->start_auth_check(AUTH_USER_ADMIN,
                                                   TRUE,
                                                   invocation.getMessage(),
-                                                  std::bind(&AccountsManager::create_user_authorized_cb, this, std::placeholders::_1, name, real_name, account_type));
+                                                  std::bind(&AccountsManager::create_user_authorized_cb, this, std::placeholders::_1, name, real_name, account_type, uid));
 
     return;
 }
@@ -417,9 +422,11 @@ bool AccountsManager::list_non_system_users_idle(MethodInvocation invocation)
 void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
                                                 const Glib::ustring &name,
                                                 const Glib::ustring &realname,
-                                                gint32 account_type)
+                                                gint32 account_type,
+                                                gint64 uid)
 {
-    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d", name.c_str(), realname.c_str(), account_type);
+    SETTINGS_PROFILE("");
+
     auto pwent = this->passwd_wrapper_->get_passwd_by_name(name);
 
     if (pwent)
@@ -431,14 +438,13 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
     LOG_DEBUG("create user '%s'", name.c_str());
 
-    std::vector<std::string> argv;
+    std::vector<std::string> argv = {"/usr/sbin/useradd", "-m", "-c", realname.raw()};
     switch (account_type)
     {
     case int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR):
-        argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "-G", ADMIN_GROUP, "--", name.raw()});
+        argv.insert(argv.end(), {"-G", ADMIN_GROUP});
         break;
     case int32_t(AccountType::ACCOUNT_TYPE_STANDARD):
-        argv = std::vector<std::string>({"/usr/sbin/useradd", "-m", "-c", realname.raw(), "--", name.raw()});
         break;
     default:
     {
@@ -448,6 +454,13 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     }
     break;
     }
+
+    if (uid > 0)
+    {
+        argv.insert(argv.end(), {"-u", fmt::format("{0}", uid)});
+    }
+
+    argv.insert(argv.end(), {"--", name.raw()});
 
     std::string err;
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))

@@ -42,7 +42,11 @@ protected:
     // 通过name获取用户的DBusObjectPath
     virtual void FindUserByName(const Glib::ustring &name, MethodInvocation &invocation);
     // 创建一个用户，用户可以为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
-    virtual void CreateUser(const Glib::ustring &name, const Glib::ustring &realname, gint32 account_type, MethodInvocation &invocation);
+    virtual void CreateUser(const Glib::ustring &name,
+                            const Glib::ustring &real_name,
+                            gint32 account_type,
+                            gint64 uid,
+                            MethodInvocation &invocation);
     // 删除一个用户
     virtual void DeleteUser(guint64 uid, bool remove_files, MethodInvocation &invocation);
 
@@ -61,7 +65,11 @@ private:
     std::shared_ptr<User> find_and_create_user_by_id(uint64_t uid);
     std::shared_ptr<User> find_and_create_user_by_name(const std::string &user_name);
     bool list_non_system_users_idle(MethodInvocation invocation);
-    void create_user_authorized_cb(MethodInvocation invocation, const Glib::ustring &name, const Glib::ustring &realname, gint32 account_type);
+    void create_user_authorized_cb(MethodInvocation invocation,
+                                   const Glib::ustring &name,
+                                   const Glib::ustring &realname,
+                                   gint32 account_type,
+                                   gint64 uid);
     void delete_user_authorized_cb(MethodInvocation invocation, uint64_t uid, bool remove_files);
 
     bool is_explicitly_requested_user(const std::string &user_name);
