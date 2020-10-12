@@ -118,9 +118,11 @@ void AccountsUtil::setup_loginuid(const std::string &id)
 }
 
 bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
-                                        const Glib::ArrayHandle<std::string> argv,
+                                        const std::vector<std::string> argv,
                                         std::string &err)
 {
+    SETTINGS_PROFILE("command: %s.", StrUtils::join(argv, " ").c_str());
+
     std::string loginuid;
     int status;
     std::string working_directory;

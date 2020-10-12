@@ -43,7 +43,7 @@ public:
 
     static void setup_loginuid(const std::string &id);
     static bool spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
-                                     const Glib::ArrayHandle<std::string> argv,
+                                     const std::vector<std::string> argv,
                                      std::string &err);
 };
 }  // namespace Kiran

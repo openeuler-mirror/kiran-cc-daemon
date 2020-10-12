@@ -37,13 +37,16 @@
       <arg name="realname" direction="in" type="s">
         <doc:doc><doc:summary>The real name for the new user</doc:summary></doc:doc>
       </arg>
-      <arg name="user" direction="out" type="o">
-        <doc:doc><doc:summary>Object path of the new user</doc:summary></doc:doc>
-      </arg>
       <arg name="account_type" direction="in" type="i">
         <doc:doc>
           <doc:summary>The account type, encoded as an integer</doc:summary>
         </doc:doc>
+      </arg>
+      <arg name="uid" direction="in" type="x">
+        <doc:doc><doc:summary>The user uid. If uid is less than zero, then auto to allocate one.</doc:summary></doc:doc>
+      </arg>
+      <arg name="user" direction="out" type="o">
+        <doc:doc><doc:summary>Object path of the new user</doc:summary></doc:doc>
       </arg>
     </method>
 
