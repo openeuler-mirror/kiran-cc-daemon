@@ -248,6 +248,33 @@ void User::remove_cache_file()
     g_remove(icon_filename.c_str());
 }
 
+Glib::ustring User::icon_file_get()
+{
+    auto filename = this->icon_file_;
+    if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
+    {
+        // 使用缓存目录的图标
+        filename = Glib::build_filename(ICONDIR, this->user_name_get());
+        if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
+        {
+            // 使用用户主目录的图标
+            auto home_dir = this->home_directory_get();
+            filename = Glib::build_filename(home_dir, ".face");
+            if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
+            {
+                filename = Glib::ustring();
+            }
+        }
+    }
+    if (filename != this->icon_file_)
+    {
+        auto idle = Glib::MainContext::get_default()->signal_idle();
+        idle.connect(sigc::bind(sigc::mem_fun(this, &User::icon_file_changed), filename));
+    }
+
+    return filename;
+}
+
 #define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
     void User::fun(MethodInvocation &invocation)                                                                \
     {                                                                                                           \
@@ -441,38 +468,25 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), e.what().c_str()));
-            return;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, e.what().c_str());
         }
-
-        auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
 
         if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
         {
-            auto err_message = fmt::format("file '{0}' is not a regular file", filename.raw());
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
-            return;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "file '{0}' is not a regular file", filename.raw());
         }
 
+        auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
         if (size > 1048576)
         {
-            auto err_message = fmt::format("file '{0}' is too large to be used as an icon", filename.raw());
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
-            return;
-        }
-
-        auto mode = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_UNIX_MODE);
-        if ((mode & S_IROTH) != 0 && Glib::str_has_prefix(filename, ICONDIR))
-        {
-            break;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "file '{0}' is too large to be used as an icon", filename.raw());
         }
 
         // copy file to directory ICONDIR
         int32_t uid;
         if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
         {
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "failed to copy file, could not determine caller UID"));
-            return;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to copy file, could not determine caller UID");
         }
 
         auto dest_path = Glib::build_filename(ICONDIR, this->user_name_get());
@@ -484,9 +498,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            auto err_message = fmt::format("creating file '{0}' failed: {1}", dest_path, e.what().raw());
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
-            return;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "creating file '{0}' failed: {1}", dest_path, e.what().raw());
         }
 
         std::vector<std::string> argv = {"/bin/cat", filename.raw()};
@@ -506,9 +518,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            auto err_message = fmt::format("reading file '{0}' failed: {1}", filename.raw(), e.what().raw());
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
-            return;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "reading file '{0}' failed: {1}", filename.raw(), e.what().raw());
         }
 
         auto input = Glib::wrap(g_unix_input_stream_new(std_out, false));
@@ -525,16 +535,22 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
 
         if (bytes < 0 || (uint64_t)bytes != size)
         {
-            auto err_message = fmt::format("copying file '{0}' to '{1}' failed: {2}", filename.raw(), dest_path, err.c_str());
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
+            DBUS_ERROR_REPLY(CCError::ERROR_FAILED, "copying file '{0}' to '{1}' failed: {2}", filename.raw(), dest_path, err.c_str());
             IGNORE_EXCEPTION(dest_file->remove());
             return;
         }
-        filename = dest_path;
+
+        auto mode = file_info->get_attribute_uint32(G_FILE_ATTRIBUTE_UNIX_MODE);
+        if ((mode & S_IROTH) == 0)
+        {
+            filename = dest_path;
+        }
+
     } while (0);
 
     this->icon_file_set(filename);
     this->save_cache_file();
+    invocation.ret();
 }
 
 void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
@@ -688,6 +704,38 @@ void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocat
                    this->spwd_->sp_inact);
 }
 
+#define USER_PROP_SET_HANDLER(prop, type)                                  \
+    bool User::prop##_setHandler(type value)                               \
+    {                                                                      \
+        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str()); \
+        this->prop##_ = value;                                             \
+        return true;                                                       \
+    }
+
+USER_PROP_SET_HANDLER(uid, guint64);
+USER_PROP_SET_HANDLER(user_name, const Glib::ustring &);
+USER_PROP_SET_HANDLER(real_name, const Glib::ustring &);
+USER_PROP_SET_HANDLER(account_type, gint32);
+USER_PROP_SET_HANDLER(home_directory, const Glib::ustring &);
+USER_PROP_SET_HANDLER(shell, const Glib::ustring &);
+USER_PROP_SET_HANDLER(email, const Glib::ustring &);
+USER_PROP_SET_HANDLER(language, const Glib::ustring &);
+USER_PROP_SET_HANDLER(session, const Glib::ustring &);
+USER_PROP_SET_HANDLER(session_type, const Glib::ustring &);
+USER_PROP_SET_HANDLER(x_session, const Glib::ustring &);
+USER_PROP_SET_HANDLER(icon_file, const Glib::ustring &);
+USER_PROP_SET_HANDLER(locked, bool);
+USER_PROP_SET_HANDLER(password_mode, gint32);
+USER_PROP_SET_HANDLER(password_hint, const Glib::ustring &);
+USER_PROP_SET_HANDLER(automatic_login, bool);
+USER_PROP_SET_HANDLER(system_account, bool);
+
+bool User::icon_file_changed(const Glib::ustring &value)
+{
+    this->icon_file_set(value);
+    return false;
+}
+
 AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
 {
     g_return_val_if_fail(passwd, AccountType::ACCOUNT_TYPE_STANDARD);
@@ -723,11 +771,10 @@ void User::reset_icon_file()
 {
     auto icon_file = this->icon_file_get();
     auto home_dir = this->home_directory_get();
-
-    bool icon_is_default = (icon_file == this->default_icon_file_);
-
+    bool icon_is_default = (icon_file.length() == 0 || icon_file == this->default_icon_file_);
+    // 更新默认图标路径，因为用户主目录可能已经变化
     this->default_icon_file_ = Glib::build_filename(home_dir, ".face");
-
+    // 如果用户之前未使用图标或者使用的是默认图标，则重新更新路径（主目录可能发生变化）。
     if (icon_is_default)
     {
         this->icon_file_set(this->default_icon_file_);

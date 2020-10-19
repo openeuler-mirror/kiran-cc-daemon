@@ -63,8 +63,8 @@ public:
     virtual Glib::ustring language_get() { return this->language_; };
     virtual Glib::ustring session_get() { return this->session_; };
     virtual Glib::ustring session_type_get() { return this->session_type_; };
-    virtual Glib::ustring x_session_get() { return this->xsession_; };
-    virtual Glib::ustring icon_file_get() { return this->icon_file_; };
+    virtual Glib::ustring x_session_get() { return this->x_session_; };
+    virtual Glib::ustring icon_file_get();
     virtual bool locked_get() { return this->locked_; };
     virtual gint32 password_mode_get() { return this->password_mode_; };
     virtual Glib::ustring password_hint_get() { return this->password_hint_; };
@@ -108,92 +108,23 @@ protected:
     // 获取用户密码过期信息
     virtual void GetPasswordExpirationPolicy(MethodInvocation &invocation);
 
-    virtual bool uid_setHandler(guint64 value)
-    {
-        this->uid_ = value;
-        return true;
-    };
-    virtual bool user_name_setHandler(const Glib::ustring &value)
-    {
-        this->user_name_ = value;
-        return true;
-    };
-    virtual bool real_name_setHandler(const Glib::ustring &value)
-    {
-        this->real_name_ = value;
-        return true;
-    };
-    virtual bool account_type_setHandler(gint32 value)
-    {
-        this->account_type_ = value;
-        return true;
-    };
-    virtual bool home_directory_setHandler(const Glib::ustring &value)
-    {
-        this->home_directory_ = value;
-        return true;
-    };
-    virtual bool shell_setHandler(const Glib::ustring &value)
-    {
-        this->shell_ = value;
-        return true;
-    };
-    virtual bool email_setHandler(const Glib::ustring &value)
-    {
-        this->email_ = value;
-        return true;
-    };
-    virtual bool language_setHandler(const Glib::ustring &value)
-    {
-        this->language_ = value;
-        return true;
-    };
-    virtual bool session_setHandler(const Glib::ustring &value)
-    {
-        this->session_ = value;
-        return true;
-    };
-    virtual bool session_type_setHandler(const Glib::ustring &value)
-    {
-        this->session_type_ = value;
-        return true;
-    };
-    virtual bool x_session_setHandler(const Glib::ustring &value)
-    {
-        this->xsession_ = value;
-        return true;
-    };
-
-    virtual bool icon_file_setHandler(const Glib::ustring &value)
-    {
-        this->icon_file_ = value;
-        return true;
-    };
-    virtual bool locked_setHandler(bool value)
-    {
-        this->locked_ = value;
-        return true;
-    };
-    virtual bool password_mode_setHandler(gint32 value)
-    {
-        this->password_mode_ = value;
-        return true;
-    };
-    virtual bool password_hint_setHandler(const Glib::ustring &value)
-    {
-        this->password_hint_ = value;
-        return true;
-    };
-    virtual bool automatic_login_setHandler(bool value)
-    {
-        this->automatic_login_ = value;
-        return true;
-    };
-    virtual bool system_account_setHandler(bool value)
-    {
-        this->system_account_ = value;
-        return true;
-    };
+    virtual bool uid_setHandler(guint64 value);
+    virtual bool user_name_setHandler(const Glib::ustring &value);
+    virtual bool real_name_setHandler(const Glib::ustring &value);
+    virtual bool account_type_setHandler(gint32 value);
+    virtual bool home_directory_setHandler(const Glib::ustring &value);
+    virtual bool shell_setHandler(const Glib::ustring &value);
+    virtual bool email_setHandler(const Glib::ustring &value);
+    virtual bool language_setHandler(const Glib::ustring &value);
+    virtual bool session_setHandler(const Glib::ustring &value);
+    virtual bool session_type_setHandler(const Glib::ustring &value);
+    virtual bool x_session_setHandler(const Glib::ustring &value);
+    virtual bool icon_file_setHandler(const Glib::ustring &value);
+    virtual bool locked_setHandler(bool value);
+    virtual bool password_mode_setHandler(gint32 value);
+    virtual bool password_hint_setHandler(const Glib::ustring &value);
+    virtual bool automatic_login_setHandler(bool value);
+    virtual bool system_account_setHandler(bool value);
 
 private:
     std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
@@ -216,6 +147,7 @@ private:
     void become_user(std::shared_ptr<Passwd> passwd);
     void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
 
+    bool icon_file_changed(const Glib::ustring &value);
     AccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
     void reset_icon_file();
 
@@ -243,7 +175,7 @@ private:
     Glib::ustring language_;
     Glib::ustring session_;
     Glib::ustring session_type_;
-    Glib::ustring xsession_;
+    Glib::ustring x_session_;
     Glib::ustring icon_file_;
     bool locked_;
     int32_t password_mode_;
