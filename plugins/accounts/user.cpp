@@ -344,6 +344,7 @@ USER_SET_ZERO_PROP_AUTH(GetPasswordExpirationPolicy, get_password_expiration_pol
 
 std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
 {
+    SETTINGS_PROFILE("own action: %s.", own_action.c_str());
     RETURN_VAL_IF_TRUE(own_action == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
 
     std::string action_id;
