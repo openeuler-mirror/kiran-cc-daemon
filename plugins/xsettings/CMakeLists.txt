@@ -6,7 +6,7 @@ file(GLOB_RECURSE XSETTINGS_H_FILES ./*.h)
 file(GLOB_RECURSE XSETTINGS_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(XSETTINGS xsettings ${CMAKE_SOURCE_DIR}/plugins/xsettings/com.unikylin.Kiran.SessionDaemon.XSettings.xml)
+GEN_DBUS_STUB(XSETTINGS xsettings ${CMAKE_SOURCE_DIR}/plugins/xsettings/com.kylinsec.Kiran.SessionDaemon.XSettings.xml)
 
 
 add_library(${TARGET_NAME} SHARED

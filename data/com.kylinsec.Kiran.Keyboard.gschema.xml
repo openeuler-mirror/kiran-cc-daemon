@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist >
-    <schema id="com.unikylin.kiran.keyboard" path="/com/unikylin/kiran/keyboard/">
+    <schema id="com.kylinsec.kiran.keyboard" path="/com/kylinsec/kiran/keyboard/">
         <key name="repeat-enabled" type="b">
             <default>true</default>
             <summary>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</summary>

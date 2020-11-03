@@ -50,13 +50,13 @@ namespace Kiran
 
 #define TIMEZONE_DOMAIN "kiran-cc-daemon-timezones"
 
-#define TIMEDATE_DBUS_NAME "com.unikylin.Kiran.SystemDaemon.TimeDate"
-#define TIMEDATE_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/TimeDate"
+#define TIMEDATE_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.TimeDate"
+#define TIMEDATE_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/TimeDate"
 
-#define POLKIT_ACTION_SET_TIME "com.unikylin.kiran.system-daemon.timedate.set-time"
-#define POLKIT_ACTION_SET_NTP_ACTIVE "com.unikylin.kiran.system-daemon.timedate.set-ntp"
-#define POLKIT_ACTION_SET_RTC_LOCAL "com.unikylin.kiran.system-daemon.timedate.set-local-rtc"
-#define POLKIT_ACTION_SET_TIMEZONE "com.unikylin.kiran.system-daemon.timedate.set-timezone"
+#define POLKIT_ACTION_SET_TIME "com.kylinsec.kiran.system-daemon.timedate.set-time"
+#define POLKIT_ACTION_SET_NTP_ACTIVE "com.kylinsec.kiran.system-daemon.timedate.set-ntp"
+#define POLKIT_ACTION_SET_RTC_LOCAL "com.kylinsec.kiran.system-daemon.timedate.set-local-rtc"
+#define POLKIT_ACTION_SET_TIMEZONE "com.kylinsec.kiran.system-daemon.timedate.set-timezone"
 #define POLKIT_AUTH_CHECK_TIMEOUT 20
 
 TimedateManager *TimedateManager::instance_ = nullptr;

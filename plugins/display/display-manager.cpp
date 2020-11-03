@@ -15,10 +15,10 @@
 #include "plugins/display/display-util.h"
 namespace Kiran
 {
-#define DISPLAY_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.Display"
-#define DISPLAY_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Display"
+#define DISPLAY_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
+#define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
 
-#define DISPLAY_SCHEMA_ID "com.unikylin.kiran.display"
+#define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_ID_STYLE "display-style"
 
 #define DISPLAY_FILE_NAME "display.xml"

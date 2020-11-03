@@ -18,7 +18,7 @@
 
 namespace Kiran
 {
-#define DISPLAY_CONF_DIR "unikylin/kiran/session-daemon/display"
+#define DISPLAY_CONF_DIR "kylinsec/kiran/session-daemon/display"
 
 class DisplayManager : public SessionDaemon::DisplayStub
 {

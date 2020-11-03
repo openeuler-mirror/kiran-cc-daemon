@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-03 19:21+0800\n"
+"POT-Creation-Date: 2020-11-03 19:59+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -17,69 +17,69 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:1
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
 msgid "Change your own user data"
 msgstr "更改本用户数据"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:2
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:2
 msgid "Authentication is required to change your own user data"
 msgstr "更改本用户数据之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:3
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:3
 msgid "Change your own user password"
 msgstr "更改本用户密码"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:4
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:4
 msgid "Authentication is required to change your own user password"
 msgstr "更改本用户密码之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:5
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:5
 msgid "Manage user accounts"
 msgstr "管理用户账户"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:6
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:6
 msgid "Authentication is required to change user data"
 msgstr "更改用户数据之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:7
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:7
 msgid "Change the login screen configuration"
 msgstr "更改登录屏幕设置"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in.h:8
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:8
 msgid "Authentication is required to change the login screen configuration"
 msgstr "更改登录屏幕设置之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:1
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:1
 msgid "Set system time"
 msgstr "设置系统时间"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:2
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:2
 msgid "Authentication is required to set the system time."
 msgstr "设置系统时间之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:3
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:3
 msgid "Set system timezone"
 msgstr "设置系统时区"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:4
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:4
 msgid "Authentication is required to set the system timezone."
 msgstr "设置系统时区之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:5
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:5
 msgid "Set RTC to local timezone or UTC"
 msgstr "设置RTC为本地时区或者UTC"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:6
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:6
 msgid ""
 "Authentication is required to control whether the RTC stores the local or "
 "UTC time."
 msgstr "设置RTC为本地时区或者UTC之前需要身份验证"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:7
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:7
 msgid "Turn network time synchronization on or off"
 msgstr "设置网络时间同步"
 
-#: ../data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in.h:8
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:8
 msgid ""
 "Authentication is required to control whether network time synchronization "
 "shall be enabled."
@@ -123,63 +123,63 @@ msgstr "内部错误"
 msgid "Refuse to delete root user"
 msgstr "禁止删除root用户"
 
-#: ../plugins/accounts/accounts-util.cpp:198
+#: ../plugins/accounts/accounts-util.cpp:197
 msgid "Can't update password file"
 msgstr "不能更新password文件"
 
-#: ../plugins/accounts/accounts-util.cpp:201
+#: ../plugins/accounts/accounts-util.cpp:200
 msgid "Invalid command syntax"
 msgstr "命令语法无效"
 
-#: ../plugins/accounts/accounts-util.cpp:204
+#: ../plugins/accounts/accounts-util.cpp:203
 msgid "Invalid argument to option"
 msgstr "命令参数无效"
 
-#: ../plugins/accounts/accounts-util.cpp:207
+#: ../plugins/accounts/accounts-util.cpp:206
 msgid "UID already in use (and no -o)"
 msgstr "UID已在使用中（并且没有-o）"
 
-#: ../plugins/accounts/accounts-util.cpp:210
+#: ../plugins/accounts/accounts-util.cpp:209
 msgid "Passwd file contains errors"
 msgstr "passwd文件存在错误"
 
-#: ../plugins/accounts/accounts-util.cpp:213
+#: ../plugins/accounts/accounts-util.cpp:212
 msgid "Specified user/group doesn't exist"
 msgstr "指定的用户/组不存在"
 
-#: ../plugins/accounts/accounts-util.cpp:216
+#: ../plugins/accounts/accounts-util.cpp:215
 msgid "User to modify is logged in"
 msgstr "要修改的用户已登陆"
 
-#: ../plugins/accounts/accounts-util.cpp:219
+#: ../plugins/accounts/accounts-util.cpp:218
 msgid "Username already in use"
 msgstr "用户名已经在使用中"
 
-#: ../plugins/accounts/accounts-util.cpp:222
+#: ../plugins/accounts/accounts-util.cpp:221
 msgid "Can't update group file"
 msgstr "不能更新group文件"
 
-#: ../plugins/accounts/accounts-util.cpp:225
+#: ../plugins/accounts/accounts-util.cpp:224
 msgid "Insufficient space to move home dir"
 msgstr "空间不足，无法移动主目录"
 
-#: ../plugins/accounts/accounts-util.cpp:228
+#: ../plugins/accounts/accounts-util.cpp:227
 msgid "Can't create/remove/move home directory"
 msgstr "不能创建/删除/移动主目录"
 
-#: ../plugins/accounts/accounts-util.cpp:232
+#: ../plugins/accounts/accounts-util.cpp:231
 msgid "Can't update SELinux user mapping"
 msgstr "无法更新SELinux用户映射"
 
-#: ../plugins/accounts/accounts-util.cpp:235
+#: ../plugins/accounts/accounts-util.cpp:234
 msgid "Can't update the subordinate uid file"
 msgstr "无法更新下级uid文件"
 
-#: ../plugins/accounts/accounts-util.cpp:238
+#: ../plugins/accounts/accounts-util.cpp:237
 msgid "Can't update the subordinate gid file"
 msgstr "无法更新下级gid文件"
 
-#: ../plugins/accounts/accounts-util.cpp:241
+#: ../plugins/accounts/accounts-util.cpp:240
 msgid "Unknown error"
 msgstr "未知错误"
 

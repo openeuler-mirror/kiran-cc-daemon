@@ -15,7 +15,7 @@
 
 namespace Kiran
 {
-#define DISPLAY_MONITOR_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Display/Monitor"
+#define DISPLAY_MONITOR_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display/Monitor"
 
 struct MonitorInfo
 {

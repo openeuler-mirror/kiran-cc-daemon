@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist >
-    <schema id="com.unikylin.kiran.mouse" path="/com/unikylin/kiran/mouse/">
+    <schema id="com.kylinsec.kiran.mouse" path="/com/kylinsec/kiran/mouse/">
         <key name="left-handed" type="b">
             <default>false</default>
             <summary>Swap left and right mouse buttons for left-handed mice.</summary>

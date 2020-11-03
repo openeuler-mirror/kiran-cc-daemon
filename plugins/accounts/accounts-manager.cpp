@@ -21,8 +21,8 @@
 
 namespace Kiran
 {
-#define ACCOUNTS_DBUS_NAME "com.unikylin.Kiran.SystemDaemon.Accounts"
-#define ACCOUNTS_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts"
+#define ACCOUNTS_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.Accounts"
+#define ACCOUNTS_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts"
 #define PATH_GDM_CUSTOM "/etc/gdm/custom.conf"
 
 AccountsManager::AccountsManager(AccountsWrapper *passwd_wrapper) : passwd_wrapper_(passwd_wrapper),

@@ -14,14 +14,14 @@
 namespace Kiran
 {
 #ifdef KCC_SYSTEM_TYPE
-#define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.SystemDaemon"
-#define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon"
+#define CC_DAEMON_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon"
+#define CC_DAEMON_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon"
 #elif KCC_SESSION_TYPE
-#define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.SessionDaemon"
-#define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon"
+#define CC_DAEMON_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon"
+#define CC_DAEMON_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon"
 #else
-#define CC_DAEMON_DBUS_NAME "com.unikylin.Kiran.CCDaemon"
-#define CC_DAEMON_OBJECT_PATH "/com/unikylin/Kiran/CCDaemon"
+#define CC_DAEMON_DBUS_NAME "com.kylinsec.Kiran.CCDaemon"
+#define CC_DAEMON_OBJECT_PATH "/com/kylinsec/Kiran/CCDaemon"
 #error need to define KCC_SYSTEM_TYPE or KCC_SESSION_TYPE
 #endif
 

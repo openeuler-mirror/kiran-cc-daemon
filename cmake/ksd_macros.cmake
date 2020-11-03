@@ -43,7 +43,7 @@ macro(GEN_DBUS_STUB UPPER LOWER XML_PATH)
                         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/generated/
                         COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/lib/python3.6/site-packages/ 
                                 ${GDBUS_CODEGEN} --generate-cpp-code=${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus
-                                            --interface-prefix=com.unikylin.
+                                            --interface-prefix=com.kylinsec.
                                             ${${UPPER}_INTROSPECTION_XML}
                         DEPENDS ${${UPPER}_INTROSPECTION_XML}
                         COMMENT "Generate the stub for the ${LOWER}")

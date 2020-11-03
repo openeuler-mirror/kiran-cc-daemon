@@ -13,8 +13,8 @@
 
 namespace Kiran
 {
-#define GSETTINGS_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.XSettings"
-#define GSETTINGS_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/XSettings"
+#define GSETTINGS_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.XSettings"
+#define GSETTINGS_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/XSettings"
 
 #define MOUSE_SCHEMA_ID "org.mate.peripherals-mouse"
 #define MOUSE_SCHEMA_DOUBLE_CLICK "double-click"

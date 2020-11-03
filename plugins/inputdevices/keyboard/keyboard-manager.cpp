@@ -17,10 +17,10 @@
 
 namespace Kiran
 {
-#define KEYBOARD_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.Keyboard"
-#define KEYBOARD_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Keyboard"
+#define KEYBOARD_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Keyboard"
+#define KEYBOARD_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keyboard"
 
-#define KEYBOARD_SCHEMA_ID "com.unikylin.kiran.keyboard"
+#define KEYBOARD_SCHEMA_ID "com.kylinsec.kiran.keyboard"
 #define KEYBOARD_SCHEMA_REPEAT_ENABLED "repeat-enabled"
 #define KEYBOARD_SCHEMA_REPEAT_DELAY "repeat-delay"
 #define KEYBOARD_SCHEMA_REPEAT_INTERVAL "repeat-interval"

@@ -27,7 +27,7 @@ namespace Kiran
 {
 #define USERDIR "/var/lib/AccountsService/users"
 #define ICONDIR "/var/lib/AccountsService/icons"
-#define ACCOUNTS_USER_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts/User"
+#define ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
 
 User::User(uint64_t uid) : object_register_id_(0),
                            uid_(uid),

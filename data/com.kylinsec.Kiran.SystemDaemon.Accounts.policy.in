@@ -7,7 +7,7 @@
   <vendor_url/>
   <icon_name>stock_person</icon_name>
 
-  <action id="com.unikylin.kiran.system-daemon.accounts.change-own-user-data">
+  <action id="com.kylinsec.kiran.system-daemon.accounts.change-own-user-data">
     <_description>Change your own user data</_description>
     <_message>Authentication is required to change your own user data</_message>
     <defaults>
@@ -17,7 +17,7 @@
     </defaults>
   </action>
 
-  <action id="com.unikylin.kiran.system-daemon.accounts.change-own-password">
+  <action id="com.kylinsec.kiran.system-daemon.accounts.change-own-password">
     <_description>Change your own user password</_description>
     <_message>Authentication is required to change your own user password</_message>
     <defaults>
@@ -27,7 +27,7 @@
     </defaults>
   </action>
 
-  <action id="com.unikylin.kiran.system-daemon.accounts.user-administration">
+  <action id="com.kylinsec.kiran.system-daemon.accounts.user-administration">
     <_description>Manage user accounts</_description>
     <_message>Authentication is required to change user data</_message>
     <defaults>
@@ -37,7 +37,7 @@
     </defaults>
   </action>
 
-  <action id="com.unikylin.kiran.system-daemon.accounts.set-login-option">
+  <action id="com.kylinsec.kiran.system-daemon.accounts.set-login-option">
     <_description>Change the login screen configuration</_description>
     <_message>Authentication is required to change the login screen configuration</_message>
     <defaults>

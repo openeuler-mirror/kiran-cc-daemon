@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist >
-    <enum id="com.unikylin.kiran.display.display-style">
+    <enum id="com.kylinsec.kiran.display.display-style">
         <value value="0" nick="mirrors" />
         <value value="1" nick="extend" />
         <value value="2" nick="custom" />
         <value value="3" nick="auto" />
     </enum>
 
-    <schema id="com.unikylin.kiran.display" path="/com/unikylin/kiran/display/">
+    <schema id="com.kylinsec.kiran.display" path="/com/kylinsec/kiran/display/">
 
-        <key name="display-style" enum="com.unikylin.kiran.display.display-style">
+        <key name="display-style" enum="com.kylinsec.kiran.display.display-style">
             <default>'auto'</default>
             <summary>The dispaly style for these connected monitors.</summary>
         </key>

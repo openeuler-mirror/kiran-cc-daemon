@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
-    <interface name="com.unikylin.Kiran.SessionDaemon.Display.Monitor">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Display.Monitor">
 
         <method name="Enable">
             <arg type="b" name="enabled" direction="in">
