@@ -122,20 +122,20 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
 
     this->locked_set(locked);
 
-    PasswordMode mode;
+    AccountsPasswordMode mode;
 
     if (!passwd || !passwd->empty())
     {
-        mode = PasswordMode::PASSWORD_MODE_REGULAR;
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR;
     }
     else
     {
-        mode = PasswordMode::PASSWORD_MODE_NONE;
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE;
     }
 
     if (this->spwd_ && this->spwd_->sp_lstchg == 0)
     {
-        mode = PasswordMode::PASSWORD_MODE_SET_AT_LOGIN;
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN;
     }
 
     this->password_mode_set(int32_t(mode));
@@ -599,7 +599,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
             }
         }
 
-        if (account_type == int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR))
+        if (account_type == int32_t(AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR))
         {
             groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), admin_gid);
         }
@@ -618,12 +618,12 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
     {
         this->freeze_notify();
 
-        if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN) ||
-            password_mode == int32_t(PasswordMode::PASSWORD_MODE_NONE))
+        if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN) ||
+            password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE))
         {
             SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/passwd", "-d", "--", this->user_name_get().raw());
 
-            if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN))
+            if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN))
             {
                 SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/chage", "-d", "0", "--", this->user_name_get().raw());
             }
@@ -658,7 +658,7 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
         return;
     }
 
-    this->password_mode_set(int32_t(PasswordMode::PASSWORD_MODE_REGULAR));
+    this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
     this->locked_set(false);
     this->password_hint_set(password_hint);
     this->save_cache_file();
@@ -737,9 +737,9 @@ bool User::icon_file_changed(const Glib::ustring &value)
     return false;
 }
 
-AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
+AccountsAccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
 {
-    g_return_val_if_fail(passwd, AccountType::ACCOUNT_TYPE_STANDARD);
+    g_return_val_if_fail(passwd, AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD);
 
     struct group *grp;
     gint i;
@@ -747,25 +747,25 @@ AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
     if (passwd->pw_uid == 0)
     {
         LOG_DEBUG("user is root so account type is administrator");
-        return AccountType::ACCOUNT_TYPE_ADMINISTRATOR;
+        return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
     }
 
     grp = getgrnam(ADMIN_GROUP);
     if (grp == NULL)
     {
         LOG_DEBUG(ADMIN_GROUP " group not found");
-        return AccountType::ACCOUNT_TYPE_STANDARD;
+        return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
     }
 
     for (i = 0; grp->gr_mem[i] != NULL; i++)
     {
         if (g_strcmp0(grp->gr_mem[i], passwd->pw_name.c_str()) == 0)
         {
-            return AccountType::ACCOUNT_TYPE_ADMINISTRATOR;
+            return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
         }
     }
 
-    return AccountType::ACCOUNT_TYPE_STANDARD;
+    return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
 }
 
 void User::reset_icon_file()

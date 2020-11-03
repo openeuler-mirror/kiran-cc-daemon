@@ -441,10 +441,10 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     std::vector<std::string> argv = {"/usr/sbin/useradd", "-m", "-c", realname.raw()};
     switch (account_type)
     {
-    case int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR):
+    case int32_t(AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR):
         argv.insert(argv.end(), {"-G", ADMIN_GROUP});
         break;
-    case int32_t(AccountType::ACCOUNT_TYPE_STANDARD):
+    case int32_t(AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD):
         break;
     default:
     {

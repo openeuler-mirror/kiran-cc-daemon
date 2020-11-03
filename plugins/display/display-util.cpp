@@ -3,30 +3,30 @@
 
 namespace Kiran
 {
-std::string DisplayUtil::rotation_to_str(RotationType rotation)
+std::string DisplayUtil::rotation_to_str(DisplayRotationType rotation)
 {
     switch (rotation)
     {
-    case RotationType::ROTATION_90:
+    case DisplayRotationType::DISPLAY_ROTATION_90:
         return "left";
-    case RotationType::ROTATION_180:
+    case DisplayRotationType::DISPLAY_ROTATION_180:
         return "inverted";
-    case RotationType::ROTATION_270:
+    case DisplayRotationType::DISPLAY_ROTATION_270:
         return "right";
     default:
         return "normal";
     }
 }
 
-std::string DisplayUtil::reflect_to_str(ReflectType reflect)
+std::string DisplayUtil::reflect_to_str(DisplayReflectType reflect)
 {
     switch (reflect)
     {
-    case ReflectType::REFLECT_X:
+    case DisplayReflectType::DISPLAY_REFLECT_X:
         return "x";
-    case ReflectType::REFLECT_Y:
+    case DisplayReflectType::DISPLAY_REFLECT_Y:
         return "y";
-    case ReflectType::REFLECT_XY:
+    case DisplayReflectType::DISPLAY_REFLECT_XY:
         return "xy";
     default:
         return "normal";
@@ -34,35 +34,35 @@ std::string DisplayUtil::reflect_to_str(ReflectType reflect)
     }
 }
 
-RotationType DisplayUtil::str_to_rotation(const std::string &str)
+DisplayRotationType DisplayUtil::str_to_rotation(const std::string &str)
 {
     switch (shash(str.c_str()))
     {
     case "left"_hash:
-        return RotationType::ROTATION_90;
+        return DisplayRotationType::DISPLAY_ROTATION_90;
     case "inverted"_hash:
-        return RotationType::ROTATION_180;
+        return DisplayRotationType::DISPLAY_ROTATION_180;
     case "right"_hash:
-        return RotationType::ROTATION_270;
+        return DisplayRotationType::DISPLAY_ROTATION_270;
     default:
-        return RotationType::ROTATION_0;
+        return DisplayRotationType::DISPLAY_ROTATION_0;
     }
-    return RotationType::ROTATION_0;
+    return DisplayRotationType::DISPLAY_ROTATION_0;
 }
 
-ReflectType DisplayUtil::str_to_reflect(const std::string &str)
+DisplayReflectType DisplayUtil::str_to_reflect(const std::string &str)
 {
     switch (shash(str.c_str()))
     {
     case "x"_hash:
-        return ReflectType::REFLECT_X;
+        return DisplayReflectType::DISPLAY_REFLECT_X;
     case "y"_hash:
-        return ReflectType::REFLECT_Y;
+        return DisplayReflectType::DISPLAY_REFLECT_Y;
     case "xy"_hash:
-        return ReflectType::REFLECT_XY;
+        return DisplayReflectType::DISPLAY_REFLECT_XY;
     default:
-        return ReflectType::REFLECT_NORMAL;
+        return DisplayReflectType::DISPLAY_REFLECT_NORMAL;
     }
-    return ReflectType::REFLECT_NORMAL;
+    return DisplayReflectType::DISPLAY_REFLECT_NORMAL;
 }
 }  // namespace Kiran

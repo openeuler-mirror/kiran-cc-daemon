@@ -20,8 +20,8 @@ MonitorInfo::MonitorInfo() : id(0),
                              enabled(false),
                              x(0),
                              y(0),
-                             rotation(RotationType::ROTATION_0),
-                             reflect(ReflectType::REFLECT_NORMAL),
+                             rotation(DisplayRotationType::DISPLAY_ROTATION_0),
+                             reflect(DisplayReflectType::DISPLAY_REFLECT_NORMAL),
                              mode(0),
                              npreferred(0)
 {
@@ -289,7 +289,7 @@ void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocatio
 
 void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 {
-    if (this->find_index_by_rotation(RotationType(rotation)) < 0)
+    if (this->find_index_by_rotation(DisplayRotationType(rotation)) < 0)
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the rotation {0} is not exist in rotation list.", rotation);
     }
@@ -299,7 +299,7 @@ void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 
 void DisplayMonitor::SetReflect(guint16 reflect, MethodInvocation &invocation)
 {
-    if (this->find_index_by_reflect(ReflectType(reflect)) < 0)
+    if (this->find_index_by_reflect(DisplayReflectType(reflect)) < 0)
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the reflect {0} is not exist in reflect list.", reflect);
     }
@@ -321,8 +321,8 @@ SET_SIMPLE_PROP1(connected, bool);
 SET_SIMPLE_PROP1(enabled, bool);
 SET_SIMPLE_PROP1(x, gint32);
 SET_SIMPLE_PROP1(y, gint32);
-SET_SIMPLE_PROP2(rotation, guint16, RotationType);
-SET_SIMPLE_PROP2(reflect, guint16, ReflectType);
+SET_SIMPLE_PROP2(rotation, guint16, DisplayRotationType);
+SET_SIMPLE_PROP2(reflect, guint16, DisplayReflectType);
 SET_SIMPLE_PROP1(npreferred, gint32);
 
 bool DisplayMonitor::id_setHandler(guint32 value)
@@ -342,7 +342,7 @@ bool DisplayMonitor::rotations_setHandler(const std::vector<guint16> &value)
     this->monitor_info_.rotations.clear();
     for (const auto &rotation : value)
     {
-        this->monitor_info_.rotations.push_back(RotationType(rotation));
+        this->monitor_info_.rotations.push_back(DisplayRotationType(rotation));
     }
     return true;
 }
@@ -352,7 +352,7 @@ bool DisplayMonitor::reflects_setHandler(const std::vector<guint16> &value)
     this->monitor_info_.reflects.clear();
     for (const auto &reflect : value)
     {
-        this->monitor_info_.reflects.push_back(ReflectType(reflect));
+        this->monitor_info_.reflects.push_back(DisplayReflectType(reflect));
     }
     return true;
 }
@@ -385,7 +385,7 @@ int32_t DisplayMonitor::find_index_by_mode_id(uint32_t mode_id)
     return -1;
 }
 
-int32_t DisplayMonitor::find_index_by_rotation(RotationType rotation)
+int32_t DisplayMonitor::find_index_by_rotation(DisplayRotationType rotation)
 {
     for (int32_t i = 0; i < (int32_t)this->monitor_info_.rotations.size(); ++i)
     {
@@ -397,7 +397,7 @@ int32_t DisplayMonitor::find_index_by_rotation(RotationType rotation)
     return -1;
 }
 
-int32_t DisplayMonitor::find_index_by_reflect(ReflectType reflect)
+int32_t DisplayMonitor::find_index_by_reflect(DisplayReflectType reflect)
 {
     for (int32_t i = 0; i < (int32_t)this->monitor_info_.reflects.size(); ++i)
     {

@@ -34,9 +34,9 @@ struct MonitorInfo
     int32_t x;
     int32_t y;
     // 旋转类型
-    RotationType rotation;
+    DisplayRotationType rotation;
     // 翻转类型
-    ReflectType reflect;
+    DisplayReflectType reflect;
     // 可设置的旋转列表
     RotationTypeVec rotations;
     // 可设置的翻转列表
@@ -48,8 +48,6 @@ struct MonitorInfo
     // 最佳的modes列表
     int npreferred;
 };
-
-
 
 class DisplayMonitor : public SessionDaemon::Display::MonitorStub
 {
@@ -127,8 +125,8 @@ protected:
 
 private:
     int32_t find_index_by_mode_id(uint32_t mode_id);
-    int32_t find_index_by_rotation(RotationType rotation);
-    int32_t find_index_by_reflect(ReflectType reflect);
+    int32_t find_index_by_rotation(DisplayRotationType rotation);
+    int32_t find_index_by_reflect(DisplayReflectType reflect);
 
 private:
     Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;

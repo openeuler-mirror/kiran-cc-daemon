@@ -202,24 +202,24 @@ RotationTypeVec XrandrManager::get_rotations(std::shared_ptr<CrtcInfo> crtc)
 {
     RotationTypeVec rotations;
 
-    if ((crtc->rotations & uint16_t(RotationType::ROTATION_0)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayRotationType::DISPLAY_ROTATION_0)) != 0)
     {
-        rotations.push_back(RotationType::ROTATION_0);
+        rotations.push_back(DisplayRotationType::DISPLAY_ROTATION_0);
     }
 
-    if ((crtc->rotations & uint16_t(RotationType::ROTATION_90)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayRotationType::DISPLAY_ROTATION_90)) != 0)
     {
-        rotations.push_back(RotationType::ROTATION_90);
+        rotations.push_back(DisplayRotationType::DISPLAY_ROTATION_90);
     }
 
-    if ((crtc->rotations & uint16_t(RotationType::ROTATION_180)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayRotationType::DISPLAY_ROTATION_180)) != 0)
     {
-        rotations.push_back(RotationType::ROTATION_180);
+        rotations.push_back(DisplayRotationType::DISPLAY_ROTATION_180);
     }
 
-    if ((crtc->rotations & uint16_t(RotationType::ROTATION_270)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayRotationType::DISPLAY_ROTATION_270)) != 0)
     {
-        rotations.push_back(RotationType::ROTATION_270);
+        rotations.push_back(DisplayRotationType::DISPLAY_ROTATION_270);
     }
 
     return rotations;
@@ -227,21 +227,21 @@ RotationTypeVec XrandrManager::get_rotations(std::shared_ptr<CrtcInfo> crtc)
 
 ReflectTypeVec XrandrManager::get_reflects(std::shared_ptr<CrtcInfo> crtc)
 {
-    ReflectTypeVec reflects{ReflectType::REFLECT_NORMAL};
+    ReflectTypeVec reflects{DisplayReflectType::DISPLAY_REFLECT_NORMAL};
 
-    if ((crtc->rotations & uint16_t(ReflectType::REFLECT_X)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayReflectType::DISPLAY_REFLECT_X)) != 0)
     {
-        reflects.push_back(ReflectType::REFLECT_X);
+        reflects.push_back(DisplayReflectType::DISPLAY_REFLECT_X);
     }
 
-    if ((crtc->rotations & uint16_t(ReflectType::REFLECT_Y)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayReflectType::DISPLAY_REFLECT_Y)) != 0)
     {
-        reflects.push_back(ReflectType::REFLECT_Y);
+        reflects.push_back(DisplayReflectType::DISPLAY_REFLECT_Y);
     }
 
-    if ((crtc->rotations & uint16_t(ReflectType::REFLECT_XY)) != 0)
+    if ((crtc->rotations & uint16_t(DisplayReflectType::DISPLAY_REFLECT_XY)) != 0)
     {
-        reflects.push_back(ReflectType::REFLECT_XY);
+        reflects.push_back(DisplayReflectType::DISPLAY_REFLECT_XY);
     }
     return reflects;
 }
@@ -485,8 +485,8 @@ void XrandrManager::clear_xrandr()
 
 bool XrandrManager::is_rotation(Rotation rotation)
 {
-    if ((rotation & uint16_t(RotationType::ROTATION_90)) != 0 ||
-        (rotation & uint16_t(RotationType::ROTATION_270)) != 0)
+    if ((rotation & uint16_t(DisplayRotationType::DISPLAY_ROTATION_90)) != 0 ||
+        (rotation & uint16_t(DisplayRotationType::DISPLAY_ROTATION_270)) != 0)
     {
         return true;
     }

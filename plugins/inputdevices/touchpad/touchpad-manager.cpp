@@ -270,10 +270,10 @@ void TouchPadManager::set_click_method_to_device(std::shared_ptr<DeviceHelper> d
     {
         switch (this->click_method_)
         {
-        case int32_t(ClickMethod::BUTTON_AREAS):
+        case int32_t(TouchPadClickMethod::TOUCHPAD_CLICK_METHOD_BUTTON_AREAS):
             device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{true, false});
             break;
-        case int32_t(ClickMethod::CLICK_FINGER):
+        case int32_t(TouchPadClickMethod::TOUCHPAD_CLICK_METHOD_CLICK_FINGER):
             device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{false, true});
             break;
         default:
@@ -292,13 +292,13 @@ void TouchPadManager::set_scroll_method_to_device(std::shared_ptr<DeviceHelper> 
     {
         switch (this->scroll_method_)
         {
-        case int32_t(ScrollMethod::TWO_FINGER):
+        case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_TWO_FINGER):
             device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{true, false, false});
             break;
-        case int32_t(ScrollMethod::EDGE):
+        case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_EDGE):
             device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, true, false});
             break;
-        case int32_t(ScrollMethod::BUTTON):
+        case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_BUTTON):
             device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, false, true});
             break;
         default:

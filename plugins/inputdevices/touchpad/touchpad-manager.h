@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-08-13 09:56:22
+ * @LastEditTime : 2020-11-03 08:51:53
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.h
  */
@@ -12,23 +12,10 @@
 #include <touchpad_dbus_stub.h>
 
 #include "plugins/inputdevices/common/device-helper.h"
+#include "plugins/inputdevices/touchpad/touchpad_i.h"
 
 namespace Kiran
 {
-enum class ClickMethod : int32_t
-{
-
-    BUTTON_AREAS,
-    CLICK_FINGER,
-};
-
-enum class ScrollMethod
-{
-    TWO_FINGER,
-    EDGE,
-    BUTTON,
-};
-
 class TouchPadManager : public SessionDaemon::TouchPadStub
 {
 public:

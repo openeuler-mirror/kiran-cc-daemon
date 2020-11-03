@@ -13,27 +13,12 @@
 
 #include "plugins/display/display-monitor.h"
 #include "plugins/display/display.hxx"
+#include "plugins/display/display_i.h"
 #include "plugins/display/xrandr-manager.h"
 
 namespace Kiran
 {
 #define DISPLAY_CONF_DIR "unikylin/kiran/session-daemon/display"
-
-// 显示模式，只有在下列情况会使用显示模式进行设置：
-// 1. 程序第一次启动
-// 2. 有连接设备删除和添加时
-// 3. 显示调用dbus接口进行切换显示模式
-enum class DisplayStyle : uint32_t
-{
-    // 所有显示器显示内容相同
-    MIRRORS,
-    // 按照横向扩展的方式显示
-    EXTEND,
-    // 自定义模式,会从配置文件中匹配合适的显示器参数
-    CUSTOM,
-    // 自动模式，按照CUSTOM->EXTEND->MIRRORS的顺序进行尝试，直到设置成功
-    AUTO,
-};
 
 class DisplayManager : public SessionDaemon::DisplayStub
 {
