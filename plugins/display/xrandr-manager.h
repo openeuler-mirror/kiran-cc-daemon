@@ -6,20 +6,10 @@
 #include <X11/extensions/Xrandr.h>
 #include <gdk/gdkx.h>
 
+#include "plugins/display/display_i.h"
+
 namespace Kiran
 {
-/*
-术语：
-    screen: 虚拟的屏幕。
-    output: 对应主机中的一个显示接口(显示器)，这个接口可以是VGA/DVI/HDMI等。
-    crtc: 是用来控制output在屏幕中显示的位置、宽度、高度、旋转和翻转等操作
-    mode: 用于设置分辨率和刷新率
-
-关系：
-    一个output同一时间只对应一个crtc，一个crtc同一时间只对应一个mode
-    crtc控制output放在屏幕中的位置和大小，但是不能超出屏幕的大小范围
-*/
-
 struct ScreenInfo
 {
     ScreenInfo();
@@ -61,23 +51,7 @@ struct OutputInfo
     std::string edid;
 };
 using OutputInfoVec = std::vector<std::shared_ptr<OutputInfo>>;
-
-enum RotationType : uint16_t
-{
-    ROTATION_0 = (1 << 0),
-    ROTATION_90 = (1 << 1),
-    ROTATION_180 = (1 << 2),
-    ROTATION_270 = (1 << 3),
-};
 using RotationTypeVec = std::vector<uint16_t>;
-
-enum ReflectType : uint16_t
-{
-    REFLECT_NORMAL = 0,
-    REFLECT_X = (1 << 4),
-    REFLECT_Y = (1 << 5),
-    REFLECT_XY = (1 << 4) + (1 << 5)
-};
 using ReflectTypeVec = std::vector<uint16_t>;
 
 #define ROTATION_ALL_MASK 0xf

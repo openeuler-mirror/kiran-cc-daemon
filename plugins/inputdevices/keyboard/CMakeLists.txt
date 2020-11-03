@@ -6,7 +6,7 @@ file(GLOB_RECURSE KEYBOARD_H_FILES ./*.h)
 file(GLOB_RECURSE KEYBOARD_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(KEYBOARD keyboard ${CMAKE_SOURCE_DIR}/plugins/inputdevices/keyboard/com.unikylin.Kiran.SessionDaemon.Keyboard.xml)
+GEN_DBUS_STUB(KEYBOARD keyboard ${CMAKE_SOURCE_DIR}/plugins/inputdevices/keyboard/com.kylinsec.Kiran.SessionDaemon.Keyboard.xml)
 
 
 add_library(${TARGET_NAME} SHARED

@@ -11,6 +11,7 @@
 
 #include <fmt/format.h>
 #include <gio/gunixinputstream.h>
+#include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <grp.h>
 
@@ -26,7 +27,7 @@ namespace Kiran
 {
 #define USERDIR "/var/lib/AccountsService/users"
 #define ICONDIR "/var/lib/AccountsService/icons"
-#define ACCOUNTS_USER_OBJECT_PATH "/com/unikylin/Kiran/SystemDaemon/Accounts/User"
+#define ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
 
 User::User(uint64_t uid) : object_register_id_(0),
                            uid_(uid),
@@ -122,20 +123,20 @@ void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
 
     this->locked_set(locked);
 
-    PasswordMode mode;
+    AccountsPasswordMode mode;
 
     if (!passwd || !passwd->empty())
     {
-        mode = PasswordMode::PASSWORD_MODE_REGULAR;
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR;
     }
     else
     {
-        mode = PasswordMode::PASSWORD_MODE_NONE;
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE;
     }
 
     if (this->spwd_ && this->spwd_->sp_lstchg == 0)
     {
-        mode = PasswordMode::PASSWORD_MODE_SET_AT_LOGIN;
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN;
     }
 
     this->password_mode_set(int32_t(mode));
@@ -344,6 +345,7 @@ USER_SET_ZERO_PROP_AUTH(GetPasswordExpirationPolicy, get_password_expiration_pol
 
 std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
 {
+    SETTINGS_PROFILE("own action: %s.", own_action.c_str());
     RETURN_VAL_IF_TRUE(own_action == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
 
     std::string action_id;
@@ -473,20 +475,20 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
 
         if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "file '{0}' is not a regular file", filename.raw());
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("File {0} is not a regular file"), filename.raw());
         }
 
         auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
         if (size > 1048576)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "file '{0}' is too large to be used as an icon", filename.raw());
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("File {0} is too large to be used as an icon"), filename.raw());
         }
 
         // copy file to directory ICONDIR
         int32_t uid;
         if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to copy file, could not determine caller UID");
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to copy file, could not determine caller UID"));
         }
 
         auto dest_path = Glib::build_filename(ICONDIR, this->user_name_get());
@@ -498,7 +500,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "creating file '{0}' failed: {1}", dest_path, e.what().raw());
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, ("Creating file {0} failed: {1}"), dest_path, e.what().raw());
         }
 
         std::vector<std::string> argv = {"/bin/cat", filename.raw()};
@@ -518,24 +520,24 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "reading file '{0}' failed: {1}", filename.raw(), e.what().raw());
+            LOG_WARNING("%s", e.what().c_str());
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to read file {0}"), filename.raw());
         }
 
         auto input = Glib::wrap(g_unix_input_stream_new(std_out, false));
         gssize bytes = 0;
-        std::string err;
         try
         {
             bytes = output->splice(input, Gio::OUTPUT_STREAM_SPLICE_CLOSE_TARGET);
         }
         catch (const Glib::Error &e)
         {
-            err = e.what().raw();
+            LOG_WARNING("%s", e.what().c_str());
         }
 
         if (bytes < 0 || (uint64_t)bytes != size)
         {
-            DBUS_ERROR_REPLY(CCError::ERROR_FAILED, "copying file '{0}' to '{1}' failed: {2}", filename.raw(), dest_path, err.c_str());
+            DBUS_ERROR_REPLY(CCError::ERROR_FAILED, _("Failed to Copye file {0} to {1}"), filename.raw(), dest_path);
             IGNORE_EXCEPTION(dest_file->remove());
             return;
         }
@@ -583,8 +585,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
         auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
         if (!grp)
         {
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "failed to set account type: " ADMIN_GROUP " group not found"));
-            return;
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("group {0} not found"), ADMIN_GROUP);
         }
         auto admin_gid = grp->gr_gid;
 
@@ -598,7 +599,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
             }
         }
 
-        if (account_type == int32_t(AccountType::ACCOUNT_TYPE_ADMINISTRATOR))
+        if (account_type == int32_t(AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR))
         {
             groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), admin_gid);
         }
@@ -617,12 +618,12 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
     {
         this->freeze_notify();
 
-        if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN) ||
-            password_mode == int32_t(PasswordMode::PASSWORD_MODE_NONE))
+        if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN) ||
+            password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE))
         {
             SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/passwd", "-d", "--", this->user_name_get().raw());
 
-            if (password_mode == int32_t(PasswordMode::PASSWORD_MODE_SET_AT_LOGIN))
+            if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN))
             {
                 SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/chage", "-d", "0", "--", this->user_name_get().raw());
             }
@@ -648,16 +649,9 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
 
     this->freeze_notify();
 
-    std::vector<std::string> argv = {"/usr/sbin/usermod", "-p", password.raw(), "--", this->user_name_get().raw()};
-    std::string err;
-    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
-    {
-        err = fmt::format("running '{0}' failed: {1}", argv[0], err);
-        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err.c_str()));
-        return;
-    }
+    SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/usermod", "-p", password.raw(), "--", this->user_name_get().raw());
 
-    this->password_mode_set(int32_t(PasswordMode::PASSWORD_MODE_REGULAR));
+    this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
     this->locked_set(false);
     this->password_hint_set(password_hint);
     this->save_cache_file();
@@ -674,15 +668,12 @@ void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool aut
 
     if (this->locked_get())
     {
-        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "failed to change automatic login: user is locked"));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("User is locked"));
     }
     std::string err;
     if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), auto_login, err))
     {
-        auto err_message = fmt::format("failed to change automatic login: {0}", err);
-        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
     }
     invocation.ret();
 }
@@ -692,8 +683,7 @@ void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocat
     SETTINGS_PROFILE("");
     if (!this->spwd_)
     {
-        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "account expiration policy unknown to accounts service"));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Account expiration policy unknown to accounts service"));
     }
 
     invocation.ret(this->spwd_->sp_expire,
@@ -736,9 +726,9 @@ bool User::icon_file_changed(const Glib::ustring &value)
     return false;
 }
 
-AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
+AccountsAccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
 {
-    g_return_val_if_fail(passwd, AccountType::ACCOUNT_TYPE_STANDARD);
+    g_return_val_if_fail(passwd, AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD);
 
     struct group *grp;
     gint i;
@@ -746,25 +736,25 @@ AccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
     if (passwd->pw_uid == 0)
     {
         LOG_DEBUG("user is root so account type is administrator");
-        return AccountType::ACCOUNT_TYPE_ADMINISTRATOR;
+        return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
     }
 
     grp = getgrnam(ADMIN_GROUP);
     if (grp == NULL)
     {
         LOG_DEBUG(ADMIN_GROUP " group not found");
-        return AccountType::ACCOUNT_TYPE_STANDARD;
+        return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
     }
 
     for (i = 0; grp->gr_mem[i] != NULL; i++)
     {
         if (g_strcmp0(grp->gr_mem[i], passwd->pw_name.c_str()) == 0)
         {
-            return AccountType::ACCOUNT_TYPE_ADMINISTRATOR;
+            return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
         }
     }
 
-    return AccountType::ACCOUNT_TYPE_STANDARD;
+    return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
 }
 
 void User::reset_icon_file()

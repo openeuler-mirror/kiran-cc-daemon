@@ -2,35 +2,19 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-31 08:57:23
+ * @LastEditTime : 2020-11-02 20:53:08
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/user.h
+ * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.h
  */
 #pragma once
 
-#include <plugins/accounts/accounts-wrapper.h>
 #include <user_dbus_stub.h>
+
+#include "plugins/accounts/accounts-wrapper.h"
+#include "plugins/accounts/accounts_i.h"
 
 namespace Kiran
 {
-enum class AccountType
-{
-    ACCOUNT_TYPE_STANDARD,
-    ACCOUNT_TYPE_ADMINISTRATOR,
-    ACCOUNT_TYPE_LAST
-};
-
-enum class PasswordMode
-{
-    // 正常情况
-    PASSWORD_MODE_REGULAR,
-    // 登陆时需要设置密码
-    PASSWORD_MODE_SET_AT_LOGIN,
-    // 设置为无密码登陆
-    PASSWORD_MODE_NONE,
-    PASSWORD_MODE_LAST
-};
-
 class User : public SystemDaemon::Accounts::UserStub, public std::enable_shared_from_this<User>
 {
 public:
@@ -148,7 +132,7 @@ private:
     void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
 
     bool icon_file_changed(const Glib::ustring &value);
-    AccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
+    AccountsAccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
     void reset_icon_file();
 
     void save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile);

@@ -6,7 +6,7 @@ file(GLOB_RECURSE MOUSE_H_FILES ./*.h)
 file(GLOB_RECURSE MOUSE_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(MOUSE mouse ${CMAKE_SOURCE_DIR}/plugins/inputdevices/mouse/com.unikylin.Kiran.SessionDaemon.Mouse.xml)
+GEN_DBUS_STUB(MOUSE mouse ${CMAKE_SOURCE_DIR}/plugins/inputdevices/mouse/com.kylinsec.Kiran.SessionDaemon.Mouse.xml)
 
 
 add_library(${TARGET_NAME} SHARED

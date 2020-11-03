@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist >
-    <schema id="com.unikylin.kiran.touchpad" path="/com/unikylin/kiran/touchpad/">
+    <schema id="com.kylinsec.kiran.touchpad" path="/com/kylinsec/kiran/touchpad/">
         <key name="left-handed" type="b">
             <default>false</default>
             <summary>Swap left and right mouse buttons for left-handed mice.</summary>

@@ -15,10 +15,10 @@
 #include "plugins/display/display-util.h"
 namespace Kiran
 {
-#define DISPLAY_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.Display"
-#define DISPLAY_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Display"
+#define DISPLAY_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
+#define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
 
-#define DISPLAY_SCHEMA_ID "com.unikylin.kiran.display"
+#define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_ID_STYLE "display-style"
 
 #define DISPLAY_FILE_NAME "display.xml"
@@ -26,7 +26,7 @@ namespace Kiran
 #define XRANDR_CMD "xrandr"
 
 DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(xrandr_manager),
-                                                                default_style_(DisplayStyle::EXTEND),
+                                                                default_style_(DisplayStyle::DISPLAY_STYLE_EXTEND),
                                                                 dbus_connect_id_(0),
                                                                 object_register_id_(0)
 {
@@ -273,8 +273,8 @@ void DisplayManager::load_monitors()
             monitor_info.enabled = true;
             monitor_info.x = crtc->x;
             monitor_info.y = crtc->y;
-            monitor_info.rotation = RotationType(crtc->rotation & ROTATION_ALL_MASK);
-            monitor_info.reflect = ReflectType(crtc->rotation & REFLECT_ALL_MASK);
+            monitor_info.rotation = DisplayRotationType(crtc->rotation & ROTATION_ALL_MASK);
+            monitor_info.reflect = DisplayReflectType(crtc->rotation & REFLECT_ALL_MASK);
             monitor_info.rotations = this->xrandr_manager_->get_rotations(crtc);
             monitor_info.reflects = this->xrandr_manager_->get_reflects(crtc);
             monitor_info.mode = crtc->mode;
@@ -387,8 +387,8 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
             monitor->enabled_set(false);
             monitor->x_set(0);
             monitor->y_set(0);
-            monitor->rotation_set(uint16_t(RotationType::ROTATION_0));
-            monitor->reflect_set(uint16_t(ReflectType::REFLECT_NORMAL));
+            monitor->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
+            monitor->reflect_set(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
             monitor->current_mode_set(0);
         }
         else
@@ -423,8 +423,8 @@ void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
                                         0,
                                         0,
                                         0,
-                                        DisplayUtil::rotation_to_str(RotationType::ROTATION_0),
-                                        DisplayUtil::reflect_to_str(ReflectType::REFLECT_NORMAL),
+                                        DisplayUtil::rotation_to_str(DisplayRotationType::DISPLAY_ROTATION_0),
+                                        DisplayUtil::reflect_to_str(DisplayReflectType::DISPLAY_REFLECT_NORMAL),
                                         0.0);
 
             screen_config.monitor().push_back(std::move(c_monitor));
@@ -438,8 +438,8 @@ void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
                                         iter.second->y_get(),
                                         mode->width,
                                         mode->height,
-                                        DisplayUtil::rotation_to_str(RotationType(iter.second->rotation_get())),
-                                        DisplayUtil::reflect_to_str(ReflectType(iter.second->reflect_get())),
+                                        DisplayUtil::rotation_to_str(DisplayRotationType(iter.second->rotation_get())),
+                                        DisplayUtil::reflect_to_str(DisplayReflectType(iter.second->reflect_get())),
                                         mode->refresh_rate);
             screen_config.monitor().push_back(std::move(c_monitor));
         }
@@ -475,16 +475,16 @@ bool DisplayManager::switch_style(DisplayStyle style, std::string &err)
     SETTINGS_PROFILE("style: %u.", uint32_t(style));
     switch (style)
     {
-    case DisplayStyle::MIRRORS:
+    case DisplayStyle::DISPLAY_STYLE_MIRRORS:
         RETURN_VAL_IF_FALSE(this->switch_to_mirrors(err), false);
         break;
-    case DisplayStyle::EXTEND:
+    case DisplayStyle::DISPLAY_STYLE_EXTEND:
         RETURN_VAL_IF_FALSE(this->switch_to_extend(err), false);
         break;
-    case DisplayStyle::CUSTOM:
+    case DisplayStyle::DISPLAY_STYLE_CUSTOM:
         RETURN_VAL_IF_FALSE(this->switch_to_custom(err), false);
         break;
-    case DisplayStyle::AUTO:
+    case DisplayStyle::DISPLAY_STYLE_AUTO:
         RETURN_VAL_IF_FALSE(this->switch_to_auto(err), false);
         break;
     default:
@@ -529,8 +529,8 @@ bool DisplayManager::switch_to_mirrors(std::string &err)
             LOG_WARNING("cannot match mod %ux%u for monitor %s.", width, height, monitor->name_get().c_str());
         }
 
-        monitor->rotation_set(uint16_t(RotationType::ROTATION_0));
-        monitor->reflect_set(uint16_t(ReflectType::REFLECT_NORMAL));
+        monitor->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
+        monitor->reflect_set(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
     }
 
     return true;
@@ -578,8 +578,8 @@ bool DisplayManager::switch_to_extend(std::string &err)
         iter.second->x_set(startx);
         iter.second->y_set(0);
         iter.second->current_mode_set(best_mode->id);
-        iter.second->rotation_set(uint16_t(RotationType::ROTATION_0));
-        iter.second->reflect_set(uint16_t(ReflectType::REFLECT_NORMAL));
+        iter.second->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
+        iter.second->reflect_set(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
 
         startx += best_mode->width;
     }

@@ -11,8 +11,8 @@
 
 namespace Kiran
 {
-#define KEYBINDING_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.Keybinding"
-#define KEYBINDING_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Keybinding"
+#define KEYBINDING_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Keybinding"
+#define KEYBINDING_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keybinding"
 
 KeybindingManager::KeybindingManager(SystemShortCutManager *system) : system_shorcut_manager_(system),
                                                                       dbus_connect_id_(0),

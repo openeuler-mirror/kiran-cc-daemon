@@ -14,20 +14,18 @@
 namespace Kiran
 {
 #define ADMIN_GROUP "wheel"
-#define AUTH_USER_ADMIN "com.unikylin.kiran.system-daemon.accounts.user-administration"
-#define AUTH_CHANGE_OWN_USER_DATA "com.unikylin.kiran.system-daemon.accounts.change-own-user-data"
-#define AUTH_CHANGE_OWN_PASSWORD "com.unikylin.kiran.system-daemon.accounts.change-own-password"
+#define AUTH_USER_ADMIN "com.kylinsec.kiran.system-daemon.accounts.user-administration"
+#define AUTH_CHANGE_OWN_USER_DATA "com.kylinsec.kiran.system-daemon.accounts.change-own-user-data"
+#define AUTH_CHANGE_OWN_PASSWORD "com.kylinsec.kiran.system-daemon.accounts.change-own-password"
 
-#define SPAWN_WITH_LOGIN_UID(invocation, ...)                                                   \
-    {                                                                                           \
-        std::vector<std::string> argv = {__VA_ARGS__};                                          \
-        std::string err;                                                                        \
-        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))            \
-        {                                                                                       \
-            err = fmt::format("running '{0}' failed: {1}", argv[0], err);                       \
-            invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), err.c_str())); \
-            return;                                                                             \
-        }                                                                                       \
+#define SPAWN_WITH_LOGIN_UID(invocation, ...)                                        \
+    {                                                                                \
+        std::vector<std::string> argv = {__VA_ARGS__};                               \
+        std::string err;                                                             \
+        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err)) \
+        {                                                                            \
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());            \
+        }                                                                            \
     }
 
 class AccountsUtil
@@ -45,5 +43,8 @@ public:
     static bool spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                      const std::vector<std::string> argv,
                                      std::string &err);
+
+    // 翻译命令行返回的错误码
+    static bool parse_exit_status(int32_t exit_status, std::string &error);
 };
 }  // namespace Kiran

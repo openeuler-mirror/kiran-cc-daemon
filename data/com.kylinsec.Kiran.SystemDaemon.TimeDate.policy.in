@@ -6,7 +6,7 @@
 
         <vendor> kiran-system-daemon </vendor>
 
-        <action id="com.unikylin.kiran.system-daemon.timedate.set-time">
+        <action id="com.kylinsec.kiran.system-daemon.timedate.set-time">
                 <_description>Set system time</_description>
                 <_message >Authentication is required to set the system time.</_message>
                 <defaults>
@@ -14,10 +14,10 @@
                         <allow_inactive>auth_admin_keep</allow_inactive>
                         <allow_active>auth_admin_keep</allow_active>
                 </defaults>
-                <annotate key="org.freedesktop.policykit.imply">com.unikylin.kiran.system-daemon.timedate.set-timezone com.unikylin.kiran.system-daemon.timedate.set-ntp</annotate>
+                <annotate key="org.freedesktop.policykit.imply">com.kylinsec.kiran.system-daemon.timedate.set-timezone com.kylinsec.kiran.system-daemon.timedate.set-ntp</annotate>
         </action>
 
-        <action id="com.unikylin.kiran.system-daemon.timedate.set-timezone">
+        <action id="com.kylinsec.kiran.system-daemon.timedate.set-timezone">
                 <_description>Set system timezone</_description>
                 <_message>Authentication is required to set the system timezone.</_message>
                 <defaults>
@@ -27,7 +27,7 @@
                 </defaults>
         </action>
 
-        <action id="com.unikylin.kiran.system-daemon.timedate.set-local-rtc">
+        <action id="com.kylinsec.kiran.system-daemon.timedate.set-local-rtc">
                 <_description>Set RTC to local timezone or UTC</_description>
                 <_message>Authentication is required to control whether the RTC stores the local or UTC time.</_message>
                 <defaults>
@@ -37,7 +37,7 @@
                 </defaults>
         </action>
 
-        <action id="com.unikylin.kiran.system-daemon.timedate.set-ntp">
+        <action id="com.kylinsec.kiran.system-daemon.timedate.set-ntp">
                 <_description>Turn network time synchronization on or off</_description>
                 <_message>Authentication is required to control whether network time synchronization shall be enabled.</_message>
                 <defaults>

@@ -8,7 +8,7 @@ Wants=nss-user-lookup.target
 
 [Service]
 Type=dbus
-BusName=com.unikylin.Kiran.SystemDaemon
+BusName=com.kylinsec.Kiran.SystemDaemon
 ExecStart=@KCC_INSTALL_BINDIR@/kiran-system-daemon
 
 [Install]

@@ -24,10 +24,6 @@ enum class CCError : int32_t
     ERROR_INVALID_PARAMETER,
     ERROR_UNKNOWN,
 
-    // Accounts
-    ERROR_USER_EXISTS,
-    ERROR_USER_DOES_NOT_EXIST,
-
     // Keybinding
     ERROR_GEN_SHORTCUT_ID,
     ERROR_GRAB_KEYCOMB,

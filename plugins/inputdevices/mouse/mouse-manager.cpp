@@ -14,10 +14,10 @@
 
 namespace Kiran
 {
-#define MOUSE_DBUS_NAME "com.unikylin.Kiran.SessionDaemon.Mouse"
-#define MOUSE_OBJECT_PATH "/com/unikylin/Kiran/SessionDaemon/Mouse"
+#define MOUSE_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Mouse"
+#define MOUSE_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Mouse"
 
-#define MOUSE_SCHEMA_ID "com.unikylin.kiran.mouse"
+#define MOUSE_SCHEMA_ID "com.kylinsec.kiran.mouse"
 #define MOUSE_SCHEMA_LEFT_HANDED "left-handed"
 #define MOUSE_SCHEMA_MOTION_ACCELERATION "motion-acceleration"
 #define MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED "middle-emulation-enabled"

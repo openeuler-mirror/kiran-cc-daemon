@@ -8,7 +8,7 @@ file(GLOB_RECURSE TIMEDATE_CPP_FILES ./*.cpp)
 pkg_search_module(SELINUX REQUIRED libselinux)
 
 
-GEN_DBUS_STUB(TIMEDATE timedate ${CMAKE_SOURCE_DIR}/plugins/timedate/com.unikylin.Kiran.SystemDaemon.TimeDate.xml)
+GEN_DBUS_STUB(TIMEDATE timedate ${CMAKE_SOURCE_DIR}/plugins/timedate/com.kylinsec.Kiran.SystemDaemon.TimeDate.xml)
 
 add_subdirectory(po-timezones)
 

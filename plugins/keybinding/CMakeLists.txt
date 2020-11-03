@@ -6,7 +6,7 @@ file(GLOB_RECURSE KEYBINDING_H_FILES ./*.h)
 file(GLOB_RECURSE KEYBINDING_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(KEYBINDING keybinding ${CMAKE_SOURCE_DIR}/plugins/keybinding/com.unikylin.Kiran.SessionDaemon.Keybinding.xml)
+GEN_DBUS_STUB(KEYBINDING keybinding ${CMAKE_SOURCE_DIR}/plugins/keybinding/com.kylinsec.Kiran.SessionDaemon.Keybinding.xml)
 
 
 add_library(${TARGET_NAME} SHARED

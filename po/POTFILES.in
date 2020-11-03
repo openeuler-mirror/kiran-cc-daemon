@@ -1,6 +1,11 @@
 # List of source files which contain translatable strings.
 [encoding: UTF-8]
-data/com.unikylin.Kiran.SystemDaemon.Accounts.policy.in
-data/com.unikylin.Kiran.SystemDaemon.TimeDate.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
 src/main.cpp
+plugins/accounts/accounts-manager.cpp
+plugins/accounts/accounts-util.cpp
+plugins/accounts/user.cpp
+plugins/timedate/timedate-manager.cpp
+plugins/display/display-monitor.cpp
 plugins/keybinding/custom-shortcut.h

@@ -11,12 +11,12 @@ if(build-system-daemon)
     file(GLOB POLICY_IN_FILES ./*.policy.in)
 
     foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
-    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
-    execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
+        string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
+        execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
 
-    install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)
-            endforeach()
+        install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)
+    endforeach()
 
 
     # service files
@@ -34,7 +34,7 @@ if(build-system-daemon)
                 DESTINATION ${SYSTEM_UNIT_DIR})
     endif()
 
-    install(FILES ${PROJECT_BINARY_DIR}/data/com.unikylin.Kiran.SystemDaemon.service
+    install(FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.service
             DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files
@@ -67,4 +67,26 @@ file(GLOB GSCHEMA_XML_FILES ./*.gschema.xml)
     install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.session
             DESTINATION ${KCC_PLUGIN_DIR}/session
             RENAME plugin_options)
+    
 endif()
+
+
+# include files
+install(FILES ${PROJECT_SOURCE_DIR}/plugins/accounts/accounts_i.h
+        DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
+
+install(FILES ${PROJECT_SOURCE_DIR}/plugins/display/display_i.h
+              ${PROJECT_SOURCE_DIR}/plugins/inputdevices/touchpad/touchpad_i.h
+        DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-session-daemon)
+
+# pc file
+file(GLOB PC_IN_FILES ./*.pc.in)
+
+foreach(PC_IN_FILE IN LISTS PC_IN_FILES)
+    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" PC_FILE ${PC_IN_FILE})
+    configure_file(${PC_IN_FILE} ${PROJECT_BINARY_DIR}/data/${PC_FILE})
+
+    install(FILES ${PROJECT_BINARY_DIR}/data/${PC_FILE}
+            DESTINATION ${KCC_INSTALL_LIBDIR}/pkgconfig)
+endforeach()
+
