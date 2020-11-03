@@ -9,6 +9,8 @@
 
 #include "plugins/display/display-monitor.h"
 
+#include <glib/gi18n.h>
+
 #include "lib/base/base.h"
 #include "plugins/display/display-manager.h"
 #include "plugins/display/display-util.h"
@@ -192,7 +194,7 @@ void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
     // 当小于2个显示器开启时，不允许再关闭剩余的显示器
     if (!enabled && DisplayManager::get_instance()->get_enabled_monitors().size() <= 1)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "cannot disable the monitor, because the number of the enabled monitor is less than 1.");
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Cannot disable the monitor, because the number of the enabled monitor is less than 1"));
     }
 
     this->enabled_set(enabled);
@@ -211,7 +213,7 @@ void DisplayMonitor::ListModes(MethodInvocation &invocation)
         }
         else
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "exist null mode in  mode list.");
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Exist null mode in mode list"));
         }
     }
     invocation.ret(std::move(result));
@@ -229,7 +231,7 @@ void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
         }
         else
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "exist null mode in preferred mode list.");
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Exist null mode in preferred mode list"));
         }
     }
     invocation.ret(std::move(result));
@@ -246,7 +248,7 @@ void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "the current mode is not exist.");
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The current mode is not exist"));
     }
 }
 
@@ -256,7 +258,7 @@ void DisplayMonitor::SetMode(guint32 id, MethodInvocation &invocation)
 
     if (this->find_index_by_mode_id(id) < 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the mode id {0} is not exist in mode list.", id);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("The mode id {0} is not exist in mode list"), id);
     }
 
     this->current_mode_set(id);
@@ -276,7 +278,7 @@ void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocati
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "cannot match mode {0}x{1}.", width, height);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Cannot match mode {0}x{1}"), width, height);
     }
 }
 
@@ -291,7 +293,7 @@ void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 {
     if (this->find_index_by_rotation(DisplayRotationType(rotation)) < 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the rotation {0} is not exist in rotation list.", rotation);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Unknown rotation type"));
     }
     this->rotation_set(rotation);
     invocation.ret();
@@ -301,7 +303,7 @@ void DisplayMonitor::SetReflect(guint16 reflect, MethodInvocation &invocation)
 {
     if (this->find_index_by_reflect(DisplayReflectType(reflect)) < 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "the reflect {0} is not exist in reflect list.", reflect);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Unknown reflect type"));
     }
     this->reflect_set(reflect);
     invocation.ret();

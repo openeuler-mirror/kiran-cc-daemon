@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-03 09:30+0800\n"
+"POT-Creation-Date: 2020-11-03 19:21+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -96,6 +96,170 @@ msgstr "开启调试模式"
 #: ../src/main.cpp:63
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
+
+#: ../plugins/accounts/accounts-manager.cpp:84
+msgid "Failed to save autologin info to configuration file"
+msgstr "保存自动登陆信息到配置文件失败"
+
+#: ../plugins/accounts/accounts-manager.cpp:124
+#: ../plugins/accounts/accounts-manager.cpp:142
+#: ../plugins/accounts/accounts-manager.cpp:493
+msgid "No user found"
+msgstr "没有发现用户"
+
+#: ../plugins/accounts/accounts-manager.cpp:434
+msgid "The user already exists"
+msgstr "用户已存在"
+
+#: ../plugins/accounts/accounts-manager.cpp:449
+msgid "Unknown account type"
+msgstr "未知的用户类型"
+
+#: ../plugins/accounts/accounts-manager.cpp:476
+msgid "Internal error"
+msgstr "内部错误"
+
+#: ../plugins/accounts/accounts-manager.cpp:485
+msgid "Refuse to delete root user"
+msgstr "禁止删除root用户"
+
+#: ../plugins/accounts/accounts-util.cpp:198
+msgid "Can't update password file"
+msgstr "不能更新password文件"
+
+#: ../plugins/accounts/accounts-util.cpp:201
+msgid "Invalid command syntax"
+msgstr "命令语法无效"
+
+#: ../plugins/accounts/accounts-util.cpp:204
+msgid "Invalid argument to option"
+msgstr "命令参数无效"
+
+#: ../plugins/accounts/accounts-util.cpp:207
+msgid "UID already in use (and no -o)"
+msgstr "UID已在使用中（并且没有-o）"
+
+#: ../plugins/accounts/accounts-util.cpp:210
+msgid "Passwd file contains errors"
+msgstr "passwd文件存在错误"
+
+#: ../plugins/accounts/accounts-util.cpp:213
+msgid "Specified user/group doesn't exist"
+msgstr "指定的用户/组不存在"
+
+#: ../plugins/accounts/accounts-util.cpp:216
+msgid "User to modify is logged in"
+msgstr "要修改的用户已登陆"
+
+#: ../plugins/accounts/accounts-util.cpp:219
+msgid "Username already in use"
+msgstr "用户名已经在使用中"
+
+#: ../plugins/accounts/accounts-util.cpp:222
+msgid "Can't update group file"
+msgstr "不能更新group文件"
+
+#: ../plugins/accounts/accounts-util.cpp:225
+msgid "Insufficient space to move home dir"
+msgstr "空间不足，无法移动主目录"
+
+#: ../plugins/accounts/accounts-util.cpp:228
+msgid "Can't create/remove/move home directory"
+msgstr "不能创建/删除/移动主目录"
+
+#: ../plugins/accounts/accounts-util.cpp:232
+msgid "Can't update SELinux user mapping"
+msgstr "无法更新SELinux用户映射"
+
+#: ../plugins/accounts/accounts-util.cpp:235
+msgid "Can't update the subordinate uid file"
+msgstr "无法更新下级uid文件"
+
+#: ../plugins/accounts/accounts-util.cpp:238
+msgid "Can't update the subordinate gid file"
+msgstr "无法更新下级gid文件"
+
+#: ../plugins/accounts/accounts-util.cpp:241
+msgid "Unknown error"
+msgstr "未知错误"
+
+#: ../plugins/accounts/user.cpp:478
+msgid "File {0} is not a regular file"
+msgstr "{0}不是普通文件"
+
+#: ../plugins/accounts/user.cpp:484
+msgid "File {0} is too large to be used as an icon"
+msgstr "文件{0}太大，不能作为图标使用"
+
+#: ../plugins/accounts/user.cpp:491
+msgid "Failed to copy file, could not determine caller UID"
+msgstr "复制文件失败，无法确定调用方UID"
+
+#: ../plugins/accounts/user.cpp:524
+msgid "Failed to read file {0}"
+msgstr "读取文件{0}失败"
+
+#: ../plugins/accounts/user.cpp:540
+msgid "Failed to Copye file {0} to {1}"
+msgstr "拷贝文件{0}到{1}失败"
+
+#: ../plugins/accounts/user.cpp:588
+msgid "group {0} not found"
+msgstr "未发现组{0}"
+
+#: ../plugins/accounts/user.cpp:671
+msgid "User is locked"
+msgstr "用户被锁定"
+
+#: ../plugins/accounts/user.cpp:686
+msgid "Account expiration policy unknown to accounts service"
+msgstr "无法获取用户过期策略"
+
+#: ../plugins/timedate/timedate-manager.cpp:93
+msgid "NTP unit is active"
+msgstr "NTP服务已开启"
+
+#: ../plugins/timedate/timedate-manager.cpp:110
+msgid "Invalid timezone"
+msgstr "不合法的时区"
+
+#: ../plugins/timedate/timedate-manager.cpp:172
+msgid "No NTP unit available"
+msgstr "没有NTP服务可用"
+
+#: ../plugins/display/display-monitor.cpp:197
+msgid ""
+"Cannot disable the monitor, because the number of the enabled monitor is "
+"less than 1"
+msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个"
+
+#: ../plugins/display/display-monitor.cpp:216
+msgid "Exist null mode in mode list"
+msgstr "存在空的模式"
+
+#: ../plugins/display/display-monitor.cpp:234
+msgid "Exist null mode in preferred mode list"
+msgstr "在推荐模式中存在空模式"
+
+#: ../plugins/display/display-monitor.cpp:251
+msgid "The current mode is not exist"
+msgstr "当前模式不存在"
+
+#: ../plugins/display/display-monitor.cpp:261
+msgid "The mode id {0} is not exist in mode list"
+msgstr "在模式列表中未发现模式{0}"
+
+#: ../plugins/display/display-monitor.cpp:281
+msgid "Cannot match mode {0}x{1}"
+msgstr "不能匹配分辨率{0}x{1}"
+
+#: ../plugins/display/display-monitor.cpp:296
+msgid "Unknown rotation type"
+msgstr "未知的旋转类型"
+
+#: ../plugins/display/display-monitor.cpp:306
+msgid "Unknown reflect type"
+msgstr "未知的映射类型"
 
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"

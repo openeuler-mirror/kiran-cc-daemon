@@ -90,8 +90,7 @@ void TimedateManager::SetTime(gint64 requested_time,
     SETTINGS_PROFILE("RequestedTime: %" PRId64 " Relative: %d", requested_time, relative);
     if (this->ntp_get())
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "NTP unit is active"));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("NTP unit is active"));
     }
 
     int64_t request_time = g_get_monotonic_time();
@@ -108,8 +107,7 @@ void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
     SETTINGS_PROFILE("TimeZone: %s.", time_zone.c_str());
     if (!check_timezone_name(time_zone))
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS, "Invalid timezone"));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Invalid timezone"));
     }
 
     auto current_timezone = this->time_zone_get();
@@ -148,7 +146,7 @@ void TimedateManager::SetLocalRTC(bool local,
 
     if (local == this->local_rtc_get())
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "the value of the local have not been changed."));
+        invocation.ret();
         return;
     }
 
@@ -171,8 +169,7 @@ void TimedateManager::SetNTP(bool active,
 
     if (this->ntp_unit_name_.length() == 0)
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "No NTP unit available"));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No NTP unit available"));
     }
 
     AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_NTP_ACTIVE,

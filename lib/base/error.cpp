@@ -18,8 +18,6 @@ static const GDBusErrorEntry cc_error_entries[] =
      {int32_t(CCError::ERROR_EXCEED_LIMIT), "com.unikylin.Kiran.CC.Error.ExceedLimit"},
      {int32_t(CCError::ERROR_INVALID_PARAMETER), "com.unikylin.Kiran.CC.Error.InvalidParameter"},
      {int32_t(CCError::ERROR_UNKNOWN), "com.unikylin.Kiran.CC.Error.Unknown"},
-     {int32_t(CCError::ERROR_USER_EXISTS), "com.unikylin.Kiran.CC.Error.UserExists"},
-     {int32_t(CCError::ERROR_USER_DOES_NOT_EXIST), "com.unikylin.Kiran.CC.Error.UserDoesNotExist"},
      {int32_t(CCError::ERROR_GEN_SHORTCUT_ID), "com.unikylin.Kiran.CC.Error.GenShortCutID"},
      {int32_t(CCError::ERROR_GRAB_KEYCOMB), "com.unikylin.Kiran.CC.Error.GrabKeyComb"},
      {int32_t(CCError::ERROR_KEYCOMB_CONFLICT), "com.unikylin.Kiran.CC.Error.KeyCombConflict"}};

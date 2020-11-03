@@ -9,6 +9,44 @@
 #include "plugins/accounts/accounts-util.h"
 
 #include <fcntl.h>
+#include <glib/gi18n.h>
+
+enum CommandExitStatus
+{
+    // success
+    COMMAND_EXIT_STATUS_SUCCESS = 0,
+    // can't update password file
+    COMMAND_EXIT_STATUS_PW_UPDATE = 1,
+    // invalid command syntax
+    COMMAND_EXIT_STATUS_USAGE = 2,
+    // invalid argument to option
+    COMMAND_EXIT_STATUS_BAD_ARG = 3,
+    // UID already in use (and no -o)
+    COMMAND_EXIT_STATUS_UID_IN_USE = 4,
+    // passwd file contains errors
+    COMMAND_EXIT_STATUS_BAD_PWFILE = 5,
+    // specified usr/group doesn't exist
+    COMMAND_EXIT_STATUS_NOTFOUND = 6,
+    // user to modify is logged in
+    COMMAND_EXIT_STATUS_USER_BUSY = 8,
+    // username already in use
+    COMMAND_EXIT_STATUS_NAME_IN_USE = 9,
+    // can't update group file
+    COMMAND_EXIT_STATUS_GRP_UPDATE = 10,
+    // insufficient space to move home dir
+    COMMAND_EXIT_STATUS_NOSPACE = 11,
+    // can't create/remove/move home directory
+    COMMAND_EXIT_STATUS_HOMEDIR = 12,
+    // can't update SELinux user mapping
+    COMMAND_EXIT_STATUS_SE_UPDATE_1 = 13,
+    // can't update SELinux user mapping
+    COMMAND_EXIT_STATUS_SE_UPDATE_2 = 14,
+    // can't update the subordinate uid file
+    COMMAND_EXIT_STATUS_SUB_UID_UPDATE = 16,
+    // can't update the subordinate gid file
+    COMMAND_EXIT_STATUS_SUB_GID_UPDATE = 18,
+
+};
 
 namespace Kiran
 {
@@ -144,15 +182,65 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
         err = e.what().raw();
         return false;
     }
+    LOG_DEBUG("status: %d.", status);
 
-    g_autoptr(GError) error = NULL;
+    return AccountsUtil::parse_exit_status(status, err);
+}
 
-    if (!g_spawn_check_exit_status(status, &error))
+bool AccountsUtil::parse_exit_status(int32_t exit_status, std::string &error)
+{
+    switch (exit_status)
     {
-        LOG_DEBUG("%s", error->message);
-        return false;
+    case COMMAND_EXIT_STATUS_SUCCESS:
+        return true;
+    case COMMAND_EXIT_STATUS_PW_UPDATE:
+        error = _("Can't update password file");
+        break;
+    case COMMAND_EXIT_STATUS_USAGE:
+        error = _("Invalid command syntax");
+        break;
+    case COMMAND_EXIT_STATUS_BAD_ARG:
+        error = _("Invalid argument to option");
+        break;
+    case COMMAND_EXIT_STATUS_UID_IN_USE:
+        error = _("UID already in use (and no -o)");
+        break;
+    case COMMAND_EXIT_STATUS_BAD_PWFILE:
+        error = _("Passwd file contains errors");
+        break;
+    case COMMAND_EXIT_STATUS_NOTFOUND:
+        error = _("Specified user/group doesn't exist");
+        break;
+    case COMMAND_EXIT_STATUS_USER_BUSY:
+        error = _("User to modify is logged in");
+        break;
+    case COMMAND_EXIT_STATUS_NAME_IN_USE:
+        error = _("Username already in use");
+        break;
+    case COMMAND_EXIT_STATUS_GRP_UPDATE:
+        error = _("Can't update group file");
+        break;
+    case COMMAND_EXIT_STATUS_NOSPACE:
+        error = _("Insufficient space to move home dir");
+        break;
+    case COMMAND_EXIT_STATUS_HOMEDIR:
+        error = _("Can't create/remove/move home directory");
+        break;
+    case COMMAND_EXIT_STATUS_SE_UPDATE_1:
+    case COMMAND_EXIT_STATUS_SE_UPDATE_2:
+        error = _("Can't update SELinux user mapping");
+        break;
+    case COMMAND_EXIT_STATUS_SUB_UID_UPDATE:
+        error = _("Can't update the subordinate uid file");
+        break;
+    case COMMAND_EXIT_STATUS_SUB_GID_UPDATE:
+        error = _("Can't update the subordinate gid file");
+        break;
+    default:
+        error = _("Unknown error");
+        break;
     }
-    return true;
+    return false;
 }
 
 }  // namespace Kiran

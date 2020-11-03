@@ -9,6 +9,7 @@
 
 #include "plugins/accounts/accounts-manager.h"
 
+#include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
 #include <cinttypes>
@@ -79,7 +80,8 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
 
     if (!this->save_autologin_to_file(user_name, enabled, err))
     {
-        err = fmt::format("failed to save autologin info to configuration file: {0}", err);
+        LOG_WARNING("%s", err.c_str());
+        err = fmt::format(_("Failed to save autologin info to configuration file"));
         return false;
     }
 
@@ -119,8 +121,7 @@ void AccountsManager::FindUserById(guint64 uid, MethodInvocation &invocation)
     }
     else
     {
-        auto err_message = fmt::format("Failed to look up user with id {0}", uid);
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No user found"));
     }
 
     return;
@@ -138,8 +139,7 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     }
     else
     {
-        auto err_message = fmt::format("Failed to look up user with name {0}.", name.raw());
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No user found"));
     }
 
     return;
@@ -431,9 +431,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
     if (pwent)
     {
-        auto err_message = fmt::format("A user with name '{0}' already exists", name.raw());
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_USER_EXISTS), err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The user already exists"));
     }
 
     LOG_DEBUG("create user '%s'", name.c_str());
@@ -448,9 +446,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
         break;
     default:
     {
-        auto err_message = fmt::format("Don't know how to add user of type {0}", int32_t(account_type));
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown account type"));
     }
     break;
     }
@@ -465,9 +461,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     std::string err;
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
-        auto err_message = fmt::format("running '{0}' failed: {1}", argv[0], err);
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
     }
 
     auto user = this->find_and_create_user_by_name(name);
@@ -479,8 +473,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     }
     else
     {
-        auto err_message = fmt::format("failed to find or create user {0}.", name.raw());
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Internal error"));
     }
 }
 
@@ -489,8 +482,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
     SETTINGS_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
     if (uid == 0)
     {
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), "Refuse to delete root user"));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Refuse to delete root user"));
     }
 
     std::string err;
@@ -498,9 +490,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     if (!user)
     {
-        auto err_message = fmt::format("No user with uid {0} found", uid);
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_USER_DOES_NOT_EXIST), err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No user found"));
     }
 
     LOG_DEBUG("delete user '%s' (%d)", user->user_name_get().c_str(), (int32_t)uid);
@@ -525,9 +515,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
     {
-        auto err_message = fmt::format("running '{0}' failed: {1}", argv[0], err);
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(CCError::ERROR_FAILED), err_message.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
     }
 
     invocation.ret();
