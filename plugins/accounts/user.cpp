@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:13:59
+ * @LastEditTime : 2020-11-04 14:00:59
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.cpp
  */
@@ -649,7 +649,7 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
 
     this->freeze_notify();
 
-    SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/usermod", "-p", password.raw(), "--", this->user_name_get().raw());
+    SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-p", password.raw(), "--", this->user_name_get().raw());
 
     this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
     this->locked_set(false);
