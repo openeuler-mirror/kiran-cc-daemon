@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 09:52:51
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-15 16:59:41
+ * @LastEditTime : 2020-11-04 13:47:26
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.h
  */
@@ -75,11 +75,16 @@ private:
     // 从monitors_提取参数填充配置
     void fill_screen_config(ScreenConfigInfo& screen_config);
 
+    // 保存配置
+    bool save_config(std::string& err);
+
     // 让monitors_中的参数实际生效，执行xrandr命令
     bool apply(std::string& err);
 
     // 切换显示模式
     bool switch_style(DisplayStyle style, std::string& err);
+    // 切换并保存显示模式
+    bool switch_style_and_save(DisplayStyle style, std::string& err);
     // 切换到镜像模式
     bool switch_to_mirrors(std::string& err);
     // 获取在所有monitor中都可用的mode列表
