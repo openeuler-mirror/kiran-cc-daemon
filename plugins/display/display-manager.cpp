@@ -2,12 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 09:52:57
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-16 08:54:30
+ * @LastEditTime : 2020-11-04 13:54:18
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.cpp
  */
 
 #include "plugins/display/display-manager.h"
+
+#include <glib/gi18n.h>
 
 #include <fstream>
 
@@ -142,39 +144,11 @@ void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &inv
 void DisplayManager::Save(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
-
-    if (!this->display_config_)
-    {
-        this->display_config_ = std::unique_ptr<DisplayConfigInfo>(new DisplayConfigInfo());
-    }
-
-    auto monitors_uid = this->get_monitors_uid();
-    auto &c_screens = this->display_config_->screen();
-    bool matched = false;
-    ScreenConfigInfo used_config("");
-
-    this->fill_screen_config(used_config);
-    for (auto &c_screen : c_screens)
-    {
-        auto &c_monitors = c_screen.monitor();
-        auto c_monitors_uid = this->get_c_monitors_uid(c_monitors);
-        if (monitors_uid == c_monitors_uid)
-        {
-            c_screen = used_config;
-            matched = true;
-            break;
-        }
-    }
-
-    if (!matched)
-    {
-        this->display_config_->screen().push_back(used_config);
-    }
-
     std::string err;
-    if (!this->save_to_file(err))
+
+    if (!this->save_config(err))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "cannot save to file: {0}.", err);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
     }
 
     invocation.ret();
@@ -217,9 +191,9 @@ void DisplayManager::init()
                                                  sigc::mem_fun(this, &DisplayManager::on_name_lost));
 
     std::string err;
-    if (!this->switch_style(this->default_style_, err))
+    if (!this->switch_style_and_save(this->default_style_, err))
     {
-        LOG_WARNING("failed to switch style to %u.", uint32_t(this->default_style_));
+        LOG_WARNING("%s");
     }
 }
 
@@ -310,7 +284,7 @@ void DisplayManager::load_config()
     }
     else
     {
-        LOG_DEBUG("file {0} is not exist.", this->config_file_path_);
+        LOG_DEBUG("file %s is not exist.", this->config_file_path_);
     }
     return;
 }
@@ -446,6 +420,41 @@ void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
     }
 }
 
+bool DisplayManager::save_config(std::string &err)
+{
+    if (!this->display_config_)
+    {
+        this->display_config_ = std::unique_ptr<DisplayConfigInfo>(new DisplayConfigInfo());
+    }
+
+    auto monitors_uid = this->get_monitors_uid();
+    auto &c_screens = this->display_config_->screen();
+    bool matched = false;
+    ScreenConfigInfo used_config("");
+
+    this->fill_screen_config(used_config);
+    for (auto &c_screen : c_screens)
+    {
+        auto &c_monitors = c_screen.monitor();
+        auto c_monitors_uid = this->get_c_monitors_uid(c_monitors);
+        if (monitors_uid == c_monitors_uid)
+        {
+            c_screen = used_config;
+            matched = true;
+            break;
+        }
+    }
+
+    if (!matched)
+    {
+        this->display_config_->screen().push_back(used_config);
+    }
+
+    RETURN_VAL_IF_FALSE(this->save_to_file(err), false);
+
+    return true;
+}
+
 bool DisplayManager::apply(std::string &err)
 {
     std::string cmdline = XRANDR_CMD;
@@ -493,6 +502,13 @@ bool DisplayManager::switch_style(DisplayStyle style, std::string &err)
     }
 
     RETURN_VAL_IF_FALSE(this->apply(err), false);
+    return true;
+}
+
+bool DisplayManager::switch_style_and_save(DisplayStyle style, std::string &err)
+{
+    RETURN_VAL_IF_FALSE(this->switch_style(style, err), false);
+    RETURN_VAL_IF_FALSE(this->save_config(err), false);
     return true;
 }
 
@@ -664,7 +680,7 @@ bool DisplayManager::save_to_file(std::string &err)
         if (g_mkdir_with_parents(dirname.c_str(),
                                  0775) != 0)
         {
-            err = fmt::format("failed to create directory {0}.", dirname);
+            err = fmt::format(_("Failed to create directory {0}"), dirname);
             return false;
         }
     }
@@ -677,7 +693,8 @@ bool DisplayManager::save_to_file(std::string &err)
     }
     catch (const xml_schema::Exception &e)
     {
-        err = e.what();
+        LOG_WARNING("%s", e.what());
+        err = fmt::format(_("Write to file {0} failed"), this->config_file_path_);
         return false;
     }
     return true;
@@ -696,7 +713,7 @@ void DisplayManager::resources_changed()
     if (old_monitor_num != new_monitor_num)
     {
         std::string err;
-        if (!this->switch_style(this->default_style_, err))
+        if (!this->switch_style_and_save(this->default_style_, err))
         {
             LOG_WARNING("%s", err.c_str());
         }

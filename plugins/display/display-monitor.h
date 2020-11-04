@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 11:25:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-15 16:34:04
+ * @LastEditTime : 2020-11-04 11:19:47
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.h
  */
@@ -98,8 +98,10 @@ protected:
     virtual void ListPreferredModes(MethodInvocation &invocation);
     // 获取当前使用的mode
     virtual void GetCurrentMode(MethodInvocation &invocation);
+    // 设置mode，最终设置的刷新率可能和refresh_rate存在差异，会遍历一个最接近的值进行设置
+    virtual void SetMode(guint32 width, guint32 height, double refresh_rate, MethodInvocation &invocation);
     // 设置当前使用的mode，参数为可用的mode列表的下标
-    virtual void SetMode(guint32 id, MethodInvocation &invocation);
+    virtual void SetModeById(guint32 id, MethodInvocation &invocation);
     // 通过分辨率设置当前使用的mode
     virtual void SetModeBySize(guint32 width, guint32 height, MethodInvocation &invocation);
     // 设置monitor在屏幕中显示的位置

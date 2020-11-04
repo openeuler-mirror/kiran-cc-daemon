@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 11:25:37
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-15 16:39:15
+ * @LastEditTime : 2020-11-04 11:23:57
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.cpp
  */
@@ -252,7 +252,22 @@ void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
     }
 }
 
-void DisplayMonitor::SetMode(guint32 id, MethodInvocation &invocation)
+void DisplayMonitor::SetMode(guint32 width, guint32 height, double refresh_rate, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("width: %u, height: %u refresh rate: %f.", width, height, refresh_rate);
+
+    auto mode = this->match_best_mode(width, height, refresh_rate);
+
+    if (!mode)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Not found match mode."));
+    }
+
+    this->current_mode_set(mode->id);
+    invocation.ret();
+}
+
+void DisplayMonitor::SetModeById(guint32 id, MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("mode id: %u.", id);
 
@@ -278,7 +293,7 @@ void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocati
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Cannot match mode {0}x{1}"), width, height);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Not found match mode."));
     }
 }
 

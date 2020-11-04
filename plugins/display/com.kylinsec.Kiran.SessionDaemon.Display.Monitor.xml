@@ -56,6 +56,29 @@
         </method>
 
         <method name="SetMode">
+            <arg type="u" name="width" direction="in">
+                <doc:doc>
+                    <doc:summary>The resolution in x-direction.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="u" name="height" direction="in">
+                <doc:doc>
+                    <doc:summary>The resolution in y-direction.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="d" name="refresh_rate" direction="in">
+                <doc:doc>
+                    <doc:summary>The refresh rate.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set mode.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetModeById">
             <arg type="u" name="id" direction="in">
                 <doc:doc>
                     <doc:summary>The mode id.</doc:summary>
