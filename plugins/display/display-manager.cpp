@@ -117,26 +117,31 @@ void DisplayManager::ApplyChanges(MethodInvocation &invocation)
     std::string err;
     if (!this->apply(err))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to set xrandr: {0}.", err);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Apply failed: {0}"), err);
     }
     invocation.ret();
 }
 
-void DisplayManager::ResetChanges(MethodInvocation &invocation)
+void DisplayManager::RestoreChanges(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
 
     std::string err;
     if (!this->apply_config(err))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to apply monitors config: {0}.", err);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "Restore failed: {0}", err);
     }
     invocation.ret();
 }
 
 void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("name: %s.", name.c_str());
+
+    if (name.length() > 0 && !this->get_monitor_by_name(name))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the primary monitor"));
+    }
     this->primary_set(name);
     invocation.ret();
 }
@@ -209,6 +214,11 @@ void DisplayManager::load_settings()
 
 void DisplayManager::load_monitors()
 {
+    // 加载主显示器
+    auto primary_output = this->xrandr_manager_->get_primary_output();
+    auto primary_name = primary_output ? primary_output->name : std::string();
+    this->primary_set(primary_name);
+
     // 删除已经不存在的monitor
     for (auto iter = this->monitors_.begin(); iter != this->monitors_.end();)
     {
@@ -295,7 +305,7 @@ bool DisplayManager::apply_config(std::string &err)
 
     if (!this->display_config_)
     {
-        err = fmt::format("the config is empty.");
+        err = _("The config is empty");
         return false;
     }
 
@@ -320,11 +330,7 @@ bool DisplayManager::apply_config(std::string &err)
     }
     if (!result)
     {
-        if (err2.size() == 0)
-        {
-            err2 = fmt::format("not found match config for {0}.", monitors_id);
-        }
-        err = fmt::format("failed to apply config: {0}.", err2);
+        err = _("Not found match configuration");
     }
     return result;
 }
@@ -459,6 +465,13 @@ bool DisplayManager::apply(std::string &err)
 {
     std::string cmdline = XRANDR_CMD;
 
+    auto primary_monitor = this->get_monitor_by_name(this->primary_);
+
+    if (!primary_monitor)
+    {
+        cmdline.append(" --noprimary");
+    }
+
     for (const auto &monitor : this->monitors_)
     {
         auto tmp = monitor.second->generate_cmdline(this->primary_);
@@ -521,7 +534,7 @@ bool DisplayManager::switch_to_mirrors(std::string &err)
 
     if (modes.size() == 0)
     {
-        err = "cannot find common mode for all enabled monitors.";
+        err = _("Cannot find common mode for all enabled monitors");
         return false;
     }
 
@@ -623,7 +636,7 @@ bool DisplayManager::switch_to_auto(std::string &err)
     RETURN_VAL_IF_TRUE(this->switch_to_mirrors(err), true);
     LOG_DEBUG("%s", err.c_str());
 
-    err = fmt::format("failed to set auto mode.");
+    err = _("Auto mode is set failed");
     return false;
 }
 
@@ -642,6 +655,18 @@ std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_uid(const std::st
     for (const auto &iter : this->monitors_)
     {
         if (iter.second->get_uid() == uid)
+        {
+            return iter.second;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_name(const std::string &name)
+{
+    for (const auto &iter : this->monitors_)
+    {
+        if (iter.second->name_get() == name)
         {
             return iter.second;
         }

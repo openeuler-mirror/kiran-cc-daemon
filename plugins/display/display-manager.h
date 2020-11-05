@@ -47,7 +47,7 @@ protected:
     // 应用之前通过dbus调用做的修改
     virtual void ApplyChanges(MethodInvocation& invocation);
     // 恢复之前通过dbus调用做的修改
-    virtual void ResetChanges(MethodInvocation& invocation);
+    virtual void RestoreChanges(MethodInvocation& invocation);
     // 设置主显示器
     virtual void SetPrimary(const Glib::ustring& name, MethodInvocation& invocation);
     // 将之前的修改保存到文件，保存之后无法再恢复到之前的修改状态
@@ -99,6 +99,7 @@ private:
     // 获取monitor
     std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
     std::shared_ptr<DisplayMonitor> get_monitor_by_uid(const std::string& uid);
+    std::shared_ptr<DisplayMonitor> get_monitor_by_name(const std::string& name);
 
     // 将uid进行排序后拼接
     std::string get_monitors_uid();

@@ -54,10 +54,10 @@
             </doc:doc>
         </method>
 
-        <method name="ResetChanges">
+        <method name="RestoreChanges">
             <doc:doc>
                 <doc:description>
-                    <doc:para>Reset all changes.</doc:para>
+                    <doc:para>Restore all changes.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
