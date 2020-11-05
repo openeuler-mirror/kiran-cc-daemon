@@ -132,6 +132,9 @@ public:
     std::shared_ptr<ModeInfo> get_mode(RRMode id);
     ModeInfoVec get_modes(const std::vector<uint32_t>& ids);
 
+    // 获取主output
+    std::shared_ptr<OutputInfo> get_primary_output();
+
     // 获取所有的outputs
     OutputInfoVec get_outputs();
     // 获取有显示设备连接的outputs
@@ -193,6 +196,7 @@ private:
     std::map<RRCrtc, std::shared_ptr<CrtcInfo>> crtcs_;
     std::map<RRMode, std::shared_ptr<ModeInfo>> modes_;
     ScreenInfo screen_info_;
+    RROutput primary_;
 
     Atom connector_type_atom_;
 

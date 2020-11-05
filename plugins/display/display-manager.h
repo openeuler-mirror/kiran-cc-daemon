@@ -99,6 +99,7 @@ private:
     // 获取monitor
     std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
     std::shared_ptr<DisplayMonitor> get_monitor_by_uid(const std::string& uid);
+    std::shared_ptr<DisplayMonitor> get_monitor_by_name(const std::string& name);
 
     // 将uid进行排序后拼接
     std::string get_monitors_uid();

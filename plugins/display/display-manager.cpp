@@ -136,7 +136,12 @@ void DisplayManager::ResetChanges(MethodInvocation &invocation)
 
 void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("name: %s.", name.c_str());
+
+    if (name.length() > 0 && !this->get_monitor_by_name(name))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the primary monitor."));
+    }
     this->primary_set(name);
     invocation.ret();
 }
@@ -209,6 +214,11 @@ void DisplayManager::load_settings()
 
 void DisplayManager::load_monitors()
 {
+    // 加载主显示器
+    auto primary_output = this->xrandr_manager_->get_primary_output();
+    auto primary_name = primary_output ? primary_output->name : std::string();
+    this->primary_set(primary_name);
+
     // 删除已经不存在的monitor
     for (auto iter = this->monitors_.begin(); iter != this->monitors_.end();)
     {
@@ -459,6 +469,13 @@ bool DisplayManager::apply(std::string &err)
 {
     std::string cmdline = XRANDR_CMD;
 
+    auto primary_monitor = this->get_monitor_by_name(this->primary_);
+
+    if (!primary_monitor)
+    {
+        cmdline.append(" --noprimary");
+    }
+
     for (const auto &monitor : this->monitors_)
     {
         auto tmp = monitor.second->generate_cmdline(this->primary_);
@@ -642,6 +659,18 @@ std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_uid(const std::st
     for (const auto &iter : this->monitors_)
     {
         if (iter.second->get_uid() == uid)
+        {
+            return iter.second;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_name(const std::string &name)
+{
+    for (const auto &iter : this->monitors_)
+    {
+        if (iter.second->name_get() == name)
         {
             return iter.second;
         }

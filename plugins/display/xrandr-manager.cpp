@@ -92,7 +92,8 @@ ModeInfo::ModeInfo(std::tuple<guint32, guint32, guint32, double> mode_info) : id
 
 XrandrManager::XrandrManager() : event_base_(0),
                                  error_base_(0),
-                                 resources_(NULL)
+                                 resources_(NULL),
+                                 primary_(0)
 {
     this->display_ = gdk_display_get_default();
     this->xdisplay_ = GDK_DISPLAY_XDISPLAY(this->display_);
@@ -173,6 +174,11 @@ ModeInfoVec XrandrManager::get_modes(const std::vector<uint32_t>& ids)
         }
     }
     return modes;
+}
+
+std::shared_ptr<OutputInfo> XrandrManager::get_primary_output()
+{
+    return this->get_output(this->primary_);
 }
 
 OutputInfoVec XrandrManager::get_outputs()
@@ -389,6 +395,8 @@ void XrandrManager::load_xrandr(bool polling)
               this->screen_info_.min_height,
               this->screen_info_.max_width,
               this->screen_info_.max_height);
+
+    this->primary_ = XRRGetOutputPrimary(this->xdisplay_, this->xroot_window_);
 
     this->load_outputs();
     this->load_crtcs();
