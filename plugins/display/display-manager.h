@@ -47,7 +47,7 @@ protected:
     // 应用之前通过dbus调用做的修改
     virtual void ApplyChanges(MethodInvocation& invocation);
     // 恢复之前通过dbus调用做的修改
-    virtual void ResetChanges(MethodInvocation& invocation);
+    virtual void RestoreChanges(MethodInvocation& invocation);
     // 设置主显示器
     virtual void SetPrimary(const Glib::ustring& name, MethodInvocation& invocation);
     // 将之前的修改保存到文件，保存之后无法再恢复到之前的修改状态

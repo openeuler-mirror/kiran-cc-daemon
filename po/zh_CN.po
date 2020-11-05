@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-03 19:59+0800\n"
+"POT-Creation-Date: 2020-11-05 19:51+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -227,6 +227,38 @@ msgstr "不合法的时区"
 msgid "No NTP unit available"
 msgstr "没有NTP服务可用"
 
+#: ../plugins/display/display-manager.cpp:120
+msgid "Apply failed: {0}"
+msgstr "应用失败：{0}"
+
+#: ../plugins/display/display-manager.cpp:143
+msgid "Not found the primary monitor"
+msgstr "未找到主显示器"
+
+#: ../plugins/display/display-manager.cpp:308
+msgid "The config is empty"
+msgstr "自定义配置为空"
+
+#: ../plugins/display/display-manager.cpp:333
+msgid "Not found match configuration"
+msgstr "不能找到匹配的配置"
+
+#: ../plugins/display/display-manager.cpp:537
+msgid "Cannot find common mode for all enabled monitors"
+msgstr "不能为已开启的显示器找到相同的模式"
+
+#: ../plugins/display/display-manager.cpp:639
+msgid "Auto mode is set failed"
+msgstr "自动模式设置失败"
+
+#: ../plugins/display/display-manager.cpp:708
+msgid "Failed to create directory {0}"
+msgstr "创建目录{0}失败"
+
+#: ../plugins/display/display-manager.cpp:722
+msgid "Write to file {0} failed"
+msgstr "写文件到{0}失败"
+
 #: ../plugins/display/display-monitor.cpp:197
 msgid ""
 "Cannot disable the monitor, because the number of the enabled monitor is "
@@ -245,22 +277,26 @@ msgstr "在推荐模式中存在空模式"
 msgid "The current mode is not exist"
 msgstr "当前模式不存在"
 
-#: ../plugins/display/display-monitor.cpp:261
+#: ../plugins/display/display-monitor.cpp:263
+#: ../plugins/display/display-monitor.cpp:296
+msgid "Not found match mode."
+msgstr "未发现匹配的模式"
+
+#: ../plugins/display/display-monitor.cpp:276
 msgid "The mode id {0} is not exist in mode list"
 msgstr "在模式列表中未发现模式{0}"
 
-#: ../plugins/display/display-monitor.cpp:281
-msgid "Cannot match mode {0}x{1}"
-msgstr "不能匹配分辨率{0}x{1}"
-
-#: ../plugins/display/display-monitor.cpp:296
+#: ../plugins/display/display-monitor.cpp:311
 msgid "Unknown rotation type"
 msgstr "未知的旋转类型"
 
-#: ../plugins/display/display-monitor.cpp:306
+#: ../plugins/display/display-monitor.cpp:321
 msgid "Unknown reflect type"
 msgstr "未知的映射类型"
 
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"
 msgstr "自定义"
+
+#~ msgid "Cannot match mode {0}x{1}"
+#~ msgstr "不能匹配分辨率{0}x{1}"

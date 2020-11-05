@@ -117,19 +117,19 @@ void DisplayManager::ApplyChanges(MethodInvocation &invocation)
     std::string err;
     if (!this->apply(err))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to set xrandr: {0}.", err);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Apply failed: {0}"), err);
     }
     invocation.ret();
 }
 
-void DisplayManager::ResetChanges(MethodInvocation &invocation)
+void DisplayManager::RestoreChanges(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
 
     std::string err;
     if (!this->apply_config(err))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "failed to apply monitors config: {0}.", err);
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "Restore failed: {0}", err);
     }
     invocation.ret();
 }
@@ -140,7 +140,7 @@ void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &inv
 
     if (name.length() > 0 && !this->get_monitor_by_name(name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the primary monitor."));
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the primary monitor"));
     }
     this->primary_set(name);
     invocation.ret();
@@ -305,7 +305,7 @@ bool DisplayManager::apply_config(std::string &err)
 
     if (!this->display_config_)
     {
-        err = fmt::format("the config is empty.");
+        err = _("The config is empty");
         return false;
     }
 
@@ -330,11 +330,7 @@ bool DisplayManager::apply_config(std::string &err)
     }
     if (!result)
     {
-        if (err2.size() == 0)
-        {
-            err2 = fmt::format("not found match config for {0}.", monitors_id);
-        }
-        err = fmt::format("failed to apply config: {0}.", err2);
+        err = _("Not found match configuration");
     }
     return result;
 }
@@ -538,7 +534,7 @@ bool DisplayManager::switch_to_mirrors(std::string &err)
 
     if (modes.size() == 0)
     {
-        err = "cannot find common mode for all enabled monitors.";
+        err = _("Cannot find common mode for all enabled monitors");
         return false;
     }
 
@@ -640,7 +636,7 @@ bool DisplayManager::switch_to_auto(std::string &err)
     RETURN_VAL_IF_TRUE(this->switch_to_mirrors(err), true);
     LOG_DEBUG("%s", err.c_str());
 
-    err = fmt::format("failed to set auto mode.");
+    err = _("Auto mode is set failed");
     return false;
 }
 

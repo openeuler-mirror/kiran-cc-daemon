@@ -7,5 +7,6 @@ plugins/accounts/accounts-manager.cpp
 plugins/accounts/accounts-util.cpp
 plugins/accounts/user.cpp
 plugins/timedate/timedate-manager.cpp
+plugins/display/display-manager.cpp
 plugins/display/display-monitor.cpp
 plugins/keybinding/custom-shortcut.h
