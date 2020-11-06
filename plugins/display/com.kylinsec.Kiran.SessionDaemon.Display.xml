@@ -83,6 +83,19 @@
             </doc:doc>
         </method>
 
+        <method name="SetWindowScalingFactor">
+            <arg type="i" name="window_scaling_factor" direction="in">
+                <doc:doc>
+                    <doc:summary>The window scaling factor.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the window scaling factor.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
         <property name="default_style" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
@@ -97,6 +110,15 @@
             <doc:doc>
                 <doc:description>
                     <doc:para>The name of the primary monitor.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="window_scaling_factor" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The window scaling factor.</doc:para>
                 </doc:description>
             </doc:doc>
         </property>

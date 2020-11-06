@@ -39,6 +39,7 @@ extern "C"
         DISPLAY_STYLE_CUSTOM,
         // 自动模式，按照CUSTOM->EXTEND->MIRRORS的顺序进行尝试，直到设置成功
         DISPLAY_STYLE_AUTO,
+        DISPLAY_STYLE_LAST,
     };
 
     // 显示器的旋转角度

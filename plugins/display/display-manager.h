@@ -52,12 +52,16 @@ protected:
     virtual void SetPrimary(const Glib::ustring& name, MethodInvocation& invocation);
     // 将之前的修改保存到文件，保存之后无法再恢复到之前的修改状态
     virtual void Save(MethodInvocation& invocation);
+    // 设置窗口缩放因子
+    virtual void SetWindowScalingFactor(gint32 window_scaling_factor, MethodInvocation& invocation);
 
     virtual bool default_style_setHandler(guint32 value);
     virtual bool primary_setHandler(const Glib::ustring& value);
+    virtual bool window_scaling_factor_setHandler(gint32 value);
 
     virtual guint32 default_style_get() { return uint32_t(this->default_style_); };
     virtual Glib::ustring primary_get() { return this->primary_; };
+    virtual gint32 window_scaling_factor_get() { return this->window_scaling_factor_; };
 
 private:
     void init();
@@ -111,7 +115,8 @@ private:
     // 处理xrandr变化的信号
     void resources_changed();
 
-    void settings_changed(const Glib::ustring& key);
+    void display_settings_changed(const Glib::ustring& key);
+    void interface_settings_changed(const Glib::ustring& key);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
@@ -127,8 +132,12 @@ private:
     std::unique_ptr<DisplayConfigInfo> display_config_;
 
     Glib::RefPtr<Gio::Settings> display_settings_;
+    Glib::RefPtr<Gio::Settings> interface_settings_;
     DisplayStyle default_style_;
+    // 主显示器名字
     std::string primary_;
+    // 窗口缩放率
+    int32_t window_scaling_factor_;
 
     std::map<uint32_t, std::shared_ptr<DisplayMonitor>> monitors_;
 

@@ -21,7 +21,10 @@ namespace Kiran
 #define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
 
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
-#define DISPLAY_SCHEMA_ID_STYLE "display-style"
+#define DISPLAY_SCHEMA_STYLE "display-style"
+
+#define INTERFACE_SCHEMA_ID "org.mate.interface"
+#define INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR "window-scaling-factor"
 
 #define DISPLAY_FILE_NAME "display.xml"
 #define MONITOR_JOIN_CHAR ","
@@ -37,6 +40,7 @@ DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(
                                                    DISPLAY_FILE_NAME);
 
     this->display_settings_ = Gio::Settings::create(DISPLAY_SCHEMA_ID);
+    this->interface_settings_ = Gio::Settings::create(INTERFACE_SCHEMA_ID);
 }
 
 DisplayManager::~DisplayManager()
@@ -107,6 +111,11 @@ void DisplayManager::SwitchStyle(guint32 style, MethodInvocation &invocation)
 void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("style: %u", style);
+
+    if (style >= DisplayStyle::DISPLAY_STYLE_LAST)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown display style"));
+    }
     this->default_style_set(style);
     invocation.ret();
 }
@@ -159,15 +168,26 @@ void DisplayManager::Save(MethodInvocation &invocation)
     invocation.ret();
 }
 
+void DisplayManager::SetWindowScalingFactor(gint32 window_scaling_factor, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("");
+
+    if (!this->window_scaling_factor_set(window_scaling_factor))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set the window scaling factor"));
+    }
+    invocation.ret();
+}
+
 bool DisplayManager::default_style_setHandler(guint32 value)
 {
     RETURN_VAL_IF_TRUE(this->default_style_ == DisplayStyle(value), true);
 
     this->default_style_ = DisplayStyle(value);
 
-    if (this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_STYLE) != int32_t(this->default_style_))
+    if (this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE) != int32_t(this->default_style_))
     {
-        this->display_settings_->set_enum(DISPLAY_SCHEMA_ID_STYLE, int32_t(this->default_style_));
+        this->display_settings_->set_enum(DISPLAY_SCHEMA_STYLE, int32_t(this->default_style_));
     }
     return true;
 }
@@ -175,6 +195,13 @@ bool DisplayManager::default_style_setHandler(guint32 value)
 bool DisplayManager::primary_setHandler(const Glib::ustring &value)
 {
     this->primary_ = value.raw();
+    return true;
+}
+
+bool DisplayManager::window_scaling_factor_setHandler(gint32 value)
+{
+    SETTINGS_PROFILE("value: %d.", value);
+    this->window_scaling_factor_ = value;
     return true;
 }
 
@@ -186,7 +213,8 @@ void DisplayManager::init()
     this->load_monitors();
     this->load_config();
 
-    this->display_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::settings_changed));
+    this->display_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::display_settings_changed));
+    this->interface_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::interface_settings_changed));
     this->xrandr_manager_->signal_resources_changed().connect(sigc::mem_fun(this, &DisplayManager::resources_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
@@ -208,7 +236,12 @@ void DisplayManager::load_settings()
 
     if (this->display_settings_)
     {
-        this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_ID_STYLE));
+        this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE));
+    }
+
+    if (this->interface_settings_)
+    {
+        this->window_scaling_factor_ = this->interface_settings_->get_int(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR);
     }
 }
 
@@ -340,6 +373,7 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
     const auto &c_monitors = screen_config.monitor();
 
     this->primary_set(screen_config.primary());
+    this->window_scaling_factor_set(screen_config.window_scaling_factor());
 
     for (const auto &c_monitor : c_monitors)
     {
@@ -389,6 +423,7 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
 void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
 {
     screen_config.primary(this->primary_);
+    screen_config.window_scaling_factor(this->window_scaling_factor_);
 
     for (auto &iter : this->monitors_)
     {
@@ -436,7 +471,7 @@ bool DisplayManager::save_config(std::string &err)
     auto monitors_uid = this->get_monitors_uid();
     auto &c_screens = this->display_config_->screen();
     bool matched = false;
-    ScreenConfigInfo used_config("");
+    ScreenConfigInfo used_config("", 0);
 
     this->fill_screen_config(used_config);
     for (auto &c_screen : c_screens)
@@ -463,8 +498,16 @@ bool DisplayManager::save_config(std::string &err)
 
 bool DisplayManager::apply(std::string &err)
 {
-    std::string cmdline = XRANDR_CMD;
+    // 应用缩放因子
+    auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
+    if (!this->interface_settings_->set_value(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
+    {
+        err = _("Failed to set the window scaling factor");
+        return false;
+    }
 
+    // 应用xrandr
+    std::string cmdline = XRANDR_CMD;
     auto primary_monitor = this->get_monitor_by_name(this->primary_);
 
     if (!primary_monitor)
@@ -745,16 +788,30 @@ void DisplayManager::resources_changed()
     this->MonitorsChanged_signal.emit(true);
 }
 
-void DisplayManager::settings_changed(const Glib::ustring &key)
+void DisplayManager::display_settings_changed(const Glib::ustring &key)
 {
     SETTINGS_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
-    case CONNECT(DISPLAY_SCHEMA_ID_STYLE, _hash):
+    case CONNECT(DISPLAY_SCHEMA_STYLE, _hash):
     {
         auto style = this->display_settings_->get_enum(key);
         this->default_style_set(style);
+    }
+    break;
+    }
+}
+
+void DisplayManager::interface_settings_changed(const Glib::ustring &key)
+{
+    SETTINGS_PROFILE("key: %s.", key.c_str());
+
+    switch (shash(key.c_str()))
+    {
+    case CONNECT(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
+    {
+        this->window_scaling_factor_ = this->interface_settings_->get_int(key);
     }
     break;
     }
