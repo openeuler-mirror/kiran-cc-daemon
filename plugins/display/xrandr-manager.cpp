@@ -306,9 +306,18 @@ std::string XrandrManager::gen_uid(RROutput id)
 std::string XrandrManager::gen_uid(std::shared_ptr<OutputInfo> output_info)
 {
     RETURN_VAL_IF_FALSE(output_info, std::string());
+    // 虚拟机的EDID可能为空，这里我们将最佳分辨率加入唯一标识，以便在后续虚拟机大小发生变化时可以对分辨率进行重新设置。
     if (output_info->edid.empty())
     {
-        return output_info->name;
+        auto prefer_modes = this->get_prefer_modes(output_info);
+        if (prefer_modes.size() >= 1)
+        {
+            return fmt::format("{0}-{1}x{2}", output_info->name, prefer_modes[0]->width, prefer_modes[0]->height);
+        }
+        else
+        {
+            return output_info->name;
+        }
     }
 
     auto edid_md5 = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5, output_info->edid);

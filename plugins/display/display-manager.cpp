@@ -728,14 +728,13 @@ bool DisplayManager::save_to_file(std::string &err)
 void DisplayManager::resources_changed()
 {
     SETTINGS_PROFILE("");
-    auto old_monitor_num = this->monitors_.size();
-    auto new_monitor_num = this->xrandr_manager_->get_connected_outputs().size();
 
+    auto old_monitors_uid = this->get_monitors_uid();
     this->load_monitors();
+    auto new_monitors_uid = this->get_monitors_uid();
 
-    // 如果连接设备的数量不相等，说明有设备被删除或者新设备加入
-    // 因此重新设置参数
-    if (old_monitor_num != new_monitor_num)
+    // 如果uid不相同，说明设备硬件发生了变化，此时需要重新进行设置
+    if (old_monitors_uid != new_monitors_uid)
     {
         std::string err;
         if (!this->switch_style_and_save(this->default_style_, err))
