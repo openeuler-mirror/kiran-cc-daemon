@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 13:42:19
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-06 17:28:32
+ * @LastEditTime : 2020-11-06 17:53:59
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-util.cpp
  */
@@ -212,7 +212,7 @@ bool AccountsUtil::parse_exit_status(int32_t exit_status, std::string &error)
         error = _("Invalid argument to option");
         break;
     case COMMAND_EXIT_STATUS_UID_IN_USE:
-        error = _("UID already in use (and no -o)");
+        error = _("UID already in use");
         break;
     case COMMAND_EXIT_STATUS_BAD_PWFILE:
         error = _("Passwd file contains errors");
