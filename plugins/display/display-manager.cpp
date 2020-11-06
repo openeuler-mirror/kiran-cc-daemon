@@ -737,7 +737,7 @@ void DisplayManager::resources_changed()
     if (old_monitors_uid != new_monitors_uid)
     {
         std::string err;
-        if (!this->switch_style_and_save(this->default_style_, err))
+        if (!this->switch_style(this->default_style_, err))
         {
             LOG_WARNING("%s", err.c_str());
         }
