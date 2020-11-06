@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-07-24 13:42:19
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 09:47:26
+ * @LastEditTime : 2020-11-06 17:28:32
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-util.cpp
  */
@@ -183,13 +183,22 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
         return false;
     }
     LOG_DEBUG("status: %d.", status);
-
     return AccountsUtil::parse_exit_status(status, err);
 }
 
 bool AccountsUtil::parse_exit_status(int32_t exit_status, std::string &error)
 {
-    switch (exit_status)
+    g_autoptr(GError) g_error = NULL;
+    if (!WIFEXITED(exit_status))
+    {
+        auto result = g_spawn_check_exit_status(exit_status, &g_error);
+        if (!result)
+        {
+            error = g_error->message;
+        }
+        return result;
+    }
+    switch (WEXITSTATUS(exit_status))
     {
     case COMMAND_EXIT_STATUS_SUCCESS:
         return true;
