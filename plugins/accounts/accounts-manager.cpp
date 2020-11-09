@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:09:05
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 11:25:17
+ * @LastEditTime : 2020-11-09 11:23:31
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
  */
@@ -506,11 +506,11 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     if (remove_files)
     {
-        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "-r", "--", user->user_name_get().raw()});
+        argv = std::vector<std::string>({"/usr/sbin/userdel", "-r", "--", user->user_name_get().raw()});
     }
     else
     {
-        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "--", user->user_name_get().raw()});
+        argv = std::vector<std::string>({"/usr/sbin/userdel", "--", user->user_name_get().raw()});
     }
 
     if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
