@@ -16,12 +16,36 @@
 
 namespace Kiran
 {
-BluetoothAgent::BluetoothAgent()
+BluetoothAgent::BluetoothAgent() : object_register_id_(0)
 {
 }
 
 void BluetoothAgent::init()
 {
+    SETTINGS_PROFILE("");
+
+    try
+    {
+        this->connection_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SYSTEM);
+    }
+    catch(const Glib::Error& e)
+    {
+        LOG_WARNING("%s.", e.what().c_str());
+        return;
+    }
+
+    try
+    {
+        this->object_register_id_ =  this->register_object(this->connection_, AGENT_OBJECT_PATH);
+    }
+    catch (const Glib::Error &e)
+    {
+        LOG_WARNING("register object_path %s fail: %s.", AGENT_OBJECT_PATH, e.what().c_str());
+        return;
+    }
+
+    LOG_DEBUG("register id: %d.", this->object_register_id_);
+    
     bluez::AgentManager1Proxy::createForBus(Gio::DBus::BUS_TYPE_SYSTEM,
                                             Gio::DBus::PROXY_FLAGS_NONE,
                                             BLUEZ_DBUS_NAME,
@@ -59,23 +83,23 @@ void BluetoothAgent::DisplayPinCode(const Glib::DBusObjectPathString &device,
 void BluetoothAgent::RequestPasskey(const Glib::DBusObjectPathString &device, MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("device: %s.", device.c_str());
-    invocation.ret("123456");
+    invocation.ret(123456);
 }
 
 void BluetoothAgent::DisplayPasskey(const Glib::DBusObjectPathString &device,
-                                    const Glib::ustring &passkey,
+                                    guint32 passkey,
                                     guint16 entered,
                                     MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s, passkey: %s, entered: %d.", device.c_str(), passkey.c_str(), entered);
+    SETTINGS_PROFILE("device: %s, passkey: %d, entered: %d.", device.c_str(), passkey, entered);
     invocation.ret();
 }
 
 void BluetoothAgent::RequestConfirmation(const Glib::DBusObjectPathString &device,
-                                         const Glib::ustring &passkey,
+                                         guint32 passkey,
                                          MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s, passkey: %s.", device.c_str(), passkey.c_str());
+    SETTINGS_PROFILE("device: %s, passkey: %d.", device.c_str(), passkey);
     invocation.ret();
 }
 
@@ -116,6 +140,7 @@ void BluetoothAgent::on_agent_manager_ready(Glib::RefPtr<Gio::AsyncResult> &resu
 
 void BluetoothAgent::on_agent_register_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
+    SETTINGS_PROFILE("");
     try
     {
         this->agent_manager_proxy_->RegisterAgent_finish(result);
@@ -131,6 +156,7 @@ void BluetoothAgent::on_agent_register_ready(Glib::RefPtr<Gio::AsyncResult> &res
 
 void BluetoothAgent::on_default_agent_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
+    SETTINGS_PROFILE("");
     try
     {
         this->agent_manager_proxy_->RegisterAgent_finish(result);
@@ -144,6 +170,7 @@ void BluetoothAgent::on_default_agent_ready(Glib::RefPtr<Gio::AsyncResult> &resu
 
 void BluetoothAgent::on_agent_unregister_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
+    SETTINGS_PROFILE("");
     try
     {
         this->agent_manager_proxy_->UnregisterAgent_finish(result);

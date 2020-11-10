@@ -31,11 +31,11 @@ protected:
                                 MethodInvocation &invocation);
     virtual void RequestPasskey(const Glib::DBusObjectPathString &device, MethodInvocation &invocation);
     virtual void DisplayPasskey(const Glib::DBusObjectPathString &device,
-                                const Glib::ustring &passkey,
+                                guint32 passkey,
                                 guint16 entered,
                                 MethodInvocation &invocation);
     virtual void RequestConfirmation(const Glib::DBusObjectPathString &device,
-                                     const Glib::ustring &passkey,
+                                     guint32 passkey,
                                      MethodInvocation &invocation);
     virtual void RequestAuthorization(const Glib::DBusObjectPathString &device, MethodInvocation &invocation);
     virtual void AuthorizeService(const Glib::DBusObjectPathString &device,
@@ -51,5 +51,8 @@ private:
 
 private:
     Glib::RefPtr<bluez::AgentManager1Proxy> agent_manager_proxy_;
+
+    Glib::RefPtr<Gio::DBus::Connection> connection_;
+    uint32_t object_register_id_;
 };
 }  // namespace Kiran

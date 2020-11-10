@@ -64,6 +64,7 @@ std::shared_ptr<BluetoothAdapter> BluetoothManager::get_adapter_by_device(const 
 
 void BluetoothManager::GetAdapters(MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("");
     std::vector<Glib::ustring> adapters;
     for (auto &iter : this->adapters_)
     {
@@ -74,6 +75,7 @@ void BluetoothManager::GetAdapters(MethodInvocation &invocation)
 
 void BluetoothManager::GetDevices(const Glib::DBusObjectPathString &adapter_object_path, MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("adapter: %s.", adapter_object_path.c_str());
     std::vector<Glib::ustring> devices;
     auto adapter = this->get_adapter(adapter_object_path);
     if (!adapter)
@@ -91,6 +93,7 @@ void BluetoothManager::GetDevices(const Glib::DBusObjectPathString &adapter_obje
 
 void BluetoothManager::init()
 {
+    SETTINGS_PROFILE("");
     DBus::ObjectManagerProxy::createForBus(Gio::DBus::BUS_TYPE_SYSTEM,
                                            Gio::DBus::PROXY_FLAGS_NONE,
                                            BLUEZ_DBUS_NAME,
@@ -108,6 +111,7 @@ void BluetoothManager::init()
 
 void BluetoothManager::on_bluez_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
+    SETTINGS_PROFILE("");
     try
     {
         this->objects_proxy_ = DBus::ObjectManagerProxy::createForBusFinish(result);
@@ -127,6 +131,8 @@ void BluetoothManager::on_bluez_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 void BluetoothManager::on_interface_added(Glib::DBusObjectPathString object_path,
                                           std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>> interfaces)
 {
+    SETTINGS_PROFILE("object_path: %s.", object_path.c_str());
+
     if (interfaces.find(BLUEZ_ADAPTER_INTERFACE_NAME) != interfaces.end())
     {
         this->add_adapter(object_path);
@@ -141,6 +147,7 @@ void BluetoothManager::on_interface_added(Glib::DBusObjectPathString object_path
 void BluetoothManager::on_interface_removed(Glib::DBusObjectPathString object_path,
                                             std::vector<Glib::ustring> interfaces)
 {
+    SETTINGS_PROFILE("object_path: %s.", object_path.c_str());
     if (std::find(interfaces.begin(), interfaces.end(), BLUEZ_ADAPTER_INTERFACE_NAME) != interfaces.end())
     {
         this->remove_adapter(object_path);
@@ -154,6 +161,7 @@ void BluetoothManager::on_interface_removed(Glib::DBusObjectPathString object_pa
 
 void BluetoothManager::load_objects()
 {
+    SETTINGS_PROFILE("");
     auto objects = this->objects_proxy_->GetManagedObjects_sync();
 
     // Add adapters

@@ -61,6 +61,11 @@
                     <doc:summary>The device object path.</doc:summary>
                 </doc:doc>
             </arg>
+            <arg type="u" name="passkey" direction="out">
+                <doc:doc>
+                    <doc:summary>The passkey.</doc:summary>
+                </doc:doc>
+            </arg>
             <doc:doc>
                 <doc:description>
                     <doc:para>This method gets called when the service daemon needs to get the passkey for an authentication.
@@ -75,7 +80,7 @@
                     <doc:summary>The device object path.</doc:summary>
                 </doc:doc>
             </arg>
-            <arg type="s" name="passkey" direction="in">
+            <arg type="u" name="passkey" direction="in">
                 <doc:doc>
                     <doc:summary>The passkey.</doc:summary>
                 </doc:doc>
@@ -104,7 +109,7 @@
                     <doc:summary>The device object path.</doc:summary>
                 </doc:doc>
             </arg>
-            <arg type="s" name="passkey" direction="in">
+            <arg type="u" name="passkey" direction="in">
                 <doc:doc>
                     <doc:summary>The passkey.</doc:summary>
                 </doc:doc>
