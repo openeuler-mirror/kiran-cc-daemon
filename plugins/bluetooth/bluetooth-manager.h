@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-11 16:21:04
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-09 20:35:06
+ * @LastEditTime : 2020-11-11 10:40:21
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/bluetooth/bluetooth-manager.h
  */
@@ -32,9 +32,22 @@ public:
     std::shared_ptr<BluetoothAdapter> get_adapter(const std::string &object_path);
     std::shared_ptr<BluetoothAdapter> get_adapter_by_device(const std::string &object_path);
 
+    sigc::signal<void, bool, const std::string &> &signal_agent_feeded() { return this->agent_feeded_; };
+
 protected:
     virtual void GetAdapters(MethodInvocation &invocation);
     virtual void GetDevices(const Glib::DBusObjectPathString &adapter_object_path, MethodInvocation &invocation);
+    virtual void FeedPinCode(const Glib::DBusObjectPathString &device,
+                             bool accept,
+                             const Glib::ustring &pincode,
+                             MethodInvocation &invocation);
+    virtual void FeedPasskey(const Glib::DBusObjectPathString &device,
+                             bool accept,
+                             guint32 passkey,
+                             MethodInvocation &invocation);
+    virtual void Confirm(const Glib::DBusObjectPathString &device,
+                         bool accept,
+                         MethodInvocation &invocation);
 
 private:
     void init();
@@ -55,6 +68,9 @@ private:
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
 
+protected:
+    sigc::signal<void, bool, const std::string &> agent_feeded_;
+
 private:
     static BluetoothManager *instance_;
 
@@ -62,9 +78,11 @@ private:
 
     std::map<std::string, std::shared_ptr<BluetoothAdapter>> adapters_;
 
-    BluetoothAgent agent_;
+    std::shared_ptr<BluetoothAgent> agent_;
 
     uint32_t dbus_connect_id_;
     uint32_t object_register_id_;
+
+    friend class BluetoothAgent;
 };
 }  // namespace Kiran

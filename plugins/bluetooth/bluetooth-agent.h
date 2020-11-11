@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-09 17:28:07
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-10 09:42:46
+ * @LastEditTime : 2020-11-11 10:23:07
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/bluetooth/bluetooth-agent.h
  */
@@ -13,10 +13,12 @@
 
 namespace Kiran
 {
+class BluetoothManager;
+
 class BluetoothAgent : public bluez::Agent1Stub
 {
 public:
-    BluetoothAgent();
+    BluetoothAgent(BluetoothManager *bluetooth_manager);
     virtual ~BluetoothAgent(){};
 
     void init();
@@ -49,8 +51,22 @@ private:
     void on_default_agent_ready(Glib::RefPtr<Gio::AsyncResult> &result);
     void on_agent_unregister_ready(Glib::RefPtr<Gio::AsyncResult> &result);
 
+    void request_response(sigc::slot<void, bool, const std::string &> callback, const Glib::DBusObjectPathString &device, MethodInvocation invocation);
+    void on_canceled(const Glib::DBusObjectPathString &device, MethodInvocation invocation);
+    void on_pincode_feeded(bool accept, const std::string &pincode, MethodInvocation invocation);
+    void on_passkey_feeded(bool accept, const std::string &passkey, MethodInvocation invocation);
+    void on_confirmation_feeded(bool accept, const std::string &, MethodInvocation invocation);
+    bool on_feeded_timeout(MethodInvocation invocation);
+    void on_response_finished();
+
 private:
     Glib::RefPtr<bluez::AgentManager1Proxy> agent_manager_proxy_;
+
+    BluetoothManager *bluetooth_manager_;
+    sigc::connection feeded_conn_;
+    sigc::connection feeded_timeout_conn_;
+    sigc::connection canceled_conn_;
+    Glib::DBusObjectPathString request_device_;
 
     Glib::RefPtr<Gio::DBus::Connection> connection_;
     uint32_t object_register_id_;

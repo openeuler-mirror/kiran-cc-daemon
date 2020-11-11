@@ -34,6 +34,70 @@
             </doc:doc>
         </method>
 
+        <method name="FeedPinCode">
+            <arg type="o" name="device" direction="in">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="b" name="accept" direction="in">
+                <doc:doc>
+                    <doc:summary>Whether to accept the pincode request.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="s" name="pincode" direction="in">
+                <doc:doc>
+                    <doc:summary>The accepted pincode.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Response the pincode request.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="FeedPasskey">
+            <arg type="o" name="device" direction="in">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="b" name="accept" direction="in">
+                <doc:doc>
+                    <doc:summary>Whether to accept the passkey request.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="u" name="passkey" direction="in">
+                <doc:doc>
+                    <doc:summary>The accepted passkey.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Response the passkey request.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="Confirm">
+            <arg type="o" name="device" direction="in">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="b" name="accept" direction="in">
+                <doc:doc>
+                    <doc:summary>Whether to accept the confirmation or authorization requests.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Response the confirmation or authorization requests.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
         <signal name="AdapterAdded">
             <arg name="adapter" type="o">
                 <doc:doc>
@@ -59,6 +123,96 @@
         </signal>
 
         <signal name="DeviceRemove">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="RequestPinCode">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="DisplayPinCode">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg name="pincode" type="s">
+                <doc:doc>
+                    <doc:summary>The pincode.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="RequestPasskey">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="DisplayPasskey">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg name="passkey" type="u">
+                <doc:doc>
+                    <doc:summary>The passkey.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg name="entered" type="q">
+                <doc:doc>
+                    <doc:summary>The number of already typed keys on the remote side.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="RequestConfirmation">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg name="passkey" type="u">
+                <doc:doc>
+                    <doc:summary>The passkey.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="RequestAuthorization">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="AuthorizeService">
+            <arg name="device" type="o">
+                <doc:doc>
+                    <doc:summary>The device object path.</doc:summary>
+                </doc:doc>
+            </arg>
+
+            <arg name="uuid" type="s">
+                <doc:doc>
+                    <doc:summary>The device uuid.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+        <signal name="Cancel">
             <arg name="device" type="o">
                 <doc:doc>
                     <doc:summary>The device object path.</doc:summary>

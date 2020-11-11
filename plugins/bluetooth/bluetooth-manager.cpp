@@ -2,13 +2,14 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-11 16:21:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-09 20:36:05
+ * @LastEditTime : 2020-11-11 10:41:14
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/bluetooth/bluetooth-manager.cpp
  */
 
 #include "plugins/bluetooth/bluetooth-manager.h"
 
+#include <glib-unix.h>
 #include <glib/gi18n.h>
 
 #include "lib/base/base.h"
@@ -91,16 +92,47 @@ void BluetoothManager::GetDevices(const Glib::DBusObjectPathString &adapter_obje
     invocation.ret(devices);
 }
 
+void BluetoothManager::FeedPinCode(const Glib::DBusObjectPathString &device,
+                                   bool accept,
+                                   const Glib::ustring &pincode,
+                                   MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("device: %s, accept: %d, pincode: %s.", device.c_str(), accept, pincode.c_str());
+    this->agent_feeded_.emit(accept, pincode.raw());
+    invocation.ret();
+}
+
+void BluetoothManager::FeedPasskey(const Glib::DBusObjectPathString &device,
+                                   bool accept,
+                                   guint32 passkey,
+                                   MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("device: %s, accept: %d passkey: %u.", device.c_str(), accept, passkey);
+    this->agent_feeded_.emit(accept, fmt::format("{0}", passkey));
+    invocation.ret();
+}
+
+void BluetoothManager::Confirm(const Glib::DBusObjectPathString &device,
+                               bool accept,
+                               MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("device: %s, accept: %d.", device.c_str(), accept);
+    this->agent_feeded_.emit(accept, std::string());
+    invocation.ret();
+}
+
 void BluetoothManager::init()
 {
     SETTINGS_PROFILE("");
+
+    this->agent_ = std::make_shared<BluetoothAgent>(this);
+    this->agent_->init();
+
     DBus::ObjectManagerProxy::createForBus(Gio::DBus::BUS_TYPE_SYSTEM,
                                            Gio::DBus::PROXY_FLAGS_NONE,
                                            BLUEZ_DBUS_NAME,
                                            BLUEZ_ROOT_OBJECT_PATH,
                                            sigc::mem_fun(this, &BluetoothManager::on_bluez_ready));
-
-    this->agent_.init();
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  BLUETOOTH_DBUS_NAME,

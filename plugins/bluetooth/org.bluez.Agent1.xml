@@ -28,6 +28,7 @@
                 <doc:description>
                     <doc:para>This method gets called when the service daemon needs to get the passkey for an authentication.
                     The return value should be a string of 1-16 characters length. The string can be alphanumeric.</doc:para>
+                    <doc:para>Possible errors: org.bluez.Error.Rejected org.bluez.Error.Canceled</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -51,6 +52,7 @@
                     2.1 Secure Simple Pairing, in contrast to DisplayPasskey which is used for those that do. This method will
                     only ever be called once since older keyboards do not support typing notification. Note that the PIN will
                     always be a 6-digit number, zero-padded to 6 digits. This is for harmony with the later specification.</doc:para>
+                    <doc:para>Possible errors: org.bluez.Error.Rejected org.bluez.Error.Canceled</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -70,6 +72,7 @@
                 <doc:description>
                     <doc:para>This method gets called when the service daemon needs to get the passkey for an authentication.
                     The return value should be a numeric value between 0-999999.</doc:para>
+                    <doc:para>Possible errors: org.bluez.Error.Rejected org.bluez.Error.Canceled</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -120,6 +123,7 @@
                     To confirm the value it should return an empty reply or an error in case the passkey is invalid. Note that
                     the passkey will always be a 6-digit number, so the display should be zero-padded at the start if the value
                     contains less than 6 digits.</doc:para>
+                    <doc:para>Possible errors: org.bluez.Error.Rejected org.bluez.Error.Canceled</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -135,6 +139,7 @@
                     <doc:para>This method gets called to request the user to authorize an incoming pairing attempt which would
                     in other circumstances trigger the just-works model, or when the user plugged in a device that implements
                     cable pairing. In the latter case, the device would not be connected to the adapter via Bluetooth yet.</doc:para>
+                    <doc:para>Possible errors: org.bluez.Error.Rejected org.bluez.Error.Canceled</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -153,6 +158,7 @@
             <doc:doc>
                 <doc:description>
                     <doc:para>This method gets called when the service daemon needs to authorize a connection/service request.</doc:para>
+                    <doc:para>Possible errors: org.bluez.Error.Rejected org.bluez.Error.Canceled</doc:para>
                 </doc:description>
             </doc:doc>
         </method>

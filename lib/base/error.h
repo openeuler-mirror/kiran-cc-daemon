@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-02 14:12:54
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-03 09:28:41
+ * @LastEditTime : 2020-11-10 20:30:22
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/base/error.h
  */
@@ -28,6 +28,10 @@ enum class CCError : int32_t
     ERROR_GEN_SHORTCUT_ID,
     ERROR_GRAB_KEYCOMB,
     ERROR_KEYCOMB_CONFLICT,
+
+    // bluetooth
+    ERROR_BLUEZ_REJECTED,
+    ERROR_BLUEZ_CANCELED,
 
     NUM_ERRORS
 };
