@@ -9,7 +9,7 @@ endif()
 
 if(build-session-daemon)
     add_subdirectory(bluetooth)
-    #add_subdirectory(display)
+    add_subdirectory(display)
     add_subdirectory(inputdevices/common)
     add_subdirectory(inputdevices/mouse)
     add_subdirectory(inputdevices/touchpad)
