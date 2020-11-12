@@ -6,8 +6,8 @@ file(GLOB_RECURSE DISPLAY_H_FILES ./*.h)
 file(GLOB_RECURSE DISPLAY_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(DISPLAY display ${CMAKE_SOURCE_DIR}/plugins/display/com.kylinsec.Kiran.SessionDaemon.Display.xml)
-GEN_DBUS_STUB(MONITOR monitor ${CMAKE_SOURCE_DIR}/plugins/display/com.kylinsec.Kiran.SessionDaemon.Display.Monitor.xml)
+GEN_DBUS_STUB(DISPLAY display com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/display/com.kylinsec.Kiran.SessionDaemon.Display.xml)
+GEN_DBUS_STUB(MONITOR monitor com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/display/com.kylinsec.Kiran.SessionDaemon.Display.Monitor.xml)
 
 find_program(XSDCXX NAMES "xsdcxx" REQUIRED)
 

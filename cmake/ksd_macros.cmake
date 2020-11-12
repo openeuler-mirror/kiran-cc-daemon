@@ -28,7 +28,7 @@ endmacro()
 
 
 
-macro(GEN_DBUS_STUB UPPER LOWER XML_PATH)
+macro(GEN_DBUS_STUB UPPER LOWER INTERFACE_PREFIX XML_PATH)
 
     SET (${UPPER}_INTROSPECTION_XML ${XML_PATH})
 
@@ -37,13 +37,15 @@ macro(GEN_DBUS_STUB UPPER LOWER XML_PATH)
         ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_stub.h
         ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_common.cpp
         ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_common.h
+        ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_proxy.cpp
+        ${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus_proxy.h
     )
 
     ADD_CUSTOM_COMMAND (OUTPUT ${${UPPER}_GENERATED_STUB}
                         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/generated/
                         COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/lib/python3.6/site-packages/ 
                                 ${GDBUS_CODEGEN} --generate-cpp-code=${CMAKE_BINARY_DIR}/generated/${LOWER}_dbus
-                                            --interface-prefix=com.kylinsec.
+                                            --interface-prefix=${INTERFACE_PREFIX}
                                             ${${UPPER}_INTROSPECTION_XML}
                         DEPENDS ${${UPPER}_INTROSPECTION_XML}
                         COMMENT "Generate the stub for the ${LOWER}")

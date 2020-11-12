@@ -5,7 +5,7 @@ SET_COMMON_EXE_LINKER_FLAGS()
 file(GLOB_RECURSE CORE_H_FILES ./*.h)
 file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 
-GEN_DBUS_STUB(CC_DAEMON cc_daemon ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.xml)
+GEN_DBUS_STUB(CC_DAEMON cc_daemon com.kylinsec. ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.xml)
 
 if(build-system-daemon)
 # system daemon

@@ -6,8 +6,8 @@ file(GLOB_RECURSE CORE_H_FILES ./*.h)
 file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(ACCOUNTS accounts ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.xml)
-GEN_DBUS_STUB(USER user ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.User.xml)
+GEN_DBUS_STUB(ACCOUNTS accounts com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.xml)
+GEN_DBUS_STUB(USER user com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.User.xml)
 
 
 add_library(${TARGET_NAME} SHARED

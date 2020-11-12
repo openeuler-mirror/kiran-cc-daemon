@@ -1,6 +1,21 @@
+[bluetooth]
+Name=Bluetooth
+Description=Bluetooth plugin
+Available=true
+
+[display]
+Name=Display
+Description=Display plugin
+Available=true
+
 [keyboard]
 Name=Keyboard
 Description=Keyboard plugin
+Available=true
+
+[keybinding]
+Name=Keybinding
+Description=Keybinding plugin
 Available=true
 
 [mouse]
@@ -13,17 +28,8 @@ Name=TouchPad
 Description=TouchPad plugin
 Available=true
 
-[keybinding]
-Name=Keybinding
-Description=Keybinding plugin
-Available=true
-
 [xsettings]
 Name=XSettings
 Description=XSettings plugin
 Available=true
 
-[display]
-Name=Display
-Description=Display plugin
-Available=true
