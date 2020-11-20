@@ -20,7 +20,7 @@ if(build-system-daemon)
 
 
     # service files
-    file(GLOB SERVICE_IN_FILES ./*.service.in)
+    file(GLOB SERVICE_IN_FILES ./*SystemDaemon*service.in ./kiran-system-daemon.service.in)
 
     foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
@@ -35,6 +35,8 @@ if(build-system-daemon)
     endif()
 
     install(FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.service
+                  ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Accounts.service
+                  ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
             DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files
@@ -53,8 +55,8 @@ endif()
 # session-daemon
 if(build-session-daemon)
 
-# gschema.xml
-file(GLOB GSCHEMA_XML_FILES ./*.gschema.xml)
+    # gschema.xml
+    file(GLOB GSCHEMA_XML_FILES ./*.gschema.xml)
 
     foreach(GSCHEMA_XML_FILE IN LISTS GSCHEMA_XML_FILES)
         install(FILES ${GSCHEMA_XML_FILE}
@@ -67,6 +69,21 @@ file(GLOB GSCHEMA_XML_FILES ./*.gschema.xml)
     install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.session
             DESTINATION ${KCC_PLUGIN_DIR}/session
             RENAME plugin_options)
+
+    # service files
+    file(GLOB SERVICE_IN_FILES ./*SessionDaemon*service.in)
+
+    foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
+        string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
+        configure_file(${SERVICE_IN_FILE} ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE})
+        install(FILES ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE}
+                DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/services)
+    endforeach()
+
+    # desktop files
+    configure_file(./kiran-session-daemon.desktop.in ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop)
+    install(FILES ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop
+                DESTINATION ${SYSCONFDIR}/xdg/autostart)
     
 endif()
 

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Kiran Session Daemon
+Exec=/usr/bin/kiran-session-daemon
+OnlyShowIn=MATE;
+X-MATE-Autostart-Phase=Initialization
+X-MATE-Autostart-Notify=true
+X-MATE-AutoRestart=true
