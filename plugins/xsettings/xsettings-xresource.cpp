@@ -1,0 +1,128 @@
+/*
+ * @Author       : tangjie02
+ * @Date         : 2020-11-24 09:52:27
+ * @LastEditors  : tangjie02
+ * @LastEditTime : 2020-11-24 17:55:53
+ * @Description  : 
+ * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-xresource.cpp
+ */
+
+#include "plugins/xsettings/xsettings-xresource.h"
+
+#include "plugins/xsettings/xsettings-common.h"
+#include "plugins/xsettings/xsettings-manager.h"
+//
+#include <X11/Xatom.h>
+
+namespace Kiran
+{
+#define XRESOURCE_PROP_XFT_DPI "Xft.dpi"
+#define XRESOURCE_PROP_XFT_ANTIALIAS "Xft.antialias"
+#define XRESOURCE_PROP_XFT_HINTING "Xft.hinting"
+#define XRESOURCE_PROP_XFT_HINTSTYLE "Xft.hintstyle"
+#define XRESOURCE_PROP_XFT_RGBA "Xft.rgba"
+#define XRESOURCE_PROP_XFT_LCDFILTER "Xft.lcdfilter"
+#define XRESOURCE_PROP_XCURSOR_THEME "Xcursor.theme"
+#define XRESOURCE_PROP_XCURSOR_SIZE "Xcursor.size"
+
+XSettingsXResource::XSettingsXResource()
+{
+}
+
+void XSettingsXResource::init()
+{
+    XSettingsManager::get_instance()->signal_xsettings_changed().connect(sigc::mem_fun(this, &XSettingsXResource::on_xsettings_changed));
+}
+
+void XSettingsXResource::on_xsettings_changed(const std::string &key)
+{
+    char dpibuf[G_ASCII_DTOSTR_BUF_SIZE];
+    auto dpy = XOpenDisplay(NULL);
+    auto xsettings_manager = XSettingsManager::get_instance();
+
+    RETURN_IF_TRUE(dpy == NULL);
+    RETURN_IF_TRUE(xsettings_manager == NULL);
+
+    std::string props = XResourceManagerString(dpy);
+
+    LOG_DEBUG("Old Xresource: %s", props.c_str());
+    auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->gtk_cursor_theme_size_get()));
+
+    switch (shash(key.c_str()))
+    {
+    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
+    {
+        auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->xft_dpi_get() / 1024.0));
+        this->update_property(props, XRESOURCE_PROP_XFT_DPI, dpi);
+        this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
+        break;
+    }
+    case CONNECT(XSETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
+        this->update_property(props, XRESOURCE_PROP_XFT_ANTIALIAS, xsettings_manager->xft_antialias_get() > 0 ? "1" : "0");
+        break;
+    case CONNECT(XSETTINGS_SCHEMA_XFT_HINTING, _hash):
+        this->update_property(props, XRESOURCE_PROP_XFT_HINTING, xsettings_manager->xft_hinting_get() > 0 ? "1" : "0");
+        break;
+    case CONNECT(XSETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
+        this->update_property(props, XRESOURCE_PROP_XFT_HINTSTYLE, xsettings_manager->xft_hint_style_get().raw());
+        break;
+    case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
+    {
+        auto lcdfilter = (xsettings_manager->xft_rgba_get() == "rgb") ? "lcddefault" : "none";
+        this->update_property(props, XRESOURCE_PROP_XFT_RGBA, xsettings_manager->xft_rgba_get().raw());
+        this->update_property(props, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
+        break;
+    }
+    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
+        this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->gtk_cursor_theme_name_get().raw());
+        break;
+    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
+    {
+        this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
+        break;
+    }
+    default:
+        break;
+    }
+
+    LOG_DEBUG("New Xresource: %s", props.c_str());
+
+    XChangeProperty(dpy,
+                    RootWindow(dpy, 0),
+                    XA_RESOURCE_MANAGER,
+                    XA_STRING,
+                    8,
+                    PropModeReplace,
+                    (unsigned char *)props.c_str(),
+                    props.length());
+    XCloseDisplay(dpy);
+}
+
+void XSettingsXResource::update_property(std::string &props, const std::string &key, const std::string &value)
+{
+    auto needle = key + std::string(":");
+    auto found_start = props.find(needle);
+
+    // XrmValue数据格式 key:\tvalue\n
+    if (found_start != std::string::npos)
+    {
+        auto found_end = props.find('\n', found_start);
+        // +1是跳过制表符
+        auto found_value = found_start + needle.length() + 1;
+        if (found_end != std::string::npos)
+        {
+            props.erase(found_value, found_end - found_value + 1);
+        }
+        else
+        {
+            props.erase(found_value);
+        }
+        props.insert(found_value, 1, '\n');
+        props.insert(found_value, value);
+    }
+    else
+    {
+        props += fmt::format("{0}:\t{1}\n", key, value);
+    }
+}
+}  // namespace Kiran

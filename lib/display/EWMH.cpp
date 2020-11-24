@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-02 15:43:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-03 09:03:07
+ * @LastEditTime : 2020-11-24 16:25:13
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/display/EWMH.cpp
  */
@@ -111,6 +111,12 @@ std::string EWMH::get_wm_property(Atom atom)
     }
 
     return retval;
+}
+
+std::string EWMH::get_wm_name()
+{
+    Atom atom = gdk_x11_get_xatom_by_name(NET_WM_NAME);
+    return this->get_wm_property(atom);
 }
 
 void EWMH::init()

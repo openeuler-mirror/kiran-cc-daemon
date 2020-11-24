@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-02 15:43:07
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-03 09:00:44
+ * @LastEditTime : 2020-11-24 16:23:45
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/display/EWMH.h
  */
@@ -32,11 +32,14 @@ public:
     // 获取窗口管理器的窗口属性
     std::string get_wm_property(Atom atom);
 
+    // 获取窗口管理器名字
+    std::string get_wm_name();
+
     sigc::signal<void> signal_wm_window_change() { return this->wm_window_changed_; }
 
 private:
     void init();
-
+    // 更新窗口管理器在根窗口中设置的_NET_SUPPORTING_WM_CHECK属性，该属性值记录了窗口管理器的一个子窗口
     void update_wm_window();
 
     static GdkFilterReturn window_event(GdkXEvent* gdk_event, GdkEvent* event, gpointer data);
