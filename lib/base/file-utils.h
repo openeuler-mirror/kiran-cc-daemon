@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-29 09:41:27
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 11:25:45
+ * @LastEditTime : 2020-11-26 14:00:58
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/lib/base/file-utils.h
  */
@@ -18,6 +18,10 @@ class FileUtils
 public:
     FileUtils(){};
     virtual ~FileUtils(){};
+
+    static Glib::RefPtr<Gio::FileMonitor> make_monitor(const std::string &path,
+                                                       const FileMonitorCallBack &callback,
+                                                       Gio::FileMonitorFlags flags = Gio::FILE_MONITOR_NONE);
 
     static Glib::RefPtr<Gio::FileMonitor> make_monitor_file(const std::string &path,
                                                             const FileMonitorCallBack &callback,

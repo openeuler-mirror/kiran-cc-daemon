@@ -20,7 +20,8 @@ SET_COMMON_SHARED_LINKER_FLAGS()
 
 target_include_directories(${TARGET_NAME} PUBLIC 
     ${PROJECT_BINARY_DIR}/generated
-    ${GDKMM3_INCLUDE_DIRS})
+    ${GDKMM3_INCLUDE_DIRS}
+    ${FONTCONFIG_INCLUDE_DIRS})
 
 
 target_compile_options(${TARGET_NAME} PRIVATE
@@ -28,6 +29,7 @@ target_compile_options(${TARGET_NAME} PRIVATE
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GDKMM3_LIBRARIES}
+    ${FONTCONFIG_LIBRARIES}
     lib-base
     lib-display)
 

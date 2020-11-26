@@ -1,36 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist >
     <schema id="com.kylinsec.kiran.xsettings" path="/com/kylinsec/kiran/xsettings/">
-        <key name="double-click-time" type="i">
+        <key name="net-double-click-time" type="i">
             <default>250</default>
             <summary>Maximum time allowed between two clicks for them to be considered a double click (in milliseconds).</summary>
         </key>
-        <key name="double-click-distance" type="i">
+        <key name="net-double-click-distance" type="i">
             <default>5</default>
             <summary>Maximum distance allowed between two clicks for them to be considered a double click (in pixels).</summary>
         </key>
-        <key name="dnd-drag-threshold" type="i">
+        <key name="net-dnd-drag-threshold" type="i">
             <default>8</default>
             <summary>Number of pixels the cursor can move before dragging.</summary>
         </key>
-        <key name="cursor-blink" type="b">
+        <key name="net-cursor-blink" type="b">
             <default>true</default>
             <summary>Whether the cursor should blink.</summary>
         </key>
-        <key name="cursor-blink-time" type="i">
+        <key name="net-cursor-blink-time" type="i">
             <default>1200</default>
             <summary>Length of the cursor blink cycle, in milleseconds.</summary>
         </key>
-        <key name="theme-name" type="s">
+        <key name="net-theme-name" type="s">
             <default>'Menta'</default>
             <summary>Name of theme to use. This is a directory either in ~/.themes (except on Debian), 
             or the 'system' theme directory, which depends on where GTK was installed. Basically, 
             it could be anywhere. This should really use the base dir spec or something similar to 
             locate the theme.</summary>
         </key>
-        <key name="icon-theme-name" type="s">
+        <key name="net-icon-theme-name" type="s">
             <default>'hicolor'</default>
             <summary>Name of icon theme to use for icons.</summary>
+        </key>
+        <key name="net-enable-event-sounds" type="b">
+            <default>false</default>
+            <summary>Sounds for events</summary>
+            <description>Whether to play sounds on user events.</description>
+        </key>
+        <key name="net-sound-theme-name" type="s">
+            <default>'freedesktop'</default>
+            <summary>Sound theme name</summary>
+            <description>The XDG sound theme to use for event sounds.</description>
+        </key>
+        <key name="net-enable-input-feedback-sounds" type="b">
+            <default>false</default>
+            <summary>Input feedback sounds</summary>
+            <description>Whether to play sounds on input events.</description>
         </key>
         <key name="xft-antialias" type="i">
             <default>-1</default>
@@ -60,21 +75,9 @@
             <default>24</default>
             <summary>Size of the cursor referenced by cursor_theme.</summary>
         </key>
-        <key name="gtk-can-change-accels" type="b">
-            <default>false</default>
-            <summary>Whether menu accelerators can be changed by pressing a key over the menu item.</summary>
-        </key>
-        <key name="gtk-color-palette" type="s">
-            <default>'black:white:gray50:red:purple:blue:light blue:green:yellow:orange:lavender:brown:goldenrod4:dodger blue:pink:light green:gray10:gray30:gray75:gray90'</default>
-            <summary>Palette to use in the color selector.</summary>
-        </key>
         <key name="gtk-font-name" type="s">
             <default>'Sans 10'</default>
             <summary>Name of default font to use.</summary>
-        </key>
-        <key name="gtk-icon-sizes" type="s">
-            <default>''</default>
-            <summary>List of icon sizes (gtk-menu16,16;gtk-button20,20...</summary>
         </key>
         <key name="gtk-key-theme-name" type="s">
             <default>'Default'</default>
@@ -96,6 +99,10 @@
             <default>'callback'</default>
             <summary>How to draw the input method statusbar.</summary>
         </key>
+        <key name="gtk-im-module" type="s">
+            <default>''</default>
+            <summary>Name of the input method module used by GTK+.</summary>
+        </key>
         <key name="gtk-menu-images" type="b">
             <default>true</default>
             <summary>Whether images should be shown in menus.</summary>
@@ -108,6 +115,62 @@
             <default>'F10'</default>
             <summary>The accelerator for moving the focus to the menubar.</summary>
         </key>
+        <key name="gtk-color-scheme" type="s">
+            <default>''</default>
+            <summary>List of symbolic names and color equivalents</summary>
+            <description>A '\n' separated list of "name:color" as defined by the 'gtk-color-scheme' setting</description>
+        </key>
+        <key name="gtk-file-chooser-backend" type="s">
+            <default>'gio'</default>
+            <summary>Module to use as the filesystem model for the GtkFileChooser widget.  Possible values are "gio" and "gtk+".</summary>
+        </key>
+        <key name="gtk-decoration-layout" type="s">
+            <default>'menu:minimize,maximize,close'</default>
+            <summary>Titlebar layout of GTK3 client-side decorated windows</summary>
+            <description>This setting determines which buttons should be put in the titlebar of client-side decorated windows, and whether they should be placed at the left of right. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-decoration-layout.</description>
+        </key>
+        <key name="gtk-shell-shows-app-menu" type="b">
+            <default>false</default>
+            <summary>Use a global menubar for displaying application menus</summary>
+            <description>This setting determines where application menu will be displayed - in a window or on a panel with MenuModel protocol. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-shell-shows-app-menu.</description>
+        </key>
+        <key name="gtk-shell-shows-menubar" type="b">
+            <default>false</default>
+            <summary>Use a global menubar for displaying window menubars</summary>
+            <description>This setting determines where window menubars will be displayed - in a window or on a panel with MenuModel protocol. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-shell-shows-menubar.</description>
+        </key>
+        <key name="gtk-show-input-method-menu" type="b">
+            <default>true</default>
+            <summary>Show the 'Input Methods' menu</summary>
+            <description>Whether the context menus of entries and text views  should offer to change the input method.</description>
+        </key>
+        <key name="gtk-show-unicode-menu" type="b">
+            <default>true</default>
+            <summary>Show the 'Unicode Control Character' menu</summary>
+            <description>Whether the context menus of entries and text views  should offer to insert control characters.</description>
+        </key>
+        <key name="gtk-automatic-mnemonics" type="b">
+            <default>true</default>
+            <summary>Only show mnemonics on when the Alt key is pressed</summary>
+            <description>Whether mnemonics should be automatically shown and hidden when the user presses the Alt key.</description>
+        </key>
+        <key name="gtk-enable-primary-paste" type="b">
+            <default>true</default>
+            <summary>Enable the primary paste selection</summary>
+            <description>
+        If true, gtk+ uses the primary paste selection, usually triggered by a middle mouse button click.
+            </description>
+        </key>
+        <key name="gtk-enable-animations" type="b">
+            <default>true</default>
+            <summary>Enable Gtk toolkit-wide animations</summary>
+            <description>Whether to enable toolkit-wide animations.</description>
+        </key>
+        <key name="gtk-dialogs-use-header" type="b">
+            <default>false</default>
+            <summary>Use GTK3 header bar</summary>
+            <description>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will use a header bar at the top to show action widgets, or an action area at the bottom. This setting does not affect custom dialogs using GtkDialog directly, or message dialogs.</description>
+        </key>
         <key name="window-scaling-factor" type="i">
             <default>0</default>
             <range min="0" max="2"/>
@@ -119,7 +182,9 @@
         <key name="window-scaling-factor-qt-sync" type="b">
             <default>true</default>
             <summary>Scaling Factor for QT appllications</summary>
-            <description>This setting determines whether MATE controls the scale factor for QT applications. Enable to synchronize with the GTK scale factor when initializing the session, disable to control this value elsewhere. Requires restarting your session.</description>
+            <description>This setting determines whether MATE controls the scale factor for QT applications. Enable to 
+            synchronize with the GTK scale factor when initializing the session, disable to control this value elsewhere. 
+            Requires restarting your session.</description>
         </key>
     </schema>
 </schemalist>

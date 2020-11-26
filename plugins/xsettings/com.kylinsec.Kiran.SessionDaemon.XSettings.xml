@@ -3,7 +3,7 @@
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
     <interface name="com.kylinsec.Kiran.SessionDaemon.XSettings">
 
-        <property name="double_click_time" type="i" access="readwrite">
+        <property name="net_double_click_time" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
@@ -11,8 +11,7 @@
                 </doc:description>
             </doc:doc>
         </property>
-
-        <property name="double_click_distance" type="i" access="readwrite">
+        <property name="net_double_click_distance" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
@@ -20,8 +19,7 @@
                 </doc:description>
             </doc:doc>
         </property>
-
-        <property name="dnd_drag_threshold" type="i" access="readwrite">
+        <property name="net_dnd_drag_threshold" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
@@ -30,7 +28,7 @@
             </doc:doc>
         </property>
 
-        <property name="cursor_blink" type="b" access="readwrite">
+        <property name="net_cursor_blink" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
@@ -39,7 +37,7 @@
             </doc:doc>
         </property>
 
-        <property name="cursor_blink_time" type="i" access="readwrite">
+        <property name="net_cursor_blink_time" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
@@ -48,7 +46,7 @@
             </doc:doc>
         </property>
 
-        <property name="theme_name" type="s" access="readwrite">
+        <property name="net_theme_name" type="s" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
@@ -60,11 +58,38 @@
             </doc:doc>
         </property>
 
-        <property name="icon_theme_name" type="s" access="readwrite">
+        <property name="net_icon_theme_name" type="s" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
                     <doc:para>Name of icon theme to use for icons.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="net_enable_event_sounds" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether to play sounds on user events.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="net_sound_theme_name" type="s" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The XDG sound theme to use for event sounds.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="net_enable_input_feedback_sounds" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether to play sounds on input events.</doc:para>
                 </doc:description>
             </doc:doc>
         </property>
@@ -132,38 +157,11 @@
             </doc:doc>
         </property>
 
-        <property name="gtk_can_change_accels" type="b" access="readwrite">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Whether menu accelerators can be changed by pressing a key over the menu item.</doc:para>
-                </doc:description>
-            </doc:doc>
-        </property>
-
-        <property name="gtk_color_palette" type="s" access="readwrite">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Palette to use in the color selector.</doc:para>
-                </doc:description>
-            </doc:doc>
-        </property>
-
         <property name="gtk_font_name" type="s" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
                 <doc:description>
                     <doc:para>Name of default font to use.</doc:para>
-                </doc:description>
-            </doc:doc>
-        </property>
-
-        <property name="gtk_icon_sizes" type="s" access="readwrite">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>List of icon sizes (gtk-menu16,16;gtk-button20,20...</doc:para>
                 </doc:description>
             </doc:doc>
         </property>
@@ -213,6 +211,15 @@
             </doc:doc>
         </property>
 
+        <property name="gtk_im_module" type="s" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Name of the input method module used by GTK+.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
         <property name="gtk_menu_images" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <doc:doc>
@@ -236,6 +243,108 @@
             <doc:doc>
                 <doc:description>
                     <doc:para>The accelerator for moving the focus to the menubar.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_color_scheme" type="s" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>List of symbolic names and color equivalents.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_file_chooser_backend" type="s" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Module to use as the filesystem model for the GtkFileChooser widget.  Possible values are "gio" and "gtk+".</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_decoration_layout" type="s" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>This setting determines which buttons should be put in the titlebar of client-side decorated windows, and whether 
+                    they should be placed at the left of right. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-decoration-layout.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_shell_shows_app_menu" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>This setting determines where application menu will be displayed - in a window or on a panel with MenuModel protocol. 
+                    See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-shell-shows-app-menu.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_shell_shows_menubar" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>This setting determines where window menubars will be displayed - in a window or on a panel with MenuModel protocol.
+                    See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-shell-shows-menubar.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_show_input_method_menu" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether the context menus of entries and text views  should offer to change the input method.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_show_unicode_menu" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether the context menus of entries and text views  should offer to insert control characters.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_automatic_mnemonics" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether mnemonics should be automatically shown and hidden when the user presses the Alt key.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_enable_primary_paste" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para></doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_enable_animations" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether to enable toolkit-wide animations.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="gtk_dialogs_use_header" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will use a header bar at the top to show action widgets, or an action area at the bottom. This setting does not affect custom dialogs using GtkDialog directly, or message dialogs.</doc:para>
                 </doc:description>
             </doc:doc>
         </property>
