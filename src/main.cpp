@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 16:51:23
+ * @LastEditTime : 2020-11-28 10:59:01
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
@@ -12,6 +12,7 @@
 #include <gdkmm/wrap_init.h>
 
 #include "lib/display/EWMH.h"
+#include "src/session-guarder.h"
 #endif
 
 #include <glib-unix.h>
@@ -96,6 +97,7 @@ int main(int argc, char* argv[])
     gdk_init(NULL, NULL);
     Gdk::wrap_init();
     Kiran::EWMH::global_init();
+    Kiran::SessionGuarder::global_init(loop);
 #endif
 
     Kiran::AuthManager::global_init();
