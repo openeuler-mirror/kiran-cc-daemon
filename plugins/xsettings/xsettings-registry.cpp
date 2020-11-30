@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-20 15:30:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-24 20:21:35
+ * @LastEditTime : 2020-11-30 20:41:47
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-registry.cpp
  */
@@ -13,15 +13,15 @@ namespace Kiran
 {
 #define XSETTINGS_PAD(n, m) ((n + m - 1) & (~(m - 1)))
 
-XSettingsVar::XSettingsVar(const std::string &name,
-                           XSettingsVarType type,
-                           uint32_t serial) : name_(name),
-                                              type_(type),
-                                              last_change_serial_(serial)
+XSettingsPropertyBase::XSettingsPropertyBase(const std::string &name,
+                                             XSettingsPropType type,
+                                             uint32_t serial) : name_(name),
+                                                                type_(type),
+                                                                last_change_serial_(serial)
 {
 }
 
-std::string XSettingsVar::serialize()
+std::string XSettingsPropertyBase::serialize()
 {
     std::string data;
     data.push_back(char(this->type_));
@@ -37,54 +37,54 @@ std::string XSettingsVar::serialize()
     return data;
 }
 
-XSettingsIntVar::XSettingsIntVar(const std::string &name,
-                                 int32_t value,
-                                 uint32_t serial) : XSettingsVar(name, XSettingsVarType::XSETTINGS_VAR_TYPE_INT, serial),
-                                                    value_(value)
+XSettingsPropertyInt::XSettingsPropertyInt(const std::string &name,
+                                           int32_t value,
+                                           uint32_t serial) : XSettingsPropertyBase(name, XSettingsPropType::XSETTINGS_PROP_TYPE_INT, serial),
+                                                              value_(value)
 {
 }
 
-bool XSettingsIntVar::operator==(const XSettingsVar &rval) const
+bool XSettingsPropertyInt::operator==(const XSettingsPropertyBase &rval) const
 {
     LOG_WARNING("Unsupported.");
     return false;
 }
 
-bool XSettingsIntVar::operator==(const XSettingsIntVar &rval) const
+bool XSettingsPropertyInt::operator==(const XSettingsPropertyInt &rval) const
 {
     return (this->get_name() == rval.get_name() && this->value_ == rval.value_);
 }
 
-std::string XSettingsIntVar::serialize()
+std::string XSettingsPropertyInt::serialize()
 {
     std::string data;
-    data = this->XSettingsVar::serialize();
+    data = this->XSettingsPropertyBase::serialize();
     data.append(std::string((char *)&this->value_, 4));
     return data;
 }
 
-XSettingsStringVar::XSettingsStringVar(const std::string &name,
-                                       const std::string &value,
-                                       uint32_t serial) : XSettingsVar(name, XSettingsVarType::XSETTINGS_VAR_TYPE_STRING, serial),
-                                                          value_(value)
+XSettingsPropertyString::XSettingsPropertyString(const std::string &name,
+                                                 const std::string &value,
+                                                 uint32_t serial) : XSettingsPropertyBase(name, XSettingsPropType::XSETTINGS_PROP_TYPE_STRING, serial),
+                                                                    value_(value)
 {
 }
 
-bool XSettingsStringVar::operator==(const XSettingsVar &rval) const
+bool XSettingsPropertyString::operator==(const XSettingsPropertyBase &rval) const
 {
     LOG_WARNING("Unsupported.");
     return false;
 }
 
-bool XSettingsStringVar::operator==(const XSettingsStringVar &rval) const
+bool XSettingsPropertyString::operator==(const XSettingsPropertyString &rval) const
 {
     return (this->get_name() == rval.get_name() && this->value_ == rval.value_);
 }
 
-std::string XSettingsStringVar::serialize()
+std::string XSettingsPropertyString::serialize()
 {
     std::string data;
-    data = this->XSettingsVar::serialize();
+    data = this->XSettingsPropertyBase::serialize();
     uint32_t str_len = this->value_.length();
     uint32_t str_len_pad = XSETTINGS_PAD(str_len, 4) - str_len;
     data.append(std::string((char *)&str_len, 4));
@@ -93,28 +93,28 @@ std::string XSettingsStringVar::serialize()
     return data;
 }
 
-XSettingsColorVar::XSettingsColorVar(const std::string &name,
-                                     const XSettingsColor &value,
-                                     uint32_t serial) : XSettingsVar(name, XSettingsVarType::XSETTINGS_VAR_TYPE_COLOR, serial),
-                                                        value_(value)
+XSettingsPropertyColor::XSettingsPropertyColor(const std::string &name,
+                                               const XSettingsColor &value,
+                                               uint32_t serial) : XSettingsPropertyBase(name, XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR, serial),
+                                                                  value_(value)
 {
 }
 
-bool XSettingsColorVar::operator==(const XSettingsVar &) const
+bool XSettingsPropertyColor::operator==(const XSettingsPropertyBase &) const
 {
     LOG_WARNING("Unsupported.");
     return false;
 }
 
-bool XSettingsColorVar::operator==(const XSettingsColorVar &rval) const
+bool XSettingsPropertyColor::operator==(const XSettingsPropertyColor &rval) const
 {
     return (this->get_name() == rval.get_name() && this->value_ == rval.value_);
 }
 
-std::string XSettingsColorVar::serialize()
+std::string XSettingsPropertyColor::serialize()
 {
     std::string data;
-    data = this->XSettingsVar::serialize();
+    data = this->XSettingsPropertyBase::serialize();
     data.append(std::string((char *)&this->value_.red, 2));
     data.append(std::string((char *)&this->value_.green, 2));
     data.append(std::string((char *)&this->value_.blue, 2));
@@ -189,32 +189,56 @@ bool XSettingsRegistry::init()
     return true;
 }
 
-bool XSettingsRegistry::update(const std::string &key, int32_t value)
+bool XSettingsRegistry::update(const std::string &name, int32_t value)
 {
-    auto var = std::make_shared<XSettingsIntVar>(key, value);
-    return this->update(key, var);
+    auto var = std::make_shared<XSettingsPropertyInt>(name, value);
+    return this->update(var);
 }
 
-bool XSettingsRegistry::update(const std::string &key, const Glib::ustring &value)
+bool XSettingsRegistry::update(const std::string &name, const Glib::ustring &value)
 {
-    auto var = std::make_shared<XSettingsStringVar>(key, value.raw());
-    return this->update(key, var);
+    auto var = std::make_shared<XSettingsPropertyString>(name, value.raw());
+    return this->update(var);
 }
 
-bool XSettingsRegistry::update(const std::string &key, const XSettingsColor &value)
+bool XSettingsRegistry::update(const std::string &name, const XSettingsColor &value)
 {
-    auto var = std::make_shared<XSettingsColorVar>(key, value);
-    return this->update(key, var);
+    auto var = std::make_shared<XSettingsPropertyColor>(name, value);
+    return this->update(var);
 }
 
-std::shared_ptr<XSettingsVar> XSettingsRegistry::get_variable(const std::string &name)
+bool XSettingsRegistry::update(std::shared_ptr<XSettingsPropertyBase> var)
 {
-    auto iter = this->variables_.find(name);
-    if (iter == this->variables_.end())
+    RETURN_VAL_IF_TRUE(var == nullptr, true);
+    auto old_var = this->get_property(var->get_name());
+    if (old_var != nullptr && *old_var == *var)
+    {
+        return true;
+    }
+
+    this->properties_.erase(var->get_name());
+    auto iter = this->properties_.emplace(var->get_name(), var);
+    return iter.second;
+}
+
+std::shared_ptr<XSettingsPropertyBase> XSettingsRegistry::get_property(const std::string &name)
+{
+    auto iter = this->properties_.find(name);
+    if (iter == this->properties_.end())
     {
         return nullptr;
     }
     return iter->second;
+}
+
+XSettingsPropertyBaseVec XSettingsRegistry::get_properties()
+{
+    XSettingsPropertyBaseVec retval;
+    for (auto &iter : this->properties_)
+    {
+        retval.push_back(iter.second);
+    }
+    return retval;
 }
 
 void XSettingsRegistry::notify()
@@ -224,7 +248,7 @@ void XSettingsRegistry::notify()
     // 注意：填充的相关变量类型不能随意修改
 
     // 填充head：byte-order + pad + SERIAL + N_SETTINGS
-    int32_t nsettings = this->variables_.size();
+    int32_t nsettings = this->properties_.size();
     data.push_back(this->byte_order());
     data.append(std::string("\0\0\0", 3));
     data.append(std::string((char *)&this->serial_, 4));
@@ -232,7 +256,7 @@ void XSettingsRegistry::notify()
 
     // 填充body
 
-    for (const auto &iter : this->variables_)
+    for (const auto &iter : this->properties_)
     {
         data.append(iter.second->serialize());
     }
@@ -245,20 +269,6 @@ void XSettingsRegistry::notify()
                     PropModeReplace,
                     (unsigned char *)data.c_str(),
                     data.length());
-}
-
-bool XSettingsRegistry::update(const std::string &key, std::shared_ptr<XSettingsVar> var)
-{
-    RETURN_VAL_IF_TRUE(var == nullptr, true);
-    auto old_var = this->get_variable(key);
-    if (old_var != nullptr && *old_var == *var)
-    {
-        return true;
-    }
-
-    this->variables_.erase(key);
-    auto iter = this->variables_.emplace(key, var);
-    return iter.second;
 }
 
 char XSettingsRegistry::byte_order()

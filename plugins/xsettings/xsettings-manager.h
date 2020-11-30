@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-11 16:21:04
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-26 16:08:36
+ * @LastEditTime : 2020-11-30 20:43:39
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-manager.h
  */
@@ -12,6 +12,7 @@
 #include <xsettings_dbus_stub.h>
 
 #include "plugins/xsettings/fontconfig-monitor.h"
+#include "plugins/xsettings/xsettings-common.h"
 #include "plugins/xsettings/xsettings-registry.h"
 
 namespace Kiran
@@ -33,95 +34,23 @@ public:
     int get_window_scale();
 
 public:
-    virtual gint32 net_double_click_time_get() { return this->net_double_click_time_; }
-    virtual gint32 net_double_click_distance_get() { return this->net_double_click_distance_; }
-    virtual gint32 net_dnd_drag_threshold_get() { return this->net_dnd_drag_threshold_; }
-    virtual bool net_cursor_blink_get() { return this->net_cursor_blink_; }
-    virtual gint32 net_cursor_blink_time_get() { return this->net_cursor_blink_time_; }
-    virtual Glib::ustring net_theme_name_get() { return this->net_theme_name_; }
-    virtual Glib::ustring net_icon_theme_name_get() { return this->net_icon_theme_name_; }
-    virtual bool net_enable_event_sounds_get() { return this->net_enable_event_sounds_; }
-    virtual Glib::ustring net_sound_theme_name_get() { return this->net_sound_theme_name_; }
-    virtual bool net_enable_input_feedback_sounds_get() { return this->net_enable_input_feedback_sounds_; }
+    virtual void ListPropertyNames(MethodInvocation &invocation);
+    virtual void GetInteger(const Glib::ustring &name, MethodInvocation &invocation);
+    virtual void SetInteger(const Glib::ustring &name, gint32 value, MethodInvocation &invocation);
+    virtual void GetString(const Glib::ustring &name, MethodInvocation &invocation);
+    virtual void SetString(const Glib::ustring &name, const Glib::ustring &value, MethodInvocation &invocation);
+    virtual void GetColor(const Glib::ustring &name, MethodInvocation &invocation);
+    virtual void SetColor(const Glib::ustring &name, const std::tuple<guint16, guint16, guint16, guint16> &value, MethodInvocation &invocation);
 
-    virtual gint32 xft_antialias_get() { return this->xft_antialias_; }
-    virtual Glib::ustring icon_theme_name_get() { return this->icon_theme_name_; }
-    virtual gint32 xft_hinting_get() { return this->xft_hinting_; }
-    virtual Glib::ustring xft_hint_style_get() { return this->xft_hint_style_; }
-    virtual Glib::ustring xft_rgba_get() { return this->xft_rgba_; }
-    virtual gint32 xft_dpi_get() { return this->xft_dpi_; }
-
-    virtual Glib::ustring gtk_cursor_theme_name_get() { return this->gtk_cursor_theme_name_; }
-    virtual gint32 gtk_cursor_theme_size_get() { return this->gtk_cursor_theme_size_; }
-    virtual Glib::ustring gtk_font_name_get() { return this->gtk_font_name_; }
-    virtual Glib::ustring gtk_key_theme_name_get() { return this->gtk_key_theme_name_; }
-    virtual Glib::ustring gtk_toolbar_style_get() { return this->gtk_toolbar_style_; }
-    virtual Glib::ustring gtk_toolbar_icons_size_get() { return this->gtk_toolbar_icons_size_; }
-    virtual Glib::ustring gtk_im_preedit_style_get() { return this->gtk_im_preedit_style_; }
-    virtual Glib::ustring gtk_im_status_style_get() { return this->gtk_im_status_style_; }
-    virtual Glib::ustring gtk_im_module_get() { return this->gtk_im_module_; }
-    virtual bool gtk_menu_images_get() { return this->gtk_menu_images_; }
-    virtual bool gtk_button_images_get() { return this->gtk_button_images_; }
-    virtual Glib::ustring gtk_menubar_accel_get() { return this->gtk_menubar_accel_; }
-    virtual Glib::ustring gtk_color_scheme_get() { return this->gtk_color_scheme_; }
-    virtual Glib::ustring gtk_file_chooser_backend_get() { return this->gtk_file_chooser_backend_; }
-    virtual Glib::ustring gtk_decoration_layout_get() { return this->gtk_decoration_layout_; }
-    virtual bool gtk_shell_shows_app_menu_get() { return this->gtk_shell_shows_app_menu_; }
-    virtual bool gtk_shell_shows_menubar_get() { return this->gtk_shell_shows_menubar_; }
-    virtual bool gtk_show_input_method_menu_get() { return this->gtk_show_input_method_menu_; }
-    virtual bool gtk_show_unicode_menu_get() { return this->gtk_show_unicode_menu_; }
-    virtual bool gtk_automatic_mnemonics_get() { return this->gtk_automatic_mnemonics_; }
-    virtual bool gtk_enable_primary_paste_get() { return this->gtk_enable_primary_paste_; }
-    virtual bool gtk_enable_animations_get() { return this->gtk_enable_animations_; }
-    virtual bool gtk_dialogs_use_header_get() { return this->gtk_dialogs_use_header_; }
-
-    virtual gint32 window_scaling_factor_get() { return this->window_scaling_factor_; }
-    virtual bool window_scaling_factor_qt_sync_get() { return this->window_scaling_factor_qt_sync_; }
-
-protected:
-    virtual bool net_double_click_time_setHandler(gint32 value);
-    virtual bool net_double_click_distance_setHandler(gint32 value);
-    virtual bool net_dnd_drag_threshold_setHandler(gint32 value);
-    virtual bool net_cursor_blink_setHandler(bool value);
-    virtual bool net_cursor_blink_time_setHandler(gint32 value);
-    virtual bool net_theme_name_setHandler(const Glib::ustring &value);
-    virtual bool net_icon_theme_name_setHandler(const Glib::ustring &value);
-    virtual bool net_enable_event_sounds_setHandler(bool value);
-    virtual bool net_sound_theme_name_setHandler(const Glib::ustring &value);
-    virtual bool net_enable_input_feedback_sounds_setHandler(bool value);
-
-    virtual bool xft_antialias_setHandler(gint32 value);
-    virtual bool xft_hinting_setHandler(gint32 value);
-    virtual bool xft_hint_style_setHandler(const Glib::ustring &value);
-    virtual bool xft_rgba_setHandler(const Glib::ustring &value);
-    virtual bool xft_dpi_setHandler(gint32 value);
-
-    virtual bool gtk_cursor_theme_name_setHandler(const Glib::ustring &value);
-    virtual bool gtk_cursor_theme_size_setHandler(gint32 value);
-    virtual bool gtk_font_name_setHandler(const Glib::ustring &value);
-    virtual bool gtk_key_theme_name_setHandler(const Glib::ustring &value);
-    virtual bool gtk_toolbar_style_setHandler(const Glib::ustring &value);
-    virtual bool gtk_toolbar_icons_size_setHandler(const Glib::ustring &value);
-    virtual bool gtk_im_preedit_style_setHandler(const Glib::ustring &value);
-    virtual bool gtk_im_status_style_setHandler(const Glib::ustring &value);
-    virtual bool gtk_im_module_setHandler(const Glib::ustring &value);
-    virtual bool gtk_menu_images_setHandler(bool value);
-    virtual bool gtk_button_images_setHandler(bool value);
-    virtual bool gtk_menubar_accel_setHandler(const Glib::ustring &value);
-    virtual bool gtk_color_scheme_setHandler(const Glib::ustring &value);
-    virtual bool gtk_file_chooser_backend_setHandler(const Glib::ustring &value);
-    virtual bool gtk_decoration_layout_setHandler(const Glib::ustring &value);
-    virtual bool gtk_shell_shows_app_menu_setHandler(bool value);
-    virtual bool gtk_shell_shows_menubar_setHandler(bool value);
-    virtual bool gtk_show_input_method_menu_setHandler(bool value);
-    virtual bool gtk_show_unicode_menu_setHandler(bool value);
-    virtual bool gtk_automatic_mnemonics_setHandler(bool value);
-    virtual bool gtk_enable_primary_paste_setHandler(bool value);
-    virtual bool gtk_enable_animations_setHandler(bool value);
-    virtual bool gtk_dialogs_use_header_setHandler(bool value);
-
-    virtual bool window_scaling_factor_setHandler(gint32 value);
-    virtual bool window_scaling_factor_qt_sync_setHandler(bool value);
+    int32_t get_xft_antialias() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_ANTIALIAS); }
+    int32_t get_xft_hinting() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_HINTING); }
+    std::string get_xft_hint_style() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_XFT_HINT_STYLE); }
+    std::string get_xft_rgba() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_XFT_RGBA); }
+    int32_t get_xft_dpi() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_DPI); }
+    std::string get_gtk_cursor_theme_name() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME); }
+    int32_t get_gtk_cursor_theme_size() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE); }
+    int32_t get_window_scaling_factor() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR); }
+    bool get_window_scaling_factor_qt_sync() { return this->xsettings_settings_->get_boolean(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC); }
 
 private:
     void init();
@@ -133,6 +62,8 @@ private:
     void on_screen_changed();
     bool delayed_toggle_bg_draw(bool value);
     void on_fontconfig_timestamp_changed();
+
+    void set_registry_var(std::shared_ptr<XSettingsPropertyBase> var, MethodInvocation &invocation);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
@@ -153,48 +84,7 @@ private:
     XSettingsRegistry registry_;
 
     const static std::map<std::string, std::string> schema2registry_;
-
-    int32_t net_double_click_time_;
-    int32_t net_double_click_distance_;
-    int32_t net_dnd_drag_threshold_;
-    bool net_cursor_blink_;
-    int32_t net_cursor_blink_time_;
-    Glib::ustring net_theme_name_;
-    Glib::ustring net_icon_theme_name_;
-    bool net_enable_event_sounds_;
-    Glib::ustring net_sound_theme_name_;
-    bool net_enable_input_feedback_sounds_;
-    gint32 xft_antialias_;
-    Glib::ustring icon_theme_name_;
-    int32_t xft_hinting_;
-    Glib::ustring xft_hint_style_;
-    Glib::ustring xft_rgba_;
-    int32_t xft_dpi_;
-    Glib::ustring gtk_cursor_theme_name_;
-    int32_t gtk_cursor_theme_size_;
-    Glib::ustring gtk_font_name_;
-    Glib::ustring gtk_key_theme_name_;
-    Glib::ustring gtk_toolbar_style_;
-    Glib::ustring gtk_toolbar_icons_size_;
-    Glib::ustring gtk_im_preedit_style_;
-    Glib::ustring gtk_im_status_style_;
-    Glib::ustring gtk_im_module_;
-    bool gtk_menu_images_;
-    bool gtk_button_images_;
-    Glib::ustring gtk_menubar_accel_;
-    Glib::ustring gtk_color_scheme_;
-    Glib::ustring gtk_file_chooser_backend_;
-    Glib::ustring gtk_decoration_layout_;
-    bool gtk_shell_shows_app_menu_;
-    bool gtk_shell_shows_menubar_;
-    bool gtk_show_input_method_menu_;
-    bool gtk_show_unicode_menu_;
-    bool gtk_automatic_mnemonics_;
-    bool gtk_enable_primary_paste_;
-    bool gtk_enable_animations_;
-    bool gtk_dialogs_use_header_;
-    int32_t window_scaling_factor_;
-    bool window_scaling_factor_qt_sync_;
+    std::map<std::string, std::string> registry2schema_;
 
     FontconfigMonitor fontconfig_monitor_;
 };

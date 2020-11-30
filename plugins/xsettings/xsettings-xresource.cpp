@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-24 09:52:27
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-24 17:55:53
+ * @LastEditTime : 2020-11-30 20:05:40
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-xresource.cpp
  */
@@ -46,35 +46,35 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
     std::string props = XResourceManagerString(dpy);
 
     LOG_DEBUG("Old Xresource: %s", props.c_str());
-    auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->gtk_cursor_theme_size_get()));
+    auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_gtk_cursor_theme_size()));
 
     switch (shash(key.c_str()))
     {
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
     {
-        auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->xft_dpi_get() / 1024.0));
+        auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_xft_dpi() / 1024.0));
         this->update_property(props, XRESOURCE_PROP_XFT_DPI, dpi);
         this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
         break;
     }
     case CONNECT(XSETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
-        this->update_property(props, XRESOURCE_PROP_XFT_ANTIALIAS, xsettings_manager->xft_antialias_get() > 0 ? "1" : "0");
+        this->update_property(props, XRESOURCE_PROP_XFT_ANTIALIAS, xsettings_manager->get_xft_antialias() > 0 ? "1" : "0");
         break;
     case CONNECT(XSETTINGS_SCHEMA_XFT_HINTING, _hash):
-        this->update_property(props, XRESOURCE_PROP_XFT_HINTING, xsettings_manager->xft_hinting_get() > 0 ? "1" : "0");
+        this->update_property(props, XRESOURCE_PROP_XFT_HINTING, xsettings_manager->get_xft_hinting() > 0 ? "1" : "0");
         break;
     case CONNECT(XSETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
-        this->update_property(props, XRESOURCE_PROP_XFT_HINTSTYLE, xsettings_manager->xft_hint_style_get().raw());
+        this->update_property(props, XRESOURCE_PROP_XFT_HINTSTYLE, xsettings_manager->get_xft_hint_style());
         break;
     case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
     {
-        auto lcdfilter = (xsettings_manager->xft_rgba_get() == "rgb") ? "lcddefault" : "none";
-        this->update_property(props, XRESOURCE_PROP_XFT_RGBA, xsettings_manager->xft_rgba_get().raw());
+        auto lcdfilter = (xsettings_manager->get_xft_rgba() == "rgb") ? "lcddefault" : "none";
+        this->update_property(props, XRESOURCE_PROP_XFT_RGBA, xsettings_manager->get_xft_rgba());
         this->update_property(props, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
         break;
     }
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
-        this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->gtk_cursor_theme_name_get().raw());
+        this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->get_gtk_cursor_theme_name());
         break;
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
     {

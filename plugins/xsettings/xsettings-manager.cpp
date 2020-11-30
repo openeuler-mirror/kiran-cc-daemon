@@ -2,15 +2,16 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-11 16:21:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-26 16:22:09
+ * @LastEditTime : 2020-11-30 20:48:07
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-manager.cpp
  */
 
 #include "plugins/xsettings/xsettings-manager.h"
 
+#include <glib/gi18n.h>
+
 #include "lib/display/EWMH.h"
-#include "plugins/xsettings/xsettings-common.h"
 #include "plugins/xsettings/xsettings-utils.h"
 
 namespace Kiran
@@ -23,58 +24,62 @@ namespace Kiran
 
 const std::map<std::string, std::string> XSettingsManager::schema2registry_ =
     {
-        {XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_TIME, "Net/DoubleClickTime"},
-        {XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_DISTANCE, "Net/DoubleClickDistance"},
-        {XSETTINGS_SCHEMA_NET_DND_DRAG_THRESHOLD, "Net/DndDragThreshold"},
-        {XSETTINGS_SCHEMA_NET_CURSOR_BLINK, "Net/CursorBlink"},
-        {XSETTINGS_SCHEMA_NET_CURSOR_BLINK_TIME, "Net/CursorBlinkTime"},
-        {XSETTINGS_SCHEMA_NET_THEME_NAME, "Net/ThemeName"},
-        {XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, "Net/IconThemeName"},
-        {XSETTINGS_SCHEMA_NET_ENABLE_EVENT_SOUNDS, "Net/EnableEventSounds"},
-        {XSETTINGS_SCHEMA_NET_SOUND_THEME_NAME, "Net/SoundThemeName"},
-        {XSETTINGS_SCHEMA_NET_ENABLE_INPUT_FEEDBACK_SOUNDS, "Net/EnableInputFeedbackSounds"},
+        {XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_TIME, XSETTINGS_REGISTRY_PROP_NET_DOUBLE_CLICK_TIME},
+        {XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_DISTANCE, XSETTINGS_REGISTRY_PROP_NET_DOUBLE_CLICK_DISTANCE},
+        {XSETTINGS_SCHEMA_NET_DND_DRAG_THRESHOLD, XSETTINGS_REGISTRY_PROP_NET_DND_DRAG_THRESHOLD},
+        {XSETTINGS_SCHEMA_NET_CURSOR_BLINK, XSETTINGS_REGISTRY_PROP_NET_CURSOR_BLINK},
+        {XSETTINGS_SCHEMA_NET_CURSOR_BLINK_TIME, XSETTINGS_REGISTRY_PROP_NET_CURSOR_BLINK_TIME},
+        {XSETTINGS_SCHEMA_NET_THEME_NAME, XSETTINGS_REGISTRY_PROP_NET_THEME_NAME},
+        {XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, XSETTINGS_REGISTRY_PROP_NET_ICON_THEME_NAME},
+        {XSETTINGS_SCHEMA_NET_ENABLE_EVENT_SOUNDS, XSETTINGS_REGISTRY_PROP_NET_ENABLE_EVENT_SOUNDS},
+        {XSETTINGS_SCHEMA_NET_SOUND_THEME_NAME, XSETTINGS_REGISTRY_PROP_NET_SOUND_THEME_NAME},
+        {XSETTINGS_SCHEMA_NET_ENABLE_INPUT_FEEDBACK_SOUNDS, XSETTINGS_REGISTRY_PROP_NET_ENABLE_INPUT_FEEDBACK_SOUNDS},
 
-        {XSETTINGS_SCHEMA_XFT_ANTIALIAS, "Xft/Antialias"},
-        {XSETTINGS_SCHEMA_XFT_HINTING, "Xft/Hinting"},
-        {XSETTINGS_SCHEMA_XFT_HINT_STYLE, "Xft/HintStyle"},
-        {XSETTINGS_SCHEMA_XFT_RGBA, "Xft/RGBA"},
-        {XSETTINGS_SCHEMA_XFT_DPI, "Xft/DPI"},
+        {XSETTINGS_SCHEMA_XFT_ANTIALIAS, XSETTINGS_REGISTRY_PROP_XFT_ANTIALIAS},
+        {XSETTINGS_SCHEMA_XFT_HINTING, XSETTINGS_REGISTRY_PROP_XFT_HINTING},
+        {XSETTINGS_SCHEMA_XFT_HINT_STYLE, XSETTINGS_REGISTRY_PROP_XFT_HINT_STYLE},
+        {XSETTINGS_SCHEMA_XFT_RGBA, XSETTINGS_REGISTRY_PROP_XFT_RGBA},
+        {XSETTINGS_SCHEMA_XFT_DPI, XSETTINGS_REGISTRY_PROP_XFT_DPI},
 
-        {XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, "Gtk/CursorThemeName"},
-        {XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, "Gtk/CursorThemeSize"},
-        {XSETTINGS_SCHEMA_GTK_FONT_NAME, "Gtk/FontName"},
-        {XSETTINGS_SCHEMA_GTK_KEY_THEME_NAME, "Gtk/KeyThemeName"},
-        {XSETTINGS_SCHEMA_GTK_TOOLBAR_STYLE, "Gtk/ToolbarStyle"},
-        {XSETTINGS_SCHEMA_GTK_TOOLBAR_ICONS_SIZE, "Gtk/ToolbarIconSize"},
-        {XSETTINGS_SCHEMA_GTK_IM_PREEDIT_STYLE, "Gtk/IMPreeditStyle"},
-        {XSETTINGS_SCHEMA_GTK_IM_STATUS_STYLE, "Gtk/IMStatusStyle"},
-        {XSETTINGS_SCHEMA_GTK_IM_MODULE, "Gtk/IMModule"},
-        {XSETTINGS_SCHEMA_GTK_MENU_IMAGES, "Gtk/MenuImages"},
-        {XSETTINGS_SCHEMA_GTK_BUTTON_IMAGES, "Gtk/ButtonImages"},
-        {XSETTINGS_SCHEMA_GTK_MENUBAR_ACCEL, "Gtk/MenuBarAccel"},
-        {XSETTINGS_SCHEMA_GTK_COLOR_SCHEME, "Gtk/ColorScheme"},
-        {XSETTINGS_SCHEMA_GTK_FILE_CHOOSER_BACKEND, "Gtk/FileChooserBackend"},
-        {XSETTINGS_SCHEMA_GTK_DECORATION_LAYOUT, "Gtk/DecorationLayout"},
-        {XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_APP_MENU, "Gtk/ShellShowsAppMenu"},
-        {XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_MENUBAR, "Gtk/ShellShowsMenubar"},
-        {XSETTINGS_SCHEMA_GTK_SHOW_INPUT_METHOD_MENU, "Gtk/ShowInputMethodMenu"},
-        {XSETTINGS_SCHEMA_GTK_SHOW_UNICODE_MENU, "Gtk/ShowUnicodeMenu"},
-        {XSETTINGS_SCHEMA_GTK_AUTOMATIC_MNEMONICS, "Gtk/AutoMnemonics"},
-        {XSETTINGS_SCHEMA_GTK_ENABLE_PRIMARY_PASTE, "Gtk/EnablePrimaryPaste"},
-        {XSETTINGS_SCHEMA_GTK_ENABLE_ANIMATIONS, "Gtk/EnableAnimations"},
-        {XSETTINGS_SCHEMA_GTK_DIALOGS_USE_HEADER, "Gtk/DialogsUseHeader"},
+        {XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, XSETTINGS_REGISTRY_PROP_GTK_CURSOR_THEME_NAME},
+        {XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, XSETTINGS_REGISTRY_PROP_GTK_CURSOR_THEME_SIZE},
+        {XSETTINGS_SCHEMA_GTK_FONT_NAME, XSETTINGS_REGISTRY_PROP_GTK_FONT_NAME},
+        {XSETTINGS_SCHEMA_GTK_KEY_THEME_NAME, XSETTINGS_REGISTRY_PROP_GTK_KEY_THEME_NAME},
+        {XSETTINGS_SCHEMA_GTK_TOOLBAR_STYLE, XSETTINGS_REGISTRY_PROP_GTK_TOOLBAR_STYLE},
+        {XSETTINGS_SCHEMA_GTK_TOOLBAR_ICONS_SIZE, XSETTINGS_REGISTRY_PROP_GTK_TOOLBAR_ICON_SIZE},
+        {XSETTINGS_SCHEMA_GTK_IM_PREEDIT_STYLE, XSETTINGS_REGISTRY_PROP_GTK_IM_PREEDIT_STYLE},
+        {XSETTINGS_SCHEMA_GTK_IM_STATUS_STYLE, XSETTINGS_REGISTRY_PROP_GTK_IM_STATUS_STYLE},
+        {XSETTINGS_SCHEMA_GTK_IM_MODULE, XSETTINGS_REGISTRY_PROP_GTK_IM_MODULE},
+        {XSETTINGS_SCHEMA_GTK_MENU_IMAGES, XSETTINGS_REGISTRY_PROP_GTK_MENU_IMAGES},
+        {XSETTINGS_SCHEMA_GTK_BUTTON_IMAGES, XSETTINGS_REGISTRY_PROP_GTK_BUTTON_IMAGES},
+        {XSETTINGS_SCHEMA_GTK_MENUBAR_ACCEL, XSETTINGS_REGISTRY_PROP_GTK_MENU_BAR_ACCEL},
+        {XSETTINGS_SCHEMA_GTK_COLOR_SCHEME, XSETTINGS_REGISTRY_PROP_GTK_COLOR_SCHEME},
+        {XSETTINGS_SCHEMA_GTK_FILE_CHOOSER_BACKEND, XSETTINGS_REGISTRY_PROP_GTK_FILE_CHOOSER_BACKEND},
+        {XSETTINGS_SCHEMA_GTK_DECORATION_LAYOUT, XSETTINGS_REGISTRY_PROP_GTK_DECORATION_LAYOUT},
+        {XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_APP_MENU, XSETTINGS_REGISTRY_PROP_GTK_SHELL_SHOWS_APP_MENU},
+        {XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_MENUBAR, XSETTINGS_REGISTRY_PROP_GTK_SHELL_SHOWS_MENUBAR},
+        {XSETTINGS_SCHEMA_GTK_SHOW_INPUT_METHOD_MENU, XSETTINGS_REGISTRY_PROP_GTK_SHOW_INPUT_METHOD_MENU},
+        {XSETTINGS_SCHEMA_GTK_SHOW_UNICODE_MENU, XSETTINGS_REGISTRY_PROP_GTK_SHOW_UNICODE_MENU},
+        {XSETTINGS_SCHEMA_GTK_AUTOMATIC_MNEMONICS, XSETTINGS_REGISTRY_PROP_GTK_AUTO_MNEMONICS},
+        {XSETTINGS_SCHEMA_GTK_ENABLE_PRIMARY_PASTE, XSETTINGS_REGISTRY_PROP_GTK_ENABLE_PRIMARY_PASTE},
+        {XSETTINGS_SCHEMA_GTK_ENABLE_ANIMATIONS, XSETTINGS_REGISTRY_PROP_GTK_ENABLE_ANIMATIONS},
+        {XSETTINGS_SCHEMA_GTK_DIALOGS_USE_HEADER, XSETTINGS_REGISTRY_PROP_GTK_DIALOGS_USE_HEADER},
 
-        {XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, "Gdk/WindowScalingFactor"},
+        {XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, XSETTINGS_REGISTRY_PROP_GDK_WINDOW_SCALING_FACTOR},
 };
 
 // TODO: 设置初始值
 XSettingsManager::XSettingsManager() : dbus_connect_id_(0),
                                        object_register_id_(0),
-                                       window_scale_(0),
-                                       net_double_click_time_(250)
+                                       window_scale_(0)
 {
     this->xsettings_settings_ = Gio::Settings::create(XSETTINGS_SCHEMA_ID);
     this->background_settings_ = Gio::Settings::create(BACKGROUND_SCHAME_ID);
+
+    for (const auto &iter : XSettingsManager::schema2registry_)
+    {
+        this->registry2schema_.emplace(iter.second, iter.first);
+    }
 }
 
 XSettingsManager::~XSettingsManager()
@@ -95,7 +100,7 @@ void XSettingsManager::global_init()
 
 int XSettingsManager::get_window_scale()
 {
-    auto scale = this->window_scaling_factor_get();
+    auto scale = this->get_window_scaling_factor();
     if (!scale)
     {
         scale = XSettingsUtils::get_window_scale_auto();
@@ -103,66 +108,73 @@ int XSettingsManager::get_window_scale()
     return scale;
 }
 
-#define PROP_SET_HANDLER(prop, type1, key, type2)                                                                  \
-    bool XSettingsManager::prop##_setHandler(type1 value)                                                          \
-    {                                                                                                              \
-        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());                                         \
-        RETURN_VAL_IF_TRUE(value == this->prop##_, false);                                                         \
-        if (this->xsettings_settings_->get_##type2(key) != value)                                                  \
-        {                                                                                                          \
-            auto value_r = Glib::Variant<std::remove_cv<std::remove_reference<type1>::type>::type>::create(value); \
-            if (!this->xsettings_settings_->set_value(key, value_r))                                               \
-            {                                                                                                      \
-                return false;                                                                                      \
-            }                                                                                                      \
-        }                                                                                                          \
-        this->prop##_ = value;                                                                                     \
-        return true;                                                                                               \
+#define CHECK_VAR(var, type)                                                          \
+    if (!var)                                                                         \
+    {                                                                                 \
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the property")); \
+    }                                                                                 \
+    if (var->get_type() != type)                                                      \
+    {                                                                                 \
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The type is mismatch"));   \
     }
 
-PROP_SET_HANDLER(net_double_click_time, gint32, XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_TIME, int);
-PROP_SET_HANDLER(net_double_click_distance, gint32, XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_DISTANCE, int);
-PROP_SET_HANDLER(net_dnd_drag_threshold, gint32, XSETTINGS_SCHEMA_NET_DND_DRAG_THRESHOLD, int);
-PROP_SET_HANDLER(net_cursor_blink, bool, XSETTINGS_SCHEMA_NET_CURSOR_BLINK, boolean);
-PROP_SET_HANDLER(net_cursor_blink_time, gint32, XSETTINGS_SCHEMA_NET_CURSOR_BLINK_TIME, int);
-PROP_SET_HANDLER(net_theme_name, const Glib::ustring &, XSETTINGS_SCHEMA_NET_THEME_NAME, string);
-PROP_SET_HANDLER(net_icon_theme_name, const Glib::ustring &, XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, string);
-PROP_SET_HANDLER(net_enable_event_sounds, bool, XSETTINGS_SCHEMA_NET_ENABLE_EVENT_SOUNDS, boolean);
-PROP_SET_HANDLER(net_sound_theme_name, const Glib::ustring &, XSETTINGS_SCHEMA_NET_SOUND_THEME_NAME, string);
-PROP_SET_HANDLER(net_enable_input_feedback_sounds, bool, XSETTINGS_SCHEMA_NET_ENABLE_INPUT_FEEDBACK_SOUNDS, boolean);
+void XSettingsManager::ListPropertyNames(MethodInvocation &invocation)
+{
+    std::vector<Glib::ustring> property_names;
+    auto properties = this->registry_.get_properties();
+    for (auto &iter : properties)
+    {
+        property_names.push_back(iter->get_name());
+    }
+    invocation.ret(property_names);
+}
 
-PROP_SET_HANDLER(xft_antialias, gint32, XSETTINGS_SCHEMA_XFT_ANTIALIAS, int);
-PROP_SET_HANDLER(xft_hinting, gint32, XSETTINGS_SCHEMA_XFT_HINTING, int);
-PROP_SET_HANDLER(xft_hint_style, const Glib::ustring &, XSETTINGS_SCHEMA_XFT_HINT_STYLE, string);
-PROP_SET_HANDLER(xft_rgba, const Glib::ustring &, XSETTINGS_SCHEMA_XFT_RGBA, string);
-PROP_SET_HANDLER(xft_dpi, gint32, XSETTINGS_SCHEMA_XFT_DPI, int);
+void XSettingsManager::GetInteger(const Glib::ustring &name, MethodInvocation &invocation)
+{
+    auto var = this->registry_.get_property(name);
+    CHECK_VAR(var, XSettingsPropType::XSETTINGS_PROP_TYPE_INT);
 
-PROP_SET_HANDLER(gtk_cursor_theme_name, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, string);
-PROP_SET_HANDLER(gtk_cursor_theme_size, gint32, XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, int);
-PROP_SET_HANDLER(gtk_font_name, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_FONT_NAME, string);
-PROP_SET_HANDLER(gtk_key_theme_name, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_KEY_THEME_NAME, string);
-PROP_SET_HANDLER(gtk_toolbar_style, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_TOOLBAR_STYLE, string);
-PROP_SET_HANDLER(gtk_toolbar_icons_size, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_TOOLBAR_ICONS_SIZE, string);
-PROP_SET_HANDLER(gtk_im_preedit_style, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_IM_PREEDIT_STYLE, string);
-PROP_SET_HANDLER(gtk_im_status_style, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_IM_STATUS_STYLE, string);
-PROP_SET_HANDLER(gtk_im_module, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_IM_MODULE, string);
-PROP_SET_HANDLER(gtk_menu_images, bool, XSETTINGS_SCHEMA_GTK_MENU_IMAGES, boolean);
-PROP_SET_HANDLER(gtk_button_images, bool, XSETTINGS_SCHEMA_GTK_BUTTON_IMAGES, boolean);
-PROP_SET_HANDLER(gtk_menubar_accel, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_MENUBAR_ACCEL, string);
-PROP_SET_HANDLER(gtk_color_scheme, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_COLOR_SCHEME, string);
-PROP_SET_HANDLER(gtk_file_chooser_backend, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_FILE_CHOOSER_BACKEND, string);
-PROP_SET_HANDLER(gtk_decoration_layout, const Glib::ustring &, XSETTINGS_SCHEMA_GTK_DECORATION_LAYOUT, string);
-PROP_SET_HANDLER(gtk_shell_shows_app_menu, bool, XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_APP_MENU, boolean);
-PROP_SET_HANDLER(gtk_shell_shows_menubar, bool, XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_MENUBAR, boolean);
-PROP_SET_HANDLER(gtk_show_input_method_menu, bool, XSETTINGS_SCHEMA_GTK_SHOW_INPUT_METHOD_MENU, boolean);
-PROP_SET_HANDLER(gtk_show_unicode_menu, bool, XSETTINGS_SCHEMA_GTK_SHOW_UNICODE_MENU, boolean);
-PROP_SET_HANDLER(gtk_automatic_mnemonics, bool, XSETTINGS_SCHEMA_GTK_AUTOMATIC_MNEMONICS, boolean);
-PROP_SET_HANDLER(gtk_enable_primary_paste, bool, XSETTINGS_SCHEMA_GTK_ENABLE_PRIMARY_PASTE, boolean);
-PROP_SET_HANDLER(gtk_enable_animations, bool, XSETTINGS_SCHEMA_GTK_ENABLE_ANIMATIONS, boolean);
-PROP_SET_HANDLER(gtk_dialogs_use_header, bool, XSETTINGS_SCHEMA_GTK_DIALOGS_USE_HEADER, boolean);
+    auto int_var = std::dynamic_pointer_cast<XSettingsPropertyInt>(var);
+    invocation.ret(int_var->get_value());
+}
 
-PROP_SET_HANDLER(window_scaling_factor, gint32, XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, int);
-PROP_SET_HANDLER(window_scaling_factor_qt_sync, bool, XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC, boolean);
+void XSettingsManager::SetInteger(const Glib::ustring &name, gint32 value, MethodInvocation &invocation)
+{
+    auto var = std::make_shared<XSettingsPropertyInt>(name, value);
+    this->set_registry_var(var, invocation);
+}
+
+void XSettingsManager::GetString(const Glib::ustring &name, MethodInvocation &invocation)
+{
+    auto var = this->registry_.get_property(name);
+    CHECK_VAR(var, XSettingsPropType::XSETTINGS_PROP_TYPE_STRING);
+
+    auto string_var = std::dynamic_pointer_cast<XSettingsPropertyString>(var);
+    invocation.ret(string_var->get_value());
+}
+
+void XSettingsManager::SetString(const Glib::ustring &name, const Glib::ustring &value, MethodInvocation &invocation)
+{
+    auto var = std::make_shared<XSettingsPropertyString>(name, value);
+    this->set_registry_var(var, invocation);
+}
+
+void XSettingsManager::GetColor(const Glib::ustring &name, MethodInvocation &invocation)
+{
+    auto var = this->registry_.get_property(name);
+    CHECK_VAR(var, XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR);
+
+    auto color_var = std::dynamic_pointer_cast<XSettingsPropertyColor>(var);
+    auto color_value = color_var->get_value();
+    invocation.ret(std::make_tuple(color_value.red, color_value.green, color_value.blue, color_value.alpha));
+}
+
+void XSettingsManager::SetColor(const Glib::ustring &name, const std::tuple<guint16, guint16, guint16, guint16> &value, MethodInvocation &invocation)
+{
+    XSettingsColor color_value = {std::get<0>(value), std::get<1>(value), std::get<2>(value), std::get<3>(value)};
+    auto var = std::make_shared<XSettingsPropertyColor>(name, color_value);
+    this->set_registry_var(var, invocation);
+}
 
 void XSettingsManager::init()
 {
@@ -204,64 +216,59 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 
     auto iter = this->schema2registry_.find(key);
 
-#define SET_CASE(lower_prop, upper_prop, type, is_update)        \
-    case CONNECT(XSETTINGS_SCHEMA_##upper_prop, _hash):          \
+#define SET_CASE(prop, type)                                     \
+    case CONNECT(prop, _hash):                                   \
     {                                                            \
         auto value = this->xsettings_settings_->get_##type(key); \
-        this->lower_prop##_set(value);                           \
-        if (is_update && iter != this->schema2registry_.end())   \
-        {                                                        \
-            this->registry_.update(iter->second, value);         \
-        }                                                        \
+        this->registry_.update(iter->second, value);             \
         break;                                                   \
     }
 
     switch (shash(key.c_str()))
     {
-        SET_CASE(net_double_click_time, NET_DOUBLE_CLICK_TIME, int, true);
-        SET_CASE(net_double_click_distance, NET_DOUBLE_CLICK_DISTANCE, int, true);
-        SET_CASE(net_dnd_drag_threshold, NET_DND_DRAG_THRESHOLD, int, true);
-        SET_CASE(net_cursor_blink, NET_CURSOR_BLINK, boolean, true);
-        SET_CASE(net_cursor_blink_time, NET_CURSOR_BLINK_TIME, int, true);
-        SET_CASE(net_theme_name, NET_THEME_NAME, string, true);
-        SET_CASE(net_icon_theme_name, NET_ICON_THEME_NAME, string, true);
-        SET_CASE(net_enable_event_sounds, NET_ENABLE_EVENT_SOUNDS, boolean, true);
-        SET_CASE(net_sound_theme_name, NET_SOUND_THEME_NAME, string, true);
-        SET_CASE(net_enable_input_feedback_sounds, NET_ENABLE_INPUT_FEEDBACK_SOUNDS, boolean, true);
+        SET_CASE(XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_TIME, int);
+        SET_CASE(XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_DISTANCE, int);
+        SET_CASE(XSETTINGS_SCHEMA_NET_DND_DRAG_THRESHOLD, int);
+        SET_CASE(XSETTINGS_SCHEMA_NET_CURSOR_BLINK, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_NET_CURSOR_BLINK_TIME, int);
+        SET_CASE(XSETTINGS_SCHEMA_NET_THEME_NAME, string);
+        SET_CASE(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, string);
+        SET_CASE(XSETTINGS_SCHEMA_NET_ENABLE_EVENT_SOUNDS, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_NET_SOUND_THEME_NAME, string);
+        SET_CASE(XSETTINGS_SCHEMA_NET_ENABLE_INPUT_FEEDBACK_SOUNDS, boolean);
 
-        SET_CASE(xft_antialias, XFT_ANTIALIAS, int, true);
-        SET_CASE(xft_hinting, XFT_HINTING, int, true);
-        SET_CASE(xft_hint_style, XFT_HINT_STYLE, string, true);
-        SET_CASE(xft_rgba, XFT_RGBA, string, true);
+        SET_CASE(XSETTINGS_SCHEMA_XFT_ANTIALIAS, int);
+        SET_CASE(XSETTINGS_SCHEMA_XFT_HINTING, int);
+        SET_CASE(XSETTINGS_SCHEMA_XFT_HINT_STYLE, string);
+        SET_CASE(XSETTINGS_SCHEMA_XFT_RGBA, string);
 
-        SET_CASE(gtk_cursor_theme_name, GTK_CURSOR_THEME_NAME, string, true);
-        SET_CASE(gtk_cursor_theme_size, GTK_CURSOR_THEME_SIZE, int, false);
-        SET_CASE(gtk_font_name, GTK_FONT_NAME, string, true);
-        SET_CASE(gtk_key_theme_name, GTK_KEY_THEME_NAME, string, true);
-        SET_CASE(gtk_toolbar_style, GTK_TOOLBAR_STYLE, string, true);
-        SET_CASE(gtk_toolbar_icons_size, GTK_TOOLBAR_ICONS_SIZE, string, true);
-        SET_CASE(gtk_im_preedit_style, GTK_IM_PREEDIT_STYLE, string, true);
-        SET_CASE(gtk_im_status_style, GTK_IM_STATUS_STYLE, string, true);
-        SET_CASE(gtk_im_module, GTK_IM_MODULE, string, true);
-        SET_CASE(gtk_menu_images, GTK_MENU_IMAGES, boolean, true);
-        SET_CASE(gtk_button_images, GTK_BUTTON_IMAGES, boolean, true);
-        SET_CASE(gtk_menubar_accel, GTK_MENUBAR_ACCEL, string, true);
-        SET_CASE(gtk_color_scheme, GTK_COLOR_SCHEME, string, true);
-        SET_CASE(gtk_file_chooser_backend, GTK_FILE_CHOOSER_BACKEND, string, true);
-        SET_CASE(gtk_decoration_layout, GTK_DECORATION_LAYOUT, string, true);
-        SET_CASE(gtk_shell_shows_app_menu, GTK_SHELL_SHOWS_APP_MENU, boolean, true);
-        SET_CASE(gtk_shell_shows_menubar, GTK_SHELL_SHOWS_MENUBAR, boolean, true);
-        SET_CASE(gtk_show_input_method_menu, GTK_SHOW_INPUT_METHOD_MENU, boolean, true);
-        SET_CASE(gtk_show_unicode_menu, GTK_SHOW_UNICODE_MENU, boolean, true);
-        SET_CASE(gtk_automatic_mnemonics, GTK_AUTOMATIC_MNEMONICS, boolean, true);
-        SET_CASE(gtk_enable_primary_paste, GTK_ENABLE_PRIMARY_PASTE, boolean, true);
-        SET_CASE(gtk_enable_animations, GTK_ENABLE_ANIMATIONS, boolean, true);
-        SET_CASE(gtk_dialogs_use_header, GTK_DIALOGS_USE_HEADER, boolean, true);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_FONT_NAME, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_KEY_THEME_NAME, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_TOOLBAR_STYLE, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_TOOLBAR_ICONS_SIZE, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_IM_PREEDIT_STYLE, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_IM_STATUS_STYLE, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_IM_MODULE, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_MENU_IMAGES, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_BUTTON_IMAGES, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_MENUBAR_ACCEL, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_COLOR_SCHEME, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_FILE_CHOOSER_BACKEND, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_DECORATION_LAYOUT, string);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_APP_MENU, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_MENUBAR, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_SHOW_INPUT_METHOD_MENU, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_SHOW_UNICODE_MENU, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_AUTOMATIC_MNEMONICS, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_ENABLE_PRIMARY_PASTE, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_ENABLE_ANIMATIONS, boolean);
+        SET_CASE(XSETTINGS_SCHEMA_GTK_DIALOGS_USE_HEADER, boolean);
 
-        SET_CASE(window_scaling_factor, WINDOW_SCALING_FACTOR, int, false);
-        SET_CASE(window_scaling_factor_qt_sync, WINDOW_SCALING_FACTOR_QT_SYNC, int, false);
-
-    // Ignore these properties
+        // Ignore these properties
+    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC, _hash):
     case CONNECT(XSETTINGS_SCHEMA_XFT_DPI, _hash):
         break;
 
@@ -278,13 +285,13 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
         this->scale_settings();
         break;
     case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
-    {
-        this->registry_.update("Xft/lcdfilter", this->xft_rgba_get() == "rgb" ? "lcddefault" : "none");
+        this->registry_.update(XSETTINGS_REGISTRY_PROP_XFT_LCDFILTER, this->get_xft_rgba() == "rgb" ? "lcddefault" : "none");
+        break;
+    default:
         break;
     }
-    }
 
-    this->registry_.update("Net/FallbackIconTheme", "mate");
+    this->registry_.update(XSETTINGS_REGISTRY_PROP_NET_FALLBACK_ICON_THEME, "mate");
 
     this->xsettings_changed_.emit(key.raw());
 
@@ -300,14 +307,14 @@ void XSettingsManager::scale_settings()
     auto dpi = XSettingsUtils::get_dpi_from_x_server();
     int32_t unscaled_dpi = int32_t(dpi * 1024);
     int32_t scaled_dpi = int32_t(CLAMP(dpi * scale, DPI_LOW_REASONABLE_VALUE, DPI_HIGH_REASONABLE_VALUE) * 1024);
-    auto scaled_cursor_size = this->gtk_cursor_theme_size_get() * scale;
+    auto scaled_cursor_size = this->get_gtk_cursor_theme_size() * scale;
 
-    this->registry_.update("Gdk/WindowScalingFactor", scale);
-    this->registry_.update("Gdk/UnscaledDPI", unscaled_dpi);
-    this->registry_.update("Xft/DPI", scaled_dpi);
-    this->registry_.update("Gtk/CursorThemeSize", scaled_cursor_size);
+    this->registry_.update(XSETTINGS_REGISTRY_PROP_GDK_WINDOW_SCALING_FACTOR, scale);
+    this->registry_.update(XSETTINGS_REGISTRY_PROP_GDK_UNSCALED_DPI, unscaled_dpi);
+    this->registry_.update(XSETTINGS_REGISTRY_PROP_XFT_DPI, scaled_dpi);
+    this->registry_.update(XSETTINGS_REGISTRY_PROP_GTK_CURSOR_THEME_SIZE, scaled_cursor_size);
 
-    this->xft_dpi_set(scaled_dpi);
+    this->xsettings_settings_->set_int(XSETTINGS_SCHEMA_XFT_DPI, scaled_dpi);
     this->scale_change_workarounds(scale);
 }
 
@@ -319,7 +326,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
     if (!this->window_scale_)
     {
         // 如果开启QT缩放同步，则将缩放值同步到QT缩放相关的环境变量
-        if (this->window_scaling_factor_qt_sync_get())
+        if (this->get_window_scaling_factor_qt_sync())
         {
             if (!XSettingsUtils::update_user_env_variable("QT_AUTO_SCREEN_SCALE_FACTOR", "0", error))
             {
@@ -399,8 +406,90 @@ bool XSettingsManager::delayed_toggle_bg_draw(bool value)
 void XSettingsManager::on_fontconfig_timestamp_changed()
 {
     int32_t timestamp = time(NULL);
-    this->registry_.update("Fontconfig/Timestamp", timestamp);
+    this->registry_.update(XSETTINGS_REGISTRY_PROP_FONTCONFIG_TIMESTAMP, timestamp);
     this->registry_.notify();
+}
+
+void XSettingsManager::set_registry_var(std::shared_ptr<XSettingsPropertyBase> var, MethodInvocation &invocation)
+{
+    auto iter = this->registry2schema_.find(var->get_name());
+    if (iter == this->registry2schema_.end())
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the property"));
+    }
+
+    switch (shash(var->get_name().c_str()))
+    {
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_DOUBLE_CLICK_TIME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_DOUBLE_CLICK_DISTANCE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_DND_DRAG_THRESHOLD, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_CURSOR_BLINK_TIME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_ANTIALIAS, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_HINTING, _hash):
+    {
+        CHECK_VAR(var, XSettingsPropType::XSETTINGS_PROP_TYPE_INT);
+        auto int_var = std::dynamic_pointer_cast<XSettingsPropertyInt>(var);
+        this->xsettings_settings_->set_int(iter->second, int_var->get_value());
+        invocation.ret();
+        break;
+    }
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_CURSOR_BLINK, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_ENABLE_EVENT_SOUNDS, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_ENABLE_INPUT_FEEDBACK_SOUNDS, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_MENU_IMAGES, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_BUTTON_IMAGES, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_SHELL_SHOWS_APP_MENU, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_SHELL_SHOWS_MENUBAR, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_SHOW_INPUT_METHOD_MENU, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_SHOW_UNICODE_MENU, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_AUTO_MNEMONICS, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_ENABLE_PRIMARY_PASTE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_ENABLE_ANIMATIONS, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_DIALOGS_USE_HEADER, _hash):
+    {
+        CHECK_VAR(var, XSettingsPropType::XSETTINGS_PROP_TYPE_INT);
+        auto int_var = std::dynamic_pointer_cast<XSettingsPropertyInt>(var);
+        this->xsettings_settings_->set_boolean(iter->second, int_var->get_value());
+        invocation.ret();
+        break;
+    }
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_THEME_NAME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_ICON_THEME_NAME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_SOUND_THEME_NAME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_HINT_STYLE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_RGBA, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_CURSOR_THEME_NAME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_FONT_NAME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_KEY_THEME_NAME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_TOOLBAR_STYLE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_TOOLBAR_ICON_SIZE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_IM_PREEDIT_STYLE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_IM_STATUS_STYLE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_IM_MODULE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_MENU_BAR_ACCEL, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_COLOR_SCHEME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_FILE_CHOOSER_BACKEND, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_DECORATION_LAYOUT, _hash):
+    {
+        CHECK_VAR(var, XSettingsPropType::XSETTINGS_PROP_TYPE_STRING);
+        auto string_var = std::dynamic_pointer_cast<XSettingsPropertyString>(var);
+        this->xsettings_settings_->set_string(iter->second, string_var->get_value());
+        invocation.ret();
+        break;
+    }
+    case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_LCDFILTER, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_NET_FALLBACK_ICON_THEME, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GDK_WINDOW_SCALING_FACTOR, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GDK_UNSCALED_DPI, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_DPI, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_CURSOR_THEME_SIZE, _hash):
+    case CONNECT(XSETTINGS_REGISTRY_PROP_FONTCONFIG_TIMESTAMP, _hash):
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Cannot modify the property manually"));
+        break;
+    default:
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown property"));
+        break;
+    }
 }
 
 void XSettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
