@@ -1,7 +1,7 @@
 [bluetooth]
 Name=Bluetooth
 Description=Bluetooth plugin
-Available=true
+Available=false
 
 [display]
 Name=Display
@@ -11,25 +11,25 @@ Available=true
 [keyboard]
 Name=Keyboard
 Description=Keyboard plugin
-Available=true
+Available=false
 
 [keybinding]
 Name=Keybinding
 Description=Keybinding plugin
-Available=true
+Available=false
 
 [mouse]
 Name=Mouse
 Description=Mouse plugin
-Available=true
+Available=false
 
 [touchpad]
 Name=TouchPad
 Description=TouchPad plugin
-Available=true
+Available=false
 
 [xsettings]
 Name=XSettings
 Description=XSettings plugin
-Available=true
+Available=false
 
