@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-06 10:37:31
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:17:01
+ * @LastEditTime : 2020-12-01 16:03:33
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
  */
@@ -147,8 +147,8 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
                         property_value.size(),
                         nitems);
         }
-        int num = std::min(nitems, property_value.size());
-        for (int i = 0; i < num; ++i)
+        uint32_t num = std::min(uint32_t(nitems), uint32_t(property_value.size()));
+        for (uint32_t i = 0; i < num; ++i)
         {
             data[i] = property_value[i] ? 1 : 0;
         }
