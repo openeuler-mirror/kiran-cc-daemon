@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-11 16:21:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-30 20:48:07
+ * @LastEditTime : 2020-12-01 09:05:00
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-manager.cpp
  */
@@ -212,7 +212,10 @@ void XSettingsManager::load_from_settings()
 
 void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify)
 {
-    SETTINGS_PROFILE("key: %s.", key.c_str());
+    if (is_notify)
+    {
+        LOG_DEBUG("key: %s.", key.c_str());
+    }
 
     auto iter = this->schema2registry_.find(key);
 
@@ -303,6 +306,8 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 
 void XSettingsManager::scale_settings()
 {
+    SETTINGS_PROFILE("");
+
     auto scale = this->get_window_scale();
     auto dpi = XSettingsUtils::get_dpi_from_x_server();
     int32_t unscaled_dpi = int32_t(dpi * 1024);
@@ -320,6 +325,8 @@ void XSettingsManager::scale_settings()
 
 void XSettingsManager::scale_change_workarounds(int32_t scale)
 {
+    SETTINGS_PROFILE("window_scale: %d, scale: %d", this->window_scale_, scale);
+
     std::string error;
     RETURN_IF_TRUE(this->window_scale_ == scale);
     // 第一次初始化时设置
@@ -386,6 +393,8 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
 
 void XSettingsManager::on_screen_changed()
 {
+    SETTINGS_PROFILE("");
+
     auto scale = this->get_window_scale();
     if (scale != this->window_scale_)
     {

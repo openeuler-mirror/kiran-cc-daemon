@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-24 11:16:01
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-24 17:54:46
+ * @LastEditTime : 2020-12-01 09:06:25
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-utils.cpp
  */
@@ -114,7 +114,7 @@ bool XSettingsUtils::update_user_env_variable(const std::string &variable,
         connection->call_sync("/org/gnome/SessionManager",
                               "org.gnome.SessionManager",
                               "Setenv",
-                              Glib::VariantContainerBase(g_variant_new("(ss)", variable, value)),
+                              Glib::VariantContainerBase(g_variant_new("(ss)", variable.c_str(), value.c_str())),
                               "org.gnome.SessionManager");
     }
     catch (const Glib::Error &e)

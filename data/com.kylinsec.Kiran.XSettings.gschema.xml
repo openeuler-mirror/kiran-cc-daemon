@@ -2,7 +2,7 @@
 <schemalist >
     <schema id="com.kylinsec.kiran.xsettings" path="/com/kylinsec/kiran/xsettings/">
         <key name="net-double-click-time" type="i">
-            <default>250</default>
+            <default>400</default>
             <summary>Maximum time allowed between two clicks for them to be considered a double click (in milliseconds).</summary>
         </key>
         <key name="net-double-click-distance" type="i">
@@ -22,14 +22,14 @@
             <summary>Length of the cursor blink cycle, in milleseconds.</summary>
         </key>
         <key name="net-theme-name" type="s">
-            <default>'Menta'</default>
+            <default>'Kiran'</default>
             <summary>Name of theme to use. This is a directory either in ~/.themes (except on Debian), 
             or the 'system' theme directory, which depends on where GTK was installed. Basically, 
             it could be anywhere. This should really use the base dir spec or something similar to 
             locate the theme.</summary>
         </key>
         <key name="net-icon-theme-name" type="s">
-            <default>'hicolor'</default>
+            <default>'Kiran'</default>
             <summary>Name of icon theme to use for icons.</summary>
         </key>
         <key name="net-enable-event-sounds" type="b">
@@ -48,19 +48,19 @@
             <description>Whether to play sounds on input events.</description>
         </key>
         <key name="xft-antialias" type="i">
-            <default>-1</default>
+            <default>1</default>
             <summary>Whether to antialias Xft fonts; 0=no, 1=yes, -1=default.</summary>
         </key>
         <key name="xft-hinting" type="i">
-            <default>-1</default>
+            <default>1</default>
             <summary>Whether to hint Xft fonts; 0=no, 1=yes, -1=default.</summary>
         </key>
         <key name="xft-hint-style" type="s">
-            <default>'hintnone'</default>
+            <default>'hintslight'</default>
             <summary>What degree of hinting to use; "hintnone", "hintslight", "hintmedium", or "hintfull".</summary>
         </key>
         <key name="xft-rgba" type="s">
-            <default>'none'</default>
+            <default>'rgb'</default>
             <summary>Type of subpixel antialiasing; "none", "rgb", "bgr", "vrgb", "vbgr".</summary>
         </key>
         <key name="xft-dpi" type="i">
@@ -68,7 +68,7 @@
             <summary>Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not modify it manually.</summary>
         </key>
         <key name="gtk-cursor-theme-name" type="s">
-            <default>'mate'</default>
+            <default>'Kiran'</default>
             <summary>Name of the cursor theme.</summary>
         </key>
         <key name="gtk-cursor-theme-size" type="i">

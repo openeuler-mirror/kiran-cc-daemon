@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-20 15:30:53
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-30 20:41:47
+ * @LastEditTime : 2020-12-01 09:07:10
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-registry.cpp
  */
@@ -46,8 +46,12 @@ XSettingsPropertyInt::XSettingsPropertyInt(const std::string &name,
 
 bool XSettingsPropertyInt::operator==(const XSettingsPropertyBase &rval) const
 {
-    LOG_WARNING("Unsupported.");
-    return false;
+    if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_INT)
+    {
+        LOG_WARNING("Unsupported.");
+        return false;
+    }
+    return this->operator==(dynamic_cast<const XSettingsPropertyInt &>(rval));
 }
 
 bool XSettingsPropertyInt::operator==(const XSettingsPropertyInt &rval) const
@@ -72,8 +76,12 @@ XSettingsPropertyString::XSettingsPropertyString(const std::string &name,
 
 bool XSettingsPropertyString::operator==(const XSettingsPropertyBase &rval) const
 {
-    LOG_WARNING("Unsupported.");
-    return false;
+    if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_STRING)
+    {
+        LOG_WARNING("Unsupported.");
+        return false;
+    }
+    return this->operator==(dynamic_cast<const XSettingsPropertyString &>(rval));
 }
 
 bool XSettingsPropertyString::operator==(const XSettingsPropertyString &rval) const
@@ -100,10 +108,14 @@ XSettingsPropertyColor::XSettingsPropertyColor(const std::string &name,
 {
 }
 
-bool XSettingsPropertyColor::operator==(const XSettingsPropertyBase &) const
+bool XSettingsPropertyColor::operator==(const XSettingsPropertyBase &rval) const
 {
-    LOG_WARNING("Unsupported.");
-    return false;
+    if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR)
+    {
+        LOG_WARNING("Unsupported.");
+        return false;
+    }
+    return this->operator==(dynamic_cast<const XSettingsPropertyColor &>(rval));
 }
 
 bool XSettingsPropertyColor::operator==(const XSettingsPropertyColor &rval) const
@@ -209,6 +221,8 @@ bool XSettingsRegistry::update(const std::string &name, const XSettingsColor &va
 
 bool XSettingsRegistry::update(std::shared_ptr<XSettingsPropertyBase> var)
 {
+    SETTINGS_PROFILE("name: %s.", var->get_name().c_str());
+
     RETURN_VAL_IF_TRUE(var == nullptr, true);
     auto old_var = this->get_property(var->get_name());
     if (old_var != nullptr && *old_var == *var)
@@ -243,6 +257,7 @@ XSettingsPropertyBaseVec XSettingsRegistry::get_properties()
 
 void XSettingsRegistry::notify()
 {
+    SETTINGS_PROFILE("");
     std::string data;
 
     // 注意：填充的相关变量类型不能随意修改
