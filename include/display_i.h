@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-02 20:53:28
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-02 21:03:41
+ * @LastEditTime : 2020-12-01 14:32:44
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display_i.h
+ * @FilePath     : /kiran-cc-daemon/include/display_i.h
  */
 #pragma once
 

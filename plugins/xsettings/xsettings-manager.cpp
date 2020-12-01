@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-08-11 16:21:11
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 09:05:00
+ * @LastEditTime : 2020-12-01 15:05:37
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-manager.cpp
  */
@@ -16,9 +16,6 @@
 
 namespace Kiran
 {
-#define GSETTINGS_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.XSettings"
-#define GSETTINGS_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/XSettings"
-
 #define BACKGROUND_SCHAME_ID "org.mate.background"
 #define BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS "show-desktop-icons"
 
@@ -191,7 +188,7 @@ void XSettingsManager::init()
     this->fontconfig_monitor_.signal_timestamp_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_fontconfig_timestamp_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                 GSETTINGS_DBUS_NAME,
+                                                 XSETTINGS_DBUS_NAME,
                                                  sigc::mem_fun(this, &XSettingsManager::on_bus_acquired),
                                                  sigc::mem_fun(this, &XSettingsManager::on_name_acquired),
                                                  sigc::mem_fun(this, &XSettingsManager::on_name_lost));
@@ -511,11 +508,11 @@ void XSettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>
     }
     try
     {
-        this->object_register_id_ = this->register_object(connect, GSETTINGS_OBJECT_PATH);
+        this->object_register_id_ = this->register_object(connect, XSETTINGS_OBJECT_PATH);
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", GSETTINGS_OBJECT_PATH, e.what().c_str());
+        LOG_WARNING("register object_path %s fail: %s.", XSETTINGS_OBJECT_PATH, e.what().c_str());
     }
 }
 

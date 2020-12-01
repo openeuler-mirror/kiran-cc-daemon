@@ -6,7 +6,7 @@
 #include <X11/extensions/Xrandr.h>
 #include <gdk/gdkx.h>
 
-#include "plugins/display/display_i.h"
+#include "display_i.h"
 
 namespace Kiran
 {

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:17
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-02 20:53:08
+ * @LastEditTime : 2020-12-01 15:10:02
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.h
  */
@@ -10,8 +10,8 @@
 
 #include <user_dbus_stub.h>
 
+#include "accounts_i.h"
 #include "plugins/accounts/accounts-wrapper.h"
-#include "plugins/accounts/accounts_i.h"
 
 namespace Kiran
 {

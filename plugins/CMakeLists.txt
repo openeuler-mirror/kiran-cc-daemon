@@ -8,6 +8,7 @@ if(build-system-daemon)
 endif()
 
 if(build-session-daemon)
+    add_subdirectory(appearance)
     add_subdirectory(bluetooth)
     add_subdirectory(display)
     add_subdirectory(inputdevices/common)

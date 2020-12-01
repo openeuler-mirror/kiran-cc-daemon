@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:56:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-14 14:58:45
+ * @LastEditTime : 2020-12-01 14:32:22
  * @Description  : 
- * @FilePath     : /kiran-system-daemon/include/plugin_i.h
+ * @FilePath     : /kiran-cc-daemon/include/plugin_i.h
  */
 
 #include <giomm.h>

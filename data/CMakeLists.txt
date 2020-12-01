@@ -89,11 +89,13 @@ endif()
 
 
 # include files
-install(FILES ${PROJECT_SOURCE_DIR}/plugins/accounts/accounts_i.h
+install(FILES ${PROJECT_SOURCE_DIR}/include/accounts_i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
 
-install(FILES ${PROJECT_SOURCE_DIR}/plugins/display/display_i.h
-              ${PROJECT_SOURCE_DIR}/plugins/inputdevices/touchpad/touchpad_i.h
+install(FILES ${PROJECT_SOURCE_DIR}/include/appearance_i.h
+              ${PROJECT_SOURCE_DIR}/include/display_i.h
+              ${PROJECT_SOURCE_DIR}/include/touchpad_i.h
+              ${PROJECT_SOURCE_DIR}/include/xsettings_i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-session-daemon)
 
 # pc file

@@ -1,3 +1,8 @@
+[appearance]
+Name=Appearance
+Description=Appearance plugin
+Available=true
+
 [bluetooth]
 Name=Bluetooth
 Description=Bluetooth plugin

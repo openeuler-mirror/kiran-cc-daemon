@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 09:52:51
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-04 13:47:26
+ * @LastEditTime : 2020-12-01 15:09:43
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.h
  */
@@ -11,9 +11,9 @@
 #include <display_dbus_stub.h>
 //
 
+#include "display_i.h"
 #include "plugins/display/display-monitor.h"
 #include "plugins/display/display.hxx"
-#include "plugins/display/display_i.h"
 #include "plugins/display/xrandr-manager.h"
 
 namespace Kiran

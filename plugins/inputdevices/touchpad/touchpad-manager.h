@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 10:08:59
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-03 08:51:53
+ * @LastEditTime : 2020-12-01 15:09:28
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.h
  */
@@ -12,7 +12,7 @@
 #include <touchpad_dbus_stub.h>
 
 #include "plugins/inputdevices/common/device-helper.h"
-#include "plugins/inputdevices/touchpad/touchpad_i.h"
+#include "touchpad_i.h"
 
 namespace Kiran
 {

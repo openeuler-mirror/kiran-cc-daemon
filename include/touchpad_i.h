@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-11-02 20:37:27
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-03 08:51:25
+ * @LastEditTime : 2020-12-01 14:32:51
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad_i.h
+ * @FilePath     : /kiran-cc-daemon/include/touchpad_i.h
  */
 #pragma once
 
