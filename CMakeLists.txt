@@ -22,10 +22,11 @@ pkg_search_module(LIBXML2 REQUIRED libxml++-2.6)
 
 if(build-session-daemon)
     pkg_search_module(GDKMM3 REQUIRED gdkmm-3.0)
+    pkg_search_module(GTKMM3 REQUIRED gtkmm-3.0)
     pkg_search_module(X11 REQUIRED x11)
     pkg_search_module(XERCES REQUIRED xerces-c)
     pkg_search_module(FONTCONFIG REQUIRED fontconfig)
-    
+    pkg_search_module(JSONCPP REQUIRED jsoncpp)
 endif()
 
 find_program(GDBUS-CODEGEN-GLIBMM-FOUND gdbus-codegen-glibmm3 PATHS ${CMAKE_BINARY_DIR}/bin/)

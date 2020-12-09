@@ -53,7 +53,7 @@ add_executable(${TARGET_SESSION_DAEMON}
 target_include_directories(${TARGET_SESSION_DAEMON} PUBLIC 
     ${PROJECT_BINARY_DIR}/generated
     ${GMODULE_INCLUDE_DIRS}
-    ${GDKMM3_INCLUDE_DIRS})
+    ${GTKMM3_INCLUDE_DIRS})
 
 target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
     -DKCC_TYPE="session"
@@ -67,7 +67,7 @@ target_compile_options(${TARGET_SESSION_DAEMON} PRIVATE
 
 target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
     ${GMODULE_LIBRARIES}
-    ${GDKMM3_LIBRARIES}
+    ${GTKMM3_LIBRARIES}
     lib-base
     lib-dbus
     lib-iso

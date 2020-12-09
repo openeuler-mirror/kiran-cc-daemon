@@ -2,9 +2,9 @@
  * @Author       : tangjie02
  * @Date         : 2020-12-01 11:26:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 15:26:58
+ * @LastEditTime : 2020-12-02 15:57:55
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/appearance-font.h
+ * @FilePath     : /kiran-cc-daemon/plugins/appearance/font/appearance-font.h
  */
 #pragma once
 
@@ -19,8 +19,10 @@ public:
     AppearanceFont();
     virtual ~AppearanceFont(){};
 
+    void init();
+
     std::string get_font(AppearanceFontType type);
-    bool set_font(AppearanceFontType type, const std::string& font_name);
+    bool set_font(AppearanceFontType type, const std::string& font);
 
 private:
     Glib::RefPtr<Gio::Settings> xsettings_settings_;

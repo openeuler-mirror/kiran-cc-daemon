@@ -2,11 +2,11 @@
  * @Author       : tangjie02
  * @Date         : 2020-12-01 11:26:36
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 15:33:49
+ * @LastEditTime : 2020-12-02 15:57:42
  * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/appearance-font.cpp
+ * @FilePath     : /kiran-cc-daemon/plugins/appearance/font/appearance-font.cpp
  */
-#include "plugins/appearance/appearance-font.h"
+#include "plugins/appearance/font/appearance-font.h"
 
 #include "xsettings_i.h"
 
@@ -28,6 +28,10 @@ AppearanceFont::AppearanceFont()
     this->interface_settings_ = Gio::Settings::create(INTERFACE_SCHEMA_ID);
     this->marco_settings_ = Gio::Settings::create(MARCO_SCHEMA_ID);
     this->caja_settings_ = Gio::Settings::create(CAJA_SCHEMA_ID);
+}
+
+void AppearanceFont::init()
+{
 }
 
 std::string AppearanceFont::get_font(AppearanceFontType type)
@@ -64,34 +68,34 @@ std::string AppearanceFont::get_font(AppearanceFontType type)
     }
 }
 
-bool AppearanceFont::set_font(AppearanceFontType type, const std::string& font_name)
+bool AppearanceFont::set_font(AppearanceFontType type, const std::string& font)
 {
     switch (type)
     {
     case APPEARANCE_FONT_TYPE_APPLICATION:
     {
         RETURN_VAL_IF_FALSE(this->xsettings_settings_, false);
-        this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_FONT_NAME, font_name);
+        this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_FONT_NAME, font);
     }
     case APPEARANCE_FONT_TYPE_DOCUMENT:
     {
         RETURN_VAL_IF_FALSE(this->interface_settings_, false);
-        this->interface_settings_->set_string(INTERFACE_KEY_DOCUMENT_FONT_NAME, font_name);
+        this->interface_settings_->set_string(INTERFACE_KEY_DOCUMENT_FONT_NAME, font);
     }
     case APPEARANCE_FONT_TYPE_DESKTOP:
     {
         RETURN_VAL_IF_FALSE(this->caja_settings_, false);
-        this->caja_settings_->set_string(CAJA_SCHEMA_KEY_FONT, font_name);
+        this->caja_settings_->set_string(CAJA_SCHEMA_KEY_FONT, font);
     }
     case APPEARANCE_FONT_TYPE_WINDOW_TITLE:
     {
         RETURN_VAL_IF_FALSE(this->marco_settings_, false);
-        this->marco_settings_->set_string(MARCO_SCHAME_KEY_TITLEBAR_FONT, font_name);
+        this->marco_settings_->set_string(MARCO_SCHAME_KEY_TITLEBAR_FONT, font);
     }
     case APPEARANCE_FONT_TYPE_MONOSPACE:
     {
         RETURN_VAL_IF_FALSE(this->interface_settings_, false);
-        this->interface_settings_->set_string(INTERFACE_KEY_MONOSPACE_FONT_NAME, font_name);
+        this->interface_settings_->set_string(INTERFACE_KEY_MONOSPACE_FONT_NAME, font);
     }
     default:
         return false;

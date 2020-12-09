@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-12-01 11:32:30
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 15:26:02
+ * @LastEditTime : 2020-12-03 19:46:08
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/include/appearance_i.h
  */
@@ -29,6 +29,21 @@ extern "C"
         // 等宽字体，一般用于终端
         APPEARANCE_FONT_TYPE_MONOSPACE,
         APPEARANCE_FONT_TYPE_LAST
+    };
+
+    enum AppearanceThemeType
+    {
+        // META主题，META主题包括了GTK/图标/光标等主题的设置
+        APPEARANCE_THEME_TYPE_META = 0,
+        // GTK主题（依赖GTK的版本）
+        APPEARANCE_THEME_TYPE_GTK,
+        // metacity主题
+        APPEARANCE_THEME_TYPE_METACITY,
+        // 图标主题
+        APPEARANCE_THEME_TYPE_ICON,
+        // 光标主题
+        APPEARANCE_THEME_TYPE_CURSOR,
+        APPEARANCE_THEME_TYPE_LAST,
     };
 
 #ifdef __cplusplus

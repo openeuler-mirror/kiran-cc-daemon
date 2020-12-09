@@ -3,20 +3,56 @@
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
     <interface name="com.kylinsec.Kiran.SessionDaemon.Appearance">
 
+        <method name="GetThemes">
+            <arg type="i" name="type" direction="in">
+                <doc:doc>
+                    <doc:summary>The theme type that contains gtk, icon and cursor, etc.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="s" name="theme_json" direction="out">
+                <doc:doc>
+                    <doc:summary>The theme info that contain name and path.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get the theme info.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetTheme">
+            <arg type="i" name="type" direction="in">
+                <doc:doc>
+                    <doc:summary>The theme type that contains gtk, icon and cursor, etc.</doc:summary>
+                </doc:doc>
+            </arg>
+            <arg type="s" name="theme_name" direction="in">
+                <doc:doc>
+                    <doc:summary>The theme name.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the theme name for the type.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
         <method name="GetFont">
             <arg type="i" name="type" direction="in">
                 <doc:doc>
                     <doc:summary>The font type that contains application font, document font, desktop font and monospace font, etc.</doc:summary>
                 </doc:doc>
             </arg>
-            <arg type="s" name="font_name" direction="out">
+            <arg type="s" name="font" direction="out">
                 <doc:doc>
-                    <doc:summary>The font name, for example 'San 10' which '10' is the font size.</doc:summary>
+                    <doc:summary>The font that contain name and size, for example 'San 10'.</doc:summary>
                 </doc:doc>
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>Get the font name for the type.</doc:para>
+                    <doc:para>Get the font for the type.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
@@ -27,17 +63,61 @@
                     <doc:summary>The font type that contains application font, document font, desktop font and monospace font, etc.</doc:summary>
                 </doc:doc>
             </arg>
-            <arg type="s" name="font_name" direction="in">
+            <arg type="s" name="font" direction="in">
                 <doc:doc>
-                    <doc:summary>The font name, for example 'San 10' which '10' is the font size.</doc:summary>
+                    <doc:summary>The font, for example 'San 10'.</doc:summary>
                 </doc:doc>
             </arg>
             <doc:doc>
                 <doc:description>
-                    <doc:para>Set the font name for the type.</doc:para>
+                    <doc:para>Set the font for the type.</doc:para>
                 </doc:description>
             </doc:doc>
         </method>
+
+        <property name="gtk_theme" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The gtk theme name.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="metacity_theme" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The metacity(marco window manage) theme name.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="icon_theme" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The icon theme name.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="cursor_theme" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The cursor theme name.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <signal name="ThemeChanged">
+            <arg name="type" type="i">
+                <doc:doc>
+                    <doc:summary>The theme type.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
 
     </interface>
 </node>

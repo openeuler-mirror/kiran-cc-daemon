@@ -64,6 +64,7 @@ list(APPEND KSD_COMPILER_FLAGS
   -Wno-unused-value               # Disable unused value warning
   -Wno-missing-braces             # Disable missing braces warning
   -Wno-deprecated-declarations    # Disable deprecated declarations warning
+  -Wno-parentheses                # Disable parentheses warning
   )
 list(APPEND KSD_COMPILER_FLAGS    # for C++
   #-fno-rtti                       # Disable real-time type information

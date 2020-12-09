@@ -2,14 +2,15 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 16:51:23
+ * @LastEditTime : 2020-12-02 16:45:14
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
 
 #ifdef KCC_SESSION_TYPE
-#include <gdkmm.h>
 #include <gdkmm/wrap_init.h>
+#include <gtkmm.h>
+#include <gtkmm/wrap_init.h>
 
 #include "lib/display/EWMH.h"
 #endif
@@ -90,11 +91,12 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+#if defined KCC_SYSTEM_TYPE
     auto loop = Glib::MainLoop::create();
-
-#ifdef KCC_SESSION_TYPE
-    gdk_init(NULL, NULL);
+#elif defined KCC_SESSION_TYPE
+    gtk_init(NULL, NULL);
     Gdk::wrap_init();
+    Gtk::wrap_init();
     Kiran::EWMH::global_init();
 #endif
 
@@ -102,6 +104,10 @@ int main(int argc, char* argv[])
     Kiran::ISOTranslation::global_init();
     Kiran::SettingsManager::global_init();
 
+#if defined KCC_SYSTEM_TYPE
     loop->run();
+#elif defined KCC_SESSION_TYPE
+    gtk_main();
+#endif
     return 0;
 }
