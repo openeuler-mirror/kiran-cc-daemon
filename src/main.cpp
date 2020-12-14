@@ -13,6 +13,7 @@
 #include <gtkmm/wrap_init.h>
 
 #include "lib/display/EWMH.h"
+#include "src/session-guarder.h"
 #endif
 
 #include <glib-unix.h>
@@ -98,6 +99,7 @@ int main(int argc, char* argv[])
     Gdk::wrap_init();
     Gtk::wrap_init();
     Kiran::EWMH::global_init();
+    Kiran::SessionGuarder::global_init(loop);
 #endif
 
     Kiran::AuthManager::global_init();
