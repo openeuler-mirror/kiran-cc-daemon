@@ -15,14 +15,16 @@ namespace Kiran
 class SessionGuarder
 {
 public:
-    SessionGuarder(Glib::RefPtr<Glib::MainLoop> loop);
+    SessionGuarder();
     virtual ~SessionGuarder(){};
 
     static SessionGuarder* get_instance() { return instance_; };
 
-    static void global_init(Glib::RefPtr<Glib::MainLoop> loop);
+    static void global_init();
 
     static void global_deinit() { delete instance_; };
+
+    sigc::signal<void> signal_session_end() {return this->session_end_;};
 
 private:
     void init();
@@ -34,10 +36,10 @@ private:
 private:
     static SessionGuarder* instance_;
 
-    Glib::RefPtr<Glib::MainLoop> loop_;
-
     // sm: session manager
     Glib::RefPtr<Gio::DBus::Proxy> sm_proxy_;
     Glib::RefPtr<Gio::DBus::Proxy> sm_private_proxy_;
+
+    sigc::signal<void> session_end_;
 };
 }  // namespace Kiran

@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-05-29 15:38:08
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-02 16:45:14
+ * @LastEditTime : 2020-12-14 16:37:52
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/src/main.cpp
  */
@@ -32,6 +32,13 @@ public:
         g_print("%s", buff);
     }
 };
+
+#ifdef KCC_SESSION_TYPE
+static void on_session_end()
+{
+    gtk_main_quit();
+}
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -99,7 +106,8 @@ int main(int argc, char* argv[])
     Gdk::wrap_init();
     Gtk::wrap_init();
     Kiran::EWMH::global_init();
-    Kiran::SessionGuarder::global_init(loop);
+    Kiran::SessionGuarder::global_init();
+    Kiran::SessionGuarder::get_instance()->signal_session_end().connect(&on_session_end);
 #endif
 
     Kiran::AuthManager::global_init();

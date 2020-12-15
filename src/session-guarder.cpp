@@ -15,15 +15,15 @@ namespace Kiran
 #define MATE_SESSION_DBUS_INTERFACE "org.gnome.SessionManager"
 #define MATE_SESSION_PRIVATE_DBUS_INTERFACE "org.gnome.SessionManager.ClientPrivate"
 
-SessionGuarder::SessionGuarder(Glib::RefPtr<Glib::MainLoop> loop) : loop_(loop)
+SessionGuarder::SessionGuarder() 
 {
 }
 
 SessionGuarder* SessionGuarder::instance_ = nullptr;
 
-void SessionGuarder::global_init(Glib::RefPtr<Glib::MainLoop> loop)
+void SessionGuarder::global_init()
 {
-    instance_ = new SessionGuarder(loop);
+    instance_ = new SessionGuarder();
     instance_->init();
 }
 
@@ -114,9 +114,6 @@ void SessionGuarder::on_session_end()
         LOG_WARNING("Failed to send end session response: %s", e.what().c_str());
     }
 
-    if (this->loop_)
-    {
-        this->loop_->quit();
-    }
+    this->session_end_.emit();
 }
 }  // namespace Kiran
