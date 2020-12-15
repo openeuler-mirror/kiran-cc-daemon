@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-09-07 09:52:57
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-04 13:54:18
+ * @LastEditTime : 2020-12-15 09:07:20
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.cpp
  */
@@ -780,7 +780,7 @@ void DisplayManager::resources_changed()
     if (old_monitors_uid != new_monitors_uid)
     {
         std::string err;
-        if (!this->switch_style(this->default_style_, err))
+        if (!this->switch_style_and_save(this->default_style_, err))
         {
             LOG_WARNING("%s", err.c_str());
         }
