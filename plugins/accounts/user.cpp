@@ -2,7 +2,7 @@
  * @Author       : tangjie02
  * @Date         : 2020-06-19 13:58:22
  * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-04 14:00:59
+ * @LastEditTime : 2020-12-15 14:49:20
  * @Description  : 
  * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.cpp
  */
@@ -444,6 +444,13 @@ void User::change_shell_authorized_cb(MethodInvocation invocation, const Glib::u
 
 void User::become_user(std::shared_ptr<Passwd> passwd)
 {
+    if (!passwd ||
+        initgroups(passwd->pw_name.c_str(), passwd->pw_gid) ||
+        setgid(passwd->pw_gid) != 0 ||
+        setuid(passwd->pw_uid) != 0)
+    {
+        exit(1);
+    }
 }
 
 void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file)
