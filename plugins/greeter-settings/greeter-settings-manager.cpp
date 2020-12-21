@@ -1,4 +1,5 @@
 #include "greeter-settings-manager.h"
+#include "log.h"
 
 #define LIGHTDM_PROFILE_PATH "/etc/lightdm/lightdm.conf"
 #define LIGHTDM_GROUP_NAME "Seat:*"
@@ -153,7 +154,7 @@ bool GreeterSettingsManager::settings_has_key(Glib::KeyFile *settings, const Gli
     }
     catch (Glib::KeyFileError &e)
     {
-        g_warning("key '%s' not found: %s", key.c_str(), e.what().c_str());
+        LOG_WARNING("key '%s' not found: %s", key.c_str(), e.what().c_str());
         return false;
     }
 
@@ -167,13 +168,13 @@ bool GreeterSettingsManager::load()
 
     if (!load_lightdm_settings())
     {
-        g_warning("Failed to load lightdm settings");
+        LOG_WARNING("Failed to load lightdm settings");
         return false;
     }
 
     if (!load_greeter_settings())
     {
-        g_warning("Failed to load greeter settings");
+        LOG_WARNING("Failed to load greeter settings");
         return false;
     }
 
@@ -190,7 +191,7 @@ bool GreeterSettingsManager::load()
             set_autologin_user(user);
         }
         else
-            g_warning("settings '%s' not found, use default value", KEY_AUTOLOGIN_USER);
+            LOG_WARNING("settings '%s' not found, use default value", KEY_AUTOLOGIN_USER);
 
         if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY))
         {
@@ -203,7 +204,7 @@ bool GreeterSettingsManager::load()
             set_autologin_delay(delay);
         }
         else
-            g_warning("settings '%s' not found, use default value", KEY_AUTOLOGIN_DELAY);
+            LOG_WARNING("settings '%s' not found, use default value", KEY_AUTOLOGIN_DELAY);
 
         if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN))
         {
@@ -219,7 +220,7 @@ bool GreeterSettingsManager::load()
         }
         else
         {
-            g_warning("settings 'enable_manual_login' not found, use default value");
+            LOG_WARNING("settings 'enable_manual_login' not found, use default value");
         }
 
         if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST))
@@ -237,13 +238,13 @@ bool GreeterSettingsManager::load()
         }
         else
         {
-            g_warning("settings 'hide_user_list' not found, use default value");
+            LOG_WARNING("settings 'hide_user_list' not found, use default value");
         }
 
         if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_BACKGROUND_FILE))
         {
             auto background_file = greeter_settings->get_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE);
-            g_message("%s", background_file.c_str());
+            LOG_DEBUG("background_file: %s", background_file.c_str());
             set_background_file(background_file);
         }
 
@@ -251,7 +252,7 @@ bool GreeterSettingsManager::load()
         {
             auto enable_scaling = greeter_settings->get_string(GREETER_GROUP_NAME,
                                                                KEY_ENABLE_SCALING);
-            g_message("%s", enable_scaling.c_str());
+            LOG_DEBUG("enable_scaling: %s", enable_scaling.c_str());
             if (enable_scaling == "auto")
                 set_scale_mode(GreeterSettingsManager::SCALING_AUTO);
             else if (enable_scaling == "manual")
@@ -259,7 +260,7 @@ bool GreeterSettingsManager::load()
             else if (enable_scaling == "disable")
                 set_scale_mode(GreeterSettingsManager::SCALING_DISABLE);
             else
-                g_warning("Invalid value '%s' for key '%s'", enable_scaling, KEY_ENABLE_SCALING);
+                LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling, KEY_ENABLE_SCALING);
         }
 
         if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_SCALE_FACTOR))
@@ -274,7 +275,7 @@ bool GreeterSettingsManager::load()
     }
     catch (const Glib::Error &e)
     {
-        g_warning("Loading Error: %s", e.what().c_str());
+        LOG_ERROR("Loading Error: %s", e.what().c_str());
         return false;
     }
 
@@ -292,7 +293,7 @@ bool GreeterSettingsManager::save()
     }
     catch (const Glib::Error &e)
     {
-        g_warning("Failed to save lightdm settings: %s", e.what().c_str());
+        LOG_WARNING("Failed to save lightdm settings: %s", e.what().c_str());
         return false;
     }
 
@@ -307,7 +308,7 @@ bool GreeterSettingsManager::save()
     }
     catch (const Glib::Error &e)
     {
-        g_warning("Failed to save greeter settings: %s", e.what().c_str());
+        LOG_ERROR("Failed to save greeter settings: %s", e.what().c_str());
         return false;
     }
 
@@ -326,13 +327,13 @@ bool GreeterSettingsManager::load_greeter_settings()
     {
         if (!greeter_settings->load_from_file(GREETER_PROFILE_PATH, Glib::KEY_FILE_KEEP_COMMENTS))
         {
-            g_critical("Failed to load configuration file '%s'", GREETER_PROFILE_PATH);
+            LOG_CRITICAL("Failed to load configuration file '%s'", GREETER_PROFILE_PATH);
             success = false;
         }
     }
     catch (const Glib::Error &e)
     {
-        g_critical("Failed to load configuration file '%s': %s",
+        LOG_CRITICAL("Failed to load configuration file '%s': %s",
                    GREETER_PROFILE_PATH, e.what().c_str());
         success = false;
     }
@@ -363,7 +364,7 @@ bool GreeterSettingsManager::load_lightdm_settings()
     }
     catch (const Glib::Error &e)
     {
-        g_critical("Failed to load configuration file '%s': %s",
+        LOG_CRITICAL("Failed to load configuration file '%s': %s",
                    LIGHTDM_PROFILE_PATH,
                    e.what().c_str());
         success = false;
