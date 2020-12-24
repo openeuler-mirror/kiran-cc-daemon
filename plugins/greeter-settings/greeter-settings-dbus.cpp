@@ -108,8 +108,6 @@ void GreeterSettingsDbus::init()
                                                 sigc::mem_fun(this, &GreeterSettingsDbus::on_name_acquired),
                                                 sigc::mem_fun(this, &GreeterSettingsDbus::on_name_lost));
 
-    //    sigc::signal<void> m_signal_profile_changed;
-    //    m_signal_profile_changed.connect(sigc::mem_fun(this, &GreeterSettingsDbus::greeterSettingsFileChanged));
     m_prefs->signal_autologin_delay_changed().connect(sigc::mem_fun(this, &GreeterSettingsDbus::on_autologin_delay_changed));
     m_prefs->signal_autologin_user_changed().connect(sigc::mem_fun(this, &GreeterSettingsDbus::on_autologin_user_changed));
     m_prefs->signal_background_file_changed().connect(sigc::mem_fun(this, &GreeterSettingsDbus::on_background_file_changed));
@@ -129,7 +127,7 @@ void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaem
     {
         m_prefs->set_background_file(file_path);
         m_prefs->save();
-        
+
         backgroundFile_set(file_path);
     }
     invocation.ret();
@@ -157,7 +155,7 @@ void GreeterSettingsDbus::change_auto_login_timeout_authorized_cb(SystemDaemon::
     {
         m_prefs->set_autologin_delay(seconds);
         m_prefs->save();
-        
+
         autologinTimeout_set(seconds);
     }
     
@@ -171,7 +169,7 @@ void GreeterSettingsDbus::change_hide_user_list_authorized_cb(SystemDaemon::Gree
     {
         m_prefs->set_hide_user_list(hide);
         m_prefs->save();
-        
+
         hideUserList_set(hide);
     }
     
@@ -185,7 +183,7 @@ void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::
     {
         m_prefs->set_enable_manual_login(allow);
         m_prefs->save();
-        
+
         allowManualLogin_set(allow);
     }
     
@@ -199,7 +197,7 @@ void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterS
     m_prefs->set_scale_mode((GreeterScalingMode)mode);
     m_prefs->set_scale_factor(factor);
     m_prefs->save();
-    
+
     scaleMode_set(mode);
     scaleFactor_set(factor);
     

@@ -8,8 +8,6 @@
 #define GREETERSETTINGSDBUS_H
 
 #include <greeter-settings_dbus_stub.h>
-
-#include "plugins/greeter-settings/greeter-settings-wrapper.h"
 #include "greeter-settings-manager.h"
 namespace Kiran
 {
@@ -121,6 +119,7 @@ protected:
 private:
     void init();
 
+    /*下面这些函数修改配置文件，并在修改完成后，调用修改属性变量函数*/
     void change_background_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &file_path);
     void change_auto_login_user_authorized_cb(MethodInvocation invocation, const Glib::ustring &autologin_user);
     void change_auto_login_timeout_authorized_cb(MethodInvocation invocation, const guint64 &seconds);
@@ -135,6 +134,7 @@ private:
     void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     bool get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t &uid);
 
+    /*监听配置文件变化的槽函数*/
     void on_autologin_delay_changed();
     void on_autologin_user_changed();
     void on_background_file_changed();

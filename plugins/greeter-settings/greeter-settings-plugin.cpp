@@ -9,7 +9,6 @@
 
 #include "lib/base/log.h"
 #include "plugins/greeter-settings/greeter-settings-dbus.h"
-#include "plugins/greeter-settings/greeter-settings-wrapper.h"
 
 PLUGIN_EXPORT_FUNC_DEF(GreeterSettingsPlugin);
 
