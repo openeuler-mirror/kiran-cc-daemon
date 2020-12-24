@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <interface name="com.kylinsec.Kiran.SystemDaemon.GreeterSettings">
+  <method name="SetBackgroundFile">
+      <arg name="file_path" direction="in" type="s">
+      </arg>
+    </method>
+
+    <method name="SetAutologinUser">
+      <arg name="autologin_user" direction="in" type="s">
+      </arg>
+    </method>
+
+    <method name="SetAutologinTimeout">
+      <arg name="seconds" direction="in" type="t">
+      </arg>
+    </method>
+
+    <method name="SetHideUserList">
+      <arg name="hide" direction="in" type="b">
+      </arg>
+    </method>
+
+    <method name="SetAllowManualLogin">
+      <arg name="allow" direction="in" type="b">
+      </arg>
+    </method>
+
+    <method name="SetScaleMode">
+      <arg name="mode" direction="in" type="q">
+      </arg>
+      <arg name="factor" direction="in" type="q">
+      </arg>
+    </method>
+
+    <property name="backgroundFile" type="s" access="read">
+    </property>
+
+    <property name="autologinUser" type="s" access="read">
+    </property>
+
+    <property name="autologinTimeout" type="t" access="read">
+    </property>
+
+    <property name="allowManualLogin" type="b" access="read">
+    </property>
+
+    <property name="hideUserList" type="b" access="read">
+    </property>
+
+    <property name="scaleMode" type="q" access="read">
+    </property>
+
+    <property name="scaleFactor" type="q" access="read">
+    </property>
+
+  </interface>
+</node>

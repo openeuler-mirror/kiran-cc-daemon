@@ -10,30 +10,23 @@
 #define GREETER_SETTINGS_MANAGER_H
 
 #include <glibmm.h>
+#include <giomm/filemonitor.h>
+#include <giomm/file.h>
+#include "greeter-settings-data.h"
 
 class GreeterSettingsManager : public sigc::trackable
 {
 public:
 
     /**
-     * 登录界面缩放模式
-     */
-    typedef enum {
-        SCALING_AUTO = 0,           /** 自动缩放, 根据屏幕分辨率自动调整缩放率 */
-        SCALING_MANUAL,             /** 手动设定缩放率 */
-        SCALING_DISABLE,            /** 禁用缩放 */
-        SCALING_LAST,
-    } GreeterScalingMode;
-    
-    /**
      * @brief 获取当前登录配置管理器实例，该实例将一直存在，无需调用delete进行释放
      * @return 当前登录配置管理器实例对象
      */
-    static GreeterSettingsManager* get_instance();
+    static GreeterSettingsManager *get_instance();
     ~GreeterSettingsManager();
 
     /**
-     * @brief 加载登录配置，该接口将同时加载lightdm配置文件和greeter配置文件
+     * @brief 加载登录配置，原来的配置信息将被清空。该接口将同时加载lightdm配置文件和greeter配置文件
      * @return 加载成功返回true，失败返回false
      */
     bool load();
@@ -146,21 +139,106 @@ public:
      */
     void set_background_file(const std::string &background_file);
 
+
+    /**
+     * @brief 信号: 自动登录延时设置发生变化时触发
+     */
+    sigc::signal<void> signal_autologin_delay_changed();
+
+    /**
+     * @brief 信号: 自动登录用户设置发生变化时触发
+     */
+    sigc::signal<void> signal_autologin_user_changed();
+
+    /**
+     * @brief 信号: 屏幕缩放模式设置发生变化时触发
+     */
+    sigc::signal<void> signal_scale_mode_changed();
+
+    /**
+     * @brief 信号: 屏幕缩放比例设置发生变化时触发
+     */
+    sigc::signal<void> signal_scale_factor_changed();
+
+    /**
+     * @brief 信号: 登录界面背景图片发生变化时触发
+     */
+    sigc::signal<void> signal_background_file_changed();
+
+    /**
+     * @brief 信号: 允许手动登录设置发生变化时触发
+     */
+    sigc::signal<void> signal_enable_manual_login_changed();
+
+    /**
+     * @brief 信号：隐藏用户列表设置发生变化时触发
+     */
+    sigc::signal<void> signal_hide_user_list_changed();
+
+protected:
+    /**
+     * @brief 初始化登录配置文件监控
+     */
+    void init_settings_monitor();
+
+    /**
+     * @brief 回调函数: 登录配置文件发生变化时调用
+     *        @see Gio::FileMonitor::signal_changed()
+     * @param file
+     * @param other_file
+     * @param event_type
+     */
+    void on_profile_changed(const Glib::RefPtr<Gio::File> &file,
+                            const Glib::RefPtr<Gio::File> &other_file,
+                            Gio::FileMonitorEvent event_type);
+
 private:
+    /* 禁止调用构造函数初始化对象 */
     explicit GreeterSettingsManager();
 
-    bool load_greeter_settings();
-    bool load_lightdm_settings();
+    /**
+     * @brief 从greeter配置文件中读取配置信息
+     * @param[out]      data        用于存储配置信息的对象
+     * @param[in,out]   settings    用于存储配置文件内容的KeyFile对象，可以为空
+     * @return 加载成功返回true，失败返回false
+     */
+    bool load_greeter_settings(GreeterSettingsData *data,
+                               Glib::KeyFile *settings = nullptr);
+
+
+    /**
+     * @brief 从lightdm配置文件中读取配置信息
+     * @param[out]      data        用于存储配置信息的对象
+     * @param[in,out]   settings    用于存储配置文件内容的KeyFile对象，可以为空
+     * @return 加载成功返回true，失败返回false
+     */
+    bool load_lightdm_settings(GreeterSettingsData *data,
+                               Glib::KeyFile *settings = nullptr);
+
+    /**
+     * @brief 检查给定的keyfile里组group下是否有名称为key的配置项存在
+     * @param settings 待检查的KeyFile
+     * @param group    key所在的组名称
+     * @param key      配置项名称
+     * @return 是否存在，存在返回true,不存在返回false
+     */
     bool settings_has_key(Glib::KeyFile *settings, const Glib::ustring &group, const Glib::ustring &key);
 
 private:
-    Glib::KeyFile *lightdm_settings, *greeter_settings;
-    Glib::ustring m_autologin_user, m_background_file;
-    GreeterScalingMode m_scale_mode;
-    uint32_t m_autologin_delay, m_scale_factor;
-    bool m_enable_manual_login, m_hide_user_list;
+    Glib::KeyFile *lightdm_settings, *greeter_settings;                 /* 配置文件 */
+    Glib::RefPtr<Gio::FileMonitor> lightdm_monitor, greeter_monitor;    /* 配置文件监视器 */
+    Glib::RefPtr<Gio::File> lightdm_conf, greeter_conf;                 /* 配置文件 */
+    GreeterSettingsData *priv;                                          /* 配置数据 */
 
-    sigc::signal<void> m_signal_profile_changed;
+
+    sigc::signal<void> m_signal_autologin_delay_changed;
+    sigc::signal<void> m_signal_autologin_user_changed;
+    sigc::signal<void> m_signal_scale_factor_changed;
+    sigc::signal<void> m_signal_scale_mode_changed;
+    sigc::signal<void> m_signal_background_file_changed;
+    sigc::signal<void> m_signal_enable_manual_login_changed;
+    sigc::signal<void> m_signal_hide_user_list_changed;
+
 };
 
 #endif // GREETER_SETTINGS_MANAGER_H

@@ -1,5 +1,16 @@
 #include "greeter-settings-manager.h"
+#include <sys/stat.h>
+#include <errno.h>
+#include <string.h>
+
+#ifdef TEST
+#define LOG_WARNING(fmt, ...) g_warning(fmt, ##__VA_ARGS__)
+#define LOG_CRITICAL(fmt, ...) g_critical(fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) g_message(fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) g_error(fmt, ##__VA_ARGS__)
+#else
 #include "log.h"
+#endif
 
 #define LIGHTDM_PROFILE_PATH "/etc/lightdm/lightdm.conf"
 #define LIGHTDM_GROUP_NAME "Seat:*"
@@ -36,72 +47,76 @@ GreeterSettingsManager::~GreeterSettingsManager()
 
     if (lightdm_settings != nullptr)
         delete lightdm_settings;
+
+    delete priv;
 }
 
 std::string GreeterSettingsManager::get_autologin_user() const
 {
-    return m_autologin_user.raw();
+    g_return_val_if_fail(priv != nullptr, "");
+    return priv->autologin_user.raw();
 }
 
 uint32_t GreeterSettingsManager::get_autologin_delay() const
 {
-    return m_autologin_delay;
+    g_return_val_if_fail(priv != nullptr, 0);
+    return priv->autologin_delay;
 }
 
 uint32_t GreeterSettingsManager::get_scale_factor() const
 {
-    return m_scale_factor;
+    return priv->scale_factor;
 }
 
-GreeterSettingsManager::GreeterScalingMode GreeterSettingsManager::get_scale_mode() const
+GreeterScalingMode GreeterSettingsManager::get_scale_mode() const
 {
-    return m_scale_mode;
+    return priv->scale_mode;
 }
 
 std::string GreeterSettingsManager::get_background_file() const
 {
-    return m_background_file.raw();
+    return priv->background_file.raw();
 }
 
 bool GreeterSettingsManager::get_enable_manual_login() const
 {
-    return m_enable_manual_login;
+    return priv->enable_manual_login;
 }
 
 bool GreeterSettingsManager::get_hide_user_list() const
 {
-    return m_hide_user_list;
+    return priv->hide_user_list;
 }
 
 void GreeterSettingsManager::set_autologin_user(const std::string &autologin_user)
 {
-    m_autologin_user = autologin_user;
-    lightdm_settings->set_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER, m_autologin_user);
+    priv->autologin_user = autologin_user;
+    lightdm_settings->set_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER, autologin_user);
 }
 
 void GreeterSettingsManager::set_autologin_delay(uint32_t autologin_delay)
 {
-    m_autologin_delay = autologin_delay;
-    lightdm_settings->set_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY, m_autologin_delay);
+    priv->autologin_delay = autologin_delay;
+    lightdm_settings->set_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY, autologin_delay);
 }
 
 void GreeterSettingsManager::set_enable_manual_login(bool enable_manual_login)
 {
-    m_enable_manual_login = enable_manual_login;
-    lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN, m_enable_manual_login);
+    priv->enable_manual_login = enable_manual_login;
+    lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN, enable_manual_login);
 }
 
 void GreeterSettingsManager::set_hide_user_list(bool hide_user_list)
 {
-    m_hide_user_list = hide_user_list;
-    lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST, m_hide_user_list);
+    priv->hide_user_list = hide_user_list;
+    lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST, hide_user_list);
 }
 
 void GreeterSettingsManager::set_scale_mode(GreeterScalingMode mode)
 {
     Glib::ustring scale_mode;
 
-    m_scale_mode = mode;
+    priv->scale_mode = mode;
     switch (mode)
     {
     case SCALING_AUTO:
@@ -121,35 +136,181 @@ void GreeterSettingsManager::set_scale_mode(GreeterScalingMode mode)
 
 void GreeterSettingsManager::set_scale_factor(uint32_t scale_factor)
 {
-    m_scale_factor = scale_factor;
-    greeter_settings->set_uint64(GREETER_GROUP_NAME, KEY_SCALE_FACTOR, m_scale_factor);
+    priv->scale_factor = scale_factor;
+    greeter_settings->set_uint64(GREETER_GROUP_NAME, KEY_SCALE_FACTOR, scale_factor);
 }
 
 void GreeterSettingsManager::set_background_file(const std::string &background_file)
 {
-    m_background_file = background_file;
-    greeter_settings->set_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE, m_background_file);
+    priv->background_file = background_file;
+    greeter_settings->set_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE, background_file);
+}
+
+void GreeterSettingsManager::init_settings_monitor()
+{
+    lightdm_conf = Gio::File::create_for_path(LIGHTDM_PROFILE_PATH);
+    greeter_conf = Gio::File::create_for_path(GREETER_PROFILE_PATH);
+
+    lightdm_monitor = lightdm_conf->monitor_file();
+    greeter_monitor = greeter_conf->monitor_file();
+
+    lightdm_monitor->signal_changed().connect(
+        sigc::mem_fun(*this, &GreeterSettingsManager::on_profile_changed));
+    greeter_monitor->signal_changed().connect(
+        sigc::mem_fun(*this, &GreeterSettingsManager::on_profile_changed));
+}
+
+void GreeterSettingsManager::on_profile_changed(const Glib::RefPtr<Gio::File> &file,
+                                                const Glib::RefPtr<Gio::File> &other_file,
+                                                Gio::FileMonitorEvent event_type)
+{
+    GreeterSettingsData new_data;
+    Glib::KeyFile *lightdm_settings_, *greeter_settings_;
+
+    if (event_type != Gio::FILE_MONITOR_EVENT_CHANGED)
+        return;
+
+    LOG_DEBUG("file '%s' changed, event 0x%x",
+                file->get_path().c_str(),
+                (int)event_type);
+
+    lightdm_settings_ = new Glib::KeyFile();
+    greeter_settings_ = new Glib::KeyFile();
+
+    if (!load_greeter_settings(&new_data, greeter_settings_))
+    {
+        LOG_ERROR("Failed to reload greeter settings");
+        delete lightdm_settings_;
+        delete greeter_settings_;
+        return;
+    }
+
+    if (!load_lightdm_settings(&new_data, lightdm_settings_))
+    {
+        LOG_ERROR("Failed to reload lightdm settings");
+        delete lightdm_settings_;
+        delete greeter_settings_;
+        return;
+    }
+
+    if (lightdm_settings != nullptr)
+        delete lightdm_settings;
+
+    if (greeter_settings != nullptr)
+        delete greeter_settings;
+
+    lightdm_settings = lightdm_settings_;
+    greeter_settings = greeter_settings_;
+
+    if (new_data.autologin_delay != priv->autologin_delay)
+    {
+        LOG_DEBUG("autologin-delay changed from %u to %u", priv->autologin_delay,
+                  new_data.autologin_delay);
+        priv->autologin_delay = new_data.autologin_delay;
+        m_signal_autologin_delay_changed.emit();
+    }
+
+    if (new_data.autologin_user != priv->autologin_user)
+    {
+        LOG_DEBUG("autologin-user changed from '%s' to '%s'", priv->autologin_user.c_str(),
+                  new_data.autologin_user.c_str());
+        priv->autologin_user = new_data.autologin_user;
+        m_signal_autologin_user_changed.emit();
+    }
+
+    if (new_data.scale_mode != priv->scale_mode)
+    {
+        LOG_DEBUG("scale-mode changed from %d to %d", priv->scale_mode, new_data.scale_mode);
+        priv->scale_mode = new_data.scale_mode;
+        m_signal_scale_mode_changed.emit();
+    }
+
+    if (new_data.background_file != priv->background_file)
+    {
+        LOG_DEBUG("backgrond-file changed from '%s' to '%s'",
+                priv->background_file,
+                new_data.background_file);
+        priv->background_file = new_data.background_file;
+        m_signal_background_file_changed.emit();
+    }
+
+    if (new_data.enable_manual_login != priv->enable_manual_login)
+    {
+        LOG_DEBUG("enable-manual-login changed from %d to %d",
+                priv->enable_manual_login,
+                new_data.enable_manual_login);
+        priv->enable_manual_login = new_data.enable_manual_login;
+        m_signal_enable_manual_login_changed.emit();
+    }
+
+    if (new_data.hide_user_list != priv->hide_user_list)
+    {
+        LOG_DEBUG("hide-user-list changed from %d to %d",
+                priv->hide_user_list,
+                new_data.hide_user_list);
+        priv->hide_user_list = new_data.hide_user_list;
+        m_signal_hide_user_list_changed.emit();
+    }
+
+    if (new_data.scale_factor != priv->scale_factor)
+    {
+        LOG_DEBUG("scale-factor changed from %u to %u",
+                priv->scale_factor,
+                new_data.scale_factor);
+        priv->scale_factor = new_data.scale_factor;
+        m_signal_scale_factor_changed.emit();
+    }
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_autologin_delay_changed()
+{
+    return m_signal_autologin_delay_changed;
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_autologin_user_changed()
+{
+    return m_signal_autologin_user_changed;
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_scale_mode_changed()
+{
+    return m_signal_scale_mode_changed;
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_scale_factor_changed()
+{
+    return m_signal_scale_factor_changed;
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_background_file_changed()
+{
+    return m_signal_background_file_changed;
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_enable_manual_login_changed()
+{
+    return m_signal_enable_manual_login_changed;
+}
+
+sigc::signal<void> GreeterSettingsManager::signal_hide_user_list_changed()
+{
+    return m_signal_hide_user_list_changed;
 }
 
 GreeterSettingsManager::GreeterSettingsManager() : lightdm_settings(nullptr),
-                               greeter_settings(nullptr),
-                               m_autologin_delay(),
-                               m_autologin_user(""),
-                               m_background_file(""),
-                               m_enable_manual_login(true),
-                               m_hide_user_list(false),
-                               m_scale_mode(GreeterSettingsManager::SCALING_AUTO),
-                               m_scale_factor(1)
+                                                   greeter_settings(nullptr)
 {
+    priv = new GreeterSettingsData;
+    init_settings_monitor();
 }
 
 bool GreeterSettingsManager::settings_has_key(Glib::KeyFile *settings, const Glib::ustring &group, const Glib::ustring &key)
 {
-    if (settings == nullptr)
-        return false;
 
     try
     {
+        if (settings == nullptr)
+            return false;
         return settings->has_key(group, key);
     }
     catch (Glib::KeyFileError &e)
@@ -163,114 +324,34 @@ bool GreeterSettingsManager::settings_has_key(Glib::KeyFile *settings, const Gli
 
 bool GreeterSettingsManager::load()
 {
-    GError *error = nullptr;
-    Glib::ustring value;
+    memset(static_cast<void*>(priv), 0, sizeof(*priv));
 
-    if (!load_lightdm_settings())
-    {
-        LOG_WARNING("Failed to load lightdm settings");
-        return false;
-    }
+    if (greeter_settings != nullptr)
+        delete greeter_settings;
 
-    if (!load_greeter_settings())
-    {
-        LOG_WARNING("Failed to load greeter settings");
-        return false;
-    }
+    if (lightdm_settings != nullptr)
+        delete lightdm_settings;
 
     try
     {
-        if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER))
-        {
-            auto user = lightdm_settings->get_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER);
-            set_autologin_user(user);
-        }
-        else if (settings_has_key(greeter_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER))
-        {
-            auto user = greeter_settings->get_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER);
-            set_autologin_user(user);
-        }
-        else
-            LOG_WARNING("settings '%s' not found, use default value", KEY_AUTOLOGIN_USER);
+        greeter_settings = new Glib::KeyFile();
+        lightdm_settings = new Glib::KeyFile();
 
-        if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY))
+        /*
+         * lightdm配置文件优先于greeter配置文件，因此必须先加载
+         * greeter配置文件，再加载lightdm配置文件，确保配置项可正常
+         * 覆盖
+         */
+        if (!load_greeter_settings(priv, greeter_settings))
         {
-            auto delay = lightdm_settings->get_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY);
-            set_autologin_delay(delay);
-        }
-        else if (settings_has_key(greeter_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY))
-        {
-            auto delay = greeter_settings->get_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY);
-            set_autologin_delay(delay);
-        }
-        else
-            LOG_WARNING("settings '%s' not found, use default value", KEY_AUTOLOGIN_DELAY);
-
-        if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN))
-        {
-            bool enable_manual_login = lightdm_settings->get_boolean(LIGHTDM_GROUP_NAME,
-                                                                     KEY_LIGHTDM_ENABLE_MANUAL_LOGIN);
-            set_enable_manual_login(enable_manual_login);
-        }
-        else if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_GREETER_ENABLE_MANUAL_LOGIN))
-        {
-            bool enable_manual_login = greeter_settings->get_boolean(GREETER_GROUP_NAME,
-                                                                     KEY_GREETER_ENABLE_MANUAL_LOGIN);
-            set_enable_manual_login(enable_manual_login);
-        }
-        else
-        {
-            LOG_WARNING("settings 'enable_manual_login' not found, use default value");
+            LOG_ERROR("Failed to load greeter settings");
+            return false;
         }
 
-        if (settings_has_key(lightdm_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST))
+        if (!load_lightdm_settings(priv, lightdm_settings))
         {
-            bool hide_user_list = lightdm_settings->get_boolean(LIGHTDM_GROUP_NAME,
-                                                                KEY_LIGHTDM_HIDE_USER_LIST);
-
-            set_hide_user_list(hide_user_list);
-        }
-        else if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_GREETER_HIDE_USER_LIST))
-        {
-            bool hide_user_list = greeter_settings->get_boolean(GREETER_GROUP_NAME,
-                                                                KEY_GREETER_HIDE_USER_LIST);
-            set_hide_user_list(hide_user_list);
-        }
-        else
-        {
-            LOG_WARNING("settings 'hide_user_list' not found, use default value");
-        }
-
-        if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_BACKGROUND_FILE))
-        {
-            auto background_file = greeter_settings->get_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE);
-            LOG_DEBUG("background_file: %s", background_file.c_str());
-            set_background_file(background_file);
-        }
-
-        if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_ENABLE_SCALING))
-        {
-            auto enable_scaling = greeter_settings->get_string(GREETER_GROUP_NAME,
-                                                               KEY_ENABLE_SCALING);
-            LOG_DEBUG("enable_scaling: %s", enable_scaling.c_str());
-            if (enable_scaling == "auto")
-                set_scale_mode(GreeterSettingsManager::SCALING_AUTO);
-            else if (enable_scaling == "manual")
-                set_scale_mode(GreeterSettingsManager::SCALING_MANUAL);
-            else if (enable_scaling == "disable")
-                set_scale_mode(GreeterSettingsManager::SCALING_DISABLE);
-            else
-                LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling, KEY_ENABLE_SCALING);
-        }
-
-        if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_SCALE_FACTOR))
-        {
-            auto scale_factor = greeter_settings->get_uint64(GREETER_GROUP_NAME, KEY_SCALE_FACTOR);
-            if (scale_factor <= 1)
-                scale_factor = 3U;
-            else
-                scale_factor = 2U;
-            set_scale_factor(scale_factor);
+            LOG_ERROR("Failed to load lightdm settings");
+            return false;
         }
     }
     catch (const Glib::Error &e)
@@ -315,67 +396,156 @@ bool GreeterSettingsManager::save()
     return true;
 }
 
-bool GreeterSettingsManager::load_greeter_settings()
+bool GreeterSettingsManager::load_greeter_settings(GreeterSettingsData *data, Glib::KeyFile *settings)
 {
     bool success = true;
+    Glib::KeyFile *tmp_settings = settings;
 
-    if (greeter_settings != nullptr)
-        delete greeter_settings;
+    g_return_val_if_fail(data != nullptr, false);
 
-    greeter_settings = new Glib::KeyFile();
     try
     {
-        if (!greeter_settings->load_from_file(GREETER_PROFILE_PATH, Glib::KEY_FILE_KEEP_COMMENTS))
+        if (tmp_settings == nullptr)
+            tmp_settings = new Glib::KeyFile();
+
+        if (!tmp_settings->load_from_file(GREETER_PROFILE_PATH, Glib::KEY_FILE_KEEP_COMMENTS))
         {
             LOG_CRITICAL("Failed to load configuration file '%s'", GREETER_PROFILE_PATH);
             success = false;
         }
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_CRITICAL("Failed to load configuration file '%s': %s",
-                   GREETER_PROFILE_PATH, e.what().c_str());
-        success = false;
-    }
 
-    if (!success)
-    {
-        delete greeter_settings;
-        greeter_settings = nullptr;
-    }
-
-    return success;
-}
-
-bool GreeterSettingsManager::load_lightdm_settings()
-{
-    bool success = true;
-
-    if (lightdm_settings != nullptr)
-        delete lightdm_settings;
-
-    lightdm_settings = new Glib::KeyFile();
-    try
-    {
-        if (!lightdm_settings->load_from_file(LIGHTDM_PROFILE_PATH, Glib::KEY_FILE_KEEP_COMMENTS))
+        if (success)
         {
-            success = false;
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_AUTOLOGIN_USER))
+            {
+                auto user = tmp_settings->get_string(GREETER_GROUP_NAME, KEY_AUTOLOGIN_USER);
+                data->autologin_user = user;
+            }
+
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_AUTOLOGIN_DELAY))
+            {
+                auto delay = tmp_settings->get_uint64(GREETER_GROUP_NAME, KEY_AUTOLOGIN_DELAY);
+                data->autologin_delay = delay;
+            }
+
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_GREETER_ENABLE_MANUAL_LOGIN))
+            {
+                bool enable_manual_login = tmp_settings->get_boolean(GREETER_GROUP_NAME,
+                                                                     KEY_GREETER_ENABLE_MANUAL_LOGIN);
+                data->enable_manual_login = enable_manual_login;
+            }
+
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_GREETER_HIDE_USER_LIST))
+            {
+                bool hide_user_list = tmp_settings->get_boolean(GREETER_GROUP_NAME,
+                                                                KEY_GREETER_HIDE_USER_LIST);
+                data->hide_user_list = hide_user_list;
+            }
+
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_BACKGROUND_FILE))
+            {
+                auto background_file = tmp_settings->get_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE);
+                LOG_DEBUG("background_file: %s", background_file.c_str());
+                data->background_file = background_file;
+            }
+
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_ENABLE_SCALING))
+            {
+                auto enable_scaling = tmp_settings->get_string(GREETER_GROUP_NAME,
+                                                               KEY_ENABLE_SCALING);
+                LOG_DEBUG("enable_scaling: %s", enable_scaling.c_str());
+                if (enable_scaling == "auto")
+                    data->scale_mode = SCALING_AUTO;
+                else if (enable_scaling == "manual")
+                    data->scale_mode = SCALING_MANUAL;
+                else if (enable_scaling == "disable")
+                    data->scale_mode = SCALING_DISABLE;
+                else
+                {
+                    LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling, KEY_ENABLE_SCALING);
+                    data->scale_mode = SCALING_AUTO;
+                }
+            }
+
+            if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_SCALE_FACTOR))
+            {
+                auto scale_factor = tmp_settings->get_uint64(GREETER_GROUP_NAME, KEY_SCALE_FACTOR);
+                if (scale_factor <= 1)
+                    scale_factor = 1U;
+                else
+                    scale_factor = 2U;
+
+                data->scale_factor = scale_factor;
+            }
         }
     }
     catch (const Glib::Error &e)
     {
         LOG_CRITICAL("Failed to load configuration file '%s': %s",
-                   LIGHTDM_PROFILE_PATH,
-                   e.what().c_str());
+                     GREETER_PROFILE_PATH, e.what().c_str());
         success = false;
     }
 
-    if (!success)
-    {
+    if (settings == nullptr)
+        delete tmp_settings;
 
-        delete lightdm_settings;
-        lightdm_settings = nullptr;
+    return success;
+}
+
+bool GreeterSettingsManager::load_lightdm_settings(GreeterSettingsData *data, Glib::KeyFile *settings)
+{
+    bool success = true;
+    Glib::KeyFile *tmp_settings = settings;
+
+    g_return_val_if_fail(data != nullptr, false);
+
+    try
+    {
+        if (tmp_settings == nullptr)
+            tmp_settings = new Glib::KeyFile();
+
+        if (!tmp_settings->load_from_file(LIGHTDM_PROFILE_PATH, Glib::KEY_FILE_KEEP_COMMENTS))
+            success = false;
+
+        if (success)
+        {
+            if (settings_has_key(tmp_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER))
+            {
+                auto user = tmp_settings->get_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER);
+                data->autologin_user = user;
+            }
+
+            if (settings_has_key(tmp_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY))
+            {
+                auto delay = tmp_settings->get_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY);
+                data->autologin_delay = delay;
+            }
+
+            if (settings_has_key(tmp_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN))
+            {
+                bool enable_manual_login = tmp_settings->get_boolean(LIGHTDM_GROUP_NAME,
+                                                                     KEY_LIGHTDM_ENABLE_MANUAL_LOGIN);
+                data->enable_manual_login = enable_manual_login;
+            }
+
+            if (settings_has_key(tmp_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST))
+            {
+                bool hide_user_list = tmp_settings->get_boolean(LIGHTDM_GROUP_NAME,
+                                                                KEY_LIGHTDM_HIDE_USER_LIST);
+                data->hide_user_list = hide_user_list;
+            }
+        }
     }
+    catch (const Glib::Error &e)
+    {
+        LOG_CRITICAL("Failed to load configuration file '%s': %s",
+                     LIGHTDM_PROFILE_PATH,
+                     e.what().c_str());
+        success = false;
+    }
+
+    if (settings == nullptr)
+        delete tmp_settings;
 
     return success;
 }
