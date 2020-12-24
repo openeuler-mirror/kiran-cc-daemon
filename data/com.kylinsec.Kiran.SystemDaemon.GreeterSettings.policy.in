@@ -7,8 +7,8 @@
   <vendor_url/>
   <icon_name>stock_person</icon_name>
   <action id="com.kylinsec.kiran.system-daemon.greeter-settings.set-login-option">
-    <_description>Change the login settings</_description>
-    <_message>Authentication is required to change the login configuration</_message>
+    <_description>Change the gretter settings</_description>
+    <_message>Authentication is required to change the gretter configuration</_message>
     <defaults>
       <allow_any>auth_admin</allow_any>
       <allow_inactive>auth_admin</allow_inactive>
