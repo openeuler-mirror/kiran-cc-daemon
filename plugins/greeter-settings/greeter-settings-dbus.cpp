@@ -70,10 +70,16 @@ USER_PROP_SET_HANDLER(hideUserList, bool)
 USER_PROP_SET_HANDLER(scaleMode, guint16)
 USER_PROP_SET_HANDLER(scaleFactor, guint16)
 
-GreeterSettingsDbus::GreeterSettingsDbus() :
-    m_dbusConnectId(0),
-    m_objectRegisterId(0)
+GreeterSettingsDbus::GreeterSettingsDbus()
 {
+    m_autologinTimeout = 0;
+    m_allowManualLogin = false;
+    m_hideUserList = false;
+    m_scaleMode = 0;
+    m_scaleFactor = 0;
+    m_dbusConnectId = 0;
+    m_objectRegisterId = 0;
+
     m_prefs = GreeterSettingsManager::get_instance();
 }
 
