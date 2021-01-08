@@ -37,6 +37,7 @@ if(build-system-daemon)
     install(FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Accounts.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
+                  ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.service
             DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files

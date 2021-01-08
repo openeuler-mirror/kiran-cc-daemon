@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-30 20:48+0800\n"
+"POT-Creation-Date: 2021-01-08 14:10+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -85,15 +85,23 @@ msgid ""
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
 
-#: ../src/main.cpp:51
+#: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:1
+msgid "Greeter settings"
+msgstr "登陆设置"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr "登陆设置之前需要身份验证"
+
+#: ../src/main.cpp:60
 msgid "Output version infomation and exit"
 msgstr "输出版本信息并退出"
 
-#: ../src/main.cpp:57
+#: ../src/main.cpp:66
 msgid "Set log level to debug."
 msgstr "开启调试模式"
 
-#: ../src/main.cpp:63
+#: ../src/main.cpp:72
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
 
@@ -183,35 +191,35 @@ msgstr "无法更新下级gid文件"
 msgid "Unknown error"
 msgstr "未知错误"
 
-#: ../plugins/accounts/user.cpp:478
+#: ../plugins/accounts/user.cpp:485
 msgid "File {0} is not a regular file"
 msgstr "{0}不是普通文件"
 
-#: ../plugins/accounts/user.cpp:484
+#: ../plugins/accounts/user.cpp:491
 msgid "File {0} is too large to be used as an icon"
 msgstr "文件{0}太大，不能作为图标使用"
 
-#: ../plugins/accounts/user.cpp:491
+#: ../plugins/accounts/user.cpp:498
 msgid "Failed to copy file, could not determine caller UID"
 msgstr "复制文件失败，无法确定调用方UID"
 
-#: ../plugins/accounts/user.cpp:524
+#: ../plugins/accounts/user.cpp:531
 msgid "Failed to read file {0}"
 msgstr "读取文件{0}失败"
 
-#: ../plugins/accounts/user.cpp:540
+#: ../plugins/accounts/user.cpp:547
 msgid "Failed to Copye file {0} to {1}"
 msgstr "拷贝文件{0}到{1}失败"
 
-#: ../plugins/accounts/user.cpp:588
+#: ../plugins/accounts/user.cpp:595
 msgid "group {0} not found"
 msgstr "未发现组{0}"
 
-#: ../plugins/accounts/user.cpp:671
+#: ../plugins/accounts/user.cpp:678
 msgid "User is locked"
 msgstr "用户被锁定"
 
-#: ../plugins/accounts/user.cpp:686
+#: ../plugins/accounts/user.cpp:693
 msgid "Account expiration policy unknown to accounts service"
 msgstr "无法获取用户过期策略"
 
@@ -307,22 +315,36 @@ msgstr "未知的映射类型"
 msgid "Custom"
 msgstr "自定义"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:114
-#: ../plugins/xsettings/xsettings-manager.cpp:418
+#: ../plugins/xsettings/xsettings-manager.cpp:111
+#: ../plugins/xsettings/xsettings-manager.cpp:424
 msgid "Not found the property"
 msgstr "未找到改属性"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:118
+#: ../plugins/xsettings/xsettings-manager.cpp:115
 msgid "The type is mismatch"
 msgstr "类型不匹配"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:487
+#: ../plugins/xsettings/xsettings-manager.cpp:493
 msgid "Cannot modify the property manually"
 msgstr "不能手动修改此属性"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:490
+#: ../plugins/xsettings/xsettings-manager.cpp:496
 msgid "Unknown property"
 msgstr "未知属性"
+
+#, fuzzy
+#~ msgid "Change the greeter configuration"
+#~ msgstr "更改登录屏幕设置"
+
+#, fuzzy
+#~ msgid "Authentication is required to change the greeter configuration."
+#~ msgstr "更改登录设置之前需要身份验证"
+
+#~ msgid "Change the login settings"
+#~ msgstr "更改登陆设置"
+
+#~ msgid "Authentication is required to change the login configuration."
+#~ msgstr "更改登录设置之前需要身份验证"
 
 #~ msgid "Cannot match mode {0}x{1}"
 #~ msgstr "不能匹配分辨率{0}x{1}"
