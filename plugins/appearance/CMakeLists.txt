@@ -20,7 +20,8 @@ SET_COMMON_SHARED_LINKER_FLAGS()
 target_include_directories(${TARGET_NAME} PUBLIC 
     ${PROJECT_BINARY_DIR}/generated
     ${GTKMM3_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIRS})
+    ${JSONCPP_INCLUDE_DIRS}
+    ${CAIROMM_XLIB_INCLUDES_DIRS})
 
 target_compile_options(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS})
@@ -28,6 +29,7 @@ target_compile_options(${TARGET_NAME} PRIVATE
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GTKMM3_LIBRARIES}
     ${JSONCPP_LIBRARIES}
+    ${CAIROMM_XLIB_LIBRARIES}
     lib-base)
 
 install(TARGETS ${TARGET_NAME}

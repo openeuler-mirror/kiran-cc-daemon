@@ -3,46 +3,46 @@
     <schema id="com.kylinsec.kiran.touchpad" path="/com/kylinsec/kiran/touchpad/">
         <key name="left-handed" type="b">
             <default>false</default>
-            <summary>Swap left and right mouse buttons for left-handed mice.</summary>
+            <description>Swap left and right mouse buttons for left-handed mice.</description>
         </key>
 
         <key name="disable-while-typing" type="b">
             <default>true</default>
-            <summary>Indicates if diable while typing is enabled or disabled.</summary>
+            <description>Indicates if diable while typing is enabled or disabled.</description>
         </key>
 
         <key name="tap-to-click" type="b">
             <default>true</default>
-            <summary>Set this to TRUE to be able to send mouse clicks by tapping on the touchpad.</summary>
+            <description>Set this to TRUE to be able to send mouse clicks by tapping on the touchpad.</description>
         </key>
 
         <key name="click-method" type="i">
             <default>0</default>
             <range min="0" max="1" />
-            <summary>Enables a click method. Permitted methods are buttonareas and clickfinger, respectively conreesponding to 0 and 1.</summary>
+            <description>Enables a click method. Permitted methods are buttonareas and clickfinger, respectively conreesponding to 0 and 1.</description>
         </key>
 
         <key name="scroll-method" type="i">
             <default>0</default>
             <range min="0" max="2" />
-            <summary>Enables a scroll method. Permitted methods are twofinger, edge and button, respectively conrresponding to 0, 1 and 2.</summary>
+            <description>Enables a scroll method. Permitted methods are twofinger, edge and button, respectively conrresponding to 0, 1 and 2.</description>
         </key>
 
         <key name="natural-scroll" type="b">
             <default>false</default>
-            <summary>Enables or disables natural scroll. "Natural scrolling”is the terminology for moving the content in the direction of scrolling, 
-            i.e. moving the wheel or fingers down moves the page down.</summary>
+            <description>Enables or disables natural scroll. "Natural scrolling”is the terminology for moving the content in the direction of scrolling, 
+            i.e. moving the wheel or fingers down moves the page down.</description>
         </key>
 
         <key name="touchpad-enabled" type="b">
             <default>true</default>
-            <summary>Set this to TRUE to enable all touchpads.</summary>
+            <description>Set this to TRUE to enable all touchpads.</description>
         </key>
 
         <key name="motion-acceleration" type="d">
             <default>0</default>
             <range min="-1" max="1" />
-            <summary>Acceleration multiplier for mouse motion.</summary>
+            <description>Acceleration multiplier for mouse motion.</description>
         </key>
     </schema>
 </schemalist>

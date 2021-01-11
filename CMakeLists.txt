@@ -27,6 +27,7 @@ if(build-session-daemon)
     pkg_search_module(XERCES REQUIRED xerces-c)
     pkg_search_module(FONTCONFIG REQUIRED fontconfig)
     pkg_search_module(JSONCPP REQUIRED jsoncpp)
+    pkg_search_module(CAIROMM_XLIB REQUIRED cairomm-xlib-1.0)
 endif()
 
 find_program(GDBUS-CODEGEN-GLIBMM-FOUND gdbus-codegen-glibmm3 PATHS ${CMAKE_BINARY_DIR}/bin/)

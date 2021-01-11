@@ -1,11 +1,10 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-01 10:15:50
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-09 16:33:51
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/appearance-manager.cpp
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/appearance/appearance-manager.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #include "plugins/appearance/appearance-manager.h"
 
 #include <glib/gi18n.h>
@@ -13,9 +12,13 @@
 
 namespace Kiran
 {
+#define APPEARANCE_SCHAME_ID "com.kylinsec.kiran.appearance"
+#define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktop-background"
+
 AppearanceManager::AppearanceManager() : dbus_connect_id_(0),
                                          object_register_id_(0)
 {
+    this->appearance_settings_ = Gio::Settings::create(APPEARANCE_SCHAME_ID);
 }
 
 AppearanceManager::~AppearanceManager()
@@ -86,16 +89,74 @@ void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodIn
     invocation.ret();
 }
 
+void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation)
+{
+    SETTINGS_PROFILE("desktop background: %s", desktop_background.c_str());
+
+    if (desktop_background != this->desktop_background_ &&
+        !this->desktop_background_set(desktop_background))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Invalid Parameter"));
+    }
+    invocation.ret();
+}
+
+bool AppearanceManager::desktop_background_setHandler(const Glib::ustring& value)
+{
+    SETTINGS_PROFILE("value: %s.", value.c_str());
+
+    RETURN_VAL_IF_TRUE(value == this->desktop_background_, false);
+
+    if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG) != value)
+    {
+        this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, value);
+    }
+
+    this->desktop_background_ = value;
+    this->appearance_background_.set_background(this->desktop_background_);
+
+    return true;
+}
+
 void AppearanceManager::init()
 {
     this->appearance_theme_.init();
     this->appearance_font_.init();
+    this->appearance_background_.init();
+
+    this->load_from_settings();
+
+    this->appearance_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_settings_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  APPEARANCE_DBUS_NAME,
                                                  sigc::mem_fun(this, &AppearanceManager::on_bus_acquired),
                                                  sigc::mem_fun(this, &AppearanceManager::on_name_acquired),
                                                  sigc::mem_fun(this, &AppearanceManager::on_name_lost));
+}
+
+void AppearanceManager::load_from_settings()
+{
+    SETTINGS_PROFILE("");
+
+    for (const auto& key : this->appearance_settings_->list_keys())
+    {
+        this->on_settings_changed(key);
+    }
+}
+
+void AppearanceManager::on_settings_changed(const Glib::ustring& key)
+{
+    SETTINGS_PROFILE("key: %s", key.c_str());
+
+    switch (shash(key.c_str()))
+    {
+    case CONNECT(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, _hash):
+        this->desktop_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG));
+        break;
+    default:
+        break;
+    }
 }
 
 void AppearanceManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)

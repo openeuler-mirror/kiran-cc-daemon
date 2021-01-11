@@ -1,15 +1,15 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-01 10:15:37
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-09 17:01:15
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/appearance-manager.h
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/appearance/appearance-manager.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 #include <appearance_dbus_stub.h>
 
+#include "plugins/appearance/background/appearance-background.h"
 #include "plugins/appearance/font/appearance-font.h"
 #include "plugins/appearance/theme/appearance-theme.h"
 
@@ -37,19 +37,27 @@ protected:
     virtual void GetFont(gint32 type, MethodInvocation& invocation);
     // 设置类型为type的字体
     virtual void SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation);
+    // 设置桌面背景
+    virtual void SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation);
 
     virtual bool gtk_theme_setHandler(const Glib::ustring& value) { return true; };
     virtual bool metacity_theme_setHandler(const Glib::ustring& value) { return true; };
     virtual bool icon_theme_setHandler(const Glib::ustring& value) { return true; };
     virtual bool cursor_theme_setHandler(const Glib::ustring& value) { return true; };
+    virtual bool desktop_background_setHandler(const Glib::ustring& value);
 
     virtual Glib::ustring gtk_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK); };
     virtual Glib::ustring metacity_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY); };
     virtual Glib::ustring icon_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON); };
     virtual Glib::ustring cursor_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR); };
+    virtual Glib::ustring desktop_background_get() { return this->desktop_background_; }
 
 private:
     void init();
+
+    void load_from_settings();
+
+    void on_settings_changed(const Glib::ustring& key);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
@@ -60,6 +68,11 @@ private:
 
     AppearanceTheme appearance_theme_;
     AppearanceFont appearance_font_;
+    AppearanceBackground appearance_background_;
+
+    Glib::RefPtr<Gio::Settings> appearance_settings_;
+
+    Glib::ustring desktop_background_;
 
     // dbus
     uint32_t dbus_connect_id_;

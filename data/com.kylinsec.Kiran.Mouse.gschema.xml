@@ -3,24 +3,24 @@
     <schema id="com.kylinsec.kiran.mouse" path="/com/kylinsec/kiran/mouse/">
         <key name="left-handed" type="b">
             <default>false</default>
-            <summary>Swap left and right mouse buttons for left-handed mice.</summary>
+            <description>Swap left and right mouse buttons for left-handed mice.</description>
         </key>
 
         <key name="motion-acceleration" type="d">
             <default>0</default>
             <range min="-1" max="1" />
-            <summary>Acceleration multiplier for mouse motion.</summary>
+            <description>Acceleration multiplier for mouse motion.</description>
         </key>
 
         <key name="middle-emulation-enabled" type="b">
             <default>false</default>
-            <summary>Enables middle mouse button emulation through simultaneous left and right button click.</summary>
+            <description>Enables middle mouse button emulation through simultaneous left and right button click.</description>
         </key>
 
         <key name="natural-scroll" type="b">
             <default>false</default>
-            <summary>Enables or disables natural scroll. "Natural scrolling”is the terminology for moving the content in the direction of scrolling, 
-            i.e. moving the wheel or fingers down moves the page down.</summary>
+            <description>Enables or disables natural scroll. "Natural scrolling”is the terminology for moving the content in the direction of scrolling, 
+            i.e. moving the wheel or fingers down moves the page down.</description>
         </key>
     </schema>
 </schemalist>

@@ -11,7 +11,7 @@
 
         <key name="display-style" enum="com.kylinsec.kiran.display.display-style">
             <default>'auto'</default>
-            <summary>The dispaly style for these connected monitors.</summary>
+            <description>The dispaly style for these connected monitors.</description>
         </key>
 
     </schema>

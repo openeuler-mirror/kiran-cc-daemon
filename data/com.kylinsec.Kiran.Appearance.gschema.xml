@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist >
+    <schema id="com.kylinsec.kiran.appearance" path="/com/kylinsec/kiran/appearance/">
+        <key name="desktop-background" type="s">
+            <default>'/usr/share/backgrounds/kiran/default.jpg'</default>
+            <description>File to use for the desktop background image.</description>
+        </key>
+    </schema>
+
+</schemalist>

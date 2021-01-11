@@ -3,29 +3,29 @@
     <schema id="com.kylinsec.kiran.keyboard" path="/com/kylinsec/kiran/keyboard/">
         <key name="repeat-enabled" type="b">
             <default>true</default>
-            <summary>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</summary>
+            <description>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</description>
         </key>
 
         <key name="repeat-delay" type="i">
             <default>500</default>
             <range min="1" max="100000" />
-            <summary>The delay time in ms after the initial press of an auto-repeating key and the first generated repeat event.</summary>
+            <description>The delay time in ms after the initial press of an auto-repeating key and the first generated repeat event.</description>
         </key>
 
         <key name="repeat-interval" type="i">
             <default>30</default>
             <range min="1" max="100000" />
-            <summary>The delay time in ms between all subsequent generated repeat events.</summary>
+            <description>The delay time in ms between all subsequent generated repeat events.</description>
         </key>
 
         <key name="layouts" type="as">
             <default>['us']</default>
-            <summary>Keyboard layouts.</summary>
+            <description>Keyboard layouts.</description>
         </key>
 
         <key name="options" type="as">
             <default>[]</default>
-            <summary>Keyboard options.</summary>
+            <description>Keyboard options.</description>
         </key>
     </schema>
 </schemalist>
