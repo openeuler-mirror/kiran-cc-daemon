@@ -29,8 +29,12 @@ void AppearanceBackground::init()
     this->mate_background_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_mate_background_settings_changed));
 
     auto screen = Gdk::Screen::get_default();
+    /* FIXME：size-changed和monitors-changed两个信号不能同时监控，如果同时监控会导致第二次设置背景时调用XOpenDisplay函数连接阻塞，具体原因未知
+       触发BUG的时机是在刚进入会话时(可以通过killall lightdm复现)，进入会话后再执行插件不确定是否会触发BUG
+       mate是通过判断前后两次屏幕大小变化来决定是否重新绘制背景，没有说明这样做的原因，但这样做的话当显示器位置变化时显然不会对背景进行重绘，
+       这和只监控size-changed信号区别不大。*/
     screen->signal_size_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
-    screen->signal_monitors_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
+    // screen->signal_monitors_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
 }
 
 void AppearanceBackground::set_background(const std::string &path)
@@ -141,6 +145,10 @@ bool AppearanceBackground::can_draw_background()
 
 Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface(Glib::RefPtr<Gdk::Screen> screen)
 {
+    SETTINGS_PROFILE("");
+
+    RETURN_VAL_IF_FALSE(screen, Cairo::RefPtr<Cairo::XlibSurface>());
+
     auto window = screen->get_root_window();
     auto scale = window->get_scale_factor();
     auto xscreen = gdk_x11_screen_get_xscreen(screen->gobj());
@@ -162,6 +170,8 @@ Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface_by_size(G
                                                                                int32_t width,
                                                                                int32_t height)
 {
+    SETTINGS_PROFILE("width: %d, height: %d", width, height);
+
     /* 这里会通过display来创建pixmap对象，pixmap对象会存放到根窗口的"_XROOTPMAP_ID"和"ESETROOT_PMAP_ID"属性当中。
     其他应用程序也可能会设置根窗口的这个属性，在设置之前会通过XKillClient(display,source)函数释放调之前设置的
     pixmap资源，同时这个函数也会将pixmap资源对应的客户端与display断开连接， 因此我们没有使用默认的display，而是创
@@ -327,6 +337,7 @@ void AppearanceBackground::blend_pixbuf(Glib::RefPtr<Gdk::Pixbuf> src,
 bool AppearanceBackground::set_surface_as_root(Glib::RefPtr<Gdk::Screen> screen, Cairo::RefPtr<Cairo::XlibSurface> surface)
 {
     RETURN_VAL_IF_FALSE(screen, false);
+    RETURN_VAL_IF_FALSE(surface, false);
     RETURN_VAL_IF_FALSE(surface->get_type() == Cairo::SURFACE_TYPE_XLIB, false);
 
     auto display = screen->get_display();
@@ -465,7 +476,6 @@ void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustri
 void AppearanceBackground::on_screen_size_changed()
 {
     SETTINGS_PROFILE("");
-
     this->draw_background();
 }
 }  // namespace Kiran
