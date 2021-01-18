@@ -14,6 +14,8 @@
 
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"
+#include <pwd.h>
+#include <unistd.h>
 
 namespace Kiran
 {
@@ -46,7 +48,7 @@ namespace Kiran
 }
 
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetBackgroundFile, change_background_file_authorized_cb, AUTH_SET_LOGIN_OPTION, const Glib::ustring &)
-GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinUser, change_auto_login_user_authorized_cb, AUTH_SET_LOGIN_OPTION, const Glib::ustring &)
+GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinUser, change_auto_login_user_authorized_cb, AUTH_SET_LOGIN_OPTION, uint64_t)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinTimeout, change_auto_login_timeout_authorized_cb, AUTH_SET_LOGIN_OPTION, uint64_t)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetHideUserList, change_hide_user_list_authorized_cb, AUTH_SET_LOGIN_OPTION, bool)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAllowManualLogin, change_allow_manual_login_authorized_cb, AUTH_SET_LOGIN_OPTION, bool)
@@ -137,16 +139,18 @@ void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaem
     invocation.ret();
 }
 
-void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const Glib::ustring &autologin_user)
+void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const guint64 &autologin_user)
 {
-    SETTINGS_PROFILE("autologin_user: %s", autologin_user);
+    SETTINGS_PROFILE("autologin_user: %d", autologin_user);
+    Glib::ustring autologin_user_name = uid_to_name(autologin_user);
+    if(autologin_user_name.empty()) return;
 
-    if(autologinUser_get() != autologin_user)
+    if(autologinUser_get() != autologin_user_name)
     {
-        m_prefs->set_autologin_user(autologin_user);
+        m_prefs->set_autologin_user(autologin_user_name);
         m_prefs->save();
 
-        autologinUser_set(autologin_user);
+        autologinUser_set(autologin_user_name);
     }
 
     invocation.ret();
@@ -286,6 +290,17 @@ void GreeterSettingsDbus::on_scale_mode_changed()
     scaleMode_set(m_prefs->get_scale_mode());
 }
 
-}  // namespace Kiran
+Glib::ustring GreeterSettingsDbus::uid_to_name(uid_t uid)
+{
+    struct passwd *pw_ptr;
+    if((pw_ptr= getpwuid(uid))==NULL)
+    {
+        return Glib::ustring(pw_ptr->pw_name);
+    }
 
+    LOG_WARNING("failed to find user name by uid: %d", uid);
+    return Glib::ustring();
+}
+
+}  // namespace Kiran
 
