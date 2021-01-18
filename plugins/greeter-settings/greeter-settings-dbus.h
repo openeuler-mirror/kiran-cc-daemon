@@ -12,15 +12,7 @@
 namespace Kiran
 {
 
-enum class FileChangedType
-{
-    PASSWD_CHANGED,
-    SHADOW_CHANGED,
-    GROUP_CHANGED,
-    GDM_CHANGED,
-};
-
-class GreeterSettingsDbus : public SystemDaemon::GreeterSettingsStub, public std::enable_shared_from_this<GreeterSettingsDbus>
+class GreeterSettingsDbus : public SystemDaemon::GreeterSettingsStub
 {
 public:
     GreeterSettingsDbus();
@@ -114,7 +106,6 @@ protected:
     virtual bool hideUserList_setHandler(bool value);
     virtual bool scaleMode_setHandler(guint16 value);
     virtual bool scaleFactor_setHandler(guint16 value);
-    virtual guint64 uid_get() { return -1/*this->uid_*/; }
 
 private:
     void init();
@@ -132,7 +123,6 @@ private:
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    bool get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t &uid);
 
     /*监听配置文件变化的槽函数*/
     void on_autologin_delay_changed();

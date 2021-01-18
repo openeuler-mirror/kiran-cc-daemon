@@ -5,6 +5,7 @@
  * @copyright (c) 2020 KylinSec. All rights reserved.
 */
 #include "greeter-settings-dbus.h"
+#include "greeter-settings_i.h"
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
@@ -16,9 +17,6 @@
 
 namespace Kiran
 {
-#define GREETER_SETTINGS_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.GreeterSettings"
-#define GREETER_SETTINGS_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/GreeterSettings"
-#define AUTH_SET_LOGIN_OPTION     "com.kylinsec.kiran.system-daemon.greeter-settings.set-login-option"
 
 #define GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(fun, callback, auth, type1)                                          \
     void GreeterSettingsDbus::fun(type1 value,                                                                      \
@@ -200,7 +198,7 @@ void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterS
 {
     SETTINGS_PROFILE("mode: %d factor: %d", mode, factor);
     //*
-    m_prefs->set_scale_mode((GreeterScalingMode)mode);
+    m_prefs->set_scale_mode((GreeterSettingsScalingMode)mode);
     m_prefs->set_scale_factor(factor);
     m_prefs->save();
 
@@ -251,38 +249,6 @@ void GreeterSettingsDbus::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connect
 void GreeterSettingsDbus::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
     LOG_WARNING("failed to register dbus name: %s", name.c_str());
-}
-
-bool GreeterSettingsDbus::get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t &uid)
-{
-    auto dbus_proxy = Gio::DBus::Proxy::create_sync(invocation->get_connection(),
-                                                    "org.freedesktop.DBus",
-                                                    "/org/freedesktop/DBus",
-                                                    "org.freedesktop.DBus");
-
-    if (dbus_proxy)
-    {
-        try
-        {
-            auto result = dbus_proxy->call_sync("GetConnectionUnixUser",
-                                                Glib::VariantContainerBase(g_variant_new("(s)", invocation->get_sender().c_str())),
-                                                -1);
-
-            g_variant_get(result.gobj(), "(u)", &uid);
-        }
-        catch (const Glib::Error &e)
-        {
-            LOG_WARNING("failed to call GetConnectionUnixUser: %s", e.what().c_str());
-            return false;
-        }
-    }
-    else
-    {
-        LOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
-        return false;
-    }
-
-    return true;
 }
 
 void GreeterSettingsDbus::on_autologin_delay_changed()

@@ -31,8 +31,7 @@ target_compile_options(${TARGET_NAME} PRIVATE
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GDKMM3_LIBRARIES}
     ${FONTCONFIG_LIBRARIES}
-    lib-base
-    lib-display)
+    lib-base)
 
 
 install(TARGETS ${TARGET_NAME}

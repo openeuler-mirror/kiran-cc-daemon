@@ -8,18 +8,8 @@
 #ifndef GREETER_SETTINGS_DATA_H
 #define GREETER_SETTINGS_DATA_H
 
+#include "greeter-settings_i.h"
 #include <glibmm.h>
-
-/**
- * 登录界面缩放模式
- */
-typedef enum
-{
-    SCALING_AUTO = 0, /** 自动缩放, 根据屏幕分辨率自动调整缩放率 */
-    SCALING_MANUAL,   /** 手动设定缩放率 */
-    SCALING_DISABLE,  /** 禁用缩放 */
-    SCALING_LAST,
-} GreeterScalingMode;
 
 /**
  * @brief 登录界面配置项数据
@@ -30,7 +20,7 @@ public:
     GreeterSettingsData(GreeterSettingsData &data_);
 
 public:
-    GreeterScalingMode scale_mode;                  /**< 缩放模式 */
+    GreeterSettingsScalingMode scale_mode;                  /**< 缩放模式 */
     uint32_t autologin_delay;                       /**< 自动登录延时,单位为秒 */
 
     uint32_t scale_factor;                          /**< 界面缩放比例, 1表示100%, 2表示200% */

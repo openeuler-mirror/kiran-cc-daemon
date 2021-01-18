@@ -59,7 +59,7 @@ public:
      * @brief 获取当前配置的屏幕缩放模式
      * @return 当前配置的屏幕缩放模式 @see GreeterScalingMode 
      */
-    GreeterScalingMode get_scale_mode() const;
+    GreeterSettingsScalingMode get_scale_mode() const;
 
     /**
      * @brief 获取当前配置的登录界面背景图片路径
@@ -120,7 +120,7 @@ public:
      * @param[in] mode 界面缩放模式
      *                 @see GreeterScalingMode
      */
-    void set_scale_mode(GreeterScalingMode mode);
+    void set_scale_mode(GreeterSettingsScalingMode mode);
 
     /**
      * @brief 设置界面缩放率

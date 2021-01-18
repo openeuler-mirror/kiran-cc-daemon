@@ -68,7 +68,7 @@ uint32_t GreeterSettingsManager::get_scale_factor() const
     return priv->scale_factor;
 }
 
-GreeterScalingMode GreeterSettingsManager::get_scale_mode() const
+GreeterSettingsScalingMode GreeterSettingsManager::get_scale_mode() const
 {
     return priv->scale_mode;
 }
@@ -112,20 +112,20 @@ void GreeterSettingsManager::set_hide_user_list(bool hide_user_list)
     lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST, hide_user_list);
 }
 
-void GreeterSettingsManager::set_scale_mode(GreeterScalingMode mode)
+void GreeterSettingsManager::set_scale_mode(GreeterSettingsScalingMode mode)
 {
     Glib::ustring scale_mode;
 
     priv->scale_mode = mode;
     switch (mode)
     {
-    case SCALING_AUTO:
+    case GREETER_SETTINGS_SCALING_MODE_AUTO:
         scale_mode = "auto";
         break;
-    case SCALING_MANUAL:
+    case GREETER_SETTINGS_SCALING_MODE_MANUAL:
         scale_mode = "manual";
         break;
-    case SCALING_DISABLE:
+    case GREETER_SETTINGS_SCALING_MODE_DISABLE:
         scale_mode = "disable";
         break;
     default:
@@ -455,15 +455,15 @@ bool GreeterSettingsManager::load_greeter_settings(GreeterSettingsData *data, Gl
                                                                KEY_ENABLE_SCALING);
                 LOG_DEBUG("enable_scaling: %s", enable_scaling.c_str());
                 if (enable_scaling == "auto")
-                    data->scale_mode = SCALING_AUTO;
+                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_AUTO;
                 else if (enable_scaling == "manual")
-                    data->scale_mode = SCALING_MANUAL;
+                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_MANUAL;
                 else if (enable_scaling == "disable")
-                    data->scale_mode = SCALING_DISABLE;
+                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_DISABLE;
                 else
                 {
                     LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling, KEY_ENABLE_SCALING);
-                    data->scale_mode = SCALING_AUTO;
+                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_AUTO;
                 }
             }
 

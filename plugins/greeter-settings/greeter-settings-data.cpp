@@ -1,7 +1,7 @@
 #include "greeter-settings-data.h"
 
 GreeterSettingsData::GreeterSettingsData() :
-    scale_mode(SCALING_AUTO),
+    scale_mode(GREETER_SETTINGS_SCALING_MODE_AUTO),
     autologin_delay(0),
     scale_factor(1),
     enable_manual_login(true),
