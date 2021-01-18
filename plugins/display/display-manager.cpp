@@ -147,10 +147,16 @@ void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &inv
 {
     SETTINGS_PROFILE("name: %s.", name.c_str());
 
-    if (name.length() > 0 && !this->get_monitor_by_name(name))
+    if (name.length() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The primary monitor cannot be empty."));
+    }
+
+    if (!this->get_monitor_by_name(name))
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the primary monitor"));
     }
+
     this->primary_set(name);
     invocation.ret();
 }
@@ -508,16 +514,25 @@ bool DisplayManager::apply(std::string &err)
 
     // 应用xrandr
     std::string cmdline = XRANDR_CMD;
-    auto primary_monitor = this->get_monitor_by_name(this->primary_);
+    std::shared_ptr<DisplayMonitor> primary_monitor;
 
-    if (!primary_monitor)
+    // 这里会对主显示器的设置进行修正，因为必须要在已开启的显示器中设置一个主显示器，否则可能出现鼠标键盘操作卡顿情况
+    for (const auto &iter : this->monitors_)
     {
-        cmdline.append(" --noprimary");
+        if (!iter.second->enabled_get())
+        {
+            continue;
+        }
+
+        if (!primary_monitor || iter.second->name_get() == this->primary_)
+        {
+            primary_monitor = iter.second;
+        }
     }
 
-    for (const auto &monitor : this->monitors_)
+    for (const auto &iter : this->monitors_)
     {
-        auto tmp = monitor.second->generate_cmdline(this->primary_);
+        auto tmp = iter.second->generate_cmdline(primary_monitor == iter.second);
         cmdline.push_back(' ');
         cmdline.append(tmp);
     }

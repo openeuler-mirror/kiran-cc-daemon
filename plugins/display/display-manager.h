@@ -1,15 +1,13 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-09-07 09:52:51
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 15:09:43
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.h
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/display/display-manager.h
+ * @brief         管理整个显示设置
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 #include <display_dbus_stub.h>
-//
 
 #include "display_i.h"
 #include "plugins/display/display-monitor.h"

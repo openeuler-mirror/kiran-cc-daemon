@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-09-07 11:25:37
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-04 11:23:57
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.cpp
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/display/display-monitor.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "plugins/display/display-monitor.h"
@@ -20,8 +18,8 @@ namespace Kiran
 MonitorInfo::MonitorInfo() : id(0),
                              connected(false),
                              enabled(false),
-                             x(0),
-                             y(0),
+                             x(-1),
+                             y(-1),
                              rotation(DisplayRotationType::DISPLAY_ROTATION_0),
                              reflect(DisplayReflectType::DISPLAY_REFLECT_NORMAL),
                              mode(0),
@@ -88,7 +86,7 @@ std::shared_ptr<ModeInfo> DisplayMonitor::get_best_mode()
     return XrandrManager::get_instance()->get_mode(this->monitor_info_.modes[0]);
 }
 
-std::string DisplayMonitor::generate_cmdline(const std::string &priamry)
+std::string DisplayMonitor::generate_cmdline(bool priamry)
 {
     std::string result;
     std::string tmp;
@@ -99,25 +97,31 @@ std::string DisplayMonitor::generate_cmdline(const std::string &priamry)
         return result;
     }
 
-    auto mode = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
+    result = fmt::format("--output {0}", this->monitor_info_.name);
 
-    // 如果mode不存在,说明没有分配crtc,因此使用自动分配模式
+    // 如果mode不存在，则添加--auto选项，该选项会自动开启显示器并设置为最佳分辨率
+    auto mode = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
     if (!mode)
     {
-        result = fmt::format("--output {0} --auto", this->monitor_info_.name);
-        return result;
+        result += " --auto";
+    }
+    else
+    {
+        result += fmt::format(" --mode {0}x{1} --rate {2}",
+                              mode->width,
+                              mode->height,
+                              mode->refresh_rate);
     }
 
-    result = fmt::format("--output {0} --pos {1}x{2} --rotation {3} --reflect {4} --mode {5}x{6} --rate {7} {8}",
-                         this->monitor_info_.name,
-                         this->monitor_info_.x,
-                         this->monitor_info_.y,
-                         DisplayUtil::rotation_to_str(this->monitor_info_.rotation),
-                         DisplayUtil::reflect_to_str(this->monitor_info_.reflect),
-                         mode->width,
-                         mode->height,
-                         mode->refresh_rate,
-                         this->monitor_info_.name == priamry ? "--primary" : "");
+    if (this->monitor_info_.x >= 0 && this->monitor_info_.y >= 0)
+    {
+        result += fmt::format(" --pos {0}x{1}", this->monitor_info_.x, this->monitor_info_.y);
+    }
+
+    result += fmt::format(" --rotation {0} --reflect {1} {2}",
+                          DisplayUtil::rotation_to_str(this->monitor_info_.rotation),
+                          DisplayUtil::reflect_to_str(this->monitor_info_.reflect),
+                          priamry ? "--primary" : "");
 
     return result;
 }
@@ -191,6 +195,8 @@ std::vector<guint32> DisplayMonitor::modes_get()
 
 void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("enabled: %d.", enabled);
+
     // 当小于2个显示器开启时，不允许再关闭剩余的显示器
     if (!enabled && DisplayManager::get_instance()->get_enabled_monitors().size() <= 1)
     {
@@ -203,6 +209,8 @@ void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 
 void DisplayMonitor::ListModes(MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("");
+
     std::vector<std::tuple<guint32, guint32, guint32, double>> result;
     for (const auto &mode_id : this->monitor_info_.modes)
     {
@@ -221,6 +229,8 @@ void DisplayMonitor::ListModes(MethodInvocation &invocation)
 
 void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("");
+
     std::vector<std::tuple<guint32, guint32, guint32, double>> result;
     for (int i = 0; i < this->monitor_info_.npreferred && i < (int)this->monitor_info_.modes.size(); ++i)
     {
@@ -239,6 +249,8 @@ void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
 
 void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("");
+
     std::tuple<guint32, guint32, guint32, double> result;
     auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
     if (monitor)
@@ -299,6 +311,8 @@ void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocati
 
 void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocation)
 {
+    SETTINGS_PROFILE("x: %d, y: %d.", x, y);
+
     this->x_set(x);
     this->y_set(y);
     invocation.ret();
@@ -306,22 +320,38 @@ void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocatio
 
 void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 {
-    if (this->find_index_by_rotation(DisplayRotationType(rotation)) < 0)
+    SETTINGS_PROFILE("rotation: %d.", rotation);
+
+    switch (rotation)
     {
+    case DisplayRotationType::DISPLAY_ROTATION_0:
+    case DisplayRotationType::DISPLAY_ROTATION_90:
+    case DisplayRotationType::DISPLAY_ROTATION_180:
+    case DisplayRotationType::DISPLAY_ROTATION_270:
+        this->rotation_set(rotation);
+        invocation.ret();
+        break;
+    default:
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Unknown rotation type"));
     }
-    this->rotation_set(rotation);
-    invocation.ret();
 }
 
 void DisplayMonitor::SetReflect(guint16 reflect, MethodInvocation &invocation)
 {
-    if (this->find_index_by_reflect(DisplayReflectType(reflect)) < 0)
+    SETTINGS_PROFILE("reflect: %d.", reflect);
+
+    switch (reflect)
     {
+    case DisplayReflectType::DISPLAY_REFLECT_NORMAL:
+    case DisplayReflectType::DISPLAY_REFLECT_X:
+    case DisplayReflectType::DISPLAY_REFLECT_XY:
+    case DisplayReflectType::DISPLAY_REFLECT_Y:
+        this->reflect_set(reflect);
+        invocation.ret();
+        break;
+    default:
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Unknown reflect type"));
     }
-    this->reflect_set(reflect);
-    invocation.ret();
 }
 
 #define SET_SIMPLE_PROP2(prop, type1, type2)                                 \

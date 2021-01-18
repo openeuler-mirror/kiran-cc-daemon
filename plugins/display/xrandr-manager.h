@@ -1,3 +1,9 @@
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/display/xrandr-manager.h
+ * @brief         对XRR扩展的C++封装
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
+ */
 
 #pragma once
 

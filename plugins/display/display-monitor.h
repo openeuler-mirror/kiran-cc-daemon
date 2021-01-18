@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-09-07 11:25:31
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-04 11:19:47
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-monitor.h
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/display/display-monitor.h
+ * @brief         管理单个显示器的相关信息
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #pragma once
@@ -52,6 +50,7 @@ struct MonitorInfo
 class DisplayMonitor : public SessionDaemon::Display::MonitorStub
 {
 public:
+    DisplayMonitor() = delete;
     DisplayMonitor(const MonitorInfo &monitor_info);
     virtual ~DisplayMonitor();
 
@@ -68,7 +67,7 @@ public:
     std::shared_ptr<ModeInfo> get_best_mode();
 
     // 生成设置monitor生效的命令参数，参数传递给xrandr命令执行
-    std::string generate_cmdline(const std::string &primary);
+    std::string generate_cmdline(bool primary);
 
     // 通过大小获取可用的mode列表
     ModeInfoVec get_modes_by_size(uint32_t width, uint32_t height);

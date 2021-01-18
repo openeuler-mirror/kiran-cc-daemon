@@ -1,3 +1,9 @@
+/**
+ * @file          /kiran-cc-daemon/plugins/display/display-util.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
+ */
 
 #pragma once
 

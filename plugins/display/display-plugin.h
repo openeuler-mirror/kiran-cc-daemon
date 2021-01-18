@@ -1,11 +1,10 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-18 17:33:59
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-04 16:37:35
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-plugin.h
+/**
+ * @FilePath      /kiran-cc-daemon/plugins/display/display-plugin.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 #include "plugin_i.h"

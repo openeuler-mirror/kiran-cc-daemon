@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-30 20:48+0800\n"
+"POT-Creation-Date: 2021-01-18 11:30+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -85,15 +85,15 @@ msgid ""
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
 
-#: ../src/main.cpp:51
+#: ../src/main.cpp:60
 msgid "Output version infomation and exit"
 msgstr "输出版本信息并退出"
 
-#: ../src/main.cpp:57
+#: ../src/main.cpp:66
 msgid "Set log level to debug."
 msgstr "开启调试模式"
 
-#: ../src/main.cpp:63
+#: ../src/main.cpp:72
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
 
@@ -183,35 +183,35 @@ msgstr "无法更新下级gid文件"
 msgid "Unknown error"
 msgstr "未知错误"
 
-#: ../plugins/accounts/user.cpp:478
+#: ../plugins/accounts/user.cpp:485
 msgid "File {0} is not a regular file"
 msgstr "{0}不是普通文件"
 
-#: ../plugins/accounts/user.cpp:484
+#: ../plugins/accounts/user.cpp:491
 msgid "File {0} is too large to be used as an icon"
 msgstr "文件{0}太大，不能作为图标使用"
 
-#: ../plugins/accounts/user.cpp:491
+#: ../plugins/accounts/user.cpp:498
 msgid "Failed to copy file, could not determine caller UID"
 msgstr "复制文件失败，无法确定调用方UID"
 
-#: ../plugins/accounts/user.cpp:524
+#: ../plugins/accounts/user.cpp:531
 msgid "Failed to read file {0}"
 msgstr "读取文件{0}失败"
 
-#: ../plugins/accounts/user.cpp:540
+#: ../plugins/accounts/user.cpp:547
 msgid "Failed to Copye file {0} to {1}"
 msgstr "拷贝文件{0}到{1}失败"
 
-#: ../plugins/accounts/user.cpp:588
+#: ../plugins/accounts/user.cpp:595
 msgid "group {0} not found"
 msgstr "未发现组{0}"
 
-#: ../plugins/accounts/user.cpp:671
+#: ../plugins/accounts/user.cpp:678
 msgid "User is locked"
 msgstr "用户被锁定"
 
-#: ../plugins/accounts/user.cpp:686
+#: ../plugins/accounts/user.cpp:693
 msgid "Account expiration policy unknown to accounts service"
 msgstr "无法获取用户过期策略"
 
@@ -236,70 +236,74 @@ msgid "Apply failed: {0}"
 msgstr "应用失败：{0}"
 
 #: ../plugins/display/display-manager.cpp:152
+msgid "The primary monitor cannot be empty."
+msgstr "主显示器不能为空"
+
+#: ../plugins/display/display-manager.cpp:157
 msgid "Not found the primary monitor"
 msgstr "未找到主显示器"
 
-#: ../plugins/display/display-manager.cpp:177
-#: ../plugins/display/display-manager.cpp:505
+#: ../plugins/display/display-manager.cpp:183
+#: ../plugins/display/display-manager.cpp:511
 msgid "Failed to set the window scaling factor"
 msgstr "设置窗口缩放因子失败"
 
-#: ../plugins/display/display-manager.cpp:341
+#: ../plugins/display/display-manager.cpp:347
 msgid "The config is empty"
 msgstr "自定义配置为空"
 
-#: ../plugins/display/display-manager.cpp:366
+#: ../plugins/display/display-manager.cpp:372
 msgid "Not found match configuration"
 msgstr "不能找到匹配的配置"
 
-#: ../plugins/display/display-manager.cpp:580
+#: ../plugins/display/display-manager.cpp:586
 msgid "Cannot find common mode for all enabled monitors"
 msgstr "不能为已开启的显示器找到相同的模式"
 
-#: ../plugins/display/display-manager.cpp:682
+#: ../plugins/display/display-manager.cpp:688
 msgid "Auto mode is set failed"
 msgstr "自动模式设置失败"
 
-#: ../plugins/display/display-manager.cpp:751
+#: ../plugins/display/display-manager.cpp:757
 msgid "Failed to create directory {0}"
 msgstr "创建目录{0}失败"
 
-#: ../plugins/display/display-manager.cpp:765
+#: ../plugins/display/display-manager.cpp:771
 msgid "Write to file {0} failed"
 msgstr "写文件到{0}失败"
 
-#: ../plugins/display/display-monitor.cpp:197
+#: ../plugins/display/display-monitor.cpp:203
 msgid ""
 "Cannot disable the monitor, because the number of the enabled monitor is "
 "less than 1"
 msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个"
 
-#: ../plugins/display/display-monitor.cpp:216
+#: ../plugins/display/display-monitor.cpp:224
 msgid "Exist null mode in mode list"
 msgstr "存在空的模式"
 
-#: ../plugins/display/display-monitor.cpp:234
+#: ../plugins/display/display-monitor.cpp:244
 msgid "Exist null mode in preferred mode list"
 msgstr "在推荐模式中存在空模式"
 
-#: ../plugins/display/display-monitor.cpp:251
+#: ../plugins/display/display-monitor.cpp:263
 msgid "The current mode is not exist"
 msgstr "当前模式不存在"
 
-#: ../plugins/display/display-monitor.cpp:263
-#: ../plugins/display/display-monitor.cpp:296
+#: ../plugins/display/display-monitor.cpp:275
+#: ../plugins/display/display-monitor.cpp:308
 msgid "Not found match mode."
 msgstr "未发现匹配的模式"
 
-#: ../plugins/display/display-monitor.cpp:276
+#: ../plugins/display/display-monitor.cpp:288
 msgid "The mode id {0} is not exist in mode list"
 msgstr "在模式列表中未发现模式{0}"
 
-#: ../plugins/display/display-monitor.cpp:311
+#: ../plugins/display/display-monitor.cpp:335
 msgid "Unknown rotation type"
 msgstr "未知的旋转类型"
 
-#: ../plugins/display/display-monitor.cpp:321
+#: ../plugins/display/display-monitor.cpp:353
 msgid "Unknown reflect type"
 msgstr "未知的映射类型"
 
@@ -307,20 +311,20 @@ msgstr "未知的映射类型"
 msgid "Custom"
 msgstr "自定义"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:114
-#: ../plugins/xsettings/xsettings-manager.cpp:418
+#: ../plugins/xsettings/xsettings-manager.cpp:111
+#: ../plugins/xsettings/xsettings-manager.cpp:424
 msgid "Not found the property"
 msgstr "未找到改属性"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:118
+#: ../plugins/xsettings/xsettings-manager.cpp:115
 msgid "The type is mismatch"
 msgstr "类型不匹配"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:487
+#: ../plugins/xsettings/xsettings-manager.cpp:493
 msgid "Cannot modify the property manually"
 msgstr "不能手动修改此属性"
 
-#: ../plugins/xsettings/xsettings-manager.cpp:490
+#: ../plugins/xsettings/xsettings-manager.cpp:496
 msgid "Unknown property"
 msgstr "未知属性"
 
