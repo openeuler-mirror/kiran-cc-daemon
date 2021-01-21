@@ -1,5 +1,5 @@
 /**
- * @FilePath      /kiran-cc-daemon/plugins/display/display-monitor.cpp
+ * @FilePath      /kylin-license/home/tangjie02/git/kiran-cc-daemon/plugins/display/display-monitor.cpp
  * @brief         
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -195,9 +195,15 @@ std::vector<guint32> DisplayMonitor::modes_get()
 
 void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("enabled: %d.", enabled);
+    SETTINGS_PROFILE("name: %s, enabled: %d.", this->monitor_info_.name.c_str(), enabled);
 
-    // 当小于2个显示器开启时，不允许再关闭剩余的显示器
+    // 状态未变化直接返回
+    if (enabled == this->enabled_get())
+    {
+        invocation.ret();
+    }
+
+    // 如果状态发生了变化而且是关闭最后一个开启的显示器，则禁止该操作（至少保证有一个显示器时开启的）
     if (!enabled && DisplayManager::get_instance()->get_enabled_monitors().size() <= 1)
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Cannot disable the monitor, because the number of the enabled monitor is less than 1"));
@@ -209,7 +215,7 @@ void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 
 void DisplayMonitor::ListModes(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("name: %s.", this->monitor_info_.name.c_str());
 
     std::vector<std::tuple<guint32, guint32, guint32, double>> result;
     for (const auto &mode_id : this->monitor_info_.modes)
@@ -229,7 +235,7 @@ void DisplayMonitor::ListModes(MethodInvocation &invocation)
 
 void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("name: %s.", this->monitor_info_.name.c_str());
 
     std::vector<std::tuple<guint32, guint32, guint32, double>> result;
     for (int i = 0; i < this->monitor_info_.npreferred && i < (int)this->monitor_info_.modes.size(); ++i)
@@ -249,7 +255,7 @@ void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
 
 void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    SETTINGS_PROFILE("name: %s.", this->monitor_info_.name.c_str());
 
     std::tuple<guint32, guint32, guint32, double> result;
     auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
@@ -266,7 +272,11 @@ void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
 
 void DisplayMonitor::SetMode(guint32 width, guint32 height, double refresh_rate, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("width: %u, height: %u refresh rate: %f.", width, height, refresh_rate);
+    SETTINGS_PROFILE("name: %s, width: %u, height: %u refresh rate: %f.",
+                     this->monitor_info_.name.c_str(),
+                     width,
+                     height,
+                     refresh_rate);
 
     auto mode = this->match_best_mode(width, height, refresh_rate);
 
@@ -281,7 +291,7 @@ void DisplayMonitor::SetMode(guint32 width, guint32 height, double refresh_rate,
 
 void DisplayMonitor::SetModeById(guint32 id, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("mode id: %u.", id);
+    SETTINGS_PROFILE("name: %s, mode id: %u.", this->monitor_info_.name.c_str(), id);
 
     if (this->find_index_by_mode_id(id) < 0)
     {
@@ -294,7 +304,7 @@ void DisplayMonitor::SetModeById(guint32 id, MethodInvocation &invocation)
 
 void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("width: %u, height: %u.", width, height);
+    SETTINGS_PROFILE("name: %s, width: %u, height: %u.", this->monitor_info_.name.c_str(), width, height);
 
     auto modes = this->get_modes_by_size(width, height);
 
@@ -311,7 +321,7 @@ void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocati
 
 void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("x: %d, y: %d.", x, y);
+    SETTINGS_PROFILE("name: %s, x: %d, y: %d.", this->monitor_info_.name.c_str(), x, y);
 
     this->x_set(x);
     this->y_set(y);
@@ -320,7 +330,7 @@ void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocatio
 
 void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("rotation: %d.", rotation);
+    SETTINGS_PROFILE("name: %s, rotation: %d.", this->monitor_info_.name.c_str(), rotation);
 
     switch (rotation)
     {
@@ -338,7 +348,7 @@ void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 
 void DisplayMonitor::SetReflect(guint16 reflect, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("reflect: %d.", reflect);
+    SETTINGS_PROFILE("name: %s, reflect: %d.", this->monitor_info_.name.c_str(), reflect);
 
     switch (reflect)
     {
