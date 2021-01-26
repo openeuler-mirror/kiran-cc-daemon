@@ -111,12 +111,12 @@ private:
     void init();
 
     /*下面这些函数修改配置文件，并在修改完成后，调用修改属性变量函数*/
-    void change_background_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &file_path);
-    void change_auto_login_user_authorized_cb(MethodInvocation invocation, const guint64 &autologin_user);
-    void change_auto_login_timeout_authorized_cb(MethodInvocation invocation, const guint64 &seconds);
-    void change_hide_user_list_authorized_cb(MethodInvocation invocation, const bool &hide);
-    void change_allow_manual_login_authorized_cb(MethodInvocation invocation, const bool &allow);
-    void change_scale_mode_authorized_cb(MethodInvocation invocation, const guint16 &mode, const guint16 &factor);
+    void change_background_file_authorized_cb(MethodInvocation invocation, Glib::ustring file_path);
+    void change_auto_login_user_authorized_cb(MethodInvocation invocation, guint64 autologin_user);
+    void change_auto_login_timeout_authorized_cb(MethodInvocation invocation, guint64 seconds);
+    void change_hide_user_list_authorized_cb(MethodInvocation invocation, bool hide);
+    void change_allow_manual_login_authorized_cb(MethodInvocation invocation, bool allow);
+    void change_scale_mode_authorized_cb(MethodInvocation invocation, guint16 mode, guint16 factor);
 
     bool reload_greeter_settings();
 

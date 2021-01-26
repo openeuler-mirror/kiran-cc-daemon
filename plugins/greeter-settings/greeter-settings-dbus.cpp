@@ -125,7 +125,7 @@ void GreeterSettingsDbus::init()
     reload_greeter_settings();
 }
 
-void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const Glib::ustring &file_path)
+void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, Glib::ustring file_path)
 {
     SETTINGS_PROFILE("file_path: %s", file_path.c_str());
     
@@ -139,7 +139,7 @@ void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaem
     invocation.ret();
 }
 
-void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const guint64 &autologin_user)
+void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, guint64 autologin_user)
 {
     SETTINGS_PROFILE("autologin_user: %d", autologin_user);
     Glib::ustring autologin_user_name = uid_to_name(autologin_user);
@@ -159,7 +159,7 @@ void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::Gre
     invocation.ret();
 }
 
-void GreeterSettingsDbus::change_auto_login_timeout_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const guint64 &seconds)
+void GreeterSettingsDbus::change_auto_login_timeout_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, guint64 seconds)
 {
     SETTINGS_PROFILE("seconds: %d", seconds);
     if (autologinTimeout_get() != seconds)
@@ -173,7 +173,7 @@ void GreeterSettingsDbus::change_auto_login_timeout_authorized_cb(SystemDaemon::
     invocation.ret();
 }
 
-void GreeterSettingsDbus::change_hide_user_list_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const bool &hide)
+void GreeterSettingsDbus::change_hide_user_list_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, bool hide)
 {
     SETTINGS_PROFILE("hide: %d", hide);
     if (hideUserList_get() != hide)
@@ -187,7 +187,7 @@ void GreeterSettingsDbus::change_hide_user_list_authorized_cb(SystemDaemon::Gree
     invocation.ret();
 }
 
-void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const bool &allow)
+void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, bool allow)
 {
     SETTINGS_PROFILE("allow: %d", allow);
     if (allowManualLogin_get() != allow)
@@ -201,7 +201,7 @@ void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::
     invocation.ret();
 }
 
-void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const guint16 &mode, const guint16 &factor)
+void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, guint16 mode, guint16 factor)
 {
     SETTINGS_PROFILE("mode: %d factor: %d", mode, factor);
 
