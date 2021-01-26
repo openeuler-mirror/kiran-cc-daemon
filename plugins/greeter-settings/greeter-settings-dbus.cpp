@@ -143,7 +143,10 @@ void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::Gre
 {
     SETTINGS_PROFILE("autologin_user: %d", autologin_user);
     Glib::ustring autologin_user_name = uid_to_name(autologin_user);
-    if(autologin_user_name.empty()) return;
+    if(autologin_user_name.empty())
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to find user name by uid"));
+    }
 
     if(autologinUser_get() != autologin_user_name)
     {
@@ -298,13 +301,13 @@ void GreeterSettingsDbus::on_scale_mode_changed()
 Glib::ustring GreeterSettingsDbus::uid_to_name(uid_t uid)
 {
     struct passwd *pw_ptr;
-    if((pw_ptr= getpwuid(uid))==NULL)
+    if((pw_ptr = getpwuid(uid)) == NULL)
     {
-        return Glib::ustring(pw_ptr->pw_name);
+        LOG_WARNING("failed to find user name by uid: %d", uid);
+        return Glib::ustring();
     }
 
-    LOG_WARNING("failed to find user name by uid: %d", uid);
-    return Glib::ustring();
+    return Glib::ustring(pw_ptr->pw_name);
 }
 
 }  // namespace Kiran
