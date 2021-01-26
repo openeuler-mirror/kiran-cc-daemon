@@ -201,13 +201,10 @@ void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::
 void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, const guint16 &mode, const guint16 &factor)
 {
     SETTINGS_PROFILE("mode: %d factor: %d", mode, factor);
-    if(mode != 0 && mode != 1 && mode != 2)
+
+    if(mode < GREETER_SETTINGS_SCALING_MODE_AUTO || mode > GREETER_SETTINGS_SCALING_MODE_LAST)
     {
         DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Illegal mode parameter"));
-    }
-    if(factor != 1 && factor != 2)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Illegal factor parameter"));
     }
     //*
     m_prefs->set_scale_mode((GreeterSettingsScalingMode)mode);

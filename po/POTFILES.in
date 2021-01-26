@@ -12,3 +12,4 @@ plugins/display/display-manager.cpp
 plugins/display/display-monitor.cpp
 plugins/keybinding/custom-shortcut.h
 plugins/xsettings/xsettings-manager.cpp
+plugins/greeter-settings/greeter-settings-dbus.cpp
