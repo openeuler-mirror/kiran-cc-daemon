@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-05-29 15:38:08
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-14 16:37:52
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/src/main.cpp
+/**
+ * @file          /kiran-cc-daemon/src/main.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #ifdef KCC_SESSION_TYPE
@@ -18,6 +16,7 @@
 
 #include <glib-unix.h>
 #include <glib/gi18n.h>
+#include <zlog_ex.h>
 
 #include "lib/base/base.h"
 #include "lib/dbus/auth-manager.h"
@@ -29,7 +28,7 @@ class ScreenLogger : public Kiran::ILogger
 public:
     void write_log(const char* buff, uint32_t len)
     {
-        g_print("%s", buff);
+        g_print("%s\n", buff);
     }
 };
 
@@ -42,6 +41,11 @@ static void on_session_end()
 
 int main(int argc, char* argv[])
 {
+#if defined KCC_SESSION_TYPE
+    dzlog_init_ex(NULL, "kylinsec-session", "kiran-cc-daemon", "kiran-session-daemon");
+#elif defined KCC_SYSTEM_TYPE
+    dzlog_init_ex(NULL, "kylinsec-system", "kiran-cc-daemon", "kiran-system-daemon");
+#endif
     Gio::init();
     Kiran::Log::global_init();
 

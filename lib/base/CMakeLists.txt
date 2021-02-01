@@ -14,7 +14,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}
-    ${GIOMM_INCLUDE_DIRS} 
+    ${GIOMM_INCLUDE_DIRS}
+    ${ZLOG_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0/include)
 
 
@@ -26,5 +27,6 @@ target_compile_options(${TARGET_NAME} PUBLIC
 
 target_link_libraries(${TARGET_NAME} PUBLIC
     ${GIOMM_LIBRARIES}
+    ${ZLOG_LIBRARIES}
     fmt)
 

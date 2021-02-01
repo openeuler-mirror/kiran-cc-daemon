@@ -1,15 +1,13 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-05-29 16:03:53
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:48:30
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/base/log.cpp
+/**
+ * @file          /kiran-cc-daemon/lib/base/log.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "lib/base/log.h"
 
-#include <syslog.h>
+#include <zlog_ex.h>
 
 #include <sstream>
 
@@ -34,7 +32,11 @@ void Log::global_deinit()
     instance_ = nullptr;
 }
 
-void Log::try_append(GLogLevelFlags log_level, const char *format, ...)
+void Log::try_append(GLogLevelFlags log_level,
+                     const std::string &file_name,
+                     const std::string &function_name,
+                     int32_t line_number,
+                     const char *format, ...)
 {
     if (log_level > this->log_level_)
     {
@@ -47,35 +49,35 @@ void Log::try_append(GLogLevelFlags log_level, const char *format, ...)
     switch (log_level & G_LOG_LEVEL_MASK)
     {
     case G_LOG_FLAG_FATAL:
-        priority = LOG_EMERG;
+        priority = ZLOG_LEVEL_FATAL;
         oss << "[FATAL]";
         break;
     case G_LOG_LEVEL_ERROR:
-        priority = LOG_ERR;
+        priority = ZLOG_LEVEL_ERROR;
         oss << "[ERROR]";
         break;
     case G_LOG_LEVEL_CRITICAL:
-        priority = LOG_CRIT;
-        oss << "[CRITICAL]";
+        priority = ZLOG_LEVEL_ERROR;
+        oss << "[ERROR]";
         break;
     case G_LOG_LEVEL_WARNING:
-        priority = LOG_WARNING;
+        priority = ZLOG_LEVEL_WARN;
         oss << "[WARNING]";
         break;
     case G_LOG_LEVEL_MESSAGE:
-        priority = LOG_NOTICE;
-        oss << "[MESSAGE]";
+        priority = ZLOG_LEVEL_NOTICE;
+        oss << "[NOTICE]";
         break;
     case G_LOG_LEVEL_INFO:
-        priority = LOG_INFO;
+        priority = ZLOG_LEVEL_INFO;
         oss << "[INFO]";
         break;
     case G_LOG_LEVEL_DEBUG:
-        priority = LOG_DEBUG;
+        priority = ZLOG_LEVEL_DEBUG;
         oss << "[DEBUG]";
         break;
     default:
-        priority = LOG_DEBUG;
+        priority = ZLOG_LEVEL_DEBUG;
         oss << "[UNKNOWN]";
         break;
     }
@@ -85,48 +87,25 @@ void Log::try_append(GLogLevelFlags log_level, const char *format, ...)
     vsnprintf(this->message_, Log::kMessageSize, format, arg_ptr);
     va_end(arg_ptr);
 
-    oss << ": " << this->message_ << "\n";
+    dzlog(file_name.c_str(),
+          file_name.length(),
+          function_name.c_str(),
+          function_name.length(),
+          line_number,
+          priority,
+          "%s",
+          this->message_);
 
-    auto log_content = oss.str();
-    syslog(priority, "%s", log_content.c_str());
     if (this->logger_)
     {
+        oss << " [" << file_name << ":" << line_number << "-" << function_name << "()] " << this->message_;
+        auto log_content = oss.str();
         this->logger_->write_log(log_content.c_str(), log_content.length());
     }
 }
 
 void Log::init()
 {
-    /*auto settings = Gio::Settings::create(CC_DAEMON_SCHEMA);
-    auto log_level = settings->get_string(SCHEMA_LOG_LEVEL);
-
-    switch (shash(log_level.c_str()))
-    {
-    case "fatal"_hash:
-        this->log_level_ = G_LOG_FLAG_FATAL;
-        break;
-    case "error"_hash:
-        this->log_level_ = G_LOG_LEVEL_ERROR;
-        break;
-    case "critical"_hash:
-        this->log_level_ = G_LOG_LEVEL_CRITICAL;
-        break;
-    case "warning"_hash:
-        this->log_level_ = G_LOG_LEVEL_WARNING;
-        break;
-    case "message"_hash:
-        this->log_level_ = G_LOG_LEVEL_MESSAGE;
-        break;
-    case "info"_hash:
-        this->log_level_ = G_LOG_LEVEL_INFO;
-        break;
-    case "debug"_hash:
-        this->log_level_ = G_LOG_LEVEL_DEBUG;
-        break;
-    default:
-        this->log_level_ = G_LOG_LEVEL_WARNING;
-    }*/
-
     g_log_set_default_handler(log_handler, this);
 }
 
@@ -138,7 +117,7 @@ void Log::log_handler(const gchar *log_domain, GLogLevelFlags log_level, const g
         return;
     }
 
-    log->try_append(log_level, message);
+    log->try_append(log_level, "gtk-file", "gtk-function", 0, message);
 }
 
 }  // namespace Kiran

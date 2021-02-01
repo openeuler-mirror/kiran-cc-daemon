@@ -19,6 +19,7 @@ pkg_search_module(GTHREAD REQUIRED gthread-2.0)
 pkg_search_module(GMODULE REQUIRED gmodule-2.0)
 pkg_search_module(GIOUNIX REQUIRED gio-unix-2.0)
 pkg_search_module(LIBXML2 REQUIRED libxml++-2.6)
+pkg_search_module(ZLOG REQUIRED zlog)
 
 if(build-session-daemon)
     pkg_search_module(GDKMM3 REQUIRED gdkmm-3.0)

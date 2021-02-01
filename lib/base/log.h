@@ -41,7 +41,11 @@ public:
 
     void set_logger(ILogger *logger) { logger_ = logger; }
 
-    void try_append(GLogLevelFlags log_level, const char *format, ...);
+    void try_append(GLogLevelFlags log_level,
+                    const std::string &file_name,
+                    const std::string &function_name,
+                    int32_t line_number,
+                    const char *format, ...);
 
 private:
     void init();
@@ -59,73 +63,95 @@ private:
     char message_[kMessageSize];
 };
 
-#define LOG_FATAL(fmt, ...)                                                                          \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_FLAG_FATAL, "%s:%d-%s() " fmt,                  \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define LOG_FATAL(format, ...)                                   \
+    do                                                           \
+    {                                                            \
+        Kiran::Log::get_instance()->try_append(G_LOG_FLAG_FATAL, \
+                                               __FILENAME__,     \
+                                               __FUNCTION__,     \
+                                               __LINE__,         \
+                                               format,           \
+                                               ##__VA_ARGS__);   \
     } while (0)
 
-#define LOG_ERROR(fmt, ...)                                                                          \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_ERROR, "%s:%d-%s() " fmt,                 \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define LOG_ERROR(format, ...)                                    \
+    do                                                            \
+    {                                                             \
+        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_ERROR, \
+                                               __FILENAME__,      \
+                                               __FUNCTION__,      \
+                                               __LINE__,          \
+                                               format,            \
+                                               ##__VA_ARGS__);    \
     } while (0)
 
-#define LOG_CRITICAL(fmt, ...)                                                                       \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_CRITICAL, "%s:%d-%s() " fmt,              \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define LOG_WARNING(format, ...)                                    \
+    do                                                              \
+    {                                                               \
+        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_WARNING, \
+                                               __FILENAME__,        \
+                                               __FUNCTION__,        \
+                                               __LINE__,            \
+                                               format,              \
+                                               ##__VA_ARGS__);      \
     } while (0)
 
-#define LOG_WARNING(fmt, ...)                                                                        \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_WARNING, "%s:%d-%s() " fmt,               \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define LOG_INFO(format, ...)                                    \
+    do                                                           \
+    {                                                            \
+        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_INFO, \
+                                               __FILENAME__,     \
+                                               __FUNCTION__,     \
+                                               __LINE__,         \
+                                               format,           \
+                                               ##__VA_ARGS__);   \
     } while (0)
 
-#define LOG_MESSAGE(fmt, ...)                                                                        \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_MESSAGE, "%s:%d-%s() " fmt,               \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define LOG_DEBUG(format, ...)                                    \
+    do                                                            \
+    {                                                             \
+        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, \
+                                               __FILENAME__,      \
+                                               __FUNCTION__,      \
+                                               __LINE__,          \
+                                               format,            \
+                                               ##__VA_ARGS__);    \
     } while (0)
 
-#define LOG_INFO(fmt, ...)                                                                           \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_INFO, "%s:%d-%s() " fmt,                  \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define SETTINGS_PROFILE_START(format, ...)                       \
+    do                                                            \
+    {                                                             \
+        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, \
+                                               __FILENAME__,      \
+                                               __FUNCTION__,      \
+                                               __LINE__,          \
+                                               "START " format,   \
+                                               ##__VA_ARGS__);    \
     } while (0)
 
-#define LOG_DEBUG(fmt, ...)                                                                          \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() " fmt,                 \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+#define SETTINGS_PROFILE_END(format, ...)                         \
+    do                                                            \
+    {                                                             \
+        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, \
+                                               __FILENAME__,      \
+                                               __FUNCTION__,      \
+                                               __LINE__,          \
+                                               "END " format,     \
+                                               ##__VA_ARGS__);    \
     } while (0)
 
-#define SETTINGS_PROFILE_START(fmt, ...)                                                             \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() START " fmt,           \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-    } while (0)
-
-#define SETTINGS_PROFILE_END(fmt, ...)                                                               \
-    do                                                                                               \
-    {                                                                                                \
-        Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() END " fmt,             \
-                                               __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-    } while (0)
-
-#define SETTINGS_PROFILE(fmt, ...)                                                                  \
-    Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() START " fmt,              \
-                                           __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__);    \
-    SCOPE_EXIT({ Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, "%s:%d-%s() END   " fmt, \
-                                                        __FILENAME__, __LINE__, _arg_function.c_str(), ##__VA_ARGS__); });
+#define SETTINGS_PROFILE(format, ...)                                      \
+    Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG,              \
+                                           __FILENAME__,                   \
+                                           __FUNCTION__,                   \
+                                           __LINE__,                       \
+                                           "START " format,                \
+                                           ##__VA_ARGS__);                 \
+    SCOPE_EXIT({ Kiran::Log::get_instance()->try_append(G_LOG_LEVEL_DEBUG, \
+                                                        __FILENAME__,      \
+                                                        _arg_function,     \
+                                                        __LINE__,          \
+                                                        "END " format,     \
+                                                        ##__VA_ARGS__); });
 
 }  // namespace Kiran
