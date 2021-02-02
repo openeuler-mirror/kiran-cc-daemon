@@ -1,0 +1,5 @@
+
+#pragma once
+
+#define KCC_LOCALEDIR "@CMAKE_INSTALL_PREFIX@/share/locale"
+#define KCC_INSTALL_BINDIR "@KCC_INSTALL_BINDIR@"

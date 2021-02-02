@@ -1,12 +1,15 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-09-29 09:42:50
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-26 14:32:18
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/base/file-utils.cpp
+/**
+ * @file          /kiran-cc-daemon/lib/base/file-utils.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #include "lib/base/file-utils.h"
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace Kiran
 {
@@ -65,5 +68,35 @@ Glib::RefPtr<Gio::FileMonitor> FileUtils::make_monitor_directory(const std::stri
     }
 
     return Glib::RefPtr<Gio::FileMonitor>();
+}
+
+bool FileUtils::write_contents(const std::string &path, const std::string &contents)
+{
+    SETTINGS_PROFILE("path: %s", path.c_str());
+
+    int fp = -1;
+
+    SCOPE_EXIT({
+        if (fp > 0)
+        {
+            close(fp);
+        }
+    });
+
+    fp = open(path.c_str(), O_WRONLY);
+
+    if (fp < 0)
+    {
+        LOG_WARNING("Failed to open file %s: %s.", path.c_str(), strerror(errno));
+        return false;
+    }
+
+    if (write(fp, contents.c_str(), contents.length()) < 0)
+    {
+        LOG_WARNING("Failed to write file %s: %s.", path.c_str(), strerror(errno));
+        return false;
+    }
+
+    return true;
 }
 }  // namespace Kiran

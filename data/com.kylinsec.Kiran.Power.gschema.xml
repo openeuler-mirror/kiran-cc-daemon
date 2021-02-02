@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist >
+    <enum id="com.kylinsec.kiran.power.event-action">
+        <value nick="blank" value="3"/>
+        <value nick="suspend" value="4"/>
+        <value nick="shutdown" value="5"/>
+        <value nick="hibernate" value="6"/>
+    </enum>
+
+    <enum id="com.kylinsec.kiran.power.monitor-action">
+        <value nick="standby" value="1"/>
+        <value nick="suspend" value="2"/>
+        <value nick="off" value="3"/>
+    </enum>
+
+    <enum id="com.kylinsec.kiran.power.computer-action">
+        <value nick="suspend" value="4"/>
+        <value nick="shutdown" value="5"/>
+        <value nick="hibernate" value="6"/>
+    </enum>
+
+    <schema id="com.kylinsec.kiran.power" path="/com/kylinsec/kiran/power/">
+
+        <key name="computer-battery-idle-time" type="i">
+            <default>0</default>
+            <description>The idle timeout when uses battery to supply for computer.</description>
+        </key>
+
+        <key name="computer-battery-idle-action" enum="com.kylinsec.kiran.power.computer-action">
+            <default>'hibernate'</default>
+            <description>The triggered action when uses battery to supply for computer.</description>
+        </key>
+
+        <key name="computer-ac-idle-time" type="i">
+            <default>0</default>
+            <description>The idle timeout when uses ac to supply for computer.</description>
+        </key>
+
+        <key name="computer-ac-idle-action" enum="com.kylinsec.kiran.power.computer-action">
+            <default>'suspend'</default>
+            <description>The triggered action when uses ac to supply for computer..</description>
+        </key>
+
+        <key name="backlight-battery-idle-time" type="i">
+            <default>600</default>
+            <description>The idle timeout when uses battery to supply for backlight device.</description>
+        </key>
+
+        <key name="backlight-battery-idle-action" enum="com.kylinsec.kiran.power.monitor-action">
+            <default>'off'</default>
+            <description>The triggered action when uses battery to supply for backlight device.</description>
+        </key>
+
+        <key name="backlight-ac-idle-time" type="i">
+            <default>1800</default>
+            <description>The idle timeout when uses ac to supply for backlight device.</description>
+        </key>
+
+        <key name="backlight-ac-idle-action" enum="com.kylinsec.kiran.power.monitor-action">
+            <default>'off'</default>
+            <description>The triggered action when uses ac to supply for backlight device.</description>
+        </key>
+
+        <key name="display-idle-dim-scale" type="i">
+            <default>50</default>
+            <range min="0" max="100"/>
+            <description>The scale of the brightness reduction when the display changes dim. Do nothing when the value is 0.</description>
+        </key>
+
+        <key name="button-suspend-action" enum="com.kylinsec.kiran.power.event-action">
+            <default>'suspend'</default>
+            <description>The action to take when the system suspend button is pressed.</description>
+        </key>
+
+        <key name="button-hibernate-action" enum="com.kylinsec.kiran.power.event-action">
+            <default>'hibernate'</default>
+            <description>The action to take when the system hibernate button is pressed.</description>
+        </key>
+
+        <key name="button-power-action" enum="com.kylinsec.kiran.power.event-action">
+            <default>'shutdown'</default>
+            <description>The action to take when the system power button is pressed.</description>
+        </key>
+
+        <key name="lid-closed-action" enum="com.kylinsec.kiran.power.event-action">
+            <default>'suspend'</default>
+            <description>The action to take when the laptop lid is closed.</description>
+        </key>
+
+        <key name="ups-critical-action" enum="com.kylinsec.kiran.power.event-action">
+            <default>'shutdown'</default>
+            <description>The action to take when the UPS is critically low.</description>
+        </key>
+
+        <key name="battery-critical-action" enum="com.kylinsec.kiran.power.event-action">
+            <default>'hibernate'</default>
+            <description>The action to take when the battery is critically low.</description>
+        </key>
+
+        <key name="show-tray-icon" type="b">
+            <default>true</default>
+            <description>Show the tray icon in notification area.</description>
+        </key>
+    </schema>
+</schemalist>
