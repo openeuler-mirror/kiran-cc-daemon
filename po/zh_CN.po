@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 11:30+0800\n"
+"POT-Creation-Date: 2021-02-03 17:52+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -85,15 +85,23 @@ msgid ""
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
 
-#: ../src/main.cpp:60
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "设置主机名"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr "设置主机名之前需要身份验证"
+
+#: ../src/main.cpp:64
 msgid "Output version infomation and exit"
 msgstr "输出版本信息并退出"
 
-#: ../src/main.cpp:66
+#: ../src/main.cpp:70
 msgid "Set log level to debug."
 msgstr "开启调试模式"
 
-#: ../src/main.cpp:72
+#: ../src/main.cpp:76
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
 
@@ -256,60 +264,72 @@ msgstr "自定义配置为空"
 msgid "Not found match configuration"
 msgstr "不能找到匹配的配置"
 
-#: ../plugins/display/display-manager.cpp:586
+#: ../plugins/display/display-manager.cpp:595
 msgid "Cannot find common mode for all enabled monitors"
 msgstr "不能为已开启的显示器找到相同的模式"
 
-#: ../plugins/display/display-manager.cpp:688
+#: ../plugins/display/display-manager.cpp:697
 msgid "Auto mode is set failed"
 msgstr "自动模式设置失败"
 
-#: ../plugins/display/display-manager.cpp:757
+#: ../plugins/display/display-manager.cpp:766
 msgid "Failed to create directory {0}"
 msgstr "创建目录{0}失败"
 
-#: ../plugins/display/display-manager.cpp:771
+#: ../plugins/display/display-manager.cpp:780
 msgid "Write to file {0} failed"
 msgstr "写文件到{0}失败"
 
-#: ../plugins/display/display-monitor.cpp:203
+#: ../plugins/display/display-monitor.cpp:209
 msgid ""
 "Cannot disable the monitor, because the number of the enabled monitor is "
 "less than 1"
 msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个"
 
-#: ../plugins/display/display-monitor.cpp:224
+#: ../plugins/display/display-monitor.cpp:230
 msgid "Exist null mode in mode list"
 msgstr "存在空的模式"
 
-#: ../plugins/display/display-monitor.cpp:244
+#: ../plugins/display/display-monitor.cpp:250
 msgid "Exist null mode in preferred mode list"
 msgstr "在推荐模式中存在空模式"
 
-#: ../plugins/display/display-monitor.cpp:263
+#: ../plugins/display/display-monitor.cpp:269
 msgid "The current mode is not exist"
 msgstr "当前模式不存在"
 
-#: ../plugins/display/display-monitor.cpp:275
-#: ../plugins/display/display-monitor.cpp:308
+#: ../plugins/display/display-monitor.cpp:285
+#: ../plugins/display/display-monitor.cpp:318
 msgid "Not found match mode."
 msgstr "未发现匹配的模式"
 
-#: ../plugins/display/display-monitor.cpp:288
+#: ../plugins/display/display-monitor.cpp:298
 msgid "The mode id {0} is not exist in mode list"
 msgstr "在模式列表中未发现模式{0}"
 
-#: ../plugins/display/display-monitor.cpp:335
+#: ../plugins/display/display-monitor.cpp:345
 msgid "Unknown rotation type"
 msgstr "未知的旋转类型"
 
-#: ../plugins/display/display-monitor.cpp:353
+#: ../plugins/display/display-monitor.cpp:363
 msgid "Unknown reflect type"
 msgstr "未知的映射类型"
 
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"
 msgstr "自定义"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:94
+msgid "Invalid type"
+msgstr "不合法的类型"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:100
+msgid "Assign to Json::Value failed"
+msgstr "Json::Value赋值失败"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:111
+msgid "Failed to set host name"
+msgstr "设置主机名失败"
 
 #: ../plugins/xsettings/xsettings-manager.cpp:111
 #: ../plugins/xsettings/xsettings-manager.cpp:424
