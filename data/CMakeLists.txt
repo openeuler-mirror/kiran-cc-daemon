@@ -91,6 +91,7 @@ endif()
 
 # include files
 install(FILES ${PROJECT_SOURCE_DIR}/include/accounts_i.h
+              ${PROJECT_SOURCE_DIR}/include/systeminfo_i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
 
 install(FILES ${PROJECT_SOURCE_DIR}/include/appearance_i.h
