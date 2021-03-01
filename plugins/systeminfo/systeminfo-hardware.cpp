@@ -7,8 +7,6 @@
 
 #include "plugins/systeminfo/systeminfo-hardware.h"
 
-#include <json/json.h>
-
 #include <fstream>
 
 namespace Kiran
@@ -25,8 +23,7 @@ namespace Kiran
 
 #define DISKINFO_CMD "/usr/bin/lsblk"
 
-#define PCIINFO_CMD "/usr/sbin/lspci"
-#define PCIINFO_KEY_DELIMITER ':'
+#define HWINFO_CMD "/usr/sbin/lshw"
 
 SystemInfoHardware::SystemInfoHardware()
 {
@@ -37,52 +34,35 @@ HardwareInfo SystemInfoHardware::get_hardware_info()
     SETTINGS_PROFILE("");
 
     HardwareInfo hardware_info;
-    this->read_cpu_info(hardware_info.cpu_info);
-    this->read_mem_info(hardware_info.mem_info);
-    this->read_disks_info(hardware_info.disks_info);
-    this->read_eths_info(hardware_info.eths_info);
-    this->read_graphics_info(hardware_info.graphics_info);
+    hardware_info.cpu_info = this->get_cpu_info();
+    hardware_info.mem_info = this->get_mem_info();
+    hardware_info.disks_info = this->get_disks_info();
+    hardware_info.eths_info = this->get_eths_info();
+    hardware_info.graphics_info = this->get_graphics_info();
     return hardware_info;
 }
 
-void SystemInfoHardware::read_cpu_info(CPUInfo& cpu_info)
+CPUInfo SystemInfoHardware::get_cpu_info()
 {
-    RETURN_IF_TRUE(this->read_cpu_info_by_cmd(cpu_info));
+    auto cpu_info = this->get_cpu_info_by_cmd();
 
-    this->read_cpu_info_by_conf(cpu_info);
+    if (cpu_info.cores_number == 0)
+    {
+        cpu_info = this->read_cpu_info_by_conf();
+    }
+
+    return cpu_info;
 }
 
-bool SystemInfoHardware::read_cpu_info_by_cmd(CPUInfo& cpu_info)
+CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
 {
-    std::string cmd_output;
-    try
-    {
-        std::vector<std::string> argv{CPUINFO_CMD, "-J"};
-
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                         &cmd_output);
-    }
-    catch (const Glib::Error& e)
-    {
-        LOG_WARNING("%s", e.what().c_str());
-        return false;
-    }
-
-    Json::Value values;
-    Json::CharReaderBuilder builder;
-    std::string error;
-    builder["collectComments"] = false;
-    if (!builder.newCharReader()->parse(cmd_output.data(), cmd_output.data() + cmd_output.size(), &values, &error))
-    {
-        LOG_WARNING("%s", error.c_str());
-        return false;
-    }
+    CPUInfo cpu_info;
+    std::vector<std::string> argv{CPUINFO_CMD, "-J"};
 
     try
     {
+        auto values = this->run_command(argv);
+        RETURN_VAL_IF_TRUE(values.isNull(), CPUInfo());
         auto infos = values["lscpu"];
 
         for (auto& fields : infos)
@@ -103,13 +83,14 @@ bool SystemInfoHardware::read_cpu_info_by_cmd(CPUInfo& cpu_info)
     catch (const std::exception& e)
     {
         LOG_WARNING("%s.", e.what());
-        return false;
+        return CPUInfo();
     }
-    return true;
+    return cpu_info;
 }
 
-void SystemInfoHardware::read_cpu_info_by_conf(CPUInfo& cpu_info)
+CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 {
+    CPUInfo cpu_info;
     auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
 
     cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
@@ -117,10 +98,12 @@ void SystemInfoHardware::read_cpu_info_by_conf(CPUInfo& cpu_info)
     {
         cpu_info.cores_number = strtol(cpu_maps[CPUINFO_KEY_PROCESSOR].c_str(), NULL, 0) + 1;
     }
+    return cpu_info;
 }
 
-void SystemInfoHardware::read_mem_info(MemInfo& mem_info)
+MemInfo SystemInfoHardware::get_mem_info()
 {
+    MemInfo mem_info;
     auto mem_maps = this->parse_info_file(MEMINFO_FILE, MEMINFO_KEY_DELIMITER);
     auto total_fields = StrUtils::split_with_char(mem_maps[MEMINFO_KEY_MEMTOTAL], ' ', true);
     if (total_fields.size() == 2)
@@ -131,6 +114,7 @@ void SystemInfoHardware::read_mem_info(MemInfo& mem_info)
     {
         LOG_WARNING("Not found valid record: %s.", mem_maps[MEMINFO_KEY_MEMTOTAL].c_str());
     }
+    return mem_info;
 }
 
 void SystemInfoHardware::set_env()
@@ -174,37 +158,15 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
     return result;
 }
 
-void SystemInfoHardware::read_disks_info(DiskInfoVec& disks_info)
+DiskInfoVec SystemInfoHardware::get_disks_info()
 {
-    std::string cmd_output;
-    try
-    {
-        std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-J", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
-
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                         &cmd_output);
-    }
-    catch (const Glib::Error& e)
-    {
-        LOG_WARNING("%s", e.what().c_str());
-        return;
-    }
-
-    Json::Value values;
-    Json::CharReaderBuilder builder;
-    std::string error;
-    builder["collectComments"] = false;
-    if (!builder.newCharReader()->parse(cmd_output.data(), cmd_output.data() + cmd_output.size(), &values, &error))
-    {
-        LOG_WARNING("%s", error.c_str());
-        return;
-    }
+    DiskInfoVec disks_info;
+    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-J", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
     try
     {
+        auto values = this->run_command(argv);
+        RETURN_VAL_IF_TRUE(values.isNull(), DiskInfoVec());
         auto block_devices = values["blockdevices"];
 
         for (auto& block_device : block_devices)
@@ -225,19 +187,74 @@ void SystemInfoHardware::read_disks_info(DiskInfoVec& disks_info)
     catch (const std::exception& e)
     {
         LOG_WARNING("%s.", e.what());
-        return;
+        return DiskInfoVec();
     }
+    return disks_info;
 }
 
-void SystemInfoHardware::read_eths_info(EthInfoVec& eths_info)
+EthInfoVec SystemInfoHardware::get_eths_info()
 {
     // 部分机型的网卡可能是USB接口，但lsusb无法通过类型来区分那些是网卡，因此这里先不做处理。
 
+    EthInfoVec eths_info;
+    std::vector<std::string> argv{HWINFO_CMD, "-json", "-C", "network"};
+
+    try
+    {
+        auto eths_json = this->run_command(argv, true);
+        RETURN_VAL_IF_TRUE(eths_json.isNull(), EthInfoVec());
+
+        for (auto& eth_json : eths_json)
+        {
+            EthInfo eth_info;
+            eth_info.model = eth_json["product"].asString();
+            eth_info.vendor = eth_json["vendor"].asString();
+            eths_info.push_back(eth_info);
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LOG_WARNING("%s.", e.what());
+        return EthInfoVec();
+    }
+
+    return eths_info;
+}
+
+GraphicInfoVec SystemInfoHardware::get_graphics_info()
+{
+    GraphicInfoVec graphics_info;
+    std::vector<std::string> argv{HWINFO_CMD, "-json", "-C", "display"};
+
+    try
+    {
+        auto graphics_json = this->run_command(argv, true);
+        RETURN_VAL_IF_TRUE(graphics_json.isNull(), GraphicInfoVec());
+
+        for (auto& graphic_json : graphics_json)
+        {
+            GraphicInfo graphic_info;
+            graphic_info.model = graphic_json["product"].asString();
+            graphic_info.vendor = graphic_json["vendor"].asString();
+            graphics_info.push_back(graphic_info);
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LOG_WARNING("%s.", e.what());
+        return GraphicInfoVec();
+    }
+
+    return graphics_info;
+}
+
+Json::Value SystemInfoHardware::run_command(std::vector<std::string>& argv, bool add_bracket)
+{
+    LOG_DEBUG("cmdline: %s, add_bracket: %d.", StrUtils::join(argv, " ").c_str(), add_bracket);
+
     std::string cmd_output;
     try
     {
-        std::vector<std::string> argv{PCIINFO_CMD, "-vmm"};
-
         Glib::spawn_sync("",
                          argv,
                          Glib::SPAWN_DEFAULT,
@@ -247,81 +264,33 @@ void SystemInfoHardware::read_eths_info(EthInfoVec& eths_info)
     catch (const Glib::Error& e)
     {
         LOG_WARNING("%s", e.what().c_str());
-        return;
+        return Json::Value();
     }
 
-    auto pcis_info = this->parse_pcis_info(cmd_output);
+    cmd_output = StrUtils::trim(cmd_output);
 
-    for (auto& pci_info : pcis_info)
+    // lshw命令返回的json字符串是一个数组格式，但是没有用[]括起来，导致解析存在问题，这里对返回值进行修复
+    if (add_bracket && cmd_output.length() > 1 && cmd_output[0] == '{')
     {
-        EthInfo eth_info;
-        auto regex = Glib::Regex::create("Ethernet.*controller", Glib::REGEX_CASELESS);
-        if (!regex->match(pci_info["Class"]))
+        if (cmd_output.back() == ',')
         {
-            continue;
+            cmd_output.pop_back();
         }
-        eth_info.model = pci_info["Device"];
-        eth_info.vendor = pci_info["Vendor"];
-        eths_info.push_back(std::move(eth_info));
+        cmd_output.insert(cmd_output.begin(), '[');
+        cmd_output.push_back(']');
     }
-}
 
-void SystemInfoHardware::read_graphics_info(GraphicInfoVec& graphics_info)
-{
-    std::string cmd_output;
-    try
+    Json::Value values;
+    Json::CharReaderBuilder builder;
+    std::string error;
+    builder["collectComments"] = false;
+    if (!builder.newCharReader()->parse(cmd_output.data(), cmd_output.data() + cmd_output.size(), &values, &error))
     {
-        std::vector<std::string> argv{PCIINFO_CMD, "-vmm"};
-
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                         &cmd_output);
-    }
-    catch (const Glib::Error& e)
-    {
-        LOG_WARNING("%s", e.what().c_str());
-        return;
+        LOG_WARNING("%s", error.c_str());
+        return Json::Value();
     }
 
-    auto pcis_info = this->parse_pcis_info(cmd_output);
-
-    for (auto& pci_info : pcis_info)
-    {
-        GraphicInfo graphic_info;
-        auto regex = Glib::Regex::create("VGA.*controller", Glib::REGEX_CASELESS);
-        if (!regex->match(pci_info["Class"]))
-        {
-            continue;
-        }
-        graphic_info.model = pci_info["Device"];
-        graphic_info.vendor = pci_info["Vendor"];
-        graphics_info.push_back(std::move(graphic_info));
-    }
-}
-
-PCIsInfo SystemInfoHardware::parse_pcis_info(const std::string& contents)
-{
-    PCIsInfo pcis_info;
-    auto regex = Glib::Regex::create("\n\n");
-    std::vector<Glib::ustring> blocks = regex->split(contents, Glib::REGEX_MATCH_NEWLINE_ANY);
-    for (auto& block : blocks)
-    {
-        std::map<std::string, std::string> pci_info;
-        auto lines = StrUtils::split_lines(block);
-        for (auto& line : lines)
-        {
-            auto fields = StrUtils::split_with_char(line, PCIINFO_KEY_DELIMITER);
-            if (fields.size() != 2)
-            {
-                continue;
-            }
-            pci_info[StrUtils::trim(fields[0])] = StrUtils::trim(fields[1]);
-        }
-        pcis_info.push_back(std::move(pci_info));
-    }
-    return pcis_info;
+    return values;
 }
 
 }  // namespace Kiran

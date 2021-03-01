@@ -5,6 +5,8 @@
  * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
+#include <json/json.h>
+
 #include "lib/base/base.h"
 
 namespace Kiran
@@ -45,6 +47,7 @@ using DiskInfoVec = std::vector<DiskInfo>;
 // 网卡信息
 struct EthInfo
 {
+    EthInfo() = default;
     // 型号
     std::string model;
     // 设备厂商
@@ -55,6 +58,7 @@ using EthInfoVec = std::vector<EthInfo>;
 // 显卡信息
 struct GraphicInfo
 {
+    GraphicInfo() = default;
     // 型号
     std::string model;
     // 设备厂商
@@ -64,6 +68,8 @@ using GraphicInfoVec = std::vector<GraphicInfo>;
 
 struct HardwareInfo
 {
+    HardwareInfo() = default;
+
     CPUInfo cpu_info;
     MemInfo mem_info;
     DiskInfoVec disks_info;
@@ -83,20 +89,21 @@ public:
     HardwareInfo get_hardware_info();
 
 private:
-    void read_cpu_info(CPUInfo &cpu_info);
+    CPUInfo get_cpu_info();
     // 通过lscpu命令获取
-    bool read_cpu_info_by_cmd(CPUInfo &cpu_info);
+    CPUInfo get_cpu_info_by_cmd();
     // 如果命令获取失败，则直接读取配置文件
-    void read_cpu_info_by_conf(CPUInfo &cpu_info);
+    CPUInfo read_cpu_info_by_conf();
 
-    void read_mem_info(MemInfo &mem_info);
+    MemInfo get_mem_info();
     void set_env();
     std::map<std::string, std::string> parse_info_file(const std::string &path, char delimiter);
 
-    void read_disks_info(DiskInfoVec &disks_info);
-    void read_eths_info(EthInfoVec &eths_info);
-    void read_graphics_info(GraphicInfoVec &graphics_info);
+    DiskInfoVec get_disks_info();
 
-    PCIsInfo parse_pcis_info(const std::string &contents);
+    EthInfoVec get_eths_info();
+    GraphicInfoVec get_graphics_info();
+
+    Json::Value run_command(std::vector<std::string> &argv, bool add_bracket = false);
 };
 }  // namespace Kiran
