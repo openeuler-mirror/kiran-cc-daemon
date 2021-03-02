@@ -383,8 +383,10 @@ bool GreeterSettingsManager::save()
         /*
          * enable_manual_login和hide_user_list将保存到lightdm的配置文件中
          */
-        greeter_settings->remove_key(GREETER_GROUP_NAME, KEY_GREETER_ENABLE_MANUAL_LOGIN);
-        greeter_settings->remove_key(GREETER_GROUP_NAME, KEY_GREETER_HIDE_USER_LIST);
+        if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_GREETER_ENABLE_MANUAL_LOGIN))
+            greeter_settings->remove_key(GREETER_GROUP_NAME, KEY_GREETER_ENABLE_MANUAL_LOGIN);
+        if (settings_has_key(greeter_settings, GREETER_GROUP_NAME, KEY_GREETER_HIDE_USER_LIST))
+            greeter_settings->remove_key(GREETER_GROUP_NAME, KEY_GREETER_HIDE_USER_LIST);
         greeter_settings->save_to_file(GREETER_PROFILE_PATH);
     }
     catch (const Glib::Error &e)
