@@ -1,132 +1,127 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
   <interface name="com.kylinsec.Kiran.SystemDaemon.TimeDate">
-
     <method name="SetTime">
       <arg type="x" name="requested_time" direction="in">
-        <doc:doc>
-          <doc:summary>Time to set in microsecond</doc:summary>
-        </doc:doc>
+        <description>Time to set in microsecond.</description>
       </arg>
       <arg type="b" name="relative" direction="in">
-        <doc:doc>
-          <doc:summary>Sets relative time since current time if true. Otherwise, sets the time since the Epoch</doc:summary>
-        </doc:doc>
+        <description>Sets relative time since current time if true. Otherwise, sets the time since the Epoch</description>
       </arg>
-      <doc:doc>
-        <doc:description>
-          <doc:para>Sets system time.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Sets system time.</description>
     </method>
 
     <method name="SetTimezone">
       <arg type="s" name="time_zone" direction="in">
-        <doc:doc>
-          <doc:summary>Timezone</doc:summary>
-        </doc:doc>
+        <summary>Timezone</summary>
       </arg>
-      <doc:doc>
-        <doc:description>
-          <doc:para>Sets system timezone.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Sets system timezone.</description>
     </method>
 
     <method name="GetZoneList">
       <arg type="a(ssx)" name="zone_list" direction="out">
-        <doc:doc>
-          <doc:summary>Zone list</doc:summary>
-        </doc:doc>
+        <summary>Zone list</summary>
       </arg>
-      <doc:doc>
-        <doc:description>
-          <doc:para>Get zone list. The element of the list contains zone name, locale zone name and GMT.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Get zone list. The element of the list contains zone name, locale zone name and GMT.</description>
     </method>
 
     <method name="SetLocalRTC">
       <arg type="b" name="local" direction="in">
-        <doc:doc>
-          <doc:summary>The RTC timescale is Local if true. Otherwise, the RTC timescale is UTC.</doc:summary>
-        </doc:doc>
+        <description>The RTC timescale is Local if true. Otherwise, the RTC timescale is UTC.</description>
       </arg>
       <arg type="b" name="adjust_system" direction="in">
-        <doc:doc>
-          <doc:summary>Sets the system time from the RTC if true. Otherwise, sets the RTC from the system time.</doc:summary>
-        </doc:doc>
+        <description>Sets the system time from the RTC if true. Otherwise, sets the RTC from the system time.</description>
       </arg>
-      <doc:doc>
-        <doc:description>
-          <doc:para>Changes hardware clock time.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Changes hardware clock time.</description>
     </method>
 
     <method name="SetNTP">
       <arg type="b" name="active" direction="in">
-        <doc:doc>
-          <doc:summary>Enable NTP if true. Otherwise, Disable NTP.</doc:summary>
-        </doc:doc>
+        <description>Enable NTP if true. Otherwise, Disable NTP.</description>
       </arg>
-      <doc:doc>
-        <doc:description>
-          <doc:para>Enable or disable network time synchronization.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Enable or disable network time synchronization.</description>
+    </method>
+
+    <method name="GetDateFormatList">
+      <arg type="i" name="type" direction="in">
+        <description>Refer to enum TimedateDateFormatType in timedate_i.h.</description>
+      </arg>
+      <arg type="as" name="formats" direction="out">
+        <description>The list of optional date format.</description>
+      </arg>
+      <description>Get the list of optional date format by type.</description>
+    </method>
+
+    <method name="SetDateFormatByIndex">
+      <arg type="i" name="type" direction="in">
+        <description>Refer to enum TimedateDateFormatType in timedate_i.h.</description>
+      </arg>
+      <arg type="i" name="index" direction="in">
+        <description>The index in date format list.</description>
+      </arg>
+      <description>Set the date format of the specified type by index.</description>
+    </method>
+
+    <method name="SetHourFormat">
+      <arg type="i" name="format" direction="in">
+        <description>Refer to enum TimedateHourFormat in timedate_i.h.</description>
+      </arg>
+      <description>Set the hour show format which contain 12-hours and 24-hours.</description>
+    </method>
+
+    <method name="EnableSecondsShowing">
+      <arg type="b" name="enabled" direction="in">
+        <description>Whether show seconds in the time.</description>
+      </arg>
+      <description>Set whether show seconds in the time.</description>
     </method>
 
     <property name="time_zone" type="s" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>The system timezone.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>The system timezone.</description>
     </property>
 
     <property name="local_rtc" type="b" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>The RTC timescale, local or UTC.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>The RTC timescale, local or UTC.</description>
     </property>
 
     <property name="can_ntp" type="b" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
-      <doc:doc>
-        <doc:description>
-          <doc:para>Whether the NTP server is avaliable.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Whether the NTP server is avaliable.</description>
     </property>
 
     <property name="ntp" type="b" access="read">
-      <doc:doc>
-        <doc:description>
-          <doc:para>Whether the NTP server is enable.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>Whether the NTP server is enable.</description>
     </property>
 
     <property name="system_time" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
-      <doc:doc>
-        <doc:description>
-          <doc:para>The system time in microsecond.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>The system time in microsecond.</description>
     </property>
 
     <property name="rtc_time" type="t" access="read">
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
-      <doc:doc>
-        <doc:description>
-          <doc:para>The hardware time in microsecond.</doc:para>
-        </doc:description>
-      </doc:doc>
+      <description>The hardware time in microsecond.</description>
+    </property>
+
+    <property name="date_long_format_index" type="i" access="read">
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <description>The index in long datetime format list.</description>
+    </property>
+
+    <property name="date_short_format_index" type="i" access="read">
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <description>The index in short datetime format list.</description>
+    </property>
+
+    <property name="hour_format" type="i" access="read">
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <description>The hour show format.</description>
+    </property>
+
+    <property name="seconds_showing" type="b" access="read">
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
+      <description>Whether show seconds in the time.</description>
     </property>
   </interface>
 </node>

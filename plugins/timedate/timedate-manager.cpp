@@ -26,6 +26,7 @@
 #include "lib/base/base.h"
 #include "plugins/timedate/timedate-def.h"
 #include "plugins/timedate/timedate-util.h"
+#include "timedate_i.h"
 
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
@@ -178,6 +179,85 @@ void TimedateManager::SetNTP(bool active,
                                                   std::bind(&TimedateManager::finish_set_ntp_active, this, std::placeholders::_1, active));
 }
 
+void TimedateManager::GetDateFormatList(gint32 type, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("type: %d.", type);
+
+    switch (type)
+    {
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
+    {
+        auto formats = this->timedate_format_.get_long_formats();
+        invocation.ret(std::vector<Glib::ustring>(formats.begin(), formats.end()));
+        break;
+    }
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
+    {
+        auto formats = this->timedate_format_.get_short_formats();
+        invocation.ret(std::vector<Glib::ustring>(formats.begin(), formats.end()));
+        break;
+    }
+    default:
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown format type"));
+    }
+    return;
+}
+
+void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("type: %d, index: %d.", type, index);
+
+    bool result = false;
+    switch (type)
+    {
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
+        result = this->date_long_format_index_set(index);
+        break;
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
+        result = this->date_short_format_index_set(index);
+        break;
+    default:
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown format type"));
+    }
+
+    if (result)
+    {
+        invocation.ret();
+    }
+    else
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set date format"));
+    }
+}
+
+void TimedateManager::SetHourFormat(gint32 format, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("format: %d", format);
+
+    if (!this->hour_format_set(format))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set hour format"));
+    }
+    else
+    {
+        invocation.ret();
+    }
+}
+
+void TimedateManager::EnableSecondsShowing(bool enabled, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("enabled: %d", enabled);
+
+    if (!this->seconds_showing_set(enabled))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set seconds showing"));
+    }
+    else
+    {
+        invocation.ret();
+    }
+}
+
 bool TimedateManager::time_zone_setHandler(const Glib::ustring &value)
 {
     this->time_zone_ = value.raw();
@@ -194,6 +274,27 @@ bool TimedateManager::ntp_setHandler(bool value)
 {
     this->ntp_active_ = value;
     return true;
+}
+
+bool TimedateManager::date_long_format_index_setHandler(gint32 value)
+{
+    return this->timedate_format_.set_date_long_format(value);
+}
+
+bool TimedateManager::date_short_format_index_setHandler(gint32 value)
+{
+    return this->timedate_format_.set_date_short_format(value);
+}
+
+bool TimedateManager::hour_format_setHandler(gint32 value)
+{
+    RETURN_VAL_IF_TRUE(value < 0 || value >= TimedateHourFormat::TOUCHPAD_HOUSR_FORMAT_LAST, false);
+    return this->timedate_format_.set_hour_format(TimedateHourFormat(value));
+}
+
+bool TimedateManager::seconds_showing_setHandler(bool value)
+{
+    return this->timedate_format_.set_seconds_showing(value);
 }
 
 guint64 TimedateManager::system_time_get()
@@ -239,6 +340,26 @@ guint64 TimedateManager::rtc_time_get()
     return (uint64_t)rtc_time * 1000000;
 }
 
+gint32 TimedateManager::date_long_format_index_get()
+{
+    return this->timedate_format_.get_date_long_format_index();
+}
+
+gint32 TimedateManager::date_short_format_index_get()
+{
+    return this->timedate_format_.get_date_short_format_index();
+}
+
+gint32 TimedateManager::hour_format_get()
+{
+    return this->timedate_format_.get_hour_format();
+}
+
+bool TimedateManager::seconds_showing_get()
+{
+    return this->timedate_format_.get_seconds_showing();
+}
+
 void TimedateManager::init()
 {
     SETTINGS_PROFILE("");
@@ -267,6 +388,8 @@ void TimedateManager::init()
     this->local_rtc_ = TimedateUtil::is_local_rtc();
     this->init_ntp_units();
     this->ntp_active_ = this->ntp_is_active();
+
+    this->timedate_format_.init();
 }
 
 void TimedateManager::init_ntp_units()
