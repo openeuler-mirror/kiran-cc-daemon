@@ -132,7 +132,10 @@ void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaem
     if (backgroundFile_get() != file_path)
     {
         m_prefs->set_background_file(file_path);
-        m_prefs->save();
+        if(!m_prefs->save())
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+        }
 
         backgroundFile_set(file_path);
     }
@@ -151,7 +154,10 @@ void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::Gre
     if(autologinUser_get() != autologin_user_name)
     {
         m_prefs->set_autologin_user(autologin_user_name);
-        m_prefs->save();
+        if(!m_prefs->save())
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+        }
 
         autologinUser_set(autologin_user_name);
     }
@@ -165,7 +171,10 @@ void GreeterSettingsDbus::change_auto_login_timeout_authorized_cb(SystemDaemon::
     if (autologinTimeout_get() != seconds)
     {
         m_prefs->set_autologin_delay(seconds);
-        m_prefs->save();
+        if(!m_prefs->save())
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+        }
 
         autologinTimeout_set(seconds);
     }
@@ -179,7 +188,10 @@ void GreeterSettingsDbus::change_hide_user_list_authorized_cb(SystemDaemon::Gree
     if (hideUserList_get() != hide)
     {
         m_prefs->set_hide_user_list(hide);
-        m_prefs->save();
+        if(!m_prefs->save())
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+        }
 
         hideUserList_set(hide);
     }
@@ -193,7 +205,10 @@ void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::
     if (allowManualLogin_get() != allow)
     {
         m_prefs->set_enable_manual_login(allow);
-        m_prefs->save();
+        if(!m_prefs->save())
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+        }
 
         allowManualLogin_set(allow);
     }
@@ -212,7 +227,10 @@ void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterS
     //*
     m_prefs->set_scale_mode((GreeterSettingsScalingMode)mode);
     m_prefs->set_scale_factor(factor);
-    m_prefs->save();
+    if(!m_prefs->save())
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+    }
 
     scaleMode_set(mode);
     scaleFactor_set(factor);
