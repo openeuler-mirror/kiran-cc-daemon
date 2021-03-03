@@ -7,3 +7,8 @@ Available=true
 Name=TimeDate
 Description=TimeDate plugin
 Available=true
+
+[greeter-settings]
+Name=GreeterSettings
+Description=GreeterSettings plugin
+Available=true

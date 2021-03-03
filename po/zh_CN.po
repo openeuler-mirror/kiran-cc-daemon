@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-02 20:57+0800\n"
+"POT-Creation-Date: 2021-03-03 10:56+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -84,6 +84,14 @@ msgid ""
 "Authentication is required to control whether network time synchronization "
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:1
+msgid "Greeter settings"
+msgstr "登陆设置"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr "登陆设置之前需要身份验证"
 
 #: ../src/main.cpp:64
 msgid "Output version infomation and exit"
@@ -350,6 +358,37 @@ msgstr "不能手动修改此属性"
 #: ../plugins/xsettings/xsettings-manager.cpp:496
 msgid "Unknown property"
 msgstr "未知属性"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:137
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:159
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:176
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:193
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:210
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:232
+msgid "Failed to save"
+msgstr "保存失败"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:151
+msgid "Failed to find user name by uid"
+msgstr "通过uid获取用户名失败"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:225
+msgid "Illegal mode parameter"
+msgstr "缩放模式参数非法"
+
+#, fuzzy
+#~ msgid "Change the greeter configuration"
+#~ msgstr "更改登录屏幕设置"
+
+#, fuzzy
+#~ msgid "Authentication is required to change the greeter configuration."
+#~ msgstr "更改登录设置之前需要身份验证"
+
+#~ msgid "Change the login settings"
+#~ msgstr "更改登陆设置"
+
+#~ msgid "Authentication is required to change the login configuration."
+#~ msgstr "更改登录设置之前需要身份验证"
 
 #~ msgid "Cannot match mode {0}x{1}"
 #~ msgstr "不能匹配分辨率{0}x{1}"
