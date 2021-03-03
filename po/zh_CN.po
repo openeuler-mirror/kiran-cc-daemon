@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-26 10:33+0800\n"
+"POT-Creation-Date: 2021-03-03 10:25+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -332,11 +332,20 @@ msgstr "不能手动修改此属性"
 msgid "Unknown property"
 msgstr "未知属性"
 
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:148
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:137
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:159
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:176
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:193
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:210
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:232
+msgid "Failed to save"
+msgstr "保存失败"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:151
 msgid "Failed to find user name by uid"
 msgstr "通过uid获取用户名失败"
 
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:210
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:225
 msgid "Illegal mode parameter"
 msgstr "缩放模式参数非法"
 
