@@ -72,8 +72,8 @@ TimedateHourFormat TimedateFormat::get_hour_format()
     int32_t hour_format = 0;
     IGNORE_EXCEPTION(hour_format = this->format_config_.get_integer(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_HOUR_FORMAT));
     // 如果索引超出范围，则设置为12小时制
-    RETURN_VAL_IF_TRUE(hour_format < 0 || hour_format >= TimedateHourFormat::TOUCHPAD_HOUSR_FORMAT_LAST,
-                       TimedateHourFormat::TOUCHPAD_HOUSR_FORMAT_12_HOURS);
+    RETURN_VAL_IF_TRUE(hour_format < 0 || hour_format >= TimedateHourFormat::TIMEDATE_HOUSR_FORMAT_LAST,
+                       TimedateHourFormat::TIMEDATE_HOUSR_FORMAT_12_HOURS);
     return TimedateHourFormat(hour_format);
 }
 

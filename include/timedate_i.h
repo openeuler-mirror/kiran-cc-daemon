@@ -24,10 +24,10 @@ extern "C"
     enum TimedateHourFormat
     {
         // 12小时制
-        TOUCHPAD_HOUSR_FORMAT_12_HOURS = 0,
+        TIMEDATE_HOUSR_FORMAT_12_HOURS = 0,
         // 24小时制
-        TOUCHPAD_HOUSR_FORMAT_24_HOURS,
-        TOUCHPAD_HOUSR_FORMAT_LAST
+        TIMEDATE_HOUSR_FORMAT_24_HOURS,
+        TIMEDATE_HOUSR_FORMAT_LAST
     };
 
 #ifdef __cplusplus

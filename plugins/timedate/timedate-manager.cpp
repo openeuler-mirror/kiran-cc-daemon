@@ -288,7 +288,7 @@ bool TimedateManager::date_short_format_index_setHandler(gint32 value)
 
 bool TimedateManager::hour_format_setHandler(gint32 value)
 {
-    RETURN_VAL_IF_TRUE(value < 0 || value >= TimedateHourFormat::TOUCHPAD_HOUSR_FORMAT_LAST, false);
+    RETURN_VAL_IF_TRUE(value < 0 || value >= TimedateHourFormat::TIMEDATE_HOUSR_FORMAT_LAST, false);
     return this->timedate_format_.set_hour_format(TimedateHourFormat(value));
 }
 
