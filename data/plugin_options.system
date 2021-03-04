@@ -3,6 +3,11 @@ Name=Accounts
 Description=Accounts plugin
 Available=true
 
+[systeminfo]
+Name=SystemInfo
+Description=SystemInfo plugin
+Available=true
+
 [timedate]
 Name=TimeDate
 Description=TimeDate plugin

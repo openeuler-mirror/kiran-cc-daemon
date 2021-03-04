@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-03 10:56+0800\n"
+"POT-Creation-Date: 2021-03-04 09:07+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -92,6 +92,14 @@ msgstr "登陆设置"
 #: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:2
 msgid "Authentication is required for greeter setting."
 msgstr "登陆设置之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "设置主机名"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr "设置主机名之前需要身份验证"
 
 #: ../src/main.cpp:64
 msgid "Output version infomation and exit"
@@ -341,6 +349,18 @@ msgstr "未知的映射类型"
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"
 msgstr "自定义"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:87
+msgid "Invalid type"
+msgstr "不合法的类型"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:93
+msgid "Assign to Json::Value failed"
+msgstr "Json::Value赋值失败"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:136
+msgid "Failed to set host name"
+msgstr "设置主机名失败"
 
 #: ../plugins/xsettings/xsettings-manager.cpp:111
 #: ../plugins/xsettings/xsettings-manager.cpp:424

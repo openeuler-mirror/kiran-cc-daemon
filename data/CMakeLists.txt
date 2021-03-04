@@ -38,6 +38,7 @@ if(build-system-daemon)
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Accounts.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.service
+                  ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
             DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files
@@ -93,6 +94,7 @@ endif()
 install(FILES ${PROJECT_SOURCE_DIR}/include/accounts_i.h
               ${PROJECT_SOURCE_DIR}/include/timedate_i.h
               ${PROJECT_SOURCE_DIR}/include/greeter-settings_i.h
+              ${PROJECT_SOURCE_DIR}/include/systeminfo_i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
 
 install(FILES ${PROJECT_SOURCE_DIR}/include/appearance_i.h
