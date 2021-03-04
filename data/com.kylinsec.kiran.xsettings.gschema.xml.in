@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist >
+<schemalist gettext-domain="@PROJECT_NAME@">
     <schema id="com.kylinsec.kiran.xsettings" path="/com/kylinsec/kiran/xsettings/">
         <key name="net-double-click-time" type="i">
             <default>400</default>
@@ -23,10 +23,7 @@
         </key>
         <key name="net-theme-name" type="s">
             <default>'Kiran'</default>
-            <description>Name of theme to use. This is a directory either in ~/.themes (except on Debian), 
-            or the 'system' theme directory, which depends on where GTK was installed. Basically, 
-            it could be anywhere. This should really use the base dir spec or something similar to 
-            locate the theme.</description>
+            <description>Name of gtk theme to use.</description>
         </key>
         <key name="net-icon-theme-name" type="s">
             <default>'Kiran'</default>
@@ -34,17 +31,14 @@
         </key>
         <key name="net-enable-event-sounds" type="b">
             <default>false</default>
-            <summary>Sounds for events</summary>
             <description>Whether to play sounds on user events.</description>
         </key>
         <key name="net-sound-theme-name" type="s">
             <default>'freedesktop'</default>
-            <summary>Sound theme name</summary>
             <description>The XDG sound theme to use for event sounds.</description>
         </key>
         <key name="net-enable-input-feedback-sounds" type="b">
             <default>false</default>
-            <summary>Input feedback sounds</summary>
             <description>Whether to play sounds on input events.</description>
         </key>
         <key name="xft-antialias" type="i">
@@ -117,7 +111,6 @@
         </key>
         <key name="gtk-color-scheme" type="s">
             <default>''</default>
-            <summary>List of symbolic names and color equivalents</summary>
             <description>A '\n' separated list of "name:color" as defined by the 'gtk-color-scheme' setting</description>
         </key>
         <key name="gtk-file-chooser-backend" type="s">
@@ -126,65 +119,49 @@
         </key>
         <key name="gtk-decoration-layout" type="s">
             <default>'menu:minimize,maximize,close'</default>
-            <summary>Titlebar layout of GTK3 client-side decorated windows</summary>
-            <description>This setting determines which buttons should be put in the titlebar of client-side decorated windows, and whether they should be placed at the left of right. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-decoration-layout.</description>
+            <description>This setting determines which buttons should be put in the titlebar of client-side decorated windows, and whether they should be placed at the left of right.</description>
         </key>
         <key name="gtk-shell-shows-app-menu" type="b">
             <default>false</default>
-            <summary>Use a global menubar for displaying application menus</summary>
-            <description>This setting determines where application menu will be displayed - in a window or on a panel with MenuModel protocol. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-shell-shows-app-menu.</description>
+            <description>This setting determines where application menu will be displayed - in a window or on a panel with MenuModel protocol.</description>
         </key>
         <key name="gtk-shell-shows-menubar" type="b">
             <default>false</default>
-            <summary>Use a global menubar for displaying window menubars</summary>
-            <description>This setting determines where window menubars will be displayed - in a window or on a panel with MenuModel protocol. See https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-shell-shows-menubar.</description>
+            <description>This setting determines where window menubars will be displayed - in a window or on a panel with MenuModel protocol.</description>
         </key>
         <key name="gtk-show-input-method-menu" type="b">
             <default>true</default>
-            <summary>Show the 'Input Methods' menu</summary>
             <description>Whether the context menus of entries and text views  should offer to change the input method.</description>
         </key>
         <key name="gtk-show-unicode-menu" type="b">
             <default>true</default>
-            <summary>Show the 'Unicode Control Character' menu</summary>
             <description>Whether the context menus of entries and text views  should offer to insert control characters.</description>
         </key>
         <key name="gtk-automatic-mnemonics" type="b">
             <default>true</default>
-            <summary>Only show mnemonics on when the Alt key is pressed</summary>
             <description>Whether mnemonics should be automatically shown and hidden when the user presses the Alt key.</description>
         </key>
         <key name="gtk-enable-primary-paste" type="b">
             <default>true</default>
-            <summary>Enable the primary paste selection</summary>
-            <description>
-        If true, gtk+ uses the primary paste selection, usually triggered by a middle mouse button click.
-            </description>
+            <description>If true, gtk+ uses the primary paste selection, usually triggered by a middle mouse button click.</description>
         </key>
         <key name="gtk-enable-animations" type="b">
             <default>true</default>
-            <summary>Enable Gtk toolkit-wide animations</summary>
             <description>Whether to enable toolkit-wide animations.</description>
         </key>
         <key name="gtk-dialogs-use-header" type="b">
             <default>false</default>
-            <summary>Use GTK3 header bar</summary>
-            <description>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will use a header bar at the top to show action widgets, or an action area at the bottom. This setting does not affect custom dialogs using GtkDialog directly, or message dialogs.</description>
+            <description>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will
+            use a header bar at the top to show action widgets, or an action area at the bottom.</description>
         </key>
         <key name="window-scaling-factor" type="i">
             <default>0</default>
             <range min="0" max="2"/>
-            <summary>Window Scaling Factor</summary>
-            <description>This controls the GTK scale factor that maps from window coordinates to the actual device pixels.
-            On traditional systems this is 1, but on very high density displays (e.g. HiDPI, Retina) this can be a higher 
-            value (often 2). Set to 0 to auto-detect.</description>
+            <description>This controls the GTK scale factor that maps from window coordinates to the actual device pixels.</description>
         </key>
         <key name="window-scaling-factor-qt-sync" type="b">
             <default>true</default>
-            <summary>Scaling Factor for QT appllications</summary>
-            <description>This setting determines whether MATE controls the scale factor for QT applications. Enable to 
-            synchronize with the GTK scale factor when initializing the session, disable to control this value elsewhere. 
-            Requires restarting your session.</description>
+            <description>This setting determines whether MATE controls the scale factor for QT applications.</description>
         </key>
     </schema>
 </schemalist>

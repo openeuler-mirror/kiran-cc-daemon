@@ -58,10 +58,13 @@ endif()
 if(build-session-daemon)
 
     # gschema.xml
-    file(GLOB GSCHEMA_XML_FILES ./*.gschema.xml)
+    file(GLOB SCHEMA_IN_FILES ./*.gschema.xml.in)
 
-    foreach(GSCHEMA_XML_FILE IN LISTS GSCHEMA_XML_FILES)
-        install(FILES ${GSCHEMA_XML_FILE}
+    foreach(SCHEMA_IN_FILE IN LISTS SCHEMA_IN_FILES)
+        string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SCHEMA_FILE ${SCHEMA_IN_FILE})
+        configure_file(${SCHEMA_IN_FILE} ${PROJECT_BINARY_DIR}/data/${SCHEMA_FILE})
+
+        install(FILES ${PROJECT_BINARY_DIR}/data/${SCHEMA_FILE}
                 DESTINATION  ${CMAKE_INSTALL_PREFIX}/share/glib-2.0/schemas/)    
     endforeach()
 
