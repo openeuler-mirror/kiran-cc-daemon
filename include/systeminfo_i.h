@@ -13,6 +13,7 @@ extern "C"
 
 #define SYSTEMINFO_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.SystemInfo"
 #define SYSTEMINFO_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/SystemInfo"
+#define SYSTEMINFO_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SystemDaemon.SystemInfo"
 
     enum SystemInfoType
     {

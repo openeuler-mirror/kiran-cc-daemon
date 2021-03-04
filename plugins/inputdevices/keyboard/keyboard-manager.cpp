@@ -10,6 +10,7 @@
 
 #include <X11/XKBlib.h>
 
+#include "keyboard_i.h"
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"
 #include "lib/iso/iso-translation.h"
@@ -17,9 +18,6 @@
 
 namespace Kiran
 {
-#define KEYBOARD_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Keyboard"
-#define KEYBOARD_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keyboard"
-
 #define KEYBOARD_SCHEMA_ID "com.kylinsec.kiran.keyboard"
 #define KEYBOARD_SCHEMA_REPEAT_ENABLED "repeat-enabled"
 #define KEYBOARD_SCHEMA_REPEAT_DELAY "repeat-delay"

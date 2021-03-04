@@ -12,6 +12,10 @@ extern "C"
 {
 #endif
 
+#define TIMEDATE_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.TimeDate"
+#define TIMEDATE_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/TimeDate"
+#define TIMEDATE_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SystemDaemon.TimeDate"
+
     enum TimedateDateFormatType
     {
         // 时间日期的长格式

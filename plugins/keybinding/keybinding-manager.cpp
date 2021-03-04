@@ -9,11 +9,10 @@
 
 #include "plugins/keybinding/keybinding-manager.h"
 
+#include "keybinding_i.h"
+
 namespace Kiran
 {
-#define KEYBINDING_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Keybinding"
-#define KEYBINDING_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keybinding"
-
 KeybindingManager::KeybindingManager(SystemShortCutManager *system) : system_shorcut_manager_(system),
                                                                       dbus_connect_id_(0),
                                                                       object_register_id_(0)
