@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-09-07 09:52:57
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-15 09:07:20
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/display/display-manager.cpp
+/**
+ * @file          /kiran-cc-daemon/plugins/display/display-manager.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "plugins/display/display-manager.h"
@@ -13,13 +11,12 @@
 
 #include <fstream>
 
+#include "display_i.h"
 #include "lib/base/base.h"
 #include "plugins/display/display-util.h"
+
 namespace Kiran
 {
-#define DISPLAY_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
-#define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
-
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_STYLE "display-style"
 

@@ -1,7 +1,15 @@
 # List of source files which contain translatable strings.
 [encoding: UTF-8]
+[type: gettext/gsettings]data/com.kylinsec.kiran.appearance.gschema.xml.in
+[type: gettext/gsettings]data/com.kylinsec.kiran.display.gschema.xml.in
+[type: gettext/gsettings]data/com.kylinsec.kiran.keyboard.gschema.xml.in
+[type: gettext/gsettings]data/com.kylinsec.kiran.mouse.gschema.xml.in
+[type: gettext/gsettings]data/com.kylinsec.kiran.touchpad.gschema.xml.in
+[type: gettext/gsettings]data/com.kylinsec.kiran.xsettings.gschema.xml.in
 data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in
 src/main.cpp
 plugins/accounts/accounts-manager.cpp
 plugins/accounts/accounts-util.cpp
@@ -11,4 +19,6 @@ plugins/timedate/timedate-format.cpp
 plugins/display/display-manager.cpp
 plugins/display/display-monitor.cpp
 plugins/keybinding/custom-shortcut.h
+plugins/systeminfo/systeminfo-manager.cpp
 plugins/xsettings/xsettings-manager.cpp
+plugins/greeter-settings/greeter-settings-dbus.cpp

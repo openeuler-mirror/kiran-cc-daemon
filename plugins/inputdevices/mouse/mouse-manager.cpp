@@ -10,13 +10,11 @@
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
 #include "lib/base/base.h"
+#include "mouse_i.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran
 {
-#define MOUSE_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Mouse"
-#define MOUSE_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Mouse"
-
 #define MOUSE_SCHEMA_ID "com.kylinsec.kiran.mouse"
 #define MOUSE_SCHEMA_LEFT_HANDED "left-handed"
 #define MOUSE_SCHEMA_MOTION_ACCELERATION "motion-acceleration"

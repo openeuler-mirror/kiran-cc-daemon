@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist >
+<schemalist gettext-domain="@PROJECT_NAME@">
     <schema id="com.kylinsec.kiran.appearance" path="/com/kylinsec/kiran/appearance/">
         <key name="desktop-background" type="s">
             <default>'/usr/share/backgrounds/kiran/default.jpg'</default>

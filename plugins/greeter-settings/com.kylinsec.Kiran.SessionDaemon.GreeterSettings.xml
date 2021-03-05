@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <interface name="com.kylinsec.Kiran.SystemDaemon.GreeterSettings">
+  <method name="SetBackgroundFile">
+      <arg name="file_path" direction="in" type="s">
+      </arg>
+	  <doc:doc>
+        <doc:description>
+          <doc:para>Setting the background image path of login interface.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <method name="SetAutologinUser">
+      <arg name="autologin_user" direction="in" type="t">
+      </arg>
+	  <doc:doc>
+        <doc:description>
+          <doc:para>Setting uid of automatic login user.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <method name="SetAutologinTimeout">
+      <arg name="seconds" direction="in" type="t">
+      </arg>
+	  <doc:doc>
+        <doc:description>
+          <doc:para>Set the automatic login delay in seconds.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <method name="SetHideUserList">
+      <arg name="hide" direction="in" type="b">
+      </arg>
+	  <doc:doc>
+        <doc:description>
+          <doc:para>Set whether to hide the user list.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <method name="SetAllowManualLogin">
+      <arg name="allow" direction="in" type="b">
+      </arg>
+	  <doc:doc>
+        <doc:description>
+          <doc:para>Set whether manual login is allowed.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <method name="SetScaleMode">
+      <arg name="mode" direction="in" type="q">
+        <doc:doc>
+          <doc:summary>The new username.</doc:summary>
+        </doc:doc>
+      </arg>
+      <arg name="factor" direction="in" type="q">
+        <doc:doc>
+          <doc:summary>The mode can be 0, 1 or 2, where 0 means automatic, 1 means manual and 2 means disabled.</doc:summary>
+        </doc:doc>
+      </arg>
+	  <doc:doc>
+        <doc:description>
+          <doc:para>Factor is the scale factor, 1 is 100%, 2 is 200%. The factor parameter is valid only when mode is 1.</doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+
+    <property name="backgroundFile" type="s" access="read">
+    </property>
+
+    <property name="autologinUser" type="s" access="read">
+    </property>
+
+    <property name="autologinTimeout" type="t" access="read">
+    </property>
+
+    <property name="allowManualLogin" type="b" access="read">
+    </property>
+
+    <property name="hideUserList" type="b" access="read">
+    </property>
+
+    <property name="scaleMode" type="q" access="read">
+    </property>
+
+    <property name="scaleFactor" type="q" access="read">
+    </property>
+
+  </interface>
+</node>
