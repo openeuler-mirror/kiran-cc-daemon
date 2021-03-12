@@ -14,6 +14,7 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <grp.h>
+#include <json/json.h>
 
 #include <cinttypes>
 
@@ -29,20 +30,27 @@ namespace Kiran
 #define ICONDIR "/var/lib/AccountsService/icons"
 #define ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
 
-User::User(uint64_t uid) : object_register_id_(0),
-                           uid_(uid),
-                           locked_(false),
-                           password_mode_(0),
-                           automatic_login_(0),
-                           system_account_(false)
+User::User(PasswdShadow passwd_shadow) : passwd_shadow_(passwd_shadow),
+                                         object_register_id_(0),
+                                         locked_(false),
+                                         password_mode_(0),
+                                         automatic_login_(0),
+                                         system_account_(false)
 
 {
-    this->keyfile_ = std::make_shared<Glib::KeyFile>();
+    this->uid_ = this->passwd_shadow_.first->pw_uid;
 }
 
 User::~User()
 {
     this->dbus_unregister();
+}
+
+std::shared_ptr<User> User::create_user(PasswdShadow passwd_shadow)
+{
+    auto user = std::make_shared<User>(passwd_shadow);
+    user->init();
+    return user;
 }
 
 void User::dbus_register()
@@ -73,80 +81,6 @@ void User::dbus_unregister()
     }
 }
 
-void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
-{
-    Glib::ustring real_name;
-
-    this->freeze_notify();
-
-    this->passwd_ = passwd_shadow.first;
-    this->spwd_ = passwd_shadow.second;
-
-    if (!this->passwd_->pw_gecos.empty())
-    {
-        if (Glib::ustring(this->passwd_->pw_gecos).validate())
-        {
-            real_name = this->passwd_->pw_gecos;
-        }
-        else
-        {
-            LOG_WARNING("User %s has invalid UTF-8 in GECOS field.  It would be a good thing to check /etc/passwd.",
-                        this->passwd_->pw_name.c_str() ? this->passwd_->pw_name.c_str() : "");
-        }
-    }
-
-    this->real_name_set(real_name);
-    this->uid_set(this->passwd_->pw_uid);
-
-    auto account_type = this->account_type_from_pwent(this->passwd_);
-    this->account_type_set(int32_t(account_type));
-
-    this->user_name_set(this->passwd_->pw_name);
-    this->home_directory_set(this->passwd_->pw_dir);
-    this->shell_set(this->passwd_->pw_shell);
-    this->reset_icon_file();
-
-    std::shared_ptr<std::string> passwd;
-    bool locked = false;
-
-    if (this->spwd_)
-        passwd = this->spwd_->sp_pwdp;
-
-    if (passwd && passwd->length() > 0 && passwd->at(0) == '!')
-    {
-        locked = true;
-    }
-    else
-    {
-        locked = false;
-    }
-
-    this->locked_set(locked);
-
-    AccountsPasswordMode mode;
-
-    if (!passwd || !passwd->empty())
-    {
-        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR;
-    }
-    else
-    {
-        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE;
-    }
-
-    if (this->spwd_ && this->spwd_->sp_lstchg == 0)
-    {
-        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN;
-    }
-
-    this->password_mode_set(int32_t(mode));
-
-    auto is_system_account = !UserClassify::is_human(this->passwd_->pw_uid, this->passwd_->pw_name, this->passwd_->pw_shell);
-    this->system_account_set(is_system_account);
-
-    this->thaw_notify();
-}
-
 void User::freeze_notify()
 {
     SETTINGS_PROFILE("Uid: %" PRIu64, this->uid_);
@@ -162,24 +96,6 @@ void User::thaw_notify()
     if (this->dbus_connect_)
     {
         this->dbus_connect_->thaw_notify();
-    }
-}
-
-void User::save_cache_file()
-{
-    SETTINGS_PROFILE("UserName: %s", this->user_name_get().c_str());
-    this->save_to_keyfile(this->keyfile_);
-    try
-    {
-        auto data = this->keyfile_->to_data();
-        auto filename = Glib::build_filename(USERDIR, this->user_name_get());
-        Glib::file_set_contents(filename, data);
-
-        this->system_account_set(false);
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_WARNING("Saving data for user %s failed: %s", this->user_name_get().c_str(), e.what().c_str());
     }
 }
 
@@ -209,37 +125,6 @@ void User::save_cache_file()
         }                                               \
     }
 
-void User::load_cache_file()
-{
-    auto filename = Glib::build_filename(USERDIR, this->user_name_get());
-    auto keyfile = std::make_shared<Glib::KeyFile>();
-    try
-    {
-        keyfile->load_from_file(filename);
-    }
-    catch (const Glib::Error &e)
-    {
-        LOG_WARNING("failed to load file %s: %s.", filename.c_str(), e.what().c_str());
-        return;
-    }
-
-    this->freeze_notify();
-
-    SET_STR_VALUE_FROM_KEYFILE("Language", language_set);
-    SET_STR_VALUE_FROM_KEYFILE("XSession", x_session_set);
-    SET_STR_VALUE_FROM_KEYFILE("Session", session_set);
-    SET_STR_VALUE_FROM_KEYFILE("SessionType", session_type_set);
-    SET_STR_VALUE_FROM_KEYFILE("Email", email_set);
-    SET_STR_VALUE_FROM_KEYFILE("PasswordHint", password_hint_set);
-    SET_STR_VALUE_FROM_KEYFILE("Icon", icon_file_set);
-    // SET_BOOL_VALUE_FROM_KEYFILE("SystemAccount", SystemAccount_set);
-
-    this->keyfile_ = keyfile;
-    this->system_account_set(false);
-
-    this->thaw_notify();
-}
-
 void User::remove_cache_file()
 {
     auto user_filename = Glib::build_filename(USERDIR, this->user_name_get());
@@ -249,12 +134,19 @@ void User::remove_cache_file()
     g_remove(icon_filename.c_str());
 }
 
+void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
+{
+    this->udpate_nocache_var(passwd_shadow);
+    this->reset_icon_file();
+}
+
 Glib::ustring User::icon_file_get()
 {
-    auto filename = this->icon_file_;
+    auto cache_filename = this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_ICON);
+    std::string filename = cache_filename;
     if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
     {
-        // 使用缓存目录的图标
+        // 使用默认目录的图标
         filename = Glib::build_filename(ICONDIR, this->user_name_get());
         if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
         {
@@ -267,7 +159,9 @@ Glib::ustring User::icon_file_get()
             }
         }
     }
-    if (filename != this->icon_file_)
+
+    // 获取函数中不能有设置操作，所以这里做延时处理
+    if (filename != cache_filename)
     {
         auto idle = Glib::MainContext::get_default()->signal_idle();
         idle.connect(sigc::bind(sigc::mem_fun(this, &User::icon_file_changed), filename));
@@ -324,6 +218,24 @@ Glib::ustring User::icon_file_get()
         return;                                                                                                                 \
     }
 
+#define USER_SET_THREE_PROP_AUTH(fun, callback, auth, type1, type2, type3)                                                              \
+    void User::fun(type1 value1,                                                                                                        \
+                   type2 value2,                                                                                                        \
+                   type3 value3,                                                                                                        \
+                   MethodInvocation &invocation)                                                                                        \
+    {                                                                                                                                   \
+        SETTINGS_PROFILE("");                                                                                                           \
+        std::string action_id = this->get_auth_action(invocation, auth);                                                                \
+        RETURN_IF_TRUE(action_id.empty());                                                                                              \
+                                                                                                                                        \
+        AuthManager::get_instance()->start_auth_check(action_id,                                                                        \
+                                                      TRUE,                                                                             \
+                                                      invocation.getMessage(),                                                          \
+                                                      std::bind(&User::callback, this, std::placeholders::_1, value1, value2, value3)); \
+                                                                                                                                        \
+        return;                                                                                                                         \
+    }
+
 USER_SET_ONE_PROP_AUTH(SetUserName, change_user_name_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetRealName, change_real_name_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetEmail, change_email_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
@@ -331,7 +243,6 @@ USER_SET_ONE_PROP_AUTH(SetLanguage, change_language_authorized_cb, AUTH_CHANGE_O
 USER_SET_ONE_PROP_AUTH(SetXSession, change_x_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetSession, change_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetSessionType, change_session_type_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-// USER_SET_ONE_PROP_AUTH(SetLocation, change_location_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetHomeDirectory, change_home_dir_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetShell, change_shell_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetIconFile, change_icon_file_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
@@ -342,6 +253,93 @@ USER_SET_TWO_PROP_AUTH(SetPassword, change_password_authorized_cb, AUTH_CHANGE_O
 USER_SET_ONE_PROP_AUTH(SetPasswordHint, change_password_hint_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetAutomaticLogin, change_auto_login_authorized_cb, AUTH_USER_ADMIN, bool);
 USER_SET_ZERO_PROP_AUTH(GetPasswordExpirationPolicy, get_password_expiration_policy_authorized_cb, AUTH_CHANGE_OWN_USER_DATA);
+USER_SET_THREE_PROP_AUTH(AddAuthItem, add_auth_item_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, const Glib::ustring &, const Glib::ustring &);
+USER_SET_TWO_PROP_AUTH(DelAuthItem, del_auth_item_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(GetAuthItems, get_auth_items_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
+USER_SET_TWO_PROP_AUTH(EnableAuthMode, enable_auth_mode_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, bool);
+
+void User::init()
+{
+    this->udpate_nocache_var(this->passwd_shadow_);
+    this->user_cache_ = std::make_shared<UserCache>(this->shared_from_this());
+    // 由于图标路径是维护在缓存中，所以必须等UserCache对象创建后才能操作
+    this->reset_icon_file();
+}
+
+void User::udpate_nocache_var(PasswdShadow passwd_shadow)
+{
+    Glib::ustring real_name;
+
+    this->freeze_notify();
+
+    this->passwd_ = passwd_shadow.first;
+    this->spwd_ = passwd_shadow.second;
+
+    if (!this->passwd_->pw_gecos.empty())
+    {
+        if (Glib::ustring(this->passwd_->pw_gecos).validate())
+        {
+            real_name = this->passwd_->pw_gecos;
+        }
+        else
+        {
+            LOG_WARNING("User %s has invalid UTF-8 in GECOS field.  It would be a good thing to check /etc/passwd.",
+                        this->passwd_->pw_name.c_str() ? this->passwd_->pw_name.c_str() : "");
+        }
+    }
+
+    this->real_name_set(real_name);
+    this->uid_set(this->passwd_->pw_uid);
+
+    auto account_type = this->account_type_from_pwent(this->passwd_);
+    this->account_type_set(int32_t(account_type));
+
+    this->user_name_set(this->passwd_->pw_name);
+    this->home_directory_set(this->passwd_->pw_dir);
+    this->shell_set(this->passwd_->pw_shell);
+    // TODO:
+    // this->reset_icon_file();
+
+    std::shared_ptr<std::string> passwd;
+    bool locked = false;
+
+    if (this->spwd_)
+        passwd = this->spwd_->sp_pwdp;
+
+    if (passwd && passwd->length() > 0 && passwd->at(0) == '!')
+    {
+        locked = true;
+    }
+    else
+    {
+        locked = false;
+    }
+
+    this->locked_set(locked);
+
+    AccountsPasswordMode mode;
+
+    if (!passwd || !passwd->empty())
+    {
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR;
+    }
+    else
+    {
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE;
+    }
+
+    if (this->spwd_ && this->spwd_->sp_lstchg == 0)
+    {
+        mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN;
+    }
+
+    this->password_mode_set(int32_t(mode));
+
+    auto is_system_account = !UserClassify::is_human(this->passwd_->pw_uid, this->passwd_->pw_name, this->passwd_->pw_shell);
+    this->system_account_set(is_system_account);
+
+    this->thaw_notify();
+}
 
 std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
 {
@@ -404,7 +402,6 @@ void User::change_real_name_authorized_cb(MethodInvocation invocation, const Gli
         if (this->prop##_get() != value)                                    \
         {                                                                   \
             this->prop##_set(value);                                        \
-            this->save_cache_file();                                        \
         }                                                                   \
                                                                             \
         invocation.ret();                                                   \
@@ -558,7 +555,6 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
     } while (0);
 
     this->icon_file_set(filename);
-    this->save_cache_file();
     invocation.ret();
 }
 
@@ -643,7 +639,6 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
         }
         this->locked_set(false);
         this->password_mode_set(password_mode);
-        this->save_cache_file();
         this->thaw_notify();
     }
 
@@ -661,7 +656,6 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
     this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
     this->locked_set(false);
     this->password_hint_set(password_hint);
-    this->save_cache_file();
 
     this->thaw_notify();
     invocation.ret();
@@ -701,6 +695,112 @@ void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocat
                    this->spwd_->sp_inact);
 }
 
+void User::add_auth_item_authorized_cb(MethodInvocation invocation,
+                                       int32_t mode,
+                                       const Glib::ustring &name,
+                                       const Glib::ustring &data_id)
+{
+    SETTINGS_PROFILE("mdoe: %d, name: %s, data_id: %s.", mode, name.c_str(), data_id.c_str());
+    auto group_name = this->mode_to_groupname(mode);
+
+    if (group_name.length() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+    }
+
+    if (this->user_cache_->get_string(group_name, name).length() != 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The name already exists."));
+    }
+
+    if (!this->user_cache_->set_value(group_name, name, data_id))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to add the authentication data."));
+    }
+
+    invocation.ret();
+}
+
+void User::del_auth_item_authorized_cb(MethodInvocation invocation,
+                                       int32_t mode,
+                                       const Glib::ustring &name)
+{
+    SETTINGS_PROFILE("mdoe: %d, name: %s.", mode, name.c_str());
+
+    auto group_name = this->mode_to_groupname(mode);
+
+    if (group_name.length() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+    }
+
+    if (!this->user_cache_->remove_key(group_name, name))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to remove the authentication data."));
+    }
+
+    invocation.ret();
+}
+
+void User::get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode)
+{
+    SETTINGS_PROFILE("mdoe: %d.", mode);
+
+    auto group_name = this->mode_to_groupname(mode);
+
+    if (group_name.length() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+    }
+
+    auto auth_items = this->user_cache_->get_group_kv(group_name);
+    Json::Value auth_items_value;
+    Json::FastWriter writer;
+    for (uint32_t i = 0; i < auth_items.size(); ++i)
+    {
+        auth_items_value[i]["name"] = auth_items[i].first;
+        auth_items_value[i]["data_id"] = auth_items[i].second;
+    }
+    auto result = writer.write(auth_items_value);
+    invocation.ret(result);
+}
+
+void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled)
+{
+    SETTINGS_PROFILE("mode: %d, enabled: %d.", mode, enabled);
+
+    if (mode >= AccountsAuthMode::ACCOUNTS_AUTH_MODE_LAST || mode < 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+    }
+
+    auto current_mode = this->auth_modes_get();
+    if (enabled)
+    {
+        current_mode = current_mode | mode;
+    }
+    else
+    {
+        current_mode = current_mode & (~mode);
+    }
+    this->auth_modes_set(current_mode);
+    invocation.ret();
+}
+
+std::string User::mode_to_groupname(int32_t mode)
+{
+    switch (mode)
+    {
+    case AccountsAuthMode::ACCOUNTS_AUTH_MODE_FINGERPRINT:
+        return KEYFILE_FINGERPRINT_GROUP_NAME;
+    case AccountsAuthMode::ACCOUNTS_AUTH_MODE_FACE:
+        return KEYFILE_FACE_GROUP_NAME;
+    default:
+        break;
+    }
+    return std::string();
+}
+
 #define USER_PROP_SET_HANDLER(prop, type)                                  \
     bool User::prop##_setHandler(type value)                               \
     {                                                                      \
@@ -715,15 +815,8 @@ USER_PROP_SET_HANDLER(real_name, const Glib::ustring &);
 USER_PROP_SET_HANDLER(account_type, gint32);
 USER_PROP_SET_HANDLER(home_directory, const Glib::ustring &);
 USER_PROP_SET_HANDLER(shell, const Glib::ustring &);
-USER_PROP_SET_HANDLER(email, const Glib::ustring &);
-USER_PROP_SET_HANDLER(language, const Glib::ustring &);
-USER_PROP_SET_HANDLER(session, const Glib::ustring &);
-USER_PROP_SET_HANDLER(session_type, const Glib::ustring &);
-USER_PROP_SET_HANDLER(x_session, const Glib::ustring &);
-USER_PROP_SET_HANDLER(icon_file, const Glib::ustring &);
 USER_PROP_SET_HANDLER(locked, bool);
 USER_PROP_SET_HANDLER(password_mode, gint32);
-USER_PROP_SET_HANDLER(password_hint, const Glib::ustring &);
 USER_PROP_SET_HANDLER(automatic_login, bool);
 USER_PROP_SET_HANDLER(system_account, bool);
 
@@ -776,43 +869,6 @@ void User::reset_icon_file()
     {
         this->icon_file_set(this->default_icon_file_);
     }
-}
-
-#define SET_STR_VALUE_TO_KEYFILE(key, fun)       \
-    {                                            \
-        auto s = this->fun();                    \
-        if (!s.empty())                          \
-        {                                        \
-            keyfile->set_string("User", key, s); \
-        }                                        \
-    }
-
-#define SET_BOOL_VALUE_TO_KEYFILE(key, fun)       \
-    {                                             \
-        auto b = this->fun();                     \
-        if (!s.empty())                           \
-        {                                         \
-            keyfile->set_boolean("User", key, b); \
-        }                                         \
-    }
-
-void User::save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile)
-{
-    if (keyfile->has_group("User"))
-    {
-        IGNORE_EXCEPTION(keyfile->remove_group("User"));
-    }
-
-    SET_STR_VALUE_TO_KEYFILE("Email", email_get);
-    SET_STR_VALUE_TO_KEYFILE("Language", language_get);
-    SET_STR_VALUE_TO_KEYFILE("Session", session_get);
-    SET_STR_VALUE_TO_KEYFILE("SessionType", session_type_get);
-    SET_STR_VALUE_TO_KEYFILE("XSession", x_session_get);
-    // SET_STR_VALUE_TO_KEYFILE("Location", Location_get);
-    SET_STR_VALUE_TO_KEYFILE("PasswordHint", password_hint_get);
-    SET_STR_VALUE_TO_KEYFILE("Icon", icon_file_get);
-
-    keyfile->set_boolean("User", "SystemAccount", this->system_account_get());
 }
 
 void User::move_extra_data(const std::string &old_name, const std::string &new_name)

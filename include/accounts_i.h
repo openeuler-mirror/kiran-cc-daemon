@@ -20,7 +20,7 @@ extern "C"
     {
         // 普通账户
         ACCOUNTS_ACCOUNT_TYPE_STANDARD,
-        // 管理员账户
+        // polkit管理员账户
         ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR,
         ACCOUNTS_ACCOUNT_TYPE_LAST
     };
@@ -34,6 +34,17 @@ extern "C"
         // 设置为无密码登陆
         ACCOUNTS_PASSWORD_MODE_NONE,
         ACCOUNTS_PASSWORD_MODE_LAST
+    };
+
+    enum AccountsAuthMode
+    {
+        // 密码验证
+        ACCOUNTS_AUTH_MODE_PASSWORD = (1 << 0),
+        // 指纹验证
+        ACCOUNTS_AUTH_MODE_FINGERPRINT = (1 << 1),
+        // 人脸识别验证
+        ACCOUNTS_AUTH_MODE_FACE = (1 << 2),
+        ACCOUNTS_AUTH_MODE_LAST = (1 << 3),
     };
 
 #ifdef __cplusplus
