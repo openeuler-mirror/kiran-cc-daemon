@@ -170,6 +170,14 @@ Glib::ustring User::icon_file_get()
     return filename;
 }
 
+gint32 User::auth_modes_get()
+{
+    auto auth_modes = this->user_cache_->get_int(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_AUTH_MODES);
+    // 如果没有设置验证方式，默认使用密码验证
+    RETURN_VAL_IF_TRUE(auth_modes == AccountsAuthMode::ACCOUNTS_AUTH_MODE_NONE, AccountsAuthMode::ACCOUNTS_AUTH_MODE_PASSWORD);
+    return auth_modes;
+}
+
 #define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
     void User::fun(MethodInvocation &invocation)                                                                \
     {                                                                                                           \
@@ -255,8 +263,31 @@ USER_SET_ONE_PROP_AUTH(SetAutomaticLogin, change_auto_login_authorized_cb, AUTH_
 USER_SET_ZERO_PROP_AUTH(GetPasswordExpirationPolicy, get_password_expiration_policy_authorized_cb, AUTH_CHANGE_OWN_USER_DATA);
 USER_SET_THREE_PROP_AUTH(AddAuthItem, add_auth_item_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, const Glib::ustring &, const Glib::ustring &);
 USER_SET_TWO_PROP_AUTH(DelAuthItem, del_auth_item_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(GetAuthItems, get_auth_items_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
-USER_SET_TWO_PROP_AUTH(EnableAuthMode, enable_auth_mode_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, bool);
+// USER_SET_ONE_PROP_AUTH(GetAuthItems, get_auth_items_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
+USER_SET_TWO_PROP_AUTH(EnableAuthMode, enable_auth_mode_authorized_cb, AUTH_USER_ADMIN, int32_t, bool);
+
+void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
+{
+    SETTINGS_PROFILE("mdoe: %d.", mode);
+
+    auto group_name = this->mode_to_groupname(mode);
+
+    if (group_name.length() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+    }
+
+    auto auth_items = this->user_cache_->get_group_kv(group_name);
+    Json::Value auth_items_value;
+    Json::FastWriter writer;
+    for (uint32_t i = 0; i < auth_items.size(); ++i)
+    {
+        auth_items_value[i]["name"] = auth_items[i].first;
+        auth_items_value[i]["data_id"] = auth_items[i].second;
+    }
+    auto result = writer.write(auth_items_value);
+    invocation.ret(result);
+}
 
 void User::init()
 {
@@ -719,6 +750,7 @@ void User::add_auth_item_authorized_cb(MethodInvocation invocation,
     }
 
     invocation.ret();
+    this->AuthItemChanged_signal.emit(mode);
 }
 
 void User::del_auth_item_authorized_cb(MethodInvocation invocation,
@@ -740,29 +772,7 @@ void User::del_auth_item_authorized_cb(MethodInvocation invocation,
     }
 
     invocation.ret();
-}
-
-void User::get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode)
-{
-    SETTINGS_PROFILE("mdoe: %d.", mode);
-
-    auto group_name = this->mode_to_groupname(mode);
-
-    if (group_name.length() == 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
-    }
-
-    auto auth_items = this->user_cache_->get_group_kv(group_name);
-    Json::Value auth_items_value;
-    Json::FastWriter writer;
-    for (uint32_t i = 0; i < auth_items.size(); ++i)
-    {
-        auth_items_value[i]["name"] = auth_items[i].first;
-        auth_items_value[i]["data_id"] = auth_items[i].second;
-    }
-    auto result = writer.write(auth_items_value);
-    invocation.ret(result);
+    this->AuthItemChanged_signal.emit(mode);
 }
 
 void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled)

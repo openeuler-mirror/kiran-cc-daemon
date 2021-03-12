@@ -38,6 +38,8 @@ extern "C"
 
     enum AccountsAuthMode
     {
+        // 没有任何验证方式
+        ACCOUNTS_AUTH_MODE_NONE = 0,
         // 密码验证
         ACCOUNTS_AUTH_MODE_PASSWORD = (1 << 0),
         // 指纹验证

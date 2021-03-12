@@ -56,7 +56,7 @@ public:
     virtual Glib::ustring password_hint_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_PASSWORD_HINT); };
     virtual bool automatic_login_get() { return this->automatic_login_; };
     virtual bool system_account_get() { return this->system_account_; };
-    virtual gint32 auth_modes_get() { return this->user_cache_->get_int(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_AUTH_MODES); };
+    virtual gint32 auth_modes_get();
 
 public:
     bool get_gid() { return this->passwd_->pw_gid; };
@@ -104,7 +104,7 @@ protected:
     virtual void AddAuthItem(gint32 mode, const Glib::ustring &name, const Glib::ustring &data_id, MethodInvocation &invocation);
     // 删除认证项
     virtual void DelAuthItem(gint32 mode, const Glib::ustring &name, MethodInvocation &invocation);
-    // 获取认证项
+    // 获取认证项，获取操作不需要加权限控制，否则登陆锁屏界面无法取到指纹数据做验证
     virtual void GetAuthItems(gint32 mode, MethodInvocation &invocation);
     // 开启或关闭认证，如果未开启认证，就算录入了数据也不会使用
     virtual void EnableAuthMode(gint32 mode, bool enabled, MethodInvocation &invocation);
@@ -180,7 +180,7 @@ private:
     void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
     void add_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name, const Glib::ustring &data_id);
     void del_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name);
-    void get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode);
+    // void get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode);
     void enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled);
     // 模式转为对应的keyfile的group_name
     std::string mode_to_groupname(int32_t mode);
