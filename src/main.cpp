@@ -9,6 +9,7 @@
 #include <gdkmm/wrap_init.h>
 #include <gtkmm.h>
 #include <gtkmm/wrap_init.h>
+#include <libnotify/notify.h>
 
 #include "lib/display/EWMH.h"
 #include "src/session-guarder.h"
@@ -18,6 +19,7 @@
 #include <glib/gi18n.h>
 #include <zlog_ex.h>
 
+#include "config.h"
 #include "lib/base/base.h"
 #include "lib/dbus/auth-manager.h"
 #include "lib/iso/iso-translation.h"
@@ -77,7 +79,7 @@ int main(int argc, char* argv[])
 
     group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
         g_print("kiran-cc-daemon: 2.0\n");
-        return false;
+        return true;
     });
 
     group.add_entry(verbose_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
@@ -109,9 +111,11 @@ int main(int argc, char* argv[])
     gtk_init(NULL, NULL);
     Gdk::wrap_init();
     Gtk::wrap_init();
+    notify_init(_("Control center"));
     Kiran::EWMH::global_init();
     Kiran::SessionGuarder::global_init();
     Kiran::SessionGuarder::get_instance()->signal_session_end().connect(&on_session_end);
+
 #endif
 
     Kiran::AuthManager::global_init();
@@ -122,6 +126,9 @@ int main(int argc, char* argv[])
     loop->run();
 #elif defined KCC_SESSION_TYPE
     gtk_main();
+    Kiran::SessionGuarder::global_deinit();
+    Kiran::EWMH::global_deinit();
+    notify_uninit();
 #endif
     return 0;
 }

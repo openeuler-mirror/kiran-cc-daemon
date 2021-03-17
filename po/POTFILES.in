@@ -20,5 +20,10 @@ plugins/display/display-manager.cpp
 plugins/display/display-monitor.cpp
 plugins/keybinding/custom-shortcut.h
 plugins/systeminfo/systeminfo-manager.cpp
+plugins/power/power-manager.cpp
+plugins/power/power-utils.cpp
+plugins/power/notification/power-notification-manager.cpp
+plugins/power/wrapper/power-upower-device.cpp
+plugins/power/tools/power-backlight-helper.cpp
 plugins/xsettings/xsettings-manager.cpp
 plugins/greeter-settings/greeter-settings-dbus.cpp

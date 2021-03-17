@@ -5,10 +5,8 @@ find_program(INTLTOOL-MERGE NAMES "intltool-merge" REQUIRED)
 # system-daemon
 if(build-system-daemon)
 
-    pkg_search_module(SYSTEMD REQUIRED systemd)
-
     # policy files
-    file(GLOB POLICY_IN_FILES ./*.policy.in)
+    file(GLOB POLICY_IN_FILES ./*SystemDaemon*.policy.in)
 
     foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
@@ -56,6 +54,17 @@ endif()
 
 # session-daemon
 if(build-session-daemon)
+
+    # policy files
+    file(GLOB POLICY_IN_FILES ./*SessionDaemon*.policy.in)
+
+    foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
+    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
+    execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
+
+    install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)
+    endforeach()
 
     # gschema.xml
     file(GLOB SCHEMA_IN_FILES ./*.gschema.xml.in)

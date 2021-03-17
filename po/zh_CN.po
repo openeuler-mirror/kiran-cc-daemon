@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-04 11:51+0800\n"
+"POT-Creation-Date: 2021-03-17 17:43+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -389,41 +389,45 @@ msgstr "设置主机名"
 msgid "Authentication is required to set the host name."
 msgstr "设置主机名之前需要身份验证"
 
-#: ../src/main.cpp:64
+#: ../src/main.cpp:66
 msgid "Output version infomation and exit"
 msgstr "输出版本信息并退出"
 
-#: ../src/main.cpp:70
+#: ../src/main.cpp:72
 msgid "Set log level to debug."
 msgstr "开启调试模式"
 
-#: ../src/main.cpp:76
+#: ../src/main.cpp:78
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
 
-#: ../plugins/accounts/accounts-manager.cpp:84
+#: ../src/main.cpp:114
+msgid "Control center"
+msgstr "控制中心"
+
+#: ../plugins/accounts/accounts-manager.cpp:81
 msgid "Failed to save autologin info to configuration file"
 msgstr "保存自动登陆信息到配置文件失败"
 
-#: ../plugins/accounts/accounts-manager.cpp:124
-#: ../plugins/accounts/accounts-manager.cpp:142
-#: ../plugins/accounts/accounts-manager.cpp:493
+#: ../plugins/accounts/accounts-manager.cpp:121
+#: ../plugins/accounts/accounts-manager.cpp:139
+#: ../plugins/accounts/accounts-manager.cpp:490
 msgid "No user found"
 msgstr "没有发现用户"
 
-#: ../plugins/accounts/accounts-manager.cpp:434
+#: ../plugins/accounts/accounts-manager.cpp:431
 msgid "The user already exists"
 msgstr "用户已存在"
 
-#: ../plugins/accounts/accounts-manager.cpp:449
+#: ../plugins/accounts/accounts-manager.cpp:446
 msgid "Unknown account type"
 msgstr "未知的用户类型"
 
-#: ../plugins/accounts/accounts-manager.cpp:476
+#: ../plugins/accounts/accounts-manager.cpp:473
 msgid "Internal error"
 msgstr "内部错误"
 
-#: ../plugins/accounts/accounts-manager.cpp:485
+#: ../plugins/accounts/accounts-manager.cpp:482
 msgid "Refuse to delete root user"
 msgstr "禁止删除root用户"
 
@@ -519,32 +523,32 @@ msgstr "用户被锁定"
 msgid "Account expiration policy unknown to accounts service"
 msgstr "无法获取用户过期策略"
 
-#: ../plugins/timedate/timedate-manager.cpp:94
+#: ../plugins/timedate/timedate-manager.cpp:91
 msgid "NTP unit is active"
 msgstr "NTP服务已开启"
 
-#: ../plugins/timedate/timedate-manager.cpp:111
+#: ../plugins/timedate/timedate-manager.cpp:108
 msgid "Invalid timezone"
 msgstr "不合法的时区"
 
-#: ../plugins/timedate/timedate-manager.cpp:173
+#: ../plugins/timedate/timedate-manager.cpp:170
 msgid "No NTP unit available"
 msgstr "没有NTP服务可用"
 
-#: ../plugins/timedate/timedate-manager.cpp:201
-#: ../plugins/timedate/timedate-manager.cpp:220
+#: ../plugins/timedate/timedate-manager.cpp:198
+#: ../plugins/timedate/timedate-manager.cpp:217
 msgid "Unknown format type"
 msgstr "未知的格式化类型"
 
-#: ../plugins/timedate/timedate-manager.cpp:229
+#: ../plugins/timedate/timedate-manager.cpp:226
 msgid "Failed to set date format"
 msgstr "设置日期显示格式失败"
 
-#: ../plugins/timedate/timedate-manager.cpp:239
+#: ../plugins/timedate/timedate-manager.cpp:236
 msgid "Failed to set hour format"
 msgstr "设置时间显示格式失败"
 
-#: ../plugins/timedate/timedate-manager.cpp:253
+#: ../plugins/timedate/timedate-manager.cpp:250
 msgid "Failed to set seconds showing"
 msgstr "设置秒数是否显示失败"
 
@@ -554,48 +558,48 @@ msgstr "设置秒数是否显示失败"
 msgid "%b %d %Y"
 msgstr "%Y年%m月%d日"
 
-#: ../plugins/display/display-manager.cpp:117
+#: ../plugins/display/display-manager.cpp:114
 msgid "Unknown display style"
 msgstr "未知的显示类型"
 
-#: ../plugins/display/display-manager.cpp:129
+#: ../plugins/display/display-manager.cpp:126
 msgid "Apply failed: {0}"
 msgstr "应用失败：{0}"
 
-#: ../plugins/display/display-manager.cpp:152
+#: ../plugins/display/display-manager.cpp:149
 msgid "The primary monitor cannot be empty."
 msgstr "主显示器不能为空"
 
-#: ../plugins/display/display-manager.cpp:157
+#: ../plugins/display/display-manager.cpp:154
 msgid "Not found the primary monitor"
 msgstr "未找到主显示器"
 
-#: ../plugins/display/display-manager.cpp:183
-#: ../plugins/display/display-manager.cpp:511
+#: ../plugins/display/display-manager.cpp:180
+#: ../plugins/display/display-manager.cpp:508
 msgid "Failed to set the window scaling factor"
 msgstr "设置窗口缩放因子失败"
 
-#: ../plugins/display/display-manager.cpp:347
+#: ../plugins/display/display-manager.cpp:344
 msgid "The config is empty"
 msgstr "自定义配置为空"
 
-#: ../plugins/display/display-manager.cpp:372
+#: ../plugins/display/display-manager.cpp:369
 msgid "Not found match configuration"
 msgstr "不能找到匹配的配置"
 
-#: ../plugins/display/display-manager.cpp:595
+#: ../plugins/display/display-manager.cpp:592
 msgid "Cannot find common mode for all enabled monitors"
 msgstr "不能为已开启的显示器找到相同的模式"
 
-#: ../plugins/display/display-manager.cpp:697
+#: ../plugins/display/display-manager.cpp:694
 msgid "Auto mode is set failed"
 msgstr "自动模式设置失败"
 
-#: ../plugins/display/display-manager.cpp:766
+#: ../plugins/display/display-manager.cpp:763
 msgid "Failed to create directory {0}"
 msgstr "创建目录{0}失败"
 
-#: ../plugins/display/display-manager.cpp:780
+#: ../plugins/display/display-manager.cpp:777
 msgid "Write to file {0} failed"
 msgstr "写文件到{0}失败"
 
@@ -649,6 +653,372 @@ msgstr "Json::Value赋值失败"
 #: ../plugins/systeminfo/systeminfo-manager.cpp:136
 msgid "Failed to set host name"
 msgstr "设置主机名失败"
+
+#: ../plugins/power/power-manager.cpp:62 ../plugins/power/power-manager.cpp:169
+msgid "Unknown power action"
+msgstr "未知电源动作"
+
+#: ../plugins/power/power-manager.cpp:80 ../plugins/power/power-manager.cpp:97
+#: ../plugins/power/power-manager.cpp:132
+#: ../plugins/power/power-manager.cpp:149
+msgid "Unsupported power supply mode"
+msgstr ""
+
+#: ../plugins/power/power-manager.cpp:102
+#: ../plugins/power/power-manager.cpp:154
+#: ../plugins/power/power-manager.cpp:254
+#: ../plugins/power/power-manager.cpp:289
+msgid "Unsupported power device"
+msgstr ""
+
+#: ../plugins/power/power-manager.cpp:189
+#: ../plugins/power/power-manager.cpp:225
+msgid "Unsupported power event"
+msgstr ""
+
+#: ../plugins/power/power-manager.cpp:194
+msgid "Failed to set the action"
+msgstr "设置动作失败"
+
+#: ../plugins/power/power-manager.cpp:259
+msgid "Failed to set brightness"
+msgstr "设置亮度失败"
+
+#: ../plugins/power/power-utils.cpp:19
+msgid "Less than 1 minute"
+msgstr "小于1分钟"
+
+#: ../plugins/power/power-utils.cpp:23
+msgid "{0} minute"
+msgid_plural "{0} minutes"
+msgstr[0] "{0}分钟"
+
+#: ../plugins/power/power-utils.cpp:31
+msgid "{0} hour"
+msgid_plural "{0} hours"
+msgstr[0] "{0}小时"
+
+#: ../plugins/power/power-utils.cpp:37
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "小时"
+
+#: ../plugins/power/power-utils.cpp:39
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "分钟"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:107
+msgid "Battery Discharging"
+msgstr "电池正在放电"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:112
+msgid "UPS Discharging"
+msgstr "UPS 正在放电"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:119
+msgid "{0} discharging ({1:.0f}%)"
+msgstr "{0} 放电中 ({1:.0f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:129
+msgid "Battery Charged"
+msgstr "电池已充满"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:153
+msgid "Laptop battery low"
+msgstr "笔记本电池电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:154
+#: ../plugins/power/notification/power-notification-manager.cpp:224
+msgid "Approximately <b>{0}</b> remaining ({1:.0f}%)"
+msgstr "大约剩余 <b>{0}</b>({1:.0f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:161
+msgid "UPS low"
+msgstr "UPS 电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:162
+msgid "Approximately <b>{0}</b> of remaining UPS backup power ({1:.0f}%)"
+msgstr "UPS 备用电源的剩余电量大约可维持 <b>{0}</b>，为总电量的 {1:.0f}%"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:168
+#: ../plugins/power/notification/power-notification-manager.cpp:236
+msgid "Mouse battery low"
+msgstr "鼠标电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:169
+msgid "Wireless mouse is low in power ({0:.0f}%)"
+msgstr "无线鼠标电量不足(仅剩 {0:.0f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:172
+#: ../plugins/power/notification/power-notification-manager.cpp:241
+msgid "Keyboard battery low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:173
+msgid "Wireless keyboard is low in power ({0:.0f}%)"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:176
+#: ../plugins/power/notification/power-notification-manager.cpp:246
+msgid "PDA battery low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:177
+msgid "PDA is low in power ({0:.0f}%)"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:180
+#: ../plugins/power/notification/power-notification-manager.cpp:251
+#: ../plugins/power/notification/power-notification-manager.cpp:256
+msgid "Cell phone battery low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:181
+msgid "Cell phone is low in power ({0:.0f}%)"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:184
+msgid "Media player battery low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:185
+msgid "Media player is low in power ({0:0f}%)"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:188
+#: ../plugins/power/notification/power-notification-manager.cpp:261
+msgid "Tablet battery low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:189
+msgid "Tablet is low in power ({0:0f}%)"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:192
+#: ../plugins/power/notification/power-notification-manager.cpp:266
+msgid "Attached computer battery low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:193
+msgid "Attached computer is low in power ({0:.0f}%)"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:223
+#: ../plugins/power/notification/power-notification-manager.cpp:298
+msgid "Laptop battery critically low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:230
+#: ../plugins/power/notification/power-notification-manager.cpp:323
+msgid "UPS critically low"
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:231
+msgid ""
+"Approximately <b>{0}</b> of remaining UPS power ({1:.0f}%). Restore AC power "
+"to your computer to avoid losing data."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:237
+msgid ""
+"Wireless mouse is very low in power ({0:.0f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:242
+msgid ""
+"Wireless keyboard is very low in power ({0:.0f}%). This device will soon "
+"stop functioning if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:247
+msgid ""
+"PDA is very low in power ({0:.0f}%). This device will soon stop functioning "
+"if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:252
+msgid ""
+"Cell phone is very low in power ({0:.0f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:257
+msgid ""
+"Media player is very low in power ({0:.0f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:262
+msgid ""
+"Tablet is very low in power ({0:.0f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:267
+msgid ""
+"Attached computer is very low in power ({0:.0f}%). The device will soon "
+"shutdown if not charged."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:306
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:310
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"hibernate."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:313
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"shutdown."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:316
+msgid ""
+"The battery is below the critical level and this computer will <b>power-off</"
+"b> when the battery becomes completely empty."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:331
+msgid ""
+"The UPS is below the critical level and this computer is about to suspend."
+"<br><b>NOTE:</b> A small amount of power is required to keep your computer "
+"in a suspended state."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:335
+msgid ""
+"The UPS is below the critical level and this computer is about to hibernate."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:338
+msgid ""
+"The UPS is below the critical level and this computer is about to shutdown."
+msgstr ""
+
+#: ../plugins/power/notification/power-notification-manager.cpp:341
+msgid ""
+"The UPS is below the critical level and this computer will <b>power-off</b> "
+"when the UPS becomes completely empty."
+msgstr ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:78
+msgid "AC adapter"
+msgid_plural "AC adapters"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:81
+msgid "Laptop battery"
+msgid_plural "Laptop batteries"
+msgstr[0] "笔记本电池"
+msgstr[1] "笔记本电池"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:84
+msgid "UPS"
+msgid_plural "UPSs"
+msgstr[0] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:87
+msgid "Monitor"
+msgid_plural "Monitors"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:90
+msgid "Mouse"
+msgid_plural "Mice"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:93
+msgid "Keyboard"
+msgid_plural "Keyboards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:96
+msgid "PDA"
+msgid_plural "PDAs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:99
+msgid "Cell phone"
+msgid_plural "Cell phones"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:102
+msgid "Media player"
+msgid_plural "Media players"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:105
+msgid "Tablet"
+msgid_plural "Tablets"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:108
+msgid "Computer"
+msgid_plural "Computers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:111
+msgid "Unknown"
+msgid_plural "Unknown"
+msgstr[0] "未知"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:85
+msgid "This program can only be used by the root user"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:92
+msgid "This program must only be run through pkexec"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:101
+msgid "Could not set the value of the backlight"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:155
+msgid "power backlight helper"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:160
+msgid "Get the current brightness value"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:165
+msgid "Get the max brightness value"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:169
+msgid "Set the brightness value"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:179
+msgid "Could not get the value of the backlight"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:193
+msgid "Could not get the maximum value of the backlight"
+msgstr ""
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:215
+msgid "No backlights were found on your system"
+msgstr ""
 
 #: ../plugins/xsettings/xsettings-manager.cpp:111
 #: ../plugins/xsettings/xsettings-manager.cpp:424

@@ -28,6 +28,11 @@ Name=Mouse
 Description=Mouse plugin
 Available=false
 
+[power]
+Name=Power
+Description=Power plugin
+Available=true
+
 [touchpad]
 Name=TouchPad
 Description=TouchPad plugin

@@ -7,6 +7,8 @@ file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 
 GEN_DBUS_STUB(CC_DAEMON cc_daemon com.kylinsec. ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.xml)
 
+configure_file(config.h.in ${PROJECT_BINARY_DIR}/config.h)
+
 if(build-system-daemon)
 # system daemon
 set (TARGET_SYSTEM_DAEMON kiran-system-daemon)
@@ -23,11 +25,7 @@ target_include_directories(${TARGET_SYSTEM_DAEMON} PUBLIC
 target_compile_definitions(${TARGET_SYSTEM_DAEMON} PRIVATE
     -DKCC_TYPE="system"
     -DKCC_SYSTEM_TYPE
-    -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/system"
-    -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
-
-target_compile_options(${TARGET_SYSTEM_DAEMON} PRIVATE
-    ${KSD_LINKER_FLAGS})
+    -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/system")
 
 target_link_libraries(${TARGET_SYSTEM_DAEMON} PRIVATE
     ${GMODULE_LIBRARIES}
@@ -53,21 +51,19 @@ add_executable(${TARGET_SESSION_DAEMON}
 target_include_directories(${TARGET_SESSION_DAEMON} PUBLIC 
     ${PROJECT_BINARY_DIR}/generated
     ${GMODULE_INCLUDE_DIRS}
-    ${GTKMM3_INCLUDE_DIRS})
+    ${GTKMM3_INCLUDE_DIRS}
+    ${LIBNOTIFY_INCLUDE_DIRS})
 
 target_compile_definitions(${TARGET_SESSION_DAEMON} PRIVATE
     -DKCC_TYPE="session"
     -DKCC_SESSION_TYPE
-    -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/session"
-    -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
-
-target_compile_options(${TARGET_SESSION_DAEMON} PRIVATE
-    ${KSD_LINKER_FLAGS})
+    -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/session")
 
 
 target_link_libraries(${TARGET_SESSION_DAEMON} PRIVATE
     ${GMODULE_LIBRARIES}
     ${GTKMM3_LIBRARIES}
+    ${LIBNOTIFY_LIBRARIES}
     lib-base
     lib-dbus
     lib-iso

@@ -15,7 +15,7 @@ namespace Kiran
 #define MATE_SESSION_DBUS_INTERFACE "org.gnome.SessionManager"
 #define MATE_SESSION_PRIVATE_DBUS_INTERFACE "org.gnome.SessionManager.ClientPrivate"
 
-SessionGuarder::SessionGuarder() 
+SessionGuarder::SessionGuarder()
 {
 }
 
@@ -31,10 +31,18 @@ void SessionGuarder::init()
 {
     g_autofree gchar* client_id = NULL;
 
-    this->sm_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SESSION,
-                                                            MATE_SESSION_DBUS_NAME,
-                                                            MATE_SESSION_DBUS_OBJECT,
-                                                            MATE_SESSION_DBUS_INTERFACE);
+    try
+    {
+        this->sm_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SESSION,
+                                                                MATE_SESSION_DBUS_NAME,
+                                                                MATE_SESSION_DBUS_OBJECT,
+                                                                MATE_SESSION_DBUS_INTERFACE);
+    }
+    catch (const Glib::Error& e)
+    {
+        LOG_WARNING("%s", e.what().c_str());
+        return;
+    }
 
     if (!this->sm_proxy_)
     {
