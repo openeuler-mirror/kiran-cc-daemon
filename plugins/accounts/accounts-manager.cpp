@@ -314,14 +314,14 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 
         if (old_iter == this->users_.end())
         {
-            user = std::make_shared<User>(pwent->pw_uid);
+            user = User::create_user(*iter);
         }
         else
         {
             user = old_iter->second;
+            user->update_from_passwd_shadow(*iter);
         }
 
-        user->update_from_passwd_shadow(*iter);
         auto new_iter = users.emplace(user->user_name_get().raw(), user);
 
         if (!new_iter.second)
@@ -332,11 +332,6 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
         {
             LOG_DEBUG("add user: %s", pwent->pw_name.c_str());
         }
-
-        if (!this->is_explicitly_requested_user(pwent->pw_name))
-        {
-            user->load_cache_file();
-        }
     }
     return users;
 }
@@ -345,8 +340,7 @@ std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Pa
 {
     SETTINGS_PROFILE("UserName: %s.", pwent->pw_name.c_str());
 
-    auto user = std::make_shared<User>(pwent->pw_uid);
-    user->update_from_passwd_shadow(std::make_pair(pwent, spent));
+    auto user = User::create_user(std::make_pair(pwent, spent));
     user->dbus_register();
     auto iter = this->users_.emplace(user->user_name_get(), user);
     if (!iter.second)
@@ -465,7 +459,6 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     if (user)
     {
         user->system_account_set(false);
-        user->save_cache_file();
         invocation.ret(user->get_object_path());
     }
     else

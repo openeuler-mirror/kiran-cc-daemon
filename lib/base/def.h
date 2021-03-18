@@ -87,15 +87,18 @@ private:
         if (cond) continue;    \
     }
 
-#define IGNORE_EXCEPTION(expr)       \
-    {                                \
-        try                          \
-        {                            \
-            expr;                    \
-        }                            \
-        catch (const Glib::Error &e) \
-        {                            \
-        }                            \
+#define IGNORE_EXCEPTION(expr)          \
+    {                                   \
+        try                             \
+        {                               \
+            expr;                       \
+        }                               \
+        catch (const Glib::Error &e)    \
+        {                               \
+        }                               \
+        catch (const std::exception &e) \
+        {                               \
+        }                               \
     }
 
 #define POINTER_TO_STRING(p) ((p) ? p : std::string())

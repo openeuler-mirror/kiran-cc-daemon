@@ -12,6 +12,7 @@
 
 #include "accounts_i.h"
 #include "plugins/accounts/accounts-wrapper.h"
+#include "plugins/accounts/user-cache.h"
 
 namespace Kiran
 {
@@ -19,41 +20,43 @@ class User : public SystemDaemon::Accounts::UserStub, public std::enable_shared_
 {
 public:
     User() = delete;
-    User(uint64_t uid);
+    User(PasswdShadow passwd_shadow);
     virtual ~User();
+
+    static std::shared_ptr<User> create_user(PasswdShadow passwd_shadow);
 
     void dbus_register();
     void dbus_unregister();
 
     Glib::DBusObjectPathString get_object_path() { return this->object_path_; }
 
-    void update_from_passwd_shadow(PasswdShadow passwd_shadow);
-
     void freeze_notify();
     void thaw_notify();
 
-    void save_cache_file();
-    void load_cache_file();
+    void update_from_passwd_shadow(PasswdShadow passwd_shadow);
+
     void remove_cache_file();
 
 public:
     virtual guint64 uid_get() { return this->uid_; };
     virtual Glib::ustring user_name_get() { return this->user_name_; };
     virtual Glib::ustring real_name_get() { return this->real_name_; };
+    // 参考AccountsAccountType
     virtual gint32 account_type_get() { return this->account_type_; };
     virtual Glib::ustring home_directory_get() { return this->home_directory_; };
     virtual Glib::ustring shell_get() { return this->shell_; };
-    virtual Glib::ustring email_get() { return this->email_; };
-    virtual Glib::ustring language_get() { return this->language_; };
-    virtual Glib::ustring session_get() { return this->session_; };
-    virtual Glib::ustring session_type_get() { return this->session_type_; };
-    virtual Glib::ustring x_session_get() { return this->x_session_; };
+    virtual Glib::ustring email_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_EMAIL); };
+    virtual Glib::ustring language_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_LANGUAGE); };
+    virtual Glib::ustring session_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION); };
+    virtual Glib::ustring session_type_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION_TYPE); };
+    virtual Glib::ustring x_session_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_XSESSION); };
     virtual Glib::ustring icon_file_get();
     virtual bool locked_get() { return this->locked_; };
     virtual gint32 password_mode_get() { return this->password_mode_; };
-    virtual Glib::ustring password_hint_get() { return this->password_hint_; };
+    virtual Glib::ustring password_hint_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_PASSWORD_HINT); };
     virtual bool automatic_login_get() { return this->automatic_login_; };
     virtual bool system_account_get() { return this->system_account_; };
+    virtual gint32 auth_modes_get();
 
 public:
     bool get_gid() { return this->passwd_->pw_gid; };
@@ -91,6 +94,20 @@ protected:
     virtual void SetAutomaticLogin(bool enabled, MethodInvocation &invocation);
     // 获取用户密码过期信息
     virtual void GetPasswordExpirationPolicy(MethodInvocation &invocation);
+    /**
+     * @brief 添加/录入认证数据
+     * @param {mode} 参考AccountsPasswordMode定义
+     * @param {name} 认证数据的名字 ，例如指纹1、指纹2
+     * @param {data_id} 认证数据的唯一标识
+     * @return 如果名字已经存在或者mode不支持，则返回错误
+     */
+    virtual void AddAuthItem(gint32 mode, const Glib::ustring &name, const Glib::ustring &data_id, MethodInvocation &invocation);
+    // 删除认证项
+    virtual void DelAuthItem(gint32 mode, const Glib::ustring &name, MethodInvocation &invocation);
+    // 获取认证项，获取操作不需要加权限控制，否则登陆锁屏界面无法取到指纹数据做验证
+    virtual void GetAuthItems(gint32 mode, MethodInvocation &invocation);
+    // 开启或关闭认证，如果未开启认证，就算录入了数据也不会使用
+    virtual void EnableAuthMode(gint32 mode, bool enabled, MethodInvocation &invocation);
 
     virtual bool uid_setHandler(guint64 value);
     virtual bool user_name_setHandler(const Glib::ustring &value);
@@ -98,19 +115,50 @@ protected:
     virtual bool account_type_setHandler(gint32 value);
     virtual bool home_directory_setHandler(const Glib::ustring &value);
     virtual bool shell_setHandler(const Glib::ustring &value);
-    virtual bool email_setHandler(const Glib::ustring &value);
-    virtual bool language_setHandler(const Glib::ustring &value);
-    virtual bool session_setHandler(const Glib::ustring &value);
-    virtual bool session_type_setHandler(const Glib::ustring &value);
-    virtual bool x_session_setHandler(const Glib::ustring &value);
-    virtual bool icon_file_setHandler(const Glib::ustring &value);
+    virtual bool email_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_EMAIL, value);
+    }
+    virtual bool language_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_LANGUAGE, value);
+    };
+    virtual bool session_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION, value);
+    };
+    virtual bool session_type_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION_TYPE, value);
+    };
+    virtual bool x_session_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_XSESSION, value);
+    };
+    virtual bool icon_file_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_ICON, value);
+    };
+    virtual bool password_hint_setHandler(const Glib::ustring &value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_PASSWORD_HINT, value);
+    }
+
     virtual bool locked_setHandler(bool value);
     virtual bool password_mode_setHandler(gint32 value);
-    virtual bool password_hint_setHandler(const Glib::ustring &value);
     virtual bool automatic_login_setHandler(bool value);
     virtual bool system_account_setHandler(bool value);
+    virtual bool auth_modes_setHandler(gint32 value)
+    {
+        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_AUTH_MODES, value);
+    }
 
 private:
+    void init();
+
+    // 这里只更新与缓存数据无关的变量
+    void udpate_nocache_var(PasswdShadow passwd_shadow);
+
     std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
     void change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
     void change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
@@ -130,16 +178,24 @@ private:
     void change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login);
     void become_user(std::shared_ptr<Passwd> passwd);
     void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
+    void add_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name, const Glib::ustring &data_id);
+    void del_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name);
+    // void get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode);
+    void enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled);
+    // 模式转为对应的keyfile的group_name
+    std::string mode_to_groupname(int32_t mode);
 
     bool icon_file_changed(const Glib::ustring &value);
     AccountsAccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
     void reset_icon_file();
 
-    void save_to_keyfile(std::shared_ptr<Glib::KeyFile> keyfile);
     void move_extra_data(const std::string &old_name, const std::string &new_name);
 
 private:
     Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
+
+    // 绑定的passwd和shadow文件
+    PasswdShadow passwd_shadow_;
 
     uint32_t object_register_id_;
 
@@ -155,18 +211,12 @@ private:
     int32_t account_type_;
     Glib::ustring home_directory_;
     Glib::ustring shell_;
-    Glib::ustring email_;
-    Glib::ustring language_;
-    Glib::ustring session_;
-    Glib::ustring session_type_;
-    Glib::ustring x_session_;
-    Glib::ustring icon_file_;
     bool locked_;
     int32_t password_mode_;
-    Glib::ustring password_hint_;
     bool automatic_login_;
     bool system_account_;
 
-    std::shared_ptr<Glib::KeyFile> keyfile_;
+    // 用户缓存数据管理
+    std::shared_ptr<UserCache> user_cache_;
 };
 }  // namespace Kiran
