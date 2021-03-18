@@ -234,7 +234,7 @@ void BluetoothManager::remove_adapter(const std::string &object_path)
     auto iter = this->adapters_.find(object_path);
     if (iter == this->adapters_.end())
     {
-        LOG_WARNING("Not found adapter %s.", object_path);
+        LOG_WARNING("Not found adapter %s.", object_path.c_str());
         return;
     }
     this->adapters_.erase(iter);
@@ -262,7 +262,7 @@ void BluetoothManager::remove_device(const std::string &object_path)
     auto adapter = this->get_adapter_by_device(object_path);
     if (!adapter)
     {
-        LOG_WARNING("Not found adapter for device %s.", object_path);
+        LOG_WARNING("Not found adapter for device %s.", object_path.c_str());
         return;
     }
     adapter->remove_device(object_path);

@@ -229,8 +229,8 @@ void GreeterSettingsManager::on_profile_changed(const Glib::RefPtr<Gio::File> &f
     if (new_data.background_file != priv->background_file)
     {
         LOG_DEBUG("backgrond-file changed from '%s' to '%s'",
-                  priv->background_file,
-                  new_data.background_file);
+                  priv->background_file.c_str(),
+                  new_data.background_file.c_str());
         priv->background_file = new_data.background_file;
         m_signal_background_file_changed.emit();
     }
@@ -464,7 +464,7 @@ bool GreeterSettingsManager::load_greeter_settings(GreeterSettingsData *data, Gl
                     data->scale_mode = GREETER_SETTINGS_SCALING_MODE_DISABLE;
                 else
                 {
-                    LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling, KEY_ENABLE_SCALING);
+                    LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling.c_str(), KEY_ENABLE_SCALING);
                     data->scale_mode = GREETER_SETTINGS_SCALING_MODE_AUTO;
                 }
             }

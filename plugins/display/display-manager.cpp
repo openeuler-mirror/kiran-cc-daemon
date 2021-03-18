@@ -330,7 +330,7 @@ void DisplayManager::load_config()
     }
     else
     {
-        LOG_DEBUG("file %s is not exist.", this->config_file_path_);
+        LOG_DEBUG("file %s is not exist.", this->config_file_path_.c_str());
     }
     return;
 }
