@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "plugins/power/backlight/power-backlight-device.h"
+#include "plugins/power/backlight/power-backlight-base.h"
 #include "power_i.h"
 
 namespace Kiran
@@ -24,15 +24,22 @@ public:
 
     static void global_deinit() { delete instance_; };
 
-    std::shared_ptr<PowerBacklightDevice> get_backlight_device(PowerDeviceType device);
+    std::shared_ptr<PowerBacklightPercentage> get_backlight_device(PowerDeviceType device);
+
+    // 背光设备亮度发生变化
+    sigc::signal<void, std::shared_ptr<PowerBacklightPercentage>, int32_t>& signal_brightness_changed() { return this->brightness_changed_; };
 
 private:
     void init();
 
+    void on_backlight_brightness_changed(int32_t brightness_percentage, std::shared_ptr<PowerBacklightPercentage> backlight);
+
 private:
     static PowerBacklight* instance_;
 
-    std::shared_ptr<PowerBacklightDevice> backlight_kbd_;
-    std::shared_ptr<PowerBacklightDevice> backlight_monitor_;
+    std::shared_ptr<PowerBacklightPercentage> backlight_kbd_;
+    std::shared_ptr<PowerBacklightPercentage> backlight_monitor_;
+
+    sigc::signal<void, std::shared_ptr<PowerBacklightPercentage>, int32_t> brightness_changed_;
 };
 }  // namespace Kiran

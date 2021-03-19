@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "plugins/power/backlight/power-backlight-device.h"
+#include "plugins/power/backlight/power-backlight-base.h"
 
 namespace Kiran
 {

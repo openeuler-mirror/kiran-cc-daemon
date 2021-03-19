@@ -101,5 +101,7 @@
             <default>true</default>
             <description>Show the tray icon in notification area.</description>
         </key>
+
+
     </schema>
 </schemalist>

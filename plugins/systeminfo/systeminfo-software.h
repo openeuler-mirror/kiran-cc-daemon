@@ -1,5 +1,5 @@
 /**
- * @file          /kiran-cc-daemon/plugins/systeminfo/systeminfo-software.h
+ * @file          /kiran-menu/home/tangjie02/git/kiran-cc-daemon/plugins/systeminfo/systeminfo-software.h
  * @brief         系统内核相关信息
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 

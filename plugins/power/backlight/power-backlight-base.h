@@ -1,5 +1,5 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/backlight/power-backlight-device.h
+ * @file          /kiran-cc-daemon/plugins/power/backlight/power-backlight-base.h
  * @brief         背光设备亮度控制基类
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -8,25 +8,28 @@
 #pragma once
 
 #include "lib/base/base.h"
+#include "power_i.h"
 
 namespace Kiran
 {
-class PowerBacklightDevice
+class PowerBacklightPercentage
 {
 public:
-    PowerBacklightDevice(){};
-    virtual ~PowerBacklightDevice(){};
+    PowerBacklightPercentage(){};
+    virtual ~PowerBacklightPercentage(){};
 
     virtual void init() = 0;
+
+    virtual PowerDeviceType get_type() = 0;
 
     // 设置亮度百分比
     virtual bool set_brightness(int32_t percentage) = 0;
     // 获取亮度百分比，如果小于0，则说明不支持调节亮度
     virtual int32_t get_brightness() = 0;
 
-    // 增加亮度
+    // 增加亮度百分比
     virtual bool brightness_up() = 0;
-    // 降低亮度
+    // 降低亮度百分比
     virtual bool brightness_down() = 0;
 
     // 亮度发生变化

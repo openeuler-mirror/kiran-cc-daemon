@@ -7,8 +7,6 @@
 
 #include "plugins/power/tray/power-tray.h"
 
-
-
 #include "power_i.h"
 
 namespace Kiran

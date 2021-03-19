@@ -29,7 +29,7 @@ void PowerBacklight::global_init()
     instance_->init();
 }
 
-std::shared_ptr<PowerBacklightDevice> PowerBacklight::get_backlight_device(PowerDeviceType device)
+std::shared_ptr<PowerBacklightPercentage> PowerBacklight::get_backlight_device(PowerDeviceType device)
 {
     switch (device)
     {
@@ -47,6 +47,19 @@ void PowerBacklight::init()
 {
     this->backlight_monitor_->init();
     this->backlight_kbd_->init();
+
+    this->backlight_monitor_->signal_brightness_changed().connect(
+        sigc::bind(sigc::mem_fun(this, &PowerBacklight::on_backlight_brightness_changed),
+                   this->backlight_monitor_));
+
+    this->backlight_kbd_->signal_brightness_changed().connect(
+        sigc::bind(sigc::mem_fun(this, &PowerBacklight::on_backlight_brightness_changed),
+                   this->backlight_kbd_));
+}
+
+void PowerBacklight::on_backlight_brightness_changed(int32_t brightness_percentage, std::shared_ptr<PowerBacklightPercentage> backlight)
+{
+    this->brightness_changed_.emit(backlight, brightness_percentage);
 }
 
 }  // namespace Kiran

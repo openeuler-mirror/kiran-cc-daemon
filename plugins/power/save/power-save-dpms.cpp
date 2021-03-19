@@ -75,6 +75,9 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
         XSync(this->xdisplay_, FALSE);
     }
 
+    /* 可能出现的情况：本程序设置为POWER_DPMS_LEVEL_STANDBY->其他程序设置为POWER_DPMS_LEVEL_ON->本程序又设置回POWER_DPMS_LEVEL_STANDBY，
+    但是cached_level没有及时更新还是为POWER_DPMS_LEVEL_STANDBY，此时
+    */
     if (level != this->cached_level_)
     {
         this->cached_level_ = level;

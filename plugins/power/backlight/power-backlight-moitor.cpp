@@ -23,20 +23,26 @@ void PowerBacklightMonitor::init()
     SETTINGS_PROFILE("");
 
     backlight_x11_.init();
+    this->backlight_helper_.init();
+
     this->load_absolute_monitors();
     this->brightness_percentage_ = this->get_brightness();
 
     this->backlight_x11_.signal_monitor_changed().connect(sigc::mem_fun(this, &PowerBacklightMonitor::on_x11_monitor_changed));
+    this->backlight_helper_.signal_brightness_changed().connect(sigc::mem_fun(this, &PowerBacklightMonitor::on_helper_brightness_changed));
 }
 
 bool PowerBacklightMonitor::set_brightness(int32_t percentage)
 {
+    SETTINGS_PROFILE("percentage: %d.", percentage);
+
     RETURN_VAL_IF_TRUE(this->absolute_monitors_.size() == 0, false);
 
     for (auto &monitor : this->absolute_monitors_)
     {
         RETURN_VAL_IF_FALSE(this->set_brightness_percentage(monitor, percentage), false);
     }
+
     return true;
 }
 
@@ -228,18 +234,23 @@ int32_t PowerBacklightMonitor::get_brightness_step(uint32_t levels)
     return 1;
 }
 
+void PowerBacklightMonitor::update_cached_brightness()
+{
+    auto brightness_percentage = this->get_brightness();
+    if (brightness_percentage != this->brightness_percentage_)
+    {
+        this->brightness_percentage_ = brightness_percentage;
+        this->brightness_changed_.emit(this->brightness_percentage_);
+    }
+}
+
 void PowerBacklightMonitor::on_x11_monitor_changed(PBXMonitorEvent x11_monitor_event)
 {
     switch (x11_monitor_event)
     {
     case PBXMonitorEvent::PBX_MONITOR_EVENT_PROPERTY_CHANGED:
     {
-        auto brightness_percentage = this->get_brightness();
-        if (brightness_percentage != this->brightness_percentage_)
-        {
-            this->brightness_percentage_ = brightness_percentage;
-            this->brightness_changed_.emit(this->brightness_percentage_);
-        }
+        this->update_cached_brightness();
         break;
     }
     case PBXMonitorEvent::PBX_MONITOR_EVENT_SCREEN_CHANGED:
@@ -248,6 +259,11 @@ void PowerBacklightMonitor::on_x11_monitor_changed(PBXMonitorEvent x11_monitor_e
     default:
         break;
     }
+}
+
+void PowerBacklightMonitor::on_helper_brightness_changed(int32_t brightness_value)
+{
+    this->update_cached_brightness();
 }
 
 }  // namespace Kiran

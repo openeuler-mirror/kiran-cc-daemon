@@ -14,9 +14,10 @@
 
 namespace Kiran
 {
-PowerManager::PowerManager(PowerWrapperManager* wrapper_manager) : wrapper_manager_(wrapper_manager),
-                                                                   dbus_connect_id_(),
-                                                                   object_register_id_(0)
+PowerManager::PowerManager(PowerWrapperManager* wrapper_manager, PowerBacklight* backlight) : wrapper_manager_(wrapper_manager),
+                                                                                              backlight_(backlight),
+                                                                                              dbus_connect_id_(),
+                                                                                              object_register_id_(0)
 {
     this->power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
     this->upower_client_ = this->wrapper_manager_->get_default_upower();
@@ -31,9 +32,9 @@ PowerManager::~PowerManager()
 }
 
 PowerManager* PowerManager::instance_ = nullptr;
-void PowerManager::global_init(PowerWrapperManager* wrapper_manager)
+void PowerManager::global_init(PowerWrapperManager* wrapper_manager, PowerBacklight* backlight)
 {
-    instance_ = new PowerManager(wrapper_manager);
+    instance_ = new PowerManager(wrapper_manager, backlight);
     instance_->init();
 }
 
@@ -41,6 +42,8 @@ void PowerManager::init()
 {
     this->upower_client_->signal_on_battery_changed().connect(sigc::mem_fun(this, &PowerManager::on_battery_changed));
     this->upower_client_->signal_lid_is_closed_changed().connect(sigc::mem_fun(this, &PowerManager::on_lid_is_closed_changed));
+    this->power_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerManager::on_settings_changed));
+    this->backlight_->signal_brightness_changed().connect(sigc::mem_fun(this, &PowerManager::on_brightness_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  POWER_DBUS_NAME,
@@ -310,6 +313,50 @@ void PowerManager::on_battery_changed(bool on_battery)
 void PowerManager::on_lid_is_closed_changed(bool lid_is_closed)
 {
     this->lid_is_present_set(lid_is_closed);
+}
+
+void PowerManager::on_settings_changed(const Glib::ustring& key)
+{
+    switch (shash(key.c_str()))
+    {
+    case CONNECT(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME, _hash):
+    case CONNECT(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION, _hash):
+        this->IdleActionChanged_signal.emit(PowerDeviceType::POWER_DEVICE_TYPE_COMPUTER, PowerSupplyMode::POWER_SUPPLY_MODE_BATTERY);
+        break;
+    case CONNECT(POWER_SCHEMA_COMPUTER_AC_IDLE_TIME, _hash):
+    case CONNECT(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION, _hash):
+        this->IdleActionChanged_signal.emit(PowerDeviceType::POWER_DEVICE_TYPE_COMPUTER, PowerSupplyMode::POWER_SUPPLY_MODE_AC);
+        break;
+    case CONNECT(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME, _hash):
+    case CONNECT(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION, _hash):
+        this->IdleActionChanged_signal.emit(PowerDeviceType::POWER_DEVICE_TYPE_BACKLIGHT, PowerSupplyMode::POWER_SUPPLY_MODE_BATTERY);
+        break;
+    case CONNECT(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME, _hash):
+    case CONNECT(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION, _hash):
+        this->IdleActionChanged_signal.emit(PowerDeviceType::POWER_DEVICE_TYPE_BACKLIGHT, PowerSupplyMode::POWER_SUPPLY_MODE_AC);
+        break;
+    case CONNECT(POWER_SCHEMA_BUTTON_SUSPEND_ACTION, _hash):
+        this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_PRESSED_SUSPEND);
+        break;
+    case CONNECT(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION, _hash):
+        this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_PRESSED_HIBERNATE);
+        break;
+    case CONNECT(POWER_SCHEMA_BUTTON_POWER_ACTION, _hash):
+        this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_PRESSED_POWEROFF);
+        break;
+    case CONNECT(POWER_SCHEMA_LID_CLOSED_ACTION, _hash):
+        this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_LID_CLOSED);
+        break;
+    default:
+        break;
+    }
+}
+
+void PowerManager::on_brightness_changed(std::shared_ptr<PowerBacklightPercentage> backlight_device, int32_t brightness_value)
+{
+    SETTINGS_PROFILE("brightness_value: %d, type: %d.", brightness_value, backlight_device->get_type());
+
+    this->BrightnessChanged_signal.emit(backlight_device->get_type());
 }
 
 void PowerManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
