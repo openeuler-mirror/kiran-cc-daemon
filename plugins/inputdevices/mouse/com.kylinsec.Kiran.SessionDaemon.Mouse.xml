@@ -50,7 +50,7 @@
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
       <doc:doc>
         <doc:description>
-          <doc:para>“Natural scrolling” is the terminology for moving the content in the direction of scrolling, 
+          <doc:para>"Natural scrolling" is the terminology for moving the content in the direction of scrolling, 
           i.e. moving the wheel or fingers down moves the page down. Traditional scrolling moves the content in the
           opposite direction. Natural scrolling can be turned on or off, it is usually off by default.</doc:para>
         </doc:description>

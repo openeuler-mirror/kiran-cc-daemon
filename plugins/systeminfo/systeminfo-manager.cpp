@@ -55,14 +55,14 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
             auto hardware_info = this->hardware_.get_hardware_info();
             values["cpu"]["model"] = hardware_info.cpu_info.model;
             values["cpu"]["cores_number"] = hardware_info.cpu_info.cores_number;
-            values["mem"]["total_size"] = hardware_info.mem_info.total_size;
+            values["mem"]["total_size"] = Json::Int64(hardware_info.mem_info.total_size);
             for (uint32_t i = 0; i < hardware_info.disks_info.size(); ++i)
             {
                 Json::Value disk_value;
                 disk_value["name"] = hardware_info.disks_info[i].name;
                 disk_value["model"] = hardware_info.disks_info[i].model;
                 disk_value["vendor"] = hardware_info.disks_info[i].vendor;
-                disk_value["size"] = hardware_info.disks_info[i].size;
+                disk_value["size"] = Json::Int64(hardware_info.disks_info[i].size);
                 values["disks"].append(disk_value);
             }
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-04 11:51+0800\n"
+"POT-Creation-Date: 2021-03-12 15:34+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -401,29 +401,29 @@ msgstr "开启调试模式"
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
 
-#: ../plugins/accounts/accounts-manager.cpp:84
+#: ../plugins/accounts/accounts-manager.cpp:81
 msgid "Failed to save autologin info to configuration file"
 msgstr "保存自动登陆信息到配置文件失败"
 
-#: ../plugins/accounts/accounts-manager.cpp:124
-#: ../plugins/accounts/accounts-manager.cpp:142
-#: ../plugins/accounts/accounts-manager.cpp:493
+#: ../plugins/accounts/accounts-manager.cpp:121
+#: ../plugins/accounts/accounts-manager.cpp:139
+#: ../plugins/accounts/accounts-manager.cpp:483
 msgid "No user found"
 msgstr "没有发现用户"
 
-#: ../plugins/accounts/accounts-manager.cpp:434
+#: ../plugins/accounts/accounts-manager.cpp:425
 msgid "The user already exists"
 msgstr "用户已存在"
 
-#: ../plugins/accounts/accounts-manager.cpp:449
+#: ../plugins/accounts/accounts-manager.cpp:440
 msgid "Unknown account type"
 msgstr "未知的用户类型"
 
-#: ../plugins/accounts/accounts-manager.cpp:476
+#: ../plugins/accounts/accounts-manager.cpp:466
 msgid "Internal error"
 msgstr "内部错误"
 
-#: ../plugins/accounts/accounts-manager.cpp:485
+#: ../plugins/accounts/accounts-manager.cpp:475
 msgid "Refuse to delete root user"
 msgstr "禁止删除root用户"
 
@@ -487,64 +487,81 @@ msgstr "无法更新下级gid文件"
 msgid "Unknown error"
 msgstr "未知错误"
 
-#: ../plugins/accounts/user.cpp:485
+#: ../plugins/accounts/user.cpp:482
 msgid "File {0} is not a regular file"
 msgstr "{0}不是普通文件"
 
-#: ../plugins/accounts/user.cpp:491
+#: ../plugins/accounts/user.cpp:488
 msgid "File {0} is too large to be used as an icon"
 msgstr "文件{0}太大，不能作为图标使用"
 
-#: ../plugins/accounts/user.cpp:498
+#: ../plugins/accounts/user.cpp:495
 msgid "Failed to copy file, could not determine caller UID"
 msgstr "复制文件失败，无法确定调用方UID"
 
-#: ../plugins/accounts/user.cpp:531
+#: ../plugins/accounts/user.cpp:528
 msgid "Failed to read file {0}"
 msgstr "读取文件{0}失败"
 
-#: ../plugins/accounts/user.cpp:547
+#: ../plugins/accounts/user.cpp:544
 msgid "Failed to Copye file {0} to {1}"
 msgstr "拷贝文件{0}到{1}失败"
 
-#: ../plugins/accounts/user.cpp:595
+#: ../plugins/accounts/user.cpp:591
 msgid "group {0} not found"
 msgstr "未发现组{0}"
 
-#: ../plugins/accounts/user.cpp:678
+#: ../plugins/accounts/user.cpp:672
 msgid "User is locked"
 msgstr "用户被锁定"
 
-#: ../plugins/accounts/user.cpp:693
+#: ../plugins/accounts/user.cpp:687
 msgid "Account expiration policy unknown to accounts service"
 msgstr "无法获取用户过期策略"
 
-#: ../plugins/timedate/timedate-manager.cpp:94
+#: ../plugins/accounts/user.cpp:708 ../plugins/accounts/user.cpp:734
+#: ../plugins/accounts/user.cpp:753 ../plugins/accounts/user.cpp:774
+msgid "The authentication mdoe isn't supported."
+msgstr "认证模式不支持"
+
+#: ../plugins/accounts/user.cpp:713
+msgid "The name already exists."
+msgstr "名字已存在"
+
+#: ../plugins/accounts/user.cpp:718
+msgid "Failed to add the authentication data."
+msgstr "添加认证数据失败"
+
+#: ../plugins/accounts/user.cpp:739
+msgid "Failed to remove the authentication data."
+msgstr "删除认证数据失败"
+
+#: ../plugins/timedate/timedate-manager.cpp:91
 msgid "NTP unit is active"
 msgstr "NTP服务已开启"
 
-#: ../plugins/timedate/timedate-manager.cpp:111
+#: ../plugins/timedate/timedate-manager.cpp:108
 msgid "Invalid timezone"
 msgstr "不合法的时区"
 
-#: ../plugins/timedate/timedate-manager.cpp:173
+#: ../plugins/timedate/timedate-manager.cpp:170
 msgid "No NTP unit available"
 msgstr "没有NTP服务可用"
 
-#: ../plugins/timedate/timedate-manager.cpp:201
-#: ../plugins/timedate/timedate-manager.cpp:220
+#: ../plugins/timedate/timedate-manager.cpp:198
+#: ../plugins/timedate/timedate-manager.cpp:217
 msgid "Unknown format type"
 msgstr "未知的格式化类型"
 
-#: ../plugins/timedate/timedate-manager.cpp:229
+#: ../plugins/timedate/timedate-manager.cpp:226
 msgid "Failed to set date format"
 msgstr "设置日期显示格式失败"
 
-#: ../plugins/timedate/timedate-manager.cpp:239
+#: ../plugins/timedate/timedate-manager.cpp:236
 msgid "Failed to set hour format"
 msgstr "设置时间显示格式失败"
 
-#: ../plugins/timedate/timedate-manager.cpp:253
+#: ../plugins/timedate/timedate-manager.cpp:250
 msgid "Failed to set seconds showing"
 msgstr "设置秒数是否显示失败"
 
@@ -554,48 +571,48 @@ msgstr "设置秒数是否显示失败"
 msgid "%b %d %Y"
 msgstr "%Y年%m月%d日"
 
-#: ../plugins/display/display-manager.cpp:117
+#: ../plugins/display/display-manager.cpp:114
 msgid "Unknown display style"
 msgstr "未知的显示类型"
 
-#: ../plugins/display/display-manager.cpp:129
+#: ../plugins/display/display-manager.cpp:126
 msgid "Apply failed: {0}"
 msgstr "应用失败：{0}"
 
-#: ../plugins/display/display-manager.cpp:152
+#: ../plugins/display/display-manager.cpp:149
 msgid "The primary monitor cannot be empty."
 msgstr "主显示器不能为空"
 
-#: ../plugins/display/display-manager.cpp:157
+#: ../plugins/display/display-manager.cpp:154
 msgid "Not found the primary monitor"
 msgstr "未找到主显示器"
 
-#: ../plugins/display/display-manager.cpp:183
-#: ../plugins/display/display-manager.cpp:511
+#: ../plugins/display/display-manager.cpp:180
+#: ../plugins/display/display-manager.cpp:508
 msgid "Failed to set the window scaling factor"
 msgstr "设置窗口缩放因子失败"
 
-#: ../plugins/display/display-manager.cpp:347
+#: ../plugins/display/display-manager.cpp:344
 msgid "The config is empty"
 msgstr "自定义配置为空"
 
-#: ../plugins/display/display-manager.cpp:372
+#: ../plugins/display/display-manager.cpp:369
 msgid "Not found match configuration"
 msgstr "不能找到匹配的配置"
 
-#: ../plugins/display/display-manager.cpp:595
+#: ../plugins/display/display-manager.cpp:592
 msgid "Cannot find common mode for all enabled monitors"
 msgstr "不能为已开启的显示器找到相同的模式"
 
-#: ../plugins/display/display-manager.cpp:697
+#: ../plugins/display/display-manager.cpp:694
 msgid "Auto mode is set failed"
 msgstr "自动模式设置失败"
 
-#: ../plugins/display/display-manager.cpp:766
+#: ../plugins/display/display-manager.cpp:763
 msgid "Failed to create directory {0}"
 msgstr "创建目录{0}失败"
 
-#: ../plugins/display/display-manager.cpp:780
+#: ../plugins/display/display-manager.cpp:777
 msgid "Write to file {0} failed"
 msgstr "写文件到{0}失败"
 

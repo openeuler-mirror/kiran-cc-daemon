@@ -1,5 +1,5 @@
 /**
- * @file          /kiran-cc-daemon/plugins/systeminfo/systeminfo-software.cpp
+ * @file          /kiran-menu/home/tangjie02/git/kiran-cc-daemon/plugins/systeminfo/systeminfo-software.cpp
  * @brief         
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -15,6 +15,8 @@ namespace Kiran
 #define KYINFO_GROUP_NAME "dist"
 #define KYINFO_KEY_NAME "name"
 #define KYINFO_KEY_MILESTONE "milestone"
+
+#define SET_HOSTNAME_CMD "/usr/bin/hostnamectl"
 
 SystemInfoSoftware::SystemInfoSoftware()
 {
@@ -34,11 +36,23 @@ bool SystemInfoSoftware::set_host_name(const std::string &host_name)
 {
     SETTINGS_PROFILE("host name: %s.", host_name.c_str());
 
-    if (sethostname(host_name.c_str(), host_name.length()) < 0)
+    std::vector<std::string> argv{SET_HOSTNAME_CMD, "set-hostname", host_name};
+
+    std::string cmd_output;
+    try
     {
-        LOG_WARNING("Failed to set host name: %s.", strerror(errno));
+        Glib::spawn_sync("",
+                         argv,
+                         Glib::SPAWN_DEFAULT,
+                         Glib::SlotSpawnChildSetup(),
+                         nullptr);
+    }
+    catch (const Glib::Error &e)
+    {
+        LOG_WARNING("%s", e.what().c_str());
         return false;
     }
+
     return true;
 }
 
