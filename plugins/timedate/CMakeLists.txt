@@ -48,6 +48,9 @@ if (SELINUX_MODULE_NAME)
 endif()
 
 
+install(FILES ${PROJECT_SOURCE_DIR}/plugins/timedate/timedate.conf
+        DESTINATION ${SYSCONFDIR}/${PROJECT_NAME}/system/timedate/)
+
 install(TARGETS ${TARGET_NAME}
         DESTINATION  ${KCC_PLUGIN_DIR}/system)
 

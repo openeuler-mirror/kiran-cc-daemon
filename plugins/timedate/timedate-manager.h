@@ -12,6 +12,7 @@
 #include <functional>
 
 #include "lib/dbus/dbus.h"
+#include "plugins/timedate/timedate-format.h"
 
 namespace Kiran
 {
@@ -61,12 +62,28 @@ protected:
     // 是否开启网络时间同步
     virtual void SetNTP(bool active, MethodInvocation &invocation);
 
+    // 获取可设置的日期时间格式列表，type参考TimedateFormatType
+    virtual void GetDateFormatList(gint32 type, MethodInvocation &invocation);
+
+    // 通过索引设置日期时间格式
+    virtual void SetDateFormatByIndex(gint32 type, gint32 index, MethodInvocation &invocation);
+
+    // 设置小时显示格式，format参考TimedateHourFormat
+    virtual void SetHourFormat(gint32 format, MethodInvocation &invocation);
+
+    // 开启时间显示到秒
+    virtual void EnableSecondsShowing(bool enabled, MethodInvocation &invocation);
+
     virtual bool time_zone_setHandler(const Glib::ustring &value);
     virtual bool local_rtc_setHandler(bool value);
     virtual bool can_ntp_setHandler(bool value) { return true; };
     virtual bool ntp_setHandler(bool value);
     virtual bool system_time_setHandler(guint64 value) { return true; };
     virtual bool rtc_time_setHandler(guint64 value) { return true; };
+    virtual bool date_long_format_index_setHandler(gint32 value);
+    virtual bool date_short_format_index_setHandler(gint32 value);
+    virtual bool hour_format_setHandler(gint32 value);
+    virtual bool seconds_showing_setHandler(bool value);
 
     virtual Glib::ustring time_zone_get() { return this->time_zone_; };
     virtual bool local_rtc_get() { return this->local_rtc_; };
@@ -74,6 +91,10 @@ protected:
     virtual bool ntp_get() { return this->ntp_active_; };
     virtual guint64 system_time_get();
     virtual guint64 rtc_time_get();
+    virtual gint32 date_long_format_index_get();
+    virtual gint32 date_short_format_index_get();
+    virtual gint32 hour_format_get();
+    virtual bool seconds_showing_get();
 
 private:
     void init();
@@ -145,5 +166,7 @@ private:
     std::string time_zone_;
     bool local_rtc_;
     bool ntp_active_;
+
+    TimedateFormat timedate_format_;
 };
 }  // namespace Kiran

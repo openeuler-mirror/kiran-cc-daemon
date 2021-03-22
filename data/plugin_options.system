@@ -3,7 +3,17 @@ Name=Accounts
 Description=Accounts plugin
 Available=true
 
+[systeminfo]
+Name=SystemInfo
+Description=SystemInfo plugin
+Available=true
+
 [timedate]
 Name=TimeDate
 Description=TimeDate plugin
+Available=true
+
+[greeter-settings]
+Name=GreeterSettings
+Description=GreeterSettings plugin
 Available=true

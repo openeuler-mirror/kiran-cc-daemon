@@ -1,11 +1,10 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-02 20:53:28
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 14:32:44
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/include/display_i.h
+/**
+ * @file          /kiran-cc-daemon/include/display_i.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 /*
@@ -24,6 +23,10 @@
 extern "C"
 {
 #endif
+
+#define DISPLAY_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
+#define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
+#define DISPLAY_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
 
     // 显示模式，只有在下列情况会使用显示模式进行设置：
     // 1. 程序第一次启动

@@ -1,11 +1,10 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-02 20:37:27
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 15:19:13
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/include/xsettings_i.h
+/**
+ * @file          /kiran-cc-daemon/include/xsettings_i.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 #ifdef __cplusplus
@@ -15,6 +14,7 @@ extern "C"
 
 #define XSETTINGS_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.XSettings"
 #define XSETTINGS_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/XSettings"
+#define XSETTINGS_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.XSettings"
 
 #define XSETTINGS_SCHEMA_ID "com.kylinsec.kiran.xsettings"
 

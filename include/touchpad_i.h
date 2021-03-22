@@ -1,17 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-02 20:37:27
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 14:32:51
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/include/touchpad_i.h
+/**
+ * @file          /kiran-cc-daemon/include/touchpad_i.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#define TOUCHPAD_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.TouchPad"
+#define TOUCHPAD_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/TouchPad"
+#define TOUCHPAD_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.TouchPad"
 
     enum TouchPadClickMethod
     {

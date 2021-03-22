@@ -11,12 +11,10 @@
 
 #include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
+#include "touchpad_i.h"
 
 namespace Kiran
 {
-#define TOUCHPAD_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.TouchPad"
-#define TOUCHPAD_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/TouchPad"
-
 #define X_HASH(X) CONNECT(X, _hash)
 
 #define TOUCHPAD_SCHEMA_ID "com.kylinsec.kiran.touchpad"

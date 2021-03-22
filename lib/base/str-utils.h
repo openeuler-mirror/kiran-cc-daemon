@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-17 15:13:15
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:32:04
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/base/str-util.h
+/**
+ * @file          /kiran-cc-daemon/lib/base/str-utils.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 #pragma once
 
@@ -41,6 +39,11 @@ public:
     static std::string tolower(const std::string &str);
     static std::string toupper(const std::string &str);
     static std::vector<std::string> split_with_char(const std::string &s, char delimiter, bool is_merge_delimiter = false);
+
+    // 去掉字符串前后的空白字符
+    static std::string ltrim(const std::string &s);
+    static std::string rtrim(const std::string &s);
+    static std::string trim(const std::string &s);
 
     template <class T>
     static std::string join(const std::vector<T> &vec, const std::string &join_chars);

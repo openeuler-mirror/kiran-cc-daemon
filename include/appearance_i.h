@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-01 11:32:30
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-03 19:46:08
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/include/appearance_i.h
+/**
+ * @file          /kiran-cc-daemon/include/appearance_i.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 #pragma once
 
@@ -15,6 +13,7 @@ extern "C"
 
 #define APPEARANCE_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Appearance"
 #define APPEARANCE_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Appearance"
+#define APPEARANCE_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Appearance"
 
     enum AppearanceFontType
     {

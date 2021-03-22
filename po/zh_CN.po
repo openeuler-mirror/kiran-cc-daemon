@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 11:30+0800\n"
+"POT-Creation-Date: 2021-03-04 11:51+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -16,6 +16,294 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
+msgid "File to use for the desktop background image."
+msgstr "桌面背景图片的文件路径。"
+
+#: ../data/com.kylinsec.kiran.display.gschema.xml.in.h:1
+msgid "Layout of connected monitors in the screen."
+msgstr "已连接的显示器在屏幕中的位置布局。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
+msgid ""
+"Whether repeat to trigger KeyPress and KeyRelease event when key is pressed."
+msgstr "当键被长按后是否重复触发按下和弹起事件。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
+msgid ""
+"The delay time in ms after the initial press of an auto-repeating key and "
+"the first generated repeat event."
+msgstr "当键被按下时第一次触发按下事件的延时(毫秒)。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
+msgid "The delay time in ms between all subsequent generated repeat events."
+msgstr "当键被按下后每个按键(按下或者弹起)事件之间的间隔时间。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
+msgid "Keyboard layouts."
+msgstr "键盘布局。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
+msgid "Keyboard options."
+msgstr "键盘选项。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
+msgid "Swap left and right buttons for left-handed."
+msgstr "启动左手模式后，左右键功能进行切换。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
+msgid "Acceleration multiplier for mouse motion."
+msgstr "鼠标移动加速。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
+msgid ""
+"Enables middle mouse button emulation through simultaneous left and right "
+"button click."
+msgstr "通过同时左键和右键启用鼠标中键模拟按钮点击。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
+msgid ""
+"Enables or disables natural scroll. Natural scrolling is the terminology for "
+"moving the content in the direction of scrolling, i.e. moving the wheel or "
+"fingers down moves the page down."
+msgstr ""
+"启用或禁用自然滚动。自然滚动是沿滚动方向移动内容，即移动滚轮或手指向下时页面"
+"向下移动。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
+msgid "Indicates if diable while typing is enabled or disabled."
+msgstr "打字时禁用触摸板功能。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
+msgid ""
+"Set this to TRUE to be able to send mouse clicks by tapping on the touchpad."
+msgstr "设置为真则表示轻击触摸板触发对应的鼠标事件，例如双击等同于鼠标右键。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
+msgid ""
+"Enables a click method. Permitted methods are buttonareas and clickfinger, "
+"respectively conreesponding to 0 and 1."
+msgstr "设置单击方法。可通过按下和轻触的方式触发点击事件。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
+msgid ""
+"Enables a scroll method. Permitted methods are twofinger, edge and button, "
+"respectively conrresponding to 0, 1 and 2."
+msgstr ""
+"设置滚动方法。可通过双指滑动、边缘滑动和按键(键盘中间的红色按钮)的方式触发滚"
+"动操作。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
+msgid "Set this to TRUE to enable all touchpads."
+msgstr "开启或关闭触摸板。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
+msgid "Acceleration multiplier for touchpad motion."
+msgstr "触摸板移动加速。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
+msgid ""
+"Maximum time allowed between two clicks for them to be considered a double "
+"click (in milliseconds)."
+msgstr "触发双击事件时两次单击之间允许的最大时间 (毫秒)。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
+msgid ""
+"Maximum distance allowed between two clicks for them to be considered a "
+"double click (in pixels)."
+msgstr "触发双击事件时两次单击之间允许的最大距离 (像素)。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
+msgid "Number of pixels the cursor can move before dragging."
+msgstr "拖动前光标可以移动的像素数。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
+msgid "Whether the cursor should blink."
+msgstr "光标是否应该闪烁。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
+msgid "Length of the cursor blink cycle, in milleseconds."
+msgstr "光标闪烁周期的长度 (毫秒)。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
+msgid "Name of gtk theme to use."
+msgstr "系统使用的主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
+msgid "Name of icon theme to use for icons."
+msgstr "系统使用的图标主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
+msgid "Whether to play sounds on user events."
+msgstr "是否在用户事件中播放声音。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
+msgid "The XDG sound theme to use for event sounds."
+msgstr "用于事件声音的XDG声音主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
+msgid "Whether to play sounds on input events."
+msgstr "是否在输入事件上播放声音。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
+msgid "Whether to antialias Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "是否开启Xft字体抗锯齿；-1表示默认值。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
+msgid "Whether to hint Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "是否开启Xft字体微调；-1表示默认值。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
+msgid ""
+"What degree of hinting to use; \"hintnone\", \"hintslight\", \"hintmedium\", "
+"or \"hintfull\"."
+msgstr "使用什么程度的微调。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
+msgid ""
+"Type of subpixel antialiasing; \"none\", \"rgb\", \"bgr\", \"vrgb\", \"vbgr"
+"\"."
+msgstr "抗锯齿次像素顺序。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
+msgid ""
+"Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not "
+"modify it manually."
+msgstr "字体分辨率，请不要手动修改。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
+msgid "Name of the cursor theme."
+msgstr "光标主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
+msgid "Size of the cursor referenced by cursor_theme."
+msgstr "光标大小。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
+msgid "Name of default font to use."
+msgstr "GTK默认字体。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
+msgid "Name of key theme RC file to load."
+msgstr "GTK要加载的关键主题的名称。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
+msgid ""
+"Whether default toolbars have text only, text and icons, icons only, etc."
+msgstr "默认工具栏是否只有文本、文本和图标、图标。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
+msgid "Size of icons in default toolbars."
+msgstr "默认工具栏中图标的大小。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
+msgid "How to draw the input method preedit string."
+msgstr "如何绘制输入法预编辑字符串。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
+msgid "How to draw the input method statusbar."
+msgstr "如何绘制输入法状态栏。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
+msgid "Name of the input method module used by GTK+."
+msgstr "GTK使用的输入法模块的名称。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
+msgid "Whether images should be shown in menus."
+msgstr "是否应在菜单中显示图像。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
+msgid "Whether stock icons should be shown in buttons."
+msgstr "图像是否显示在按钮中。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
+msgid "The accelerator for moving the focus to the menubar."
+msgstr "将焦点移动到菜单栏的加速器"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
+msgid ""
+"A '\\n' separated list of \"name:color\" as defined by the 'gtk-color-"
+"scheme' setting"
+msgstr "颜色主题"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
+msgid ""
+"Module to use as the filesystem model for the GtkFileChooser widget. "
+"Possible values are \"gio\" and \"gtk+\"."
+msgstr "用作GtkFileChooser小部件的文件系统模型的模块"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
+msgid ""
+"This setting determines which buttons should be put in the titlebar of "
+"client-side decorated windows, and whether they should be placed at the left "
+"of right."
+msgstr ""
+"此设置确定哪些按钮应放在客户端装饰窗口的标题栏中，以及是否应放在右侧的左侧。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
+msgid ""
+"This setting determines where application menu will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"此设置确定应用程序菜单的显示位置，在窗口中或使用MenuModel协议的面板上。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
+msgid ""
+"This setting determines where window menubars will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr "此设置确定窗口菜单栏的显示位置，在窗口中或使用MenuModel协议的面板上"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
+msgid ""
+"Whether the context menus of entries and text views should offer to change "
+"the input method."
+msgstr "条目和文本视图的上下文菜单是否应提供更改输入法的功能。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
+msgid ""
+"Whether the context menus of entries and text views should offer to insert "
+"control characters."
+msgstr "条目和文本视图的上下文菜单是否应提供更改输入法的功能。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
+msgid ""
+"Whether mnemonics should be automatically shown and hidden when the user "
+"presses the Alt key."
+msgstr "当用户按Alt键时，助记符是否应自动显示和隐藏。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
+msgid ""
+"If true, gtk+ uses the primary paste selection, usually triggered by a "
+"middle mouse button click."
+msgstr "如果为true，gtk+将使用主粘贴选择，通常由鼠标中键单击触发。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
+msgid "Whether to enable toolkit-wide animations."
+msgstr "是否启用工具箱范围的动画。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
+msgid ""
+"Whether builtin GTK+ dialogs such as the file chooser, the color chooser or "
+"the font chooser will use a header bar at the top to show action widgets, or "
+"an action area at the bottom."
+msgstr ""
+"无论是内置的GTK+对话框、文件选择器、颜色选择器或字体选择器，都将使用顶部的标"
+"题栏或者底部的操作区域来显示操作小部件。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
+msgid ""
+"This controls the GTK scale factor that maps from window coordinates to the "
+"actual device pixels."
+msgstr "控制从窗口坐标映射到实际设备像素的GTK比例因子。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
+msgid ""
+"This setting determines whether MATE controls the scale factor for QT "
+"applications."
+msgstr "此设置确定MATE是否控制QT应用程序的比例因子。"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
 msgid "Change your own user data"
@@ -85,15 +373,31 @@ msgid ""
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
 
-#: ../src/main.cpp:60
+#: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:1
+msgid "Greeter settings"
+msgstr "登陆设置"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr "登陆设置之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "设置主机名"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr "设置主机名之前需要身份验证"
+
+#: ../src/main.cpp:64
 msgid "Output version infomation and exit"
 msgstr "输出版本信息并退出"
 
-#: ../src/main.cpp:66
+#: ../src/main.cpp:70
 msgid "Set log level to debug."
 msgstr "开启调试模式"
 
-#: ../src/main.cpp:72
+#: ../src/main.cpp:76
 msgid "Print log to screen."
 msgstr "打印日志到屏幕"
 
@@ -215,17 +519,40 @@ msgstr "用户被锁定"
 msgid "Account expiration policy unknown to accounts service"
 msgstr "无法获取用户过期策略"
 
-#: ../plugins/timedate/timedate-manager.cpp:93
+#: ../plugins/timedate/timedate-manager.cpp:94
 msgid "NTP unit is active"
 msgstr "NTP服务已开启"
 
-#: ../plugins/timedate/timedate-manager.cpp:110
+#: ../plugins/timedate/timedate-manager.cpp:111
 msgid "Invalid timezone"
 msgstr "不合法的时区"
 
-#: ../plugins/timedate/timedate-manager.cpp:172
+#: ../plugins/timedate/timedate-manager.cpp:173
 msgid "No NTP unit available"
 msgstr "没有NTP服务可用"
+
+#: ../plugins/timedate/timedate-manager.cpp:201
+#: ../plugins/timedate/timedate-manager.cpp:220
+msgid "Unknown format type"
+msgstr "未知的格式化类型"
+
+#: ../plugins/timedate/timedate-manager.cpp:229
+msgid "Failed to set date format"
+msgstr "设置日期显示格式失败"
+
+#: ../plugins/timedate/timedate-manager.cpp:239
+msgid "Failed to set hour format"
+msgstr "设置时间显示格式失败"
+
+#: ../plugins/timedate/timedate-manager.cpp:253
+msgid "Failed to set seconds showing"
+msgstr "设置秒数是否显示失败"
+
+#: ../plugins/timedate/timedate-format.cpp:130
+#: ../plugins/timedate/timedate-format.cpp:131
+#: ../plugins/timedate/timedate-format.cpp:132
+msgid "%b %d %Y"
+msgstr "%Y年%m月%d日"
 
 #: ../plugins/display/display-manager.cpp:117
 msgid "Unknown display style"
@@ -256,60 +583,72 @@ msgstr "自定义配置为空"
 msgid "Not found match configuration"
 msgstr "不能找到匹配的配置"
 
-#: ../plugins/display/display-manager.cpp:586
+#: ../plugins/display/display-manager.cpp:595
 msgid "Cannot find common mode for all enabled monitors"
 msgstr "不能为已开启的显示器找到相同的模式"
 
-#: ../plugins/display/display-manager.cpp:688
+#: ../plugins/display/display-manager.cpp:697
 msgid "Auto mode is set failed"
 msgstr "自动模式设置失败"
 
-#: ../plugins/display/display-manager.cpp:757
+#: ../plugins/display/display-manager.cpp:766
 msgid "Failed to create directory {0}"
 msgstr "创建目录{0}失败"
 
-#: ../plugins/display/display-manager.cpp:771
+#: ../plugins/display/display-manager.cpp:780
 msgid "Write to file {0} failed"
 msgstr "写文件到{0}失败"
 
-#: ../plugins/display/display-monitor.cpp:203
+#: ../plugins/display/display-monitor.cpp:209
 msgid ""
 "Cannot disable the monitor, because the number of the enabled monitor is "
 "less than 1"
 msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个"
 
-#: ../plugins/display/display-monitor.cpp:224
+#: ../plugins/display/display-monitor.cpp:230
 msgid "Exist null mode in mode list"
 msgstr "存在空的模式"
 
-#: ../plugins/display/display-monitor.cpp:244
+#: ../plugins/display/display-monitor.cpp:250
 msgid "Exist null mode in preferred mode list"
 msgstr "在推荐模式中存在空模式"
 
-#: ../plugins/display/display-monitor.cpp:263
+#: ../plugins/display/display-monitor.cpp:269
 msgid "The current mode is not exist"
 msgstr "当前模式不存在"
 
-#: ../plugins/display/display-monitor.cpp:275
-#: ../plugins/display/display-monitor.cpp:308
+#: ../plugins/display/display-monitor.cpp:285
+#: ../plugins/display/display-monitor.cpp:318
 msgid "Not found match mode."
 msgstr "未发现匹配的模式"
 
-#: ../plugins/display/display-monitor.cpp:288
+#: ../plugins/display/display-monitor.cpp:298
 msgid "The mode id {0} is not exist in mode list"
 msgstr "在模式列表中未发现模式{0}"
 
-#: ../plugins/display/display-monitor.cpp:335
+#: ../plugins/display/display-monitor.cpp:345
 msgid "Unknown rotation type"
 msgstr "未知的旋转类型"
 
-#: ../plugins/display/display-monitor.cpp:353
+#: ../plugins/display/display-monitor.cpp:363
 msgid "Unknown reflect type"
 msgstr "未知的映射类型"
 
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"
 msgstr "自定义"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:87
+msgid "Invalid type"
+msgstr "不合法的类型"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:93
+msgid "Assign to Json::Value failed"
+msgstr "Json::Value赋值失败"
+
+#: ../plugins/systeminfo/systeminfo-manager.cpp:136
+msgid "Failed to set host name"
+msgstr "设置主机名失败"
 
 #: ../plugins/xsettings/xsettings-manager.cpp:111
 #: ../plugins/xsettings/xsettings-manager.cpp:424
@@ -327,6 +666,40 @@ msgstr "不能手动修改此属性"
 #: ../plugins/xsettings/xsettings-manager.cpp:496
 msgid "Unknown property"
 msgstr "未知属性"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:137
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:159
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:176
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:193
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:210
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:232
+msgid "Failed to save"
+msgstr "保存失败"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:151
+msgid "Failed to find user name by uid"
+msgstr "通过uid获取用户名失败"
+
+#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:225
+msgid "Illegal mode parameter"
+msgstr "缩放模式参数非法"
+
+#~ msgid "Window Scaling Factor"
+#~ msgstr "窗口缩放因子"
+
+#, fuzzy
+#~ msgid "Change the greeter configuration"
+#~ msgstr "更改登录屏幕设置"
+
+#, fuzzy
+#~ msgid "Authentication is required to change the greeter configuration."
+#~ msgstr "更改登录设置之前需要身份验证"
+
+#~ msgid "Change the login settings"
+#~ msgstr "更改登陆设置"
+
+#~ msgid "Authentication is required to change the login configuration."
+#~ msgstr "更改登录设置之前需要身份验证"
 
 #~ msgid "Cannot match mode {0}x{1}"
 #~ msgstr "不能匹配分辨率{0}x{1}"

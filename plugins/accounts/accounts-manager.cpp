@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-19 10:09:05
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-09 11:23:31
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
+/**
+ * @file          /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "plugins/accounts/accounts-manager.h"
@@ -15,14 +13,13 @@
 #include <cinttypes>
 #include <cstdint>
 
+#include "accounts_i.h"
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"
 #include "plugins/accounts/accounts-util.h"
 
 namespace Kiran
 {
-#define ACCOUNTS_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.Accounts"
-#define ACCOUNTS_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts"
 #define PATH_GDM_CUSTOM "/etc/gdm/custom.conf"
 
 AccountsManager::AccountsManager(AccountsWrapper *passwd_wrapper) : passwd_wrapper_(passwd_wrapper),
