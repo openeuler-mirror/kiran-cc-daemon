@@ -161,6 +161,43 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 DiskInfoVec SystemInfoHardware::get_disks_info()
 {
     DiskInfoVec disks_info;
+    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
+
+    std::string cmd_output;
+    try
+    {
+        Glib::spawn_sync("",
+                         argv,
+                         Glib::SPAWN_DEFAULT,
+                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
+                         &cmd_output);
+    }
+    catch (const Glib::Error& e)
+    {
+        LOG_WARNING("%s", e.what().c_str());
+        return disks_info;
+    }
+
+    auto lines = StrUtils::split_lines(cmd_output);
+
+    // 排除第一行表头
+    for (size_t i = 1; i < lines.size(); ++i)
+    {
+        auto fields = StrUtils::split_with_char(lines[i], ' ', true);
+        if (fields.size() >= 5 && fields[1] == "disk")
+        {
+            DiskInfo disk_info;
+            disk_info.name = fields[0];
+            disk_info.size = strtoll(fields[2].c_str(), NULL, 0);
+            disk_info.model = fields[3];
+            disk_info.vendor = fields[4];
+            disks_info.push_back(disk_info);
+        }
+    }
+
+    return disks_info;
+
+    /*DiskInfoVec disks_info;
     std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-J", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
     try
@@ -189,7 +226,7 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
         LOG_WARNING("%s.", e.what());
         return DiskInfoVec();
     }
-    return disks_info;
+    return disks_info;*/
 }
 
 EthInfoVec SystemInfoHardware::get_eths_info()
