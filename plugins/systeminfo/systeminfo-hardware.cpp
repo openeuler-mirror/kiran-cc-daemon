@@ -23,7 +23,8 @@ namespace Kiran
 
 #define DISKINFO_CMD "/usr/bin/lsblk"
 
-#define HWINFO_CMD "/usr/sbin/lshw"
+#define PCIINFO_CMD "/usr/sbin/lspci"
+#define PCIINFO_KEY_DELIMITER ':'
 
 SystemInfoHardware::SystemInfoHardware()
 {
@@ -160,6 +161,7 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 
 DiskInfoVec SystemInfoHardware::get_disks_info()
 {
+    // 老版本lsblk不支持-J选项，所以这里不使用json格式
     DiskInfoVec disks_info;
     std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
@@ -196,93 +198,132 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
     }
 
     return disks_info;
-
-    /*DiskInfoVec disks_info;
-    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-J", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
-
-    try
-    {
-        auto values = this->run_command(argv);
-        RETURN_VAL_IF_TRUE(values.isNull(), DiskInfoVec());
-        auto block_devices = values["blockdevices"];
-
-        for (auto& block_device : block_devices)
-        {
-            if (block_device["type"] != "disk")
-            {
-                continue;
-            }
-
-            DiskInfo disk_info;
-            disk_info.name = block_device["name"].asString();
-            disk_info.size = strtoll(block_device["size"].asString().c_str(), NULL, 0);
-            disk_info.model = block_device["model"].asString();
-            disk_info.vendor = StrUtils::trim(block_device["vendor"].asString());
-            disks_info.push_back(disk_info);
-        }
-    }
-    catch (const std::exception& e)
-    {
-        LOG_WARNING("%s.", e.what());
-        return DiskInfoVec();
-    }
-    return disks_info;*/
 }
 
 EthInfoVec SystemInfoHardware::get_eths_info()
 {
-    // 部分机型的网卡可能是USB接口，但lsusb无法通过类型来区分那些是网卡，因此这里先不做处理。
+    SETTINGS_PROFILE("");
 
     EthInfoVec eths_info;
-    std::vector<std::string> argv{HWINFO_CMD, "-json", "-C", "network"};
+    auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_NETWORK);
 
-    try
+    for (auto& pci_info : pcis_info)
     {
-        auto eths_json = this->run_command(argv, true);
-        RETURN_VAL_IF_TRUE(eths_json.isNull(), EthInfoVec());
-
-        for (auto& eth_json : eths_json)
-        {
-            EthInfo eth_info;
-            eth_info.model = eth_json["product"].asString();
-            eth_info.vendor = eth_json["vendor"].asString();
-            eths_info.push_back(eth_info);
-        }
+        EthInfo eth_info;
+        eth_info.model = pci_info["Device"];
+        eth_info.vendor = pci_info["Vendor"];
+        eths_info.push_back(std::move(eth_info));
     }
-    catch (const std::exception& e)
-    {
-        LOG_WARNING("%s.", e.what());
-        return EthInfoVec();
-    }
-
     return eths_info;
 }
 
 GraphicInfoVec SystemInfoHardware::get_graphics_info()
 {
+    SETTINGS_PROFILE("");
+
     GraphicInfoVec graphics_info;
-    std::vector<std::string> argv{HWINFO_CMD, "-json", "-C", "display"};
+    auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_DISPLAY);
 
-    try
+    for (auto& pci_info : pcis_info)
     {
-        auto graphics_json = this->run_command(argv, true);
-        RETURN_VAL_IF_TRUE(graphics_json.isNull(), GraphicInfoVec());
+        GraphicInfo graphic_info;
+        graphic_info.model = pci_info["Device"];
+        graphic_info.vendor = pci_info["Vendor"];
+        graphics_info.push_back(std::move(graphic_info));
+    }
+    return graphics_info;
+}
 
-        for (auto& graphic_json : graphics_json)
+PCIsInfo SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_class_id)
+{
+    std::vector<int32_t> full_class_ids;
+
+    // 获取主类ID为major_class_id的full_class_id列表，例如major_class_id为02，full_class_id列表为[0201, 0202]
+    {
+        std::string cmd_output;
+        std::vector<std::string> argv{PCIINFO_CMD, "-n"};
+        try
         {
-            GraphicInfo graphic_info;
-            graphic_info.model = graphic_json["product"].asString();
-            graphic_info.vendor = graphic_json["vendor"].asString();
-            graphics_info.push_back(graphic_info);
+            Glib::spawn_sync("",
+                             argv,
+                             Glib::SPAWN_DEFAULT,
+                             sigc::mem_fun(this, &SystemInfoHardware::set_env),
+                             &cmd_output);
+        }
+        catch (const Glib::Error& e)
+        {
+            LOG_WARNING("%s", e.what().c_str());
+            return PCIsInfo();
+        }
+
+        auto lines = StrUtils::split_lines(cmd_output);
+        for (auto& line : lines)
+        {
+            char placehold1[10];
+            int32_t full_class_id;
+            if (sscanf(line.c_str(), "%s %x:", placehold1, &full_class_id) == 2)
+            {
+                if ((full_class_id >> 8) == major_class_id)
+                {
+                    full_class_ids.push_back(full_class_id);
+                }
+            }
         }
     }
-    catch (const std::exception& e)
-    {
-        LOG_WARNING("%s.", e.what());
-        return GraphicInfoVec();
-    }
 
-    return graphics_info;
+    // 根据full_class_id列表获取设备相关信息
+    {
+        std::string cmd_output;
+        std::vector<std::string> argv{PCIINFO_CMD, "-vmm"};
+
+        for (auto& full_class_id : full_class_ids)
+        {
+            argv.push_back("-d");
+            argv.push_back(fmt::format("::{:04x}", full_class_id));
+        }
+
+        LOG_DEBUG("cmdline: %s.", StrUtils::join(argv, " ").c_str());
+        try
+        {
+            Glib::spawn_sync("",
+                             argv,
+                             Glib::SPAWN_DEFAULT,
+                             sigc::mem_fun(this, &SystemInfoHardware::set_env),
+                             &cmd_output);
+        }
+        catch (const Glib::Error& e)
+        {
+            LOG_WARNING("%s", e.what().c_str());
+            return PCIsInfo();
+        }
+        return this->parse_pcis_output(cmd_output);
+    }
+}
+
+PCIsInfo SystemInfoHardware::parse_pcis_output(const std::string& contents)
+{
+    PCIsInfo pcis_info;
+    auto regex = Glib::Regex::create("\n\n");
+    std::vector<Glib::ustring> blocks = regex->split(contents, Glib::REGEX_MATCH_NEWLINE_ANY);
+    for (auto& block : blocks)
+    {
+        std::map<std::string, std::string> pci_info;
+        auto lines = StrUtils::split_lines(block);
+        for (auto& line : lines)
+        {
+            auto fields = StrUtils::split_with_char(line, PCIINFO_KEY_DELIMITER);
+            if (fields.size() != 2)
+            {
+                continue;
+            }
+            pci_info[StrUtils::trim(fields[0])] = StrUtils::trim(fields[1]);
+        }
+        if (pci_info.size() > 0)
+        {
+            pcis_info.push_back(std::move(pci_info));
+        }
+    }
+    return pcis_info;
 }
 
 Json::Value SystemInfoHardware::run_command(std::vector<std::string>& argv, bool add_bracket)

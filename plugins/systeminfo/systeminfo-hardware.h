@@ -77,6 +77,15 @@ struct HardwareInfo
     GraphicInfoVec graphics_info;
 };
 
+// 具体值参考/usr/share/hwdata/pci.ids文件
+enum PCIMajorClassID
+{
+    PCI_MAJOR_CLASS_ID_UNCLASSIFIED = 0,
+    PCI_MAJOR_CLASS_ID_MASS_STORAGE = 1,
+    PCI_MAJOR_CLASS_ID_NETWORK = 2,
+    PCI_MAJOR_CLASS_ID_DISPLAY = 3,
+};
+
 using PCIsInfo = std::vector<std::map<std::string, std::string>>;
 
 class SystemInfoHardware
@@ -103,6 +112,9 @@ private:
 
     EthInfoVec get_eths_info();
     GraphicInfoVec get_graphics_info();
+
+    PCIsInfo get_pcis_by_major_class_id(PCIMajorClassID major_class_id);
+    PCIsInfo parse_pcis_output(const std::string &contents);
 
     Json::Value run_command(std::vector<std::string> &argv, bool add_bracket = false);
 };
