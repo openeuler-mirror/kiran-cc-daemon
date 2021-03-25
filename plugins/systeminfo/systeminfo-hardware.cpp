@@ -7,6 +7,7 @@
 
 #include "plugins/systeminfo/systeminfo-hardware.h"
 
+#include <cinttypes>
 #include <fstream>
 
 namespace Kiran
@@ -57,35 +58,43 @@ CPUInfo SystemInfoHardware::get_cpu_info()
 
 CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
 {
-    CPUInfo cpu_info;
-    std::vector<std::string> argv{CPUINFO_CMD, "-J"};
+    // 低版本不支持-J选项
+    std::vector<std::string> argv{CPUINFO_CMD};
 
+    std::string cmd_output;
     try
     {
-        auto values = this->run_command(argv);
-        RETURN_VAL_IF_TRUE(values.isNull(), CPUInfo());
-        auto infos = values["lscpu"];
-
-        for (auto& fields : infos)
-        {
-            switch (shash(fields["field"].asString().c_str()))
-            {
-            case "CPU(s):"_hash:
-                cpu_info.cores_number = strtol(fields["data"].asString().c_str(), NULL, 0);
-                break;
-            case "Model name:"_hash:
-                cpu_info.model = fields["data"].asString();
-                break;
-            default:
-                break;
-            }
-        }
+        Glib::spawn_sync("",
+                         argv,
+                         Glib::SPAWN_DEFAULT,
+                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
+                         &cmd_output);
     }
-    catch (const std::exception& e)
+    catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s.", e.what());
+        LOG_WARNING("%s", e.what().c_str());
         return CPUInfo();
     }
+
+    auto kv_list = this->format_to_kv_list(cmd_output);
+    RETURN_VAL_IF_TRUE(kv_list.size() == 0, CPUInfo());
+
+    CPUInfo cpu_info;
+    for (auto& iter : kv_list[0])
+    {
+        switch (shash(iter.first.c_str()))
+        {
+        case "CPU(s)"_hash:
+            cpu_info.cores_number = strtol(iter.second.c_str(), NULL, 0);
+            break;
+        case "Model name"_hash:
+            cpu_info.model = iter.second;
+            break;
+        default:
+            break;
+        }
+    }
+
     return cpu_info;
 }
 
@@ -163,7 +172,7 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
 {
     // 老版本lsblk不支持-J选项，所以这里不使用json格式
     DiskInfoVec disks_info;
-    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
+    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
     std::string cmd_output;
     try
@@ -182,18 +191,26 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
 
     auto lines = StrUtils::split_lines(cmd_output);
 
-    // 排除第一行表头
-    for (size_t i = 1; i < lines.size(); ++i)
+    for (auto& line : lines)
     {
-        auto fields = StrUtils::split_with_char(lines[i], ' ', true);
-        if (fields.size() >= 5 && fields[1] == "disk")
+        char name[BUFSIZ] = {0};
+        char type[BUFSIZ] = {0};
+        int64_t size = 0;
+        char model[BUFSIZ] = {0};
+        char vendor[BUFSIZ] = {0};
+
+        if (sscanf(line.c_str(), "NAME=\"%[^\"]\" TYPE=\"%[^\"]\" SIZE=\"%" PRId64 "\" MODEL=\"%[^\"]\" VENDOR=\"%[^\"]\"",
+                   name, type, &size, model, vendor) == 5)
         {
-            DiskInfo disk_info;
-            disk_info.name = fields[0];
-            disk_info.size = strtoll(fields[2].c_str(), NULL, 0);
-            disk_info.model = fields[3];
-            disk_info.vendor = fields[4];
-            disks_info.push_back(disk_info);
+            if (std::string(type) == "disk")
+            {
+                DiskInfo disk_info;
+                disk_info.name = name;
+                disk_info.size = size;
+                disk_info.model = StrUtils::trim(model);
+                disk_info.vendor = StrUtils::trim(vendor);
+                disks_info.push_back(disk_info);
+            }
         }
     }
 
@@ -234,7 +251,7 @@ GraphicInfoVec SystemInfoHardware::get_graphics_info()
     return graphics_info;
 }
 
-PCIsInfo SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_class_id)
+KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_class_id)
 {
     std::vector<int32_t> full_class_ids;
 
@@ -253,7 +270,7 @@ PCIsInfo SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_cl
         catch (const Glib::Error& e)
         {
             LOG_WARNING("%s", e.what().c_str());
-            return PCIsInfo();
+            return KVList();
         }
 
         auto lines = StrUtils::split_lines(cmd_output);
@@ -294,15 +311,15 @@ PCIsInfo SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_cl
         catch (const Glib::Error& e)
         {
             LOG_WARNING("%s", e.what().c_str());
-            return PCIsInfo();
+            return KVList();
         }
-        return this->parse_pcis_output(cmd_output);
+        return this->format_to_kv_list(cmd_output);
     }
 }
 
-PCIsInfo SystemInfoHardware::parse_pcis_output(const std::string& contents)
+KVList SystemInfoHardware::format_to_kv_list(const std::string& contents)
 {
-    PCIsInfo pcis_info;
+    KVList pcis_info;
     auto regex = Glib::Regex::create("\n\n");
     std::vector<Glib::ustring> blocks = regex->split(contents, Glib::REGEX_MATCH_NEWLINE_ANY);
     for (auto& block : blocks)
@@ -324,51 +341,6 @@ PCIsInfo SystemInfoHardware::parse_pcis_output(const std::string& contents)
         }
     }
     return pcis_info;
-}
-
-Json::Value SystemInfoHardware::run_command(std::vector<std::string>& argv, bool add_bracket)
-{
-    LOG_DEBUG("cmdline: %s, add_bracket: %d.", StrUtils::join(argv, " ").c_str(), add_bracket);
-
-    std::string cmd_output;
-    try
-    {
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                         &cmd_output);
-    }
-    catch (const Glib::Error& e)
-    {
-        LOG_WARNING("%s", e.what().c_str());
-        return Json::Value();
-    }
-
-    cmd_output = StrUtils::trim(cmd_output);
-
-    // lshw命令返回的json字符串是一个数组格式，但是没有用[]括起来，导致解析存在问题，这里对返回值进行修复
-    if (add_bracket && cmd_output.length() > 1 && cmd_output[0] == '{')
-    {
-        if (cmd_output.back() == ',')
-        {
-            cmd_output.pop_back();
-        }
-        cmd_output.insert(cmd_output.begin(), '[');
-        cmd_output.push_back(']');
-    }
-
-    Json::Value values;
-    Json::CharReaderBuilder builder;
-    std::string error;
-    builder["collectComments"] = false;
-    if (!builder.newCharReader()->parse(cmd_output.data(), cmd_output.data() + cmd_output.size(), &values, &error))
-    {
-        LOG_WARNING("%s", error.c_str());
-        return Json::Value();
-    }
-
-    return values;
 }
 
 }  // namespace Kiran

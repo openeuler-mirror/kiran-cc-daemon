@@ -86,7 +86,7 @@ enum PCIMajorClassID
     PCI_MAJOR_CLASS_ID_DISPLAY = 3,
 };
 
-using PCIsInfo = std::vector<std::map<std::string, std::string>>;
+using KVList = std::vector<std::map<std::string, std::string>>;
 
 class SystemInfoHardware
 {
@@ -113,9 +113,8 @@ private:
     EthInfoVec get_eths_info();
     GraphicInfoVec get_graphics_info();
 
-    PCIsInfo get_pcis_by_major_class_id(PCIMajorClassID major_class_id);
-    PCIsInfo parse_pcis_output(const std::string &contents);
+    KVList get_pcis_by_major_class_id(PCIMajorClassID major_class_id);
 
-    Json::Value run_command(std::vector<std::string> &argv, bool add_bracket = false);
+    KVList format_to_kv_list(const std::string &contents);
 };
 }  // namespace Kiran
