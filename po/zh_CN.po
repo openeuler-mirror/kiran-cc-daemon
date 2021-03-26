@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-17 17:43+0800\n"
+"POT-Creation-Date: 2021-03-12 15:34+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -411,23 +411,23 @@ msgstr "保存自动登陆信息到配置文件失败"
 
 #: ../plugins/accounts/accounts-manager.cpp:121
 #: ../plugins/accounts/accounts-manager.cpp:139
-#: ../plugins/accounts/accounts-manager.cpp:490
+#: ../plugins/accounts/accounts-manager.cpp:483
 msgid "No user found"
 msgstr "没有发现用户"
 
-#: ../plugins/accounts/accounts-manager.cpp:431
+#: ../plugins/accounts/accounts-manager.cpp:425
 msgid "The user already exists"
 msgstr "用户已存在"
 
-#: ../plugins/accounts/accounts-manager.cpp:446
+#: ../plugins/accounts/accounts-manager.cpp:440
 msgid "Unknown account type"
 msgstr "未知的用户类型"
 
-#: ../plugins/accounts/accounts-manager.cpp:473
+#: ../plugins/accounts/accounts-manager.cpp:466
 msgid "Internal error"
 msgstr "内部错误"
 
-#: ../plugins/accounts/accounts-manager.cpp:482
+#: ../plugins/accounts/accounts-manager.cpp:475
 msgid "Refuse to delete root user"
 msgstr "禁止删除root用户"
 
@@ -491,37 +491,54 @@ msgstr "无法更新下级gid文件"
 msgid "Unknown error"
 msgstr "未知错误"
 
-#: ../plugins/accounts/user.cpp:485
+#: ../plugins/accounts/user.cpp:482
 msgid "File {0} is not a regular file"
 msgstr "{0}不是普通文件"
 
-#: ../plugins/accounts/user.cpp:491
+#: ../plugins/accounts/user.cpp:488
 msgid "File {0} is too large to be used as an icon"
 msgstr "文件{0}太大，不能作为图标使用"
 
-#: ../plugins/accounts/user.cpp:498
+#: ../plugins/accounts/user.cpp:495
 msgid "Failed to copy file, could not determine caller UID"
 msgstr "复制文件失败，无法确定调用方UID"
 
-#: ../plugins/accounts/user.cpp:531
+#: ../plugins/accounts/user.cpp:528
 msgid "Failed to read file {0}"
 msgstr "读取文件{0}失败"
 
-#: ../plugins/accounts/user.cpp:547
+#: ../plugins/accounts/user.cpp:544
 msgid "Failed to Copye file {0} to {1}"
 msgstr "拷贝文件{0}到{1}失败"
 
-#: ../plugins/accounts/user.cpp:595
+#: ../plugins/accounts/user.cpp:591
 msgid "group {0} not found"
 msgstr "未发现组{0}"
 
-#: ../plugins/accounts/user.cpp:678
+#: ../plugins/accounts/user.cpp:672
 msgid "User is locked"
 msgstr "用户被锁定"
 
-#: ../plugins/accounts/user.cpp:693
+#: ../plugins/accounts/user.cpp:687
 msgid "Account expiration policy unknown to accounts service"
 msgstr "无法获取用户过期策略"
+
+#: ../plugins/accounts/user.cpp:708 ../plugins/accounts/user.cpp:734
+#: ../plugins/accounts/user.cpp:753 ../plugins/accounts/user.cpp:774
+msgid "The authentication mdoe isn't supported."
+msgstr "认证模式不支持"
+
+#: ../plugins/accounts/user.cpp:713
+msgid "The name already exists."
+msgstr "名字已存在"
+
+#: ../plugins/accounts/user.cpp:718
+msgid "Failed to add the authentication data."
+msgstr "添加认证数据失败"
+
+#: ../plugins/accounts/user.cpp:739
+msgid "Failed to remove the authentication data."
+msgstr "删除认证数据失败"
 
 #: ../plugins/timedate/timedate-manager.cpp:91
 msgid "NTP unit is active"

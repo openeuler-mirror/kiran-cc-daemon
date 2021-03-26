@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-09 09:44:45
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-09 16:12:58
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/bluetooth/bluetooth-adapter.cpp
+/**
+ * @file          /kiran-cc-daemon/plugins/bluetooth/bluetooth-adapter.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 #include "plugins/bluetooth/bluetooth-adapter.h"
 
@@ -21,7 +19,7 @@ bool BluetoothAdapter::add_device(std::shared_ptr<BluetoothDevice> device)
     auto iter = this->devices_.emplace(device->get_object_path(), device);
     if (!iter.second)
     {
-        LOG_WARNING("The device %s already exist.", device->get_object_path());
+        LOG_WARNING("The device %s already exist.", device->get_object_path().c_str());
     }
     return iter.second;
 }
