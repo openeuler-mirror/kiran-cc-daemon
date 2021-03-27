@@ -199,8 +199,9 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
         char model[BUFSIZ] = {0};
         char vendor[BUFSIZ] = {0};
 
+        // model和vendor只要有一个不为空则认为合法，所以只要能读到4个变量即可
         if (sscanf(line.c_str(), "NAME=\"%[^\"]\" TYPE=\"%[^\"]\" SIZE=\"%" PRId64 "\" MODEL=\"%[^\"]\" VENDOR=\"%[^\"]\"",
-                   name, type, &size, model, vendor) == 5)
+                   name, type, &size, model, vendor) >= 4)
         {
             if (std::string(type) == "disk")
             {
@@ -287,6 +288,9 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
             }
         }
     }
+
+    // 如果为空则不执行下面的命令，否则会取到所有的PCI设备(没有了-d选项的限制)
+    RETURN_VAL_IF_TRUE(full_class_ids.size() == 0, KVList());
 
     // 根据full_class_id列表获取设备相关信息
     {
