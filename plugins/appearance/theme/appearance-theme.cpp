@@ -8,8 +8,6 @@
  */
 #include "plugins/appearance/theme/appearance-theme.h"
 
-#include <glib/gi18n.h>
-
 #include "xsettings_i.h"
 
 #define MARCO_SCHEMA_ID "org.mate.Marco.general"
@@ -76,12 +74,12 @@ std::shared_ptr<ThemeBase> AppearanceTheme::get_theme(ThemeKey key)
     return themes_iter->second.begin()->second;
 }
 
-bool AppearanceTheme::set_theme(ThemeKey key, std::string& err)
+bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
 {
     auto theme = this->get_theme(key);
     if (!theme)
     {
-        err = _("Theme not exist");
+        error_code = CCErrorCode::ERROR_APPEARANCE_THEME_NOT_EXIST;
         return false;
     }
 
@@ -123,7 +121,7 @@ bool AppearanceTheme::set_theme(ThemeKey key, std::string& err)
         break;
     }
     default:
-        err = _("Unsupported theme type");
+        error_code = CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_UNSUPPORTED;
         return false;
     }
     return true;

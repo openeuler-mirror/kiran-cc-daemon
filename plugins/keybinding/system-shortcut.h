@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-27 11:06:08
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 17:50:49
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/keybinding/system-shortcut.h
+/**
+ * @file          /kiran-cc-daemon/plugins/keybinding/system-shortcut.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #pragma once
@@ -38,9 +36,7 @@ public:
     static void global_deinit() { delete instance_; };
 
     // 修改系统快捷键
-    CCError modify(const std::string &uid,
-                   const std::string &key_combination,
-                   std::string &err);
+    bool modify(const std::string &uid, const std::string &key_combination, CCErrorCode &error_code);
     // 获取系统快捷键
     std::shared_ptr<SystemShortCut> get(const std::string &uid);
 

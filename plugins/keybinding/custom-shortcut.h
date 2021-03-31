@@ -44,11 +44,11 @@ public:
     static void global_deinit() { delete instance_; };
 
     // 添加自定义快捷键
-    std::pair<std::string, CCError> add(std::shared_ptr<CustomShortCut> shortcut, std::string &err);
+    std::string add(std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code);
     // 修改自定义快捷键，如果uid不存在则返回错误
-    CCError modify(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut, std::string &err);
+    bool modify(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code);
     // 删除自定义快捷键
-    CCError remove(const std::string &uid, std::string &err);
+    bool remove(const std::string &uid, CCErrorCode &error_code);
     // 获取自定义快捷键
     std::shared_ptr<CustomShortCut> get(const std::string &uid);
     // 获取所有自定义快捷键
@@ -71,14 +71,14 @@ private:
     // 生成自定义快捷键唯一ID
     std::string gen_uid();
     // 校验自定义快捷键是否合法
-    bool check_valid(std::shared_ptr<CustomShortCut> shortcut, std::string &err);
+    bool check_valid(std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code);
     // 设置自定义快捷键，如果uid不存在则创建，不做合法性校验
     void change_and_save(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut);
     // 保存自定义按键到文件
     bool save_to_file();
     // 抓取组合按键或者取消抓取组合按键
-    bool grab_keycomb_change(const std::string &key_comb, bool grab, std::string &err);
-    bool grab_keystate_change(const KeyState &keystate, bool grab, std::string &err);
+    bool grab_keycomb_change(const std::string &key_comb, bool grab, CCErrorCode &error_code);
+    bool grab_keystate_change(const KeyState &keystate, bool grab, CCErrorCode &error_code);
 
     static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
 

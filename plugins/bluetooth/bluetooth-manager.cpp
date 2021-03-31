@@ -10,7 +10,6 @@
 #include "plugins/bluetooth/bluetooth-manager.h"
 
 #include <glib-unix.h>
-#include <glib/gi18n.h>
 
 #include "lib/base/base.h"
 #include "plugins/bluetooth/bluez.h"
@@ -81,7 +80,7 @@ void BluetoothManager::GetDevices(const Glib::DBusObjectPathString &adapter_obje
     auto adapter = this->get_adapter(adapter_object_path);
     if (!adapter)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found adapter"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_BLUETOOTH_NOTFOUND_ADAPTOR);
     }
 
     for (auto &device : adapter->get_devices())

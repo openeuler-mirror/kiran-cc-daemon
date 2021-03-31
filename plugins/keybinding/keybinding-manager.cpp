@@ -41,17 +41,16 @@ void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
 {
     SETTINGS_PROFILE("");
     auto custom_shortcut = std::make_shared<CustomShortCut>(name, action, key_combination);
-    std::string err;
-    auto ret = CustomShortCutManager::get_instance()->add(custom_shortcut, err);
-    if (ret.second != CCError::SUCCESS)
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    auto uid = CustomShortCutManager::get_instance()->add(custom_shortcut, error_code);
+    if (error_code != CCErrorCode::SUCCESS)
     {
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(ret.second), err.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     else
     {
-        invocation.ret(ret.first);
-        this->Added_signal.emit(std::make_tuple(ret.first, std::string(CUSTOM_SHORTCUT_KIND)));
+        invocation.ret(uid);
+        this->Added_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
     }
 }
 
@@ -63,12 +62,10 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
 {
     SETTINGS_PROFILE("");
     auto custom_shortcut = std::make_shared<CustomShortCut>(name, action, key_combination);
-    std::string err;
-    auto ret = CustomShortCutManager::get_instance()->modify(uid.raw(), custom_shortcut, err);
-    if (ret != CCError::SUCCESS)
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!CustomShortCutManager::get_instance()->modify(uid.raw(), custom_shortcut, error_code))
     {
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(ret), err.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     else
     {
@@ -80,12 +77,10 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
 void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
-    std::string err;
-    auto ret = CustomShortCutManager::get_instance()->remove(uid, err);
-    if (ret != CCError::SUCCESS)
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!CustomShortCutManager::get_instance()->remove(uid, error_code))
     {
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(ret), err.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     else
     {
@@ -100,7 +95,7 @@ void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvoca
     auto custom_shortcut = CustomShortCutManager::get_instance()->get(uid.raw());
     if (!custom_shortcut)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "not found custom shortcut: {0}.", uid.c_str());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_3);
     }
     invocation.ret(std::make_tuple(uid, custom_shortcut->name, custom_shortcut->action, custom_shortcut->key_combination));
 }
@@ -123,12 +118,10 @@ void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
 {
     SETTINGS_PROFILE("");
 
-    std::string err;
-    auto ret = SystemShortCutManager::get_instance()->modify(uid.raw(), key_combination.raw(), err);
-    if (ret != CCError::SUCCESS)
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!SystemShortCutManager::get_instance()->modify(uid.raw(), key_combination.raw(), error_code))
     {
-        invocation.ret(Glib::Error(CC_ERROR, static_cast<int32_t>(ret), err.c_str()));
-        return;
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     invocation.ret();
 }
@@ -138,7 +131,7 @@ void KeybindingManager::GetSystemShortcut(const Glib::ustring &uid, MethodInvoca
     auto system_shortcut = this->system_shorcut_manager_->get(uid);
     if (!system_shortcut)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, "not found system shortcut '{0}'", uid.c_str());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST_2);
     }
     invocation.ret(std::make_tuple(uid, system_shortcut->kind, system_shortcut->name, system_shortcut->key_combination));
 }

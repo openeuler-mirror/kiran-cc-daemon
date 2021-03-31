@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-12 15:34+0800\n"
+"POT-Creation-Date: 2021-03-30 19:26+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -405,169 +405,377 @@ msgstr "打印日志到屏幕"
 msgid "Control center"
 msgstr "控制中心"
 
-#: ../plugins/accounts/accounts-manager.cpp:81
-msgid "Failed to save autologin info to configuration file"
-msgstr "保存自动登陆信息到配置文件失败"
+#: ../lib/base/error.cpp:28
+msgid "No user found."
+msgstr "没有发现用户。"
 
-#: ../plugins/accounts/accounts-manager.cpp:121
-#: ../plugins/accounts/accounts-manager.cpp:139
-#: ../plugins/accounts/accounts-manager.cpp:483
-msgid "No user found"
-msgstr "没有发现用户"
+#: ../lib/base/error.cpp:31
+msgid "The user already exists."
+msgstr "用户已存在。"
 
-#: ../plugins/accounts/accounts-manager.cpp:425
-msgid "The user already exists"
-msgstr "用户已存在"
+#: ../lib/base/error.cpp:34
+msgid "Unknown account type."
+msgstr "未知的用户类型。"
 
-#: ../plugins/accounts/accounts-manager.cpp:440
-msgid "Unknown account type"
-msgstr "未知的用户类型"
+#: ../lib/base/error.cpp:37
+msgid "Can't update password file."
+msgstr "不能更新password文件。"
 
-#: ../plugins/accounts/accounts-manager.cpp:466
-msgid "Internal error"
-msgstr "内部错误"
+#: ../lib/base/error.cpp:40
+msgid "Invalid command syntax."
+msgstr "命令语法无效。"
 
-#: ../plugins/accounts/accounts-manager.cpp:475
-msgid "Refuse to delete root user"
-msgstr "禁止删除root用户"
+#: ../lib/base/error.cpp:43
+msgid "Invalid argument to option."
+msgstr "命令参数无效。"
 
-#: ../plugins/accounts/accounts-util.cpp:206
-msgid "Can't update password file"
-msgstr "不能更新password文件"
+#: ../lib/base/error.cpp:46
+msgid "UID already in use."
+msgstr "UID已在使用中。"
 
-#: ../plugins/accounts/accounts-util.cpp:209
-msgid "Invalid command syntax"
-msgstr "命令语法无效"
+#: ../lib/base/error.cpp:49
+msgid "Passwd file contains errors."
+msgstr "Passwd文件存在错误。"
 
-#: ../plugins/accounts/accounts-util.cpp:212
-msgid "Invalid argument to option"
-msgstr "命令参数无效"
+#: ../lib/base/error.cpp:52
+msgid "Specified user/group doesn't exist."
+msgstr "指定的用户/组不存在。"
 
-#: ../plugins/accounts/accounts-util.cpp:215
-msgid "UID already in use"
-msgstr "UID已在使用中"
+#: ../lib/base/error.cpp:55
+msgid "User to modify is logged in."
+msgstr "要修改的用户已登陆。"
 
-#: ../plugins/accounts/accounts-util.cpp:218
-msgid "Passwd file contains errors"
-msgstr "passwd文件存在错误"
+#: ../lib/base/error.cpp:58
+msgid "Username already in use."
+msgstr "用户名已经在使用中。"
 
-#: ../plugins/accounts/accounts-util.cpp:221
-msgid "Specified user/group doesn't exist"
-msgstr "指定的用户/组不存在"
+#: ../lib/base/error.cpp:61
+msgid "Can't update group file."
+msgstr "不能更新group文件。"
 
-#: ../plugins/accounts/accounts-util.cpp:224
-msgid "User to modify is logged in"
-msgstr "要修改的用户已登陆"
+#: ../lib/base/error.cpp:64
+msgid "Insufficient space to move home dir."
+msgstr "空间不足，无法移动主目录。"
 
-#: ../plugins/accounts/accounts-util.cpp:227
-msgid "Username already in use"
-msgstr "用户名已经在使用中"
+#: ../lib/base/error.cpp:67
+msgid "Can't create/remove/move home directory."
+msgstr "不能创建/删除/移动主目录。"
 
-#: ../plugins/accounts/accounts-util.cpp:230
-msgid "Can't update group file"
-msgstr "不能更新group文件"
+#: ../lib/base/error.cpp:71
+msgid "Can't update SELinux user mapping."
+msgstr "无法更新SELinux用户映射。"
 
-#: ../plugins/accounts/accounts-util.cpp:233
-msgid "Insufficient space to move home dir"
-msgstr "空间不足，无法移动主目录"
+#: ../lib/base/error.cpp:74
+msgid "Can't update the subordinate uid file."
+msgstr "无法更新下级uid文件。"
 
-#: ../plugins/accounts/accounts-util.cpp:236
-msgid "Can't create/remove/move home directory"
-msgstr "不能创建/删除/移动主目录"
+#: ../lib/base/error.cpp:77
+msgid "Can't update the subordinate gid file."
+msgstr "无法更新下级gid文件。"
 
-#: ../plugins/accounts/accounts-util.cpp:240
-msgid "Can't update SELinux user mapping"
-msgstr "无法更新SELinux用户映射"
+#: ../lib/base/error.cpp:80
+msgid "Refuse to delete root user."
+msgstr "禁止删除root用户。"
 
-#: ../plugins/accounts/accounts-util.cpp:243
-msgid "Can't update the subordinate uid file"
-msgstr "无法更新下级uid文件"
+#: ../lib/base/error.cpp:86
+msgid "The authentication mode isn't supported."
+msgstr "认证模式不支持。"
 
-#: ../plugins/accounts/accounts-util.cpp:246
-msgid "Can't update the subordinate gid file"
-msgstr "无法更新下级gid文件"
+#: ../lib/base/error.cpp:89
+msgid "User is locked."
+msgstr "用户被锁定。"
 
-#: ../plugins/accounts/accounts-util.cpp:249
-msgid "Unknown error"
-msgstr "未知错误"
+#: ../lib/base/error.cpp:92
+msgid "The expiration policy isn't found."
+msgstr "未找到过期策略"
 
-#: ../plugins/accounts/user.cpp:482
-msgid "File {0} is not a regular file"
-msgstr "{0}不是普通文件"
-
-#: ../plugins/accounts/user.cpp:488
-msgid "File {0} is too large to be used as an icon"
-msgstr "文件{0}太大，不能作为图标使用"
-
-#: ../plugins/accounts/user.cpp:495
-msgid "Failed to copy file, could not determine caller UID"
-msgstr "复制文件失败，无法确定调用方UID"
-
-#: ../plugins/accounts/user.cpp:528
-msgid "Failed to read file {0}"
-msgstr "读取文件{0}失败"
-
-#: ../plugins/accounts/user.cpp:544
-msgid "Failed to Copye file {0} to {1}"
-msgstr "拷贝文件{0}到{1}失败"
-
-#: ../plugins/accounts/user.cpp:591
-msgid "group {0} not found"
-msgstr "未发现组{0}"
-
-#: ../plugins/accounts/user.cpp:672
-msgid "User is locked"
-msgstr "用户被锁定"
-
-#: ../plugins/accounts/user.cpp:687
-msgid "Account expiration policy unknown to accounts service"
-msgstr "无法获取用户过期策略"
-
-#: ../plugins/accounts/user.cpp:708 ../plugins/accounts/user.cpp:734
-#: ../plugins/accounts/user.cpp:753 ../plugins/accounts/user.cpp:774
-msgid "The authentication mdoe isn't supported."
-msgstr "认证模式不支持"
-
-#: ../plugins/accounts/user.cpp:713
+#: ../lib/base/error.cpp:95
 msgid "The name already exists."
 msgstr "名字已存在"
 
-#: ../plugins/accounts/user.cpp:718
-msgid "Failed to add the authentication data."
-msgstr "添加认证数据失败"
+#: ../lib/base/error.cpp:98
+msgid "NTP unit is active."
+msgstr "NTP服务已开启。"
 
-#: ../plugins/accounts/user.cpp:739
-msgid "Failed to remove the authentication data."
-msgstr "删除认证数据失败"
+#: ../lib/base/error.cpp:101
+msgid "Invalid timezone."
+msgstr "不合法的时区。"
 
-#: ../plugins/timedate/timedate-manager.cpp:91
-msgid "NTP unit is active"
-msgstr "NTP服务已开启"
+#: ../lib/base/error.cpp:104
+msgid "No NTP unit available."
+msgstr "没有NTP服务可用。"
 
-#: ../plugins/timedate/timedate-manager.cpp:108
-msgid "Invalid timezone"
-msgstr "不合法的时区"
+#: ../lib/base/error.cpp:108
+msgid "Unknown date format type."
+msgstr "未知的日期格式化类型。"
 
-#: ../plugins/timedate/timedate-manager.cpp:170
-msgid "No NTP unit available"
-msgstr "没有NTP服务可用"
+#: ../lib/base/error.cpp:111
+msgid "Failed to set date format."
+msgstr "设置日期显示格式失败。"
 
-#: ../plugins/timedate/timedate-manager.cpp:198
-#: ../plugins/timedate/timedate-manager.cpp:217
-msgid "Unknown format type"
-msgstr "未知的格式化类型"
+#: ../lib/base/error.cpp:114
+msgid "Failed to set hour format."
+msgstr "设置时间显示格式失败。"
 
-#: ../plugins/timedate/timedate-manager.cpp:226
-msgid "Failed to set date format"
-msgstr "设置日期显示格式失败"
+#: ../lib/base/error.cpp:117
+msgid "Failed to set seconds showing."
+msgstr "设置秒数是否显示失败。"
 
-#: ../plugins/timedate/timedate-manager.cpp:236
-msgid "Failed to set hour format"
-msgstr "设置时间显示格式失败"
+#: ../lib/base/error.cpp:120
+msgid "Failed to start NTP unit."
+msgstr "开启NTP服务失败。"
 
-#: ../plugins/timedate/timedate-manager.cpp:250
-msgid "Failed to set seconds showing"
-msgstr "设置秒数是否显示失败"
+#: ../lib/base/error.cpp:123
+msgid "Failed to stop NTP unit."
+msgstr "停止NTP服务失败。"
+
+#: ../lib/base/error.cpp:127
+msgid "Unknown display style."
+msgstr "未知的显示类型。"
+
+#: ../lib/base/error.cpp:130
+msgid ""
+"The mode of monitors which contain resolution and refresh rate is no "
+"intersection."
+msgstr "所有显示器没有相同的分辨率和刷新率。"
+
+#: ../lib/base/error.cpp:133
+msgid "Auto mode is set failed."
+msgstr "自动模式设置失败。"
+
+#: ../lib/base/error.cpp:137
+msgid "Failed to set the window scaling factor."
+msgstr "设置窗口缩放因子失败。"
+
+#: ../lib/base/error.cpp:140
+msgid "The custom configuration file isn't found."
+msgstr "未找到自定义配置文件。"
+
+#: ../lib/base/error.cpp:143
+msgid "Not found matched item in custom configuration file."
+msgstr "不能找到匹配的配置项。"
+
+#: ../lib/base/error.cpp:146
+msgid "The primary monitor must not be empty."
+msgstr "主显示器不能为空。"
+
+#: ../lib/base/error.cpp:149
+msgid "Not found the primary monitor."
+msgstr "未找到主显示器。"
+
+#: ../lib/base/error.cpp:152
+msgid ""
+"Cannot disable the monitor, because the number of the enabled monitor is "
+"less than 1."
+msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个。"
+
+#: ../lib/base/error.cpp:155
+msgid "Exist null mode in mode list."
+msgstr "模式列表中存在空的模式。"
+
+#: ../lib/base/error.cpp:158
+msgid "Exist null mode in preferred mode list."
+msgstr "在推荐模式中存在空的模式。"
+
+#: ../lib/base/error.cpp:161
+msgid "The current mode is not exist."
+msgstr "当前模式不存在。"
+
+#: ../lib/base/error.cpp:165
+msgid "Not found match mode."
+msgstr "未发现匹配的模式。"
+
+#: ../lib/base/error.cpp:168
+msgid "The mode is not exist."
+msgstr "当前模式不存在。"
+
+#: ../lib/base/error.cpp:171
+msgid "Unknown rotation type."
+msgstr "未知的旋转类型。"
+
+#: ../lib/base/error.cpp:174
+msgid "Unknown reflect type."
+msgstr "未知的映射类型。"
+
+#: ../lib/base/error.cpp:177
+msgid "Theme not exist."
+msgstr "主题不存在。"
+
+#: ../lib/base/error.cpp:180
+msgid "Unsupported theme type."
+msgstr "主题类型不支持。"
+
+#: ../lib/base/error.cpp:183
+msgid "Invalid theme type."
+msgstr "主题类型不合法。"
+
+#: ../lib/base/error.cpp:187
+msgid "Invalid font type."
+msgstr "字体类型不合法。"
+
+#: ../lib/base/error.cpp:190
+msgid "Unsupported font type."
+msgstr "字体类型不支持。"
+
+#: ../lib/base/error.cpp:193
+msgid "An incomplete request already exists."
+msgstr "存在未完成的请求。"
+
+#: ../lib/base/error.cpp:196
+msgid "The request is canceled."
+msgstr "请求被取消。"
+
+#: ../lib/base/error.cpp:202
+msgid "The request is rejected."
+msgstr "请求被拒绝。"
+
+#: ../lib/base/error.cpp:205
+msgid "Not found adapter."
+msgstr "未发现适配器。"
+
+#: ../lib/base/error.cpp:213
+msgid "Sync to file failed."
+msgstr "同步到文件失败。"
+
+#: ../lib/base/error.cpp:216
+msgid "Failed to find user name."
+msgstr "获取用户名失败。"
+
+#: ../lib/base/error.cpp:219
+msgid "Invalid scale mode."
+msgstr "缩放模式不合法。"
+
+#: ../lib/base/error.cpp:222
+msgid "The number of the layout can't exceeds {0}."
+msgstr "布局数量不能超过{0}个。"
+
+#: ../lib/base/error.cpp:225
+msgid "The layout is invalid."
+msgstr "该布局不合法。"
+
+#: ../lib/base/error.cpp:228
+msgid "The layout already exist."
+msgstr "该布局已存在。"
+
+#: ../lib/base/error.cpp:231
+msgid "Failed to set the layout."
+msgstr "设置布局失败。"
+
+#: ../lib/base/error.cpp:234
+msgid "The layout is no exist."
+msgstr "该布局不存在。"
+
+#: ../lib/base/error.cpp:237
+msgid "Failed to update the layout."
+msgstr "更新布局失败。"
+
+#: ../lib/base/error.cpp:240
+msgid "The layout option already exist."
+msgstr "布局选项已存在。"
+
+#: ../lib/base/error.cpp:243
+msgid "Failed to set the layout option."
+msgstr "设置布局选项失败。"
+
+#: ../lib/base/error.cpp:246
+msgid "The layout option is no exist."
+msgstr "布局选项不存在。"
+
+#: ../lib/base/error.cpp:249
+msgid "Failed to update the layout option."
+msgstr "更新布局选项失败。"
+
+#: ../lib/base/error.cpp:252
+msgid "Failed to clear the layout option."
+msgstr "清理布局选项失败。"
+
+#: ../lib/base/error.cpp:255
+msgid "The custom shortcut is invalid."
+msgstr "自定义快捷键不合法。"
+
+#: ../lib/base/error.cpp:260
+msgid "The custom shortcut isn't exist."
+msgstr "自定义快捷键不存在。"
+
+#: ../lib/base/error.cpp:263
+msgid "The custom shortcut already exist."
+msgstr "自定义快捷键已存在。"
+
+#: ../lib/base/error.cpp:267
+msgid "The key combination already exist."
+msgstr "按键组合已经存在。"
+
+#: ../lib/base/error.cpp:272
+msgid "The key combination is invalid."
+msgstr "按键组合不合法。"
+
+#: ../lib/base/error.cpp:276
+msgid "The system shortcut isn't exist."
+msgstr "该系统快捷键不存在。"
+
+#: ../lib/base/error.cpp:282
+msgid "Unsupported power supply mode."
+msgstr "不支持该供电模式。"
+
+#: ../lib/base/error.cpp:288
+msgid "Unsupported power device."
+msgstr "不支持该设备。"
+
+#: ../lib/base/error.cpp:291
+msgid "Unknown power action."
+msgstr "未知电源动作。"
+
+#: ../lib/base/error.cpp:295
+msgid "Unsupported power event."
+msgstr "事件不支持。"
+
+#: ../lib/base/error.cpp:298
+msgid "Failed to set the action."
+msgstr "设置触发行为失败。"
+
+#: ../lib/base/error.cpp:301
+msgid "Failed to set brightness."
+msgstr "设置亮度失败。"
+
+#: ../lib/base/error.cpp:304
+msgid "The systeminfo type is invalid."
+msgstr "系统信息类型不合法。"
+
+#: ../lib/base/error.cpp:307
+msgid "Failed to set host name."
+msgstr "设置主机名失败。"
+
+#: ../lib/base/error.cpp:310
+msgid "Not found the property."
+msgstr "未找到该属性。"
+
+#: ../lib/base/error.cpp:313
+msgid "The type is mismatch."
+msgstr "类型不匹配。"
+
+#: ../lib/base/error.cpp:316
+msgid "The property is invalid."
+msgstr "属性不合法"
+
+#: ../lib/base/error.cpp:319
+msgid "The property must not be modified manually."
+msgstr "属性不能手动修改。"
+
+#: ../lib/base/error.cpp:322
+msgid "The property is unsupported."
+msgstr "属性不支持。"
+
+#: ../lib/base/error.cpp:345
+msgid "Internel error."
+msgstr "内部错误。"
+
+#: ../lib/base/error.cpp:348 ../lib/base/error.cpp:351
+msgid "Unknown error."
+msgstr "未知错误。"
+
+#: ../lib/base/error.cpp:355
+msgid " (error code: 0x{:x})"
+msgstr "(错误码：0x{:x})"
 
 #: ../plugins/timedate/timedate-format.cpp:130
 #: ../plugins/timedate/timedate-format.cpp:131
@@ -575,131 +783,13 @@ msgstr "设置秒数是否显示失败"
 msgid "%b %d %Y"
 msgstr "%Y年%m月%d日"
 
-#: ../plugins/display/display-manager.cpp:114
-msgid "Unknown display style"
-msgstr "未知的显示类型"
-
-#: ../plugins/display/display-manager.cpp:126
-msgid "Apply failed: {0}"
-msgstr "应用失败：{0}"
-
-#: ../plugins/display/display-manager.cpp:149
-msgid "The primary monitor cannot be empty."
-msgstr "主显示器不能为空"
-
-#: ../plugins/display/display-manager.cpp:154
-msgid "Not found the primary monitor"
-msgstr "未找到主显示器"
-
-#: ../plugins/display/display-manager.cpp:180
-#: ../plugins/display/display-manager.cpp:508
-msgid "Failed to set the window scaling factor"
-msgstr "设置窗口缩放因子失败"
-
-#: ../plugins/display/display-manager.cpp:344
-msgid "The config is empty"
-msgstr "自定义配置为空"
-
-#: ../plugins/display/display-manager.cpp:369
-msgid "Not found match configuration"
-msgstr "不能找到匹配的配置"
-
-#: ../plugins/display/display-manager.cpp:592
-msgid "Cannot find common mode for all enabled monitors"
-msgstr "不能为已开启的显示器找到相同的模式"
-
-#: ../plugins/display/display-manager.cpp:694
-msgid "Auto mode is set failed"
-msgstr "自动模式设置失败"
-
-#: ../plugins/display/display-manager.cpp:763
-msgid "Failed to create directory {0}"
-msgstr "创建目录{0}失败"
-
-#: ../plugins/display/display-manager.cpp:777
-msgid "Write to file {0} failed"
-msgstr "写文件到{0}失败"
-
-#: ../plugins/display/display-monitor.cpp:209
-msgid ""
-"Cannot disable the monitor, because the number of the enabled monitor is "
-"less than 1"
-msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个"
-
-#: ../plugins/display/display-monitor.cpp:230
-msgid "Exist null mode in mode list"
-msgstr "存在空的模式"
-
-#: ../plugins/display/display-monitor.cpp:250
-msgid "Exist null mode in preferred mode list"
-msgstr "在推荐模式中存在空模式"
-
-#: ../plugins/display/display-monitor.cpp:269
-msgid "The current mode is not exist"
-msgstr "当前模式不存在"
-
-#: ../plugins/display/display-monitor.cpp:285
-#: ../plugins/display/display-monitor.cpp:318
-msgid "Not found match mode."
-msgstr "未发现匹配的模式"
-
-#: ../plugins/display/display-monitor.cpp:298
-msgid "The mode id {0} is not exist in mode list"
-msgstr "在模式列表中未发现模式{0}"
-
-#: ../plugins/display/display-monitor.cpp:345
-msgid "Unknown rotation type"
-msgstr "未知的旋转类型"
-
-#: ../plugins/display/display-monitor.cpp:363
-msgid "Unknown reflect type"
-msgstr "未知的映射类型"
-
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"
 msgstr "自定义"
 
-#: ../plugins/systeminfo/systeminfo-manager.cpp:87
-msgid "Invalid type"
-msgstr "不合法的类型"
-
-#: ../plugins/systeminfo/systeminfo-manager.cpp:93
-msgid "Assign to Json::Value failed"
-msgstr "Json::Value赋值失败"
-
-#: ../plugins/systeminfo/systeminfo-manager.cpp:136
-msgid "Failed to set host name"
-msgstr "设置主机名失败"
-
-#: ../plugins/power/power-manager.cpp:62 ../plugins/power/power-manager.cpp:169
+#: ../plugins/power/power-manager.cpp:60
 msgid "Unknown power action"
 msgstr "未知电源动作"
-
-#: ../plugins/power/power-manager.cpp:80 ../plugins/power/power-manager.cpp:97
-#: ../plugins/power/power-manager.cpp:132
-#: ../plugins/power/power-manager.cpp:149
-msgid "Unsupported power supply mode"
-msgstr ""
-
-#: ../plugins/power/power-manager.cpp:102
-#: ../plugins/power/power-manager.cpp:154
-#: ../plugins/power/power-manager.cpp:254
-#: ../plugins/power/power-manager.cpp:289
-msgid "Unsupported power device"
-msgstr ""
-
-#: ../plugins/power/power-manager.cpp:189
-#: ../plugins/power/power-manager.cpp:225
-msgid "Unsupported power event"
-msgstr ""
-
-#: ../plugins/power/power-manager.cpp:194
-msgid "Failed to set the action"
-msgstr "设置动作失败"
-
-#: ../plugins/power/power-manager.cpp:259
-msgid "Failed to set brightness"
-msgstr "设置亮度失败"
 
 #: ../plugins/power/power-utils.cpp:19
 msgid "Less than 1 minute"
@@ -1036,57 +1126,3 @@ msgstr ""
 #: ../plugins/power/tools/power-backlight-helper.cpp:215
 msgid "No backlights were found on your system"
 msgstr ""
-
-#: ../plugins/xsettings/xsettings-manager.cpp:111
-#: ../plugins/xsettings/xsettings-manager.cpp:424
-msgid "Not found the property"
-msgstr "未找到改属性"
-
-#: ../plugins/xsettings/xsettings-manager.cpp:115
-msgid "The type is mismatch"
-msgstr "类型不匹配"
-
-#: ../plugins/xsettings/xsettings-manager.cpp:493
-msgid "Cannot modify the property manually"
-msgstr "不能手动修改此属性"
-
-#: ../plugins/xsettings/xsettings-manager.cpp:496
-msgid "Unknown property"
-msgstr "未知属性"
-
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:137
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:159
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:176
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:193
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:210
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:232
-msgid "Failed to save"
-msgstr "保存失败"
-
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:151
-msgid "Failed to find user name by uid"
-msgstr "通过uid获取用户名失败"
-
-#: ../plugins/greeter-settings/greeter-settings-dbus.cpp:225
-msgid "Illegal mode parameter"
-msgstr "缩放模式参数非法"
-
-#~ msgid "Window Scaling Factor"
-#~ msgstr "窗口缩放因子"
-
-#, fuzzy
-#~ msgid "Change the greeter configuration"
-#~ msgstr "更改登录屏幕设置"
-
-#, fuzzy
-#~ msgid "Authentication is required to change the greeter configuration."
-#~ msgstr "更改登录设置之前需要身份验证"
-
-#~ msgid "Change the login settings"
-#~ msgstr "更改登陆设置"
-
-#~ msgid "Authentication is required to change the login configuration."
-#~ msgstr "更改登录设置之前需要身份验证"
-
-#~ msgid "Cannot match mode {0}x{1}"
-#~ msgstr "不能匹配分辨率{0}x{1}"

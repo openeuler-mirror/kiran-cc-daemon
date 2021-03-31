@@ -1,51 +1,51 @@
 /**
- * @file greeter-settings-dbus-manager.cpp
- * @brief description
- * @author yangxiaoqing <yangxiaoqing@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved.
-*/
+ * @file          /kiran-cc-daemon/plugins/greeter-settings/greeter-settings-dbus.cpp
+ * @brief         
+ * @author        yangxiaoqing <yangxiaoqing@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
+ */
+
 #include "greeter-settings-dbus.h"
-#include "greeter-settings_i.h"
-#include <glib/gi18n.h>
+
 #include <glib/gstdio.h>
+#include <pwd.h>
+#include <unistd.h>
 
 #include <cinttypes>
 #include <cstdint>
 
+#include "greeter-settings_i.h"
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"
-#include <pwd.h>
-#include <unistd.h>
 
 namespace Kiran
 {
+#define GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(fun, callback, auth, type1)                                                             \
+    void GreeterSettingsDbus::fun(type1 value,                                                                                        \
+                                  MethodInvocation &invocation)                                                                       \
+    {                                                                                                                                 \
+        SETTINGS_PROFILE("");                                                                                                         \
+                                                                                                                                      \
+        AuthManager::get_instance()->start_auth_check(AUTH_SET_LOGIN_OPTION,                                                          \
+                                                      TRUE,                                                                           \
+                                                      invocation.getMessage(),                                                        \
+                                                      std::bind(&GreeterSettingsDbus::callback, this, std::placeholders::_1, value)); \
+                                                                                                                                      \
+        return;                                                                                                                       \
+    }
 
-#define GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(fun, callback, auth, type1)                                          \
-    void GreeterSettingsDbus::fun(type1 value,                                                                      \
-    MethodInvocation &invocation)                                                                       \
-{                                                                                                                  \
-    SETTINGS_PROFILE("");                                                                                          \
-    \
-    AuthManager::get_instance()->start_auth_check(AUTH_SET_LOGIN_OPTION,                                                       \
-    TRUE,                                                            \
-    invocation.getMessage(),                                         \
-    std::bind(&GreeterSettingsDbus::callback, this, std::placeholders::_1, value)); \
-    \
-    return;                                                                                                        \
-}
-
-#define GREETERSETTINGSDBUS_SET_TWO_PROP_AUTH(fun, callback, auth, type1, type2)                                   \
-    void GreeterSettingsDbus::fun(type1 value1, type2 value2, MethodInvocation &invocation)                        \
-{                                                                                                                           \
-    SETTINGS_PROFILE("");                                                                                                   \
-    \
-    AuthManager::get_instance()->start_auth_check(AUTH_SET_LOGIN_OPTION,                                                                \
-    TRUE,                                                                     \
-    invocation.getMessage(),                                                  \
-    std::bind(&GreeterSettingsDbus::callback, this, std::placeholders::_1, value1, value2)); \
-    \
-    return;                                                                                                                 \
-}
+#define GREETERSETTINGSDBUS_SET_TWO_PROP_AUTH(fun, callback, auth, type1, type2)                                                               \
+    void GreeterSettingsDbus::fun(type1 value1, type2 value2, MethodInvocation &invocation)                                                    \
+    {                                                                                                                                          \
+        SETTINGS_PROFILE("");                                                                                                                  \
+                                                                                                                                               \
+        AuthManager::get_instance()->start_auth_check(AUTH_SET_LOGIN_OPTION,                                                                   \
+                                                      TRUE,                                                                                    \
+                                                      invocation.getMessage(),                                                                 \
+                                                      std::bind(&GreeterSettingsDbus::callback, this, std::placeholders::_1, value1, value2)); \
+                                                                                                                                               \
+        return;                                                                                                                                \
+    }
 
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetBackgroundFile, change_background_file_authorized_cb, AUTH_SET_LOGIN_OPTION, const Glib::ustring &)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinUser, change_auto_login_user_authorized_cb, AUTH_SET_LOGIN_OPTION, uint64_t)
@@ -56,11 +56,11 @@ GREETERSETTINGSDBUS_SET_TWO_PROP_AUTH(SetScaleMode, change_scale_mode_authorized
 
 #define USER_PROP_SET_HANDLER(prop, type)                                  \
     bool GreeterSettingsDbus::prop##_setHandler(type value)                \
-{                                                                          \
-    SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());     \
-    this->m_##prop = value;                                                \
-    return true;                                                           \
-}
+    {                                                                      \
+        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str()); \
+        this->m_##prop = value;                                            \
+        return true;                                                       \
+    }
 
 USER_PROP_SET_HANDLER(backgroundFile, const Glib::ustring &)
 USER_PROP_SET_HANDLER(autologinUser, const Glib::ustring &)
@@ -89,7 +89,7 @@ GreeterSettingsDbus::~GreeterSettingsDbus()
     {
         Gio::DBus::unown_name(this->m_dbusConnectId);
     }
-    
+
     if (this->m_reloadConn)
     {
         this->m_reloadConn.disconnect();
@@ -106,7 +106,7 @@ void GreeterSettingsDbus::global_init()
 void GreeterSettingsDbus::init()
 {
     SETTINGS_PROFILE("");
-    
+
     /*Connect to the system bus and acquire our name*/
     this->m_dbusConnectId = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
                                                 GREETER_SETTINGS_DBUS_NAME,
@@ -128,13 +128,13 @@ void GreeterSettingsDbus::init()
 void GreeterSettingsDbus::change_background_file_authorized_cb(Kiran::SystemDaemon::GreeterSettingsStub::MethodInvocation invocation, Glib::ustring file_path)
 {
     SETTINGS_PROFILE("file_path: %s", file_path.c_str());
-    
+
     if (backgroundFile_get() != file_path)
     {
         m_prefs->set_background_file(file_path);
-        if(!m_prefs->save())
+        if (!m_prefs->save())
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_1);
         }
 
         backgroundFile_set(file_path);
@@ -146,17 +146,17 @@ void GreeterSettingsDbus::change_auto_login_user_authorized_cb(SystemDaemon::Gre
 {
     SETTINGS_PROFILE("autologin_user: %d", autologin_user);
     Glib::ustring autologin_user_name = uid_to_name(autologin_user);
-    if(autologin_user_name.empty())
+    if (autologin_user_name.empty())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to find user name by uid"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_NOTFOUND_USER);
     }
 
-    if(autologinUser_get() != autologin_user_name)
+    if (autologinUser_get() != autologin_user_name)
     {
         m_prefs->set_autologin_user(autologin_user_name);
-        if(!m_prefs->save())
+        if (!m_prefs->save())
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_2);
         }
 
         autologinUser_set(autologin_user_name);
@@ -171,14 +171,14 @@ void GreeterSettingsDbus::change_auto_login_timeout_authorized_cb(SystemDaemon::
     if (autologinTimeout_get() != seconds)
     {
         m_prefs->set_autologin_delay(seconds);
-        if(!m_prefs->save())
+        if (!m_prefs->save())
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_3);
         }
 
         autologinTimeout_set(seconds);
     }
-    
+
     invocation.ret();
 }
 
@@ -188,14 +188,14 @@ void GreeterSettingsDbus::change_hide_user_list_authorized_cb(SystemDaemon::Gree
     if (hideUserList_get() != hide)
     {
         m_prefs->set_hide_user_list(hide);
-        if(!m_prefs->save())
+        if (!m_prefs->save())
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_4);
         }
 
         hideUserList_set(hide);
     }
-    
+
     invocation.ret();
 }
 
@@ -205,14 +205,14 @@ void GreeterSettingsDbus::change_allow_manual_login_authorized_cb(SystemDaemon::
     if (allowManualLogin_get() != allow)
     {
         m_prefs->set_enable_manual_login(allow);
-        if(!m_prefs->save())
+        if (!m_prefs->save())
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_5);
         }
 
         allowManualLogin_set(allow);
     }
-    
+
     invocation.ret();
 }
 
@@ -220,28 +220,28 @@ void GreeterSettingsDbus::change_scale_mode_authorized_cb(SystemDaemon::GreeterS
 {
     SETTINGS_PROFILE("mode: %d factor: %d", mode, factor);
 
-    if(mode < GREETER_SETTINGS_SCALING_MODE_AUTO || mode > GREETER_SETTINGS_SCALING_MODE_LAST)
+    if (mode < GREETER_SETTINGS_SCALING_MODE_AUTO || mode > GREETER_SETTINGS_SCALING_MODE_LAST)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Illegal mode parameter"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SCALE_MODE_INVALIDE);
     }
     //*
     m_prefs->set_scale_mode((GreeterSettingsScalingMode)mode);
     m_prefs->set_scale_factor(factor);
-    if(!m_prefs->save())
+    if (!m_prefs->save())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to save"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_6);
     }
 
     scaleMode_set(mode);
     scaleFactor_set(factor);
-    
+
     invocation.ret();
 }
 
 bool GreeterSettingsDbus::reload_greeter_settings()
 {
     SETTINGS_PROFILE("");
-    
+
     m_prefs->load();
     backgroundFile_set(m_prefs->get_background_file());
     autologinUser_set(m_prefs->get_autologin_user());
@@ -250,7 +250,7 @@ bool GreeterSettingsDbus::reload_greeter_settings()
     allowManualLogin_set(m_prefs->get_enable_manual_login());
     scaleMode_set(m_prefs->get_scale_mode());
     scaleFactor_set(m_prefs->get_scale_factor());
-    
+
     return true;
 }
 
@@ -319,7 +319,7 @@ void GreeterSettingsDbus::on_scale_mode_changed()
 Glib::ustring GreeterSettingsDbus::uid_to_name(uid_t uid)
 {
     struct passwd *pw_ptr;
-    if((pw_ptr = getpwuid(uid)) == NULL)
+    if ((pw_ptr = getpwuid(uid)) == NULL)
     {
         LOG_WARNING("failed to find user name by uid: %d", uid);
         return Glib::ustring();
@@ -329,4 +329,3 @@ Glib::ustring GreeterSettingsDbus::uid_to_name(uid_t uid)
 }
 
 }  // namespace Kiran
-

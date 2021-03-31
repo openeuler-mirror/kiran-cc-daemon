@@ -7,7 +7,6 @@
 
 #include "plugins/accounts/accounts-manager.h"
 
-#include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
 #include <cinttypes>
@@ -67,7 +66,7 @@ std::shared_ptr<User> AccountsManager::get_autologin_user()
     return nullptr;
 }
 
-bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabled, std::string &err)
+bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabled, CCErrorCode &error_code)
 {
     std::shared_ptr<User> cur_autologin = this->get_autologin_user();
 
@@ -75,10 +74,11 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
     RETURN_VAL_IF_TRUE(cur_autologin != user && !enabled, true);
     auto user_name = user ? user->user_name_get().raw() : std::string();
 
-    if (!this->save_autologin_to_file(user_name, enabled, err))
+    std::string error;
+    if (!this->save_autologin_to_file(user_name, enabled, error))
     {
-        LOG_WARNING("%s", err.c_str());
-        err = fmt::format(_("Failed to save autologin info to configuration file"));
+        LOG_WARNING("%s", error.c_str());
+        error_code = CCErrorCode::ERROR_ACCOUNTS_SAVE_AUTOLOGIN_FILE;
         return false;
     }
 
@@ -95,6 +95,7 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
 
 void AccountsManager::GetNonSystemUsers(MethodInvocation &invocation)
 {
+    // 如果正在加载用户信息，则延时获取非系统用户列表
     if (this->reload_conn_)
     {
         auto idle = Glib::MainContext::get_default()->signal_idle();
@@ -118,7 +119,7 @@ void AccountsManager::FindUserById(guint64 uid, MethodInvocation &invocation)
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No user found"));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_1);
     }
 
     return;
@@ -136,7 +137,7 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No user found"));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_2);
     }
 
     return;
@@ -239,7 +240,8 @@ void AccountsManager::update_automatic_login()
         user = this->find_and_create_user_by_name(name);
     }
 
-    this->set_automatic_login(user, enabled, err);
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    this->set_automatic_login(user, enabled, error_code);
 }
 
 bool AccountsManager::reload_users()
@@ -422,7 +424,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
     if (pwent)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The user already exists"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST);
     }
 
     LOG_DEBUG("create user '%s'", name.c_str());
@@ -437,7 +439,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
         break;
     default:
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown account type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_ACCOUNT_TYPE);
     }
     break;
     }
@@ -449,10 +451,10 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
     argv.insert(argv.end(), {"--", name.raw()});
 
-    std::string err;
-    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
 
     auto user = this->find_and_create_user_by_name(name);
@@ -463,7 +465,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Internal error"));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_3);
     }
 }
 
@@ -472,24 +474,21 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
     SETTINGS_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
     if (uid == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Refuse to delete root user"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_ROOT_USER);
     }
 
-    std::string err;
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
     auto user = this->find_and_create_user_by_id(uid);
 
     if (!user)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No user found"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_4);
     }
 
     LOG_DEBUG("delete user '%s' (%d)", user->user_name_get().c_str(), (int32_t)uid);
 
-    if (!this->set_automatic_login(user, false, err))
-    {
-        LOG_WARNING("%s", err.c_str());
-    }
-
+    // 忽略取消自动登陆出错情况
+    this->set_automatic_login(user, false, error_code);
     user->remove_cache_file();
 
     std::vector<std::string> argv;
@@ -503,9 +502,10 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
         argv = std::vector<std::string>({"/usr/sbin/userdel", "--", user->user_name_get().raw()});
     }
 
-    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err))
+    error_code = CCErrorCode::SUCCESS;
+    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
 
     invocation.ret();

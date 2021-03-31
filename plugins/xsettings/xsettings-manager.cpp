@@ -9,8 +9,6 @@
 
 #include "plugins/xsettings/xsettings-manager.h"
 
-#include <glib/gi18n.h>
-
 #include "lib/display/EWMH.h"
 #include "plugins/xsettings/xsettings-utils.h"
 
@@ -105,14 +103,14 @@ int XSettingsManager::get_window_scale()
     return scale;
 }
 
-#define CHECK_VAR(var, type)                                                          \
-    if (!var)                                                                         \
-    {                                                                                 \
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the property")); \
-    }                                                                                 \
-    if (var->get_type() != type)                                                      \
-    {                                                                                 \
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The type is mismatch"));   \
+#define CHECK_VAR(var, type)                                                           \
+    if (!var)                                                                          \
+    {                                                                                  \
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_XSETTINGS_NOTFOUND_PROPERTY);      \
+    }                                                                                  \
+    if (var->get_type() != type)                                                       \
+    {                                                                                  \
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_XSETTINGS_PROPERTY_TYPE_MISMATCH); \
     }
 
 void XSettingsManager::ListPropertyNames(MethodInvocation &invocation)
@@ -421,7 +419,7 @@ void XSettingsManager::set_registry_var(std::shared_ptr<XSettingsPropertyBase> v
     auto iter = this->registry2schema_.find(var->get_name());
     if (iter == this->registry2schema_.end())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the property"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_XSETTINGS_PROPERTY_INVALID);
     }
 
     switch (shash(var->get_name().c_str()))
@@ -490,10 +488,10 @@ void XSettingsManager::set_registry_var(std::shared_ptr<XSettingsPropertyBase> v
     case CONNECT(XSETTINGS_REGISTRY_PROP_XFT_DPI, _hash):
     case CONNECT(XSETTINGS_REGISTRY_PROP_GTK_CURSOR_THEME_SIZE, _hash):
     case CONNECT(XSETTINGS_REGISTRY_PROP_FONTCONFIG_TIMESTAMP, _hash):
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Cannot modify the property manually"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_XSETTINGS_PROPERTY_ONLYREAD);
         break;
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown property"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_XSETTINGS_PROPERTY_UNSUPPORTED);
         break;
     }
 }

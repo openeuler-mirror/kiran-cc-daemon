@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-18 14:29:02
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-04 15:53:09
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/src/plugin-helper.cpp
+/**
+ * @file          /kiran-cc-daemon/src/plugin-helper.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "src/plugin-helper.h"
@@ -22,7 +20,7 @@ PluginHelper::~PluginHelper()
 {
 }
 
-bool PluginHelper::activate_plugin(std::string &err)
+bool PluginHelper::activate_plugin(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
@@ -34,7 +32,7 @@ bool PluginHelper::activate_plugin(std::string &err)
 
     if (!this->plugin_)
     {
-        RETURN_VAL_IF_FALSE(load_plugin_module(err), false);
+        RETURN_VAL_IF_FALSE(load_plugin_module(error_code), false);
     }
 
     if (this->plugin_)
@@ -46,7 +44,7 @@ bool PluginHelper::activate_plugin(std::string &err)
     return true;
 }
 
-bool PluginHelper::deactivate_plugin(std::string &err)
+bool PluginHelper::deactivate_plugin(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
@@ -63,7 +61,7 @@ bool PluginHelper::deactivate_plugin(std::string &err)
     return true;
 }
 
-bool PluginHelper::load_plugin_module(std::string &err)
+bool PluginHelper::load_plugin_module(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("load module %s", this->plugin_info_.id.c_str());
 
@@ -81,13 +79,15 @@ bool PluginHelper::load_plugin_module(std::string &err)
 
         if (!this->module_->get_symbol("new_plugin", new_plugin_fun))
         {
-            err = fmt::format("not found function 'new_plugin' in module {0}.", this->plugin_info_.id.c_str());
+            LOG_WARNING("Not found function 'new_plugin' in module %s.", this->plugin_info_.id.c_str());
+            error_code = CCErrorCode::ERROR_PLUGIN_NOTFOUND_NEW_PLUGIN_FUNC;
             return false;
         }
 
         if (!this->module_->get_symbol("delete_plugin", del_plugin_fun))
         {
-            err = fmt::format("not found function 'delete_plugin' in module {0}.", this->plugin_info_.id.c_str());
+            LOG_WARNING("not found function 'delete_plugin' in module %s.", this->plugin_info_.id.c_str());
+            error_code = CCErrorCode::ERROR_PLUGIN_NOTFOUND_DEL_PLUGIN_FUNC;
             return false;
         }
 
@@ -96,9 +96,10 @@ bool PluginHelper::load_plugin_module(std::string &err)
     }
     else
     {
-        err = fmt::format("open module {0} fail: {1}.",
-                          this->plugin_info_.id.c_str(),
-                          this->module_ ? this->module_->get_last_error().c_str() : "unknown");
+        error_code = CCErrorCode::ERROR_PLUGIN_OPEN_MODULE_FAILED;
+        LOG_WARNING("open module %s fail: %s.",
+                    this->plugin_info_.id.c_str(),
+                    this->module_ ? this->module_->get_last_error().c_str() : "unknown");
         return false;
     }
 

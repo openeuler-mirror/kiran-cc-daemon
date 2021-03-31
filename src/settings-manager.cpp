@@ -88,13 +88,13 @@ void SettingsManager::ActivatePlugin(const Glib::ustring& id, MethodInvocation& 
     auto plugin = this->lookup_plugin(id);
     if (!plugin)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "the plugin {0} is not exist.", id.c_str());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_PLUGIN_NOT_EXIST_1);
     }
 
-    std::string err;
-    if (!plugin->activate_plugin(err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!plugin->activate_plugin(error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
 
     invocation.ret();
@@ -106,13 +106,13 @@ void SettingsManager::DeactivatePlugin(const Glib::ustring& id, MethodInvocation
     auto plugin = this->lookup_plugin(id);
     if (!plugin)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "the plugin {0} is not exist.", id.c_str());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_PLUGIN_NOT_EXIST_2);
     }
 
-    std::string err;
-    if (!plugin->deactivate_plugin(err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!plugin->deactivate_plugin(error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
 
     invocation.ret();
@@ -156,10 +156,10 @@ void SettingsManager::load_plugins(const std::string& file_name)
             if (available)
             {
                 auto plugin_helper = std::make_shared<PluginHelper>(info);
-                std::string err;
-                if (!plugin_helper->activate_plugin(err))
+                CCErrorCode error_code = CCErrorCode::SUCCESS;
+                if (!plugin_helper->activate_plugin(error_code))
                 {
-                    LOG_WARNING("failed to load plugin: %s.", err.c_str());
+                    LOG_WARNING("Failed to load plugin, name: %s.", info.name.c_str());
                 }
                 else
                 {
@@ -170,7 +170,7 @@ void SettingsManager::load_plugins(const std::string& file_name)
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("failed to load plugins: %s.", e.what().c_str());
+        LOG_WARNING("Failed to load plugins: %s.", e.what().c_str());
     }
 }
 

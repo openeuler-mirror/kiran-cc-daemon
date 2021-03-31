@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-18 14:28:54
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-04 16:16:20
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/src/plugin-helper.h
+/**
+ * @file          /kiran-cc-daemon/src/plugin-helper.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include <memory>
@@ -32,12 +30,12 @@ public:
 
     std::shared_ptr<Plugin> get_plugin() { return this->plugin_; }
 
-    bool activate_plugin(std::string &err);
+    bool activate_plugin(CCErrorCode &error_code);
 
-    bool deactivate_plugin(std::string &err);
+    bool deactivate_plugin(CCErrorCode &error_code);
 
 private:
-    bool load_plugin_module(std::string &err);
+    bool load_plugin_module(CCErrorCode &error_code);
 
 private:
     PluginInfo plugin_info_;

@@ -118,6 +118,9 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/appearance_i.h
               ${PROJECT_SOURCE_DIR}/include/xsettings_i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-session-daemon)
 
+install(FILES ${PROJECT_SOURCE_DIR}/include/error_i.h
+        DESTINATION ${KCC_INSTALL_INCLUDE})
+
 # pc file
 file(GLOB PC_IN_FILES ./*.pc.in)
 

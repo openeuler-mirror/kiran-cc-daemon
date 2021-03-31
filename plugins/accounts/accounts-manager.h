@@ -1,11 +1,10 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-19 10:08:59
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-07-30 15:16:24
- * @Description  : 
- * @FilePath     : /kiran-system-daemon/plugins/accounts/accounts-manager.h
+/**
+ * @file          /kiran-cc-daemon/plugins/accounts/accounts-manager.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
 #include <accounts_dbus_stub.h>
@@ -32,7 +31,7 @@ public:
     std::shared_ptr<User> lookup_user_by_name(const std::string &user_name);
     std::shared_ptr<User> get_autologin_user();
 
-    bool set_automatic_login(std::shared_ptr<User> user, bool enabled, std::string &err);
+    bool set_automatic_login(std::shared_ptr<User> user, bool enabled, CCErrorCode &error_code);
 
 protected:
     // 获取非系统用户的DBusObjectPath，非系统用户一般为用户自己创建的账号。例如root为系统账户

@@ -7,8 +7,6 @@
 
 #include "plugins/power/power-manager.h"
 
-#include <glib/gi18n.h>
-
 #include "plugins/power/backlight/power-backlight.h"
 #include "power_i.h"
 
@@ -77,7 +75,7 @@ void PowerManager::SetIdleAction(gint32 device,
             this->power_settings_->set_enum(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION, action);
             break;
         default:
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power supply mode"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_1);
         }
         break;
     }
@@ -94,12 +92,12 @@ void PowerManager::SetIdleAction(gint32 device,
             this->power_settings_->set_enum(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION, action);
             break;
         default:
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power supply mode"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_2);
         }
         break;
     }
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power device"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_1);
         break;
     }
     invocation.ret();
@@ -129,7 +127,7 @@ void PowerManager::GetIdleAction(gint32 device,
             action = this->power_settings_->get_enum(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION);
             break;
         default:
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power supply mode"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_3);
         }
         break;
     }
@@ -146,12 +144,12 @@ void PowerManager::GetIdleAction(gint32 device,
             action = this->power_settings_->get_enum(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION);
             break;
         default:
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power supply mode"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_4);
         }
         break;
     }
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power device"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_2);
         break;
     }
 
@@ -166,7 +164,7 @@ void PowerManager::SetEventAction(gint32 event,
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown power action"));
+        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_1);
     }
     bool result = false;
 
@@ -186,12 +184,12 @@ void PowerManager::SetEventAction(gint32 event,
         result = this->power_settings_->set_enum(POWER_SCHEMA_LID_CLOSED_ACTION, action);
         break;
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power event"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_1);
     }
 
     if (!result)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set the action"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SET_ACTION_FAILED);
     }
     else
     {
@@ -222,7 +220,7 @@ void PowerManager::GetEventAction(gint32 event,
         action = this->power_settings_->get_enum(POWER_SCHEMA_LID_CLOSED_ACTION);
         break;
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power event"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_2);
     }
 
     invocation.ret(action);
@@ -251,12 +249,12 @@ void PowerManager::SetBrightness(gint32 device,
         break;
     }
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power device"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_3);
     }
 
     if (!result)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set brightness"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SET_BRIGHTNESS_FAILED);
     }
     else
     {
@@ -286,7 +284,7 @@ void PowerManager::GetBrightness(gint32 device,
         break;
     }
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unsupported power device"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_4);
     }
 
     invocation.ret(brightness_percentage);

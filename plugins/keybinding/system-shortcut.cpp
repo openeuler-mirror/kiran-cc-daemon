@@ -9,6 +9,7 @@
 
 #include "plugins/keybinding/system-shortcut.h"
 
+#include <config.h>
 #include <glib/gi18n.h>
 
 #include "lib/display/EWMH.h"
@@ -28,34 +29,30 @@ void SystemShortCutManager::global_init()
     instance_->init();
 }
 
-CCError SystemShortCutManager::modify(const std::string &uid,
-                                      const std::string &key_combination,
-                                      std::string &err)
+bool SystemShortCutManager::modify(const std::string &uid,
+                                   const std::string &key_combination,
+                                   CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("uid: %s keycomb: %s.", uid.c_str(), key_combination.c_str());
 
     if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
     {
-        err = fmt::format("the key combination is invalid: {0}", key_combination);
-        return CCError::ERROR_INVALID_PARAMETER;
+        error_code = CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_INVALID_1;
+        return false;
     }
 
     auto shortcut = this->get(uid);
     if (!shortcut)
     {
-        err = fmt::format("not found uid '{0}'", uid);
-        return CCError::ERROR_INVALID_PARAMETER;
+        error_code = CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST_1;
+        return false;
     }
-
-    if (shortcut->key_combination == key_combination)
-    {
-        return CCError::SUCCESS;
-    }
+    RETURN_VAL_IF_TRUE(shortcut->key_combination == key_combination, true);
 
     shortcut->key_combination = key_combination;
     shortcut->settings->set_string(shortcut->settings_key, shortcut->key_combination);
     this->shortcut_changed_.emit(shortcut);
-    return CCError::SUCCESS;
+    return true;
 }
 
 std::shared_ptr<SystemShortCut> SystemShortCutManager::get(const std::string &uid)

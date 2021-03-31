@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-07-24 13:42:10
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 09:47:19
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-util.h
+/**
+ * @file          /kiran-cc-daemon/plugins/accounts/accounts-util.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #pragma once
@@ -18,14 +16,14 @@ namespace Kiran
 #define AUTH_CHANGE_OWN_USER_DATA "com.kylinsec.kiran.system-daemon.accounts.change-own-user-data"
 #define AUTH_CHANGE_OWN_PASSWORD "com.kylinsec.kiran.system-daemon.accounts.change-own-password"
 
-#define SPAWN_WITH_LOGIN_UID(invocation, ...)                                        \
-    {                                                                                \
-        std::vector<std::string> argv = {__VA_ARGS__};                               \
-        std::string err;                                                             \
-        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, err)) \
-        {                                                                            \
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());            \
-        }                                                                            \
+#define SPAWN_WITH_LOGIN_UID(invocation, ...)                                               \
+    {                                                                                       \
+        std::vector<std::string> argv = {__VA_ARGS__};                                      \
+        CCErrorCode error_code;                                                             \
+        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error_code)) \
+        {                                                                                   \
+            DBUS_ERROR_REPLY_AND_RET(error_code);                                           \
+        }                                                                                   \
     }
 
 class AccountsUtil
@@ -42,9 +40,9 @@ public:
     static void setup_loginuid(const std::string &id);
     static bool spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                      const std::vector<std::string> argv,
-                                     std::string &err);
+                                     CCErrorCode &error_code);
 
     // 翻译命令行返回的错误码
-    static bool parse_exit_status(int32_t exit_status, std::string &error);
+    static bool parse_exit_status(int32_t exit_status, CCErrorCode &error_code);
 };
 }  // namespace Kiran

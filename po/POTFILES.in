@@ -11,9 +11,7 @@ data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in
 src/main.cpp
-plugins/accounts/accounts-manager.cpp
-plugins/accounts/accounts-util.cpp
-plugins/accounts/user.cpp
+lib/base/error.cpp
 plugins/timedate/timedate-manager.cpp
 plugins/timedate/timedate-format.cpp
 plugins/display/display-manager.cpp

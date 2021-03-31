@@ -7,8 +7,6 @@
 
 #include "plugins/display/display-manager.h"
 
-#include <glib/gi18n.h>
-
 #include <fstream>
 
 #include "display_i.h"
@@ -97,10 +95,10 @@ void DisplayManager::SwitchStyle(guint32 style, MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("style: %u.", style);
 
-    std::string err;
-    if (!this->switch_style(DisplayStyle(style), err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!this->switch_style(DisplayStyle(style), error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err);
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     invocation.ret();
 }
@@ -111,7 +109,7 @@ void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation
 
     if (style >= DisplayStyle::DISPLAY_STYLE_LAST)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown display style"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_UNKNOWN_DISPLAY_STYLE_2);
     }
     this->default_style_set(style);
     invocation.ret();
@@ -120,10 +118,10 @@ void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation
 void DisplayManager::ApplyChanges(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
-    std::string err;
-    if (!this->apply(err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!this->apply(error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Apply failed: {0}"), err);
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     invocation.ret();
 }
@@ -132,10 +130,10 @@ void DisplayManager::RestoreChanges(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
 
-    std::string err;
-    if (!this->apply_config(err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!this->apply_config(error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, "Restore failed: {0}", err);
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     invocation.ret();
 }
@@ -146,12 +144,12 @@ void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &inv
 
     if (name.length() == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The primary monitor cannot be empty."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_PRIMARY_MONITOR_IS_EMPTY);
     }
 
     if (!this->get_monitor_by_name(name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Not found the primary monitor"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_NOTFOUND_PRIMARY_MONITOR_BY_NAME);
     }
 
     this->primary_set(name);
@@ -161,11 +159,11 @@ void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &inv
 void DisplayManager::Save(MethodInvocation &invocation)
 {
     SETTINGS_PROFILE("");
-    std::string err;
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
 
-    if (!this->save_config(err))
+    if (!this->save_config(error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
 
     invocation.ret();
@@ -177,7 +175,7 @@ void DisplayManager::SetWindowScalingFactor(gint32 window_scaling_factor, Method
 
     if (!this->window_scaling_factor_set(window_scaling_factor))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set the window scaling factor"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_2);
     }
     invocation.ret();
 }
@@ -226,10 +224,10 @@ void DisplayManager::init()
                                                  sigc::mem_fun(this, &DisplayManager::on_name_acquired),
                                                  sigc::mem_fun(this, &DisplayManager::on_name_lost));
 
-    std::string err;
-    if (!this->switch_style_and_save(this->default_style_, err))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!this->switch_style_and_save(this->default_style_, error_code))
     {
-        LOG_WARNING("%s");
+        LOG_WARNING("%s.", CC_ERROR2STR(error_code).c_str());
     }
 }
 
@@ -335,20 +333,19 @@ void DisplayManager::load_config()
     return;
 }
 
-bool DisplayManager::apply_config(std::string &err)
+bool DisplayManager::apply_config(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
     if (!this->display_config_)
     {
-        err = _("The config is empty");
+        error_code = CCErrorCode::ERROR_DISPLAY_CONFIG_IS_EMPTY;
         return false;
     }
 
     auto monitors_id = this->get_monitors_uid();
     const auto &screens = this->display_config_->screen();
     bool result = false;
-    std::string err2;
 
     for (const auto &screen : screens)
     {
@@ -357,21 +354,22 @@ bool DisplayManager::apply_config(std::string &err)
         if (monitors_id == monitors_config_id)
         {
             LOG_DEBUG("match ids: %s.", monitors_id.c_str());
-            if (this->apply_screen_config(screen, err2))
+            if (this->apply_screen_config(screen, error_code))
             {
                 result = true;
                 break;
             }
         }
     }
-    if (!result)
+
+    if (!result && error_code == CCErrorCode::SUCCESS)
     {
-        err = _("Not found match configuration");
+        error_code = CCErrorCode::ERROR_DISPLAY_CONFIG_ITEM_NOTFOUND;
     }
     return result;
 }
 
-bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, std::string &err)
+bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, CCErrorCode &error_code)
 {
     const auto &c_monitors = screen_config.monitor();
 
@@ -419,7 +417,7 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
         }
     }
 
-    RETURN_VAL_IF_FALSE(this->apply(err), false);
+    RETURN_VAL_IF_FALSE(this->apply(error_code), false);
     return true;
 }
 
@@ -464,7 +462,7 @@ void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
     }
 }
 
-bool DisplayManager::save_config(std::string &err)
+bool DisplayManager::save_config(CCErrorCode &error_code)
 {
     if (!this->display_config_)
     {
@@ -494,18 +492,18 @@ bool DisplayManager::save_config(std::string &err)
         this->display_config_->screen().push_back(used_config);
     }
 
-    RETURN_VAL_IF_FALSE(this->save_to_file(err), false);
+    RETURN_VAL_IF_FALSE(this->save_to_file(error_code), false);
 
     return true;
 }
 
-bool DisplayManager::apply(std::string &err)
+bool DisplayManager::apply(CCErrorCode &error_code)
 {
     // 应用缩放因子
     auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
     if (!this->interface_settings_->set_value(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
     {
-        err = _("Failed to set the window scaling factor");
+        error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
         return false;
     }
 
@@ -541,46 +539,47 @@ bool DisplayManager::apply(std::string &err)
     }
     catch (const Glib::Error &e)
     {
-        err = e.what().raw();
+        error_code = CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED;
+        LOG_WARNING("%s.", e.what().c_str());
         return false;
     }
     return true;
 }
 
-bool DisplayManager::switch_style(DisplayStyle style, std::string &err)
+bool DisplayManager::switch_style(DisplayStyle style, CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("style: %u.", uint32_t(style));
     switch (style)
     {
     case DisplayStyle::DISPLAY_STYLE_MIRRORS:
-        RETURN_VAL_IF_FALSE(this->switch_to_mirrors(err), false);
+        RETURN_VAL_IF_FALSE(this->switch_to_mirrors(error_code), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_EXTEND:
-        RETURN_VAL_IF_FALSE(this->switch_to_extend(err), false);
+        RETURN_VAL_IF_FALSE(this->switch_to_extend(error_code), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_CUSTOM:
-        RETURN_VAL_IF_FALSE(this->switch_to_custom(err), false);
+        RETURN_VAL_IF_FALSE(this->switch_to_custom(error_code), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_AUTO:
-        RETURN_VAL_IF_FALSE(this->switch_to_auto(err), false);
+        RETURN_VAL_IF_FALSE(this->switch_to_auto(error_code), false);
         break;
     default:
-        err = fmt::format("unknown style: {0}.", uint32_t(style));
+        error_code = CCErrorCode::ERROR_DISPLAY_UNKNOWN_DISPLAY_STYLE_1;
         return false;
     }
 
-    RETURN_VAL_IF_FALSE(this->apply(err), false);
+    RETURN_VAL_IF_FALSE(this->apply(error_code), false);
     return true;
 }
 
-bool DisplayManager::switch_style_and_save(DisplayStyle style, std::string &err)
+bool DisplayManager::switch_style_and_save(DisplayStyle style, CCErrorCode &error_code)
 {
-    RETURN_VAL_IF_FALSE(this->switch_style(style, err), false);
-    RETURN_VAL_IF_FALSE(this->save_config(err), false);
+    RETURN_VAL_IF_FALSE(this->switch_style(style, error_code), false);
+    RETURN_VAL_IF_FALSE(this->save_config(error_code), false);
     return true;
 }
 
-bool DisplayManager::switch_to_mirrors(std::string &err)
+bool DisplayManager::switch_to_mirrors(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
@@ -589,7 +588,7 @@ bool DisplayManager::switch_to_mirrors(std::string &err)
 
     if (modes.size() == 0)
     {
-        err = _("Cannot find common mode for all enabled monitors");
+        error_code = CCErrorCode::ERROR_DISPLAY_COMMON_MODE_NOTFOUND;
         return false;
     }
 
@@ -640,7 +639,7 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
     return result;
 }
 
-bool DisplayManager::switch_to_extend(std::string &err)
+bool DisplayManager::switch_to_extend(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
@@ -671,27 +670,21 @@ bool DisplayManager::switch_to_extend(std::string &err)
     return true;
 }
 
-bool DisplayManager::switch_to_custom(std::string &err)
+bool DisplayManager::switch_to_custom(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
-    return this->apply_config(err);
+    return this->apply_config(error_code);
 }
 
-bool DisplayManager::switch_to_auto(std::string &err)
+bool DisplayManager::switch_to_auto(CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("");
 
-    RETURN_VAL_IF_TRUE(this->switch_to_custom(err), true);
-    LOG_DEBUG("%s", err.c_str());
-
-    RETURN_VAL_IF_TRUE(this->switch_to_extend(err), true);
-    LOG_DEBUG("%s", err.c_str());
-
-    RETURN_VAL_IF_TRUE(this->switch_to_mirrors(err), true);
-    LOG_DEBUG("%s", err.c_str());
-
-    err = _("Auto mode is set failed");
+    RETURN_VAL_IF_TRUE(this->switch_to_custom(error_code), true);
+    RETURN_VAL_IF_TRUE(this->switch_to_extend(error_code), true);
+    RETURN_VAL_IF_TRUE(this->switch_to_mirrors(error_code), true);
+    error_code = CCErrorCode::ERROR_DISPLAY_SET_AUTO_MODE_FAILED;
     return false;
 }
 
@@ -751,7 +744,7 @@ std::string DisplayManager::get_c_monitors_uid(const ScreenConfigInfo::MonitorSe
     return StrUtils::join(result, MONITOR_JOIN_CHAR);
 }
 
-bool DisplayManager::save_to_file(std::string &err)
+bool DisplayManager::save_to_file(CCErrorCode &error_code)
 {
     // 文件不存在则先尝试创建对应的目录
     if (!Glib::file_test(this->config_file_path_, Glib::FILE_TEST_EXISTS))
@@ -760,7 +753,8 @@ bool DisplayManager::save_to_file(std::string &err)
         if (g_mkdir_with_parents(dirname.c_str(),
                                  0775) != 0)
         {
-            err = fmt::format(_("Failed to create directory {0}"), dirname);
+            error_code = CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED;
+            LOG_WARNING("Failed to create directory %s.", dirname.c_str());
             return false;
         }
     }
@@ -774,7 +768,7 @@ bool DisplayManager::save_to_file(std::string &err)
     catch (const xml_schema::Exception &e)
     {
         LOG_WARNING("%s", e.what());
-        err = fmt::format(_("Write to file {0} failed"), this->config_file_path_);
+        error_code = CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED;
         return false;
     }
     return true;
@@ -791,10 +785,10 @@ void DisplayManager::resources_changed()
     // 如果uid不相同，说明设备硬件发生了变化，此时需要重新进行设置
     if (old_monitors_uid != new_monitors_uid)
     {
-        std::string err;
-        if (!this->switch_style_and_save(this->default_style_, err))
+        CCErrorCode error_code = CCErrorCode::SUCCESS;
+        if (!this->switch_style_and_save(this->default_style_, error_code))
         {
-            LOG_WARNING("%s", err.c_str());
+            LOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
         }
     }
     this->MonitorsChanged_signal.emit(true);

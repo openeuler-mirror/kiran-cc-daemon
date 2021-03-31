@@ -8,8 +8,6 @@
  */
 #include "plugins/bluetooth/bluetooth-agent.h"
 
-#include <glib/gi18n.h>
-
 #include "lib/base/base.h"
 #include "plugins/bluetooth/bluetooth-manager.h"
 #include "plugins/bluetooth/bluez.h"
@@ -218,7 +216,7 @@ void BluetoothAgent::request_response(sigc::slot<void, bool, const std::string &
 {
     if (this->feeded_conn_)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_BLUEZ_REJECTED, _("An incomplete request already exists."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_BLUETOOTH_EXIST_REQUEST_INCOMPLETE);
     }
 
     this->request_device_ = device;
@@ -232,7 +230,7 @@ void BluetoothAgent::request_response(sigc::slot<void, bool, const std::string &
 
 void BluetoothAgent::on_canceled(const Glib::DBusObjectPathString &device, MethodInvocation invocation)
 {
-    DBUS_ERROR_REPLY(CCError::ERROR_BLUEZ_CANCELED, _("The request is canceled."));
+    DBUS_ERROR_REPLY(CCErrorCode::ERROR_BLUETOOTH_REQUEST_CANCELED);
     on_response_finished();
 }
 
@@ -240,7 +238,7 @@ void BluetoothAgent::on_pincode_feeded(bool accept, const std::string &pincode, 
 {
     if (!accept)
     {
-        DBUS_ERROR_REPLY(CCError::ERROR_BLUEZ_REJECTED, _("The request is rejected."));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_BLUETOOTH_REQUEST_REJECTED_1);
     }
     else
     {
@@ -254,7 +252,7 @@ void BluetoothAgent::on_passkey_feeded(bool accept, const std::string &passkey, 
 {
     if (!accept)
     {
-        DBUS_ERROR_REPLY(CCError::ERROR_BLUEZ_REJECTED, _("The request is rejected."));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_BLUETOOTH_REQUEST_REJECTED_2);
     }
     else
     {
@@ -269,7 +267,7 @@ void BluetoothAgent::on_confirmation_feeded(bool accept, const std::string &, Me
 {
     if (!accept)
     {
-        DBUS_ERROR_REPLY(CCError::ERROR_BLUEZ_REJECTED, _("The request is rejected."));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_BLUETOOTH_REQUEST_REJECTED_3);
     }
     else
     {
@@ -280,7 +278,7 @@ void BluetoothAgent::on_confirmation_feeded(bool accept, const std::string &, Me
 
 bool BluetoothAgent::on_feeded_timeout(MethodInvocation invocation)
 {
-    DBUS_ERROR_REPLY(CCError::ERROR_BLUEZ_REJECTED, _("The request is rejected."));
+    DBUS_ERROR_REPLY(CCErrorCode::ERROR_BLUETOOTH_REQUEST_REJECTED_4);
     on_response_finished();
     return false;
 }

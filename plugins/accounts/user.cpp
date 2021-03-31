@@ -11,7 +11,6 @@
 
 #include <fmt/format.h>
 #include <gio/gunixinputstream.h>
-#include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <grp.h>
 #include <json/json.h>
@@ -274,7 +273,7 @@ void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
 
     if (group_name.length() == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_1);
     }
 
     auto auth_items = this->user_cache_->get_group_kv(group_name);
@@ -382,7 +381,7 @@ std::string User::get_auth_action(MethodInvocation &invocation, const std::strin
 
     if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
     {
-        invocation.ret(Glib::Error(CC_ERROR, int32_t(CCError::ERROR_FAILED), "identifying caller failed"));
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_CALLER_UID_1);
         return std::string();
     }
 
@@ -505,25 +504,28 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, e.what().c_str());
+            LOG_WARNING("%s.", e.what().c_str());
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_QUERY_INFO_FAILED);
         }
 
         if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("File {0} is not a regular file"), filename.raw());
+            LOG_WARNING("File %s is not a regular file.", filename.c_str());
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_FILE_TYPE_NQ_REGULAR);
         }
 
         auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
         if (size > 1048576)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("File {0} is too large to be used as an icon"), filename.raw());
+            LOG_WARNING("File %s is too large to be used as an icon", filename.c_str());
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_FILE_SIZE_TOO_BIG);
         }
 
         // copy file to directory ICONDIR
         int32_t uid;
         if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to copy file, could not determine caller UID"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_CALLER_UID_2);
         }
 
         auto dest_path = Glib::build_filename(ICONDIR, this->user_name_get());
@@ -535,7 +537,8 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, ("Creating file {0} failed: {1}"), dest_path, e.what().raw());
+            LOG_WARNING("Creating file %s failed: %s", dest_path.c_str(), e.what().c_str());
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_REPLACE_OUTPUT_STREAM);
         }
 
         std::vector<std::string> argv = {"/bin/cat", filename.raw()};
@@ -556,7 +559,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         catch (const Glib::Error &e)
         {
             LOG_WARNING("%s", e.what().c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to read file {0}"), filename.raw());
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_SPAWN_READ_FILE_FAILED);
         }
 
         auto input = Glib::wrap(g_unix_input_stream_new(std_out, false));
@@ -572,7 +575,8 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
 
         if (bytes < 0 || (uint64_t)bytes != size)
         {
-            DBUS_ERROR_REPLY(CCError::ERROR_FAILED, _("Failed to Copye file {0} to {1}"), filename.raw(), dest_path);
+            LOG_WARNING("Failed to Copye file %s to %s", filename.c_str(), dest_path.c_str());
+            DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_COPY_FILE_FAILED);
             IGNORE_EXCEPTION(dest_file->remove());
             return;
         }
@@ -599,11 +603,8 @@ void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
         this->locked_set(locked);
         if (this->automatic_login_get() && locked)
         {
-            std::string err;
-            if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), false, err))
-            {
-                LOG_WARNING("%s", err.c_str());
-            }
+            CCErrorCode error_code = CCErrorCode::SUCCESS;
+            AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), false, error_code);
             this->automatic_login_set(false);
         }
     }
@@ -619,7 +620,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
         auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
         if (!grp)
         {
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("group {0} not found"), ADMIN_GROUP);
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_GROUP_NOT_FOUND);
         }
         auto admin_gid = grp->gr_gid;
 
@@ -700,12 +701,12 @@ void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool aut
 
     if (this->locked_get())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("User is locked"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED);
     }
-    std::string err;
-    if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), auto_login, err))
+    CCErrorCode error_code;
+    if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), auto_login, error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     invocation.ret();
 }
@@ -715,7 +716,7 @@ void User::get_password_expiration_policy_authorized_cb(MethodInvocation invocat
     SETTINGS_PROFILE("");
     if (!this->spwd_)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Account expiration policy unknown to accounts service"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_EXPIRATION_POLICY_NOTFOUND);
     }
 
     invocation.ret(this->spwd_->sp_expire,
@@ -736,17 +737,17 @@ void User::add_auth_item_authorized_cb(MethodInvocation invocation,
 
     if (group_name.length() == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_2);
     }
 
     if (this->user_cache_->get_string(group_name, name).length() != 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The name already exists."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTHMODE_NAME_ALREADY_EXIST);
     }
 
     if (!this->user_cache_->set_value(group_name, name, data_id))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to add the authentication data."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTH_SAVE_DATA_FAILED);
     }
 
     invocation.ret();
@@ -763,12 +764,12 @@ void User::del_auth_item_authorized_cb(MethodInvocation invocation,
 
     if (group_name.length() == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_3);
     }
 
     if (!this->user_cache_->remove_key(group_name, name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to remove the authentication data."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTH_DEL_DATA_FAILED);
     }
 
     invocation.ret();
@@ -781,7 +782,7 @@ void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t m
 
     if (mode >= AccountsAuthMode::ACCOUNTS_AUTH_MODE_LAST || mode < 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("The authentication mdoe isn't supported."));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_4);
     }
 
     auto current_mode = this->auth_modes_get();

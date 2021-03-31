@@ -1,5 +1,5 @@
 /**
- * @FilePath      /kiran-cc-daemon/plugins/appearance/appearance-manager.cpp
+ * @file          /kiran-cc-daemon/plugins/appearance/appearance-manager.cpp
  * @brief         
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -7,7 +7,6 @@
 
 #include "plugins/appearance/appearance-manager.h"
 
-#include <glib/gi18n.h>
 #include <json/json.h>
 
 namespace Kiran
@@ -40,7 +39,7 @@ void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 {
     if (type < 0 || type >= int32_t(AppearanceThemeType::APPEARANCE_THEME_TYPE_LAST))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Invalid type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_INVALID);
     }
 
     auto themes = this->appearance_theme_.get_themes_by_type(AppearanceThemeType(type));
@@ -58,10 +57,10 @@ void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation)
 {
     ThemeKey key = std::make_pair(type, theme_name);
-    std::string error;
-    if (!this->appearance_theme_.set_theme(key, error))
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    if (!this->appearance_theme_.set_theme(key, error_code))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, error.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
     invocation.ret();
 }
@@ -70,7 +69,7 @@ void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 {
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Invalid type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_1);
     }
     invocation.ret(this->appearance_font_.get_font(AppearanceFontType(type)));
 }
@@ -79,12 +78,12 @@ void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodIn
 {
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Invalid type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_2);
     }
 
     if (!this->appearance_font_.set_font(AppearanceFontType(type), font))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Uunsupported type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_UNSUPPORTED);
     }
     invocation.ret();
 }
@@ -96,7 +95,7 @@ void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_backgr
     if (desktop_background != this->desktop_background_ &&
         !this->desktop_background_set(desktop_background))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER, _("Invalid Parameter"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED);
     }
     invocation.ret();
 }

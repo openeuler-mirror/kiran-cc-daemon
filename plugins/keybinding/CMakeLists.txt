@@ -23,10 +23,6 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${GDKMM3_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIRS})
 
-
-target_compile_definitions(${TARGET_NAME} PRIVATE
-    -DKCC_LOCALEDIR="${CMAKE_INSTALL_PREFIX}/share/locale")
-
 target_compile_options(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS})
 

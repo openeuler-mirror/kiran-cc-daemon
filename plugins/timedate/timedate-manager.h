@@ -102,9 +102,9 @@ private:
     // 获取可用的时间同步服务
     std::vector<std::string> get_ntp_units();
     // 开启NTP服务
-    bool start_ntp_unit(const std::string &name, std::string &err);
+    bool start_ntp_unit(const std::string &name, CCErrorCode &error_code);
     // 停止NTP服务
-    bool stop_ntp_unit(const std::string &name, std::string &err);
+    bool stop_ntp_unit(const std::string &name, CCErrorCode &error_code);
     // NTP服务是否开启
     bool ntp_is_active();
 

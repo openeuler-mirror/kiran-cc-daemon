@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cinttypes>
 
+#include "config.h"
 #include "lib/base/base.h"
 #include "plugins/timedate/timedate-def.h"
 #include "plugins/timedate/timedate-util.h"
@@ -88,7 +89,7 @@ void TimedateManager::SetTime(gint64 requested_time,
     SETTINGS_PROFILE("RequestedTime: %" PRId64 " Relative: %d", requested_time, relative);
     if (this->ntp_get())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("NTP unit is active"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NTP_IS_ACTIVE);
     }
 
     int64_t request_time = g_get_monotonic_time();
@@ -105,7 +106,7 @@ void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
     SETTINGS_PROFILE("TimeZone: %s.", time_zone.c_str());
     if (!check_timezone_name(time_zone))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Invalid timezone"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_TIMEZONE_INVALIDE);
     }
 
     auto current_timezone = this->time_zone_get();
@@ -167,7 +168,7 @@ void TimedateManager::SetNTP(bool active,
 
     if (this->ntp_unit_name_.length() == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("No NTP unit available"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NO_NTP_UNIT);
     }
 
     AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_NTP_ACTIVE,
@@ -195,7 +196,7 @@ void TimedateManager::GetDateFormatList(gint32 type, MethodInvocation &invocatio
         break;
     }
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown format type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_1);
     }
     return;
 }
@@ -214,7 +215,7 @@ void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvo
         result = this->date_short_format_index_set(index);
         break;
     default:
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown format type"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
     }
 
     if (result)
@@ -223,7 +224,7 @@ void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvo
     }
     else
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set date format"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_DATE_FORMAT_FAILED);
     }
 }
 
@@ -233,7 +234,7 @@ void TimedateManager::SetHourFormat(gint32 format, MethodInvocation &invocation)
 
     if (!this->hour_format_set(format))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set hour format"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_HOUR_FORMAT_FAILED);
     }
     else
     {
@@ -247,7 +248,7 @@ void TimedateManager::EnableSecondsShowing(bool enabled, MethodInvocation &invoc
 
     if (!this->seconds_showing_set(enabled))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set seconds showing"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_SECONDS_SHOWING_FAILED);
     }
     else
     {
@@ -392,7 +393,7 @@ void TimedateManager::init()
 void TimedateManager::init_ntp_units()
 {
     auto ntp_units = this->get_ntp_units();
-    std::string err;
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
 
     this->ntp_unit_name_.clear();
     for (auto &ntp_unit : ntp_units)
@@ -403,9 +404,9 @@ void TimedateManager::init_ntp_units()
             continue;
         }
 
-        if (!this->stop_ntp_unit(ntp_unit, err))
+        if (!this->stop_ntp_unit(ntp_unit, error_code))
         {
-            LOG_WARNING("%s", err.c_str());
+            LOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
         }
     }
 
@@ -488,7 +489,7 @@ std::vector<std::string> TimedateManager::get_ntp_units()
     return ntp_units;
 }
 
-bool TimedateManager::start_ntp_unit(const std::string &name, std::string &err)
+bool TimedateManager::start_ntp_unit(const std::string &name, CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("name: %s.", name.c_str());
 
@@ -497,7 +498,7 @@ bool TimedateManager::start_ntp_unit(const std::string &name, std::string &err)
 
     if (!call_systemd_noresult("StartUnit", Glib::VariantContainerBase(g_variant_new("(ss)", name.c_str(), "replace"), false)))
     {
-        err = fmt::format("Failed to start NTP unit: {0}.", name);
+        error_code = CCErrorCode::ERROR_TIMEDATE_START_NTP_FAILED;
         return false;
     }
     else
@@ -509,7 +510,7 @@ bool TimedateManager::start_ntp_unit(const std::string &name, std::string &err)
     return true;
 }
 
-bool TimedateManager::stop_ntp_unit(const std::string &name, std::string &err)
+bool TimedateManager::stop_ntp_unit(const std::string &name, CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("name: %s.", name.c_str());
 
@@ -518,7 +519,7 @@ bool TimedateManager::stop_ntp_unit(const std::string &name, std::string &err)
 
     if (!call_systemd_noresult("StopUnit", Glib::VariantContainerBase(g_variant_new("(ss)", name.c_str(), "replace"), false)))
     {
-        err = fmt::format("Failed to stop NTP unit: {0}.", name);
+        error_code = CCErrorCode::ERROR_TIMEDATE_STOP_NTP_FAILED;
         return false;
     }
     else
@@ -970,20 +971,20 @@ void TimedateManager::finish_set_rtc_local(MethodInvocation invocation,
 void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool active)
 {
     SETTINGS_PROFILE("");
-    std::string err;
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
     bool result = false;
     if (active)
     {
-        result = this->start_ntp_unit(this->ntp_unit_name_, err);
+        result = this->start_ntp_unit(this->ntp_unit_name_, error_code);
     }
     else
     {
-        result = this->stop_ntp_unit(this->ntp_unit_name_, err);
+        result = this->stop_ntp_unit(this->ntp_unit_name_, error_code);
     }
 
     if (!result)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, err.c_str());
+        DBUS_ERROR_REPLY_AND_RET(error_code);
     }
 
     this->ntp_set(active);

@@ -65,32 +65,25 @@ void KeyboardManager::AddLayout(const Glib::ustring &layout, MethodInvocation &i
 
     if (layouts.size() >= LAYOUT_MAX_NUMBER)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_EXCEED_LIMIT,
-                                 "the number of the layout can't exceeds {0}. current number: {1}",
-                                 LAYOUT_MAX_NUMBER,
-                                 layouts.size());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_EXCEED_LIMIT, LAYOUT_MAX_NUMBER);
     }
 
     if (this->valid_layouts_.find(layout) == this->valid_layouts_.end())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER,
-                                 "the layout '{0}' is invalid.",
-                                 layout);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_INVALID);
     }
 
     auto iter = std::find(layouts.begin(), layouts.end(), layout);
 
     if (iter != layouts.end())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER,
-                                 "the layout '{0}' already is exist in user layout list.",
-                                 layout);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_ALREADY_EXIST);
     }
 
     layouts.push_back(layout);
     if (!this->layouts_set(layouts))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_UNKNOWN, "failed to set the layout.");
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_SET_FAILED);
     }
     invocation.ret();
 }
@@ -105,15 +98,13 @@ void KeyboardManager::DelLayout(const Glib::ustring &layout, MethodInvocation &i
 
     if (iter == layouts.end())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER,
-                                 "the layout '{0}' is no exist in user layout list.",
-                                 layout);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_NOT_EXIST);
     }
     layouts.erase(iter);
 
     if (!this->layouts_set(layouts))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_UNKNOWN, "failed to set the layout.");
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_UPDATE_FAILED);
     }
     invocation.ret();
 }
@@ -133,15 +124,13 @@ void KeyboardManager::AddLayoutOption(const Glib::ustring &option, MethodInvocat
 
     if (iter != options.end())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER,
-                                 "the option '{0}' already is exist in user option list.",
-                                 option);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_ALREADY_EXIST);
     }
 
     options.push_back(option);
     if (!this->options_set(options))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_UNKNOWN, "failed to set the option.");
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_SET_FAILED);
     }
     invocation.ret();
 }
@@ -156,15 +145,13 @@ void KeyboardManager::DelLayoutOption(const Glib::ustring &option, MethodInvocat
 
     if (iter == options.end())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_INVALID_PARAMETER,
-                                 "the option '{0}' is no exist in user option list.",
-                                 option);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_NOT_EXIST);
     }
     options.erase(iter);
 
     if (!this->options_set(options))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_UNKNOWN, "failed to set the option.");
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_UPDATE_FAILED);
     }
     invocation.ret();
 }
@@ -173,7 +160,7 @@ void KeyboardManager::ClearLayoutOption(MethodInvocation &invocation)
 {
     if (!this->options_set(std::vector<Glib::ustring>()))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_UNKNOWN, "failed to set the option.");
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_CLEAR_FAILED);
     }
     invocation.ret();
 }

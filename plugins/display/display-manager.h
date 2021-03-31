@@ -1,5 +1,5 @@
 /**
- * @FilePath      /kiran-cc-daemon/plugins/display/display-manager.h
+ * @file          /kiran-cc-daemon/plugins/display/display-manager.h
  * @brief         管理整个显示设置
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -71,32 +71,32 @@ private:
     void load_config();
 
     // 应用配置到monitors_中，这里先要根据monitor_ids进行匹配找到对应的ScreenConfigInfo，然后再调用apply_screen_config。
-    bool apply_config(std::string& err);
+    bool apply_config(CCErrorCode& error_code);
     // 应用配置到monitors_中
-    bool apply_screen_config(const ScreenConfigInfo& screen_config, std::string& err);
+    bool apply_screen_config(const ScreenConfigInfo& screen_config, CCErrorCode& error_code);
     // 从monitors_提取参数填充配置
     void fill_screen_config(ScreenConfigInfo& screen_config);
 
     // 保存配置
-    bool save_config(std::string& err);
+    bool save_config(CCErrorCode& error_code);
 
     // 让monitors_中的参数实际生效，执行xrandr命令
-    bool apply(std::string& err);
+    bool apply(CCErrorCode& error_code);
 
     // 切换显示模式
-    bool switch_style(DisplayStyle style, std::string& err);
+    bool switch_style(DisplayStyle style, CCErrorCode& error_code);
     // 切换并保存显示模式
-    bool switch_style_and_save(DisplayStyle style, std::string& err);
+    bool switch_style_and_save(DisplayStyle style, CCErrorCode& error_code);
     // 切换到镜像模式
-    bool switch_to_mirrors(std::string& err);
+    bool switch_to_mirrors(CCErrorCode& error_code);
     // 获取在所有monitor中都可用的mode列表
     ModeInfoVec monitors_common_modes(const DisplayMonitorVec& monitors);
     // 切换到扩展模式
-    bool switch_to_extend(std::string& err);
+    bool switch_to_extend(CCErrorCode& error_code);
     // 切换到自定义模式
-    bool switch_to_custom(std::string& err);
+    bool switch_to_custom(CCErrorCode& error_code);
     // 切换到自动模式
-    bool switch_to_auto(std::string& err);
+    bool switch_to_auto(CCErrorCode& error_code);
 
     // 获取monitor
     std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
@@ -108,7 +108,7 @@ private:
     std::string get_c_monitors_uid(const ScreenConfigInfo::MonitorSequence& monitors);
 
     // 保存配置到文件
-    bool save_to_file(std::string& err);
+    bool save_to_file(CCErrorCode& error_code);
 
     // 处理xrandr变化的信号
     void resources_changed();

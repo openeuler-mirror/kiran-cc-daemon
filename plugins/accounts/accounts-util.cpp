@@ -9,7 +9,6 @@
 #include "plugins/accounts/accounts-util.h"
 
 #include <fcntl.h>
-#include <glib/gi18n.h>
 
 enum CommandExitStatus
 {
@@ -157,7 +156,7 @@ void AccountsUtil::setup_loginuid(const std::string &id)
 
 bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                         const std::vector<std::string> argv,
-                                        std::string &err)
+                                        CCErrorCode &error_code)
 {
     SETTINGS_PROFILE("command: %s.", StrUtils::join(argv, " ").c_str());
 
@@ -179,14 +178,15 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
     }
     catch (const Glib::SpawnError &e)
     {
-        err = e.what().raw();
+        LOG_WARNING("%s.", e.what().c_str());
+        error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED;
         return false;
     }
     LOG_DEBUG("status: %d.", status);
-    return AccountsUtil::parse_exit_status(status, err);
+    return AccountsUtil::parse_exit_status(status, error_code);
 }
 
-bool AccountsUtil::parse_exit_status(int32_t exit_status, std::string &error)
+bool AccountsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_code)
 {
     g_autoptr(GError) g_error = NULL;
     if (!WIFEXITED(exit_status))
@@ -194,7 +194,8 @@ bool AccountsUtil::parse_exit_status(int32_t exit_status, std::string &error)
         auto result = g_spawn_check_exit_status(exit_status, &g_error);
         if (!result)
         {
-            error = g_error->message;
+            LOG_WARNING("%s.", g_error->message);
+            error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS;
         }
         return result;
     }
@@ -203,50 +204,52 @@ bool AccountsUtil::parse_exit_status(int32_t exit_status, std::string &error)
     case COMMAND_EXIT_STATUS_SUCCESS:
         return true;
     case COMMAND_EXIT_STATUS_PW_UPDATE:
-        error = _("Can't update password file");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_PW_UPDATE;
         break;
     case COMMAND_EXIT_STATUS_USAGE:
-        error = _("Invalid command syntax");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_USAGE;
         break;
     case COMMAND_EXIT_STATUS_BAD_ARG:
-        error = _("Invalid argument to option");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_BAD_ARG;
         break;
     case COMMAND_EXIT_STATUS_UID_IN_USE:
-        error = _("UID already in use");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UID_IN_USE;
         break;
     case COMMAND_EXIT_STATUS_BAD_PWFILE:
-        error = _("Passwd file contains errors");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_BAD_PWFILE;
         break;
     case COMMAND_EXIT_STATUS_NOTFOUND:
-        error = _("Specified user/group doesn't exist");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NOTFOUND;
         break;
     case COMMAND_EXIT_STATUS_USER_BUSY:
-        error = _("User to modify is logged in");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_USER_BUSY;
         break;
     case COMMAND_EXIT_STATUS_NAME_IN_USE:
-        error = _("Username already in use");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NAME_IN_USE;
         break;
     case COMMAND_EXIT_STATUS_GRP_UPDATE:
-        error = _("Can't update group file");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_GRP_UPDATE;
         break;
     case COMMAND_EXIT_STATUS_NOSPACE:
-        error = _("Insufficient space to move home dir");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NOSPACE;
         break;
     case COMMAND_EXIT_STATUS_HOMEDIR:
-        error = _("Can't create/remove/move home directory");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_HOMEDIR;
         break;
     case COMMAND_EXIT_STATUS_SE_UPDATE_1:
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SE_UPDATE_1;
+        break;
     case COMMAND_EXIT_STATUS_SE_UPDATE_2:
-        error = _("Can't update SELinux user mapping");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SE_UPDATE_2;
         break;
     case COMMAND_EXIT_STATUS_SUB_UID_UPDATE:
-        error = _("Can't update the subordinate uid file");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SUB_UID_UPDATE;
         break;
     case COMMAND_EXIT_STATUS_SUB_GID_UPDATE:
-        error = _("Can't update the subordinate gid file");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SUB_GID_UPDATE;
         break;
     default:
-        error = _("Unknown error");
+        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN;
         break;
     }
     return false;

@@ -7,7 +7,6 @@
 
 #include "plugins/systeminfo/systeminfo-manager.h"
 
-#include <glib/gi18n.h>
 #include <json/json.h>
 
 #include "lib/dbus/dbus.h"
@@ -84,13 +83,13 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
             break;
         }
         default:
-            DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Invalid type"));
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_SYSTEMINFO_TYPE_INVALID);
         }
     }
     catch (const std::exception& e)
     {
         LOG_WARNING("%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Assign to Json::Value failed"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED);
     }
 
     auto result = writer.write(values);
@@ -133,7 +132,7 @@ void SystemInfoManager::change_host_name_cb(MethodInvocation invocation, const s
 
     if (!this->host_name_set(host_name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Failed to set host name"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_SYSTEMINFO_SET_HOSTNAME_FAILED);
     }
     invocation.ret();
 }

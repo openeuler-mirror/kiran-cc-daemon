@@ -47,7 +47,7 @@ public:
     std::shared_ptr<ThemeBase> get_theme(ThemeKey key);
 
     // 设置指定类型(meta/gtk/metacity...)的主题，如果主题不存在则返回失败，否则修改gsettings使主题生效
-    bool set_theme(ThemeKey key, std::string& err);
+    bool set_theme(ThemeKey key, CCErrorCode& error_code);
     // 获取指定类型的主题名，直接从gsettings中读取
     std::string get_theme(AppearanceThemeType type);
 
