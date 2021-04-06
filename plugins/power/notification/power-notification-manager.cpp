@@ -116,7 +116,7 @@ void PowerNotificationManager::on_device_discharging(std::shared_ptr<PowerUPower
         // Ignore other type
         return;
     }
-    auto message = fmt::format(_("{0} discharging ({1:.0f}%)"), type_desc, device_props.percentage);
+    auto message = fmt::format(_("{0} discharging ({1:.1f}%)"), type_desc, device_props.percentage);
     this->message_notify(title, message, POWER_NOTIFY_TIMEOUT_LONG, "", NOTIFY_URGENCY_NORMAL);
 }
 
@@ -151,7 +151,7 @@ void PowerNotificationManager::on_device_charge_low(std::shared_ptr<PowerUPowerD
     case UP_DEVICE_KIND_BATTERY:
     {
         title = _("Laptop battery low");
-        message = fmt::format(_("Approximately <b>{0}</b> remaining ({1:.0f}%)"),
+        message = fmt::format(_("Approximately <b>{0}</b> remaining ({1:.1f}%)"),
                               remaining_time_text,
                               device_props.percentage);
         break;
@@ -159,38 +159,38 @@ void PowerNotificationManager::on_device_charge_low(std::shared_ptr<PowerUPowerD
     case UP_DEVICE_KIND_UPS:
     {
         title = _("UPS low");
-        message = fmt::format(_("Approximately <b>{0}</b> of remaining UPS backup power ({1:.0f}%)"),
+        message = fmt::format(_("Approximately <b>{0}</b> of remaining UPS backup power ({1:.1f}%)"),
                               remaining_time_text,
                               device_props.percentage);
         break;
     }
     case UP_DEVICE_KIND_MOUSE:
         title = _("Mouse battery low");
-        message = fmt::format(_("Wireless mouse is low in power ({0:.0f}%)"), device_props.percentage);
+        message = fmt::format(_("Wireless mouse is low in power ({0:.1f}%)"), device_props.percentage);
         break;
     case UP_DEVICE_KIND_KEYBOARD:
         title = _("Keyboard battery low");
-        message = fmt::format(_("Wireless keyboard is low in power ({0:.0f}%)"), device_props.percentage);
+        message = fmt::format(_("Wireless keyboard is low in power ({0:.1f}%)"), device_props.percentage);
         break;
     case UP_DEVICE_KIND_PDA:
         title = _("PDA battery low");
-        message = fmt::format(_("PDA is low in power ({0:.0f}%)"), device_props.percentage);
+        message = fmt::format(_("PDA is low in power ({0:.1f}%)"), device_props.percentage);
         break;
     case UP_DEVICE_KIND_PHONE:
         title = _("Cell phone battery low");
-        message = fmt::format(_("Cell phone is low in power ({0:.0f}%)"), device_props.percentage);
+        message = fmt::format(_("Cell phone is low in power ({0:.1f}%)"), device_props.percentage);
         break;
     case UP_DEVICE_KIND_MEDIA_PLAYER:
         title = _("Media player battery low");
-        message = fmt::format(_("Media player is low in power ({0:0f}%)"), device_props.percentage);
+        message = fmt::format(_("Media player is low in power ({0:1f}%)"), device_props.percentage);
         break;
     case UP_DEVICE_KIND_TABLET:
         title = _("Tablet battery low");
-        message = fmt::format(_("Tablet is low in power ({0:0f}%)"), device_props.percentage);
+        message = fmt::format(_("Tablet is low in power ({0:1f}%)"), device_props.percentage);
         break;
     case UP_DEVICE_KIND_COMPUTER:
         title = _("Attached computer battery low");
-        message = fmt::format(_("Attached computer is low in power ({0:.0f}%)"), device_props.percentage);
+        message = fmt::format(_("Attached computer is low in power ({0:.1f}%)"), device_props.percentage);
         break;
     default:
         // Ignore other type
@@ -221,50 +221,50 @@ void PowerNotificationManager::on_device_charge_critical(std::shared_ptr<PowerUP
     case UP_DEVICE_KIND_BATTERY:
     {
         title = _("Laptop battery critically low");
-        message = fmt::format(_("Approximately <b>{0}</b> remaining ({1:.0f}%)"),
+        message = fmt::format(_("Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to avoid losing data."),
                               remaining_time_text,
                               device_props.percentage);
         break;
     }
     case UP_DEVICE_KIND_UPS:
         title = _("UPS critically low");
-        message = fmt::format(_("Approximately <b>{0}</b> of remaining UPS power ({1:.0f}%). Restore AC power to your computer to avoid losing data."),
+        message = fmt::format(_("Approximately <b>{0}</b> of remaining UPS power ({1:.1f}%). Restore AC power to your computer to avoid losing data."),
                               remaining_time_text,
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_MOUSE:
         title = _("Mouse battery low");
-        message = fmt::format(_("Wireless mouse is very low in power ({0:.0f}%). This device will soon stop functioning if not charged."),
+        message = fmt::format(_("Wireless mouse is very low in power ({0:.1f}%). This device will soon stop functioning if not charged."),
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_KEYBOARD:
         title = _("Keyboard battery low");
-        message = fmt::format(_("Wireless keyboard is very low in power ({0:.0f}%). This device will soon stop functioning if not charged."),
+        message = fmt::format(_("Wireless keyboard is very low in power ({0:.1f}%). This device will soon stop functioning if not charged."),
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_PDA:
         title = _("PDA battery low");
-        message = fmt::format(_("PDA is very low in power ({0:.0f}%). This device will soon stop functioning if not charged."),
+        message = fmt::format(_("PDA is very low in power ({0:.1f}%). This device will soon stop functioning if not charged."),
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_PHONE:
         title = _("Cell phone battery low");
-        message = fmt::format(_("Cell phone is very low in power ({0:.0f}%). This device will soon stop functioning if not charged."),
+        message = fmt::format(_("Cell phone is very low in power ({0:.1f}%). This device will soon stop functioning if not charged."),
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_MEDIA_PLAYER:
         title = _("Cell phone battery low");
-        message = fmt::format(_("Media player is very low in power ({0:.0f}%). This device will soon stop functioning if not charged."),
+        message = fmt::format(_("Media player is very low in power ({0:.1f}%). This device will soon stop functioning if not charged."),
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_TABLET:
         title = _("Tablet battery low");
-        message = fmt::format(_("Tablet is very low in power ({0:.0f}%). This device will soon stop functioning if not charged."),
+        message = fmt::format(_("Tablet is very low in power ({0:.1f}%). This device will soon stop functioning if not charged."),
                               device_props.percentage);
         break;
     case UP_DEVICE_KIND_COMPUTER:
         title = _("Attached computer battery low");
-        message = fmt::format(_("Attached computer is very low in power ({0:.0f}%). The device will soon shutdown if not charged."),
+        message = fmt::format(_("Attached computer is very low in power ({0:.1f}%). The device will soon shutdown if not charged."),
                               device_props.percentage);
         break;
     default:

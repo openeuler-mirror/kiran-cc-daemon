@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            fmt::print("{0}", _("Could not get the value of the backlight"));
+            fmt::print("{0}", _("Could not get the brightness value"));
             return false;
         }
         return true;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            fmt::print("{0}", _("Could not get the maximum value of the backlight"));
+            fmt::print("{0}", _("Could not get the maximum brightness value"));
             return false;
         }
         return true;
