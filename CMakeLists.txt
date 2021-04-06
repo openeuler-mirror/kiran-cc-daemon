@@ -21,6 +21,7 @@ pkg_search_module(GIOUNIX REQUIRED gio-unix-2.0)
 pkg_search_module(LIBXML2 REQUIRED libxml++-2.6)
 pkg_search_module(ZLOG REQUIRED zlog)
 pkg_search_module(JSONCPP REQUIRED jsoncpp)
+pkg_search_module(GTEST REQUIRED gtest)
 
 if(build-session-daemon)
     pkg_search_module(GDKMM3 REQUIRED gdkmm-3.0)
@@ -74,6 +75,7 @@ add_subdirectory(data)
 add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(plugins)
+add_subdirectory(test)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/third_party/fmt-5.2.0" "third_party/fmt-5.2.0")
 
