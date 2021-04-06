@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist >
+<schemalist gettext-domain="@PROJECT_NAME@">
     <enum id="com.kylinsec.kiran.power.event-action">
         <value nick="blank" value="3"/>
         <value nick="suspend" value="4"/>
