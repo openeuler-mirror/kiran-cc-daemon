@@ -31,6 +31,14 @@ private:
     // 更新托盘图标
     void update_status_icon();
 
+    // 获取图标名，按照device_types设置的设备类型顺序进行搜索
+    std::string get_icon_name(const std::vector<uint32_t>& device_types);
+
+    // 获取设备图标名
+    std::string get_device_icon_name(std::shared_ptr<PowerUPowerDevice> upower_device);
+    // 电量百分比转图标索引
+    std::string percentage2index(int32_t percentage);
+
     void on_settings_changed(const Glib::ustring& key);
     void on_display_device_props_changed(const UPowerDeviceProps& old_props, const UPowerDeviceProps& new_props);
 

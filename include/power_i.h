@@ -87,6 +87,17 @@ extern "C"
         POWER_EVENT_PRESSED_BATTERY,
     };
 
+    // 显示托盘图标策略，枚举类型需跟gsettings中的com.kylinsec.kiran.icon-policy枚举类型保持一致
+    enum PowerTrayIconPolicy
+    {
+        // 总是显示
+        POWER_TRAY_ICON_POLICY_ALWAYS = 0,
+        // 使用电池时显示
+        POWER_TRAY_ICON_POLICY_PRESENT,
+        // 不显示
+        POWER_TRAY_ICON_POLICY_NERVER,
+    };
+
 #define POWER_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Power"
 #define POWER_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Power"
 
@@ -107,7 +118,7 @@ extern "C"
 #define POWER_SCHEMA_LID_CLOSED_ACTION "lid-closed-action"
 #define POWER_SCHEMA_UPS_CRITICAL_ACTION "ups-critical-action"
 #define POWER_SCHEMA_BATTERY_CRITICAL_ACTION "battery-critical-action"
-#define POWER_SCHEMA_SHOW_TRAY_ICON "show-tray-icon"
+#define POWER_SCHEMA_TRAY_ICON_POLICY "tray-icon-policy"
 
 #ifdef __cplusplus
 }

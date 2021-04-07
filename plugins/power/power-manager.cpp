@@ -57,7 +57,7 @@ void PowerManager::SetIdleAction(gint32 device,
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, _("Unknown power action"));
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_1);
     }
 
     switch (device)
@@ -164,7 +164,7 @@ void PowerManager::SetEventAction(gint32 event,
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCError::ERROR_FAILED, CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_1);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_2);
     }
     bool result = false;
 

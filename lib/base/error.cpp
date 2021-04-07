@@ -292,6 +292,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
         error_desc = _("Unsupported power device.");
         break;
     case CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_1:
+    case CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_2:
         error_desc = _("Unknown power action.");
         break;
     case CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_1:

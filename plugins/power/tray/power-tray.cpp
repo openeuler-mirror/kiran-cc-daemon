@@ -7,12 +7,12 @@
 
 #include "plugins/power/tray/power-tray.h"
 
-
-
 #include "power_i.h"
 
 namespace Kiran
 {
+#define DEFAULT_ICON_NAME "gpm-ac-adapter"
+
 PowerTray::PowerTray(PowerWrapperManager* wrapper_manager) : wrapper_manager_(wrapper_manager)
 {
     this->upower_client_ = wrapper_manager_->get_default_upower();
@@ -44,28 +44,121 @@ void PowerTray::init()
 
 void PowerTray::update_status_icon()
 {
-    auto display_device = this->upower_client_->get_display_device();
-    const auto& props = display_device->get_props();
-    auto visible = this->upower_settings_->get_boolean(POWER_SCHEMA_SHOW_TRAY_ICON);
+    // 托盘图标显示只考虑电源、电池和UPS供电的情况。
+    auto icon_policy = PowerTrayIconPolicy(this->upower_settings_->get_enum(POWER_SCHEMA_TRAY_ICON_POLICY));
+    auto icon_name = this->get_icon_name({UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS});
 
-    LOG_DEBUG("icon name: %s, is present: %d.", props.icon_name.c_str(), props.is_present);
+    LOG_DEBUG("icon name: %s.", icon_name.c_str());
 
-    if (props.icon_name.empty() || !props.is_present || !visible)
+    switch (icon_policy)
+    {
+    case PowerTrayIconPolicy::POWER_TRAY_ICON_POLICY_NERVER:
+        icon_name = std::string();
+        break;
+    case PowerTrayIconPolicy::POWER_TRAY_ICON_POLICY_ALWAYS:
+    {
+        // 如果没有电池和UPS，则使用电源默认图标
+        if (icon_name.empty())
+        {
+            icon_name = DEFAULT_ICON_NAME;
+        }
+        break;
+    }
+    case PowerTrayIconPolicy::POWER_TRAY_ICON_POLICY_PRESENT:
+        break;
+    default:
+        break;
+    }
+
+    if (icon_name.empty())
     {
         gtk_status_icon_set_visible(this->status_icon_, false);
     }
     else
     {
-        gtk_status_icon_set_from_icon_name(this->status_icon_, props.icon_name.c_str());
+        gtk_status_icon_set_from_icon_name(this->status_icon_, icon_name.c_str());
         gtk_status_icon_set_visible(this->status_icon_, true);
     }
+}
+
+std::string PowerTray::get_icon_name(const std::vector<uint32_t>& device_types)
+{
+    for (auto device_type : device_types)
+    {
+        for (auto upower_device : this->upower_client_->get_devices())
+        {
+            auto& device_props = upower_device->get_props();
+            if (device_props.type == device_type &&
+                device_props.is_present)
+            {
+                auto icon_name = this->get_device_icon_name(upower_device);
+                RETURN_VAL_IF_TRUE(icon_name.length() > 0, icon_name);
+            }
+        }
+    }
+    return std::string();
+}
+
+std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> upower_device)
+{
+    auto& device_props = upower_device->get_props();
+    auto prefix = up_device_kind_to_string(UpDeviceKind(device_props.type));
+
+    switch (device_props.type)
+    {
+    case UP_DEVICE_KIND_LINE_POWER:
+        return "gpm-ac-adapter";
+    case UP_DEVICE_KIND_MONITOR:
+        return "gpm-monitor";
+    case UP_DEVICE_KIND_UPS:
+    case UP_DEVICE_KIND_BATTERY:
+    case UP_DEVICE_KIND_MOUSE:
+    case UP_DEVICE_KIND_KEYBOARD:
+    case UP_DEVICE_KIND_PHONE:
+    {
+        if (!device_props.is_present)
+        {
+            return fmt::format("gpm-{0}-missing", prefix);
+        }
+        switch (device_props.state)
+        {
+        case UP_DEVICE_STATE_EMPTY:
+            return fmt::format("gpm-{0}-000", prefix);
+        case UP_DEVICE_STATE_FULLY_CHARGED:
+            return fmt::format("gpm-{0}-100", prefix);
+        case UP_DEVICE_STATE_CHARGING:
+        case UP_DEVICE_STATE_PENDING_CHARGE:
+            return fmt::format("gpm-{0}-{1}-charging", prefix, this->percentage2index(device_props.percentage));
+        case UP_DEVICE_STATE_DISCHARGING:
+        case UP_DEVICE_STATE_PENDING_DISCHARGE:
+            return fmt::format("gpm-{0}-{1}", prefix, this->percentage2index(device_props.percentage));
+        default:
+            return fmt::format("gpm-{0}-missing", prefix);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    return std::string();
+}
+
+std::string PowerTray::percentage2index(int32_t percentage)
+{
+    RETURN_VAL_IF_TRUE(percentage < 10, "000");
+    RETURN_VAL_IF_TRUE(percentage < 30, "020");
+    RETURN_VAL_IF_TRUE(percentage < 50, "040");
+    RETURN_VAL_IF_TRUE(percentage < 70, "060");
+    RETURN_VAL_IF_TRUE(percentage < 90, "080");
+    return "100";
 }
 
 void PowerTray::on_settings_changed(const Glib::ustring& key)
 {
     switch (shash(key.c_str()))
     {
-    case CONNECT(POWER_SCHEMA_SHOW_TRAY_ICON, _hash):
+    case CONNECT(POWER_SCHEMA_TRAY_ICON_POLICY, _hash):
         this->update_status_icon();
         break;
     default:

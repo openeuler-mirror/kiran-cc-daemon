@@ -31,6 +31,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${GTKMM3_LIBRARIES}
+    ${UPOWER_GLIB_LIBRARIES}
     ${XEXT_LIBRARIES}
     ${LIBNOTIFY_LIBRARIES}
     lib-base)
