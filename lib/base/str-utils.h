@@ -22,7 +22,7 @@ struct formatter<Glib::ustring>
     template <typename FormatContext>
     format_context::iterator format(const Glib::ustring &str, FormatContext &ctx)
     {
-        return format_to(ctx.begin(), "{0}", str.raw());
+        return format_to(ctx.out(), "{0}", str.raw());
     }
 };
 }  // namespace fmt
