@@ -249,6 +249,8 @@ void PowerUPower::on_device_props_changed(const UPowerDeviceProps &old_props,
             break;
         }
     }
+
+    this->device_props_changed_.emit(device, old_props, new_props);
 }
 
 }  // namespace Kiran

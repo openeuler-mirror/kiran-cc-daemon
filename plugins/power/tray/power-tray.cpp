@@ -37,9 +37,7 @@ void PowerTray::init()
     this->update_status_icon();
 
     this->upower_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerTray::on_settings_changed));
-
-    auto display_device = this->upower_client_->get_display_device();
-    display_device->signal_props_changed().connect(sigc::mem_fun(this, &PowerTray::on_display_device_props_changed));
+    this->upower_client_->signal_device_props_changed().connect(sigc::mem_fun(this, &PowerTray::on_device_props_changed));
 }
 
 void PowerTray::update_status_icon()
@@ -101,6 +99,14 @@ std::string PowerTray::get_icon_name(const std::vector<uint32_t>& device_types)
 
 std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> upower_device)
 {
+    RETURN_VAL_IF_FALSE(upower_device, std::string());
+    // 这里用于兼容使用混合电池的情况
+    if (upower_device->get_props().type == UP_DEVICE_KIND_BATTERY)
+    {
+        upower_device = this->upower_client_->get_display_device();
+    }
+    RETURN_VAL_IF_FALSE(upower_device, std::string());
+
     auto& device_props = upower_device->get_props();
     auto prefix = up_device_kind_to_string(UpDeviceKind(device_props.type));
 
@@ -125,7 +131,6 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
         case UP_DEVICE_STATE_EMPTY:
             return fmt::format("gpm-{0}-000", prefix);
         case UP_DEVICE_STATE_FULLY_CHARGED:
-            return fmt::format("gpm-{0}-100", prefix);
         case UP_DEVICE_STATE_CHARGING:
         case UP_DEVICE_STATE_PENDING_CHARGE:
             return fmt::format("gpm-{0}-{1}-charging", prefix, this->percentage2index(device_props.percentage));
@@ -166,10 +171,13 @@ void PowerTray::on_settings_changed(const Glib::ustring& key)
     }
 }
 
-void PowerTray::on_display_device_props_changed(const UPowerDeviceProps& old_props,
-                                                const UPowerDeviceProps& new_props)
+void PowerTray::on_device_props_changed(std::shared_ptr<PowerUPowerDevice> upwer_device,
+                                        const UPowerDeviceProps& old_props,
+                                        const UPowerDeviceProps& new_props)
 {
-    if (old_props.icon_name != new_props.icon_name)
+    if (old_props.is_present != new_props.is_present ||
+        old_props.percentage != new_props.percentage ||
+        old_props.state != new_props.state)
     {
         this->update_status_icon();
     }

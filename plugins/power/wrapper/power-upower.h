@@ -26,7 +26,7 @@ public:
     // 是否有笔记本盖子
     bool get_lid_is_present() { return this->lid_is_present_; };
 
-    /* 混合电源设备。部分机器可能存在多个电池设备，当使用电池供电时，系统供电状态应该依赖所有电池设备的电量情况，而不是单个电池的电量，
+    /* 混合电池设备。部分机器可能存在多个电池设备，当使用电池供电时，系统供电状态应该依赖所有电池设备的电量情况，而不是单个电池的电量，
        因此，如果想获取系统电池整体使用情况，需要使用混合电源设备*/
     std::shared_ptr<PowerUPowerDevice> get_display_device() { return this->display_device_; };
     PowerUPowerDeviceVec get_devices();
@@ -34,9 +34,13 @@ public:
     sigc::signal<void, bool> &signal_on_battery_changed() { return this->on_battery_changed_; };
     sigc::signal<void, bool> &signal_lid_is_closed_changed() { return this->lid_is_closed_changed_; };
 
-    using DeviceChangedSignalType = sigc::signal<void, std::shared_ptr<PowerUPowerDevice>, UPowerDeviceEvent>;
+    using DeviceStatusChangedSignalType = sigc::signal<void, std::shared_ptr<PowerUPowerDevice>, UPowerDeviceEvent>;
+    using DevicePropsChangedSignalType = sigc::signal<void, std::shared_ptr<PowerUPowerDevice>, const UPowerDeviceProps &, const UPowerDeviceProps &>;
+
     // 设备状态发生变化
-    DeviceChangedSignalType &signal_device_status_changed() { return this->device_status_changed_; };
+    DeviceStatusChangedSignalType &signal_device_status_changed() { return this->device_status_changed_; };
+    // 设备属性发生变化，参数分别为返回值、设备对象，旧的属性和新的属性
+    DevicePropsChangedSignalType &signal_device_props_changed() { return this->device_props_changed_; };
 
 private:
     Glib::DBusObjectPathString get_display_device_object_path();
@@ -68,6 +72,8 @@ private:
 
     sigc::signal<void, bool> on_battery_changed_;
     sigc::signal<void, bool> lid_is_closed_changed_;
-    DeviceChangedSignalType device_status_changed_;
+
+    DeviceStatusChangedSignalType device_status_changed_;
+    DevicePropsChangedSignalType device_props_changed_;
 };
 }  // namespace Kiran

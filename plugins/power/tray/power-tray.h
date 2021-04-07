@@ -40,7 +40,9 @@ private:
     std::string percentage2index(int32_t percentage);
 
     void on_settings_changed(const Glib::ustring& key);
-    void on_display_device_props_changed(const UPowerDeviceProps& old_props, const UPowerDeviceProps& new_props);
+    void on_device_props_changed(std::shared_ptr<PowerUPowerDevice> upwer_device,
+                                 const UPowerDeviceProps& old_props,
+                                 const UPowerDeviceProps& new_props);
 
 private:
     static PowerTray* instance_;
