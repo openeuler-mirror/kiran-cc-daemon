@@ -107,5 +107,7 @@
             <default>'present'</default>
             <description>Display options for the notification icon.</description>
         </key>
+
+
     </schema>
 </schemalist>

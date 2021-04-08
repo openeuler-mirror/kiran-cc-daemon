@@ -6,17 +6,19 @@
  */
 #pragma once
 
-#include "plugins/power/backlight/power-backlight-device.h"
+#include "plugins/power/backlight/power-backlight-base.h"
 
 namespace Kiran
 {
-class PowerBacklightKbd : public PowerBacklightDevice
+class PowerBacklightKbd : public PowerBacklightPercentage
 {
 public:
     PowerBacklightKbd();
     virtual ~PowerBacklightKbd();
 
     virtual void init() override;
+
+    virtual PowerDeviceType get_type() override { return PowerDeviceType::POWER_DEVICE_TYPE_KBD; };
 
     // 设置亮度百分比
     virtual bool set_brightness(int32_t percentage) override;

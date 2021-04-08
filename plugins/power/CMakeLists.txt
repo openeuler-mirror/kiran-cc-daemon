@@ -6,8 +6,9 @@ file(GLOB_RECURSE POWER_H_FILES ./*.h)
 file(GLOB_RECURSE POWER_CPP_FILES ./*.cpp)
 
 # Filter tools directory
-list(FILTER POWER_H_FILES EXCLUDE REGEX .*tools/.*)
-list(FILTER POWER_CPP_FILES EXCLUDE REGEX .*tools/.*)
+# list(FILTER POWER_H_FILES EXCLUDE REGEX .*tools/.*)
+# list(FILTER POWER_CPP_FILES EXCLUDE REGEX .*tools/.*)
+list(FILTER POWER_CPP_FILES EXCLUDE REGEX .*tools/main.cpp)
 
 GEN_DBUS_STUB(POWER power com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/power/com.kylinsec.Kiran.SessionDaemon.Power.xml)
 

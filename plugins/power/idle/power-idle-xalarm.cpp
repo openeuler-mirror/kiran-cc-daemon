@@ -1,5 +1,5 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/power-idle-xalarm.cpp
+ * @file          /kiran-cc-daemon/plugins/power/idle/power-idle-xalarm.cpp
  * @brief         
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -81,7 +81,6 @@ void PowerIdleXAlarm::init()
         return;
     }
 
-    // TODO:
     gdk_window_add_filter(NULL, &PowerIdleXAlarm::on_event_filter_cb, this);
     this->added_event_filter_ = true;
 

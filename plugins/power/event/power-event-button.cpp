@@ -58,6 +58,8 @@ bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
         return false;
     }
 
+    LOG_DEBUG("keysym: 0x%08x, keycode: 0x%08x.", keysym, keycode);
+
     auto keycode_str = fmt::format("0x{:x}", keycode);
 
     auto iter = this->buttons_.emplace(keycode_str, type);
@@ -130,6 +132,7 @@ GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *e
         return GDK_FILTER_CONTINUE;
     }
 
+    LOG_DEBUG("Receipt keycode signal: %s.", keycode_str.c_str());
     button->emit_button_signal(iter->second);
 
     return GDK_FILTER_REMOVE;

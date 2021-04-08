@@ -11,7 +11,7 @@
 #include <X11/extensions/Xrandr.h>
 #include <gdk/gdkx.h>
 
-#include "plugins/power/backlight/power-backlight-device.h"
+#include "plugins/power/backlight/power-backlight-base.h"
 
 namespace Kiran
 {

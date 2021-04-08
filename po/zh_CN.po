@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-08 10:13+0800\n"
+"POT-Creation-Date: 2021-04-08 13:48+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -1114,45 +1114,38 @@ msgid "Unknown"
 msgid_plural "Unknown"
 msgstr[0] "未知"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:85
+#: ../plugins/power/tools/power-backlight-helper.cpp:95
 msgid "This program can only be used by the root user"
 msgstr "此程序只能由 root 用户使用"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:92
+#: ../plugins/power/tools/power-backlight-helper.cpp:102
 msgid "This program must only be run through pkexec"
 msgstr "此程序只能通过 pkexec 运行"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:101
+#: ../plugins/power/tools/power-backlight-helper.cpp:111
 msgid "Could not set the value of the backlight"
 msgstr "无法设置背光的值"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:155
-msgid "power backlight helper"
-msgstr "背光设置工具"
+#~ msgid "power backlight helper"
+#~ msgstr "背光设置工具"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:160
-msgid "Get the current brightness value"
-msgstr "获取当前亮度值"
+#~ msgid "Get the current brightness value"
+#~ msgstr "获取当前亮度值"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:165
-msgid "Get the max brightness value"
-msgstr "获取最大亮度值"
+#~ msgid "Get the max brightness value"
+#~ msgstr "获取最大亮度值"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:169
-msgid "Set the brightness value"
-msgstr "设置亮度值"
+#~ msgid "Set the brightness value"
+#~ msgstr "设置亮度值"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:179
-msgid "Could not get the brightness value"
-msgstr "无法获取亮度值"
+#~ msgid "Could not get the brightness value"
+#~ msgstr "无法获取亮度值"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:193
-msgid "Could not get the maximum brightness value"
-msgstr "无法获取最大亮度值"
+#~ msgid "Could not get the maximum brightness value"
+#~ msgstr "无法获取最大亮度值"
 
-#: ../plugins/power/tools/power-backlight-helper.cpp:215
-msgid "No backlights were found on your system"
-msgstr "没有找到您系统上的背光"
+#~ msgid "No backlights were found on your system"
+#~ msgstr "没有找到您系统上的背光"
 
 #~ msgid "Unknown power action"
 #~ msgstr "未知电源动作"

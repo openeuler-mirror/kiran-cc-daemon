@@ -16,7 +16,8 @@ PowerIdleControl::PowerIdleControl(PowerWrapperManager* wrapper_manager,
                                                                 backlight_(backlight),
                                                                 computer_idle_time_(0),
                                                                 display_idle_time_(0),
-                                                                kbd_brightness_percentage_(-1)
+                                                                kbd_normal_brightness_(-1),
+                                                                monitor_normal_brightness_(-1)
 {
     this->upower_client_ = this->wrapper_manager_->get_default_upower();
     this->backlight_kbd_ = backlight->get_backlight_device(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
@@ -40,12 +41,14 @@ void PowerIdleControl::init()
     this->idle_timer_.init();
     this->update_idle_timer();
 
-    this->kbd_brightness_percentage_ = this->backlight_kbd_->get_brightness();
+    this->kbd_normal_brightness_ = this->backlight_kbd_->get_brightness();
+    this->monitor_normal_brightness_ = this->backlight_monitor_->get_brightness();
 
     this->upower_client_->signal_on_battery_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_battery_changed));
     this->power_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_settings_changed));
     this->idle_timer_.signal_mode_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_idle_mode_changed));
     this->backlight_kbd_->signal_brightness_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_kbd_brightness_changed));
+    this->backlight_monitor_->signal_brightness_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_monitor_brightness_changed));
 }
 
 void PowerIdleControl::update_idle_timer()
@@ -82,7 +85,8 @@ void PowerIdleControl::switch_to_normal()
     }
 
     // 切换到键盘上一次处于正常模式下的亮度值，以确保从节能模式恢复到正常模式后亮度值也能恢复到之前的值
-    this->backlight_kbd_->set_brightness(this->kbd_brightness_percentage_);
+    this->backlight_kbd_->set_brightness(this->kbd_normal_brightness_);
+    this->backlight_monitor_->set_brightness(this->monitor_normal_brightness_);
 }
 
 void PowerIdleControl::switch_to_dim()
@@ -99,7 +103,7 @@ void PowerIdleControl::switch_to_dim()
         auto monitor_brightness_percentage = this->backlight_monitor_->get_brightness();
         if (monitor_brightness_percentage)
         {
-            this->backlight_monitor_->set_brightness(kbd_brightness_percentage * (100 - scale) / 100);
+            this->backlight_monitor_->set_brightness(monitor_brightness_percentage * (100 - scale) / 100);
         }
     }
     else if (scale < 0 || scale > 100)
@@ -132,6 +136,7 @@ void PowerIdleControl::switch_to_sleep()
 
 void PowerIdleControl::on_battery_changed(bool)
 {
+    // 电池/电源切换时，空闲超时参数需要重新设置
     this->update_idle_timer();
 }
 
@@ -181,7 +186,15 @@ void PowerIdleControl::on_kbd_brightness_changed(int32_t brightness_percentage)
 {
     if (this->idle_timer_.get_idle_mode() == PowerIdleMode::POWER_IDLE_MODE_NORMAL)
     {
-        this->kbd_brightness_percentage_ = brightness_percentage;
+        this->kbd_normal_brightness_ = brightness_percentage;
+    }
+}
+
+void PowerIdleControl::on_monitor_brightness_changed(int32_t brightness_percentage)
+{
+    if (this->idle_timer_.get_idle_mode() == PowerIdleMode::POWER_IDLE_MODE_NORMAL)
+    {
+        this->monitor_normal_brightness_ = brightness_percentage;
     }
 }
 }  // namespace Kiran

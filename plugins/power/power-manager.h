@@ -9,6 +9,7 @@
 #include <power_dbus_stub.h>
 
 #include "lib/base/base.h"
+#include "plugins/power/backlight/power-backlight.h"
 #include "plugins/power/wrapper/power-wrapper-manager.h"
 
 namespace Kiran
@@ -16,12 +17,12 @@ namespace Kiran
 class PowerManager : public SessionDaemon::PowerStub
 {
 public:
-    PowerManager(PowerWrapperManager *wrapper_manager);
+    PowerManager(PowerWrapperManager *wrapper_manager, PowerBacklight *backlight);
     virtual ~PowerManager();
 
     static PowerManager *get_instance() { return instance_; };
 
-    static void global_init(PowerWrapperManager *wrapper_manager);
+    static void global_init(PowerWrapperManager *wrapper_manager, PowerBacklight *backlight);
 
     static void global_deinit() { delete instance_; };
 
@@ -87,6 +88,9 @@ private:
     void on_battery_changed(bool on_battery);
     void on_lid_is_closed_changed(bool lid_is_closed);
 
+    void on_settings_changed(const Glib::ustring &key);
+    void on_brightness_changed(std::shared_ptr<PowerBacklightPercentage> backlight_device, int32_t brightness_value);
+
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
@@ -95,6 +99,7 @@ private:
     static PowerManager *instance_;
 
     PowerWrapperManager *wrapper_manager_;
+    PowerBacklight *backlight_;
     std::shared_ptr<PowerUPower> upower_client_;
 
     Glib::RefPtr<Gio::Settings> power_settings_;

@@ -41,6 +41,7 @@ private:
     void on_settings_changed(const Glib::ustring& key);
     void on_idle_mode_changed(PowerIdleMode mode);
     void on_kbd_brightness_changed(int32_t brightness_percentage);
+    void on_monitor_brightness_changed(int32_t brightness_percentage);
 
 private:
     static PowerIdleControl* instance_;
@@ -52,8 +53,8 @@ private:
     Glib::RefPtr<Gio::Settings> power_settings_;
 
     std::shared_ptr<PowerUPower> upower_client_;
-    std::shared_ptr<PowerBacklightDevice> backlight_kbd_;
-    std::shared_ptr<PowerBacklightDevice> backlight_monitor_;
+    std::shared_ptr<PowerBacklightPercentage> backlight_kbd_;
+    std::shared_ptr<PowerBacklightPercentage> backlight_monitor_;
 
     int32_t computer_idle_time_;
     PowerAction computer_idle_action_;
@@ -62,6 +63,7 @@ private:
     PowerAction display_idle_action_;
 
     // 上一次处于正常模式时键盘的亮度百分比
-    int32_t kbd_brightness_percentage_;
+    int32_t kbd_normal_brightness_;
+    int32_t monitor_normal_brightness_;
 };
 }  // namespace Kiran

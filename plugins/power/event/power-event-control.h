@@ -43,8 +43,8 @@ private:
     std::shared_ptr<PowerScreenSaver> screensaver_;
 
     PowerBacklight* backlight_;
-    std::shared_ptr<PowerBacklightDevice> backlight_kbd_;
-    std::shared_ptr<PowerBacklightDevice> backlight_monitor_;
+    std::shared_ptr<PowerBacklightPercentage> backlight_kbd_;
+    std::shared_ptr<PowerBacklightPercentage> backlight_monitor_;
     // 键盘上一次设置的非0值
     int32_t kbd_last_nozero_brightness_;
 

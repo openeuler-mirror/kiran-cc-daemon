@@ -26,6 +26,8 @@ void PowerSave::global_init(PowerWrapperManager* wrapper_manager)
 
 bool PowerSave::do_save(PowerAction action, std::string& error)
 {
+    SETTINGS_PROFILE("action: %d.", action);
+
     switch (action)
     {
     case PowerAction::POWER_ACTION_DISPLAY_ON:

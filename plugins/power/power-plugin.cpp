@@ -34,9 +34,9 @@ void PowerPlugin::activate()
     SETTINGS_PROFILE("active appearance plugin.");
 
     PowerWrapperManager::global_init();
-    PowerManager::global_init(PowerWrapperManager::get_instance());
-    PowerSave::global_init(PowerWrapperManager::get_instance());
     PowerBacklight::global_init();
+    PowerManager::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
+    PowerSave::global_init(PowerWrapperManager::get_instance());
     PowerIdleControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerEventControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerNotificationManager::global_init(PowerWrapperManager::get_instance());
@@ -51,9 +51,9 @@ void PowerPlugin::deactivate()
     PowerNotificationManager::global_deinit();
     PowerEventControl::global_deinit();
     PowerIdleControl::global_deinit();
-    PowerBacklight::global_deinit();
     PowerSave::global_deinit();
     PowerManager::global_deinit();
+    PowerBacklight::global_deinit();
     PowerWrapperManager::global_deinit();
 }
 }  // namespace Kiran

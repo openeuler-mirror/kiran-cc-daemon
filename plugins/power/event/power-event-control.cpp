@@ -132,7 +132,7 @@ void PowerEventControl::on_button_changed(PowerEvent evnet)
     case POWER_EVENT_PRESSED_LOCK:
         this->screensaver_->lock();
         break;
-    // TODO:
+    // TODO: 显示电池相关的信息，暂不处理该事件
     case POWER_EVENT_PRESSED_BATTERY:
         break;
     default:
