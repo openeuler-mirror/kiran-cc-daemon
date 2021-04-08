@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-06 20:48+0800\n"
+"POT-Creation-Date: 2021-04-08 10:13+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -725,59 +725,59 @@ msgstr "不支持该供电模式。"
 msgid "Unsupported power device."
 msgstr "不支持该设备。"
 
-#: ../lib/base/error.cpp:295
+#: ../lib/base/error.cpp:296
 msgid "Unknown power action."
 msgstr "未知电源动作。"
 
-#: ../lib/base/error.cpp:299
+#: ../lib/base/error.cpp:300
 msgid "Unsupported power event."
 msgstr "事件不支持。"
 
-#: ../lib/base/error.cpp:302
+#: ../lib/base/error.cpp:303
 msgid "Failed to set the action."
 msgstr "设置触发行为失败。"
 
-#: ../lib/base/error.cpp:305
+#: ../lib/base/error.cpp:306
 msgid "Failed to set brightness."
 msgstr "设置亮度失败。"
 
-#: ../lib/base/error.cpp:308
+#: ../lib/base/error.cpp:309
 msgid "The systeminfo type is invalid."
 msgstr "系统信息类型不合法。"
 
-#: ../lib/base/error.cpp:311
+#: ../lib/base/error.cpp:312
 msgid "Failed to set host name."
 msgstr "设置主机名失败。"
 
-#: ../lib/base/error.cpp:314
+#: ../lib/base/error.cpp:315
 msgid "Not found the property."
 msgstr "未找到该属性。"
 
-#: ../lib/base/error.cpp:317
+#: ../lib/base/error.cpp:318
 msgid "The type is mismatch."
 msgstr "类型不匹配。"
 
-#: ../lib/base/error.cpp:320
+#: ../lib/base/error.cpp:321
 msgid "The property is invalid."
 msgstr "属性不合法"
 
-#: ../lib/base/error.cpp:323
+#: ../lib/base/error.cpp:324
 msgid "The property must not be modified manually."
 msgstr "属性不能手动修改。"
 
-#: ../lib/base/error.cpp:326
+#: ../lib/base/error.cpp:327
 msgid "The property is unsupported."
 msgstr "属性不支持。"
 
-#: ../lib/base/error.cpp:352
+#: ../lib/base/error.cpp:353
 msgid "Internel error."
 msgstr "内部错误。"
 
-#: ../lib/base/error.cpp:355 ../lib/base/error.cpp:358
+#: ../lib/base/error.cpp:356 ../lib/base/error.cpp:359
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../lib/base/error.cpp:362
+#: ../lib/base/error.cpp:363
 msgid " (error code: 0x{:x})"
 msgstr "(错误码：0x{:x})"
 
@@ -790,10 +790,6 @@ msgstr "%Y年%m月%d日"
 #: ../plugins/keybinding/custom-shortcut.h:19
 msgid "Custom"
 msgstr "自定义"
-
-#: ../plugins/power/power-manager.cpp:60
-msgid "Unknown power action"
-msgstr "未知电源动作"
 
 #: ../plugins/power/power-utils.cpp:19
 msgid "Less than 1 minute"
@@ -823,114 +819,117 @@ msgstr[0] "分钟"
 msgid "Battery Discharging"
 msgstr "电池正在放电"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:112
+#: ../plugins/power/notification/power-notification-manager.cpp:108
+msgid "{0} of battery power remaining ({1:.1f}%)"
+msgstr "电池电量剩余 {0} ({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:113
 msgid "UPS Discharging"
 msgstr "UPS 正在放电"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:119
-msgid "{0} discharging ({1:.1f}%)"
-msgstr "{0} 放电中 ({1:.1f}%)"
+#: ../plugins/power/notification/power-notification-manager.cpp:114
+msgid "{0} of UPS backup power remaining ({1:.1f}%)"
+msgstr "UPS 备用电池电量剩余 {0} ({1:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:129
+#: ../plugins/power/notification/power-notification-manager.cpp:131
 msgid "Battery Charged"
 msgstr "电池已充满"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:153
-msgid "Laptop battery low"
-msgstr "笔记本电池电量低"
+#: ../plugins/power/notification/power-notification-manager.cpp:155
+msgid "Battery low"
+msgstr "电池电量低。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:154
+#: ../plugins/power/notification/power-notification-manager.cpp:156
 msgid "Approximately <b>{0}</b> remaining ({1:.1f}%)"
 msgstr "大约剩余 <b>{0}</b>({1:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:161
+#: ../plugins/power/notification/power-notification-manager.cpp:163
 msgid "UPS low"
 msgstr "UPS 电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:162
+#: ../plugins/power/notification/power-notification-manager.cpp:164
 msgid "Approximately <b>{0}</b> of remaining UPS backup power ({1:.1f}%)"
 msgstr "UPS 备用电源的剩余电量大约可维持 <b>{0}</b>，为总电量的 {1:.1f}%"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:168
-#: ../plugins/power/notification/power-notification-manager.cpp:236
+#: ../plugins/power/notification/power-notification-manager.cpp:170
+#: ../plugins/power/notification/power-notification-manager.cpp:238
 msgid "Mouse battery low"
 msgstr "鼠标电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:169
+#: ../plugins/power/notification/power-notification-manager.cpp:171
 msgid "Wireless mouse is low in power ({0:.1f}%)"
 msgstr "无线鼠标电量不足(仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:172
-#: ../plugins/power/notification/power-notification-manager.cpp:241
+#: ../plugins/power/notification/power-notification-manager.cpp:174
+#: ../plugins/power/notification/power-notification-manager.cpp:243
 msgid "Keyboard battery low"
 msgstr "键盘电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:173
+#: ../plugins/power/notification/power-notification-manager.cpp:175
 msgid "Wireless keyboard is low in power ({0:.1f}%)"
 msgstr "无线键盘电量不足 (仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:176
-#: ../plugins/power/notification/power-notification-manager.cpp:246
+#: ../plugins/power/notification/power-notification-manager.cpp:178
+#: ../plugins/power/notification/power-notification-manager.cpp:248
 msgid "PDA battery low"
 msgstr "PDA 电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:177
+#: ../plugins/power/notification/power-notification-manager.cpp:179
 msgid "PDA is low in power ({0:.1f}%)"
 msgstr "PDA 电量不足 (仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:180
-#: ../plugins/power/notification/power-notification-manager.cpp:251
-#: ../plugins/power/notification/power-notification-manager.cpp:256
+#: ../plugins/power/notification/power-notification-manager.cpp:182
+#: ../plugins/power/notification/power-notification-manager.cpp:253
+#: ../plugins/power/notification/power-notification-manager.cpp:258
 msgid "Cell phone battery low"
 msgstr "手机电池电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:181
+#: ../plugins/power/notification/power-notification-manager.cpp:183
 msgid "Cell phone is low in power ({0:.1f}%)"
 msgstr "手机电量不足 (仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:184
+#: ../plugins/power/notification/power-notification-manager.cpp:186
 msgid "Media player battery low"
 msgstr "媒体播放器电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:185
+#: ../plugins/power/notification/power-notification-manager.cpp:187
 msgid "Media player is low in power ({0:1f}%)"
 msgstr "媒体播放器电量不足 (仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:188
-#: ../plugins/power/notification/power-notification-manager.cpp:261
+#: ../plugins/power/notification/power-notification-manager.cpp:190
+#: ../plugins/power/notification/power-notification-manager.cpp:263
 msgid "Tablet battery low"
 msgstr "触摸板电池电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:189
+#: ../plugins/power/notification/power-notification-manager.cpp:191
 msgid "Tablet is low in power ({0:1f}%)"
 msgstr "触摸板电量不足 (仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:192
-#: ../plugins/power/notification/power-notification-manager.cpp:266
+#: ../plugins/power/notification/power-notification-manager.cpp:194
+#: ../plugins/power/notification/power-notification-manager.cpp:268
 msgid "Attached computer battery low"
 msgstr "连接的计算机电池电量低"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:193
+#: ../plugins/power/notification/power-notification-manager.cpp:195
 msgid "Attached computer is low in power ({0:.1f}%)"
 msgstr "连接的计算机电量不足 (仅剩 {0:.1f}%)"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:223
-#: ../plugins/power/notification/power-notification-manager.cpp:298
-msgid "Laptop battery critically low"
-msgstr "笔记本电池电量将用尽"
+#: ../plugins/power/notification/power-notification-manager.cpp:225
+msgid "Battery critically low"
+msgstr "电池电量将用尽。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:224
+#: ../plugins/power/notification/power-notification-manager.cpp:226
 msgid ""
 "Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to "
 "avoid losing data."
 msgstr "大约剩余 <b>{0}</b>({1:.1f}%)。接入您的交流电源以避免丢失数据。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:230
-#: ../plugins/power/notification/power-notification-manager.cpp:323
+#: ../plugins/power/notification/power-notification-manager.cpp:232
+#: ../plugins/power/notification/power-notification-manager.cpp:325
 msgid "UPS critically low"
 msgstr "UPS 电量将用尽"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:231
+#: ../plugins/power/notification/power-notification-manager.cpp:233
 msgid ""
 "Approximately <b>{0}</b> of remaining UPS power ({1:.1f}%). Restore AC power "
 "to your computer to avoid losing data."
@@ -938,7 +937,7 @@ msgstr ""
 "您的 UPS 剩余电量大约可维持 <b>{0}</b>，为总电量的 {1:.1f}%。请恢复交流电源以"
 "防丢失数据。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:237
+#: ../plugins/power/notification/power-notification-manager.cpp:239
 msgid ""
 "Wireless mouse is very low in power ({0:.1f}%). This device will soon stop "
 "functioning if not charged."
@@ -946,7 +945,7 @@ msgstr ""
 "无线鼠标电池电量严重不足 (仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止"
 "工作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:242
+#: ../plugins/power/notification/power-notification-manager.cpp:244
 msgid ""
 "Wireless keyboard is very low in power ({0:.1f}%). This device will soon "
 "stop functioning if not charged."
@@ -954,21 +953,21 @@ msgstr ""
 "无线键盘电量严重不足 (仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工"
 "作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:247
+#: ../plugins/power/notification/power-notification-manager.cpp:249
 msgid ""
 "PDA is very low in power ({0:.1f}%). This device will soon stop functioning "
 "if not charged."
 msgstr ""
 "PDA 电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:252
+#: ../plugins/power/notification/power-notification-manager.cpp:254
 msgid ""
 "Cell phone is very low in power ({0:.1f}%). This device will soon stop "
 "functioning if not charged."
 msgstr ""
 "您的手机电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:257
+#: ../plugins/power/notification/power-notification-manager.cpp:259
 msgid ""
 "Media player is very low in power ({0:.1f}%). This device will soon stop "
 "functioning if not charged."
@@ -976,14 +975,14 @@ msgstr ""
 "媒体播放器电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工"
 "作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:262
+#: ../plugins/power/notification/power-notification-manager.cpp:264
 msgid ""
 "Tablet is very low in power ({0:.1f}%). This device will soon stop "
 "functioning if not charged."
 msgstr ""
 "触摸板电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:267
+#: ../plugins/power/notification/power-notification-manager.cpp:269
 msgid ""
 "Attached computer is very low in power ({0:.1f}%). The device will soon "
 "shutdown if not charged."
@@ -991,7 +990,11 @@ msgstr ""
 "连接的此计算机电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止"
 "工作。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:306
+#: ../plugins/power/notification/power-notification-manager.cpp:300
+msgid "Laptop battery critically low"
+msgstr "笔记本电池电量将用尽"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:308
 msgid ""
 "The battery is below the critical level and this computer is about to "
 "suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
@@ -1000,25 +1003,25 @@ msgstr ""
 "电池的电量将用尽，计算机将开始挂起。<br><b>注意：</b>将您的计算机保持在挂起状"
 "态也需要一点电量。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:310
+#: ../plugins/power/notification/power-notification-manager.cpp:312
 msgid ""
 "The battery is below the critical level and this computer is about to "
 "hibernate."
 msgstr "电池的电量将用尽，计算机将开始休眠。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:313
+#: ../plugins/power/notification/power-notification-manager.cpp:315
 msgid ""
 "The battery is below the critical level and this computer is about to "
 "shutdown."
 msgstr "电池的电量将用尽，计算机将开始关机。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:316
+#: ../plugins/power/notification/power-notification-manager.cpp:318
 msgid ""
 "The battery is below the critical level and this computer will <b>power-off</"
 "b> when the battery becomes completely empty."
 msgstr "电池的电量将用尽，电池的电量完全用尽时计算机将会<b>关机</b>。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:331
+#: ../plugins/power/notification/power-notification-manager.cpp:333
 msgid ""
 "The UPS is below the critical level and this computer is about to suspend."
 "<br><b>NOTE:</b> A small amount of power is required to keep your computer "
@@ -1027,17 +1030,17 @@ msgstr ""
 "UPS的电量将用尽，计算机将开始挂起。<br><b>注意：</b>将您的计算机保持在挂起状"
 "态也需要一点电量。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:335
+#: ../plugins/power/notification/power-notification-manager.cpp:337
 msgid ""
 "The UPS is below the critical level and this computer is about to hibernate."
 msgstr "UPS 电量将用尽，计算机将开始休眠到硬盘。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:338
+#: ../plugins/power/notification/power-notification-manager.cpp:340
 msgid ""
 "The UPS is below the critical level and this computer is about to shutdown."
 msgstr "UPS 电量将用尽，计算机将开始关机。"
 
-#: ../plugins/power/notification/power-notification-manager.cpp:341
+#: ../plugins/power/notification/power-notification-manager.cpp:343
 msgid ""
 "The UPS is below the critical level and this computer will <b>power-off</b> "
 "when the UPS becomes completely empty."
@@ -1150,3 +1153,12 @@ msgstr "无法获取最大亮度值"
 #: ../plugins/power/tools/power-backlight-helper.cpp:215
 msgid "No backlights were found on your system"
 msgstr "没有找到您系统上的背光"
+
+#~ msgid "Unknown power action"
+#~ msgstr "未知电源动作"
+
+#~ msgid "{0} discharging ({1:.1f}%)"
+#~ msgstr "{0} 放电中 ({1:.1f}%)"
+
+#~ msgid "Laptop battery low"
+#~ msgstr "笔记本电池电量低"

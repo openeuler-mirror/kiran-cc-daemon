@@ -53,8 +53,7 @@ bool PowerNotificationManager::message_notify(const std::string &title,
     // 关闭之前的通知
     if (!notify_notification_close(this->device_notification_, &error))
     {
-        LOG_WARNING("%s", error);
-        return false;
+        LOG_DEBUG("%s", error->message);
     }
 
     notify_notification_update(this->device_notification_, title.c_str(), message.c_str(), icon_name.c_str());
@@ -63,7 +62,7 @@ bool PowerNotificationManager::message_notify(const std::string &title,
     notify_notification_set_urgency(this->device_notification_, urgency);
     if (!notify_notification_show(this->device_notification_, &error))
     {
-        LOG_WARNING("%s", error);
+        LOG_WARNING("%s", error->message);
         return false;
     }
     return true;
@@ -97,26 +96,29 @@ void PowerNotificationManager::on_device_discharging(std::shared_ptr<PowerUPower
 {
     const UPowerDeviceProps &device_props = device->get_props();
     std::string title;
+    std::string message;
 
-    auto type_desc = device->get_type_translation(1);
+    auto remaining_time_text = PowerUtils::get_time_translation(device_props.time_to_empty);
 
     switch (device_props.type)
     {
     case UP_DEVICE_KIND_BATTERY:
     {
         title = _("Battery Discharging");
+        message = fmt::format(_("{0} of battery power remaining ({1:.1f}%)"), remaining_time_text, device_props.percentage);
         break;
     }
     case UP_DEVICE_KIND_UPS:
     {
         title = _("UPS Discharging");
+        message = fmt::format(_("{0} of UPS backup power remaining ({1:.1f}%)"), remaining_time_text, device_props.percentage);
         break;
     }
     default:
         // Ignore other type
         return;
     }
-    auto message = fmt::format(_("{0} discharging ({1:.1f}%)"), type_desc, device_props.percentage);
+
     this->message_notify(title, message, POWER_NOTIFY_TIMEOUT_LONG, "", NOTIFY_URGENCY_NORMAL);
 }
 
@@ -150,7 +152,7 @@ void PowerNotificationManager::on_device_charge_low(std::shared_ptr<PowerUPowerD
     {
     case UP_DEVICE_KIND_BATTERY:
     {
-        title = _("Laptop battery low");
+        title = _("Battery low");
         message = fmt::format(_("Approximately <b>{0}</b> remaining ({1:.1f}%)"),
                               remaining_time_text,
                               device_props.percentage);
@@ -220,7 +222,7 @@ void PowerNotificationManager::on_device_charge_critical(std::shared_ptr<PowerUP
     {
     case UP_DEVICE_KIND_BATTERY:
     {
-        title = _("Laptop battery critically low");
+        title = _("Battery critically low");
         message = fmt::format(_("Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to avoid losing data."),
                               remaining_time_text,
                               device_props.percentage);
