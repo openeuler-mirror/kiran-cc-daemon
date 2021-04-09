@@ -32,10 +32,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
 target_compile_definitions(${TARGET_NAME} PRIVATE
     -DKCC_XKB_BASE="${XKB_BASE}")
 
-target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_LINKER_FLAGS})
-
 target_link_libraries(${TARGET_NAME} PRIVATE
+    ${KSD_LINKER_FLAGS}
     ${GDKMM3_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     inputdevices-common

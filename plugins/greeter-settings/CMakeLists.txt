@@ -24,10 +24,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${GDKMM3_INCLUDE_DIRS})
 
 
-target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_LINKER_FLAGS})
-
 target_link_libraries(${TARGET_NAME} PRIVATE
+    ${KSD_LINKER_FLAGS}
     ${GDKMM3_LIBRARIES}
     lib-base)
 

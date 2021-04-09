@@ -22,11 +22,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_BINARY_DIR}/generated
     ${GDKMM3_INCLUDE_DIRS})
 
-
-target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_LINKER_FLAGS})
-
 target_link_libraries(${TARGET_NAME} PRIVATE
+    ${KSD_LINKER_FLAGS}
     ${GDKMM3_LIBRARIES}
     inputdevices-common
     lib-base)

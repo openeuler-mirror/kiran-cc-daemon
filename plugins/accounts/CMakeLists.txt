@@ -27,6 +27,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 
 target_link_libraries(${TARGET_NAME} PRIVATE
+    ${KSD_LINKER_FLAGS}
     ${GIOUNIX_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     lib-base

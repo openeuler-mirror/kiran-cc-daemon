@@ -23,10 +23,9 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${JSONCPP_INCLUDE_DIRS}
     ${CAIROMM_XLIB_INCLUDES_DIRS})
 
-target_compile_options(${TARGET_NAME} PRIVATE
-    ${KSD_LINKER_FLAGS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE
+    ${KSD_LINKER_FLAGS}
     ${GTKMM3_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${CAIROMM_XLIB_LIBRARIES}
