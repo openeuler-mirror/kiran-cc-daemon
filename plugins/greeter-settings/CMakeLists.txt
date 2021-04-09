@@ -6,9 +6,7 @@ file(GLOB_RECURSE GREETER_SETTINGS_H_FILES ./*.h)
 file(GLOB_RECURSE GREETER_SETTINGS_CPP_FILES ./*.cpp)
 
 
-GEN_DBUS_STUB(GREETER_SETTINGS greeter-settings com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/greeter-settings/com.kylinsec.Kiran.SessionDaemon.GreeterSettings.xml)
-
-include_directories(/usr/include)
+GEN_DBUS_STUB(GREETER_SETTINGS greeter-settings com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/greeter-settings/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.xml)
 
 add_library(${TARGET_NAME} SHARED
     ${GREETER_SETTINGS_H_FILES}
@@ -26,7 +24,6 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS}
-    ${GDKMM3_LIBRARIES}
     lib-base)
 
 
