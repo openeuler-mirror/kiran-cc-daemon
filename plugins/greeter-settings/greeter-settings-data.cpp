@@ -22,3 +22,14 @@ GreeterSettingsData::GreeterSettingsData(GreeterSettingsData &data_)
     scale_mode = data_.scale_mode;
     scale_factor = data_.scale_factor;
 }
+
+void GreeterSettingsData::clear()
+{
+    scale_mode = GREETER_SETTINGS_SCALING_MODE_AUTO;
+    autologin_delay = 0;
+    scale_factor = 1;
+    enable_manual_login = true;
+    hide_user_list = false;
+    autologin_user = "";
+    background_file = "";
+}
