@@ -324,7 +324,7 @@ bool GreeterSettingsManager::settings_has_key(Glib::KeyFile *settings, const Gli
 
 bool GreeterSettingsManager::load()
 {
-    memset(static_cast<void *>(priv), 0, sizeof(*priv));
+    priv->clear();
 
     if (greeter_settings != nullptr)
         delete greeter_settings;
