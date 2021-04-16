@@ -28,6 +28,8 @@ namespace Kiran
 #define POLKIT_PATH "/org/freedesktop/PolicyKit1/Authority"
 #define POLKIT_INTERFACE "org.freedesktop.PolicyKit1.Authority"
 
+#define EPS 1e-4
+
 #define CHECK_XMLPP_ELEMENT(node, err)                                                                       \
     {                                                                                                        \
         const auto element = dynamic_cast<const xmlpp::Element *>(node);                                     \
@@ -57,9 +59,13 @@ private:
 // helper macro for Defer class
 #define SCOPE_EXIT(block) Defer CONNECT(_defer_, __LINE__)([&](std::string _arg_function) block, __FUNCTION__)
 
-#define RETURN_VAL_IF_FALSE(cond, val) \
-    {                                  \
-        if (!(cond)) return val;       \
+#define RETURN_VAL_IF_FALSE(cond, val)            \
+    {                                             \
+        if (!(cond))                              \
+        {                                         \
+            LOG_DEBUG("The condition is false."); \
+            return val;                           \
+        }                                         \
     }
 
 #define RETURN_VAL_IF_TRUE(cond, val) \
@@ -67,9 +73,13 @@ private:
         if (cond) return val;         \
     }
 
-#define RETURN_IF_FALSE(cond) \
-    {                         \
-        if (!(cond)) return;  \
+#define RETURN_IF_FALSE(cond)                     \
+    {                                             \
+        if (!(cond))                              \
+        {                                         \
+            LOG_DEBUG("The condition is false."); \
+            return;                               \
+        }                                         \
     }
 
 #define RETURN_IF_TRUE(cond) \

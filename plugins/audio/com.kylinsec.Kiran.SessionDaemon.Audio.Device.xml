@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Audio.Device">
+
+        <method name="SetActivePort">
+            <arg type="s" name="name" direction="in">
+                <summary>The name of the port.</summary>
+            </arg>
+            <description>Set the name of the active port.</description>
+        </method>
+
+        <method name="GetPorts">
+            <arg type="s" name="ports" direction="out">
+                <summary>A json string which describe all ports info associated with the sink or source device.</summary>
+            </arg>
+            <description>Get all ports info associated with the device.</description>
+        </method>
+
+        <method name="SetVolume">
+            <arg type="d" name="volume" direction="in">
+                <summary>The volume of the device.</summary>
+            </arg>
+            <description>Set the volume of the device which range is [0, 1.0].</description>
+        </method>
+
+        <method name="SetBalance">
+            <arg type="d" name="balance" direction="in">
+                <summary>The balance value.</summary>
+            </arg>
+            <description>Set the balance value which range is [-1, 1]. -1 represents that sound only on left speakers, right speakers silent and
+                +1 represent that sound only on right speakers, left speakers silent.</description>
+        </method>
+
+        <method name="SetFade">
+            <arg type="d" name="fade" direction="in">
+                <summary>The fade value.</summary>
+            </arg>
+            <description>Set the fade value to balance between front and rear.</description>
+        </method>
+
+        <method name="SetMute">
+            <arg type="b" name="mute" direction="in">
+                <summary>The mute value.</summary>
+            </arg>
+            <description>Set the mute.</description>
+        </method>
+
+        <property name="index" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The device index.</description>
+        </property>
+
+        <property name="name" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The device name.</description>
+        </property>
+
+        <property name="mute" type="b" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The mute value.</description>
+        </property>
+
+        <property name="volume" type="d" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The volume value which range is [0, 1.0].</description>
+        </property>
+
+        <property name="balance" type="d" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The balance value.</description>
+        </property>
+
+        <property name="fade" type="d" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The fade value.</description>
+        </property>
+
+        <property name="base_volume" type="d" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The base volume value.</description>
+        </property>
+
+        <property name="card_index" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The card index associated with the device.</description>
+        </property>
+
+        <property name="active_port" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The active port name.</description>
+        </property>
+
+        <property name="state" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The Device supported items. Refer to struct PulseNodeState in audio_i.h file</description>
+        </property>
+
+    </interface>
+</node>

@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-09-02 14:22:02
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:42:11
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/base/base.h
+/**
+ * @file          /kiran-cc-daemon/lib/base/base.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #pragma once
@@ -19,6 +17,7 @@
 
 #include "lib/base/def.h"
 #include "lib/base/error.h"
-#include "lib/base/log.h"
-#include "lib/base/str-utils.h"
 #include "lib/base/file-utils.h"
+#include "lib/base/log.h"
+#include "lib/base/stl-helper.h"
+#include "lib/base/str-utils.h"

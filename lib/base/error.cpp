@@ -98,6 +98,26 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_ACCOUNTS_AUTHMODE_NAME_ALREADY_EXIST:
         error_desc = _("The name already exists.");
         break;
+    case CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID:
+    case CCErrorCode::ERROR_AUDIO_STREAM_VOLUME_RANGE_INVLAID:
+        error_desc = _("The range of volume is between 0 and 1.0.");
+        break;
+    case CCErrorCode::ERROR_AUDIO_DEVICE_BALANCE_RANGE_INVLAID:
+    case CCErrorCode::ERROR_AUDIO_DEVICE_FADE_RANGE_INVLAID:
+        error_desc = _("The range of balance is between -1 and 1.");
+        break;
+    case CCErrorCode::ERROR_AUDIO_DEFAULT_SINK_NOT_FOUND:
+    case CCErrorCode::ERROR_AUDIO_SINK_NOT_FOUND:
+        error_desc = _("The sink device isn't found.");
+        break;
+    case CCErrorCode::ERROR_AUDIO_DEFAULT_SOURCE_NOT_FOUND:
+    case CCErrorCode::ERROR_AUDIO_SOURCE_NOT_FOUND:
+        error_desc = _("The source device isn't found.");
+        break;
+    case CCErrorCode::ERROR_AUDIO_SINK_INPUT_NOT_FOUND:
+    case CCErrorCode::ERROR_AUDIO_SOURCE_OUTPUT_NOT_FOUND:
+        error_desc = _("The sink stream isn't found.");
+        break;
     case CCErrorCode::ERROR_TIMEDATE_NTP_IS_ACTIVE:
         error_desc = _("NTP unit is active.");
         break;
@@ -350,6 +370,13 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_PLUGIN_NOTFOUND_NEW_PLUGIN_FUNC:
     case CCErrorCode::ERROR_PLUGIN_NOTFOUND_DEL_PLUGIN_FUNC:
     case CCErrorCode::ERROR_PLUGIN_OPEN_MODULE_FAILED:
+    case CCErrorCode::ERROR_AUDIO_SET_SINK_ACTIVE_PORT_FAILED:
+    case CCErrorCode::ERROR_AUDIO_DEVICE_SET_VOLUME_FAILED:
+    case CCErrorCode::ERROR_AUDIO_DEVICE_SET_BALANCE_FAILED:
+    case CCErrorCode::ERROR_AUDIO_DEVICE_SET_FADE_FAILED:
+    case CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED:
+    case CCErrorCode::ERROR_AUDIO_STREAM_SET_VOLUME_FAILED:
+    case CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED:
         error_desc = _("Internel error.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:

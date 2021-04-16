@@ -34,6 +34,7 @@ if(build-session-daemon)
     pkg_search_module(CAIROMM_XLIB REQUIRED cairomm-xlib-1.0)
     pkg_search_module(UPOWER_GLIB REQUIRED upower-glib)
     pkg_search_module(LIBNOTIFY REQUIRED libnotify)
+    pkg_search_module(LIBPULSE REQUIRED libpulse-mainloop-glib)
 endif()
 
 if(build-system-daemon)

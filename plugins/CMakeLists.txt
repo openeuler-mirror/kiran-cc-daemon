@@ -10,6 +10,7 @@ if(build-system-daemon)
 endif()
 
 if(build-session-daemon)
+    add_subdirectory(audio)
     add_subdirectory(appearance)
     add_subdirectory(bluetooth)
     add_subdirectory(display)
