@@ -71,7 +71,7 @@
         </key>
 
         <key name="display-idle-dim-scale" type="i">
-            <default>50</default>
+            <default>30</default>
             <range min="0" max="100"/>
             <description>The scale of the brightness reduction when the display changes dim. Do nothing when the value is 0.</description>
         </key>

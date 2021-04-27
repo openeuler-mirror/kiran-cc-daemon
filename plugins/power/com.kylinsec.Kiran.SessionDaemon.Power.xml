@@ -70,6 +70,13 @@
             <description>Get the brightness percentage for the specified device. Return -1 if the device doesn't support brightness setting.</description>
         </method>
 
+        <method name="SetIdleDimmed">
+            <arg type="i" name="scale" direction="in">
+                <description>The range of value is [0, 100].</description>
+            </arg>
+            <description>Set display dimmed scale when computer is idle.</description>
+        </method>
+
         <property name="on_battery" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>Indicates whether the system is running on battery power.</description>
@@ -78,6 +85,11 @@
         <property name="lid_is_present" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>If the system has a lid device.</description>
+        </property>
+
+        <property name="idle_dimmed_scale" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The display dimmed scale when computer is idle. The range of value is [0, 100].</description>
         </property>
 
         <signal name="IdleActionChanged">

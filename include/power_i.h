@@ -85,6 +85,8 @@ extern "C"
         POWER_EVENT_PRESSED_LOCK,
         // 按下电源信息显示键
         POWER_EVENT_PRESSED_BATTERY,
+        // 电池电量过低时（upower的state字段变为charge-action)
+        POWER_EVENT_BATTERY_CHARGE_ACTION,
     };
 
     // 显示托盘图标策略，枚举类型需跟gsettings中的com.kylinsec.kiran.icon-policy枚举类型保持一致
@@ -103,21 +105,33 @@ extern "C"
 
 #define POWER_SCHEMA_ID "com.kylinsec.kiran.power"
 
+// 当使用电池时，空闲超过指定时间后触发的节能行为
 #define POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME "computer-battery-idle-time"
 #define POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION "computer-battery-idle-action"
+// 当使用电源时，空闲超过指定时间后触发的节能行为
 #define POWER_SCHEMA_COMPUTER_AC_IDLE_TIME "computer-ac-idle-time"
 #define POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION "computer-ac-idle-action"
+// 当使用电池时，空闲超过指定时间后背光设备进入的节能状态
 #define POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME "backlight-battery-idle-time"
 #define POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION "backlight-battery-idle-action"
+// 当使用电源时，空闲超过指定时间后背光设备进入的节能状态
 #define POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME "backlight-ac-idle-time"
 #define POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION "backlight-ac-idle-action"
+// 显示器空闲时屏幕变暗的比例
 #define POWER_SCHEMA_DISPLAY_IDLE_DIM_SCALE "display-idle-dim-scale"
+// 按下挂起键触发的节能行为
 #define POWER_SCHEMA_BUTTON_SUSPEND_ACTION "button-suspend-action"
+// 按下休眠键触发的节能行为
 #define POWER_SCHEMA_BUTTON_HIBERNATE_ACTION "button-hibernate-action"
+// 按下电源键触发的节能行为
 #define POWER_SCHEMA_BUTTON_POWER_ACTION "button-power-action"
+// 盖子合上后触发的节能行为
 #define POWER_SCHEMA_LID_CLOSED_ACTION "lid-closed-action"
+// 当使用UPS供电时，电量过低时触发的节能行为
 #define POWER_SCHEMA_UPS_CRITICAL_ACTION "ups-critical-action"
+// 当使用电池供电时，电量过低时触发的节能行为
 #define POWER_SCHEMA_BATTERY_CRITICAL_ACTION "battery-critical-action"
+// 在什么情况下需要显示托盘图标
 #define POWER_SCHEMA_TRAY_ICON_POLICY "tray-icon-policy"
 
 #ifdef __cplusplus

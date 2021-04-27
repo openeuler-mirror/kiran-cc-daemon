@@ -186,6 +186,9 @@ void PowerManager::SetEventAction(gint32 event,
     case PowerEvent::POWER_EVENT_LID_CLOSED:
         result = this->power_settings_->set_enum(POWER_SCHEMA_LID_CLOSED_ACTION, action);
         break;
+    case PowerEvent::POWER_EVENT_BATTERY_CHARGE_ACTION:
+        result = this->power_settings_->set_enum(POWER_SCHEMA_BATTERY_CRITICAL_ACTION, action);
+        break;
     default:
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_1);
     }
@@ -221,6 +224,9 @@ void PowerManager::GetEventAction(gint32 event,
         break;
     case PowerEvent::POWER_EVENT_LID_CLOSED:
         action = this->power_settings_->get_enum(POWER_SCHEMA_LID_CLOSED_ACTION);
+        break;
+    case PowerEvent::POWER_EVENT_BATTERY_CHARGE_ACTION:
+        action = this->power_settings_->get_enum(POWER_SCHEMA_BATTERY_CRITICAL_ACTION);
         break;
     default:
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_2);
@@ -293,6 +299,24 @@ void PowerManager::GetBrightness(gint32 device,
     invocation.ret(brightness_percentage);
 }
 
+void PowerManager::SetIdleDimmed(gint32 scale, MethodInvocation& invocation)
+{
+    SETTINGS_PROFILE("scale: %d.", scale);
+
+    if (!this->idle_dimmed_scale_set(scale))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_DIMMED_SCALE_RANGE_ERROR);
+    }
+    invocation.ret();
+}
+
+bool PowerManager::idle_dimmed_scale_setHandler(gint32 value)
+{
+    RETURN_VAL_IF_FALSE(value >= 0 && value <= 100, false);
+    this->power_settings_->set_int(POWER_SCHEMA_DISPLAY_IDLE_DIM_SCALE, value);
+    return true;
+}
+
 bool PowerManager::on_battery_get()
 {
     return this->upower_client_->get_on_battery();
@@ -301,6 +325,11 @@ bool PowerManager::on_battery_get()
 bool PowerManager::lid_is_present_get()
 {
     return this->upower_client_->get_lid_is_present();
+}
+
+gint32 PowerManager::idle_dimmed_scale_get()
+{
+    return this->power_settings_->get_int(POWER_SCHEMA_DISPLAY_IDLE_DIM_SCALE);
 }
 
 void PowerManager::on_battery_changed(bool on_battery)
