@@ -57,20 +57,20 @@ PulseStream::PulseStream(const PulseStreamInfo &stream_info) : PulseNode(stream_
     // has_volume如果为false，说明volume字段是未定义的，这个在基类中已经通过pa_cvolume_valid做过判断了，这里再校验一次
     if (!stream_info.has_volume)
     {
-        this->flags_ = PulseNodeState(this->flags_ & ~(PulseNodeState::PULSE_NODE_STATE_VOLUME_READABLE |
-                                                       PulseNodeState::PULSE_NODE_STATE_VOLUME_WRITABLE));
+        this->flags_ = AudioNodeState(this->flags_ & ~(AudioNodeState::AUDIO_NODE_STATE_VOLUME_READABLE |
+                                                       AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
     }
 
     /* freedeskotp wiki: For playback devices it might be advisable to extend the scale beyond PA_VOLUME_NORM as well,
     because often enough digital amplification is useful on limited hardware.*/
     if (stream_info.has_volume)
     {
-        this->flags_ = PulseNodeState(this->flags_ | PulseNodeState::PULSE_NODE_STATE_HAS_DECIBEL);
+        this->flags_ = AudioNodeState(this->flags_ | AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
     }
 
     if (!stream_info.volume_writable)
     {
-        this->flags_ = PulseNodeState(this->flags_ & ~(PulseNodeState::PULSE_NODE_STATE_VOLUME_WRITABLE));
+        this->flags_ = AudioNodeState(this->flags_ & ~(AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
     }
 }
 

@@ -105,7 +105,7 @@ public:
     static void global_deinit() { delete instance_; };
 
     std::shared_ptr<PulseContext> get_context() { return this->context_; };
-    PulseState get_state() { return this->state_; };
+    AudioState get_state() { return this->state_; };
 
     PulseCardVec get_cards() { return MapHelper::get_values(this->cards_); };
     PulseSinkVec get_sinks() { return MapHelper::get_values(this->sinks_); };
@@ -126,7 +126,7 @@ public:
     std::shared_ptr<PulseSink> get_default_sink() { return this->default_sink_; };
     std::shared_ptr<PulseSource> get_default_source() { return this->default_source_; };
 
-    sigc::signal<void, PulseState> &signal_state_changed() { return this->state_changed_; };
+    sigc::signal<void, AudioState> &signal_state_changed() { return this->state_changed_; };
     sigc::signal<void, std::shared_ptr<PulseSink>> &signal_default_sink_changed() { return this->default_sink_changed_; };
     sigc::signal<void, std::shared_ptr<PulseSource>> &signal_default_source_changed() { return this->default_source_changed_; };
     sigc::signal<void, PulseCardEvent, std::shared_ptr<PulseCard>> &signal_card_event() { return this->card_event_; };
@@ -138,7 +138,7 @@ public:
 private:
     bool init();
 
-    void set_state(PulseState state);
+    void set_state(AudioState state);
     // 尝试重新连接，直到连接成功为止
     bool try_reconnection();
     // 如果断开连接，则重置数据
@@ -163,7 +163,7 @@ private:
     std::shared_ptr<PulseContext> context_;
 
     // 可用状态
-    PulseState state_;
+    AudioState state_;
     // 是否成功连接过一次
     bool connected_once_;
     uint32_t reconnection_handle_;
@@ -179,7 +179,7 @@ private:
     std::shared_ptr<PulseSink> default_sink_;
     std::shared_ptr<PulseSource> default_source_;
 
-    sigc::signal<void, PulseState> state_changed_;
+    sigc::signal<void, AudioState> state_changed_;
     sigc::signal<void, std::shared_ptr<PulseSink>> default_sink_changed_;
     sigc::signal<void, std::shared_ptr<PulseSource>> default_source_changed_;
     sigc::signal<void, PulseCardEvent, std::shared_ptr<PulseCard>> card_event_;

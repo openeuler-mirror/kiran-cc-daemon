@@ -24,34 +24,34 @@ extern "C"
 #define AUDIO_SOURCE_OUTPUT_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Audio/SourceOutput"
 #define AUDIO_STREAM_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Audio.Stream"
 
-    enum PulseState
+    enum AudioState
     {
         // 还未向PulseAudio服务器发起连接
-        PULSE_STATE_IDLE,
+        AUDIO_STATE_IDLE,
         // 正在向PulseAudio服务器发起连接
-        PULSE_STATE_CONNECTING,
+        AUDIO_STATE_CONNECTING,
         // 数据已经准备就绪
-        PULSE_STATE_READY,
+        AUDIO_STATE_READY,
         // 连接或者数据加载失败
-        PULSE_STATE_FAILED,
+        AUDIO_STATE_FAILED,
         // 未知错误
-        PULSE_STATE_UNKNOWN
+        AUDIO_STATE_UNKNOWN
     };
 
     // 设备/流支持设置的功能，如果未指定（例如静音）则说明可读写
-    enum PulseNodeState
+    enum AudioNodeState
     {
-        PULSE_NODE_STATE_NONE = 0,
+        AUDIO_NODE_STATE_NONE = 0,
         // 音量支持读取
-        PULSE_NODE_STATE_VOLUME_READABLE = 1 << 0,
+        AUDIO_NODE_STATE_VOLUME_READABLE = 1 << 0,
         // 音量支持写入
-        PULSE_NODE_STATE_VOLUME_WRITABLE = 1 << 1,
+        AUDIO_NODE_STATE_VOLUME_WRITABLE = 1 << 1,
         // 支持左右声道
-        PULSE_NODE_STATE_CAN_BALANCE = 1 << 2,
+        AUDIO_NODE_STATE_CAN_BALANCE = 1 << 2,
         // 支持远近声道
-        PULSE_NODE_STATE_CAN_FADE = 1 << 3,
+        AUDIO_NODE_STATE_CAN_FADE = 1 << 3,
         // 支持声音数字放大
-        PULSE_NODE_STATE_HAS_DECIBEL = 1 << 4
+        AUDIO_NODE_STATE_HAS_DECIBEL = 1 << 4
     };
 
 #ifdef __cplusplus

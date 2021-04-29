@@ -17,11 +17,11 @@ PulseSink::PulseSink(std::shared_ptr<PulseContext> context,
 {
     if (sink_info->flags & PA_SINK_DECIBEL_VOLUME)
     {
-        this->flags_ = PulseNodeState(this->flags_ | PulseNodeState::PULSE_NODE_STATE_HAS_DECIBEL);
+        this->flags_ = AudioNodeState(this->flags_ | AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
     }
     else
     {
-        this->flags_ = PulseNodeState(this->flags_ & ~PulseNodeState::PULSE_NODE_STATE_HAS_DECIBEL);
+        this->flags_ = AudioNodeState(this->flags_ & ~AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
     }
 }
 

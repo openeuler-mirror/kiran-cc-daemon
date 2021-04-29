@@ -56,7 +56,7 @@ public:
     // 获取前声道和后声道的平衡
     float get_fade() { return this->fade_; }
     //
-    PulseNodeState get_flags() { return this->flags_; };
+    AudioNodeState get_flags() { return this->flags_; };
 
     // 设置静音
     bool set_mute(bool mute);
@@ -97,7 +97,7 @@ private:
     bool update_cvolume(const pa_cvolume &cvolume);
 
 protected:
-    PulseNodeState flags_;
+    AudioNodeState flags_;
 
 private:
     uint32_t index_;

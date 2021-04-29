@@ -376,17 +376,17 @@ void AudioManager::del_components()
     this->source_outputs_.clear();
 }
 
-void AudioManager::on_state_changed_cb(PulseState state)
+void AudioManager::on_state_changed_cb(AudioState state)
 {
     SETTINGS_PROFILE("state: %d.", state);
 
     switch (state)
     {
-    case PulseState::PULSE_STATE_READY:
+    case AudioState::AUDIO_STATE_READY:
         this->add_components();
         break;
-    case PulseState::PULSE_STATE_CONNECTING:
-    case PulseState::PULSE_STATE_FAILED:
+    case AudioState::AUDIO_STATE_CONNECTING:
+    case AudioState::AUDIO_STATE_FAILED:
         this->del_components();
         break;
     default:
@@ -397,7 +397,7 @@ void AudioManager::on_state_changed_cb(PulseState state)
 
 void AudioManager::on_default_sink_changed_cb(std::shared_ptr<PulseSink> pulse_sink)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != PulseState::PULSE_STATE_READY);
+    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
 
     if (pulse_sink)
     {
@@ -411,7 +411,7 @@ void AudioManager::on_default_sink_changed_cb(std::shared_ptr<PulseSink> pulse_s
 
 void AudioManager::on_default_source_changed_cb(std::shared_ptr<PulseSource> pulse_source)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != PulseState::PULSE_STATE_READY);
+    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
 
     if (pulse_source)
     {
@@ -425,7 +425,7 @@ void AudioManager::on_default_source_changed_cb(std::shared_ptr<PulseSource> pul
 
 void AudioManager::on_sink_event_cb(PulseSinkEvent event, std::shared_ptr<PulseSink> pulse_sink)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != PulseState::PULSE_STATE_READY);
+    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
@@ -459,7 +459,7 @@ void AudioManager::on_sink_event_cb(PulseSinkEvent event, std::shared_ptr<PulseS
 
 void AudioManager::on_sink_input_event_cb(PulseSinkInputEvent event, std::shared_ptr<PulseSinkInput> pulse_sink_input)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != PulseState::PULSE_STATE_READY);
+    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
@@ -493,7 +493,7 @@ void AudioManager::on_sink_input_event_cb(PulseSinkInputEvent event, std::shared
 
 void AudioManager::on_source_event_cb(PulseSourceEvent event, std::shared_ptr<PulseSource> pulse_source)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != PulseState::PULSE_STATE_READY);
+    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
@@ -527,7 +527,7 @@ void AudioManager::on_source_event_cb(PulseSourceEvent event, std::shared_ptr<Pu
 
 void AudioManager::on_source_output_event_cb(PulseSourceOutputEvent event, std::shared_ptr<PulseSourceOutput> pulse_source_output)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != PulseState::PULSE_STATE_READY);
+    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {

@@ -9,7 +9,7 @@
 
 namespace Kiran
 {
-PulseBackend::PulseBackend() : state_(PulseState::PULSE_STATE_IDLE),
+PulseBackend::PulseBackend() : state_(AudioState::AUDIO_STATE_IDLE),
                                connected_once_(false),
                                reconnection_handle_(0)
 {
@@ -90,18 +90,18 @@ bool PulseBackend::init()
     this->context_->signal_source_output_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_source_output_info_changed_cb));
     this->context_->signal_source_output_info_removed().connect(sigc::mem_fun(this, &PulseBackend::on_source_output_info_removed_cb));
 
-    this->set_state(PulseState::PULSE_STATE_CONNECTING);
+    this->set_state(AudioState::AUDIO_STATE_CONNECTING);
 
     if (!this->context_->connect(false))
     {
-        this->set_state(PulseState::PULSE_STATE_FAILED);
+        this->set_state(AudioState::AUDIO_STATE_FAILED);
         return false;
     }
 
     return true;
 }
 
-void PulseBackend::set_state(PulseState state)
+void PulseBackend::set_state(AudioState state)
 {
     SETTINGS_PROFILE("state: %d.", state);
 
@@ -173,7 +173,7 @@ void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connectio
 
         if (this->connected_once_)
         {
-            this->set_state(PulseState::PULSE_STATE_CONNECTING);
+            this->set_state(AudioState::AUDIO_STATE_CONNECTING);
 
             if (this->reconnection_handle_)
             {
@@ -191,19 +191,19 @@ void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connectio
         }
         else
         {
-            this->set_state(PulseState::PULSE_STATE_FAILED);
+            this->set_state(AudioState::AUDIO_STATE_FAILED);
         }
         break;
     }
     case PulseConnectionState::PULSE_CONNECTION_CONNECTING:
     case PulseConnectionState::PULSE_CONNECTION_AUTHORIZING:
     case PulseConnectionState::PULSE_CONNECTION_LOADING:
-        this->set_state(PulseState::PULSE_STATE_CONNECTING);
+        this->set_state(AudioState::AUDIO_STATE_CONNECTING);
         break;
     case PulseConnectionState::PULSE_CONNECTION_CONNECTED:
     {
         this->connected_once_ = true;
-        this->set_state(PulseState::PULSE_STATE_READY);
+        this->set_state(AudioState::AUDIO_STATE_READY);
         break;
     }
     default:

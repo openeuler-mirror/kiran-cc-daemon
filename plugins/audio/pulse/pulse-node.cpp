@@ -14,7 +14,7 @@ PulseNode::PulseNode(uint32_t index,
                      const pa_channel_map &channel_map,
                      const pa_cvolume &cvolume,
                      int32_t mute,
-                     pa_volume_t base_volume) : flags_(PulseNodeState::PULSE_NODE_STATE_NONE),
+                     pa_volume_t base_volume) : flags_(AudioNodeState::AUDIO_NODE_STATE_NONE),
                                                 index_(index),
                                                 name_(name),
                                                 channel_map_(channel_map),
@@ -42,7 +42,7 @@ bool PulseNode::set_volume(uint32_t volume)
 {
     SETTINGS_PROFILE("volume: %d.", volume);
 
-    if (!(this->flags_ & PulseNodeState::PULSE_NODE_STATE_VOLUME_WRITABLE))
+    if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE))
     {
         LOG_WARNING("The volume isn't writable, flags: %x.", this->flags_);
         return false;
@@ -62,7 +62,7 @@ bool PulseNode::set_balance(float balance)
 {
     SETTINGS_PROFILE("balance: %f.", balance);
 
-    if (!(this->flags_ & PulseNodeState::PULSE_NODE_STATE_CAN_BALANCE))
+    if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE))
     {
         LOG_WARNING("The balance is unsupported, flags: %x.", this->flags_);
         return false;
@@ -80,7 +80,7 @@ bool PulseNode::set_fade(float fade)
 {
     SETTINGS_PROFILE("fade: %f.", fade);
 
-    if (!(this->flags_ & PulseNodeState::PULSE_NODE_STATE_CAN_FADE))
+    if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_CAN_FADE))
     {
         LOG_WARNING("The fade is unsupported, flags: %x.", this->flags_);
         return false;
@@ -104,7 +104,7 @@ uint32_t PulseNode::get_max_volume()
      * devices that lack this flag do not extend the volume slider like this, it
      * will not have any effect.
      */
-    if (this->flags_ & PulseNodeState::PULSE_NODE_STATE_HAS_DECIBEL)
+    if (this->flags_ & AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL)
     {
         return uint32_t(PA_VOLUME_UI_MAX);
     }
@@ -167,36 +167,36 @@ void PulseNode::update_flags()
     {
         if (pa_channel_map_can_balance(&this->channel_map_))
         {
-            this->flags_ = PulseNodeState(this->flags_ | PulseNodeState::PULSE_NODE_STATE_CAN_BALANCE);
+            this->flags_ = AudioNodeState(this->flags_ | AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE);
         }
         else
         {
-            this->flags_ = PulseNodeState(this->flags_ & ~PulseNodeState::PULSE_NODE_STATE_CAN_BALANCE);
+            this->flags_ = AudioNodeState(this->flags_ & ~AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE);
         }
 
         if (pa_channel_map_can_fade(&this->channel_map_))
         {
-            this->flags_ = PulseNodeState(this->flags_ | PulseNodeState::PULSE_NODE_STATE_CAN_FADE);
+            this->flags_ = AudioNodeState(this->flags_ | AudioNodeState::AUDIO_NODE_STATE_CAN_FADE);
         }
         else
         {
-            this->flags_ = PulseNodeState(this->flags_ & ~PulseNodeState::PULSE_NODE_STATE_CAN_FADE);
+            this->flags_ = AudioNodeState(this->flags_ & ~AudioNodeState::AUDIO_NODE_STATE_CAN_FADE);
         }
     }
     else
     {
-        this->flags_ = PulseNodeState(this->flags_ & ~(PulseNodeState::PULSE_NODE_STATE_CAN_BALANCE | PulseNodeState::PULSE_NODE_STATE_CAN_BALANCE));
+        this->flags_ = AudioNodeState(this->flags_ & ~(AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE | AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE));
     }
 
     if (pa_cvolume_valid(&this->cvolume_))
     {
-        this->flags_ = PulseNodeState(this->flags_ | (PulseNodeState::PULSE_NODE_STATE_VOLUME_READABLE |
-                                                      PulseNodeState::PULSE_NODE_STATE_VOLUME_WRITABLE));
+        this->flags_ = AudioNodeState(this->flags_ | (AudioNodeState::AUDIO_NODE_STATE_VOLUME_READABLE |
+                                                      AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
     }
     else
     {
-        this->flags_ = PulseNodeState(this->flags_ & ~(PulseNodeState::PULSE_NODE_STATE_VOLUME_READABLE |
-                                                       PulseNodeState::PULSE_NODE_STATE_VOLUME_WRITABLE));
+        this->flags_ = AudioNodeState(this->flags_ & ~(AudioNodeState::AUDIO_NODE_STATE_VOLUME_READABLE |
+                                                       AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
 
         this->set_mute(true);
     }

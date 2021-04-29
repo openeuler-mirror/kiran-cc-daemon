@@ -75,7 +75,7 @@ private:
     //
     void del_components();
 
-    void on_state_changed_cb(PulseState state);
+    void on_state_changed_cb(AudioState state);
     void on_default_sink_changed_cb(std::shared_ptr<PulseSink> pulse_sink);
     void on_default_source_changed_cb(std::shared_ptr<PulseSource> pulse_source);
     void on_sink_event_cb(PulseSinkEvent event, std::shared_ptr<PulseSink> pulse_sink);
