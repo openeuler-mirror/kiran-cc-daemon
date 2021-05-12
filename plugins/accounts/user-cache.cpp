@@ -105,8 +105,8 @@ bool UserCache::load_cache_file()
     auto user = this->user_.lock();
     RETURN_VAL_IF_FALSE(user, false);
 
-    // 系统用户不缓存数据
-    RETURN_VAL_IF_TRUE(user->system_account_get(), false);
+    // 非root的系统用户不缓存数据
+    RETURN_VAL_IF_TRUE(user->system_account_get() && user->uid_get() != 0, false);
 
     auto filename = Glib::build_filename(USERDIR, user->user_name_get());
     try
@@ -128,8 +128,8 @@ bool UserCache::save_cache_file()
     auto user = this->user_.lock();
     RETURN_VAL_IF_FALSE(user, false);
 
-    // 系统用户不缓存数据
-    RETURN_VAL_IF_TRUE(user->system_account_get(), false);
+    // 非root的系统用户不缓存数据
+    RETURN_VAL_IF_TRUE(user->system_account_get() && user->uid_get() != 0, false);
 
     try
     {
