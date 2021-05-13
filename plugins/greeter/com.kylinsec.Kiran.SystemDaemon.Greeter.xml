@@ -10,9 +10,9 @@
         </method>
 
         <method name="SetAutologinUser">
-            <arg name="autologin_user" direction="in" type="t">
+            <arg name="user_name" direction="in" type="s">
             </arg>
-            <description>Setting uid of automatic login user.</description>
+            <description>Set automatic login user name.</description>
         </method>
 
         <method name="SetAutologinTimeout">

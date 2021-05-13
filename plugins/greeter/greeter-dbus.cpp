@@ -50,7 +50,7 @@ namespace Kiran
     }
 
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetBackground, change_background_file_authorized_cb, AUTH_SET_LOGIN_OPTION, const Glib::ustring &)
-GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinUser, change_auto_login_user_authorized_cb, AUTH_SET_LOGIN_OPTION, uint64_t)
+GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinUser, change_auto_login_user_authorized_cb, AUTH_SET_LOGIN_OPTION, const Glib::ustring &)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAutologinTimeout, change_auto_login_timeout_authorized_cb, AUTH_SET_LOGIN_OPTION, uint64_t)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetHideUserList, change_hide_user_list_authorized_cb, AUTH_SET_LOGIN_OPTION, bool)
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAllowManualLogin, change_allow_manual_login_authorized_cb, AUTH_SET_LOGIN_OPTION, bool)
@@ -144,24 +144,19 @@ void GreeterDBus::change_background_file_authorized_cb(MethodInvocation invocati
     invocation.ret();
 }
 
-void GreeterDBus::change_auto_login_user_authorized_cb(MethodInvocation invocation, guint64 autologin_user)
+void GreeterDBus::change_auto_login_user_authorized_cb(MethodInvocation invocation, Glib::ustring user_name)
 {
-    SETTINGS_PROFILE("autologin_user: %d", autologin_user);
-    Glib::ustring autologin_user_name = uid_to_name(autologin_user);
-    if (autologin_user_name.empty())
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_NOTFOUND_USER);
-    }
+    SETTINGS_PROFILE("autologin_user: %s", user_name.c_str());
 
-    if (this->autologin_user_get() != autologin_user_name)
+    if (this->autologin_user_get() != user_name)
     {
-        m_prefs->set_autologin_user(autologin_user_name);
+        m_prefs->set_autologin_user(user_name);
         if (!m_prefs->save())
         {
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_2);
         }
 
-        this->autologin_user_set(autologin_user_name);
+        this->autologin_user_set(user_name);
     }
 
     invocation.ret();

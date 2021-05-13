@@ -236,9 +236,9 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_6:
         error_desc = _("Sync to file failed.");
         break;
-    case CCErrorCode::ERROR_GREETER_NOTFOUND_USER:
-        error_desc = _("Failed to find user name.");
-        break;
+    // case CCErrorCode::ERROR_GREETER_NOTFOUND_USER:
+    //     error_desc = _("Failed to find user name.");
+    //     break;
     case CCErrorCode::ERROR_GREETER_SCALE_MODE_INVALIDE:
         error_desc = _("Invalid scale mode.");
         break;
