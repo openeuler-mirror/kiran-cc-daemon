@@ -6,7 +6,7 @@
 
         <vendor> kiran-system-daemon </vendor>
 
-        <action id="com.kylinsec.kiran.system-daemon.greeter-settings.set-login-option">
+        <action id="com.kylinsec.kiran.system-daemon.greeter.set-login-option">
                 <_description>Greeter settings</_description>
                 <_message >Authentication is required for greeter setting.</_message>
                 <defaults>

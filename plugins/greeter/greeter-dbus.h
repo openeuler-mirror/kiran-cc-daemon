@@ -1,77 +1,76 @@
 /**
- * @file greeter-settings-dbus-manager.h
+ * @file          /kiran-cc-daemon/plugins/greeter/greeter-dbus.h
  * @brief description
  * @author yangxiaoqing <yangxiaoqing@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved.
 */
-#ifndef GREETERSETTINGSDBUS_H
-#define GREETERSETTINGSDBUS_H
+#pragma once
 
-#include <greeter-settings_dbus_stub.h>
-#include "greeter-settings-manager.h"
+#include <greeter_dbus_stub.h>
+#include "plugins/greeter/greeter-manager.h"
+
 namespace Kiran
 {
-
-class GreeterSettingsDbus : public SystemDaemon::GreeterSettingsStub
+class GreeterDBus : public SystemDaemon::GreeterStub
 {
 public:
-    GreeterSettingsDbus();
-    virtual ~GreeterSettingsDbus();
+    GreeterDBus();
+    virtual ~GreeterDBus();
 
-    static GreeterSettingsDbus *get_instance() { return m_instance; }
+    static GreeterDBus *get_instance() { return m_instance; }
 
     static void global_init();
     static void global_deinit() { delete m_instance; }
 
     /**
-     * @brief backgroundFile_get返回背景图片.
+     * @brief b返回背景图片.
      * @return
      */
-    virtual Glib::ustring backgroundFile_get() { return m_backgroundFile; }
+    virtual Glib::ustring background_get() { return this->background_; }
     /**
-     * @brief autologinUser_get自动登录用户名，自动登录未开启时为空字符串
+     * @brief 自动登录用户名，自动登录未开启时为空字符串
      * @return
      */
-    virtual Glib::ustring autologinUser_get() { return m_autologinUser; }
+    virtual Glib::ustring autologin_user_get() { return this->autologin_user_; }
     /**
-     * @brief autologinTimeout_get自动登录延时，以秒为单位
+     * @brief 自动登录延时，以秒为单位
      * @return
      */
-    virtual guint64 autologinTimeout_get() { return m_autologinTimeout; }
+    virtual guint64 autologin_timeout_get() { return this->autologin_timeout_; }
     /**
-     * @brief allowManualLogin_get是否允许手动输入用户名登录
+     * @brief 是否允许手动输入用户名登录
      * @return
      */
-    virtual bool allowManualLogin_get() { return m_allowManualLogin; }
+    virtual bool allow_manual_login_get() { return this->allow_manual_login_; }
     /**
-     * @brief hideUserList_get是否隐藏用户列表
+     * @brief 是否隐藏用户列表
      * @return
      */
-    virtual bool hideUserList_get() { return m_hideUserList; }
+    virtual bool hide_user_list_get() { return this->hide_user_list_; }
     /**
-     * @brief scaleMode_get界面缩放模式，其中0表示自动，1表示手动，2表示禁用。
+     * @brief 界面缩放模式，其中0表示自动，1表示手动，2表示禁用。
      * @return
      */
-    virtual guint16 scaleMode_get() { return m_scaleMode; }
+    virtual guint16 scale_mode_get() { return this->scale_mode_; }
     /**
-     * @brief scaleFactor_get界面缩放比例，该值只有在scaleMode为1时有效
+     * @brief 界面缩放比例，该值只有在scaleMode为1时有效
      * @return
      */
-    virtual guint16 scaleFactor_get() { return m_scaleFactor; }
+    virtual guint16 scale_factor_get() { return this->scale_factor_; }
 
 protected:
     /**
-     * @brief SetBackgroundFile设置登录界面背景图片路径
+     * @brief SetBackground设置登录界面背景图片路径
      * @param file_path
      * @param invocation
      */
-    virtual void SetBackgroundFile(const Glib::ustring & file_path, MethodInvocation &invocation);
+    virtual void SetBackground(const Glib::ustring &file_path, MethodInvocation &invocation);
     /**
      * @brief SetAutologinUser设置自动登录用户的uid
      * @param user_id
      * @param invocation
      */
-    virtual void SetAutologinUser( guint64 autologin_user, MethodInvocation &invocation);
+    virtual void SetAutologinUser(guint64 autologin_user, MethodInvocation &invocation);
     /**
      * @brief SetAutologinTimeout置自动登录延时，单位为秒
      * @param seconds
@@ -99,13 +98,13 @@ protected:
     virtual void SetScaleMode(guint16 mode, guint16 factor, MethodInvocation &invocation);
 
     /*下面的这些函数只是为获取属性值服务,不修改配置文件*/
-    virtual bool backgroundFile_setHandler(const Glib::ustring & value);
-    virtual bool autologinUser_setHandler(const Glib::ustring & value);
-    virtual bool autologinTimeout_setHandler(guint64 value);
-    virtual bool allowManualLogin_setHandler(bool value);
-    virtual bool hideUserList_setHandler(bool value);
-    virtual bool scaleMode_setHandler(guint16 value);
-    virtual bool scaleFactor_setHandler(guint16 value);
+    virtual bool background_setHandler(const Glib::ustring &value);
+    virtual bool autologin_user_setHandler(const Glib::ustring &value);
+    virtual bool autologin_timeout_setHandler(guint64 value);
+    virtual bool allow_manual_login_setHandler(bool value);
+    virtual bool hide_user_list_setHandler(bool value);
+    virtual bool scale_mode_setHandler(guint16 value);
+    virtual bool scale_factor_setHandler(guint16 value);
 
 private:
     void init();
@@ -134,26 +133,23 @@ private:
     void on_scale_mode_changed();
     Glib::ustring uid_to_name(uid_t uid);
 
-
 private:
-    static GreeterSettingsDbus *m_instance;
-    GreeterSettingsManager *m_prefs;
+    static GreeterDBus *m_instance;
+    GreeterManager *m_prefs;
 
-    Glib::ustring m_backgroundFile;
-    Glib::ustring m_autologinUser;
-    uint64_t m_autologinTimeout;
-    bool m_allowManualLogin;
-    bool m_hideUserList;
-    uint16_t m_scaleMode;
-    uint16_t m_scaleFactor;
-    uint32_t m_dbusConnectId;
-    uint32_t m_objectRegisterId;
+    Glib::ustring background_;
+    Glib::ustring autologin_user_;
+    uint64_t autologin_timeout_;
+    bool allow_manual_login_;
+    bool hide_user_list_;
+    uint16_t scale_mode_;
+    uint16_t scale_factor_;
+    uint32_t dbus_connect_id_;
+    uint32_t object_register_id_;
     /*定时器*/
     sigc::connection m_reloadConn;
 
     Glib::RefPtr<Gio::FileMonitor> m_gdmCustomMonitor;
 };
 
-}
-
-#endif // GREETERSETTINGSDBUS_H
+}  // namespace Kiran

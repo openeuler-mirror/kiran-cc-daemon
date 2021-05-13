@@ -36,7 +36,7 @@ Available=false
 [power]
 Name=Power
 Description=Power plugin
-Available=true
+Available=false
 
 [touchpad]
 Name=TouchPad

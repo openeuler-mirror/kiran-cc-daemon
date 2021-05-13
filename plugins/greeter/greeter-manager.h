@@ -1,5 +1,5 @@
 /**
- * @file greeter-settings-manager.h
+ * @file          /kiran-cc-daemon/plugins/greeter/greeter-manager.h
  *
  * @brief Kiran登录界面配置管理器
  * @author songchuanfei <songchuanfei@kylinos.com.cn>
@@ -9,21 +9,35 @@
 #ifndef GREETER_SETTINGS_MANAGER_H
 #define GREETER_SETTINGS_MANAGER_H
 
-#include <glibmm.h>
-#include <giomm/filemonitor.h>
 #include <giomm/file.h>
-#include "greeter-settings-data.h"
+#include <giomm/filemonitor.h>
+#include <glibmm.h>
+#include "greeter_i.h"
 
-class GreeterSettingsManager : public sigc::trackable
+// 登录界面配置项数据
+struct GreeterData
+{
+    GreeterData();
+
+    GreeterScalingMode scale_mode; /**< 缩放模式 */
+    uint32_t autologin_delay;      /**< 自动登录延时,单位为秒 */
+
+    uint32_t scale_factor;         /**< 界面缩放比例, 1表示100%, 2表示200% */
+    bool enable_manual_login;      /**< 是否允许手动输入用户名登录 */
+    bool hide_user_list;           /**< 是否隐藏用户列表 */
+    Glib::ustring autologin_user;  /**< 自动登录用户名 */
+    Glib::ustring background_file; /**< 登录界面背景图片 */
+};
+
+class GreeterManager : public sigc::trackable
 {
 public:
-
     /**
      * @brief 获取当前登录配置管理器实例，该实例将一直存在，无需调用delete进行释放
      * @return 当前登录配置管理器实例对象
      */
-    static GreeterSettingsManager *get_instance();
-    ~GreeterSettingsManager();
+    static GreeterManager *get_instance();
+    ~GreeterManager();
 
     /**
      * @brief 加载登录配置，原来的配置信息将被清空。该接口将同时加载lightdm配置文件和greeter配置文件
@@ -59,7 +73,7 @@ public:
      * @brief 获取当前配置的屏幕缩放模式
      * @return 当前配置的屏幕缩放模式 @see GreeterScalingMode 
      */
-    GreeterSettingsScalingMode get_scale_mode() const;
+    GreeterScalingMode get_scale_mode() const;
 
     /**
      * @brief 获取当前配置的登录界面背景图片路径
@@ -120,7 +134,7 @@ public:
      * @param[in] mode 界面缩放模式
      *                 @see GreeterScalingMode
      */
-    void set_scale_mode(GreeterSettingsScalingMode mode);
+    void set_scale_mode(GreeterScalingMode mode);
 
     /**
      * @brief 设置界面缩放率
@@ -138,7 +152,6 @@ public:
      * @param[in] greeterBackground 背景图片路径
      */
     void set_background_file(const std::string &background_file);
-
 
     /**
      * @brief 信号: 自动登录延时设置发生变化时触发
@@ -194,7 +207,7 @@ protected:
 
 private:
     /* 禁止调用构造函数初始化对象 */
-    explicit GreeterSettingsManager();
+    explicit GreeterManager();
 
     /**
      * @brief 从greeter配置文件中读取配置信息
@@ -202,9 +215,8 @@ private:
      * @param[in,out]   settings    用于存储配置文件内容的KeyFile对象，可以为空
      * @return 加载成功返回true，失败返回false
      */
-    bool load_greeter_settings(GreeterSettingsData *data,
+    bool load_greeter_settings(GreeterData *data,
                                Glib::KeyFile *settings = nullptr);
-
 
     /**
      * @brief 从lightdm配置文件中读取配置信息
@@ -212,7 +224,7 @@ private:
      * @param[in,out]   settings    用于存储配置文件内容的KeyFile对象，可以为空
      * @return 加载成功返回true，失败返回false
      */
-    bool load_lightdm_settings(GreeterSettingsData *data,
+    bool load_lightdm_settings(GreeterData *data,
                                Glib::KeyFile *settings = nullptr);
 
     /**
@@ -225,11 +237,10 @@ private:
     bool settings_has_key(Glib::KeyFile *settings, const Glib::ustring &group, const Glib::ustring &key);
 
 private:
-    Glib::KeyFile *lightdm_settings, *greeter_settings;                 /* 配置文件 */
-    Glib::RefPtr<Gio::FileMonitor> lightdm_monitor, greeter_monitor;    /* 配置文件监视器 */
-    Glib::RefPtr<Gio::File> lightdm_conf, greeter_conf;                 /* 配置文件 */
-    GreeterSettingsData *priv;                                          /* 配置数据 */
-
+    Glib::KeyFile *lightdm_settings, *greeter_settings;              /* 配置文件 */
+    Glib::RefPtr<Gio::FileMonitor> lightdm_monitor, greeter_monitor; /* 配置文件监视器 */
+    Glib::RefPtr<Gio::File> lightdm_conf, greeter_conf;              /* 配置文件 */
+    GreeterData *priv;                                               /* 配置数据 */
 
     sigc::signal<void> m_signal_autologin_delay_changed;
     sigc::signal<void> m_signal_autologin_user_changed;
@@ -238,7 +249,6 @@ private:
     sigc::signal<void> m_signal_background_file_changed;
     sigc::signal<void> m_signal_enable_manual_login_changed;
     sigc::signal<void> m_signal_hide_user_list_changed;
-
 };
 
-#endif // GREETER_SETTINGS_MANAGER_H
+#endif  // GREETER_SETTINGS_MANAGER_H

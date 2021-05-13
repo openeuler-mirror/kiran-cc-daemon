@@ -6,7 +6,7 @@ if(build-system-daemon)
     add_subdirectory(accounts)
     add_subdirectory(timedate)
     add_subdirectory(systeminfo)
-    add_subdirectory(greeter-settings)
+    add_subdirectory(greeter)
 endif()
 
 if(build-session-daemon)

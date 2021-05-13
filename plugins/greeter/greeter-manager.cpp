@@ -1,22 +1,15 @@
-#include "greeter-settings-manager.h"
+#include "plugins/greeter/greeter-manager.h"
 
 #include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
 
-#ifdef TEST
-#define LOG_WARNING(fmt, ...) g_warning(fmt, ##__VA_ARGS__)
-#define LOG_CRITICAL(fmt, ...) g_critical(fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) g_message(fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) g_error(fmt, ##__VA_ARGS__)
-#else
 #include "lib/base/log.h"
-#endif
 
 #define LIGHTDM_PROFILE_PATH "/etc/lightdm/lightdm.conf"
 #define LIGHTDM_GROUP_NAME "Seat:*"
 
-#define GREETER_PROFILE_PATH "/etc/lightdm/lightdm-kiran-greeter.conf"
+#define GREETER_PROFILE_PATH "/etc/lightdm/kiran-greeter.conf"
 #define GREETER_GROUP_NAME "Greeter"
 
 #define KEY_AUTOLOGIN_USER "autologin-user"
@@ -32,16 +25,26 @@
 #define KEY_SCALE_FACTOR "scale-factor"
 #define KEY_ENABLE_SCALING "enable-scaling"
 
-GreeterSettingsManager *GreeterSettingsManager::get_instance()
+GreeterData::GreeterData() : scale_mode(GREETER_SCALING_MODE_AUTO),
+                             autologin_delay(0),
+                             scale_factor(1),
+                             enable_manual_login(true),
+                             hide_user_list(false),
+                             autologin_user(""),
+                             background_file("")
 {
-    static GreeterSettingsManager *prefs = nullptr;
+}
+
+GreeterManager *GreeterManager::get_instance()
+{
+    static GreeterManager *prefs = nullptr;
 
     if (prefs == nullptr)
-        prefs = new GreeterSettingsManager;
+        prefs = new GreeterManager;
     return prefs;
 }
 
-GreeterSettingsManager::~GreeterSettingsManager()
+GreeterManager::~GreeterManager()
 {
     if (lightdm_settings != nullptr)
         delete lightdm_settings;
@@ -52,81 +55,81 @@ GreeterSettingsManager::~GreeterSettingsManager()
     delete priv;
 }
 
-std::string GreeterSettingsManager::get_autologin_user() const
+std::string GreeterManager::get_autologin_user() const
 {
     g_return_val_if_fail(priv != nullptr, "");
     return priv->autologin_user.raw();
 }
 
-uint32_t GreeterSettingsManager::get_autologin_delay() const
+uint32_t GreeterManager::get_autologin_delay() const
 {
     g_return_val_if_fail(priv != nullptr, 0);
     return priv->autologin_delay;
 }
 
-uint32_t GreeterSettingsManager::get_scale_factor() const
+uint32_t GreeterManager::get_scale_factor() const
 {
     return priv->scale_factor;
 }
 
-GreeterSettingsScalingMode GreeterSettingsManager::get_scale_mode() const
+GreeterScalingMode GreeterManager::get_scale_mode() const
 {
     return priv->scale_mode;
 }
 
-std::string GreeterSettingsManager::get_background_file() const
+std::string GreeterManager::get_background_file() const
 {
     return priv->background_file.raw();
 }
 
-bool GreeterSettingsManager::get_enable_manual_login() const
+bool GreeterManager::get_enable_manual_login() const
 {
     return priv->enable_manual_login;
 }
 
-bool GreeterSettingsManager::get_hide_user_list() const
+bool GreeterManager::get_hide_user_list() const
 {
     return priv->hide_user_list;
 }
 
-void GreeterSettingsManager::set_autologin_user(const std::string &autologin_user)
+void GreeterManager::set_autologin_user(const std::string &autologin_user)
 {
     priv->autologin_user = autologin_user;
     lightdm_settings->set_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_USER, autologin_user);
 }
 
-void GreeterSettingsManager::set_autologin_delay(uint32_t autologin_delay)
+void GreeterManager::set_autologin_delay(uint32_t autologin_delay)
 {
     priv->autologin_delay = autologin_delay;
     lightdm_settings->set_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY, autologin_delay);
 }
 
-void GreeterSettingsManager::set_enable_manual_login(bool enable_manual_login)
+void GreeterManager::set_enable_manual_login(bool enable_manual_login)
 {
     priv->enable_manual_login = enable_manual_login;
     lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN, enable_manual_login);
 }
 
-void GreeterSettingsManager::set_hide_user_list(bool hide_user_list)
+void GreeterManager::set_hide_user_list(bool hide_user_list)
 {
     priv->hide_user_list = hide_user_list;
     lightdm_settings->set_boolean(LIGHTDM_GROUP_NAME, KEY_LIGHTDM_HIDE_USER_LIST, hide_user_list);
 }
 
-void GreeterSettingsManager::set_scale_mode(GreeterSettingsScalingMode mode)
+void GreeterManager::set_scale_mode(GreeterScalingMode mode)
 {
     Glib::ustring scale_mode;
 
     priv->scale_mode = mode;
     switch (mode)
     {
-    case GREETER_SETTINGS_SCALING_MODE_AUTO:
+    case GREETER_SCALING_MODE_AUTO:
         scale_mode = "auto";
         break;
-    case GREETER_SETTINGS_SCALING_MODE_MANUAL:
+    case GREETER_SCALING_MODE_MANUAL:
         scale_mode = "manual";
         break;
-    case GREETER_SETTINGS_SCALING_MODE_DISABLE:
+    case GREETER_SCALING_MODE_DISABLE:
         scale_mode = "disable";
         break;
     default:
@@ -135,19 +138,19 @@ void GreeterSettingsManager::set_scale_mode(GreeterSettingsScalingMode mode)
     greeter_settings->set_string(GREETER_GROUP_NAME, KEY_ENABLE_SCALING, scale_mode);
 }
 
-void GreeterSettingsManager::set_scale_factor(uint32_t scale_factor)
+void GreeterManager::set_scale_factor(uint32_t scale_factor)
 {
     priv->scale_factor = scale_factor;
     greeter_settings->set_uint64(GREETER_GROUP_NAME, KEY_SCALE_FACTOR, scale_factor);
 }
 
-void GreeterSettingsManager::set_background_file(const std::string &background_file)
+void GreeterManager::set_background_file(const std::string &background_file)
 {
     priv->background_file = background_file;
     greeter_settings->set_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE, background_file);
 }
 
-void GreeterSettingsManager::init_settings_monitor()
+void GreeterManager::init_settings_monitor()
 {
     lightdm_conf = Gio::File::create_for_path(LIGHTDM_PROFILE_PATH);
     greeter_conf = Gio::File::create_for_path(GREETER_PROFILE_PATH);
@@ -156,16 +159,16 @@ void GreeterSettingsManager::init_settings_monitor()
     greeter_monitor = greeter_conf->monitor_file();
 
     lightdm_monitor->signal_changed().connect(
-        sigc::mem_fun(*this, &GreeterSettingsManager::on_profile_changed));
+        sigc::mem_fun(*this, &GreeterManager::on_profile_changed));
     greeter_monitor->signal_changed().connect(
-        sigc::mem_fun(*this, &GreeterSettingsManager::on_profile_changed));
+        sigc::mem_fun(*this, &GreeterManager::on_profile_changed));
 }
 
-void GreeterSettingsManager::on_profile_changed(const Glib::RefPtr<Gio::File> &file,
-                                                const Glib::RefPtr<Gio::File> &other_file,
-                                                Gio::FileMonitorEvent event_type)
+void GreeterManager::on_profile_changed(const Glib::RefPtr<Gio::File> &file,
+                                        const Glib::RefPtr<Gio::File> &other_file,
+                                        Gio::FileMonitorEvent event_type)
 {
-    GreeterSettingsData new_data;
+    GreeterData new_data;
     Glib::KeyFile *lightdm_settings_, *greeter_settings_;
 
     if (event_type != Gio::FILE_MONITOR_EVENT_CHANGED)
@@ -263,49 +266,49 @@ void GreeterSettingsManager::on_profile_changed(const Glib::RefPtr<Gio::File> &f
     }
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_autologin_delay_changed()
+sigc::signal<void> GreeterManager::signal_autologin_delay_changed()
 {
     return m_signal_autologin_delay_changed;
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_autologin_user_changed()
+sigc::signal<void> GreeterManager::signal_autologin_user_changed()
 {
     return m_signal_autologin_user_changed;
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_scale_mode_changed()
+sigc::signal<void> GreeterManager::signal_scale_mode_changed()
 {
     return m_signal_scale_mode_changed;
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_scale_factor_changed()
+sigc::signal<void> GreeterManager::signal_scale_factor_changed()
 {
     return m_signal_scale_factor_changed;
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_background_file_changed()
+sigc::signal<void> GreeterManager::signal_background_file_changed()
 {
     return m_signal_background_file_changed;
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_enable_manual_login_changed()
+sigc::signal<void> GreeterManager::signal_enable_manual_login_changed()
 {
     return m_signal_enable_manual_login_changed;
 }
 
-sigc::signal<void> GreeterSettingsManager::signal_hide_user_list_changed()
+sigc::signal<void> GreeterManager::signal_hide_user_list_changed()
 {
     return m_signal_hide_user_list_changed;
 }
 
-GreeterSettingsManager::GreeterSettingsManager() : lightdm_settings(nullptr),
-                                                   greeter_settings(nullptr)
+GreeterManager::GreeterManager() : lightdm_settings(nullptr),
+                                   greeter_settings(nullptr)
 {
-    priv = new GreeterSettingsData;
+    priv = new GreeterData;
     init_settings_monitor();
 }
 
-bool GreeterSettingsManager::settings_has_key(Glib::KeyFile *settings, const Glib::ustring &group, const Glib::ustring &key)
+bool GreeterManager::settings_has_key(Glib::KeyFile *settings, const Glib::ustring &group, const Glib::ustring &key)
 {
     try
     {
@@ -322,9 +325,9 @@ bool GreeterSettingsManager::settings_has_key(Glib::KeyFile *settings, const Gli
     return true;
 }
 
-bool GreeterSettingsManager::load()
+bool GreeterManager::load()
 {
-    priv->clear();
+    *priv = GreeterData();
 
     if (greeter_settings != nullptr)
         delete greeter_settings;
@@ -363,7 +366,7 @@ bool GreeterSettingsManager::load()
     return true;
 }
 
-bool GreeterSettingsManager::save()
+bool GreeterManager::save()
 {
     g_return_val_if_fail(lightdm_settings != nullptr, false);
     g_return_val_if_fail(greeter_settings != nullptr, false);
@@ -398,7 +401,7 @@ bool GreeterSettingsManager::save()
     return true;
 }
 
-bool GreeterSettingsManager::load_greeter_settings(GreeterSettingsData *data, Glib::KeyFile *settings)
+bool GreeterManager::load_greeter_settings(GreeterData *data, Glib::KeyFile *settings)
 {
     bool success = true;
     Glib::KeyFile *tmp_settings = settings;
@@ -457,15 +460,15 @@ bool GreeterSettingsManager::load_greeter_settings(GreeterSettingsData *data, Gl
                                                                KEY_ENABLE_SCALING);
                 LOG_DEBUG("enable_scaling: %s", enable_scaling.c_str());
                 if (enable_scaling == "auto")
-                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_AUTO;
+                    data->scale_mode = GREETER_SCALING_MODE_AUTO;
                 else if (enable_scaling == "manual")
-                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_MANUAL;
+                    data->scale_mode = GREETER_SCALING_MODE_MANUAL;
                 else if (enable_scaling == "disable")
-                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_DISABLE;
+                    data->scale_mode = GREETER_SCALING_MODE_DISABLE;
                 else
                 {
                     LOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling.c_str(), KEY_ENABLE_SCALING);
-                    data->scale_mode = GREETER_SETTINGS_SCALING_MODE_AUTO;
+                    data->scale_mode = GREETER_SCALING_MODE_AUTO;
                 }
             }
 
@@ -494,7 +497,7 @@ bool GreeterSettingsManager::load_greeter_settings(GreeterSettingsData *data, Gl
     return success;
 }
 
-bool GreeterSettingsManager::load_lightdm_settings(GreeterSettingsData *data, Glib::KeyFile *settings)
+bool GreeterManager::load_lightdm_settings(GreeterData *data, Glib::KeyFile *settings)
 {
     bool success = true;
     Glib::KeyFile *tmp_settings = settings;

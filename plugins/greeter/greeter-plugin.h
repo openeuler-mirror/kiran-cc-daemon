@@ -1,26 +1,23 @@
 /**
- * @file greeter-settings-plugin.h
+ * @file          /kiran-cc-daemon/plugins/greeter/greeter-plugin.h
  * @brief description
  * @author yangxiaoqing <yangxiaoqing@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved.
 */
-#ifndef GREETERSETTINGSPLUGIN_H
-#define GREETERSETTINGSPLUGIN_H
+
+#pragma once
 
 #include "plugin_i.h"
 namespace Kiran
 {
-class GreeterSettingsPlugin : public Plugin
+class GreeterPlugin : public Plugin
 {
 public:
-    GreeterSettingsPlugin();
-    virtual ~GreeterSettingsPlugin();
+    GreeterPlugin();
+    virtual ~GreeterPlugin();
 
     virtual void activate();
 
     virtual void deactivate();
 };
-}
-
-
-#endif // GREETERSETTINGSPLUGIN_H
+}  // namespace Kiran
