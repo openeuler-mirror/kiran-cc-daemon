@@ -3,7 +3,7 @@
 
 ## 编译安装
 ```
-# yum install cmake libxml++-devel glibmm24-devel glib2-devel gtkmm30-devel systemd-devel libselinux-devel gettext gcc-c++ intltool polkit dbus-daemon libX11-devel xerces-c-devel xsd fontconfig-devel jsoncpp-devel zlog-devel gdbus-codegen-glibmm
+# yum install cmake libxml++-devel glibmm24-devel glib2-devel gtkmm30-devel systemd-devel libselinux-devel gettext gcc-c++ intltool polkit dbus-daemon libX11-devel xerces-c-devel xsd fontconfig-devel jsoncpp-devel zlog-devel gdbus-codegen-glibmm fmt-devel gtest-devel upower-devel libnotify-devel pulseaudio-libs-devel
 # mkdir build
 # cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 # make
