@@ -18,6 +18,7 @@ class GreeterSettingsData {
 public:
     GreeterSettingsData();
     GreeterSettingsData(GreeterSettingsData &data_);
+    void clear();
 
 public:
     GreeterSettingsScalingMode scale_mode;                  /**< 缩放模式 */

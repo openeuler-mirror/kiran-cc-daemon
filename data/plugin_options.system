@@ -16,4 +16,4 @@ Available=true
 [greeter-settings]
 Name=GreeterSettings
 Description=GreeterSettings plugin
-Available=false
+Available=true
