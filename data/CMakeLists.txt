@@ -13,7 +13,7 @@ if(build-system-daemon)
         execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
 
         install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
-                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)
+                DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
     endforeach()
 
 
@@ -32,12 +32,13 @@ if(build-system-daemon)
                 DESTINATION ${SYSTEM_UNIT_DIR})
     endif()
 
+
     install(FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Accounts.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Greeter.service
                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
+            DESTINATION ${KCC_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files
     file(GLOB CONF_FILES ./*.conf)
@@ -63,7 +64,7 @@ if(build-session-daemon)
     execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
 
     install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/polkit-1/actions/)
+        DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
     endforeach()
 
     # gschema.xml
@@ -74,10 +75,10 @@ if(build-session-daemon)
         configure_file(${SCHEMA_IN_FILE} ${PROJECT_BINARY_DIR}/data/${SCHEMA_FILE})
 
         install(FILES ${PROJECT_BINARY_DIR}/data/${SCHEMA_FILE}
-                DESTINATION  ${CMAKE_INSTALL_PREFIX}/share/glib-2.0/schemas/)    
+                DESTINATION  ${KCC_INSTALL_DATADIR}/glib-2.0/schemas/)    
     endforeach()
 
-    install(CODE "execute_process(COMMAND glib-compile-schemas \"${CMAKE_INSTALL_PREFIX}/share/glib-2.0/schemas/\")")
+    install(CODE "execute_process(COMMAND glib-compile-schemas \"${KCC_INSTALL_DATADIR}/glib-2.0/schemas/\")")
 
     #plugins configuration
     install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.session
@@ -91,7 +92,7 @@ if(build-session-daemon)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
         configure_file(${SERVICE_IN_FILE} ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE})
         install(FILES ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE}
-                DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/services)
+                DESTINATION ${KCC_INSTALL_DATADIR}/dbus-1/services)
     endforeach()
 
     # desktop files
