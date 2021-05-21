@@ -8,7 +8,7 @@
  */
 #include "plugins/appearance/font/appearance-font.h"
 
-#include "xsettings_i.h"
+#include "xsettings-i.h"
 
 namespace Kiran
 {

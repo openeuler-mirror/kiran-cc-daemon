@@ -12,6 +12,7 @@
 #include <cinttypes>
 #include <cstdint>
 
+#define ACCOUNTS_NEW_INTERFACE
 #include "accounts_i.h"
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"

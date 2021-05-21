@@ -10,7 +10,7 @@
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
 #include "lib/base/base.h"
-#include "mouse_i.h"
+#include "mouse-i.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran

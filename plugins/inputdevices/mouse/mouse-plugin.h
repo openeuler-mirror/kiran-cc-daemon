@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include "plugin_i.h"
+#include "plugin-i.h"
 namespace Kiran
 {
 class MousePlugin : public Plugin

@@ -9,7 +9,7 @@
 
 #include "plugins/keybinding/keybinding-manager.h"
 
-#include "keybinding_i.h"
+#include "keybinding-i.h"
 
 namespace Kiran
 {

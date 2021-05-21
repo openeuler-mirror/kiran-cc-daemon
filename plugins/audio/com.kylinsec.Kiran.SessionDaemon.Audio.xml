@@ -144,7 +144,7 @@
 
         <property name="state" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <description>Refer to enum PulseState in audio_i.h. The backend is available only when the state is PULSE_STATE_READY.</description>
+            <description>Refer to enum PulseState in audio-i.h. The backend is available only when the state is PULSE_STATE_READY.</description>
         </property>
 
     </interface>

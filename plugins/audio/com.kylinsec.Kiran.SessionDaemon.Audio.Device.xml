@@ -93,7 +93,7 @@
 
         <property name="state" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <description>The Device supported items. Refer to struct PulseNodeState in audio_i.h file</description>
+            <description>The Device supported items. Refer to struct PulseNodeState in audio-i.h file</description>
         </property>
 
     </interface>

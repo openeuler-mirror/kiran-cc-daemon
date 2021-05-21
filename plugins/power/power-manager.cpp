@@ -8,7 +8,7 @@
 #include "plugins/power/power-manager.h"
 
 #include "plugins/power/backlight/power-backlight.h"
-#include "power_i.h"
+#include "power-i.h"
 
 namespace Kiran
 {

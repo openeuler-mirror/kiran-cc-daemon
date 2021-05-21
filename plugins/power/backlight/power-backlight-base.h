@@ -8,7 +8,7 @@
 #pragma once
 
 #include "lib/base/base.h"
-#include "power_i.h"
+#include "power-i.h"
 
 namespace Kiran
 {

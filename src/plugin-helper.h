@@ -9,7 +9,7 @@
 #include <string>
 
 #include "lib/base/base.h"
-#include "plugin_i.h"
+#include "plugin-i.h"
 
 namespace Kiran
 {

@@ -15,16 +15,16 @@
 
         <method name="SetIdleAction">
             <arg type="i" name="device" direction="in">
-                <description>The device could be computer or backlight. Refer to PowerDeviceType definition in power_i.h</description>
+                <description>The device could be computer or backlight. Refer to PowerDeviceType definition in power-i.h</description>
             </arg>
             <arg type="i" name="supply" direction="in">
-                <description>Refer to PowerSupplyMode definition in power_i.h.</description>
+                <description>Refer to PowerSupplyMode definition in power-i.h.</description>
             </arg>
             <arg type="i" name="idle_timeout" direction="in">
                 <description>The idle timeout in seconds. If the value is less than or equal to 0, then the idle action will be cancel and the action field is ignored.</description>
             </arg>
             <arg type="i" name="action" direction="in">
-                <description>Refer to PowerAction definition in power_i.h, etc.</description>
+                <description>Refer to PowerAction definition in power-i.h, etc.</description>
             </arg>
             <description>If the idle time of the device exceed idle_timeout, then it will trigger the action.</description>
         </method>
@@ -40,7 +40,7 @@
 
         <method name="SetEventAction">
             <arg type="i" name="event" direction="in">
-                <description>Refer to PowerEvent definition in power_i.h.</description>
+                <description>Refer to PowerEvent definition in power-i.h.</description>
             </arg>
             <arg type="i" name="action" direction="in">
                 <summary>The triggered action.</summary>
@@ -56,7 +56,7 @@
 
         <method name="SetBrightness">
             <arg type="i" name="device" direction="in">
-                <description>The device could be monitor or keyboard. Refer to PowerDeviceType definition in power_i.h</description>
+                <description>The device could be monitor or keyboard. Refer to PowerDeviceType definition in power-i.h</description>
             </arg>
             <arg type="i" name="brightness_percentage" direction="in">
                 <summary>The brightness percentage.</summary>

@@ -6,6 +6,10 @@
  */
 #pragma once
 
+#ifndef SYSTEMINFO_NEW_INTERFACE
+#warning This file will be deprecated. please use systeminfo-i.h file
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {

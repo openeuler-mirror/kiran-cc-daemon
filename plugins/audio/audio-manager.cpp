@@ -6,7 +6,7 @@
  */
 
 #include "plugins/audio/audio-manager.h"
-#include "audio_i.h"
+#include "audio-i.h"
 #include "plugins/audio/audio-device.h"
 #include "plugins/audio/audio-stream.h"
 

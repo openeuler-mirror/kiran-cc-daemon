@@ -7,6 +7,10 @@
 
 #pragma once
 
+#ifndef DISPLAY_NEW_INTERFACE
+#warning This file will be deprecated. please use display-i.h file
+#endif
+
 /*
 术语：
     screen: 虚拟的屏幕。

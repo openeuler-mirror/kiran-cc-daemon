@@ -9,7 +9,6 @@
 
 #include <fstream>
 
-#include "display_i.h"
 #include "lib/base/base.h"
 #include "plugins/display/display-util.h"
 

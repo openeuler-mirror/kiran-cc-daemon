@@ -12,7 +12,7 @@
 #include <touchpad_dbus_stub.h>
 
 #include "plugins/inputdevices/common/device-helper.h"
-#include "touchpad_i.h"
+#include "touchpad-i.h"
 
 namespace Kiran
 {

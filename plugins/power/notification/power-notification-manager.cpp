@@ -9,7 +9,7 @@
 #include <glib/gi18n.h>
 
 #include "plugins/power/power-utils.h"
-#include "power_i.h"
+#include "power-i.h"
 
 namespace Kiran
 {

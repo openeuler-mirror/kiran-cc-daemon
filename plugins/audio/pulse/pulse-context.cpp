@@ -6,7 +6,7 @@
  */
 
 #include "plugins/audio/pulse/pulse-context.h"
-#include "audio_i.h"
+#include "audio-i.h"
 #include "config.h"
 
 namespace Kiran

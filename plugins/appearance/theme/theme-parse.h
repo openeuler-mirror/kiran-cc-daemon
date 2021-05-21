@@ -1,14 +1,13 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-02 15:45:42
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-08 20:42:16
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/theme/theme-parse.h
+/**
+ * @file          /kiran-cc-daemon/plugins/appearance/theme/theme-parse.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
-#include "appearance_i.h"
+#include "appearance-i.h"
 #include "lib/base/base.h"
 #include "plugins/appearance/theme/theme-monitor.h"
 

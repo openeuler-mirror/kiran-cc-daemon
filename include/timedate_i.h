@@ -7,6 +7,10 @@
 
 #pragma once
 
+#ifndef TIMEDATE_NEW_INTERFACE
+#warning This file will be deprecated. please use timedate-i.h file
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {

@@ -8,7 +8,7 @@
  */
 #include "plugins/appearance/theme/appearance-theme.h"
 
-#include "xsettings_i.h"
+#include "xsettings-i.h"
 
 #define MARCO_SCHEMA_ID "org.mate.Marco.general"
 #define MARCO_SCHEMA_KEY_THEME "theme"

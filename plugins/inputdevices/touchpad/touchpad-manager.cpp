@@ -11,7 +11,7 @@
 
 #include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
-#include "touchpad_i.h"
+#include "touchpad-i.h"
 
 namespace Kiran
 {

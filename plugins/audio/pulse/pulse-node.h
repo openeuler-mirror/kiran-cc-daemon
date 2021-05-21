@@ -8,7 +8,7 @@
 #pragma once
 
 #include <pulse/introspect.h>
-#include "audio_i.h"
+#include "audio-i.h"
 #include "lib/base/base.h"
 
 /*

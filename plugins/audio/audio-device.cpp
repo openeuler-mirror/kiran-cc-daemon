@@ -8,7 +8,7 @@
 #include "plugins/audio/audio-device.h"
 
 #include <json/json.h>
-#include "audio_i.h"
+#include "audio-i.h"
 #include "plugins/audio/audio-utils.h"
 
 namespace Kiran

@@ -108,19 +108,24 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/accounts_i.h
               ${PROJECT_SOURCE_DIR}/include/timedate_i.h
               ${PROJECT_SOURCE_DIR}/include/greeter_i.h
               ${PROJECT_SOURCE_DIR}/include/systeminfo_i.h
+              ${PROJECT_SOURCE_DIR}/include/accounts-i.h
+              ${PROJECT_SOURCE_DIR}/include/timedate-i.h
+              ${PROJECT_SOURCE_DIR}/include/greeter-i.h
+              ${PROJECT_SOURCE_DIR}/include/systeminfo-i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
 
-install(FILES ${PROJECT_SOURCE_DIR}/include/appearance_i.h
-              ${PROJECT_SOURCE_DIR}/include/display_i.h
-              ${PROJECT_SOURCE_DIR}/include/keybinding_i.h
-              ${PROJECT_SOURCE_DIR}/include/keyboard_i.h
-              ${PROJECT_SOURCE_DIR}/include/mouse_i.h
-              ${PROJECT_SOURCE_DIR}/include/power_i.h
-              ${PROJECT_SOURCE_DIR}/include/touchpad_i.h
-              ${PROJECT_SOURCE_DIR}/include/xsettings_i.h
+install(FILES ${PROJECT_SOURCE_DIR}/include/display_i.h
+              ${PROJECT_SOURCE_DIR}/include/appearance-i.h
+              ${PROJECT_SOURCE_DIR}/include/display-i.h
+              ${PROJECT_SOURCE_DIR}/include/keybinding-i.h
+              ${PROJECT_SOURCE_DIR}/include/keyboard-i.h
+              ${PROJECT_SOURCE_DIR}/include/mouse-i.h
+              ${PROJECT_SOURCE_DIR}/include/power-i.h
+              ${PROJECT_SOURCE_DIR}/include/touchpad-i.h
+              ${PROJECT_SOURCE_DIR}/include/xsettings-i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-session-daemon)
 
-install(FILES ${PROJECT_SOURCE_DIR}/include/error_i.h
+install(FILES ${PROJECT_SOURCE_DIR}/include/error-i.h
         DESTINATION ${KCC_INSTALL_INCLUDE})
 
 # pc file

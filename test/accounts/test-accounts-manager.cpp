@@ -8,6 +8,7 @@
 #include "test/accounts/test-accounts-manager.h"
 #include "lib/base/base.h"
 
+#define ACCOUNTS_NEW_INTERFACE
 #include <accounts_i.h>
 #include <user_dbus_proxy.h>
 

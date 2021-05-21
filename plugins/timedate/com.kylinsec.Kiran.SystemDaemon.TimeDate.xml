@@ -45,7 +45,7 @@
 
         <method name="GetDateFormatList">
             <arg type="i" name="type" direction="in">
-                <description>Refer to enum TimedateDateFormatType in timedate_i.h.</description>
+                <description>Refer to enum TimedateDateFormatType in timedate-i.h.</description>
             </arg>
             <arg type="as" name="formats" direction="out">
                 <description>The list of optional date format.</description>
@@ -55,7 +55,7 @@
 
         <method name="SetDateFormatByIndex">
             <arg type="i" name="type" direction="in">
-                <description>Refer to enum TimedateDateFormatType in timedate_i.h.</description>
+                <description>Refer to enum TimedateDateFormatType in timedate-i.h.</description>
             </arg>
             <arg type="i" name="index" direction="in">
                 <description>The index in date format list.</description>
@@ -65,7 +65,7 @@
 
         <method name="SetHourFormat">
             <arg type="i" name="format" direction="in">
-                <description>Refer to enum TimedateHourFormat in timedate_i.h.</description>
+                <description>Refer to enum TimedateHourFormat in timedate-i.h.</description>
             </arg>
             <description>Set the hour show format which contain 12-hours and 24-hours.</description>
         </method>
