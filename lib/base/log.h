@@ -16,12 +16,6 @@ namespace Kiran
 {
 #define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : __FILE__)
 
-class ILogger
-{
-public:
-    virtual void write_log(const char *buff, uint32_t len) = 0;
-};
-
 class Log
 {
 public:
@@ -34,12 +28,6 @@ public:
     static void global_init();
 
     static void global_deinit();
-
-    inline GLogLevelFlags get_level() { return this->log_level_; }
-
-    void set_log_level(GLogLevelFlags log_level) { this->log_level_ = log_level; }
-
-    void set_logger(ILogger *logger) { logger_ = logger; }
 
     void try_append(GLogLevelFlags log_level,
                     const std::string &file_name,
@@ -54,10 +42,6 @@ private:
 
 private:
     static Log *instance_;
-
-    GLogLevelFlags log_level_;
-
-    ILogger *logger_;
 
     static const int kMessageSize = 10240;
     char message_[kMessageSize];

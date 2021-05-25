@@ -25,15 +25,6 @@
 #include "lib/iso/iso-translation.h"
 #include "src/settings-manager.h"
 
-class ScreenLogger : public Kiran::ILogger
-{
-public:
-    void write_log(const char* buff, uint32_t len)
-    {
-        g_print("%s\n", buff);
-    }
-};
-
 #ifdef KCC_SESSION_TYPE
 static void on_session_end()
 {
@@ -65,30 +56,8 @@ int main(int argc, char* argv[])
     version_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
     version_entry.set_description(N_("Output version infomation and exit"));
 
-    // verbose
-    Glib::OptionEntry verbose_entry;
-    verbose_entry.set_long_name("verbose");
-    verbose_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
-    verbose_entry.set_description(N_("Set log level to debug."));
-
-    // show-log
-    Glib::OptionEntry show_log_entry;
-    show_log_entry.set_long_name("show-log");
-    show_log_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
-    show_log_entry.set_description(N_("Print log to screen."));
-
     group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
         g_print("kiran-cc-daemon: 2.0\n");
-        return true;
-    });
-
-    group.add_entry(verbose_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
-        Kiran::Log::get_instance()->set_log_level(G_LOG_LEVEL_DEBUG);
-        return true;
-    });
-
-    group.add_entry(show_log_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
-        Kiran::Log::get_instance()->set_logger(new ScreenLogger());
         return true;
     });
 
