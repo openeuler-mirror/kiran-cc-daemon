@@ -129,7 +129,7 @@ bool PowerScreenSaver::remove_throttle(uint32_t cookie)
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what());
+        LOG_WARNING("%s", e.what().c_str());
         return false;
     }
 
@@ -147,7 +147,7 @@ bool PowerScreenSaver::poke()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what());
+        LOG_WARNING("%s", e.what().c_str());
         return false;
     }
 

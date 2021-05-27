@@ -37,7 +37,7 @@ void PowerUPower::init()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what());
+        LOG_WARNING("%s", e.what().c_str());
         return;
     }
 
