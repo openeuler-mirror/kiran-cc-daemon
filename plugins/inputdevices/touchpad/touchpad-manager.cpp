@@ -11,7 +11,7 @@
 
 #include "lib/base/base.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
-#include "touchpad_i.h"
+#include "touchpad-i.h"
 
 namespace Kiran
 {
@@ -38,6 +38,7 @@ namespace Kiran
 
 TouchPadManager::TouchPadManager() : dbus_connect_id_(0),
                                      object_register_id_(0),
+                                     has_touchpad_(false),
                                      left_handed_(false),
                                      disable_while_typing_(false),
                                      tap_to_click_(true),
@@ -112,6 +113,13 @@ void TouchPadManager::init()
         LOG_WARNING("XInput is not supported, not applying any settings.");
         return;
     }
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->is_touchpad())
+        {
+            this->has_touchpad_ = true;
+        }
+    });
 
     this->load_from_settings();
     this->set_all_props_to_devices();
@@ -189,154 +197,133 @@ void TouchPadManager::set_all_props_to_devices()
     this->set_motion_acceleration_to_devices();
 }
 
-#define SET_PROP_TO_DEVICES(set_device_fun)                                                                 \
-    void TouchPadManager::set_device_fun##s()                                                               \
-    {                                                                                                       \
-        SETTINGS_PROFILE("");                                                                               \
-        int32_t n_devices = 0;                                                                              \
-        auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices); \
-                                                                                                            \
-        for (auto i = 0; i < n_devices; i++)                                                                \
-        {                                                                                                   \
-            if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||                                \
-                strcmp(devices_info[i].name, "Virtual core keyboard") == 0)                                 \
-            {                                                                                               \
-                LOG_DEBUG("ignore device: %s.", devices_info[i].name);                                      \
-                continue;                                                                                   \
-            }                                                                                               \
-            auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);                          \
-            if (device_helper)                                                                              \
-            {                                                                                               \
-                set_device_fun(device_helper);                                                              \
-            }                                                                                               \
-        }                                                                                                   \
-                                                                                                            \
-        if (devices_info != NULL)                                                                           \
-        {                                                                                                   \
-            XFreeDeviceList(devices_info);                                                                  \
-        }                                                                                                   \
-    }
-
-SET_PROP_TO_DEVICES(set_left_handed_to_device);
-SET_PROP_TO_DEVICES(set_disable_while_typing_to_device);
-SET_PROP_TO_DEVICES(set_tap_to_click_to_device);
-SET_PROP_TO_DEVICES(set_click_method_to_device);
-SET_PROP_TO_DEVICES(set_scroll_method_to_device);
-SET_PROP_TO_DEVICES(set_natural_scroll_to_device);
-SET_PROP_TO_DEVICES(set_touchpad_enabled_to_device);
-SET_PROP_TO_DEVICES(set_motion_acceleration_to_device);
-
-void TouchPadManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void TouchPadManager::set_left_handed_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(TOUCHPAD_PROP_LEFT_HANDED) &&
-        device_helper->is_touchpad())
-    {
-        device_helper->set_property(TOUCHPAD_PROP_LEFT_HANDED, std::vector<bool>{this->left_handed_});
-    }
-}
-
-void TouchPadManager::set_disable_while_typing_to_device(std::shared_ptr<DeviceHelper> device_helper)
-{
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
-
-    if (device_helper->has_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING) &&
-        device_helper->is_touchpad())
-    {
-        device_helper->set_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING, std::vector<bool>{this->disable_while_typing_});
-    }
-}
-
-void TouchPadManager::set_tap_to_click_to_device(std::shared_ptr<DeviceHelper> device_helper)
-{
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
-
-    if (device_helper->has_property(TOUCHPAD_PROP_TAPPING_ENABLED) &&
-        device_helper->is_touchpad())
-    {
-        device_helper->set_property(TOUCHPAD_PROP_TAPPING_ENABLED, std::vector<bool>{this->tap_to_click_});
-    }
-}
-
-void TouchPadManager::set_click_method_to_device(std::shared_ptr<DeviceHelper> device_helper)
-{
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
-
-    if (device_helper->has_property(TOUCHPAD_PROP_CLICK_METHOD) &&
-        device_helper->is_touchpad())
-    {
-        switch (this->click_method_)
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_LEFT_HANDED) &&
+            device_helper->is_touchpad())
         {
-        case int32_t(TouchPadClickMethod::TOUCHPAD_CLICK_METHOD_BUTTON_AREAS):
-            device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{true, false});
-            break;
-        case int32_t(TouchPadClickMethod::TOUCHPAD_CLICK_METHOD_CLICK_FINGER):
-            device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{false, true});
-            break;
-        default:
-            LOG_WARNING("unknow click methods: %d.", this->click_method_);
-            break;
+            device_helper->set_property(TOUCHPAD_PROP_LEFT_HANDED, std::vector<bool>{this->left_handed_});
         }
-    }
+    });
 }
 
-void TouchPadManager::set_scroll_method_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void TouchPadManager::set_disable_while_typing_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(TOUCHPAD_PROP_SCROLL_METHOD) &&
-        device_helper->is_touchpad())
-    {
-        switch (this->scroll_method_)
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING) &&
+            device_helper->is_touchpad())
         {
-        case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_TWO_FINGER):
-            device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{true, false, false});
-            break;
-        case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_EDGE):
-            device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, true, false});
-            break;
-        case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_BUTTON):
-            device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, false, true});
-            break;
-        default:
-            LOG_WARNING("unknow scroll methods: %d.", this->scroll_method_);
-            break;
+            device_helper->set_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING, std::vector<bool>{this->disable_while_typing_});
         }
-    }
+    });
 }
 
-void TouchPadManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void TouchPadManager::set_tap_to_click_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(TOUCHPAD_PROP_NATURAL_SCROLL) &&
-        device_helper->is_touchpad())
-    {
-        device_helper->set_property(TOUCHPAD_PROP_NATURAL_SCROLL, std::vector<bool>{this->natural_scroll_});
-    }
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_TAPPING_ENABLED) &&
+            device_helper->is_touchpad())
+        {
+            device_helper->set_property(TOUCHPAD_PROP_TAPPING_ENABLED, std::vector<bool>{this->tap_to_click_});
+        }
+    });
 }
 
-void TouchPadManager::set_touchpad_enabled_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void TouchPadManager::set_click_method_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(TOUCHPAD_PROP_DEVICE_ENABLED) &&
-        device_helper->is_touchpad())
-    {
-        device_helper->set_property(TOUCHPAD_PROP_DEVICE_ENABLED, std::vector<bool>{this->touchpad_enabled_});
-    }
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_CLICK_METHOD) &&
+            device_helper->is_touchpad())
+        {
+            switch (this->click_method_)
+            {
+            case int32_t(TouchPadClickMethod::TOUCHPAD_CLICK_METHOD_BUTTON_AREAS):
+                device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{true, false});
+                break;
+            case int32_t(TouchPadClickMethod::TOUCHPAD_CLICK_METHOD_CLICK_FINGER):
+                device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{false, true});
+                break;
+            default:
+                LOG_WARNING("unknow click methods: %d.", this->click_method_);
+                break;
+            }
+        }
+    });
 }
 
-void TouchPadManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void TouchPadManager::set_scroll_method_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(TOUCHPAD_PROP_ACCEL_SPEED) &&
-        device_helper->is_touchpad())
-    {
-        device_helper->set_property(TOUCHPAD_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
-    }
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_SCROLL_METHOD) &&
+            device_helper->is_touchpad())
+        {
+            switch (this->scroll_method_)
+            {
+            case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_TWO_FINGER):
+                device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{true, false, false});
+                break;
+            case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_EDGE):
+                device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, true, false});
+                break;
+            case int32_t(TouchPadScrollMethod::TOUCHPAD_SCROLL_METHOD_BUTTON):
+                device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, false, true});
+                break;
+            default:
+                LOG_WARNING("unknow scroll methods: %d.", this->scroll_method_);
+                break;
+            }
+        }
+    });
+}
+
+void TouchPadManager::set_natural_scroll_to_devices()
+{
+    SETTINGS_PROFILE("");
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_NATURAL_SCROLL) &&
+            device_helper->is_touchpad())
+        {
+            device_helper->set_property(TOUCHPAD_PROP_NATURAL_SCROLL, std::vector<bool>{this->natural_scroll_});
+        }
+    });
+}
+
+void TouchPadManager::set_touchpad_enabled_to_devices()
+{
+    SETTINGS_PROFILE("");
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_DEVICE_ENABLED) &&
+            device_helper->is_touchpad())
+        {
+            device_helper->set_property(TOUCHPAD_PROP_DEVICE_ENABLED, std::vector<bool>{this->touchpad_enabled_});
+        }
+    });
+}
+
+void TouchPadManager::set_motion_acceleration_to_devices()
+{
+    SETTINGS_PROFILE("");
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_ACCEL_SPEED) &&
+            device_helper->is_touchpad())
+        {
+            device_helper->set_property(TOUCHPAD_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
+        }
+    });
 }
 
 void TouchPadManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)

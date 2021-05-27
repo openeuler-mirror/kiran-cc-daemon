@@ -1,5 +1,5 @@
 /**
- * @FilePath      /kiran-cc-daemon/plugins/display/xrandr-manager.h
+ * @file          /kiran-cc-daemon/plugins/display/xrandr-manager.h
  * @brief         对XRR扩展的C++封装
  * @author        tangjie02 <tangjie02@kylinos.com.cn>
  * @copyright (c) 2020 KylinSec. All rights reserved. 
@@ -12,6 +12,7 @@
 #include <X11/extensions/Xrandr.h>
 #include <gdk/gdkx.h>
 
+#define DISPLAY_NEW_INTERFACE
 #include "display_i.h"
 
 namespace Kiran

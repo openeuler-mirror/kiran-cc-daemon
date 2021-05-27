@@ -6,6 +6,10 @@
 */
 #pragma once
 
+#ifndef GREETER_NEW_INTERFACE
+#warning This file will be deprecated. please use greeter-i.h file
+#endif
+
 #define GREETER_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon.Greeter"
 #define GREETER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Greeter"
 

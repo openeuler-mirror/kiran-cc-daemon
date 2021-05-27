@@ -10,7 +10,7 @@
 #include "plugins/inputdevices/mouse/mouse-manager.h"
 
 #include "lib/base/base.h"
-#include "mouse_i.h"
+#include "mouse-i.h"
 #include "plugins/inputdevices/common/xinput-helper.h"
 
 namespace Kiran
@@ -81,11 +81,6 @@ PROP_SET_HANDLER(motion_acceleration, double, MOUSE_SCHEMA_MOTION_ACCELERATION, 
 PROP_SET_HANDLER(middle_emulation_enabled, bool, MOUSE_SCHEMA_MIDDLE_EMULATION_ENABLED, boolean);
 PROP_SET_HANDLER(natural_scroll, bool, MOUSE_SCHEMA_NATURAL_SCROLL, boolean);
 
-bool MouseManager::double_click_setHandler(gint32 value)
-{
-    return true;
-}
-
 void MouseManager::init()
 {
     SETTINGS_PROFILE("");
@@ -152,80 +147,83 @@ void MouseManager::set_all_props_to_devices()
     this->set_natural_scroll_to_devices();
 }
 
-#define SET_PROP_TO_DEVICES(set_device_fun)                                                                 \
-    void MouseManager::set_device_fun##s()                                                                  \
-    {                                                                                                       \
-        SETTINGS_PROFILE("");                                                                               \
-        int32_t n_devices = 0;                                                                              \
-        auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices); \
-                                                                                                            \
-        for (auto i = 0; i < n_devices; i++)                                                                \
-        {                                                                                                   \
-            if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||                                \
-                strcmp(devices_info[i].name, "Virtual core keyboard") == 0)                                 \
-            {                                                                                               \
-                LOG_DEBUG("ignore device: %s.", devices_info[i].name);                                      \
-                continue;                                                                                   \
-            }                                                                                               \
-            auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);                          \
-            if (device_helper)                                                                              \
-            {                                                                                               \
-                set_device_fun(device_helper);                                                              \
-            }                                                                                               \
-        }                                                                                                   \
-                                                                                                            \
-        if (devices_info != NULL)                                                                           \
-        {                                                                                                   \
-            XFreeDeviceList(devices_info);                                                                  \
-        }                                                                                                   \
-    }
-
-SET_PROP_TO_DEVICES(set_left_handed_to_device);
-SET_PROP_TO_DEVICES(set_motion_acceleration_to_device);
-SET_PROP_TO_DEVICES(set_middle_emulation_enabled_to_device);
-SET_PROP_TO_DEVICES(set_natural_scroll_to_device);
-
-void MouseManager::set_left_handed_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void MouseManager::set_left_handed_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
-        !device_helper->is_touchpad())
-    {
-        device_helper->set_property(MOUSE_PROP_LEFT_HANDED, std::vector<bool>{this->left_handed_});
-    }
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
+            !device_helper->is_touchpad())
+        {
+            device_helper->set_property(MOUSE_PROP_LEFT_HANDED, std::vector<bool>{this->left_handed_});
+        }
+    });
 }
 
-void MouseManager::set_motion_acceleration_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void MouseManager::set_motion_acceleration_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
-        !device_helper->is_touchpad())
-    {
-        device_helper->set_property(MOUSE_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
-    }
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
+            !device_helper->is_touchpad())
+        {
+            device_helper->set_property(MOUSE_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
+        }
+    });
 }
 
-void MouseManager::set_middle_emulation_enabled_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void MouseManager::set_middle_emulation_enabled_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
-        !device_helper->is_touchpad())
-    {
-        device_helper->set_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED, std::vector<bool>{this->middle_emulation_enabled_});
-    }
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
+            !device_helper->is_touchpad())
+        {
+            device_helper->set_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED, std::vector<bool>{this->middle_emulation_enabled_});
+        }
+    });
 }
 
-void MouseManager::set_natural_scroll_to_device(std::shared_ptr<DeviceHelper> device_helper)
+void MouseManager::set_natural_scroll_to_devices()
 {
-    SETTINGS_PROFILE("device_name: %s.", device_helper->get_device_name().c_str());
+    SETTINGS_PROFILE("");
 
-    if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
-        !device_helper->is_touchpad())
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
+            !device_helper->is_touchpad())
+        {
+            device_helper->set_property(MOUSE_PROP_NATURAL_SCROLL, std::vector<bool>{this->natural_scroll_});
+        }
+    });
+}
+
+void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelper>)> callback)
+{
+    SETTINGS_PROFILE("");
+
+    int32_t n_devices = 0;
+    auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices);
+
+    for (auto i = 0; i < n_devices; i++)
     {
-        device_helper->set_property(MOUSE_PROP_NATURAL_SCROLL, std::vector<bool>{this->natural_scroll_});
+        if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||
+            strcmp(devices_info[i].name, "Virtual core keyboard") == 0)
+        {
+            LOG_DEBUG("ignore device: %s.", devices_info[i].name);
+            continue;
+        }
+        auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);
+        if (device_helper)
+        {
+            callback(device_helper);
+        }
+    }
+
+    if (devices_info != NULL)
+    {
+        XFreeDeviceList(devices_info);
     }
 }
 

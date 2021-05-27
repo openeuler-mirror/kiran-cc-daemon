@@ -27,6 +27,8 @@
 #include "lib/base/base.h"
 #include "plugins/timedate/timedate-def.h"
 #include "plugins/timedate/timedate-util.h"
+
+#define TIMEDATE_NEW_INTERFACE
 #include "timedate_i.h"
 
 #ifdef HAVE_SELINUX

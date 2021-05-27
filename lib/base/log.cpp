@@ -13,8 +13,7 @@
 
 namespace Kiran
 {
-Log::Log() : log_level_(G_LOG_LEVEL_WARNING),
-             logger_(nullptr)
+Log::Log()
 {
 }
 
@@ -38,11 +37,6 @@ void Log::try_append(GLogLevelFlags log_level,
                      int32_t line_number,
                      const char *format, ...)
 {
-    if (log_level > this->log_level_)
-    {
-        return;
-    }
-
     int32_t priority;
     std::ostringstream oss;
 
@@ -95,13 +89,6 @@ void Log::try_append(GLogLevelFlags log_level,
           priority,
           "%s",
           this->message_);
-
-    if (this->logger_)
-    {
-        oss << " [" << file_name << ":" << line_number << "-" << function_name << "()] " << this->message_;
-        auto log_content = oss.str();
-        this->logger_->write_log(log_content.c_str(), log_content.length());
-    }
 }
 
 void Log::init()

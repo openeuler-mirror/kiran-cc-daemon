@@ -3,114 +3,60 @@
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
     <interface name="com.kylinsec.Kiran.SessionDaemon.TouchPad">
         <method name="Reset">
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Reset all properties to default value.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Reset all properties to default value.</description>
         </method>
+
+        <property name="has_touchpad" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Whether has touchpad device.</description>
+        </property>
 
         <property name="left_handed" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Swap left and right mouse buttons for left-handed mice.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Swap left and right mouse buttons for left-handed mice.</description>
         </property>
 
         <property name="disable_while_typing" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Indicates if diable while typing is enabled or disabled..</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Indicates if diable while typing is enabled or disabled..</description>
         </property>
 
         <property name="tap_to_click" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set this to TRUE to be able to send mouse clicks by tapping on the touchpad.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set this to TRUE to be able to send mouse clicks by tapping on the touchpad.</description>
         </property>
 
         <property name="click_method" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>The click method defines how button events are triggered on a clickpad. 
-                    When set to buttonareas, the bottom area of the touchpad is divided into a left, 
-                    middle and right button area. When set to clickfinger, the number of fingers on 
-                    the touchpad decide the button type. Clicking with 1, 2, 3 fingers triggers a left, 
-                    right, or middle click, respectively. The default click method is software button areas. 
-                    Click methods are usually only available on clickpads.</doc:para>
-                </doc:description>
-                <doc:list>
-                    <doc:item>
-                        <doc:term>0</doc:term>
-                        <doc:definition>buttonareas</doc:definition>
-                    </doc:item>
-                    <doc:item>
-                        <doc:term>1</doc:term>
-                        <doc:definition>clickfinger</doc:definition>
-                    </doc:item>
-                </doc:list>
-            </doc:doc>
+            <description>The click method defines how button events are triggered on a clickpad. 
+            When set to buttonareas, the bottom area of the touchpad is divided into a left, 
+            middle and right button area. When set to clickfinger, the number of fingers on 
+            the touchpad decide the button type. Clicking with 1, 2, 3 fingers triggers a left, 
+            right, or middle click, respectively. The default click method is software button areas. 
+            Click methods are usually only available on clickpads.</description>
         </property>
 
         <property name="scroll_method" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Enables a scroll method. Permitted methods are twofinger, edge and button.</doc:para>
-                </doc:description>
-                <doc:list>
-                    <doc:item>
-                        <doc:term>0</doc:term>
-                        <doc:definition>twofinger</doc:definition>
-                    </doc:item>
-                    <doc:item>
-                        <doc:term>1</doc:term>
-                        <doc:definition>edge</doc:definition>
-                    </doc:item>
-                    <doc:item>
-                        <doc:term>2</doc:term>
-                        <doc:definition>button</doc:definition>
-                    </doc:item>
-                </doc:list>
-            </doc:doc>
+            <description>Enables a scroll method. Permitted methods are twofinger, edge and button.</description>
         </property>
 
         <property name="natural_scroll" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>"Natural scrolling" is the terminology for moving the content in the direction of scrolling, 
-                    i.e. moving the wheel or fingers down moves the page down. Traditional scrolling moves the content in the
-                    opposite direction. Natural scrolling can be turned on or off, it is usually off by default.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description> "Natural scrolling" is the terminology for moving the content in the direction of scrolling, 
+            i.e. moving the wheel or fingers down moves the page down. Traditional scrolling moves the content in the
+            opposite direction. Natural scrolling can be turned on or off, it is usually off by default.
+            </description>
         </property>
 
         <property name="touchpad_enabled" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set this to TRUE to enable all touchpads.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set this to TRUE to enable all touchpads.</description>
         </property>
 
         <property name="motion_acceleration" type="d" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Acceleration multiplier for mouse motion. The range of the value is [-1,1], the default value is 0.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Acceleration multiplier for mouse motion. The range of the value is [-1,1], the default value is 0.</description>
         </property>
 
     </interface>

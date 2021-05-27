@@ -7,7 +7,7 @@
  * @FilePath     : /kiran-system-daemon/plugins/timedate/timedate-plugin.h
  */
 
-#include "plugin_i.h"
+#include "plugin-i.h"
 namespace Kiran
 {
 class TimedatePlugin : public Plugin

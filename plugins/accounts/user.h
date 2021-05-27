@@ -10,6 +10,7 @@
 
 #include <user_dbus_stub.h>
 
+#define ACCOUNTS_NEW_INTERFACE
 #include "accounts_i.h"
 #include "plugins/accounts/accounts-wrapper.h"
 #include "plugins/accounts/user-cache.h"

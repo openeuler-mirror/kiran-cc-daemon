@@ -9,7 +9,7 @@
 
 #include "lib/base/base.h"
 
-#include "audio_i.h"
+#include "audio-i.h"
 #include "plugins/audio/pulse/pulse-card.h"
 #include "plugins/audio/pulse/pulse-context.h"
 #include "plugins/audio/pulse/pulse-sink-input.h"

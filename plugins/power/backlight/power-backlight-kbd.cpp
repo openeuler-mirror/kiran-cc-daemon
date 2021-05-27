@@ -81,7 +81,7 @@ bool PowerBacklightKbd::set_brightness(int32_t percentage)
 bool PowerBacklightKbd::brightness_up()
 {
     RETURN_VAL_IF_TRUE(this->max_brightness_value_ <= 1, false);
-    
+
     auto brightness_percentage = std::min(this->brightness_percentage_ + POWER_KBD_BACKLIGHT_STEP, 100);
     return this->set_brightness(brightness_percentage);
 }
@@ -89,7 +89,7 @@ bool PowerBacklightKbd::brightness_up()
 bool PowerBacklightKbd::brightness_down()
 {
     RETURN_VAL_IF_TRUE(this->max_brightness_value_ <= 1, false);
-    
+
     auto brightness_percentage = std::max(this->brightness_percentage_ - POWER_KBD_BACKLIGHT_STEP, 0);
     return this->set_brightness(brightness_percentage);
 }
@@ -129,7 +129,7 @@ bool PowerBacklightKbd::set_brightness_value(int32_t value)
     }
     catch (const Glib::Error& e)
     {
-        LOG_DEBUG("%s", e.what());
+        LOG_DEBUG("%s", e.what().c_str());
         return false;
     }
     return true;

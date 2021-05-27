@@ -81,7 +81,7 @@
 
         <method name="SetAccountType">
             <arg name="account_type" direction="in" type="i">
-                <description>The new account type, encoded as an integer. Refer to AccountsAccountType in accounts_i.h</description>
+                <description>The new account type, encoded as an integer. Refer to AccountsAccountType in accounts-i.h</description>
             </arg>
             <description>Changes the users account type.</description>
         </method>
@@ -131,7 +131,7 @@
 
         <method name="AddAuthItem">
             <arg type="i" name="mode" direction="in">
-                <description>The authentication mode which could be fingerprint, face, etc. Refer to AccountsAuthMode in accounts_i.h</description>
+                <description>The authentication mode which could be fingerprint, face, etc. Refer to AccountsAuthMode in accounts-i.h</description>
             </arg>
             <arg type="s" name="name" direction="in">
                 <description>the name of the authentication item. For example fingerprint 1, fingerprint 2, etc.</description>
@@ -175,7 +175,7 @@
         </property>
 
         <property name="account_type" type="i" access="read">
-            <description>The users account type, encoded as an integer. Refer to AccountsAccountType in accounts_i.h</description>
+            <description>The users account type, encoded as an integer. Refer to AccountsAccountType in accounts-i.h</description>
         </property>
 
         <property name="home_directory" type="s" access="read">
@@ -217,7 +217,7 @@
         </property>
 
         <property name="password_mode" type="i" access="read">
-            <description>The password mode for the user account, encoded as an integer. Refer to AccountsPasswordMode in accounts_i.h</description>
+            <description>The password mode for the user account, encoded as an integer. Refer to AccountsPasswordMode in accounts-i.h</description>
         </property>
 
         <property name="password_hint" type="s" access="read">

@@ -7,6 +7,10 @@
 
 #pragma once
 
+#ifndef ACCOUNTS_NEW_INTERFACE
+#warning This file will be deprecated. please use accounts-i.h file
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {

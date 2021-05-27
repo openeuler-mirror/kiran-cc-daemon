@@ -10,7 +10,7 @@
 
 #include <gtkmm.h>
 
-#include "appearance_i.h"
+#include "appearance-i.h"
 #include "lib/base/base.h"
 
 /*

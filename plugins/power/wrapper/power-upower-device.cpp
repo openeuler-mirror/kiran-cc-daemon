@@ -57,7 +57,7 @@ PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_pa
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what());
+        LOG_WARNING("%s", e.what().c_str());
         return;
     }
 

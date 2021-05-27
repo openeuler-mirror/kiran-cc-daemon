@@ -10,6 +10,8 @@
 #include <json/json.h>
 
 #include "lib/dbus/dbus.h"
+
+#define SYSTEMINFO_NEW_INTERFACE
 #include "systeminfo_i.h"
 
 namespace Kiran

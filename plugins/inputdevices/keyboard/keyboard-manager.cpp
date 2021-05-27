@@ -10,7 +10,7 @@
 
 #include <X11/XKBlib.h>
 
-#include "keyboard_i.h"
+#include "keyboard-i.h"
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"
 #include "lib/iso/iso-translation.h"

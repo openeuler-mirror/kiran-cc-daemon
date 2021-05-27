@@ -10,7 +10,7 @@
 #include "plugins/power/save/power-save-computer.h"
 #include "plugins/power/save/power-save-dpms.h"
 #include "plugins/power/wrapper/power-wrapper-manager.h"
-#include "power_i.h"
+#include "power-i.h"
 
 namespace Kiran
 {

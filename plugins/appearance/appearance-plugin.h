@@ -1,14 +1,13 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-01 10:13:54
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 10:14:38
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/appearance-plugin.h
+/**
+ * @file          /kiran-cc-daemon/plugins/appearance/appearance-plugin.h
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #pragma once
 
-#include "plugin_i.h"
+#include "plugin-i.h"
 
 namespace Kiran
 {

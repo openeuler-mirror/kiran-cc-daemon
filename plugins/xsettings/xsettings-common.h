@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include "xsettings_i.h"
+#include "xsettings-i.h"
 
 /* X servers sometimes lie about the screen's physical dimensions, so we cannot
  * compute an accurate DPI value.  When this happens, the user gets fonts that

@@ -8,7 +8,7 @@
  */
 #include "plugins/appearance/font/appearance-font.h"
 
-#include "xsettings_i.h"
+#include "xsettings-i.h"
 
 namespace Kiran
 {
@@ -70,32 +70,39 @@ std::string AppearanceFont::get_font(AppearanceFontType type)
 
 bool AppearanceFont::set_font(AppearanceFontType type, const std::string& font)
 {
+    SETTINGS_PROFILE("type: %d.", type);
+
     switch (type)
     {
     case APPEARANCE_FONT_TYPE_APPLICATION:
     {
         RETURN_VAL_IF_FALSE(this->xsettings_settings_, false);
         this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_FONT_NAME, font);
+        break;
     }
     case APPEARANCE_FONT_TYPE_DOCUMENT:
     {
         RETURN_VAL_IF_FALSE(this->interface_settings_, false);
         this->interface_settings_->set_string(INTERFACE_KEY_DOCUMENT_FONT_NAME, font);
+        break;
     }
     case APPEARANCE_FONT_TYPE_DESKTOP:
     {
         RETURN_VAL_IF_FALSE(this->caja_settings_, false);
         this->caja_settings_->set_string(CAJA_SCHEMA_KEY_FONT, font);
+        break;
     }
     case APPEARANCE_FONT_TYPE_WINDOW_TITLE:
     {
         RETURN_VAL_IF_FALSE(this->marco_settings_, false);
         this->marco_settings_->set_string(MARCO_SCHAME_KEY_TITLEBAR_FONT, font);
+        break;
     }
     case APPEARANCE_FONT_TYPE_MONOSPACE:
     {
         RETURN_VAL_IF_FALSE(this->interface_settings_, false);
         this->interface_settings_->set_string(INTERFACE_KEY_MONOSPACE_FONT_NAME, font);
+        break;
     }
     default:
         return false;

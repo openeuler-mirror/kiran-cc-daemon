@@ -37,6 +37,8 @@ void AppearanceManager::global_init()
 
 void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("type: %d.", type);
+
     if (type < 0 || type >= int32_t(AppearanceThemeType::APPEARANCE_THEME_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_INVALID);
@@ -56,6 +58,8 @@ void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("type: %d, theme name: %s.", type, theme_name.c_str());
+
     ThemeKey key = std::make_pair(type, theme_name);
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!this->appearance_theme_.set_theme(key, error_code))
@@ -67,6 +71,8 @@ void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, M
 
 void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("type: %d.", type);
+
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_1);
@@ -76,6 +82,8 @@ void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation)
 {
+    SETTINGS_PROFILE("type: %d, font: %s.", type, font.c_str());
+
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_2);

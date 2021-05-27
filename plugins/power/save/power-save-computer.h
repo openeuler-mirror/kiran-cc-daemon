@@ -7,7 +7,7 @@
 #pragma once
 
 #include "plugins/power/wrapper/power-wrapper-manager.h"
-#include "power_i.h"
+#include "power-i.h"
 
 namespace Kiran
 {
