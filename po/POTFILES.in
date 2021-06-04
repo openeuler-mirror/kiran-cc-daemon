@@ -8,7 +8,7 @@
 [type: gettext/gsettings]data/com.kylinsec.kiran.xsettings.gschema.xml.in
 data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
-data/com.kylinsec.Kiran.SystemDaemon.GreeterSettings.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in
 src/main.cpp
 lib/base/error.cpp
@@ -24,4 +24,3 @@ plugins/power/notification/power-notification-manager.cpp
 plugins/power/wrapper/power-upower-device.cpp
 plugins/power/tools/power-backlight-helper.cpp
 plugins/xsettings/xsettings-manager.cpp
-plugins/greeter-settings/greeter-settings-dbus.cpp
