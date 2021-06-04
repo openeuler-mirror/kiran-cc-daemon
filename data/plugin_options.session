@@ -16,7 +16,7 @@ Available=false
 [display]
 Name=Display
 Description=Display plugin
-Available=true
+Available=false
 
 [keyboard]
 Name=Keyboard
@@ -31,7 +31,7 @@ Available=false
 [mouse]
 Name=Mouse
 Description=Mouse plugin
-Available=true
+Available=false
 
 [power]
 Name=Power
@@ -41,7 +41,7 @@ Available=false
 [touchpad]
 Name=TouchPad
 Description=TouchPad plugin
-Available=true
+Available=false
 
 [xsettings]
 Name=XSettings
