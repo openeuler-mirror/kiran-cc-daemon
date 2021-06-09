@@ -6,45 +6,45 @@ Available=false
 [appearance]
 Name=Appearance
 Description=Appearance plugin
-Available=false
+Available=@enable-plugin-appearance@
 
 [bluetooth]
 Name=Bluetooth
 Description=Bluetooth plugin
-Available=false
+Available=@enable-plugin-bluetooth@
 
 [display]
 Name=Display
 Description=Display plugin
-Available=false
+Available=@enable-plugin-display@
 
 [keyboard]
 Name=Keyboard
 Description=Keyboard plugin
-Available=false
+Available=@enable-plugin-keyboard@
 
 [keybinding]
 Name=Keybinding
 Description=Keybinding plugin
-Available=false
+Available=@enable-plugin-keybinding@
 
 [mouse]
 Name=Mouse
 Description=Mouse plugin
-Available=false
+Available=@enable-plugin-mouse@
 
 [power]
 Name=Power
 Description=Power plugin
-Available=false
+Available=@enable-plugin-power@
 
 [touchpad]
 Name=TouchPad
 Description=TouchPad plugin
-Available=false
+Available=@enable-plugin-touchpad@
 
 [xsettings]
 Name=XSettings
 Description=XSettings plugin
-Available=false
+Available=@enable-plugin-xsettings@
 

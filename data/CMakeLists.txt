@@ -48,7 +48,9 @@ if(build-system-daemon)
                 DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
     endforeach()
 
-    install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.system
+    # plugins configuration
+    configure_file(${PROJECT_SOURCE_DIR}/data/plugin_options.system.in ${PROJECT_BINARY_DIR}/data/plugin_options.system)
+    install(FILES ${PROJECT_BINARY_DIR}/data/plugin_options.system
             DESTINATION ${KCC_PLUGIN_DIR}/system
             RENAME plugin_options)
 endif()
@@ -80,8 +82,9 @@ if(build-session-daemon)
 
     install(CODE "execute_process(COMMAND glib-compile-schemas \"${KCC_INSTALL_DATADIR}/glib-2.0/schemas/\")")
 
-    #plugins configuration
-    install(FILES ${PROJECT_SOURCE_DIR}/data/plugin_options.session
+    # plugins configuration
+    configure_file(${PROJECT_SOURCE_DIR}/data/plugin_options.session.in ${PROJECT_BINARY_DIR}/data/plugin_options.session)
+    install(FILES ${PROJECT_BINARY_DIR}/data/plugin_options.session
             DESTINATION ${KCC_PLUGIN_DIR}/session
             RENAME plugin_options)
 

@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.2)
 
 project(kiran-cc-daemon VERSION 2.0)
 
-option(build-session-daemon "Build session daemon" ON)
-option(build-system-daemon "Build system daemon" ON)
-
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(KSD REQUIRED)

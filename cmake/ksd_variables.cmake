@@ -11,6 +11,24 @@ set(KCC_INSTALL_INCLUDE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/${PR
 set(SYSCONFDIR "/etc" CACHE PATH "Installation directory for configurations")
 set(KCC_PLUGIN_DIR ${KCC_INSTALL_LIBDIR}/kiran-cc-daemon)
 
+option(build-session-daemon "Build session daemon" ON)
+option(build-system-daemon "Build system daemon" ON)
+
+set(enable-plugin-accounts "true" CACHE STRING "Enable plugin accounts")
+set(enable-plugin-appearance "false" CACHE STRING "Enable plugin appearance")
+set(enable-plugin-audio "false" CACHE STRING "Enable plugin audio")
+set(enable-plugin-bluetooth "false" CACHE STRING "Enable plugin bluetooth")
+set(enable-plugin-display "false" CACHE STRING "Enable plugin display")
+set(enable-plugin-greeter "true" CACHE STRING "Enable plugin greeter")
+set(enable-plugin-keyboard "false" CACHE STRING "Enable plugin keyboard")
+set(enable-plugin-mouse "false" CACHE STRING "Enable plugin mouse")
+set(enable-plugin-touchpad "false" CACHE STRING "Enable plugin touchpad")
+set(enable-plugin-keybinding "false" CACHE STRING "Enable plugin keybinding")
+set(enable-plugin-power "false" CACHE STRING "Enable plugin power")
+set(enable-plugin-systeminfo "true" CACHE STRING "Enable plugin systeminfo")
+set(enable-plugin-timedate "true" CACHE STRING  "Enable plugin timedate")
+set(enable-plugin-xsettings "false" CACHE STRING "Enable plugin xsettings")
+
 
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
