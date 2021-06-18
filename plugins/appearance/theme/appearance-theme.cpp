@@ -1,13 +1,13 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-02 15:45:57
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-09 16:45:09
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/theme/appearance-theme.cpp
+/**
+ * @file          /kiran-cc-daemon/plugins/appearance/theme/appearance-theme.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
+
 #include "plugins/appearance/theme/appearance-theme.h"
 
+#include "lib/base/base.h"
 #include "xsettings-i.h"
 
 #define MARCO_SCHEMA_ID "org.mate.Marco.general"
@@ -129,6 +129,8 @@ bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
 
 std::string AppearanceTheme::get_theme(AppearanceThemeType type)
 {
+    SETTINGS_PROFILE("type: %d.", type);
+
     switch (type)
     {
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
@@ -151,7 +153,7 @@ std::string AppearanceTheme::get_theme(AppearanceThemeType type)
     {
         if (this->xsettings_settings_)
         {
-            this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME);
+            return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME);
         }
         break;
     }
@@ -159,7 +161,7 @@ std::string AppearanceTheme::get_theme(AppearanceThemeType type)
     {
         if (this->xsettings_settings_)
         {
-            this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME);
+            return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME);
         }
         break;
     }

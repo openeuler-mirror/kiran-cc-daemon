@@ -1,10 +1,8 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-19 13:58:22
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-15 14:49:20
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/accounts/user.cpp
+/**
+ * @file          /kiran-cc-daemon/plugins/accounts/user.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "plugins/accounts/user.h"
