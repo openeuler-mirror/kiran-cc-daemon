@@ -496,11 +496,11 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     if (remove_files)
     {
-        argv = std::vector<std::string>({"/usr/sbin/userdel", "-r", "--", user->user_name_get().raw()});
+        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "-r", "--", user->user_name_get().raw()});
     }
     else
     {
-        argv = std::vector<std::string>({"/usr/sbin/userdel", "--", user->user_name_get().raw()});
+        argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "--", user->user_name_get().raw()});
     }
 
     error_code = CCErrorCode::SUCCESS;
