@@ -48,3 +48,8 @@ Name=XSettings
 Description=XSettings plugin
 Available=@enable-plugin-xsettings@
 
+[network]
+Name=Network
+Description=Network plugin
+Available=@enable-plugin-network@
+

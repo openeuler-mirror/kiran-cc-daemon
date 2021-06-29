@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Network.Proxy">
+
+        <method name="SetMode">
+            <arg name="mode" direction="in" type="i">
+                <description>The proxy mode. Refer to NetworkProxyMode in network-i.h</description>
+            </arg>
+            <description>Set the proxy mode.</description>
+        </method>
+
+        <method name="SetManualProxy">
+            <arg name="options" direction="in" type="s">
+                <description>The proxy options which is a json string.</description>
+            </arg>
+            <description>Set manual proxy arguments.</description>
+        </method>
+
+        <method name="GetManualProxy">
+            <arg name="options" direction="out" type="s">
+                <description>The proxy options which is a json string.</description>
+            </arg>
+            <description>Get manual proxy arguments.</description>
+        </method>
+
+        <method name="SetAutoProxy">
+            <arg name="url" direction="in" type="s">
+                <description>The proxy url.</description>
+            </arg>
+            <description>Set the proxy url .</description>
+        </method>
+
+        <property name="mode" type="i" access="read">
+            <description>The proxy mode.</description>
+        </property>
+
+        <property name="proxy_url" type="s" access="read">
+            <description>URL that provides proxy configuration values. When mode is auto, this URL is used to look up proxy information for all protocols.</description>
+        </property>
+
+        <signal name="ManualProxyChanged">
+            <arg name="placeholder" type="y" />
+            <description>The manual proxy arguments is changed.</description>
+        </signal>
+
+    </interface>
+</node>
