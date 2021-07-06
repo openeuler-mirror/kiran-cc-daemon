@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/appearance/appearance-manager.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/appearance/appearance-manager.h"
@@ -37,7 +49,7 @@ void AppearanceManager::global_init()
 
 void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("type: %d.", type);
+    KLOG_PROFILE("type: %d.", type);
 
     if (type < 0 || type >= int32_t(AppearanceThemeType::APPEARANCE_THEME_TYPE_LAST))
     {
@@ -58,7 +70,7 @@ void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("type: %d, theme name: %s.", type, theme_name.c_str());
+    KLOG_PROFILE("type: %d, theme name: %s.", type, theme_name.c_str());
 
     ThemeKey key = std::make_pair(type, theme_name);
     CCErrorCode error_code = CCErrorCode::SUCCESS;
@@ -71,7 +83,7 @@ void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, M
 
 void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("type: %d.", type);
+    KLOG_PROFILE("type: %d.", type);
 
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
@@ -82,7 +94,7 @@ void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("type: %d, font: %s.", type, font.c_str());
+    KLOG_PROFILE("type: %d, font: %s.", type, font.c_str());
 
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
@@ -98,7 +110,7 @@ void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodIn
 
 void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("desktop background: %s", desktop_background.c_str());
+    KLOG_PROFILE("desktop background: %s", desktop_background.c_str());
 
     if (desktop_background != this->desktop_background_ &&
         !this->desktop_background_set(desktop_background))
@@ -110,7 +122,7 @@ void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_backgr
 
 bool AppearanceManager::desktop_background_setHandler(const Glib::ustring& value)
 {
-    SETTINGS_PROFILE("value: %s.", value.c_str());
+    KLOG_PROFILE("value: %s.", value.c_str());
 
     RETURN_VAL_IF_TRUE(value == this->desktop_background_, false);
 
@@ -144,7 +156,7 @@ void AppearanceManager::init()
 
 void AppearanceManager::load_from_settings()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     for (const auto& key : this->appearance_settings_->list_keys())
     {
@@ -154,7 +166,7 @@ void AppearanceManager::load_from_settings()
 
 void AppearanceManager::on_settings_changed(const Glib::ustring& key)
 {
-    SETTINGS_PROFILE("key: %s", key.c_str());
+    KLOG_PROFILE("key: %s", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -168,10 +180,10 @@ void AppearanceManager::on_settings_changed(const Glib::ustring& key)
 
 void AppearanceManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -180,17 +192,17 @@ void AppearanceManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("Register object_path %s fail: %s.", APPEARANCE_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("Register object_path %s fail: %s.", APPEARANCE_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void AppearanceManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_DEBUG("Success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("Success to register dbus name: %s", name.c_str());
 }
 
 void AppearanceManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_WARNING("Failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("Failed to register dbus name: %s", name.c_str());
 }
 }  // namespace  Kiran

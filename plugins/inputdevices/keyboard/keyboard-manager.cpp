@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-12 16:25:51
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:20:47
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/keyboard-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/inputdevices/keyboard/keyboard-manager.h"
 
 #include <X11/XKBlib.h>
@@ -59,7 +70,7 @@ void KeyboardManager::global_init()
 
 void KeyboardManager::AddLayout(const Glib::ustring &layout, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("layout: %s.", layout.c_str());
+    KLOG_PROFILE("layout: %s.", layout.c_str());
 
     auto layouts = this->layouts_;
 
@@ -90,7 +101,7 @@ void KeyboardManager::AddLayout(const Glib::ustring &layout, MethodInvocation &i
 
 void KeyboardManager::DelLayout(const Glib::ustring &layout, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("layout: %s.", layout.c_str());
+    KLOG_PROFILE("layout: %s.", layout.c_str());
 
     auto layouts = this->layouts_;
 
@@ -116,7 +127,7 @@ void KeyboardManager::GetValidLayouts(MethodInvocation &invocation)
 
 void KeyboardManager::AddLayoutOption(const Glib::ustring &option, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("option: %s.", option.c_str());
+    KLOG_PROFILE("option: %s.", option.c_str());
 
     auto options = this->options_;
 
@@ -137,7 +148,7 @@ void KeyboardManager::AddLayoutOption(const Glib::ustring &option, MethodInvocat
 
 void KeyboardManager::DelLayoutOption(const Glib::ustring &option, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("option: %s.", option.c_str());
+    KLOG_PROFILE("option: %s.", option.c_str());
 
     auto options = this->options_;
 
@@ -168,7 +179,7 @@ void KeyboardManager::ClearLayoutOption(MethodInvocation &invocation)
 #define AUTO_REPEAT_SET_HANDLER(prop, type1, key, type2)                                                           \
     bool KeyboardManager::prop##_setHandler(type1 value)                                                           \
     {                                                                                                              \
-        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());                                         \
+        KLOG_PROFILE("value: %s.", fmt::format("{0}", value).c_str());                                             \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                                                         \
         if (this->keyboard_settings_->get_##type2(key) != value)                                                   \
         {                                                                                                          \
@@ -189,22 +200,22 @@ AUTO_REPEAT_SET_HANDLER(repeat_interval, gint32, KEYBOARD_SCHEMA_REPEAT_INTERVAL
 
 bool KeyboardManager::layouts_setHandler(const std::vector<Glib::ustring> &value)
 {
-    SETTINGS_PROFILE("value: %s.", StrUtils::join(value, ",").c_str());
+    KLOG_PROFILE("value: %s.", StrUtils::join(value, ",").c_str());
 
     auto layouts = value;
 
     if (layouts.size() > LAYOUT_MAX_NUMBER)
     {
-        LOG_WARNING("the number of the layouts set has %d. it exceed max layout number(%d). the subsequent layout is ignored.",
-                    layouts.size(),
-                    LAYOUT_MAX_NUMBER);
+        KLOG_WARNING("the number of the layouts set has %d. it exceed max layout number(%d). the subsequent layout is ignored.",
+                     layouts.size(),
+                     LAYOUT_MAX_NUMBER);
 
         layouts.resize(LAYOUT_MAX_NUMBER);
     }
 
     if (layouts.size() == 0)
     {
-        LOG_WARNING("because the user layout list is empty, so set the default layout 'us'.");
+        KLOG_WARNING("because the user layout list is empty, so set the default layout 'us'.");
         layouts.push_back(DEFAULT_LAYOUT);
     }
 
@@ -227,7 +238,7 @@ bool KeyboardManager::layouts_setHandler(const std::vector<Glib::ustring> &value
 
 bool KeyboardManager::options_setHandler(const std::vector<Glib::ustring> &value)
 {
-    SETTINGS_PROFILE("value: %s.", StrUtils::join(value, ",").c_str());
+    KLOG_PROFILE("value: %s.", StrUtils::join(value, ",").c_str());
     if (this->options_.size() == value.size() &&
         std::equal(this->options_.begin(), this->options_.end(), value.begin()))
     {
@@ -262,7 +273,7 @@ void KeyboardManager::init()
 
 void KeyboardManager::load_from_settings()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (this->keyboard_settings_)
     {
@@ -276,7 +287,7 @@ void KeyboardManager::load_from_settings()
 
 void KeyboardManager::settings_changed(const Glib::ustring &key)
 {
-    SETTINGS_PROFILE("key: %s.", key.c_str());
+    KLOG_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -302,14 +313,14 @@ void KeyboardManager::settings_changed(const Glib::ustring &key)
 
 void KeyboardManager::load_xkb_rules()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XkbRulesParser rules_parser(DEFAULT_XKB_RULES_FILE);
     XkbRules xkb_rules;
     std::string err;
     if (!rules_parser.parse(xkb_rules, err))
     {
-        LOG_WARNING("failed to parse file %s: %s.", DEFAULT_XKB_RULES_FILE, err.c_str());
+        KLOG_WARNING("failed to parse file %s: %s.", DEFAULT_XKB_RULES_FILE, err.c_str());
         return;
     }
 
@@ -326,7 +337,7 @@ void KeyboardManager::load_xkb_rules()
             this->valid_layouts_[layout_name] = ISOTranslation::get_instance()->get_locale_string(xkb_rules.layouts[i].description, DEFAULT_DESC_DELIMETERS);
         }
 
-        // LOG_DEBUG("name: %s value: %s.", layout_name.c_str(), this->valid_layouts_[layout_name].c_str());
+        // KLOG_DEBUG("name: %s value: %s.", layout_name.c_str(), this->valid_layouts_[layout_name].c_str());
 
         for (size_t j = 0; j < xkb_rules.layouts[i].variants.size(); ++j)
         {
@@ -335,7 +346,7 @@ void KeyboardManager::load_xkb_rules()
             auto desciption = this->valid_layouts_[layout_name] + " " + variant_desc;
             this->valid_layouts_[layout_variant] = desciption;
 
-            // LOG_DEBUG("name: %s value: %s.", layout_variant.c_str(), desciption.c_str());
+            // KLOG_DEBUG("name: %s value: %s.", layout_variant.c_str(), desciption.c_str());
         }
     }
 }
@@ -349,10 +360,10 @@ void KeyboardManager::set_all_props()
 
 void KeyboardManager::set_auto_repeat()
 {
-    SETTINGS_PROFILE("repeat_enabled: %d repeat_delay: %d repeat_interval: %d.",
-                     this->repeat_enabled_,
-                     this->repeat_delay_,
-                     this->repeat_interval_);
+    KLOG_PROFILE("repeat_enabled: %d repeat_delay: %d repeat_interval: %d.",
+                 this->repeat_enabled_,
+                 this->repeat_delay_,
+                 this->repeat_interval_);
 
     auto display = gdk_display_get_default();
 
@@ -367,7 +378,7 @@ void KeyboardManager::set_auto_repeat()
 
         if (!ret)
         {
-            LOG_WARNING("XKeyboard keyboard extensions are unavailable, no way to support keyboard autorepeat rate settings");
+            KLOG_WARNING("XKeyboard keyboard extensions are unavailable, no way to support keyboard autorepeat rate settings");
         }
     }
     else
@@ -378,7 +389,7 @@ void KeyboardManager::set_auto_repeat()
 
 bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
 {
-    SETTINGS_PROFILE("layouts: %s.", StrUtils::join(layouts, ";").c_str());
+    KLOG_PROFILE("layouts: %s.", StrUtils::join(layouts, ";").c_str());
 
     std::string join_layouts;
     std::string join_variants;
@@ -398,7 +409,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
         }
         else
         {
-            LOG_WARNING("the format of the layout item '%s' is invalid. it's already ignored", iter->c_str());
+            KLOG_WARNING("the format of the layout item '%s' is invalid. it's already ignored", iter->c_str());
         }
     }
 
@@ -412,7 +423,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
     std::string err;
     try
     {
-        LOG_DEBUG("cmdline: %s.", cmdline.c_str());
+        KLOG_DEBUG("cmdline: %s.", cmdline.c_str());
         Glib::spawn_command_line_sync(cmdline, nullptr, &err);
     }
     catch (const Glib::Error &e)
@@ -422,7 +433,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
 
     if (err.length() > 0)
     {
-        LOG_WARNING("failed to set layouts: %s.", err.c_str());
+        KLOG_WARNING("failed to set layouts: %s.", err.c_str());
         return false;
     }
     return true;
@@ -430,7 +441,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
 
 bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
 {
-    SETTINGS_PROFILE("options: %s.", StrUtils::join(options, ";").c_str());
+    KLOG_PROFILE("options: %s.", StrUtils::join(options, ";").c_str());
 
     try
     {
@@ -438,7 +449,7 @@ bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("failed to set options: %s.", e.what().c_str());
+        KLOG_WARNING("failed to set options: %s.", e.what().c_str());
         return false;
     }
 
@@ -453,12 +464,12 @@ bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
     auto cmdline = fmt::format("{0} {1}", SETXKBMAP, join_options);
     try
     {
-        LOG_DEBUG("cmdline: %s.", cmdline.c_str());
+        KLOG_DEBUG("cmdline: %s.", cmdline.c_str());
         Glib::spawn_command_line_sync(cmdline);
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("failed to set options: %s.", e.what().c_str());
+        KLOG_WARNING("failed to set options: %s.", e.what().c_str());
         return false;
     }
     return true;
@@ -466,10 +477,10 @@ bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
 
 void KeyboardManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -478,15 +489,15 @@ void KeyboardManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", KEYBOARD_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", KEYBOARD_OBJECT_PATH, e.what().c_str());
     }
 }
 void KeyboardManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 void KeyboardManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("failed to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

@@ -1,9 +1,22 @@
 /**
- * @file          /kiran-cc-daemon/plugins/audio/pulse/pulse-node.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "plugins/audio/pulse/pulse-stream.h"
 
@@ -30,7 +43,7 @@ PulseNode::PulseNode(uint32_t index,
 
 bool PulseNode::set_mute(bool mute)
 {
-    SETTINGS_PROFILE("mute: %d.", mute);
+    KLOG_PROFILE("mute: %d.", mute);
 
     RETURN_VAL_IF_TRUE(this->mute_ == mute, true);
 
@@ -40,11 +53,11 @@ bool PulseNode::set_mute(bool mute)
 
 bool PulseNode::set_volume(uint32_t volume)
 {
-    SETTINGS_PROFILE("volume: %d.", volume);
+    KLOG_PROFILE("volume: %d.", volume);
 
     if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE))
     {
-        LOG_WARNING("The volume isn't writable, flags: %x.", this->flags_);
+        KLOG_WARNING("The volume isn't writable, flags: %x.", this->flags_);
         return false;
     }
 
@@ -60,11 +73,11 @@ bool PulseNode::set_volume(uint32_t volume)
 
 bool PulseNode::set_balance(float balance)
 {
-    SETTINGS_PROFILE("balance: %f.", balance);
+    KLOG_PROFILE("balance: %f.", balance);
 
     if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE))
     {
-        LOG_WARNING("The balance is unsupported, flags: %x.", this->flags_);
+        KLOG_WARNING("The balance is unsupported, flags: %x.", this->flags_);
         return false;
     }
 
@@ -78,11 +91,11 @@ bool PulseNode::set_balance(float balance)
 
 bool PulseNode::set_fade(float fade)
 {
-    SETTINGS_PROFILE("fade: %f.", fade);
+    KLOG_PROFILE("fade: %f.", fade);
 
     if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_CAN_FADE))
     {
-        LOG_WARNING("The fade is unsupported, flags: %x.", this->flags_);
+        KLOG_WARNING("The fade is unsupported, flags: %x.", this->flags_);
         return false;
     }
 
@@ -160,9 +173,9 @@ bool PulseNode::set_cvolume(const pa_cvolume &)
 
 void PulseNode::update_flags()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
-    LOG_DEBUG("flags before updated: %x.", this->flags_);
+    KLOG_DEBUG("flags before updated: %x.", this->flags_);
     if (pa_channel_map_valid(&this->channel_map_))
     {
         if (pa_channel_map_can_balance(&this->channel_map_))
@@ -201,7 +214,7 @@ void PulseNode::update_flags()
         this->set_mute(true);
     }
 
-    LOG_DEBUG("flags after updated: %x.", this->flags_);
+    KLOG_DEBUG("flags after updated: %x.", this->flags_);
 }
 
 void PulseNode::update_mute(bool mute)

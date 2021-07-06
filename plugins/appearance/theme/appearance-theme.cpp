@@ -1,9 +1,22 @@
 /**
- * @file          /kiran-cc-daemon/plugins/appearance/theme/appearance-theme.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "plugins/appearance/theme/appearance-theme.h"
 
@@ -31,7 +44,7 @@ void AppearanceTheme::init()
         auto theme = parse.parse();
         if (theme)
         {
-            // LOG_DEBUG("path: %s type: %d", theme->path.c_str(), theme->type);
+            // KLOG_DEBUG("path: %s type: %d", theme->path.c_str(), theme->type);
             this->add_theme(theme);
         }
     }
@@ -129,7 +142,7 @@ bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
 
 std::string AppearanceTheme::get_theme(AppearanceThemeType type)
 {
-    SETTINGS_PROFILE("type: %d.", type);
+    KLOG_PROFILE("type: %d.", type);
 
     switch (type)
     {
@@ -200,7 +213,7 @@ bool AppearanceTheme::del_theme(ThemeUniqueKey unique_key)
             return true;
         }
     }
-    // LOG_DEBUG("Not found the theme %s.", key.second);
+    // KLOG_DEBUG("Not found the theme %s.", key.second);
     return false;
 }
 

@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-11 16:21:11
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 15:05:37
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/xsettings/xsettings-manager.h"
@@ -194,7 +204,7 @@ void XSettingsManager::init()
 
 void XSettingsManager::load_from_settings()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     for (const auto &key : this->xsettings_settings_->list_keys())
     {
@@ -209,7 +219,7 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 {
     if (is_notify)
     {
-        LOG_DEBUG("key: %s.", key.c_str());
+        KLOG_DEBUG("key: %s.", key.c_str());
     }
 
     auto iter = this->schema2registry_.find(key);
@@ -271,7 +281,7 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
         break;
 
     default:
-        LOG_WARNING("Unknown key: %s.", key.c_str());
+        KLOG_WARNING("Unknown key: %s.", key.c_str());
         break;
     }
 #undef SET_CASET
@@ -301,7 +311,7 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 
 void XSettingsManager::scale_settings()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto scale = this->get_window_scale();
     auto dpi = XSettingsUtils::get_dpi_from_x_server();
@@ -320,7 +330,7 @@ void XSettingsManager::scale_settings()
 
 void XSettingsManager::scale_change_workarounds(int32_t scale)
 {
-    SETTINGS_PROFILE("window_scale: %d, scale: %d", this->window_scale_, scale);
+    KLOG_PROFILE("window_scale: %d, scale: %d", this->window_scale_, scale);
 
     std::string error;
     RETURN_IF_TRUE(this->window_scale_ == scale);
@@ -332,12 +342,12 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
         {
             if (!XSettingsUtils::update_user_env_variable("QT_AUTO_SCREEN_SCALE_FACTOR", "0", error))
             {
-                LOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
+                KLOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
             }
 
             if (!XSettingsUtils::update_user_env_variable("QT_SCALE_FACTOR", scale == 2 ? "2" : "1", error))
             {
-                LOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
+                KLOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
             }
         }
     }
@@ -358,7 +368,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
             }
             catch (const Glib::Error &e)
             {
-                LOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
+                KLOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
             }
         }
         // 重启面板
@@ -369,7 +379,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
         }
         catch (const Glib::Error &e)
         {
-            LOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
+            KLOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
         }
 
         // 重置桌面图标大小
@@ -388,7 +398,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
 
 void XSettingsManager::on_screen_changed()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto scale = this->get_window_scale();
     if (scale != this->window_scale_)
@@ -498,10 +508,10 @@ void XSettingsManager::set_registry_var(std::shared_ptr<XSettingsPropertyBase> v
 
 void XSettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -510,18 +520,18 @@ void XSettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", XSETTINGS_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", XSETTINGS_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void XSettingsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void XSettingsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-24 16:20:07
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-03 09:31:23
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keybinding-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/keybinding/keybinding-manager.h"
@@ -39,7 +49,7 @@ void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
                                           const Glib::ustring &key_combination,
                                           MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     auto custom_shortcut = std::make_shared<CustomShortCut>(name, action, key_combination);
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     auto uid = CustomShortCutManager::get_instance()->add(custom_shortcut, error_code);
@@ -60,7 +70,7 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
                                              const Glib::ustring &key_combination,
                                              MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     auto custom_shortcut = std::make_shared<CustomShortCut>(name, action, key_combination);
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!CustomShortCutManager::get_instance()->modify(uid.raw(), custom_shortcut, error_code))
@@ -76,7 +86,7 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
 
 void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!CustomShortCutManager::get_instance()->remove(uid, error_code))
     {
@@ -91,7 +101,7 @@ void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInv
 
 void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     auto custom_shortcut = CustomShortCutManager::get_instance()->get(uid.raw());
     if (!custom_shortcut)
     {
@@ -102,7 +112,7 @@ void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvoca
 
 void KeybindingManager::ListCustomShortcuts(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     auto custom_shortcuts = CustomShortCutManager::get_instance()->get();
     std::vector<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>> result;
     for (const auto &shortcut : custom_shortcuts)
@@ -116,7 +126,7 @@ void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
                                              const Glib::ustring &key_combination,
                                              MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!SystemShortCutManager::get_instance()->modify(uid.raw(), key_combination.raw(), error_code))
@@ -149,7 +159,7 @@ void KeybindingManager::ListSystemShortcuts(MethodInvocation &invocation)
 
 void KeybindingManager::ListShortcuts(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::vector<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>> result;
 
     auto custom_shortcuts = CustomShortCutManager::get_instance()->get();
@@ -197,10 +207,10 @@ void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> 
 
 void KeybindingManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -209,17 +219,17 @@ void KeybindingManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", KEYBINDING_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", KEYBINDING_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void KeybindingManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void KeybindingManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("failed to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

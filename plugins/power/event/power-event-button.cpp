@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/event/power-event-button.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/event/power-event-button.h"
@@ -54,18 +66,18 @@ bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
     auto keycode = XKeysymToKeycode(this->xdisplay_, keysym);
     if (keycode == 0)
     {
-        LOG_WARNING("Could not map keysym 0x%x to keycode", keysym);
+        KLOG_WARNING("Could not map keysym 0x%x to keycode", keysym);
         return false;
     }
 
-    LOG_DEBUG("keysym: 0x%08x, keycode: 0x%08x.", keysym, keycode);
+    KLOG_DEBUG("keysym: 0x%08x, keycode: 0x%08x.", keysym, keycode);
 
     auto keycode_str = fmt::format("0x{:x}", keycode);
 
     auto iter = this->buttons_.emplace(keycode_str, type);
     if (!iter.second)
     {
-        LOG_WARNING("Already exists keycode: %s.", keycode_str.c_str());
+        KLOG_WARNING("Already exists keycode: %s.", keycode_str.c_str());
         return false;
     }
 
@@ -80,7 +92,7 @@ bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
                         GrabModeAsync);
     if (ret == BadAccess)
     {
-        LOG_WARNING("Failed to grab keycode: %d", (int32_t)keycode);
+        KLOG_WARNING("Failed to grab keycode: %d", (int32_t)keycode);
         return false;
     }
 
@@ -95,7 +107,7 @@ void PowerEventButton::emit_button_signal(PowerEvent type)
     unsigned long elapsed_msec;
     if (this->button_signal_timer_.elapsed(elapsed_msec) < POWER_BUTTON_DUPLICATE_TIMEOUT)
     {
-        LOG_DEBUG("ignoring duplicate button %s", type);
+        KLOG_DEBUG("ignoring duplicate button %s", type);
         return;
     }
 
@@ -128,11 +140,11 @@ GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *e
     auto iter = button->buttons_.find(keycode_str);
     if (iter == button->buttons_.end())
     {
-        LOG_DEBUG("Keycode %d not found.", keycode);
+        KLOG_DEBUG("Keycode %d not found.", keycode);
         return GDK_FILTER_CONTINUE;
     }
 
-    LOG_DEBUG("Receipt keycode signal: %s.", keycode_str.c_str());
+    KLOG_DEBUG("Receipt keycode signal: %s.", keycode_str.c_str());
     button->emit_button_signal(iter->second);
 
     return GDK_FILTER_REMOVE;

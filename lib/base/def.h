@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-05-29 18:16:08
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 14:28:16
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/base/def.h
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #pragma once
 
@@ -59,13 +70,13 @@ private:
 // helper macro for Defer class
 #define SCOPE_EXIT(block) Defer CONNECT(_defer_, __LINE__)([&](std::string _arg_function) block, __FUNCTION__)
 
-#define RETURN_VAL_IF_FALSE(cond, val)            \
-    {                                             \
-        if (!(cond))                              \
-        {                                         \
-            LOG_DEBUG("The condition is false."); \
-            return val;                           \
-        }                                         \
+#define RETURN_VAL_IF_FALSE(cond, val)             \
+    {                                              \
+        if (!(cond))                               \
+        {                                          \
+            KLOG_DEBUG("The condition is false."); \
+            return val;                            \
+        }                                          \
     }
 
 #define RETURN_VAL_IF_TRUE(cond, val) \
@@ -73,13 +84,13 @@ private:
         if (cond) return val;         \
     }
 
-#define RETURN_IF_FALSE(cond)                     \
-    {                                             \
-        if (!(cond))                              \
-        {                                         \
-            LOG_DEBUG("The condition is false."); \
-            return;                               \
-        }                                         \
+#define RETURN_IF_FALSE(cond)                      \
+    {                                              \
+        if (!(cond))                               \
+        {                                          \
+            KLOG_DEBUG("The condition is false."); \
+            return;                                \
+        }                                          \
     }
 
 #define RETURN_IF_TRUE(cond) \

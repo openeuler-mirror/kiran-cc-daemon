@@ -1,9 +1,22 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/idle/power-idle-timer.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/power/idle/power-idle-timer.h"
 
 namespace Kiran
@@ -35,7 +48,7 @@ void PowerIdleTimer::init()
 
 bool PowerIdleTimer::set_idle_timeout(PowerIdleMode mode, uint32_t timeout)
 {
-    SETTINGS_PROFILE("mode: %d, timeout: %d.", mode, timeout);
+    KLOG_PROFILE("mode: %d, timeout: %d.", mode, timeout);
 
     switch (mode)
     {
@@ -93,7 +106,7 @@ void PowerIdleTimer::update_mode()
     auto is_idle = this->session_->get_idle();
     auto idle_inhibit = this->session_->get_idle_inhibited();
 
-    LOG_DEBUG("is_idle: %d idle_inhibit: %d.", is_idle, idle_inhibit);
+    KLOG_DEBUG("is_idle: %d idle_inhibit: %d.", is_idle, idle_inhibit);
 
     // 如果为未空闲状态，或者禁止空闲时操作，则不进行节能处理
     if (!is_idle || idle_inhibit)
@@ -157,12 +170,12 @@ void PowerIdleTimer::remove_sleep_timeout()
 
 bool PowerIdleTimer::on_blank_timeout_cb()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     // 如果已经进入计算机节能模式，则不再发送显示设备节能信号
     if (this->mode_ >= PowerIdleMode::POWER_IDLE_MODE_BLANK)
     {
-        LOG_DEBUG("Ignore blank timeout, mode: %d.", this->mode_);
+        KLOG_DEBUG("Ignore blank timeout, mode: %d.", this->mode_);
         return false;
     }
 
@@ -172,7 +185,7 @@ bool PowerIdleTimer::on_blank_timeout_cb()
 
 bool PowerIdleTimer::on_sleep_timeout_cb()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     this->switch_mode(PowerIdleMode::POWER_IDLE_MODE_SLEEP);
     return false;
@@ -180,25 +193,25 @@ bool PowerIdleTimer::on_sleep_timeout_cb()
 
 void PowerIdleTimer::on_session_idle_status_changed(bool is_idle)
 {
-    SETTINGS_PROFILE("is_idle: %d.", is_idle);
+    KLOG_PROFILE("is_idle: %d.", is_idle);
     this->update_mode();
 }
 
 void PowerIdleTimer::on_inhibitor_changed()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     this->update_mode();
 }
 
 void PowerIdleTimer::on_alarm_triggered(std::shared_ptr<XAlarmInfo> xalarm)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     this->is_xidle_ = true;
 }
 
 void PowerIdleTimer::on_alarm_reset()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     this->is_xidle_ = false;
 }

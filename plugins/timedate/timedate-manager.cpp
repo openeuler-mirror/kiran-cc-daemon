@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-07-06 10:02:03
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 16:47:58
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/timedate/timedate-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/timedate/timedate-manager.h"
@@ -88,7 +98,7 @@ void TimedateManager::SetTime(gint64 requested_time,
                               bool relative,
                               MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("RequestedTime: %" PRId64 " Relative: %d", requested_time, relative);
+    KLOG_PROFILE("RequestedTime: %" PRId64 " Relative: %d", requested_time, relative);
     if (this->ntp_get())
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NTP_IS_ACTIVE);
@@ -105,7 +115,7 @@ void TimedateManager::SetTime(gint64 requested_time,
 void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
                                   MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("TimeZone: %s.", time_zone.c_str());
+    KLOG_PROFILE("TimeZone: %s.", time_zone.c_str());
     if (!check_timezone_name(time_zone))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_TIMEZONE_INVALIDE);
@@ -126,7 +136,7 @@ void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
 
 void TimedateManager::GetZoneList(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::vector<std::tuple<Glib::ustring, Glib::ustring, int64_t>> result;
 
     auto zone_infos = this->get_zone_infos();
@@ -143,7 +153,7 @@ void TimedateManager::SetLocalRTC(bool local,
                                   bool adjust_system,
                                   MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("local: %d adjust_system: %d.", local, adjust_system);
+    KLOG_PROFILE("local: %d adjust_system: %d.", local, adjust_system);
 
     if (local == this->local_rtc_get())
     {
@@ -160,7 +170,7 @@ void TimedateManager::SetLocalRTC(bool local,
 void TimedateManager::SetNTP(bool active,
                              MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("active: %d.", active);
+    KLOG_PROFILE("active: %d.", active);
 
     if (active == this->ntp_get())
     {
@@ -181,7 +191,7 @@ void TimedateManager::SetNTP(bool active,
 
 void TimedateManager::GetDateFormatList(gint32 type, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("type: %d.", type);
+    KLOG_PROFILE("type: %d.", type);
 
     switch (type)
     {
@@ -205,7 +215,7 @@ void TimedateManager::GetDateFormatList(gint32 type, MethodInvocation &invocatio
 
 void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("type: %d, index: %d.", type, index);
+    KLOG_PROFILE("type: %d, index: %d.", type, index);
 
     bool result = false;
     switch (type)
@@ -232,7 +242,7 @@ void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvo
 
 void TimedateManager::SetHourFormat(gint32 format, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("format: %d", format);
+    KLOG_PROFILE("format: %d", format);
 
     if (!this->hour_format_set(format))
     {
@@ -246,7 +256,7 @@ void TimedateManager::SetHourFormat(gint32 format, MethodInvocation &invocation)
 
 void TimedateManager::EnableSecondsShowing(bool enabled, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("enabled: %d", enabled);
+    KLOG_PROFILE("enabled: %d", enabled);
 
     if (!this->seconds_showing_set(enabled))
     {
@@ -299,7 +309,7 @@ bool TimedateManager::seconds_showing_setHandler(bool value)
 
 guint64 TimedateManager::system_time_get()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
@@ -307,7 +317,7 @@ guint64 TimedateManager::system_time_get()
 
 guint64 TimedateManager::rtc_time_get()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     struct rtc_time rtc;
     struct tm tm;
     time_t rtc_time = 0;
@@ -362,7 +372,7 @@ bool TimedateManager::seconds_showing_get()
 
 void TimedateManager::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     bindtextdomain(TIMEZONE_DOMAIN, KCC_LOCALEDIR);
     bind_textdomain_codeset(TIMEZONE_DOMAIN, "UTF-8");
@@ -408,7 +418,7 @@ void TimedateManager::init_ntp_units()
 
         if (!this->stop_ntp_unit(ntp_unit, error_code))
         {
-            LOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
+            KLOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
         }
     }
 
@@ -424,14 +434,14 @@ void TimedateManager::init_ntp_units()
         }
         else
         {
-            LOG_WARNING("Failed to create dbus proxy. Object path: %s.", unit_object_path.c_str());
+            KLOG_WARNING("Failed to create dbus proxy. Object path: %s.", unit_object_path.c_str());
         }
     }
 }
 
 std::vector<std::string> TimedateManager::get_ntp_units()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::vector<std::string> ntp_units;
 
     for (auto iter = this->ntp_units_paths_.begin(); iter != this->ntp_units_paths_.end(); ++iter)
@@ -453,7 +463,7 @@ std::vector<std::string> TimedateManager::get_ntp_units()
                 }
                 catch (const Glib::FileError &e)
                 {
-                    LOG_WARNING("Failed to get contents of the file %s: %s", path.c_str(), e.what().c_str());
+                    KLOG_WARNING("Failed to get contents of the file %s: %s", path.c_str(), e.what().c_str());
                     continue;
                 }
 
@@ -464,24 +474,24 @@ std::vector<std::string> TimedateManager::get_ntp_units()
                     auto line = *line_iter;
                     if (line.length() == 0 || line.at(0) == '#')
                     {
-                        LOG_DEBUG("The line %s is ingored. Length: %d", line.c_str(), line.length());
+                        KLOG_DEBUG("The line %s is ingored. Length: %d", line.c_str(), line.length());
                         continue;
                     }
 
                     if (!call_systemd_noresult("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", line.c_str()), false)))
                     {
-                        LOG_DEBUG("Failed to LoadUnit: %s.", line.c_str());
+                        KLOG_DEBUG("Failed to LoadUnit: %s.", line.c_str());
                         continue;
                     }
 
-                    LOG_DEBUG("Insert ntp unit: %s %s.", line.c_str(), entry.c_str());
+                    KLOG_DEBUG("Insert ntp unit: %s %s.", line.c_str(), entry.c_str());
                     ntp_units.push_back(line);
                 }
             }
         }
         catch (const Glib::FileError &e)
         {
-            LOG_DEBUG("%s", e.what().c_str());
+            KLOG_DEBUG("%s", e.what().c_str());
         }
     }
 
@@ -493,7 +503,7 @@ std::vector<std::string> TimedateManager::get_ntp_units()
 
 bool TimedateManager::start_ntp_unit(const std::string &name, CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("name: %s.", name.c_str());
+    KLOG_PROFILE("name: %s.", name.c_str());
 
     GVariantBuilder builder;
     g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
@@ -514,7 +524,7 @@ bool TimedateManager::start_ntp_unit(const std::string &name, CCErrorCode &error
 
 bool TimedateManager::stop_ntp_unit(const std::string &name, CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("name: %s.", name.c_str());
+    KLOG_PROFILE("name: %s.", name.c_str());
 
     GVariantBuilder builder;
     g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
@@ -624,7 +634,7 @@ std::vector<ZoneInfo> TimedateManager::get_zone_infos()
     }
     catch (const Glib::FileError &e)
     {
-        LOG_WARNING("failed to get file contents: %s.", file_path.c_str());
+        KLOG_WARNING("failed to get file contents: %s.", file_path.c_str());
         return zone_infos;
     }
 
@@ -648,7 +658,7 @@ std::vector<ZoneInfo> TimedateManager::get_zone_infos()
         }
         else
         {
-            LOG_WARNING("ignore line: %s, the line is less than %d columns.", line.c_str(), ZONE_TABLE_MIN_COLUMN);
+            KLOG_WARNING("ignore line: %s, the line is less than %d columns.", line.c_str(), ZONE_TABLE_MIN_COLUMN);
         }
     }
     return zone_infos;
@@ -656,7 +666,7 @@ std::vector<ZoneInfo> TimedateManager::get_zone_infos()
 
 Glib::VariantContainerBase TimedateManager::call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters)
 {
-    SETTINGS_PROFILE("method_name: %s.", method_name.c_str());
+    KLOG_PROFILE("method_name: %s.", method_name.c_str());
     Glib::VariantContainerBase retval;
     try
     {
@@ -664,14 +674,14 @@ Glib::VariantContainerBase TimedateManager::call_systemd(const std::string &meth
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("failed to call systemd method: %s", e.what().c_str());
+        KLOG_WARNING("failed to call systemd method: %s", e.what().c_str());
     }
     return retval;
 }
 
 bool TimedateManager::call_systemd_noresult(const std::string &method_name, const Glib::VariantContainerBase &parameters)
 {
-    SETTINGS_PROFILE("method_name: %s.", method_name.c_str());
+    KLOG_PROFILE("method_name: %s.", method_name.c_str());
     auto retval = call_systemd(method_name, parameters);
     if (retval.gobj())
     {
@@ -694,7 +704,7 @@ void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_d
     }
     else
     {
-        LOG_WARNING("hwclock failed: %s\n", error->message);
+        KLOG_WARNING("hwclock failed: %s\n", error->message);
         if (hwclock_call->invocation)
         {
             auto err_message = fmt::format("hwclock failed: %s", error->message);
@@ -760,7 +770,7 @@ void TimedateManager::start_hwclock_call(bool hctosys,
     }
     catch (const Glib::SpawnError &e)
     {
-        LOG_WARNING("%s\n", e.what().c_str());
+        KLOG_WARNING("%s\n", e.what().c_str());
         if (invocation)
         {
             invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, e.what().c_str()));
@@ -880,7 +890,7 @@ void TimedateManager::update_kernel_utc_offset(void)
 
     if (!updated)
     {
-        LOG_WARNING("Failed to update kernel UTC offset");
+        KLOG_WARNING("Failed to update kernel UTC offset");
     }
 }
 
@@ -972,7 +982,7 @@ void TimedateManager::finish_set_rtc_local(MethodInvocation invocation,
 
 void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool active)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     bool result = false;
     if (active)
@@ -995,10 +1005,10 @@ void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool ac
 
 void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -1007,17 +1017,17 @@ void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", TIMEDATE_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", TIMEDATE_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void TimedateManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void TimedateManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

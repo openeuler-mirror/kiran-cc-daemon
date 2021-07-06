@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/idle/power-idle-xalarm.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/idle/power-idle-xalarm.h"
@@ -54,13 +66,13 @@ void PowerIdleXAlarm::init()
 
     if (!this->xdisplay_)
     {
-        LOG_WARNING("Not found xdisplay.");
+        KLOG_WARNING("Not found xdisplay.");
         return;
     }
 
     if (!XSyncQueryExtension(this->xdisplay_, &this->sync_event_base_, &this->sync_error_base_))
     {
-        LOG_WARNING("No Sync extension.");
+        KLOG_WARNING("No Sync extension.");
         return;
     }
 
@@ -77,7 +89,7 @@ void PowerIdleXAlarm::init()
 
     if (!this->idle_counter_)
     {
-        LOG_WARNING("No idle counter.");
+        KLOG_WARNING("No idle counter.");
         return;
     }
 
@@ -92,7 +104,7 @@ void PowerIdleXAlarm::init()
 
 bool PowerIdleXAlarm::set(XAlarmType type, uint32_t timeout)
 {
-    SETTINGS_PROFILE("type: %d, timeout: %d.", type, timeout);
+    KLOG_PROFILE("type: %d, timeout: %d.", type, timeout);
     RETURN_VAL_IF_TRUE(type <= 0 || type >= XAlarmType::XALARM_TYPE_LAST || timeout == 0, false);
 
     auto xalarm = this->find_xalarm_by_type(type);
@@ -110,7 +122,7 @@ bool PowerIdleXAlarm::set(XAlarmType type, uint32_t timeout)
 
 bool PowerIdleXAlarm::unset(XAlarmType type)
 {
-    SETTINGS_PROFILE("type: %d.", type);
+    KLOG_PROFILE("type: %d.", type);
 
     auto xalarm = this->find_xalarm_by_type(type);
     RETURN_VAL_IF_FALSE(xalarm, false);
@@ -136,7 +148,7 @@ bool PowerIdleXAlarm::add(std::shared_ptr<XAlarmInfo> xalarm)
 
     if (this->find_xalarm_by_type(xalarm->type))
     {
-        LOG_WARNING("The xalarm type %d is already exists.", xalarm->type);
+        KLOG_WARNING("The xalarm type %d is already exists.", xalarm->type);
         return false;
     }
     this->xalarms_.push_back(xalarm);
@@ -160,7 +172,7 @@ bool PowerIdleXAlarm::remove(std::shared_ptr<XAlarmInfo> xalarm)
 
 void PowerIdleXAlarm::reset_all_xalarm()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto reset_xalarm = this->find_xalarm_by_type(XAlarmType::XALARM_TYPE_RESET);
     RETURN_IF_FALSE(reset_xalarm || reset_xalarm->xalarm_id == None);
@@ -182,9 +194,9 @@ void PowerIdleXAlarm::reset_all_xalarm()
 
 void PowerIdleXAlarm::register_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xalarm, XSyncTestType test_type)
 {
-    SETTINGS_PROFILE("type: %d, test_type: %d.",
-                     xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST,
-                     test_type);
+    KLOG_PROFILE("type: %d, test_type: %d.",
+                 xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST,
+                 test_type);
 
     RETURN_IF_TRUE(xalarm == nullptr || this->idle_counter_ == None);
 
@@ -217,7 +229,7 @@ void PowerIdleXAlarm::register_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xalar
 
 void PowerIdleXAlarm::unregister_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xalarm)
 {
-    SETTINGS_PROFILE("type: %d", xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST);
+    KLOG_PROFILE("type: %d", xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST);
 
     RETURN_IF_TRUE(this->xdisplay_ == NULL || (!xalarm) || xalarm->xalarm_id == None);
 
@@ -228,7 +240,7 @@ void PowerIdleXAlarm::unregister_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xal
 
 std::shared_ptr<XAlarmInfo> PowerIdleXAlarm::find_xalarm_by_type(XAlarmType type)
 {
-    SETTINGS_PROFILE("type: %d", type);
+    KLOG_PROFILE("type: %d", type);
 
     for (auto &xalarm : this->xalarms_)
     {
@@ -242,7 +254,7 @@ std::shared_ptr<XAlarmInfo> PowerIdleXAlarm::find_xalarm_by_type(XAlarmType type
 
 std::shared_ptr<XAlarmInfo> PowerIdleXAlarm::find_xalarm_by_id(XSyncAlarm xalarm_id)
 {
-    SETTINGS_PROFILE("xalarm_id: %d", (int32_t)xalarm_id);
+    KLOG_PROFILE("xalarm_id: %d", (int32_t)xalarm_id);
 
     for (auto &xalarm : this->xalarms_)
     {
@@ -276,13 +288,13 @@ GdkFilterReturn PowerIdleXAlarm::on_event_filter_cb(GdkXEvent *gdkxevent, GdkEve
     为了让报警器下次能继续工作（报警），这里向X注册一个重置报警器，当设备进入非空闲状态时，会收到重置报警器的Alarm事件。
     当收到重置报警器的Alarm事件时，重新向X注册非重置报警器，让所有非重置报警器的状态变为Active状态，同时取消注册重置报警器。*/
 
-    LOG_DEBUG("Receive alarm signal. type: %" PRId64 ", timeout: %d, xalarm id: %d, counter value: %" PRId64 ", alarm value: %" PRId64 ", idle counter value: %" PRId64 ".",
-              xalarm->type,
-              self->xsyncvalue_to_int64(xalarm->timeout),
-              (int32_t)xalarm->xalarm_id,
-              self->xsyncvalue_to_int64(alarm_event->counter_value),
-              self->xsyncvalue_to_int64(alarm_event->alarm_value),
-              self->get_xidle_time());
+    KLOG_DEBUG("Receive alarm signal. type: %" PRId64 ", timeout: %d, xalarm id: %d, counter value: %" PRId64 ", alarm value: %" PRId64 ", idle counter value: %" PRId64 ".",
+               xalarm->type,
+               self->xsyncvalue_to_int64(xalarm->timeout),
+               (int32_t)xalarm->xalarm_id,
+               self->xsyncvalue_to_int64(alarm_event->counter_value),
+               self->xsyncvalue_to_int64(alarm_event->alarm_value),
+               self->get_xidle_time());
 
     if (xalarm->type != XAlarmType::XALARM_TYPE_RESET)
     {

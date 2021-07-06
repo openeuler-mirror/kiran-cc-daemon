@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/src/main.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #ifdef KCC_SESSION_TYPE
@@ -17,7 +29,6 @@
 
 #include <glib-unix.h>
 #include <glib/gi18n.h>
-#include <zlog_ex.h>
 
 #include "config.h"
 #include "lib/base/base.h"
@@ -35,12 +46,11 @@ static void on_session_end()
 int main(int argc, char* argv[])
 {
 #if defined KCC_SESSION_TYPE
-    dzlog_init_ex(NULL, "kylinsec-session", "kiran-cc-daemon", "kiran-session-daemon");
+    klog_gtk3_init(std::string(), "kylinsec-session", "kiran-cc-daemon", "kiran-session-daemon");
 #elif defined KCC_SYSTEM_TYPE
-    dzlog_init_ex(NULL, "kylinsec-system", "kiran-cc-daemon", "kiran-system-daemon");
+    klog_gtk3_init(std::string(), "kylinsec-system", "kiran-cc-daemon", "kiran-system-daemon");
 #endif
     Gio::init();
-    Kiran::Log::global_init();
 
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, KCC_LOCALEDIR);
@@ -70,7 +80,7 @@ int main(int argc, char* argv[])
     }
     catch (const Glib::Exception& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return EXIT_FAILURE;
     }
 

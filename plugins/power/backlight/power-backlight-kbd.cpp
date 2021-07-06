@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/backlight/power-backlight-kbd.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/backlight/power-backlight-kbd.h"
@@ -36,7 +48,7 @@ void PowerBacklightKbd::init()
     }
     catch (const Glib::Error& e)
     {
-        LOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG("%s", e.what().c_str());
         return;
     }
 
@@ -73,7 +85,7 @@ bool PowerBacklightKbd::set_brightness(int32_t percentage)
         }
     }
     this->brightness_percentage_ = this->brightness_discrete2percent(this->brightness_value_, this->max_brightness_value_);
-    LOG_DEBUG("current: %d, new: %d.", this->brightness_value_, new_brightness_value);
+    KLOG_DEBUG("current: %d, new: %d.", this->brightness_value_, new_brightness_value);
 
     return (this->brightness_value_ == new_brightness_value);
 }
@@ -107,11 +119,11 @@ int32_t PowerBacklightKbd::get_brightness_value()
     }
     catch (const Glib::Error& e)
     {
-        LOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return -1;
 }
@@ -129,7 +141,7 @@ bool PowerBacklightKbd::set_brightness_value(int32_t value)
     }
     catch (const Glib::Error& e)
     {
-        LOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG("%s", e.what().c_str());
         return false;
     }
     return true;
@@ -148,11 +160,11 @@ int32_t PowerBacklightKbd::get_max_brightness_value()
     }
     catch (const Glib::Error& e)
     {
-        LOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return -1;
 }
@@ -181,7 +193,7 @@ void PowerBacklightKbd::on_upower_kbd_signal(const Glib::ustring& sender_name,
                                              const Glib::ustring& signal_name,
                                              const Glib::VariantContainerBase& parameters)
 {
-    SETTINGS_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {
@@ -197,7 +209,7 @@ void PowerBacklightKbd::on_upower_kbd_signal(const Glib::ustring& sender_name,
         }
         catch (const std::exception& e)
         {
-            LOG_WARNING("%s.", e.what());
+            KLOG_WARNING("%s.", e.what());
         }
         break;
     }

@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/display/display-monitor.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/display/display-monitor.h"
@@ -62,7 +74,7 @@ void DisplayMonitor::dbus_register()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("failed to get session bus: %s.", e.what().c_str());
+        KLOG_WARNING("failed to get session bus: %s.", e.what().c_str());
         return;
     }
 
@@ -132,7 +144,7 @@ ModeInfoVec DisplayMonitor::get_modes_by_size(uint32_t width, uint32_t height)
         auto mode = XrandrManager::get_instance()->get_mode(mode_id);
         if (!mode)
         {
-            LOG_WARNING("cannot find mode %u.", mode_id);
+            KLOG_WARNING("cannot find mode %u.", mode_id);
             continue;
         }
         if (mode->width == width && mode->height == height)
@@ -193,7 +205,7 @@ std::vector<guint32> DisplayMonitor::modes_get()
 
 void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, enabled: %d.", this->monitor_info_.name.c_str(), enabled);
+    KLOG_PROFILE("name: %s, enabled: %d.", this->monitor_info_.name.c_str(), enabled);
 
     // 状态未变化直接返回
     if (enabled == this->enabled_get())
@@ -213,7 +225,7 @@ void DisplayMonitor::Enable(bool enabled, MethodInvocation &invocation)
 
 void DisplayMonitor::ListModes(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s.", this->monitor_info_.name.c_str());
+    KLOG_PROFILE("name: %s.", this->monitor_info_.name.c_str());
 
     std::vector<std::tuple<guint32, guint32, guint32, double>> result;
     for (const auto &mode_id : this->monitor_info_.modes)
@@ -233,7 +245,7 @@ void DisplayMonitor::ListModes(MethodInvocation &invocation)
 
 void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s.", this->monitor_info_.name.c_str());
+    KLOG_PROFILE("name: %s.", this->monitor_info_.name.c_str());
 
     std::vector<std::tuple<guint32, guint32, guint32, double>> result;
     for (int i = 0; i < this->monitor_info_.npreferred && i < (int)this->monitor_info_.modes.size(); ++i)
@@ -253,7 +265,7 @@ void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
 
 void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s.", this->monitor_info_.name.c_str());
+    KLOG_PROFILE("name: %s.", this->monitor_info_.name.c_str());
 
     std::tuple<guint32, guint32, guint32, double> result;
     auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
@@ -270,11 +282,11 @@ void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
 
 void DisplayMonitor::SetMode(guint32 width, guint32 height, double refresh_rate, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, width: %u, height: %u refresh rate: %f.",
-                     this->monitor_info_.name.c_str(),
-                     width,
-                     height,
-                     refresh_rate);
+    KLOG_PROFILE("name: %s, width: %u, height: %u refresh rate: %f.",
+                 this->monitor_info_.name.c_str(),
+                 width,
+                 height,
+                 refresh_rate);
 
     auto mode = this->match_best_mode(width, height, refresh_rate);
 
@@ -289,7 +301,7 @@ void DisplayMonitor::SetMode(guint32 width, guint32 height, double refresh_rate,
 
 void DisplayMonitor::SetModeById(guint32 id, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, mode id: %u.", this->monitor_info_.name.c_str(), id);
+    KLOG_PROFILE("name: %s, mode id: %u.", this->monitor_info_.name.c_str(), id);
 
     if (this->find_index_by_mode_id(id) < 0)
     {
@@ -302,7 +314,7 @@ void DisplayMonitor::SetModeById(guint32 id, MethodInvocation &invocation)
 
 void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, width: %u, height: %u.", this->monitor_info_.name.c_str(), width, height);
+    KLOG_PROFILE("name: %s, width: %u, height: %u.", this->monitor_info_.name.c_str(), width, height);
 
     auto modes = this->get_modes_by_size(width, height);
 
@@ -319,7 +331,7 @@ void DisplayMonitor::SetModeBySize(guint32 width, guint32 height, MethodInvocati
 
 void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, x: %d, y: %d.", this->monitor_info_.name.c_str(), x, y);
+    KLOG_PROFILE("name: %s, x: %d, y: %d.", this->monitor_info_.name.c_str(), x, y);
 
     this->x_set(x);
     this->y_set(y);
@@ -328,7 +340,7 @@ void DisplayMonitor::SetPosition(gint32 x, gint32 y, MethodInvocation &invocatio
 
 void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, rotation: %d.", this->monitor_info_.name.c_str(), rotation);
+    KLOG_PROFILE("name: %s, rotation: %d.", this->monitor_info_.name.c_str(), rotation);
 
     switch (rotation)
     {
@@ -346,7 +358,7 @@ void DisplayMonitor::SetRotation(guint16 rotation, MethodInvocation &invocation)
 
 void DisplayMonitor::SetReflect(guint16 reflect, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s, reflect: %d.", this->monitor_info_.name.c_str(), reflect);
+    KLOG_PROFILE("name: %s, reflect: %d.", this->monitor_info_.name.c_str(), reflect);
 
     switch (reflect)
     {

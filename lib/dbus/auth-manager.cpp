@@ -1,9 +1,22 @@
 /**
- * @file          /kiran-cc-daemon/lib/dbus/auth-manager.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "lib/dbus/auth-manager.h"
 #include <glib/gi18n.h>
@@ -15,7 +28,7 @@ namespace Kiran
 AuthManager *AuthManager::instance_ = nullptr;
 void AuthManager::global_init()
 {
-    SETTINGS_PROFILE("instance: %p", instance_);
+    KLOG_PROFILE("instance: %p", instance_);
     RETURN_IF_TRUE(instance_);
     instance_ = new AuthManager();
     instance_->init();
@@ -38,7 +51,7 @@ void AuthManager::init()
 
 void AuthManager::start_auth_check(const std::string &action, bool user_interaction, const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, AuthCheckHandler handler)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::shared_ptr<AuthCheck> auth_check = std::make_shared<AuthCheck>(invocation);
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
 
@@ -51,11 +64,11 @@ void AuthManager::start_auth_check(const std::string &action, bool user_interact
     GVariantBuilder builder1;
     GVariantBuilder builder2;
 
-    LOG_DEBUG("action: %s user_interaction: %d sender: %s. cancel_string: %s",
-              action.c_str(),
-              user_interaction,
-              invocation->get_sender().c_str(),
-              auth_check->cancel_string.c_str());
+    KLOG_DEBUG("action: %s user_interaction: %d sender: %s. cancel_string: %s",
+               action.c_str(),
+               user_interaction,
+               invocation->get_sender().c_str(),
+               auth_check->cancel_string.c_str());
 
     g_variant_builder_init(&builder1, G_VARIANT_TYPE("a{sv}"));
     g_variant_builder_add(&builder1, "{sv}", "name", g_variant_new_string(invocation->get_sender().c_str()));
@@ -73,7 +86,7 @@ void AuthManager::start_auth_check(const std::string &action, bool user_interact
 
 bool AuthManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     auth_check->cancellable->cancel();
 
     Glib::VariantContainerBase base(g_variant_new("(s)", auth_check->cancel_string.c_str()), false);
@@ -85,7 +98,7 @@ bool AuthManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
     catch (Glib::Error &e)
     {
         Gio::DBus::ErrorUtils::strip_remote_error(e);
-        LOG_WARNING("Failed to cancel authorization check: %s", e.what().c_str());
+        KLOG_WARNING("Failed to cancel authorization check: %s", e.what().c_str());
     }
 
     // auth_check->cancel_connection.disconnect();
@@ -95,7 +108,7 @@ bool AuthManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
 
 void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::shared_ptr<AuthCheck> auth_check)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     bool authorized = true;
     bool challenge = false;
     auth_check->cancel_connection.disconnect();
@@ -114,22 +127,22 @@ void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::sh
         }
         else
         {
-            LOG_DEBUG("the result is empty.");
+            KLOG_DEBUG("the result is empty.");
         }
     }
     catch (Glib::Error &e)
     {
         Gio::DBus::ErrorUtils::strip_remote_error(e);
-        LOG_WARNING("Failed to check authorization: %s", e.what().c_str());
+        KLOG_WARNING("Failed to check authorization: %s", e.what().c_str());
         authorized = false;
     }
     catch (std::exception &e)
     {
-        LOG_WARNING("Failed to check authorization: %s", e.what());
+        KLOG_WARNING("Failed to check authorization: %s", e.what());
         authorized = false;
     }
 
-    LOG_DEBUG("authorized: %d challenge: %d.", authorized, challenge);
+    KLOG_DEBUG("authorized: %d challenge: %d.", authorized, challenge);
 
     if (authorized)
     {

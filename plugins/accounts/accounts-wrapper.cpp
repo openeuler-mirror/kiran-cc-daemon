@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-07-23 09:50:11
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-29 09:47:45
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-wrapper.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/accounts/accounts-wrapper.h"
 
 #include <utility>
@@ -162,7 +173,7 @@ void AccountsWrapper::reload_passwd()
     auto fp = fopen(PATH_PASSWD, "r");
     if (fp == NULL)
     {
-        LOG_WARNING("Unable to open %s: %s", PATH_PASSWD, g_strerror(errno));
+        KLOG_WARNING("Unable to open %s: %s", PATH_PASSWD, g_strerror(errno));
         return;
     }
 
@@ -187,7 +198,7 @@ void AccountsWrapper::reload_shadow()
     auto fp = fopen(PATH_SHADOW, "r");
     if (fp == NULL)
     {
-        LOG_WARNING("Unable to open %s: %s", PATH_SHADOW, g_strerror(errno));
+        KLOG_WARNING("Unable to open %s: %s", PATH_SHADOW, g_strerror(errno));
         return;
     }
 

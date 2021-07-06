@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/wrapper/power-upower.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/wrapper/power-upower.h"
@@ -37,7 +49,7 @@ void PowerUPower::init()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 
@@ -56,7 +68,7 @@ void PowerUPower::init()
     }
     catch (const std::exception &e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
 
     auto display_device_object_path = this->get_display_device_object_path();
@@ -96,11 +108,11 @@ Glib::DBusObjectPathString PowerUPower::get_display_device_object_path()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
     }
     catch (const std::exception &e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return Glib::DBusObjectPathString();
 }
@@ -117,11 +129,11 @@ std::vector<Glib::DBusObjectPathString> PowerUPower::get_devices_object_path()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
     }
     catch (const std::exception &e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return std::vector<Glib::DBusObjectPathString>();
 }
@@ -132,7 +144,7 @@ bool PowerUPower::add_upower_device(const Glib::DBusObjectPathString &object_pat
     auto iter = this->devices_.emplace(object_path, device);
     if (!iter.second)
     {
-        LOG_WARNING("The upwer device %s already exists.", object_path.c_str());
+        KLOG_WARNING("The upwer device %s already exists.", object_path.c_str());
         return false;
     }
     device->signal_props_changed().connect(sigc::bind(sigc::mem_fun(this, &PowerUPower::on_device_props_changed), device));
@@ -144,7 +156,7 @@ bool PowerUPower::del_upower_device(const Glib::DBusObjectPathString &object_pat
     auto iter = this->devices_.find(object_path);
     if (iter == this->devices_.end())
     {
-        LOG_WARNING("The upower device %s doesn't exist.", object_path.c_str());
+        KLOG_WARNING("The upower device %s doesn't exist.", object_path.c_str());
         return false;
     }
     this->devices_.erase(iter);
@@ -176,7 +188,7 @@ void PowerUPower::on_properties_changed(const Gio::DBus::Proxy::MapChangedProper
     }
     catch (const std::exception &e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
 
     return;
@@ -186,7 +198,7 @@ void PowerUPower::on_upower_signal(const Glib::ustring &sender_name,
                                    const Glib::ustring &signal_name,
                                    const Glib::VariantContainerBase &parameters)
 {
-    SETTINGS_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {

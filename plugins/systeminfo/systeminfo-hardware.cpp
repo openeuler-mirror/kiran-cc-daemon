@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/systeminfo/systeminfo-hardware.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/systeminfo/systeminfo-hardware.h"
@@ -33,7 +45,7 @@ SystemInfoHardware::SystemInfoHardware()
 
 HardwareInfo SystemInfoHardware::get_hardware_info()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     HardwareInfo hardware_info;
     hardware_info.cpu_info = this->get_cpu_info();
@@ -72,7 +84,7 @@ CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return CPUInfo();
     }
 
@@ -122,7 +134,7 @@ MemInfo SystemInfoHardware::get_mem_info()
     }
     else
     {
-        LOG_WARNING("Not found valid record: %s.", mem_maps[MEMINFO_KEY_MEMTOTAL].c_str());
+        KLOG_WARNING("Not found valid record: %s.", mem_maps[MEMINFO_KEY_MEMTOTAL].c_str());
     }
     return mem_info;
 }
@@ -143,7 +155,7 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 
     if (fs.fail())
     {
-        LOG_WARNING("Failed to open file %s.", path.c_str());
+        KLOG_WARNING("Failed to open file %s.", path.c_str());
         return std::map<std::string, std::string>();
     }
 
@@ -151,7 +163,7 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
     {
         fs.getline(buffer, BUFSIZ);
 
-        // LOG_DEBUG("buffer: %s.", buffer);
+        // KLOG_DEBUG("buffer: %s.", buffer);
 
         RETURN_VAL_IF_TRUE(fs.fail(), result);
 
@@ -185,7 +197,7 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return disks_info;
     }
 
@@ -220,7 +232,7 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
 
 EthInfoVec SystemInfoHardware::get_eths_info()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     EthInfoVec eths_info;
     auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_NETWORK);
@@ -237,7 +249,7 @@ EthInfoVec SystemInfoHardware::get_eths_info()
 
 GraphicInfoVec SystemInfoHardware::get_graphics_info()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     GraphicInfoVec graphics_info;
     auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_DISPLAY);
@@ -270,7 +282,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         }
         catch (const Glib::Error& e)
         {
-            LOG_WARNING("%s", e.what().c_str());
+            KLOG_WARNING("%s", e.what().c_str());
             return KVList();
         }
 
@@ -303,7 +315,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
             argv.push_back(fmt::format("::{:04x}", full_class_id));
         }
 
-        LOG_DEBUG("cmdline: %s.", StrUtils::join(argv, " ").c_str());
+        KLOG_DEBUG("cmdline: %s.", StrUtils::join(argv, " ").c_str());
         try
         {
             Glib::spawn_sync("",
@@ -314,7 +326,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         }
         catch (const Glib::Error& e)
         {
-            LOG_WARNING("%s", e.what().c_str());
+            KLOG_WARNING("%s", e.what().c_str());
             return KVList();
         }
         return this->format_to_kv_list(cmd_output);

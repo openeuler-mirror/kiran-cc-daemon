@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-20 11:49:39
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:49:53
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/iso/iso-translation.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "lib/iso/iso-translation.h"
 
@@ -86,11 +97,11 @@ std::string ISOTranslation::get_locale_string(const std::string &str, const std:
 std::string ISOTranslation::get_locale_string(const std::string &str)
 {
     auto str_639 = dgettext(ISO_639, str.c_str());
-    // LOG_DEBUG("str: %s value: %s.", str.c_str(), POINTER_TO_STRING(str_639).c_str());
+    // KLOG_DEBUG("str: %s value: %s.", str.c_str(), POINTER_TO_STRING(str_639).c_str());
     RETURN_VAL_IF_TRUE(str_639 && str_639 != str, std::string(str_639));
 
     auto str_3166 = dgettext(ISO_3166, str.c_str());
-    // LOG_DEBUG("str: %s value: %s.", str.c_str(), POINTER_TO_STRING(str_3166).c_str());
+    // KLOG_DEBUG("str: %s value: %s.", str.c_str(), POINTER_TO_STRING(str_3166).c_str());
     RETURN_VAL_IF_TRUE(str_3166 && str_3166 != str, std::string(str_3166));
 
     return str;
@@ -108,12 +119,12 @@ void ISOTranslation::init()
 
     if (!load_iso_file(ISO_3166, {"alpha_2_code"}, this->countrys_, err))
     {
-        LOG_WARNING("failed to load %s: %s.", ISO_3166, err.c_str());
+        KLOG_WARNING("failed to load %s: %s.", ISO_3166, err.c_str());
     }
 
     if (!load_iso_file(ISO_639, {"iso_639_2B_code", "iso_639_2T_code"}, this->languages_, err))
     {
-        LOG_WARNING("failed to load %s: %s.", ISO_639, err.c_str());
+        KLOG_WARNING("failed to load %s: %s.", ISO_639, err.c_str());
     }
 }
 
@@ -122,7 +133,7 @@ bool ISOTranslation::load_iso_file(const std::string &iso_basename,
                                    std::map<std::string, std::string> &result,
                                    std::string &err)
 {
-    SETTINGS_PROFILE("basename: %s.", iso_basename.c_str());
+    KLOG_PROFILE("basename: %s.", iso_basename.c_str());
 
     try
     {

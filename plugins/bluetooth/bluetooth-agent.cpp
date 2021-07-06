@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-09 17:28:10
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-11 10:43:38
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/bluetooth/bluetooth-agent.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/bluetooth/bluetooth-agent.h"
 
 #include "lib/base/base.h"
@@ -25,7 +36,7 @@ BluetoothAgent::BluetoothAgent(BluetoothManager *bluetooth_manager) : bluetooth_
 
 void BluetoothAgent::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     try
     {
@@ -33,7 +44,7 @@ void BluetoothAgent::init()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("%s.", e.what().c_str());
         return;
     }
 
@@ -43,7 +54,7 @@ void BluetoothAgent::init()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", AGENT_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", AGENT_OBJECT_PATH, e.what().c_str());
         return;
     }
 
@@ -63,13 +74,13 @@ void BluetoothAgent::destroy()
 
 void BluetoothAgent::Release(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     invocation.ret();
 }
 
 void BluetoothAgent::RequestPinCode(const Glib::DBusObjectPathString &device, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s.", device.c_str());
+    KLOG_PROFILE("device: %s.", device.c_str());
     this->request_response(sigc::bind(sigc::mem_fun(this, &BluetoothAgent::on_pincode_feeded), invocation.getMessage()),
                            device,
                            invocation);
@@ -81,7 +92,7 @@ void BluetoothAgent::DisplayPinCode(const Glib::DBusObjectPathString &device,
                                     const Glib::ustring &pincode,
                                     MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s, pincode: %s.", device.c_str(), pincode.c_str());
+    KLOG_PROFILE("device: %s, pincode: %s.", device.c_str(), pincode.c_str());
 
     this->bluetooth_manager_->DisplayPinCode_signal.emit(device, pincode);
 
@@ -90,7 +101,7 @@ void BluetoothAgent::DisplayPinCode(const Glib::DBusObjectPathString &device,
 
 void BluetoothAgent::RequestPasskey(const Glib::DBusObjectPathString &device, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s.", device.c_str());
+    KLOG_PROFILE("device: %s.", device.c_str());
     this->request_response(sigc::bind(sigc::mem_fun(this, &BluetoothAgent::on_passkey_feeded), invocation.getMessage()),
                            device,
                            invocation);
@@ -103,7 +114,7 @@ void BluetoothAgent::DisplayPasskey(const Glib::DBusObjectPathString &device,
                                     guint16 entered,
                                     MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s, passkey: %d, entered: %d.", device.c_str(), passkey, entered);
+    KLOG_PROFILE("device: %s, passkey: %d, entered: %d.", device.c_str(), passkey, entered);
 
     this->bluetooth_manager_->DisplayPasskey_signal.emit(device, passkey, entered);
 
@@ -114,7 +125,7 @@ void BluetoothAgent::RequestConfirmation(const Glib::DBusObjectPathString &devic
                                          guint32 passkey,
                                          MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s, passkey: %d.", device.c_str(), passkey);
+    KLOG_PROFILE("device: %s, passkey: %d.", device.c_str(), passkey);
     this->request_response(sigc::bind(sigc::mem_fun(this, &BluetoothAgent::on_confirmation_feeded), invocation.getMessage()),
                            device,
                            invocation);
@@ -124,7 +135,7 @@ void BluetoothAgent::RequestConfirmation(const Glib::DBusObjectPathString &devic
 
 void BluetoothAgent::RequestAuthorization(const Glib::DBusObjectPathString &device, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s.", device.c_str());
+    KLOG_PROFILE("device: %s.", device.c_str());
     this->request_response(sigc::bind(sigc::mem_fun(this, &BluetoothAgent::on_confirmation_feeded), invocation.getMessage()),
                            device,
                            invocation);
@@ -136,14 +147,14 @@ void BluetoothAgent::AuthorizeService(const Glib::DBusObjectPathString &device,
                                       const Glib::ustring &uuid,
                                       MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("device: %s, uuid: %s.", device.c_str(), uuid.c_str());
+    KLOG_PROFILE("device: %s, uuid: %s.", device.c_str(), uuid.c_str());
     this->bluetooth_manager_->AuthorizeService_signal.emit(device, uuid);
     invocation.ret();
 }
 
 void BluetoothAgent::Cancel(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     if (!this->request_device_.empty())
     {
         this->bluetooth_manager_->Cancel_signal.emit(this->request_device_);
@@ -159,7 +170,7 @@ void BluetoothAgent::on_agent_manager_ready(Glib::RefPtr<Gio::AsyncResult> &resu
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("Cannot connect to %s: %s.", BLUEZ_MANAGER_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("Cannot connect to %s: %s.", BLUEZ_MANAGER_OBJECT_PATH, e.what().c_str());
         return;
     }
 
@@ -168,14 +179,14 @@ void BluetoothAgent::on_agent_manager_ready(Glib::RefPtr<Gio::AsyncResult> &resu
 
 void BluetoothAgent::on_agent_register_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     try
     {
         this->agent_manager_proxy_->RegisterAgent_finish(result);
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("%s.", e.what().c_str());
         return;
     }
 
@@ -184,28 +195,28 @@ void BluetoothAgent::on_agent_register_ready(Glib::RefPtr<Gio::AsyncResult> &res
 
 void BluetoothAgent::on_default_agent_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     try
     {
         this->agent_manager_proxy_->RegisterAgent_finish(result);
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("%s.", e.what().c_str());
         return;
     }
 }
 
 void BluetoothAgent::on_agent_unregister_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     try
     {
         this->agent_manager_proxy_->UnregisterAgent_finish(result);
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("%s.", e.what().c_str());
         return;
     }
 }

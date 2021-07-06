@@ -1,9 +1,22 @@
 /**
- * @file          /kiran-cc-daemon/plugins/audio/pulse/pulse-backend.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "plugins/audio/pulse/pulse-backend.h"
 
@@ -103,7 +116,7 @@ bool PulseBackend::init()
 
 void PulseBackend::set_state(AudioState state)
 {
-    SETTINGS_PROFILE("state: %d.", state);
+    KLOG_PROFILE("state: %d.", state);
 
     if (this->state_ != state)
     {
@@ -114,7 +127,7 @@ void PulseBackend::set_state(AudioState state)
 
 bool PulseBackend::try_reconnection()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (this->context_->connect(true))
     {
@@ -161,7 +174,7 @@ void PulseBackend::reset_data()
 
 void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connection_state)
 {
-    SETTINGS_PROFILE("connection state: %d.", connection_state);
+    KLOG_PROFILE("connection state: %d.", connection_state);
 
     switch (connection_state)
     {
@@ -177,7 +190,7 @@ void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connectio
 
             if (this->reconnection_handle_)
             {
-                LOG_DEBUG("The reconnection handle is already exist. handle: %d.", this->reconnection_handle_);
+                KLOG_DEBUG("The reconnection handle is already exist. handle: %d.", this->reconnection_handle_);
                 break;
             }
 
@@ -225,15 +238,15 @@ void PulseBackend::on_server_info_changed_cb(const pa_server_info *server_info)
                                          .default_source_name = POINTER_TO_STRING(server_info->default_source_name),
                                          .cookie = server_info->cookie};
 
-    LOG_DEBUG("Server info: username: %s, hostname: %s, server version: %s, "
-              "server name: %s, default sink name: %s, default source name: %s, cookie: %d.",
-              this->server_info_.user_name.c_str(),
-              this->server_info_.host_name.c_str(),
-              this->server_info_.server_version.c_str(),
-              this->server_info_.server_name.c_str(),
-              this->server_info_.default_sink_name.c_str(),
-              this->server_info_.default_source_name.c_str(),
-              this->server_info_.cookie);
+    KLOG_DEBUG("Server info: username: %s, hostname: %s, server version: %s, "
+               "server name: %s, default sink name: %s, default source name: %s, cookie: %d.",
+               this->server_info_.user_name.c_str(),
+               this->server_info_.host_name.c_str(),
+               this->server_info_.server_version.c_str(),
+               this->server_info_.server_name.c_str(),
+               this->server_info_.default_sink_name.c_str(),
+               this->server_info_.default_source_name.c_str(),
+               this->server_info_.cookie);
 
     // 检测默认的sink是否发生变化
     if (old_server_info.default_sink_name != this->server_info_.default_sink_name)
@@ -288,7 +301,7 @@ void PulseBackend::on_card_info_changed_cb(const pa_card_info *card_info)
 {
     RETURN_IF_FALSE(card_info != NULL);
 
-    LOG_DEBUG("card changed, index: %d, name: %s.", card_info->index, card_info->name ? card_info->name : "NULL");
+    KLOG_DEBUG("card changed, index: %d, name: %s.", card_info->index, card_info->name ? card_info->name : "NULL");
 
     auto card = this->get_card(card_info->index);
 
@@ -307,7 +320,7 @@ void PulseBackend::on_card_info_changed_cb(const pa_card_info *card_info)
 
 void PulseBackend::on_card_info_removed_cb(uint32_t index)
 {
-    LOG_DEBUG("card removed, index: %d.", index);
+    KLOG_DEBUG("card removed, index: %d.", index);
 
     auto card = this->get_card(index);
 
@@ -318,7 +331,7 @@ void PulseBackend::on_card_info_removed_cb(uint32_t index)
     }
     else
     {
-        LOG_WARNING("The card index %d is not found.", index);
+        KLOG_WARNING("The card index %d is not found.", index);
     }
 }
 
@@ -326,7 +339,7 @@ void PulseBackend::on_sink_info_changed_cb(const pa_sink_info *sink_info)
 {
     RETURN_IF_FALSE(sink_info != NULL);
 
-    LOG_DEBUG("sink changed, index: %d, name: %s.", sink_info->index, sink_info->name ? sink_info->name : "NULL");
+    KLOG_DEBUG("sink changed, index: %d, name: %s.", sink_info->index, sink_info->name ? sink_info->name : "NULL");
 
     auto sink = this->get_sink(sink_info->index);
 
@@ -360,13 +373,13 @@ void PulseBackend::on_sink_info_changed_cb(const pa_sink_info *sink_info)
 
 void PulseBackend::on_sink_info_removed_cb(uint32_t index)
 {
-    LOG_DEBUG("sink removed, index: %d.", index);
+    KLOG_DEBUG("sink removed, index: %d.", index);
 
     auto sink = this->get_sink(index);
 
     if (!sink)
     {
-        LOG_WARNING("The sink index %d is not found.", index);
+        KLOG_WARNING("The sink index %d is not found.", index);
         return;
     }
 
@@ -392,7 +405,7 @@ void PulseBackend::on_sink_input_info_changed_cb(const pa_sink_input_info *sink_
 {
     RETURN_IF_FALSE(sink_input_info != NULL);
 
-    LOG_DEBUG("sink input changed, index: %d, name: %s.", sink_input_info->index, sink_input_info->name ? sink_input_info->name : "NULL");
+    KLOG_DEBUG("sink input changed, index: %d, name: %s.", sink_input_info->index, sink_input_info->name ? sink_input_info->name : "NULL");
 
     auto sink_input = this->get_sink_input(sink_input_info->index);
 
@@ -411,13 +424,13 @@ void PulseBackend::on_sink_input_info_changed_cb(const pa_sink_input_info *sink_
 
 void PulseBackend::on_sink_input_info_removed_cb(uint32_t index)
 {
-    LOG_DEBUG("sink input removed, index: %d.", index);
+    KLOG_DEBUG("sink input removed, index: %d.", index);
 
     auto sink_input = this->get_sink_input(index);
 
     if (!sink_input)
     {
-        LOG_WARNING("The sink input index %d is not found.", index);
+        KLOG_WARNING("The sink input index %d is not found.", index);
         return;
     }
 
@@ -429,7 +442,7 @@ void PulseBackend::on_source_info_changed_cb(const pa_source_info *source_info)
 {
     RETURN_IF_FALSE(source_info != NULL);
 
-    LOG_DEBUG("source changed, index: %d, name: %s.", source_info->index, source_info->name ? source_info->name : "NULL");
+    KLOG_DEBUG("source changed, index: %d, name: %s.", source_info->index, source_info->name ? source_info->name : "NULL");
 
     auto source = this->get_source(source_info->index);
 
@@ -461,13 +474,13 @@ void PulseBackend::on_source_info_changed_cb(const pa_source_info *source_info)
 
 void PulseBackend::on_source_info_removed_cb(uint32_t index)
 {
-    LOG_DEBUG("source removed, index: %d.", index);
+    KLOG_DEBUG("source removed, index: %d.", index);
 
     auto source = this->get_source(index);
 
     if (!source)
     {
-        LOG_WARNING("The source index %d is not found.", index);
+        KLOG_WARNING("The source index %d is not found.", index);
         return;
     }
 
@@ -493,7 +506,7 @@ void PulseBackend::on_source_output_info_changed_cb(const pa_source_output_info 
 {
     RETURN_IF_FALSE(source_output_info != NULL);
 
-    LOG_DEBUG("source output changed, index: %d, name: %s.", source_output_info->index, source_output_info->name ? source_output_info->name : "NULL");
+    KLOG_DEBUG("source output changed, index: %d, name: %s.", source_output_info->index, source_output_info->name ? source_output_info->name : "NULL");
 
     auto source_output = this->get_source_output(source_output_info->index);
 
@@ -512,13 +525,13 @@ void PulseBackend::on_source_output_info_changed_cb(const pa_source_output_info 
 
 void PulseBackend::on_source_output_info_removed_cb(uint32_t index)
 {
-    LOG_DEBUG("source output removed, index: %d.", index);
+    KLOG_DEBUG("source output removed, index: %d.", index);
 
     auto source_output = this->get_source_output(index);
 
     if (!source_output)
     {
-        LOG_WARNING("The source output index %d is not found.", index);
+        KLOG_WARNING("The source output index %d is not found.", index);
         return;
     }
 

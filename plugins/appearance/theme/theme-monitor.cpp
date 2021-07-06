@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-02 15:45:29
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-08 20:13:38
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/theme/theme-monitor.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/appearance/theme/theme-monitor.h"
 
 namespace Kiran
@@ -81,7 +92,7 @@ std::shared_ptr<ThemeMonitorInfo> ThemeMonitor::get_and_check_parent_monitor(con
     auto monitor = this->get_monitor(parent_file->get_path());
     if (!monitor)
     {
-        LOG_WARNING("Not found monitor info for: %s.", parent_file->get_path().c_str());
+        KLOG_WARNING("Not found monitor info for: %s.", parent_file->get_path().c_str());
         return nullptr;
     }
     return monitor;
@@ -92,7 +103,7 @@ bool ThemeMonitor::add_monitor(const std::string &path, std::shared_ptr<ThemeMon
     auto iter = this->monitors_.emplace(path, monitor);
     if (!iter.second)
     {
-        LOG_DEBUG("Path already exists: %s.", path.c_str());
+        KLOG_DEBUG("Path already exists: %s.", path.c_str());
         return false;
     }
     return true;
@@ -137,7 +148,7 @@ void ThemeMonitor::add_meta_theme_parent_monitor(const std::string &path, int32_
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 }
@@ -187,7 +198,7 @@ void ThemeMonitor::del_theme_and_notify(const std::string &path, ThemeMonitorEve
     auto monitor = this->get_monitor(path);
     if (!monitor)
     {
-        LOG_WARNING("Not found monitor info for %s.", path.c_str());
+        KLOG_WARNING("Not found monitor info for %s.", path.c_str());
         return;
     }
     this->events_.emit(monitor, type);
@@ -324,7 +335,7 @@ void ThemeMonitor::add_icon_theme_parent_monitor(const std::string &path, int32_
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 }

@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/display/display-manager.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/display/display-manager.h"
@@ -80,7 +92,7 @@ DisplayMonitorVec DisplayManager::get_enabled_monitors()
 
 void DisplayManager::ListMonitors(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     std::vector<Glib::ustring> object_paths;
     for (const auto &iter : this->monitors_)
@@ -92,7 +104,7 @@ void DisplayManager::ListMonitors(MethodInvocation &invocation)
 
 void DisplayManager::SwitchStyle(guint32 style, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("style: %u.", style);
+    KLOG_PROFILE("style: %u.", style);
 
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!this->switch_style(DisplayStyle(style), error_code))
@@ -104,7 +116,7 @@ void DisplayManager::SwitchStyle(guint32 style, MethodInvocation &invocation)
 
 void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("style: %u", style);
+    KLOG_PROFILE("style: %u", style);
 
     if (style >= DisplayStyle::DISPLAY_STYLE_LAST)
     {
@@ -116,7 +128,7 @@ void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation
 
 void DisplayManager::ApplyChanges(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!this->apply(error_code))
     {
@@ -127,7 +139,7 @@ void DisplayManager::ApplyChanges(MethodInvocation &invocation)
 
 void DisplayManager::RestoreChanges(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!this->apply_config(error_code))
@@ -139,7 +151,7 @@ void DisplayManager::RestoreChanges(MethodInvocation &invocation)
 
 void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name: %s.", name.c_str());
+    KLOG_PROFILE("name: %s.", name.c_str());
 
     if (name.length() == 0)
     {
@@ -157,7 +169,7 @@ void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &inv
 
 void DisplayManager::Save(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     CCErrorCode error_code = CCErrorCode::SUCCESS;
 
     if (!this->save_config(error_code))
@@ -170,7 +182,7 @@ void DisplayManager::Save(MethodInvocation &invocation)
 
 void DisplayManager::SetWindowScalingFactor(gint32 window_scaling_factor, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (!this->window_scaling_factor_set(window_scaling_factor))
     {
@@ -200,14 +212,14 @@ bool DisplayManager::primary_setHandler(const Glib::ustring &value)
 
 bool DisplayManager::window_scaling_factor_setHandler(gint32 value)
 {
-    SETTINGS_PROFILE("value: %d.", value);
+    KLOG_PROFILE("value: %d.", value);
     this->window_scaling_factor_ = value;
     return true;
 }
 
 void DisplayManager::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     this->load_settings();
     this->load_monitors();
@@ -226,13 +238,13 @@ void DisplayManager::init()
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!this->switch_style_and_save(this->default_style_, error_code))
     {
-        LOG_WARNING("%s.", CC_ERROR2STR(error_code).c_str());
+        KLOG_WARNING("%s.", CC_ERROR2STR(error_code).c_str());
     }
 }
 
 void DisplayManager::load_settings()
 {
-    SETTINGS_PROFILE("settings: %p.", this->display_settings_.get());
+    KLOG_PROFILE("settings: %p.", this->display_settings_.get());
 
     if (this->display_settings_)
     {
@@ -321,20 +333,20 @@ void DisplayManager::load_config()
         }
         catch (const xml_schema::Exception &e)
         {
-            LOG_WARNING("failed to load file: %s: %s", this->config_file_path_.c_str(), e.what());
+            KLOG_WARNING("failed to load file: %s: %s", this->config_file_path_.c_str(), e.what());
             this->display_config_ = nullptr;
         }
     }
     else
     {
-        LOG_DEBUG("file %s is not exist.", this->config_file_path_.c_str());
+        KLOG_DEBUG("file %s is not exist.", this->config_file_path_.c_str());
     }
     return;
 }
 
 bool DisplayManager::apply_config(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (!this->display_config_)
     {
@@ -352,7 +364,7 @@ bool DisplayManager::apply_config(CCErrorCode &error_code)
         auto monitors_config_id = this->get_c_monitors_uid(monitors);
         if (monitors_id == monitors_config_id)
         {
-            LOG_DEBUG("match ids: %s.", monitors_id.c_str());
+            KLOG_DEBUG("match ids: %s.", monitors_id.c_str());
             if (this->apply_screen_config(screen, error_code))
             {
                 result = true;
@@ -382,15 +394,15 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
 
         if (!monitor)
         {
-            LOG_WARNING("cannot find monitor for %s.", uid.c_str());
+            KLOG_WARNING("cannot find monitor for %s.", uid.c_str());
             continue;
         }
 
         if (c_monitor.name() != monitor->name_get())
         {
-            LOG_WARNING("the name is mismatch. config name: %s, monitor name: %s.",
-                        c_monitor.name().c_str(),
-                        monitor->name_get().c_str());
+            KLOG_WARNING("the name is mismatch. config name: %s, monitor name: %s.",
+                         c_monitor.name().c_str(),
+                         monitor->name_get().c_str());
             continue;
         }
 
@@ -533,13 +545,13 @@ bool DisplayManager::apply(CCErrorCode &error_code)
 
     try
     {
-        LOG_DEBUG("cmdline: %s.", cmdline.c_str());
+        KLOG_DEBUG("cmdline: %s.", cmdline.c_str());
         Glib::spawn_command_line_sync(cmdline);
     }
     catch (const Glib::Error &e)
     {
         error_code = CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED;
-        LOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("%s.", e.what().c_str());
         return false;
     }
     return true;
@@ -547,7 +559,7 @@ bool DisplayManager::apply(CCErrorCode &error_code)
 
 bool DisplayManager::switch_style(DisplayStyle style, CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("style: %u.", uint32_t(style));
+    KLOG_PROFILE("style: %u.", uint32_t(style));
     switch (style)
     {
     case DisplayStyle::DISPLAY_STYLE_MIRRORS:
@@ -580,7 +592,7 @@ bool DisplayManager::switch_style_and_save(DisplayStyle style, CCErrorCode &erro
 
 bool DisplayManager::switch_to_mirrors(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto monitors = this->get_connected_monitors();
     auto modes = this->monitors_common_modes(monitors);
@@ -608,7 +620,7 @@ bool DisplayManager::switch_to_mirrors(CCErrorCode &error_code)
         else
         {
             // 这里理论上不可能执行到,所以这里只打印日志,不返回错误
-            LOG_WARNING("cannot match mod %ux%u for monitor %s.", width, height, monitor->name_get().c_str());
+            KLOG_WARNING("cannot match mod %ux%u for monitor %s.", width, height, monitor->name_get().c_str());
         }
 
         monitor->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
@@ -640,7 +652,7 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
 
 bool DisplayManager::switch_to_extend(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     int32_t startx = 0;
     for (const auto &iter : this->monitors_)
@@ -652,7 +664,7 @@ bool DisplayManager::switch_to_extend(CCErrorCode &error_code)
         auto best_mode = iter.second->get_best_mode();
         if (!best_mode)
         {
-            LOG_WARNING("failed to get best mode for monitor %s.", iter.second->name_get().c_str());
+            KLOG_WARNING("failed to get best mode for monitor %s.", iter.second->name_get().c_str());
             continue;
         }
 
@@ -671,14 +683,14 @@ bool DisplayManager::switch_to_extend(CCErrorCode &error_code)
 
 bool DisplayManager::switch_to_custom(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     return this->apply_config(error_code);
 }
 
 bool DisplayManager::switch_to_auto(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     RETURN_VAL_IF_TRUE(this->switch_to_custom(error_code), true);
     RETURN_VAL_IF_TRUE(this->switch_to_extend(error_code), true);
@@ -753,7 +765,7 @@ bool DisplayManager::save_to_file(CCErrorCode &error_code)
                                  0775) != 0)
         {
             error_code = CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED;
-            LOG_WARNING("Failed to create directory %s.", dirname.c_str());
+            KLOG_WARNING("Failed to create directory %s.", dirname.c_str());
             return false;
         }
     }
@@ -766,7 +778,7 @@ bool DisplayManager::save_to_file(CCErrorCode &error_code)
     }
     catch (const xml_schema::Exception &e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
         error_code = CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED;
         return false;
     }
@@ -775,7 +787,7 @@ bool DisplayManager::save_to_file(CCErrorCode &error_code)
 
 void DisplayManager::resources_changed()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto old_monitors_uid = this->get_monitors_uid();
     this->load_monitors();
@@ -787,7 +799,7 @@ void DisplayManager::resources_changed()
         CCErrorCode error_code = CCErrorCode::SUCCESS;
         if (!this->switch_style_and_save(this->default_style_, error_code))
         {
-            LOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
+            KLOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
         }
     }
     this->MonitorsChanged_signal.emit(true);
@@ -795,7 +807,7 @@ void DisplayManager::resources_changed()
 
 void DisplayManager::display_settings_changed(const Glib::ustring &key)
 {
-    SETTINGS_PROFILE("key: %s.", key.c_str());
+    KLOG_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -810,7 +822,7 @@ void DisplayManager::display_settings_changed(const Glib::ustring &key)
 
 void DisplayManager::interface_settings_changed(const Glib::ustring &key)
 {
-    SETTINGS_PROFILE("key: %s.", key.c_str());
+    KLOG_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -824,10 +836,10 @@ void DisplayManager::interface_settings_changed(const Glib::ustring &key)
 
 void DisplayManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -836,17 +848,17 @@ void DisplayManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", DISPLAY_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", DISPLAY_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void DisplayManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void DisplayManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran
