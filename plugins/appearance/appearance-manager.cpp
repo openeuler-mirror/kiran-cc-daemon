@@ -25,6 +25,7 @@ namespace Kiran
 {
 #define APPEARANCE_SCHAME_ID "com.kylinsec.kiran.appearance"
 #define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktop-background"
+#define APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG "lock-screen-background"
 
 AppearanceManager::AppearanceManager() : dbus_connect_id_(0),
                                          object_register_id_(0)
@@ -81,6 +82,12 @@ void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, M
     invocation.ret();
 }
 
+void AppearanceManager::GetTheme(gint32 type, MethodInvocation& invocation)
+{
+    KLOG_PROFILE("type: %d.", type);
+    invocation.ret(this->appearance_theme_.get_theme(AppearanceThemeType(type)));
+}
+
 void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 {
     KLOG_PROFILE("type: %d.", type);
@@ -112,10 +119,22 @@ void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_backgr
 {
     KLOG_PROFILE("desktop background: %s", desktop_background.c_str());
 
-    if (desktop_background != this->desktop_background_ &&
+    if (desktop_background != this->desktop_background_get() &&
         !this->desktop_background_set(desktop_background))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED);
+    }
+    invocation.ret();
+}
+
+void AppearanceManager::SetLockScreenBackground(const Glib::ustring& lock_screen_background, MethodInvocation& invocation)
+{
+    KLOG_PROFILE("lock screen background: %s", lock_screen_background.c_str());
+
+    if (lock_screen_background != this->lock_screen_background_get() &&
+        !this->lock_screen_background_set(lock_screen_background))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED);
     }
     invocation.ret();
 }
@@ -137,6 +156,21 @@ bool AppearanceManager::desktop_background_setHandler(const Glib::ustring& value
     return true;
 }
 
+bool AppearanceManager::lock_screen_background_setHandler(const Glib::ustring& value)
+{
+    KLOG_PROFILE("value: %s.", value.c_str());
+
+    RETURN_VAL_IF_TRUE(value == this->lock_screen_background_, false);
+
+    if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG) != value)
+    {
+        this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, value);
+    }
+
+    this->lock_screen_background_ = value;
+    return true;
+}
+
 void AppearanceManager::init()
 {
     this->appearance_theme_.init();
@@ -145,7 +179,8 @@ void AppearanceManager::init()
 
     this->load_from_settings();
 
-    this->appearance_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_settings_changed));
+    this->appearance_theme_.signal_theme_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_theme_changed_cb));
+    this->appearance_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_settings_changed_cb));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  APPEARANCE_DBUS_NAME,
@@ -160,11 +195,18 @@ void AppearanceManager::load_from_settings()
 
     for (const auto& key : this->appearance_settings_->list_keys())
     {
-        this->on_settings_changed(key);
+        this->on_settings_changed_cb(key);
     }
 }
 
-void AppearanceManager::on_settings_changed(const Glib::ustring& key)
+void AppearanceManager::on_theme_changed_cb(ThemeKey theme_key)
+{
+    KLOG_PROFILE("type: %d, theme name: %s.", theme_key.first, theme_key.second);
+
+    this->ThemeChanged_signal.emit(theme_key.first, theme_key.second);
+}
+
+void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)
 {
     KLOG_PROFILE("key: %s", key.c_str());
 
@@ -172,6 +214,9 @@ void AppearanceManager::on_settings_changed(const Glib::ustring& key)
     {
     case CONNECT(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, _hash):
         this->desktop_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG));
+        break;
+    case CONNECT(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, _hash):
+        this->lock_screen_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG));
         break;
     default:
         break;

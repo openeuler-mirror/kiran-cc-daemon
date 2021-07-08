@@ -17,7 +17,6 @@
  * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
-
 #include "lib/base/error.h"
 
 #include <fmt/format.h>
@@ -380,6 +379,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED:
     case CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED:
+    case CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_KEYBINDING_GEN_UID_FAILED:
     case CCErrorCode::ERROR_KEYBINDING_GRAB_KEY_FAILED:
     case CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED:

@@ -5,6 +5,10 @@
             <default>'/usr/share/backgrounds/kiran/default.jpg'</default>
             <description>File to use for the desktop background image.</description>
         </key>
+        <key name="lock-screen-background" type="s">
+            <default>'/usr/share/backgrounds/kiran/default.jpg'</default>
+            <description>File to use for the lock screen background image.</description>
+        </key>
     </schema>
 
 </schemalist>
