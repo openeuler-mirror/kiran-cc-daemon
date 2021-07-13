@@ -46,8 +46,10 @@ public:
     void thaw_notify();
 
     void update_from_passwd_shadow(PasswdShadow passwd_shadow);
-
+    // 移除缓存文件
     void remove_cache_file();
+    // 判断认证数据是否存在
+    bool match_auth_data(int32_t mode, const std::string &data_id);
 
 public:
     virtual guint64 uid_get() { return this->uid_; };
@@ -170,6 +172,8 @@ private:
 
     // 这里只更新与缓存数据无关的变量
     void udpate_nocache_var(PasswdShadow passwd_shadow);
+    // 获取指定认证模式的认证项
+    VPSS get_auth_items(int32_t mode);
 
     std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
     void change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
@@ -231,4 +235,6 @@ private:
     // 用户缓存数据管理
     std::shared_ptr<UserCache> user_cache_;
 };
+
+using UserVec = std::vector<std::shared_ptr<User>>;
 }  // namespace Kiran

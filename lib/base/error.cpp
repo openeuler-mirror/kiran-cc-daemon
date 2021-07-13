@@ -41,7 +41,11 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_2:
     case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_3:
     case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_4:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_5:
         error_desc = _("No user found.");
+        break;
+    case CCErrorCode::ERROR_ACCOUNTS_AUTH_DATA_CONFLICT:
+        error_desc = _("Multiple users have the same authentication data.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST:
         error_desc = _("The user already exists.");

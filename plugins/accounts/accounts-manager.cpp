@@ -17,7 +17,6 @@
  * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
-
 #include "plugins/accounts/accounts-manager.h"
 
 #include <glib/gstdio.h>
@@ -155,6 +154,33 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     }
 
     return;
+}
+
+void AccountsManager::FindUserByAuthData(gint32 mode, const Glib::ustring &data_id, MethodInvocation &invocation)
+{
+    KLOG_PROFILE("mode %d, data_id: %s.", mode, data_id.c_str());
+
+    UserVec users;
+    for (auto iter : this->users_)
+    {
+        if (iter.second->match_auth_data(mode, data_id))
+        {
+            users.push_back(iter.second);
+        }
+    }
+
+    if (users.size() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_5);
+    }
+    else if (users.size() == 1)
+    {
+        invocation.ret(users[0]->get_object_path());
+    }
+    else
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTH_DATA_CONFLICT);
+    }
 }
 
 void AccountsManager::CreateUser(const Glib::ustring &name,
@@ -318,9 +344,10 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
         std::shared_ptr<User> user;
         auto pwent = iter->first;
 
-        /* Skip system users that don't be in explicitly requested list */
+        // 除了root用户和通过DBUS显示请求的系统用户以外，其他系统用户默认不加载。
         if (!this->is_explicitly_requested_user(pwent->pw_name) &&
-            !UserClassify::is_human(pwent->pw_uid, pwent->pw_name, pwent->pw_shell))
+            !UserClassify::is_human(pwent->pw_uid, pwent->pw_name, pwent->pw_shell) &&
+            pwent->pw_uid != 0)
         {
             KLOG_DEBUG("skip user: %s", pwent->pw_name.c_str());
             continue;

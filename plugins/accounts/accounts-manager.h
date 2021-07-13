@@ -17,7 +17,6 @@
  * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
-
 #pragma once
 
 #include <accounts_dbus_stub.h>
@@ -53,6 +52,8 @@ protected:
     virtual void FindUserById(guint64 uid, MethodInvocation &invocation);
     // 通过name获取用户的DBusObjectPath
     virtual void FindUserByName(const Glib::ustring &name, MethodInvocation &invocation);
+    // 通过认证数据（指纹、人脸）查找用户
+    virtual void FindUserByAuthData(gint32 mode, const Glib::ustring &data_id, MethodInvocation &invocation);
     // 创建一个用户，用户可以为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
     virtual void CreateUser(const Glib::ustring &name,
                             const Glib::ustring &real_name,

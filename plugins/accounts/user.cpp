@@ -17,7 +17,6 @@
  * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
-
 #include "plugins/accounts/user.h"
 
 #include <fmt/format.h>
@@ -142,6 +141,16 @@ void User::remove_cache_file()
 
     auto icon_filename = Glib::build_filename(ICONDIR, this->user_name_get());
     g_remove(icon_filename.c_str());
+}
+
+bool User::match_auth_data(int32_t mode, const std::string &data_id)
+{
+    auto auth_items = this->get_auth_items(mode);
+    for (auto auth_item : auth_items)
+    {
+        RETURN_VAL_IF_TRUE(auth_item.second == data_id, true);
+    }
+    return false;
 }
 
 void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
@@ -280,14 +289,7 @@ void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
 {
     KLOG_PROFILE("mdoe: %d.", mode);
 
-    auto group_name = this->mode_to_groupname(mode);
-
-    if (group_name.length() == 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_1);
-    }
-
-    auto auth_items = this->user_cache_->get_group_kv(group_name);
+    auto auth_items = this->get_auth_items(mode);
     Json::Value auth_items_value;
     Json::FastWriter writer;
     for (uint32_t i = 0; i < auth_items.size(); ++i)
@@ -380,6 +382,13 @@ void User::udpate_nocache_var(PasswdShadow passwd_shadow)
     this->system_account_set(is_system_account);
 
     this->thaw_notify();
+}
+
+VPSS User::get_auth_items(int32_t mode)
+{
+    auto group_name = this->mode_to_groupname(mode);
+    RETURN_VAL_IF_TRUE(group_name.empty(), VPSS());
+    return this->user_cache_->get_group_kv(group_name);
 }
 
 std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
