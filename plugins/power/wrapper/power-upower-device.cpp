@@ -285,6 +285,40 @@ void PowerUPowerDevice::update_properties(const Gio::DBus::Proxy::MapChangedProp
     }
 }
 
+std::string PowerUPowerDevice::kind2str(UpDeviceKind type_enum)
+{
+    switch (type_enum)
+    {
+    case UP_DEVICE_KIND_LINE_POWER:
+        return "line-power";
+    case UP_DEVICE_KIND_BATTERY:
+        return "battery";
+    case UP_DEVICE_KIND_UPS:
+        return "ups";
+    case UP_DEVICE_KIND_MONITOR:
+        return "monitor";
+    case UP_DEVICE_KIND_MOUSE:
+        return "mouse";
+    case UP_DEVICE_KIND_KEYBOARD:
+        return "keyboard";
+    case UP_DEVICE_KIND_PDA:
+        return "pda";
+    case UP_DEVICE_KIND_PHONE:
+        return "phone";
+    case UP_DEVICE_KIND_MEDIA_PLAYER:
+        return "media-player";
+    case UP_DEVICE_KIND_TABLET:
+        return "tablet";
+    case UP_DEVICE_KIND_COMPUTER:
+        return "computer";
+    case UP_DEVICE_KIND_GAMING_INPUT:
+        return "gaming-input";
+    default:
+        return "unknown";
+    }
+    return "unknown";
+}
+
 void PowerUPowerDevice::on_properties_changed(const Gio::DBus::Proxy::MapChangedProperties& changed_properties,
                                               const std::vector<Glib::ustring>& invalidated_properties)
 {

@@ -120,7 +120,7 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     RETURN_VAL_IF_FALSE(upower_device, std::string());
 
     auto& device_props = upower_device->get_props();
-    auto prefix = up_device_kind_to_string(UpDeviceKind(device_props.type));
+    auto kind_str = upower_device->get_kind_string();
 
     switch (device_props.type)
     {
@@ -136,21 +136,21 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     {
         if (!device_props.is_present)
         {
-            return fmt::format("gpm-{0}-missing", prefix);
+            return fmt::format("gpm-{0}-missing", kind_str);
         }
         switch (device_props.state)
         {
         case UP_DEVICE_STATE_EMPTY:
-            return fmt::format("gpm-{0}-000", prefix);
+            return fmt::format("gpm-{0}-000", kind_str);
         case UP_DEVICE_STATE_FULLY_CHARGED:
         case UP_DEVICE_STATE_CHARGING:
         case UP_DEVICE_STATE_PENDING_CHARGE:
-            return fmt::format("gpm-{0}-{1}-charging", prefix, this->percentage2index(device_props.percentage));
+            return fmt::format("gpm-{0}-{1}-charging", kind_str, this->percentage2index(device_props.percentage));
         case UP_DEVICE_STATE_DISCHARGING:
         case UP_DEVICE_STATE_PENDING_DISCHARGE:
-            return fmt::format("gpm-{0}-{1}", prefix, this->percentage2index(device_props.percentage));
+            return fmt::format("gpm-{0}-{1}", kind_str, this->percentage2index(device_props.percentage));
         default:
-            return fmt::format("gpm-{0}-missing", prefix);
+            return fmt::format("gpm-{0}-missing", kind_str);
         }
         break;
     }

@@ -5,7 +5,7 @@ set (TARGET_NAME lib-display)
 file(GLOB_RECURSE DISPLAY_H_FILES ./*.h)
 file(GLOB_RECURSE DISPLAY_CPP_FILES ./*.cpp)
 
-add_library(${TARGET_NAME} ${DISPLAY_H_FILES} ${DISPLAY_CPP_FILES})
+add_library(${TARGET_NAME} STATIC ${DISPLAY_H_FILES} ${DISPLAY_CPP_FILES})
 
 target_include_directories(${TARGET_NAME} PUBLIC 
     ${X11_INCLUDE_DIRS}

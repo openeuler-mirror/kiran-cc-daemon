@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <upower.h>
-
 #include "lib/base/base.h"
 
 namespace Kiran
@@ -73,6 +71,50 @@ enum UPowerDeviceEvent
 
 };
 
+enum UpDeviceKind
+{
+    UP_DEVICE_KIND_UNKNOWN,
+    UP_DEVICE_KIND_LINE_POWER,
+    UP_DEVICE_KIND_BATTERY,
+    UP_DEVICE_KIND_UPS,
+    UP_DEVICE_KIND_MONITOR,
+    UP_DEVICE_KIND_MOUSE,
+    UP_DEVICE_KIND_KEYBOARD,
+    UP_DEVICE_KIND_PDA,
+    UP_DEVICE_KIND_PHONE,
+    UP_DEVICE_KIND_MEDIA_PLAYER,
+    UP_DEVICE_KIND_TABLET,
+    UP_DEVICE_KIND_COMPUTER,
+    UP_DEVICE_KIND_GAMING_INPUT,
+    UP_DEVICE_KIND_LAST
+};
+
+enum UpDeviceState
+{
+    UP_DEVICE_STATE_UNKNOWN,
+    UP_DEVICE_STATE_CHARGING,
+    UP_DEVICE_STATE_DISCHARGING,
+    UP_DEVICE_STATE_EMPTY,
+    UP_DEVICE_STATE_FULLY_CHARGED,
+    UP_DEVICE_STATE_PENDING_CHARGE,
+    UP_DEVICE_STATE_PENDING_DISCHARGE,
+    UP_DEVICE_STATE_LAST
+};
+
+enum UpDeviceLevel
+{
+    UP_DEVICE_LEVEL_UNKNOWN,
+    UP_DEVICE_LEVEL_NONE,
+    UP_DEVICE_LEVEL_DISCHARGING,
+    UP_DEVICE_LEVEL_LOW,
+    UP_DEVICE_LEVEL_CRITICAL,
+    UP_DEVICE_LEVEL_ACTION,
+    UP_DEVICE_LEVEL_NORMAL,
+    UP_DEVICE_LEVEL_HIGH,
+    UP_DEVICE_LEVEL_FULL,
+    UP_DEVICE_LEVEL_LAST
+};
+
 class PowerUPowerDevice
 {
 public:
@@ -81,6 +123,9 @@ public:
 
     // 获取设备所有属性
     const UPowerDeviceProps& get_props() { return this->props_; };
+
+    // 获取设备类型字符串
+    std::string get_kind_string() { return this->kind2str(UpDeviceKind(this->props_.type)); };
 
     // 获取设备的dbus object path
     const Glib::DBusObjectPathString& get_object_path() { return this->object_path_; };
@@ -103,6 +148,8 @@ private:
     double get_property_double(const std::string& property_name);
 
     void update_properties(const Gio::DBus::Proxy::MapChangedProperties& changed_properties);
+
+    std::string kind2str(UpDeviceKind type_enum);
 
     void on_properties_changed(const Gio::DBus::Proxy::MapChangedProperties& changed_properties,
                                const std::vector<Glib::ustring>& invalidated_properties);
