@@ -17,7 +17,6 @@
  * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
-
 #include "lib/base/str-utils.h"
 
 #include <algorithm>
@@ -117,4 +116,45 @@ std::string StrUtils::trim(const std::string &s)
 {
     return StrUtils::ltrim(StrUtils::rtrim(s));
 }
+
+bool StrUtils::json_str2value(const std::string &str, Json::Value &value, std::string &error)
+{
+    Json::CharReaderBuilder reader_builder;
+    std::unique_ptr<Json::CharReader> reader(reader_builder.newCharReader());
+    return reader->parse(str.c_str(), str.c_str() + str.length(), &value, &error);
+}
+
+std::string StrUtils::timestamp2str(time_t t)
+{
+    struct tm *tm_time;
+
+    RETURN_VAL_IF_TRUE(t == 0, std::string());
+    tm_time = localtime(&t);
+    return StrUtils::tm2str(tm_time);
+}
+
+std::string StrUtils::gdate2str(const GDate *date)
+{
+    g_autofree gchar *str = g_strdup_printf("%04d-%02d-%02d",
+                                            g_date_get_year(date),
+                                            g_date_get_month(date),
+                                            g_date_get_day(date));
+
+    std::string result = std::string(str);
+    return result;
+}
+
+std::string StrUtils::tm2str(const struct tm *tm_time)
+{
+    g_autofree gchar *str = g_strdup_printf("%04d-%02d-%02d %02d:%02d:%02d",
+                                            tm_time->tm_year + 1900,
+                                            tm_time->tm_mon + 1,
+                                            tm_time->tm_mday,
+                                            tm_time->tm_hour,
+                                            tm_time->tm_min,
+                                            tm_time->tm_sec);
+    std::string result = std::string(str);
+    return result;
+}
+
 }  // namespace Kiran

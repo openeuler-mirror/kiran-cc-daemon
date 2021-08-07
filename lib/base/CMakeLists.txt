@@ -16,7 +16,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
     ${PROJECT_BINARY_DIR}
     ${GIOMM_INCLUDE_DIRS}
     ${KLOG_GTK3_INCLUDE_DIRS}
-    ${FMT_INCLUDE_DIRS})
+    ${FMT_INCLUDE_DIRS}
+    ${JSON_INCLUDE_DIRS})
 
 
 target_compile_options(${TARGET_NAME} PUBLIC
@@ -28,5 +29,6 @@ target_compile_options(${TARGET_NAME} PUBLIC
 target_link_libraries(${TARGET_NAME} PUBLIC
     ${GIOMM_LIBRARIES}
     ${KLOG_GTK3_LIBRARIES}
-    ${FMT_LIBRARIES})
+    ${FMT_LIBRARIES}
+    ${JSON_LIBRARIES})
 

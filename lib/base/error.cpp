@@ -99,19 +99,16 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_ACCOUNTS_DELETE_ROOT_USER:
         error_desc = _("Refuse to delete root user.");
         break;
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_1:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_2:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_3:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_4:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_1:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_2:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_3:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_4:
         error_desc = _("The authentication mode isn't supported.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED:
         error_desc = _("User is locked.");
         break;
-    case CCErrorCode::ERROR_ACCOUNTS_EXPIRATION_POLICY_NOTFOUND:
-        error_desc = _("The expiration policy isn't found.");
-        break;
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHMODE_NAME_ALREADY_EXIST:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHMODE_NAME_ALREADY_EXIST:
         error_desc = _("The name already exists.");
         break;
     case CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID:
@@ -366,19 +363,24 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
         error_desc = _("The property is unsupported.");
         break;
 
+    case CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY:
+        error_desc = _("Arguments invalid.");
+        break;
+
     case CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED:
     case CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS:
     case CCErrorCode::ERROR_ACCOUNTS_SAVE_AUTOLOGIN_FILE:
-    case CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_CALLER_UID_1:
-    case CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_CALLER_UID_2:
-    case CCErrorCode::ERROR_ACCOUNTS_QUERY_INFO_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_FILE_TYPE_NQ_REGULAR:
-    case CCErrorCode::ERROR_ACCOUNTS_REPLACE_OUTPUT_STREAM:
-    case CCErrorCode::ERROR_ACCOUNTS_SPAWN_READ_FILE_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_COPY_FILE_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_GROUP_NOT_FOUND:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTH_SAVE_DATA_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTH_DEL_DATA_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_1:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_2:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_QUERY_INFO_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_FILE_TYPE_NQ_REGULAR:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_REPLACE_OUTPUT_STREAM:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_SPAWN_READ_FILE_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_COPY_FILE_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_GROUP_NOT_FOUND:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_SAVE_DATA_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_DEL_DATA_FAILED:
     case CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED:
     case CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED:
     case CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED:
@@ -397,6 +399,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED:
     case CCErrorCode::ERROR_AUDIO_STREAM_SET_VOLUME_FAILED:
     case CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_GET_AUTHITEM_EXCEPTION:
         error_desc = _("Internel error.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:

@@ -71,6 +71,7 @@ public:
     virtual bool automatic_login_get() { return this->automatic_login_; };
     virtual bool system_account_get() { return this->system_account_; };
     virtual gint32 auth_modes_get();
+    virtual Glib::ustring password_expiration_policy_get() { return this->password_expiration_policy_; }
 
 public:
     bool get_gid() { return this->passwd_->pw_gid; };
@@ -106,8 +107,8 @@ protected:
     virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);
     // 设置用户是否自动登陆
     virtual void SetAutomaticLogin(bool enabled, MethodInvocation &invocation);
-    // 获取用户密码过期信息
-    virtual void GetPasswordExpirationPolicy(MethodInvocation &invocation);
+    // 设置用户密码过期信息
+    virtual void SetPasswordExpirationPolicy(const Glib::ustring &options, MethodInvocation &invocation);
     /**
      * @brief 添加/录入认证数据
      * @param {mode} 参考AccountsPasswordMode定义
@@ -166,6 +167,7 @@ protected:
     {
         return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_AUTH_MODES, value);
     }
+    virtual bool password_expiration_policy_setHandler(const Glib::ustring &value);
 
 private:
     void init();
@@ -174,6 +176,9 @@ private:
     void udpate_nocache_var(PasswdShadow passwd_shadow);
     // 获取指定认证模式的认证项
     VPSS get_auth_items(int32_t mode);
+
+    // 根据shadow信息更新密码过期策略
+    void update_password_expiration_policy(std::shared_ptr<SPwd> spwd);
 
     std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
     void change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
@@ -192,8 +197,8 @@ private:
     void change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint);
     void change_password_hint_authorized_cb(MethodInvocation invocation, const Glib::ustring &password_hint);
     void change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login);
+    void change_password_expiration_policy_cb(MethodInvocation invocation, const Glib::ustring &options);
     void become_user(std::shared_ptr<Passwd> passwd);
-    void get_password_expiration_policy_authorized_cb(MethodInvocation invocation);
     void add_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name, const Glib::ustring &data_id);
     void del_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name);
     // void get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode);
@@ -231,6 +236,7 @@ private:
     int32_t password_mode_;
     bool automatic_login_;
     bool system_account_;
+    Glib::ustring password_expiration_policy_;
 
     // 用户缓存数据管理
     std::shared_ptr<UserCache> user_cache_;

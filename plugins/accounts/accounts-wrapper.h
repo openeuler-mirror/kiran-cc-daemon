@@ -143,10 +143,7 @@ public:
     std::shared_ptr<Group> get_group_by_name(const std::string &group_name);
     std::vector<uint32_t> get_user_groups(const std::string &user, uint32_t group);
 
-    sigc::signal<void, FileChangedType> &signal_file_changed()
-    {
-        return this->file_changed_;
-    };
+    sigc::signal<void, FileChangedType> &signal_file_changed() { return this->file_changed_; };
 
 private:
     void init();

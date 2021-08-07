@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <json/json.h>
 #include "lib/base/base.h"
 
 namespace fmt
@@ -57,6 +58,14 @@ public:
     static std::string ltrim(const std::string &s);
     static std::string rtrim(const std::string &s);
     static std::string trim(const std::string &s);
+
+    // json字符串转Json::Value
+    static bool json_str2value(const std::string &str, Json::Value &value, std::string &error);
+
+    // 格式化日期
+    static std::string timestamp2str(time_t t);
+    static std::string gdate2str(const GDate *date);
+    static std::string tm2str(const struct tm *tm_time);
 
     template <class T>
     static std::string join(const std::vector<T> &vec, const std::string &join_chars);

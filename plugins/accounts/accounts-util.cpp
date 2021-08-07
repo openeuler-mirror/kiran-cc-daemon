@@ -169,7 +169,7 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
                                         const std::vector<std::string> argv,
                                         CCErrorCode &error_code)
 {
-    KLOG_PROFILE("command: %s.", StrUtils::join(argv, " ").c_str());
+    KLOG_DEBUG("command: %s.", StrUtils::join(argv, " ").c_str());
 
     std::string loginuid;
     int status;
