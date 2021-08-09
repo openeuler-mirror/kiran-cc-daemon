@@ -43,6 +43,7 @@ public:
        因此，如果想获取系统电池整体使用情况，需要使用混合电源设备*/
     std::shared_ptr<PowerUPowerDevice> get_display_device() { return this->display_device_; };
     PowerUPowerDeviceVec get_devices();
+    std::shared_ptr<PowerUPowerDevice> get_device(const Glib::DBusObjectPathString &object_path) { return MapHelper::get_value(this->devices_, object_path); };
 
     sigc::signal<void, bool> &signal_on_battery_changed() { return this->on_battery_changed_; };
     sigc::signal<void, bool> &signal_lid_is_closed_changed() { return this->lid_is_closed_changed_; };
@@ -71,7 +72,7 @@ private:
 
     void on_device_props_changed(const UPowerDeviceProps &old_props,
                                  const UPowerDeviceProps &new_props,
-                                 std::shared_ptr<PowerUPowerDevice> device);
+                                 Glib::DBusObjectPathString device_object_path);
 
 private:
     Glib::RefPtr<Gio::DBus::Proxy> upower_proxy_;

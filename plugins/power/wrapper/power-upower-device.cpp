@@ -79,6 +79,7 @@ PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_pa
 
 PowerUPowerDevice::~PowerUPowerDevice()
 {
+    KLOG_DEBUG("The device %s is destroyed.", this->object_path_.c_str());
 }
 
 std::string PowerUPowerDevice::get_type_translation(uint32_t number)
