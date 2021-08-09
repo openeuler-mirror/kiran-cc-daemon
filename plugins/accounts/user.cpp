@@ -410,12 +410,12 @@ void User::update_password_expiration_policy(std::shared_ptr<SPwd> spwd)
 
     try
     {
-        values[ACCOUNTS_PEP_EXPIRATION_TIME] = spwd->sp_expire;
-        values[ACCOUNTS_PEP_LAST_CHANGED_TIME] = spwd->sp_lstchg;
-        values[ACCOUNTS_PEP_MIN_DAYS] = spwd->sp_min;
-        values[ACCOUNTS_PEP_MAX_DAYS] = spwd->sp_max;
-        values[ACCOUNTS_PEP_DAYS_TO_WARN] = spwd->sp_warn;
-        values[ACCOUNTS_PEP_INACTIVE_DAYS] = spwd->sp_inact;
+        values[ACCOUNTS_PEP_EXPIRATION_TIME] = int64_t(spwd->sp_expire);
+        values[ACCOUNTS_PEP_LAST_CHANGED_TIME] = int64_t(spwd->sp_lstchg);
+        values[ACCOUNTS_PEP_MIN_DAYS] = int64_t(spwd->sp_min);
+        values[ACCOUNTS_PEP_MAX_DAYS] = int64_t(spwd->sp_max);
+        values[ACCOUNTS_PEP_DAYS_TO_WARN] = int64_t(spwd->sp_warn);
+        values[ACCOUNTS_PEP_INACTIVE_DAYS] = int64_t(spwd->sp_inact);
 
         auto password_expiration_policy = Json::writeString(wbuilder, values);
         this->password_expiration_policy_set(password_expiration_policy);
@@ -789,13 +789,13 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
 
     for (auto key : values.getMemberNames())
     {
-        if (!values[key].isInt())
+        if (!values[key].isInt64())
         {
-            KLOG_WARNING("The type of option %s must be Integer", key.c_str());
+            KLOG_WARNING("The type of option %s must be Int64", key.c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID);
         }
 
-        auto value = values[key].asInt();
+        auto value = values[key].asInt64();
 
         switch (shash(key.c_str()))
         {
