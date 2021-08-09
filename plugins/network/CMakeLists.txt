@@ -19,9 +19,11 @@ SET_COMMON_SHARED_LINKER_FLAGS()
 
 
 target_include_directories(${TARGET_NAME} PUBLIC 
-    ${PROJECT_BINARY_DIR}/generated)
+    ${PROJECT_BINARY_DIR}/generated
+    ${JSONCPP_INCLUDE_DIRS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE
+    ${JSONCPP_LIBRARIES}
     lib-base)
 
 
