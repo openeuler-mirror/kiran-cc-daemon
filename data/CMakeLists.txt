@@ -126,6 +126,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/display_i.h
               ${PROJECT_SOURCE_DIR}/include/power-i.h
               ${PROJECT_SOURCE_DIR}/include/touchpad-i.h
               ${PROJECT_SOURCE_DIR}/include/xsettings-i.h
+              ${PROJECT_SOURCE_DIR}/include/network-i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-session-daemon)
 
 install(FILES ${PROJECT_SOURCE_DIR}/include/error-i.h

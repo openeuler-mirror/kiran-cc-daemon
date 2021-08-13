@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-09 09:37+0800\n"
+"POT-Creation-Date: 2021-08-13 14:57+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -785,19 +785,31 @@ msgstr "属性不能手动修改。"
 msgid "The property is unsupported."
 msgstr "属性不支持。"
 
-#: ../lib/base/error.cpp:368
+#: ../lib/base/error.cpp:367
 msgid "Arguments invalid."
 msgstr "参数不合法"
 
-#: ../lib/base/error.cpp:403
+#: ../lib/base/error.cpp:370
+msgid "The network proxy mode is invalid."
+msgstr "代理模式不合法"
+
+#: ../lib/base/error.cpp:373
+msgid "The current network proxy mode is not manual."
+msgstr "当前代理模式不是手动模式。"
+
+#: ../lib/base/error.cpp:376
+msgid "The current network proxy mode is not auto."
+msgstr "当前代理模式不是自动模式。"
+
+#: ../lib/base/error.cpp:415
 msgid "Internel error."
 msgstr "内部错误。"
 
-#: ../lib/base/error.cpp:406 ../lib/base/error.cpp:409
+#: ../lib/base/error.cpp:418 ../lib/base/error.cpp:421
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../lib/base/error.cpp:413
+#: ../lib/base/error.cpp:425
 msgid " (error code: 0x{:x})"
 msgstr "(错误码：0x{:x})"
 

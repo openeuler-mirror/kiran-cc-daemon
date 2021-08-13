@@ -362,12 +362,19 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_XSETTINGS_PROPERTY_UNSUPPORTED:
         error_desc = _("The property is unsupported.");
         break;
-
     case CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID:
     case CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY:
         error_desc = _("Arguments invalid.");
         break;
-
+    case CCErrorCode::ERROR_NETWORK_PROXY_MODE_INVALID:
+        error_desc = _("The network proxy mode is invalid.");
+        break;
+    case CCErrorCode::ERROR_NETWORK_PROXY_CURRENT_MODE_NOT_MANUAL:
+        error_desc = _("The current network proxy mode is not manual.");
+        break;
+    case CCErrorCode::ERROR_NETWORK_PROXY_CURRENT_MODE_NOT_AUTO:
+        error_desc = _("The current network proxy mode is not auto.");
+        break;
     case CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED:
     case CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS:
     case CCErrorCode::ERROR_ACCOUNTS_SAVE_AUTOLOGIN_FILE:
@@ -400,6 +407,11 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_AUDIO_STREAM_SET_VOLUME_FAILED:
     case CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED:
     case CCErrorCode::ERROR_ACCOUNTS_USER_GET_AUTHITEM_EXCEPTION:
+    case CCErrorCode::ERROR_NETWORK_PROXY_JSON_FORMAT_FAILED:
+    case CCErrorCode::ERROR_NETWORK_PROXY_SET_MODE_FAILED:
+    case CCErrorCode::ERROR_NETWORK_PROXY_SET_AUTO_PROXY_URL_FAILED:
+    case CCErrorCode::ERROR_NETWORK_PROXY_SET_MANUAL_PROXY_FAILED:
+    case CCErrorCode::ERROR_NETWORK_PROXY_GET_MANUAL_PROXY_FAILED:
         error_desc = _("Internel error.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:
