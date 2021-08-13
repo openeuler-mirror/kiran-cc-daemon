@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/backlight/power-backlight-monitor-x11.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/backlight/power-backlight-monitor-x11.h"
@@ -33,7 +45,7 @@ bool PowerBacklightMonitorX11::set_brightness_value(int32_t brightness_value)
     gdk_display_flush(this->display_);
     if (gdk_x11_display_error_trap_pop(this->display_))
     {
-        LOG_WARNING("Failed to XRRChangeOutputProperty for brightness %i", brightness_value);
+        KLOG_WARNING("Failed to XRRChangeOutputProperty for brightness %i", brightness_value);
         return false;
     }
     return true;
@@ -64,7 +76,7 @@ int32_t PowerBacklightMonitorX11::get_brightness_value()
                              &bytes_after,
                              ((unsigned char **)&prop)) != Success)
     {
-        LOG_WARNING("Failed to get brightness property for output %d.", (int32_t)this->output_);
+        KLOG_WARNING("Failed to get brightness property for output %d.", (int32_t)this->output_);
         return -1;
     }
 
@@ -76,7 +88,7 @@ int32_t PowerBacklightMonitorX11::get_brightness_value()
     }
     else
     {
-        LOG_WARNING("The data of the brightness proerty is incorrect.");
+        KLOG_WARNING("The data of the brightness proerty is incorrect.");
     }
 
     XFree(prop);
@@ -98,13 +110,13 @@ bool PowerBacklightMonitorX11::get_brightness_range(int32_t &min, int32_t &max)
     info = XRRQueryOutputProperty(this->xdisplay_, this->output_, this->backlight_atom_);
     if (info == NULL)
     {
-        LOG_WARNING("Could not get output property for %d.", (int32_t)this->output_);
+        KLOG_WARNING("Could not get output property for %d.", (int32_t)this->output_);
         return false;
     }
 
     if (!info->range || info->num_values != 2)
     {
-        LOG_WARNING("The values isn't a range");
+        KLOG_WARNING("The values isn't a range");
         return false;
     }
     min = info->values[0];

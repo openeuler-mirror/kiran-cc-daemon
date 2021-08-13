@@ -1,8 +1,21 @@
+
 /**
- * @file          /kiran-cc-daemon/plugins/power/backlight/power-backlight-moitor.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/backlight/power-backlight-monitor-tool.h"
@@ -20,7 +33,7 @@ PowerBacklightMonitor::~PowerBacklightMonitor()
 
 void PowerBacklightMonitor::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     backlight_x11_.init();
     this->backlight_helper_.init();
@@ -34,7 +47,7 @@ void PowerBacklightMonitor::init()
 
 bool PowerBacklightMonitor::set_brightness(int32_t percentage)
 {
-    SETTINGS_PROFILE("percentage: %d.", percentage);
+    KLOG_PROFILE("percentage: %d.", percentage);
 
     RETURN_VAL_IF_TRUE(this->absolute_monitors_.size() == 0, false);
 
@@ -103,25 +116,25 @@ bool PowerBacklightMonitor::set_brightness_percentage(std::shared_ptr<PowerBackl
     RETURN_VAL_IF_TRUE(brightness_max == brightness_min, false);
 
     auto brightness_set_value = this->brightness_percent2discrete(percentage, (brightness_max - brightness_min) + 1);
-    LOG_DEBUG("min value: %d, max value: %d, current value: %d, set value: %d, set value percent: %d",
-              brightness_min,
-              brightness_max,
-              brightness_current_value,
-              brightness_set_value,
-              percentage);
+    KLOG_DEBUG("min value: %d, max value: %d, current value: %d, set value: %d, set value percent: %d",
+               brightness_min,
+               brightness_max,
+               brightness_current_value,
+               brightness_set_value,
+               percentage);
 
     brightness_set_value = std::max(brightness_set_value, brightness_min);
     brightness_set_value = std::min(brightness_set_value, brightness_max);
 
     if (brightness_current_value == brightness_set_value)
     {
-        LOG_DEBUG("The set brightness value is equal to current value.");
+        KLOG_DEBUG("The set brightness value is equal to current value.");
         return true;
     }
 
     // 一些背光控制器的亮度增加和减少是按照一定倍数进行的，例如macbook pro是每次增加5%的亮度值
     auto step = this->get_brightness_step(std::abs(brightness_set_value - brightness_current_value));
-    LOG_DEBUG("Using step of %d", step);
+    KLOG_DEBUG("Using step of %d", step);
 
     if (brightness_current_value < brightness_set_value)
     {
@@ -164,14 +177,14 @@ int32_t PowerBacklightMonitor::get_brightness_percentage(std::shared_ptr<PowerBa
     RETURN_VAL_IF_FALSE(absolute_monitor->get_brightness_range(brightness_min, brightness_max), -1);
     RETURN_VAL_IF_TRUE(brightness_min >= brightness_max, -1);
 
-    LOG_DEBUG("output brightness info: value %d, min %d, max %d",
-              brightness_value,
-              brightness_min,
-              brightness_max);
+    KLOG_DEBUG("output brightness info: value %d, min %d, max %d",
+               brightness_value,
+               brightness_min,
+               brightness_max);
 
     int32_t brightness_level = brightness_max - brightness_min + 1;
     auto percentage = this->brightness_discrete2percent(brightness_value, brightness_level);
-    LOG_DEBUG("percentage %i", percentage);
+    KLOG_DEBUG("percentage %i", percentage);
     return percentage;
 }
 

@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-20 15:30:53
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 09:07:10
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-registry.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/xsettings/xsettings-registry.h"
 
 #include <gdk/gdkx.h>
@@ -48,7 +59,7 @@ bool XSettingsPropertyInt::operator==(const XSettingsPropertyBase &rval) const
 {
     if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_INT)
     {
-        LOG_WARNING("Unsupported.");
+        KLOG_WARNING("Unsupported.");
         return false;
     }
     return this->operator==(dynamic_cast<const XSettingsPropertyInt &>(rval));
@@ -78,7 +89,7 @@ bool XSettingsPropertyString::operator==(const XSettingsPropertyBase &rval) cons
 {
     if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_STRING)
     {
-        LOG_WARNING("Unsupported.");
+        KLOG_WARNING("Unsupported.");
         return false;
     }
     return this->operator==(dynamic_cast<const XSettingsPropertyString &>(rval));
@@ -112,7 +123,7 @@ bool XSettingsPropertyColor::operator==(const XSettingsPropertyBase &rval) const
 {
     if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR)
     {
-        LOG_WARNING("Unsupported.");
+        KLOG_WARNING("Unsupported.");
         return false;
     }
     return this->operator==(dynamic_cast<const XSettingsPropertyColor &>(rval));
@@ -157,7 +168,7 @@ bool XSettingsRegistry::init()
     // 检查是否有其他xsettings插件已经在运行
     if (XGetSelectionOwner(this->xdisplay_, this->selection_atom_) != None)
     {
-        LOG_WARNING("You can only run one xsettings manager at a time.");
+        KLOG_WARNING("You can only run one xsettings manager at a time.");
         return false;
     }
 
@@ -221,7 +232,7 @@ bool XSettingsRegistry::update(const std::string &name, const XSettingsColor &va
 
 bool XSettingsRegistry::update(std::shared_ptr<XSettingsPropertyBase> var)
 {
-    SETTINGS_PROFILE("name: %s.", var->get_name().c_str());
+    KLOG_PROFILE("name: %s.", var->get_name().c_str());
 
     RETURN_VAL_IF_TRUE(var == nullptr, true);
     auto old_var = this->get_property(var->get_name());
@@ -257,7 +268,7 @@ XSettingsPropertyBaseVec XSettingsRegistry::get_properties()
 
 void XSettingsRegistry::notify()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::string data;
 
     // 注意：填充的相关变量类型不能随意修改

@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/appearance/theme/appearance-theme.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/appearance/theme/appearance-theme.h"
@@ -18,7 +30,12 @@ namespace Kiran
 AppearanceTheme::AppearanceTheme()
 {
     this->xsettings_settings_ = Gio::Settings::create(XSETTINGS_SCHEMA_ID);
-    this->marco_settings_ = Gio::Settings::create(MARCO_SCHEMA_ID);
+
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MARCO_SCHEMA_ID) != schemas.end())
+    {
+        this->marco_settings_ = Gio::Settings::create(MARCO_SCHEMA_ID);
+    }
 }
 
 void AppearanceTheme::init()
@@ -31,11 +48,12 @@ void AppearanceTheme::init()
         auto theme = parse.parse();
         if (theme)
         {
-            // LOG_DEBUG("path: %s type: %d", theme->path.c_str(), theme->type);
+            // KLOG_DEBUG("path: %s type: %d", theme->path.c_str(), theme->type);
             this->add_theme(theme);
         }
     }
 
+    this->xsettings_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceTheme::on_xsettings_settings_changed));
     this->theme_monitor_.signal_monitor_event().connect(sigc::mem_fun(this, &AppearanceTheme::on_monitor_event_changed));
 }
 
@@ -89,37 +107,17 @@ bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
         this->set_meta_theme(std::static_pointer_cast<ThemeMeta>(theme));
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
-    {
-        if (this->xsettings_settings_ && theme->name.length() > 0)
-        {
-            this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_THEME_NAME, theme->name);
-        }
+        this->set_gtk_theme(theme->name);
         break;
-    }
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
-    {
-        if (this->marco_settings_ && theme->name.length() > 0)
-        {
-            this->marco_settings_->set_string(MARCO_SCHEMA_KEY_THEME, theme->name);
-        }
+        this->set_metacity_theme(theme->name);
         break;
-    }
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON:
-    {
-        if (this->xsettings_settings_ && theme->name.length() > 0)
-        {
-            this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, theme->name);
-        }
+        this->set_icon_theme(theme->name);
         break;
-    }
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR:
-    {
-        if (this->xsettings_settings_ && theme->name.length() > 0)
-        {
-            this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, theme->name);
-        }
+        this->set_cursor_theme(theme->name);
         break;
-    }
     default:
         error_code = CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_UNSUPPORTED;
         return false;
@@ -129,18 +127,12 @@ bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
 
 std::string AppearanceTheme::get_theme(AppearanceThemeType type)
 {
-    SETTINGS_PROFILE("type: %d.", type);
+    KLOG_PROFILE("type: %d.", type);
 
     switch (type)
     {
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
-    {
-        if (this->xsettings_settings_)
-        {
-            return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_THEME_NAME).raw();
-        }
-        break;
-    }
+        return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_THEME_NAME).raw();
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
     {
         if (this->marco_settings_)
@@ -150,21 +142,9 @@ std::string AppearanceTheme::get_theme(AppearanceThemeType type)
         break;
     }
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON:
-    {
-        if (this->xsettings_settings_)
-        {
-            return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME);
-        }
-        break;
-    }
+        return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME);
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR:
-    {
-        if (this->xsettings_settings_)
-        {
-            return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME);
-        }
-        break;
-    }
+        return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME);
     default:
         break;
     }
@@ -200,33 +180,70 @@ bool AppearanceTheme::del_theme(ThemeUniqueKey unique_key)
             return true;
         }
     }
-    // LOG_DEBUG("Not found the theme %s.", key.second);
+    // KLOG_DEBUG("Not found the theme %s.", key.second);
     return false;
 }
 
 void AppearanceTheme::set_meta_theme(std::shared_ptr<ThemeMeta> theme)
 {
-    if (this->xsettings_settings_)
+    this->set_gtk_theme(theme->gtk_theme);
+    this->set_icon_theme(theme->icon_theme);
+    this->set_cursor_theme(theme->cursor_theme);
+    this->set_metacity_theme(theme->metacity_theme);
+
+    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_META, theme->name));
+}
+
+void AppearanceTheme::set_gtk_theme(const std::string& theme_name)
+{
+    RETURN_IF_TRUE(theme_name.empty());
+    this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_THEME_NAME, theme_name);
+    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name));
+}
+
+void AppearanceTheme::set_icon_theme(const std::string& theme_name)
+{
+    RETURN_IF_TRUE(theme_name.empty());
+    this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, theme_name);
+    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON, theme_name));
+}
+
+void AppearanceTheme::set_cursor_theme(const std::string& theme_name)
+{
+    RETURN_IF_TRUE(theme_name.empty());
+    this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, theme_name);
+    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR, theme_name));
+}
+
+void AppearanceTheme::set_metacity_theme(const std::string& theme_name)
+{
+    RETURN_IF_TRUE(theme_name.empty());
+
+    if (this->marco_settings_)
     {
-        if (theme->gtk_theme.length() > 0)
-        {
-            this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_THEME_NAME, theme->gtk_theme);
-        }
-
-        if (theme->icon_theme.length() > 0)
-        {
-            this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, theme->icon_theme);
-        }
-
-        if (theme->cursor_theme.length() > 0)
-        {
-            this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, theme->cursor_theme);
-        }
+        this->marco_settings_->set_string(MARCO_SCHEMA_KEY_THEME, theme_name);
+        this->theme_changed_.emit(ThemeKey{AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name});
     }
+}
 
-    if (theme->metacity_theme.length() > 0 && this->marco_settings_)
+void AppearanceTheme::on_xsettings_settings_changed(const Glib::ustring& key)
+{
+    switch (shash(key.c_str()))
     {
-        this->marco_settings_->set_string(MARCO_SCHEMA_KEY_THEME, theme->metacity_theme);
+    case CONNECT(XSETTINGS_SCHEMA_NET_THEME_NAME, _hash):
+        this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK,
+                                                 this->get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK)));
+        break;
+    case CONNECT(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, _hash):
+        this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON,
+                                                 this->get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON)));
+        break;
+    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
+        this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR,
+                                                 this->get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR)));
+        break;
+    default:
+        break;
     }
 }
 

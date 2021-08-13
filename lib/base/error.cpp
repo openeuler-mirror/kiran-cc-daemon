@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/lib/base/error.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "lib/base/error.h"
@@ -29,7 +41,11 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_2:
     case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_3:
     case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_4:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_5:
         error_desc = _("No user found.");
+        break;
+    case CCErrorCode::ERROR_ACCOUNTS_AUTH_DATA_CONFLICT:
+        error_desc = _("Multiple users have the same authentication data.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST:
         error_desc = _("The user already exists.");
@@ -83,19 +99,16 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_ACCOUNTS_DELETE_ROOT_USER:
         error_desc = _("Refuse to delete root user.");
         break;
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_1:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_2:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_3:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHENTICATION_UNSUPPORTED_4:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_1:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_2:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_3:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_4:
         error_desc = _("The authentication mode isn't supported.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED:
         error_desc = _("User is locked.");
         break;
-    case CCErrorCode::ERROR_ACCOUNTS_EXPIRATION_POLICY_NOTFOUND:
-        error_desc = _("The expiration policy isn't found.");
-        break;
-    case CCErrorCode::ERROR_ACCOUNTS_AUTHMODE_NAME_ALREADY_EXIST:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHMODE_NAME_ALREADY_EXIST:
         error_desc = _("The name already exists.");
         break;
     case CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID:
@@ -349,6 +362,10 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_XSETTINGS_PROPERTY_UNSUPPORTED:
         error_desc = _("The property is unsupported.");
         break;
+    case CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY:
+        error_desc = _("Arguments invalid.");
+        break;
     case CCErrorCode::ERROR_NETWORK_PROXY_MODE_INVALID:
         error_desc = _("The network proxy mode is invalid.");
         break;
@@ -361,20 +378,21 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED:
     case CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS:
     case CCErrorCode::ERROR_ACCOUNTS_SAVE_AUTOLOGIN_FILE:
-    case CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_CALLER_UID_1:
-    case CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_CALLER_UID_2:
-    case CCErrorCode::ERROR_ACCOUNTS_QUERY_INFO_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_FILE_TYPE_NQ_REGULAR:
-    case CCErrorCode::ERROR_ACCOUNTS_REPLACE_OUTPUT_STREAM:
-    case CCErrorCode::ERROR_ACCOUNTS_SPAWN_READ_FILE_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_COPY_FILE_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_GROUP_NOT_FOUND:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTH_SAVE_DATA_FAILED:
-    case CCErrorCode::ERROR_ACCOUNTS_AUTH_DEL_DATA_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_1:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_2:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_QUERY_INFO_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_FILE_TYPE_NQ_REGULAR:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_REPLACE_OUTPUT_STREAM:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_SPAWN_READ_FILE_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_COPY_FILE_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_GROUP_NOT_FOUND:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_SAVE_DATA_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_DEL_DATA_FAILED:
     case CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED:
     case CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED:
     case CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED:
+    case CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_KEYBINDING_GEN_UID_FAILED:
     case CCErrorCode::ERROR_KEYBINDING_GRAB_KEY_FAILED:
     case CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED:
@@ -388,6 +406,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED:
     case CCErrorCode::ERROR_AUDIO_STREAM_SET_VOLUME_FAILED:
     case CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_GET_AUTHITEM_EXCEPTION:
     case CCErrorCode::ERROR_NETWORK_PROXY_JSON_FORMAT_FAILED:
     case CCErrorCode::ERROR_NETWORK_PROXY_SET_MODE_FAILED:
     case CCErrorCode::ERROR_NETWORK_PROXY_SET_AUTO_PROXY_URL_FAILED:

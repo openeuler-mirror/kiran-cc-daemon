@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-19 10:09:05
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:22:58
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/mouse/mouse-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/inputdevices/mouse/mouse-manager.h"
@@ -62,7 +72,7 @@ void MouseManager::Reset(MethodInvocation &invocation)
 #define PROP_SET_HANDLER(prop, type, key, type2)                                    \
     bool MouseManager::prop##_setHandler(type value)                                \
     {                                                                               \
-        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());          \
+        KLOG_PROFILE("value: %s.", fmt::format("{0}", value).c_str());              \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                          \
         if (g_settings_get_##type2(this->mouse_settings_->gobj(), key) != value)    \
         {                                                                           \
@@ -83,11 +93,11 @@ PROP_SET_HANDLER(natural_scroll, bool, MOUSE_SCHEMA_NATURAL_SCROLL, boolean);
 
 void MouseManager::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (!XInputHelper::supports_xinput_devices())
     {
-        LOG_WARNING("XInput is not supported, not applying any settings.");
+        KLOG_WARNING("XInput is not supported, not applying any settings.");
         return;
     }
 
@@ -105,7 +115,7 @@ void MouseManager::init()
 
 void MouseManager::load_from_settings()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (this->mouse_settings_)
     {
@@ -118,7 +128,7 @@ void MouseManager::load_from_settings()
 
 void MouseManager::settings_changed(const Glib::ustring &key)
 {
-    SETTINGS_PROFILE("key: %s.", key.c_str());
+    KLOG_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -149,7 +159,7 @@ void MouseManager::set_all_props_to_devices()
 
 void MouseManager::set_left_handed_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
@@ -162,7 +172,7 @@ void MouseManager::set_left_handed_to_devices()
 
 void MouseManager::set_motion_acceleration_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
@@ -175,7 +185,7 @@ void MouseManager::set_motion_acceleration_to_devices()
 
 void MouseManager::set_middle_emulation_enabled_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
@@ -188,7 +198,7 @@ void MouseManager::set_middle_emulation_enabled_to_devices()
 
 void MouseManager::set_natural_scroll_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
@@ -201,7 +211,7 @@ void MouseManager::set_natural_scroll_to_devices()
 
 void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelper>)> callback)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     int32_t n_devices = 0;
     auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices);
@@ -211,7 +221,7 @@ void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelpe
         if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||
             strcmp(devices_info[i].name, "Virtual core keyboard") == 0)
         {
-            LOG_DEBUG("ignore device: %s.", devices_info[i].name);
+            KLOG_DEBUG("ignore device: %s.", devices_info[i].name);
             continue;
         }
         auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);
@@ -229,10 +239,10 @@ void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelpe
 
 void MouseManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -241,17 +251,17 @@ void MouseManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &co
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", MOUSE_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", MOUSE_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void MouseManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void MouseManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

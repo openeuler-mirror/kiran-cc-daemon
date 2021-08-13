@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/wrapper/power-session.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/wrapper/power-session.h"
@@ -54,7 +66,7 @@ void PowerSession::init()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 
@@ -68,7 +80,7 @@ void PowerSession::init()
 
 uint32_t PowerSession::get_status()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     RETURN_VAL_IF_FALSE(this->sm_presence_proxy_, 0);
 
     try
@@ -81,7 +93,7 @@ uint32_t PowerSession::get_status()
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
 
     return 0;
@@ -89,7 +101,7 @@ uint32_t PowerSession::get_status()
 
 bool PowerSession::get_inhibited(uint32_t flag)
 {
-    SETTINGS_PROFILE("flag: %u", flag);
+    KLOG_PROFILE("flag: %u", flag);
     RETURN_VAL_IF_FALSE(this->sm_proxy_, false);
 
     auto parameters = g_variant_new("(u)", flag);
@@ -104,11 +116,11 @@ bool PowerSession::get_inhibited(uint32_t flag)
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return false;
 }
@@ -117,7 +129,7 @@ void PowerSession::on_sm_signal(const Glib::ustring& sender_name,
                                 const Glib::ustring& signal_name,
                                 const Glib::VariantContainerBase& parameters)
 {
-    SETTINGS_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {
@@ -132,7 +144,7 @@ void PowerSession::on_sm_signal(const Glib::ustring& sender_name,
 
 void PowerSession::on_sm_inhibitor_changed_cb(const Glib::VariantContainerBase& parameters)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto is_idle_inhibited = this->get_inhibited(GSM_INHIBITOR_FLAG_IDLE);
     auto is_suspend_inhibited = this->get_inhibited(GSM_INHIBITOR_FLAG_SUSPEND);
@@ -150,7 +162,7 @@ void PowerSession::on_sm_presence_signal(const Glib::ustring& sender_name,
                                          const Glib::ustring& signal_name,
                                          const Glib::VariantContainerBase& parameters)
 {
-    SETTINGS_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {
@@ -165,14 +177,14 @@ void PowerSession::on_sm_presence_signal(const Glib::ustring& sender_name,
 
 void PowerSession::on_sm_presence_status_changed_cb(const Glib::VariantContainerBase& parameters)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     try
     {
         Glib::VariantBase v1;
         parameters.get_child(v1, 0);
         auto status = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(v1).get();
-        LOG_DEBUG("status: %u", status);
+        KLOG_DEBUG("status: %u", status);
 
         bool is_idle = (status == GSM_PRESENCE_STATUS_IDLE);
 
@@ -184,7 +196,7 @@ void PowerSession::on_sm_presence_status_changed_cb(const Glib::VariantContainer
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
         return;
     }
 }

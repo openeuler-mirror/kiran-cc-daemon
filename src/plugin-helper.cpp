@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/src/plugin-helper.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "src/plugin-helper.h"
@@ -22,11 +34,11 @@ PluginHelper::~PluginHelper()
 
 bool PluginHelper::activate_plugin(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (this->activate_)
     {
-        LOG_DEBUG("the plugin %s already is activate.", this->plugin_info_.name.c_str());
+        KLOG_DEBUG("the plugin %s already is activate.", this->plugin_info_.name.c_str());
         return true;
     }
 
@@ -46,11 +58,11 @@ bool PluginHelper::activate_plugin(CCErrorCode &error_code)
 
 bool PluginHelper::deactivate_plugin(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (!this->activate_ || !this->plugin_)
     {
-        LOG_DEBUG("the plugin %s already is deactivate.", this->plugin_info_.name.c_str());
+        KLOG_DEBUG("the plugin %s already is deactivate.", this->plugin_info_.name.c_str());
     }
     else
     {
@@ -63,7 +75,7 @@ bool PluginHelper::deactivate_plugin(CCErrorCode &error_code)
 
 bool PluginHelper::load_plugin_module(CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("load module %s", this->plugin_info_.id.c_str());
+    KLOG_PROFILE("load module %s", this->plugin_info_.id.c_str());
 
     auto path = Glib::Module::build_path(KCC_PLUGIN_DIR, this->plugin_info_.id);
     g_return_val_if_fail(path.length() > 0, false);
@@ -79,14 +91,14 @@ bool PluginHelper::load_plugin_module(CCErrorCode &error_code)
 
         if (!this->module_->get_symbol("new_plugin", new_plugin_fun))
         {
-            LOG_WARNING("Not found function 'new_plugin' in module %s.", this->plugin_info_.id.c_str());
+            KLOG_WARNING("Not found function 'new_plugin' in module %s.", this->plugin_info_.id.c_str());
             error_code = CCErrorCode::ERROR_PLUGIN_NOTFOUND_NEW_PLUGIN_FUNC;
             return false;
         }
 
         if (!this->module_->get_symbol("delete_plugin", del_plugin_fun))
         {
-            LOG_WARNING("not found function 'delete_plugin' in module %s.", this->plugin_info_.id.c_str());
+            KLOG_WARNING("not found function 'delete_plugin' in module %s.", this->plugin_info_.id.c_str());
             error_code = CCErrorCode::ERROR_PLUGIN_NOTFOUND_DEL_PLUGIN_FUNC;
             return false;
         }
@@ -97,9 +109,9 @@ bool PluginHelper::load_plugin_module(CCErrorCode &error_code)
     else
     {
         error_code = CCErrorCode::ERROR_PLUGIN_OPEN_MODULE_FAILED;
-        LOG_WARNING("open module %s fail: %s.",
-                    this->plugin_info_.id.c_str(),
-                    this->module_ ? this->module_->get_last_error().c_str() : "unknown");
+        KLOG_WARNING("open module %s fail: %s.",
+                     this->plugin_info_.id.c_str(),
+                     this->module_ ? this->module_->get_last_error().c_str() : "unknown");
         return false;
     }
 

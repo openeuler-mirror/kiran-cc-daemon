@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/accounts/accounts-manager.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/accounts/accounts-manager.h"
@@ -78,7 +90,7 @@ bool AccountsManager::set_automatic_login(std::shared_ptr<User> user, bool enabl
     std::string error;
     if (!this->save_autologin_to_file(user_name, enabled, error))
     {
-        LOG_WARNING("%s", error.c_str());
+        KLOG_WARNING("%s", error.c_str());
         error_code = CCErrorCode::ERROR_ACCOUNTS_SAVE_AUTOLOGIN_FILE;
         return false;
     }
@@ -110,7 +122,7 @@ void AccountsManager::GetNonSystemUsers(MethodInvocation &invocation)
 
 void AccountsManager::FindUserById(guint64 uid, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("uid: %" PRId64 " ", uid);
+    KLOG_PROFILE("uid: %" PRId64 " ", uid);
 
     auto user = this->find_and_create_user_by_id(uid);
 
@@ -128,7 +140,7 @@ void AccountsManager::FindUserById(guint64 uid, MethodInvocation &invocation)
 
 void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name %s", name.c_str());
+    KLOG_PROFILE("name %s", name.c_str());
 
     auto user = this->find_and_create_user_by_name(name);
 
@@ -144,17 +156,44 @@ void AccountsManager::FindUserByName(const Glib::ustring &name, MethodInvocation
     return;
 }
 
+void AccountsManager::FindUserByAuthData(gint32 mode, const Glib::ustring &data_id, MethodInvocation &invocation)
+{
+    KLOG_PROFILE("mode %d, data_id: %s.", mode, data_id.c_str());
+
+    UserVec users;
+    for (auto iter : this->users_)
+    {
+        if (iter.second->match_auth_data(mode, data_id))
+        {
+            users.push_back(iter.second);
+        }
+    }
+
+    if (users.size() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_5);
+    }
+    else if (users.size() == 1)
+    {
+        invocation.ret(users[0]->get_object_path());
+    }
+    else
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_AUTH_DATA_CONFLICT);
+    }
+}
+
 void AccountsManager::CreateUser(const Glib::ustring &name,
                                  const Glib::ustring &real_name,
                                  gint32 account_type,
                                  gint64 uid,
                                  MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("name :%s real_name: %s account_type: %d uid: %" PRIu64 ".",
-                     name.c_str(),
-                     real_name.c_str(),
-                     account_type,
-                     uid);
+    KLOG_PROFILE("name :%s real_name: %s account_type: %d uid: %" PRIu64 ".",
+                 name.c_str(),
+                 real_name.c_str(),
+                 account_type,
+                 uid);
 
     AuthManager::get_instance()->start_auth_check(AUTH_USER_ADMIN,
                                                   TRUE,
@@ -166,7 +205,7 @@ void AccountsManager::CreateUser(const Glib::ustring &name,
 
 void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
+    KLOG_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
 
     AuthManager::get_instance()->start_auth_check(AUTH_USER_ADMIN,
                                                   TRUE,
@@ -178,7 +217,7 @@ void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocatio
 
 void AccountsManager::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
                                                  ACCOUNTS_DBUS_NAME,
@@ -195,7 +234,7 @@ void AccountsManager::init()
 
 void AccountsManager::accounts_file_changed(FileChangedType type)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (this->reload_conn_)
     {
@@ -208,7 +247,7 @@ void AccountsManager::accounts_file_changed(FileChangedType type)
 
 bool AccountsManager::accounts_file_changed_timeout()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     reload_users();
 
@@ -232,7 +271,7 @@ void AccountsManager::update_automatic_login()
     std::string err;
     if (!this->read_autologin_from_file(name, enabled, err))
     {
-        LOG_WARNING("failed to load gdms custom.conf: %s", err.c_str());
+        KLOG_WARNING("failed to load gdms custom.conf: %s", err.c_str());
         return;
     }
     std::shared_ptr<User> user;
@@ -247,7 +286,7 @@ void AccountsManager::update_automatic_login()
 
 bool AccountsManager::reload_users()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto new_users = load_users();
     int32_t number_of_normal_users = 0;
@@ -295,7 +334,7 @@ bool AccountsManager::reload_users()
 
 std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto passwds_shadows = this->passwd_wrapper_->get_passwds_shadows();
     std::map<std::string, std::shared_ptr<User>> users;
@@ -305,11 +344,12 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
         std::shared_ptr<User> user;
         auto pwent = iter->first;
 
-        /* Skip system users that don't be in explicitly requested list */
+        // 除了root用户和通过DBUS显示请求的系统用户以外，其他系统用户默认不加载。
         if (!this->is_explicitly_requested_user(pwent->pw_name) &&
-            !UserClassify::is_human(pwent->pw_uid, pwent->pw_name, pwent->pw_shell))
+            !UserClassify::is_human(pwent->pw_uid, pwent->pw_name, pwent->pw_shell) &&
+            pwent->pw_uid != 0)
         {
-            LOG_DEBUG("skip user: %s", pwent->pw_name.c_str());
+            KLOG_DEBUG("skip user: %s", pwent->pw_name.c_str());
             continue;
         }
 
@@ -329,11 +369,11 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 
         if (!new_iter.second)
         {
-            LOG_WARNING("exist same user_name: %s", pwent->pw_name.c_str());
+            KLOG_WARNING("exist same user_name: %s", pwent->pw_name.c_str());
         }
         else
         {
-            LOG_DEBUG("add user: %s", pwent->pw_name.c_str());
+            KLOG_DEBUG("add user: %s", pwent->pw_name.c_str());
         }
     }
     return users;
@@ -341,14 +381,14 @@ std::map<std::string, std::shared_ptr<User>> AccountsManager::load_users()
 
 std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Passwd> pwent, std::shared_ptr<SPwd> spent)
 {
-    SETTINGS_PROFILE("UserName: %s.", pwent->pw_name.c_str());
+    KLOG_PROFILE("UserName: %s.", pwent->pw_name.c_str());
 
     auto user = User::create_user(std::make_pair(pwent, spent));
     user->dbus_register();
     auto iter = this->users_.emplace(user->user_name_get(), user);
     if (!iter.second)
     {
-        LOG_WARNING("user %s is already exist.", user->user_name_get().c_str());
+        KLOG_WARNING("user %s is already exist.", user->user_name_get().c_str());
         return iter.first->second;
     }
     else
@@ -360,11 +400,11 @@ std::shared_ptr<User> AccountsManager::add_new_user_for_pwent(std::shared_ptr<Pa
 
 std::shared_ptr<User> AccountsManager::find_and_create_user_by_id(uint64_t uid)
 {
-    SETTINGS_PROFILE("uid: %" PRIu64, uid);
+    KLOG_PROFILE("uid: %" PRIu64, uid);
     auto pwent = this->passwd_wrapper_->get_passwd_by_uid(uid);
     if (!pwent)
     {
-        LOG_DEBUG("unable to lookup uid %u", (uint32_t)uid);
+        KLOG_DEBUG("unable to lookup uid %u", (uint32_t)uid);
         return nullptr;
     }
 
@@ -384,7 +424,7 @@ std::shared_ptr<User> AccountsManager::find_and_create_user_by_name(const std::s
     auto pwent = this->passwd_wrapper_->get_passwd_by_name(user_name);
     if (!pwent)
     {
-        LOG_DEBUG("unable to lookup name %s", user_name.c_str());
+        KLOG_DEBUG("unable to lookup name %s", user_name.c_str());
         return nullptr;
     }
 
@@ -419,7 +459,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
                                                 gint32 account_type,
                                                 gint64 uid)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto pwent = this->passwd_wrapper_->get_passwd_by_name(name);
 
@@ -428,7 +468,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST);
     }
 
-    LOG_DEBUG("create user '%s'", name.c_str());
+    KLOG_DEBUG("create user '%s'", name.c_str());
 
     std::vector<std::string> argv = {"/usr/sbin/useradd", "-m", "-c", realname.raw()};
     switch (account_type)
@@ -472,7 +512,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
 void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uint64_t uid, bool remove_files)
 {
-    SETTINGS_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
+    KLOG_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
     if (uid == 0)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_ROOT_USER);
@@ -486,7 +526,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_4);
     }
 
-    LOG_DEBUG("delete user '%s' (%d)", user->user_name_get().c_str(), (int32_t)uid);
+    KLOG_DEBUG("delete user '%s' (%d)", user->user_name_get().c_str(), (int32_t)uid);
 
     // 忽略取消自动登陆出错情况
     this->set_automatic_login(user, false, error_code);
@@ -604,7 +644,7 @@ void AccountsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
 {
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -613,18 +653,18 @@ void AccountsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", ACCOUNTS_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", ACCOUNTS_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void AccountsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void AccountsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-28 09:54:44
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-28 11:02:57
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/src/settings-guarder.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "src/session-guarder.h"
 
 namespace Kiran
@@ -40,13 +51,13 @@ void SessionGuarder::init()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 
     if (!this->sm_proxy_)
     {
-        LOG_WARNING("Cannot create dbus proxy for %s:%s.", MATE_SESSION_DBUS_NAME, MATE_SESSION_DBUS_OBJECT);
+        KLOG_WARNING("Cannot create dbus proxy for %s:%s.", MATE_SESSION_DBUS_NAME, MATE_SESSION_DBUS_OBJECT);
         return;
     }
 
@@ -68,14 +79,14 @@ void SessionGuarder::init()
 
             if (!this->sm_private_proxy_)
             {
-                LOG_WARNING("Cannot create dbus proxy for %s:%s.", MATE_SESSION_DBUS_NAME, client_id);
+                KLOG_WARNING("Cannot create dbus proxy for %s:%s.", MATE_SESSION_DBUS_NAME, client_id);
             }
 
             this->sm_private_proxy_->signal_signal().connect(sigc::mem_fun(this, &SessionGuarder::on_sm_signal));
         }
         catch (const Glib::Error& e)
         {
-            LOG_WARNING("Failed to register client '%s': %s", startup_id, e.what().c_str());
+            KLOG_WARNING("Failed to register client '%s': %s", startup_id, e.what().c_str());
             return;
         }
     }
@@ -106,7 +117,7 @@ void SessionGuarder::on_session_query_end()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("Failed to send end session response: %s", e.what().c_str());
+        KLOG_WARNING("Failed to send end session response: %s", e.what().c_str());
     }
 }
 
@@ -119,7 +130,7 @@ void SessionGuarder::on_session_end()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("Failed to send end session response: %s", e.what().c_str());
+        KLOG_WARNING("Failed to send end session response: %s", e.what().c_str());
     }
 
     this->session_end_.emit();

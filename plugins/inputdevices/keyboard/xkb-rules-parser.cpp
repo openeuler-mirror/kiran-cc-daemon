@@ -1,17 +1,27 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-18 09:47:39
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:21:03
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/keyboard/xkb-rules-parser.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/inputdevices/keyboard/xkb-rules-parser.h"
 
 #include <libxml++/libxml++.h>
 
-#include "lib/base/log.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {
@@ -21,7 +31,7 @@ XkbRulesParser::XkbRulesParser(const std::string &file_name) : file_name_(file_n
 
 bool XkbRulesParser::parse(XkbRules &xkb_rules, std::string &err)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     try
     {
         xmlpp::DomParser parser;
@@ -43,7 +53,7 @@ bool XkbRulesParser::parse(XkbRules &xkb_rules, std::string &err)
 
 bool XkbRulesParser::process_config_registry(const xmlpp::Node *node, XkbRules &xkb_rules, std::string &err)
 {
-    SETTINGS_PROFILE("node_name: %s.", node ? node->get_name().c_str() : "null");
+    KLOG_PROFILE("node_name: %s.", node ? node->get_name().c_str() : "null");
     CHECK_XMLPP_ELEMENT(node, err);
 
     for (const auto &child : node->get_children())
@@ -63,7 +73,7 @@ bool XkbRulesParser::process_config_registry(const xmlpp::Node *node, XkbRules &
             // no deal
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -88,7 +98,7 @@ bool XkbRulesParser::process_models(const xmlpp::Node *node, std::vector<XkbMode
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -109,7 +119,7 @@ bool XkbRulesParser::process_model(const xmlpp::Node *node, XkbModel &xkb_model,
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -136,7 +146,7 @@ bool XkbRulesParser::process_model_config_item(const xmlpp::Node *node, XkbModel
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -161,7 +171,7 @@ bool XkbRulesParser::process_layouts(const xmlpp::Node *node, std::vector<XkbLay
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -185,7 +195,7 @@ bool XkbRulesParser::process_layout(const xmlpp::Node *node, XkbLayout &xkb_layo
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -214,7 +224,7 @@ bool XkbRulesParser::process_layout_config_item(const xmlpp::Node *node, XkbLayo
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -239,7 +249,7 @@ bool XkbRulesParser::process_layout_variants(const xmlpp::Node *node, std::vecto
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -260,7 +270,7 @@ bool XkbRulesParser::process_layout_variant(const xmlpp::Node *node, XkbVariant 
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -288,7 +298,7 @@ bool XkbRulesParser::process_layout_variant_config_item(const xmlpp::Node *node,
         case "languageList"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -313,7 +323,7 @@ bool XkbRulesParser::process_option_groups(const xmlpp::Node *node, std::vector<
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -341,7 +351,7 @@ bool XkbRulesParser::process_option_group(const xmlpp::Node *node, XkbOptionGrou
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -365,7 +375,7 @@ bool XkbRulesParser::process_option_group_config_item(const xmlpp::Node *node, X
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -386,7 +396,7 @@ bool XkbRulesParser::process_option(const xmlpp::Node *node, XkbOption &xkb_opti
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -410,7 +420,7 @@ bool XkbRulesParser::process_option_config_item(const xmlpp::Node *node, XkbOpti
         case "text"_hash:
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -435,7 +445,7 @@ bool XkbRulesParser::process_content_node(const xmlpp::Node *node, std::string &
         return false;
     }
 
-    // LOG_DEBUG("node: %s text_node: %s.", node->get_name().c_str(), text_node->get_name().c_str());
+    // KLOG_DEBUG("node: %s text_node: %s.", node->get_name().c_str(), text_node->get_name().c_str());
 
     content = text_node->get_content().raw();
     return true;

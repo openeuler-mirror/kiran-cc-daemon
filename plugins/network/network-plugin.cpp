@@ -13,7 +13,7 @@
  */
 
 #include "plugins/network/network-plugin.h"
-#include "lib/base/log.h"
+#include <gtk3-log-i.h>
 #include "plugins/network/network-proxy-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(NetworkPlugin);
@@ -30,14 +30,14 @@ NetworkPlugin::~NetworkPlugin()
 
 void NetworkPlugin::activate()
 {
-    SETTINGS_PROFILE("active network plugin.");
+    KLOG_PROFILE("active network plugin.");
 
     NetworkProxyManager::global_init();
 }
 
 void NetworkPlugin::deactivate()
 {
-    SETTINGS_PROFILE("deactive network plugin.");
+    KLOG_PROFILE("deactive network plugin.");
     NetworkProxyManager::global_deinit();
 }
 }  // namespace Kiran

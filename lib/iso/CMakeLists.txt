@@ -7,7 +7,7 @@ file(GLOB_RECURSE ISO_CPP_FILES ./*.cpp)
 
 set (ALL_FILES ${ISO_H_FILES} ${ISO_CPP_FILES})
 
-add_library(${TARGET_NAME} ${ALL_FILES})
+add_library(${TARGET_NAME} STATIC ${ALL_FILES})
 
 target_include_directories(${TARGET_NAME} PRIVATE 
     ${LIBXML2_INCLUDE_DIRS})

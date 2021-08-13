@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-06-19 10:09:05
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:24:25
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/touchpad/touchpad-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/inputdevices/touchpad/touchpad-manager.h"
@@ -81,7 +91,7 @@ void TouchPadManager::Reset(MethodInvocation &invocation)
 #define PROP_SET_HANDLER(prop, type, key, type2)                                       \
     bool TouchPadManager::prop##_setHandler(type value)                                \
     {                                                                                  \
-        SETTINGS_PROFILE("value: %s.", fmt::format("{0}", value).c_str());             \
+        KLOG_PROFILE("value: %s.", fmt::format("{0}", value).c_str());                 \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                             \
         if (g_settings_get_##type2(this->touchpad_settings_->gobj(), key) != value)    \
         {                                                                              \
@@ -106,11 +116,11 @@ PROP_SET_HANDLER(motion_acceleration, double, TOUCHPAD_SCHEMA_MOTION_ACCELERATIO
 
 void TouchPadManager::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (!XInputHelper::supports_xinput_devices())
     {
-        LOG_WARNING("XInput is not supported, not applying any settings.");
+        KLOG_WARNING("XInput is not supported, not applying any settings.");
         return;
     }
 
@@ -135,7 +145,7 @@ void TouchPadManager::init()
 
 void TouchPadManager::load_from_settings()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (this->touchpad_settings_)
     {
@@ -152,7 +162,7 @@ void TouchPadManager::load_from_settings()
 
 void TouchPadManager::settings_changed(const Glib::ustring &key)
 {
-    SETTINGS_PROFILE("key: %s.", key.c_str());
+    KLOG_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -199,7 +209,7 @@ void TouchPadManager::set_all_props_to_devices()
 
 void TouchPadManager::set_left_handed_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_LEFT_HANDED) &&
@@ -212,7 +222,7 @@ void TouchPadManager::set_left_handed_to_devices()
 
 void TouchPadManager::set_disable_while_typing_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING) &&
@@ -225,7 +235,7 @@ void TouchPadManager::set_disable_while_typing_to_devices()
 
 void TouchPadManager::set_tap_to_click_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_TAPPING_ENABLED) &&
@@ -238,7 +248,7 @@ void TouchPadManager::set_tap_to_click_to_devices()
 
 void TouchPadManager::set_click_method_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_CLICK_METHOD) &&
@@ -253,7 +263,7 @@ void TouchPadManager::set_click_method_to_devices()
                 device_helper->set_property(TOUCHPAD_PROP_CLICK_METHOD, std::vector<bool>{false, true});
                 break;
             default:
-                LOG_WARNING("unknow click methods: %d.", this->click_method_);
+                KLOG_WARNING("unknow click methods: %d.", this->click_method_);
                 break;
             }
         }
@@ -262,7 +272,7 @@ void TouchPadManager::set_click_method_to_devices()
 
 void TouchPadManager::set_scroll_method_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_SCROLL_METHOD) &&
@@ -280,7 +290,7 @@ void TouchPadManager::set_scroll_method_to_devices()
                 device_helper->set_property(TOUCHPAD_PROP_SCROLL_METHOD, std::vector<bool>{false, false, true});
                 break;
             default:
-                LOG_WARNING("unknow scroll methods: %d.", this->scroll_method_);
+                KLOG_WARNING("unknow scroll methods: %d.", this->scroll_method_);
                 break;
             }
         }
@@ -289,7 +299,7 @@ void TouchPadManager::set_scroll_method_to_devices()
 
 void TouchPadManager::set_natural_scroll_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_NATURAL_SCROLL) &&
@@ -302,7 +312,7 @@ void TouchPadManager::set_natural_scroll_to_devices()
 
 void TouchPadManager::set_touchpad_enabled_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_DEVICE_ENABLED) &&
@@ -315,7 +325,7 @@ void TouchPadManager::set_touchpad_enabled_to_devices()
 
 void TouchPadManager::set_motion_acceleration_to_devices()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(TOUCHPAD_PROP_ACCEL_SPEED) &&
@@ -328,10 +338,10 @@ void TouchPadManager::set_motion_acceleration_to_devices()
 
 void TouchPadManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -340,17 +350,17 @@ void TouchPadManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> 
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", TOUCHPAD_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", TOUCHPAD_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void TouchPadManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void TouchPadManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

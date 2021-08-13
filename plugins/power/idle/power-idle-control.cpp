@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/idle/power-idle-control.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/idle/power-idle-control.h"
@@ -81,7 +93,7 @@ void PowerIdleControl::switch_to_normal()
     // 正常状态下退出显示器的节能模式
     if (!PowerSave::get_instance()->do_save(PowerAction::POWER_ACTION_DISPLAY_ON, error))
     {
-        LOG_WARNING("%s", error.c_str());
+        KLOG_WARNING("%s", error.c_str());
     }
 
     // 切换到键盘上一次处于正常模式下的亮度值，以确保从节能模式恢复到正常模式后亮度值也能恢复到之前的值
@@ -108,7 +120,7 @@ void PowerIdleControl::switch_to_dim()
     }
     else if (scale < 0 || scale > 100)
     {
-        LOG_WARNING("The scale is exceed limit. scale: %d.", scale);
+        KLOG_WARNING("The scale is exceed limit. scale: %d.", scale);
     }
 }
 
@@ -118,7 +130,7 @@ void PowerIdleControl::switch_to_blank()
 
     if (!PowerSave::get_instance()->do_save(this->display_idle_action_, error))
     {
-        LOG_WARNING("%s", error.c_str());
+        KLOG_WARNING("%s", error.c_str());
     }
     // 黑屏时将键盘亮度设置为0
     this->backlight_kbd_->set_brightness(0);
@@ -130,7 +142,7 @@ void PowerIdleControl::switch_to_sleep()
 
     if (!PowerSave::get_instance()->do_save(this->computer_idle_action_, error))
     {
-        LOG_WARNING("%s", error.c_str());
+        KLOG_WARNING("%s", error.c_str());
     }
 }
 
@@ -159,7 +171,7 @@ void PowerIdleControl::on_settings_changed(const Glib::ustring& key)
 
 void PowerIdleControl::on_idle_mode_changed(PowerIdleMode mode)
 {
-    SETTINGS_PROFILE("mode: %d", mode);
+    KLOG_PROFILE("mode: %d", mode);
 
     std::string error;
 

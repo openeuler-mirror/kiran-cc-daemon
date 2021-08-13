@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/wrapper/power-upower-device.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/wrapper/power-upower-device.h"
@@ -46,7 +58,7 @@ namespace Kiran
 
 PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_path) : object_path_(object_path)
 {
-    LOG_DEBUG("object path: %s", object_path.c_str());
+    KLOG_DEBUG("object path: %s", object_path.c_str());
 
     try
     {
@@ -57,7 +69,7 @@ PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_pa
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 
@@ -107,7 +119,7 @@ std::string PowerUPowerDevice::get_type_translation(uint32_t number)
     case UP_DEVICE_KIND_COMPUTER:
         return POINTER_TO_STRING(ngettext("Computer", "Computers", number));
     default:
-        LOG_WARNING("Unknown type: %d", this->props_.type);
+        KLOG_WARNING("Unknown type: %d", this->props_.type);
         return POINTER_TO_STRING(ngettext("Unknown", "Unknown", number));
     }
     return std::string();
@@ -144,7 +156,7 @@ void PowerUPowerDevice::load_device_props()
     this->props_.warning_level = this->get_property_uint(UPOWER_DEVICE_DBUS_PROP_WARNING_LEVEL);
     this->props_.battery_level = this->get_property_uint(UPOWER_DEVICE_DBUS_PROP_BATTERY_LEVEL);
     this->props_.icon_name = this->get_property_string(UPOWER_DEVICE_DBUS_PROP_ICON_NAME);
-    LOG_DEBUG("icon name: %s.", this->props_.icon_name.c_str());
+    KLOG_DEBUG("icon name: %s.", this->props_.icon_name.c_str());
 }
 
 #define GET_PROPERTY_FUNC(type, rettype)                                                    \
@@ -161,7 +173,7 @@ void PowerUPowerDevice::load_device_props()
         }                                                                                   \
         catch (const std::exception& e)                                                     \
         {                                                                                   \
-            LOG_WARNING("%s", e.what());                                                    \
+            KLOG_WARNING("%s", e.what());                                                   \
         }                                                                                   \
         return rettype();                                                                   \
     }
@@ -271,6 +283,40 @@ void PowerUPowerDevice::update_properties(const Gio::DBus::Proxy::MapChangedProp
             break;
         }
     }
+}
+
+std::string PowerUPowerDevice::kind2str(UpDeviceKind type_enum)
+{
+    switch (type_enum)
+    {
+    case UP_DEVICE_KIND_LINE_POWER:
+        return "line-power";
+    case UP_DEVICE_KIND_BATTERY:
+        return "battery";
+    case UP_DEVICE_KIND_UPS:
+        return "ups";
+    case UP_DEVICE_KIND_MONITOR:
+        return "monitor";
+    case UP_DEVICE_KIND_MOUSE:
+        return "mouse";
+    case UP_DEVICE_KIND_KEYBOARD:
+        return "keyboard";
+    case UP_DEVICE_KIND_PDA:
+        return "pda";
+    case UP_DEVICE_KIND_PHONE:
+        return "phone";
+    case UP_DEVICE_KIND_MEDIA_PLAYER:
+        return "media-player";
+    case UP_DEVICE_KIND_TABLET:
+        return "tablet";
+    case UP_DEVICE_KIND_COMPUTER:
+        return "computer";
+    case UP_DEVICE_KIND_GAMING_INPUT:
+        return "gaming-input";
+    default:
+        return "unknown";
+    }
+    return "unknown";
 }
 
 void PowerUPowerDevice::on_properties_changed(const Gio::DBus::Proxy::MapChangedProperties& changed_properties,

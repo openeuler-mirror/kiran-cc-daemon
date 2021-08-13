@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/backlight/power-backlight-x11.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/backlight/power-backlight-x11.h"
@@ -40,7 +52,7 @@ void PowerBacklightX11::init()
     this->backlight_atom_ = this->get_backlight_atom();
     RETURN_IF_TRUE(this->backlight_atom_ == None);
 
-    LOG_DEBUG("Support brightness settings");
+    KLOG_DEBUG("Support brightness settings");
     this->load_resource();
 
     XRRSelectInput(this->xdisplay_, this->xroot_window_, RRScreenChangeNotifyMask | RROutputPropertyNotifyMask);
@@ -54,7 +66,7 @@ void PowerBacklightX11::init()
 
 bool PowerBacklightX11::init_xrandr()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (XRRQueryExtension(this->xdisplay_, &this->event_base_, &this->error_base_))
     {
@@ -63,15 +75,15 @@ bool PowerBacklightX11::init_xrandr()
         XRRQueryVersion(this->xdisplay_, &major_version, &minor_version);
         if (major_version < 1 || (major_version == 1 && minor_version < 3))
         {
-            LOG_WARNING("RANDR extension is too old (must be at least 1.3). current version: %d:%d.",
-                        major_version,
-                        minor_version);
+            KLOG_WARNING("RANDR extension is too old (must be at least 1.3). current version: %d:%d.",
+                         major_version,
+                         minor_version);
             return false;
         }
     }
     else
     {
-        LOG_WARNING("RANDR extension is not present");
+        KLOG_WARNING("RANDR extension is not present");
         return false;
     }
     return true;
@@ -89,7 +101,7 @@ Atom PowerBacklightX11::get_backlight_atom()
         backlight_atom = XInternAtom(this->xdisplay_, "BACKLIGHT", True);
         if (backlight_atom == None)
         {
-            LOG_DEBUG("No outputs have backlight property");
+            KLOG_DEBUG("No outputs have backlight property");
             return None;
         }
     }

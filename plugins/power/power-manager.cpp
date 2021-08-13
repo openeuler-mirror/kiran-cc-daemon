@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/power-manager.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/power-manager.h"
@@ -56,7 +68,7 @@ void PowerManager::SetIdleAction(gint32 device,
                                  gint32 action,
                                  MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("device: %d, supply: %d, idle timeout: %d, action: %d.", device, supply, idle_timeout, action);
+    KLOG_PROFILE("device: %d, supply: %d, idle timeout: %d, action: %d.", device, supply, idle_timeout, action);
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
@@ -110,7 +122,7 @@ void PowerManager::GetIdleAction(gint32 device,
                                  gint32 supply,
                                  MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("device: %d, supply: %d.", device, supply);
+    KLOG_PROFILE("device: %d, supply: %d.", device, supply);
 
     int32_t idle_timeout = 0;
     int32_t action = PowerAction::POWER_ACTION_NOTHING;
@@ -163,7 +175,7 @@ void PowerManager::SetEventAction(gint32 event,
                                   gint32 action,
                                   MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("event: %d, action: %d.", event, action);
+    KLOG_PROFILE("event: %d, action: %d.", event, action);
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
@@ -206,7 +218,7 @@ void PowerManager::SetEventAction(gint32 event,
 void PowerManager::GetEventAction(gint32 event,
                                   MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("event: %d.", event);
+    KLOG_PROFILE("event: %d.", event);
 
     int32_t action = PowerAction::POWER_ACTION_NOTHING;
 
@@ -239,7 +251,7 @@ void PowerManager::SetBrightness(gint32 device,
                                  gint32 brightness_percentage,
                                  MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("device: %d.", device);
+    KLOG_PROFILE("device: %d.", device);
 
     bool result = false;
 
@@ -274,7 +286,7 @@ void PowerManager::SetBrightness(gint32 device,
 void PowerManager::GetBrightness(gint32 device,
                                  MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("device: %d.", device);
+    KLOG_PROFILE("device: %d.", device);
 
     int32_t brightness_percentage = -1;
 
@@ -301,7 +313,7 @@ void PowerManager::GetBrightness(gint32 device,
 
 void PowerManager::SetIdleDimmed(gint32 scale, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("scale: %d.", scale);
+    KLOG_PROFILE("scale: %d.", scale);
 
     if (!this->idle_dimmed_scale_set(scale))
     {
@@ -381,17 +393,17 @@ void PowerManager::on_settings_changed(const Glib::ustring& key)
 
 void PowerManager::on_brightness_changed(std::shared_ptr<PowerBacklightPercentage> backlight_device, int32_t brightness_value)
 {
-    SETTINGS_PROFILE("brightness_value: %d, type: %d.", brightness_value, backlight_device->get_type());
+    KLOG_PROFILE("brightness_value: %d, type: %d.", brightness_value, backlight_device->get_type());
 
     this->BrightnessChanged_signal.emit(backlight_device->get_type());
 }
 
 void PowerManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -400,18 +412,18 @@ void PowerManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& co
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("Register object_path %s fail: %s.", POWER_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("Register object_path %s fail: %s.", POWER_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void PowerManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_DEBUG("Success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("Success to register dbus name: %s", name.c_str());
 }
 
 void PowerManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_WARNING("Failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("Failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

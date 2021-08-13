@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/tray/power-tray.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/tray/power-tray.h"
@@ -46,7 +58,7 @@ void PowerTray::update_status_icon()
     auto icon_policy = PowerTrayIconPolicy(this->upower_settings_->get_enum(POWER_SCHEMA_TRAY_ICON_POLICY));
     auto icon_name = this->get_icon_name({UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS});
 
-    LOG_DEBUG("icon name: %s.", icon_name.c_str());
+    KLOG_DEBUG("icon name: %s.", icon_name.c_str());
 
     switch (icon_policy)
     {
@@ -108,7 +120,7 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     RETURN_VAL_IF_FALSE(upower_device, std::string());
 
     auto& device_props = upower_device->get_props();
-    auto prefix = up_device_kind_to_string(UpDeviceKind(device_props.type));
+    auto kind_str = upower_device->get_kind_string();
 
     switch (device_props.type)
     {
@@ -124,21 +136,21 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     {
         if (!device_props.is_present)
         {
-            return fmt::format("gpm-{0}-missing", prefix);
+            return fmt::format("gpm-{0}-missing", kind_str);
         }
         switch (device_props.state)
         {
         case UP_DEVICE_STATE_EMPTY:
-            return fmt::format("gpm-{0}-000", prefix);
+            return fmt::format("gpm-{0}-000", kind_str);
         case UP_DEVICE_STATE_FULLY_CHARGED:
         case UP_DEVICE_STATE_CHARGING:
         case UP_DEVICE_STATE_PENDING_CHARGE:
-            return fmt::format("gpm-{0}-{1}-charging", prefix, this->percentage2index(device_props.percentage));
+            return fmt::format("gpm-{0}-{1}-charging", kind_str, this->percentage2index(device_props.percentage));
         case UP_DEVICE_STATE_DISCHARGING:
         case UP_DEVICE_STATE_PENDING_DISCHARGE:
-            return fmt::format("gpm-{0}-{1}", prefix, this->percentage2index(device_props.percentage));
+            return fmt::format("gpm-{0}-{1}", kind_str, this->percentage2index(device_props.percentage));
         default:
-            return fmt::format("gpm-{0}-missing", prefix);
+            return fmt::format("gpm-{0}-missing", kind_str);
         }
         break;
     }

@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-menu/home/tangjie02/git/kiran-cc-daemon/plugins/systeminfo/systeminfo-software.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/systeminfo/systeminfo-software.h"
@@ -24,7 +36,7 @@ SystemInfoSoftware::SystemInfoSoftware()
 
 SoftwareInfo SystemInfoSoftware::get_software_info()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     SoftwareInfo software_info;
     this->read_kernel_info(software_info);
@@ -34,7 +46,7 @@ SoftwareInfo SystemInfoSoftware::get_software_info()
 
 bool SystemInfoSoftware::set_host_name(const std::string &host_name)
 {
-    SETTINGS_PROFILE("host name: %s.", host_name.c_str());
+    KLOG_PROFILE("host name: %s.", host_name.c_str());
 
     std::vector<std::string> argv{SET_HOSTNAME_CMD, "set-hostname", host_name};
 
@@ -49,7 +61,7 @@ bool SystemInfoSoftware::set_host_name(const std::string &host_name)
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return false;
     }
 
@@ -58,14 +70,14 @@ bool SystemInfoSoftware::set_host_name(const std::string &host_name)
 
 bool SystemInfoSoftware::read_kernel_info(SoftwareInfo &software_info)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     struct utsname uts_name;
 
     auto retval = uname(&uts_name);
     if (retval < 0)
     {
-        LOG_WARNING("call uname() failed: %s.", strerror(errno));
+        KLOG_WARNING("call uname() failed: %s.", strerror(errno));
         return false;
     }
 
@@ -80,7 +92,7 @@ bool SystemInfoSoftware::read_kernel_info(SoftwareInfo &software_info)
 
 bool SystemInfoSoftware::read_product_info(SoftwareInfo &software_info)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     Glib::KeyFile keyfile;
 
@@ -93,7 +105,7 @@ bool SystemInfoSoftware::read_product_info(SoftwareInfo &software_info)
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return false;
     }
 

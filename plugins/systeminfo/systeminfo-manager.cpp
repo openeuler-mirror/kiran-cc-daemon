@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/systeminfo/systeminfo-manager.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/systeminfo/systeminfo-manager.h"
@@ -90,7 +102,7 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED);
     }
 
@@ -100,7 +112,7 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
 
 void SystemInfoManager::SetHostName(const Glib::ustring& host_name, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("host name: %s", host_name.c_str());
+    KLOG_PROFILE("host name: %s", host_name.c_str());
 
     AuthManager::get_instance()->start_auth_check(AUTH_SET_HOST_NAME,
                                                   true,
@@ -130,7 +142,7 @@ void SystemInfoManager::init()
 
 void SystemInfoManager::change_host_name_cb(MethodInvocation invocation, const std::string& host_name)
 {
-    SETTINGS_PROFILE("host name: %s", host_name.c_str());
+    KLOG_PROFILE("host name: %s", host_name.c_str());
 
     if (!this->host_name_set(host_name))
     {
@@ -141,10 +153,10 @@ void SystemInfoManager::change_host_name_cb(MethodInvocation invocation, const s
 
 void SystemInfoManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -153,17 +165,17 @@ void SystemInfoManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", SYSTEMINFO_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", SYSTEMINFO_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void SystemInfoManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void SystemInfoManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

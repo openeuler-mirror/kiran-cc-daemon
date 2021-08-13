@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/save/power-save-dpms.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/save/power-save-dpms.h"
@@ -31,7 +43,7 @@ void PowerSaveDpms::init()
     RETURN_IF_TRUE(this->xdisplay_ == NULL);
 
     this->capable_ = DPMSCapable(this->xdisplay_);
-    LOG_DEBUG("capable: %d.", this->capable_);
+    KLOG_DEBUG("capable: %d.", this->capable_);
 
     // 由于dpms协议未提供power levels变化的信号，因此这里采用定时检测的方式判断power levels是否变化
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
@@ -50,14 +62,14 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
 
     if (!DPMSInfo(this->xdisplay_, &current_state, &current_enabled))
     {
-        LOG_WARNING("Couldn't get DPMS info");
+        KLOG_WARNING("Couldn't get DPMS info");
         return false;
     }
 
     // dpms功能未开启
     if (!current_enabled)
     {
-        LOG_WARNING("DPMS not enabled");
+        KLOG_WARNING("DPMS not enabled");
         return false;
     }
 
@@ -69,7 +81,7 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
 
         if (!DPMSForceLevel(this->xdisplay_, state))
         {
-            LOG_WARNING("Couldn't change DPMS mode");
+            KLOG_WARNING("Couldn't change DPMS mode");
             return false;
         }
         XSync(this->xdisplay_, FALSE);

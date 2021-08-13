@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-05-29 15:54:30
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-04 16:11:24
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/src/settings-manager.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "src/settings-manager.h"
@@ -59,7 +69,7 @@ std::shared_ptr<PluginHelper> SettingsManager::lookup_plugin(const std::string& 
 
 void SettingsManager::GetPlugins(MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::vector<Glib::ustring> ids;
     for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
     {
@@ -70,7 +80,7 @@ void SettingsManager::GetPlugins(MethodInvocation& invocation)
 
 void SettingsManager::GetActivatedPlugins(MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     std::vector<Glib::ustring> ids;
     for (auto iter = this->plugins_.begin(); iter != this->plugins_.end(); ++iter)
     {
@@ -84,7 +94,7 @@ void SettingsManager::GetActivatedPlugins(MethodInvocation& invocation)
 
 void SettingsManager::ActivatePlugin(const Glib::ustring& id, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("plugin id: %s.", id.c_str());
+    KLOG_PROFILE("plugin id: %s.", id.c_str());
     auto plugin = this->lookup_plugin(id);
     if (!plugin)
     {
@@ -102,7 +112,7 @@ void SettingsManager::ActivatePlugin(const Glib::ustring& id, MethodInvocation& 
 
 void SettingsManager::DeactivatePlugin(const Glib::ustring& id, MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("plugin id: %s.", id.c_str());
+    KLOG_PROFILE("plugin id: %s.", id.c_str());
     auto plugin = this->lookup_plugin(id);
     if (!plugin)
     {
@@ -120,11 +130,11 @@ void SettingsManager::DeactivatePlugin(const Glib::ustring& id, MethodInvocation
 
 void SettingsManager::init()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     if (!g_module_supported())
     {
-        LOG_WARNING("kiran-session-daemon is not able to initialize the plugins.");
+        KLOG_WARNING("kiran-session-daemon is not able to initialize the plugins.");
         return;
     }
 
@@ -138,7 +148,7 @@ void SettingsManager::init()
 
 void SettingsManager::load_plugins(const std::string& file_name)
 {
-    SETTINGS_PROFILE("file_name: %s.", file_name.c_str());
+    KLOG_PROFILE("file_name: %s.", file_name.c_str());
 
     Glib::KeyFile plugins_file;
 
@@ -159,7 +169,7 @@ void SettingsManager::load_plugins(const std::string& file_name)
                 CCErrorCode error_code = CCErrorCode::SUCCESS;
                 if (!plugin_helper->activate_plugin(error_code))
                 {
-                    LOG_WARNING("Failed to load plugin, name: %s.", info.name.c_str());
+                    KLOG_WARNING("Failed to load plugin, name: %s.", info.name.c_str());
                 }
                 else
                 {
@@ -170,7 +180,7 @@ void SettingsManager::load_plugins(const std::string& file_name)
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("Failed to load plugins: %s.", e.what().c_str());
+        KLOG_WARNING("Failed to load plugins: %s.", e.what().c_str());
     }
 }
 
@@ -195,10 +205,10 @@ void SettingsManager::dbus_init()
 void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                       Glib::ustring name)
 {
-    SETTINGS_PROFILE("name: %s", name.c_str());
+    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
         return;
     }
     try
@@ -207,20 +217,20 @@ void SettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>&
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("register object_path %s fail: %s.", CC_DAEMON_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("register object_path %s fail: %s.", CC_DAEMON_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void SettingsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                        Glib::ustring name)
 {
-    LOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
 }
 
 void SettingsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect,
                                    Glib::ustring name)
 {
-    LOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

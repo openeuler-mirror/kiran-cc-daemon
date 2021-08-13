@@ -1,9 +1,22 @@
 /**
- * @FilePath      /kiran-cc-daemon/plugins/appearance/background/background-cache.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "plugins/appearance/background/background-cache.h"
 
@@ -63,7 +76,7 @@ std::shared_ptr<FileCacheInfo> BackgroundCache::get_file_cache_info(const std::s
 
     if (file_absolute_path.length() == 0)
     {
-        LOG_WARNING("The file path '%s' is invalid.", file_path.c_str());
+        KLOG_WARNING("The file path '%s' is invalid.", file_path.c_str());
         return nullptr;
     }
 
@@ -92,7 +105,7 @@ std::shared_ptr<FileCacheInfo> BackgroundCache::lookup_file_cache_info(const std
 
 bool BackgroundCache::on_cache_clear_timeout()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     auto now = time(NULL);
     for (auto iter = this->files_cache_.begin(); iter != this->files_cache_.end();)
@@ -119,7 +132,7 @@ void BackgroundCache::on_background_file_changed(const Glib::RefPtr<Gio::File> &
     // 这里不应该出现查找不到的情况
     if (!file_cache_info)
     {
-        LOG_WARNING("Not found file cache info for %s", file_path.c_str());
+        KLOG_WARNING("Not found file cache info for %s", file_path.c_str());
         return;
     }
 

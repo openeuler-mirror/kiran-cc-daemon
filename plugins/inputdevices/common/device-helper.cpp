@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-06 10:37:31
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-01 16:03:33
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/inputdevices/common/device-helper.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/inputdevices/common/device-helper.h"
@@ -21,7 +31,7 @@ DeviceHelper::DeviceHelper(XDeviceInfo *device_info) : device_info_(device_info)
         this->device_ = XOpenDevice(GDK_DISPLAY_XDISPLAY(display), device_info->id);
         if ((gdk_x11_display_error_trap_pop(display) != 0) || (this->device_ == NULL))
         {
-            LOG_WARNING("failed to open device: %s.", device_info->name);
+            KLOG_WARNING("failed to open device: %s.", device_info->name);
         }
     }
 }
@@ -46,9 +56,9 @@ Atom DeviceHelper::get_atom(const std::string &property_name)
 
 bool DeviceHelper::has_property(const std::string &property_name)
 {
-    SETTINGS_PROFILE("device_name: %s property_name: %s.",
-                     this->get_device_name().c_str(),
-                     property_name.c_str());
+    KLOG_PROFILE("device_name: %s property_name: %s.",
+                 this->get_device_name().c_str(),
+                 property_name.c_str());
 
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
@@ -87,7 +97,7 @@ bool DeviceHelper::has_property(const std::string &property_name)
 
 bool DeviceHelper::is_touchpad()
 {
-    SETTINGS_PROFILE("device_name: %s.", this->get_device_name().c_str());
+    KLOG_PROFILE("device_name: %s.", this->get_device_name().c_str());
 
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
@@ -108,10 +118,10 @@ bool DeviceHelper::is_touchpad()
 
 void DeviceHelper::set_property(const std::string &property_name, const std::vector<bool> &property_value)
 {
-    SETTINGS_PROFILE("device_name: %s property_name: %s property_value: %s.",
-                     this->device_info_->name,
-                     property_name.c_str(),
-                     StrUtils::join(property_value, ",").c_str());
+    KLOG_PROFILE("device_name: %s property_name: %s property_value: %s.",
+                 this->device_info_->name,
+                 property_name.c_str(),
+                 StrUtils::join(property_value, ",").c_str());
 
     RETURN_IF_TRUE(this->device_ == NULL);
 
@@ -142,10 +152,10 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
     {
         if (property_value.size() > nitems)
         {
-            LOG_WARNING("ignore the remaining %d value. the number of property set: %d, the number of real device property: %d.",
-                        property_value.size() - nitems,
-                        property_value.size(),
-                        nitems);
+            KLOG_WARNING("ignore the remaining %d value. the number of property set: %d, the number of real device property: %d.",
+                         property_value.size() - nitems,
+                         property_value.size(),
+                         nitems);
         }
         uint32_t num = std::min(uint32_t(nitems), uint32_t(property_value.size()));
         for (uint32_t i = 0; i < num; ++i)
@@ -169,13 +179,13 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
 
     if (gdk_x11_display_error_trap_pop(display))
     {
-        LOG_WARNING("failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
+        KLOG_WARNING("failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
     }
 }
 
 void DeviceHelper::set_property(const std::string &property_name, float property_value)
 {
-    SETTINGS_PROFILE("property_name: %s property_value: %f.", property_name.c_str(), property_value);
+    KLOG_PROFILE("property_name: %s property_value: %f.", property_name.c_str(), property_value);
     RETURN_IF_TRUE(this->device_ == NULL);
 
     unsigned long nitems, bytes_after;
@@ -224,7 +234,7 @@ void DeviceHelper::set_property(const std::string &property_name, float property
 
     if (gdk_x11_display_error_trap_pop(display))
     {
-        LOG_WARNING("failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
+        KLOG_WARNING("failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
     }
 }
 

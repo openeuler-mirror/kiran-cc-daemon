@@ -1,9 +1,22 @@
 /**
- * @FilePath      /kiran-cc-daemon/plugins/appearance/background/appearance-background.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "plugins/appearance/background/appearance-background.h"
 
@@ -39,7 +52,7 @@ void AppearanceBackground::init()
 
 void AppearanceBackground::set_background(const std::string &path)
 {
-    SETTINGS_PROFILE("path: %s", path.c_str());
+    KLOG_PROFILE("path: %s", path.c_str());
 
     RETURN_IF_TRUE(this->desktop_background_ == path);
     this->desktop_background_ = path;
@@ -52,7 +65,7 @@ void AppearanceBackground::set_background(const std::string &path)
 
 void AppearanceBackground::draw_background()
 {
-    SETTINGS_PROFILE("")
+    KLOG_PROFILE("")
 
     RETURN_IF_FALSE(this->can_draw_background());
 
@@ -63,7 +76,7 @@ void AppearanceBackground::draw_background()
 
 bool AppearanceBackground::can_draw_background()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     /* caja也会画背景，这里需要判断一下caja是否会去画桌面背景。
     如果org.mate.background中的show-desktop-icons字段为false，则caja不会去画桌面背景，此时插件需要负责去画背景。*/
@@ -145,7 +158,7 @@ bool AppearanceBackground::can_draw_background()
 
 Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface(Glib::RefPtr<Gdk::Screen> screen)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     RETURN_VAL_IF_FALSE(screen, Cairo::RefPtr<Cairo::XlibSurface>());
 
@@ -170,7 +183,7 @@ Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface_by_size(G
                                                                                int32_t width,
                                                                                int32_t height)
 {
-    SETTINGS_PROFILE("width: %d, height: %d", width, height);
+    KLOG_PROFILE("width: %d, height: %d", width, height);
 
     /* 这里会通过display来创建pixmap对象，pixmap对象会存放到根窗口的"_XROOTPMAP_ID"和"ESETROOT_PMAP_ID"属性当中。
     其他应用程序也可能会设置根窗口的这个属性，在设置之前会通过XKillClient(display,source)函数释放调之前设置的
@@ -185,7 +198,7 @@ Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface_by_size(G
 
     if (dummy_display == NULL)
     {
-        LOG_WARNING("Failed to open display '%s'", display_name.c_str());
+        KLOG_WARNING("Failed to open display '%s'", display_name.c_str());
         return Cairo::RefPtr<Cairo::XlibSurface>();
     }
 
@@ -259,7 +272,7 @@ Glib::RefPtr<Gdk::Pixbuf> AppearanceBackground::get_pixbuf_by_file(const std::st
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return Glib::RefPtr<Gdk::Pixbuf>();
     }
 
@@ -437,7 +450,7 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
     if (!XInternAtoms(xdisplay, (char **)atom_names, G_N_ELEMENTS(atom_names), False, atoms) ||
         atoms[0] == None || atoms[1] == None)
     {
-        LOG_WARNING("Could not create atoms needed to set root pixmap id/properties.\n");
+        KLOG_WARNING("Could not create atoms needed to set root pixmap id/properties.\n");
         return;
     }
 
@@ -460,7 +473,7 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
 
 void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustring &key)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     // 这里不感知picture-filename的变化，也不使用这个字段，因为这个字段的值可能是一个xml文件路径，新的背景设置插件无法兼容
     switch (shash(key.c_str()))
@@ -475,7 +488,7 @@ void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustri
 
 void AppearanceBackground::on_screen_size_changed()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     this->draw_background();
 }
 }  // namespace Kiran

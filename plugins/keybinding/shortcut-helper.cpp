@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-26 11:27:37
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 15:26:28
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/keybinding/shortcut-helper.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/keybinding/shortcut-helper.h"
@@ -115,7 +125,7 @@ KeyState ShortCutHelper::get_keystate(XEvent *event)
 
         gdk_keyval_convert_case(keyval, &lower, &upper);
         key_state.key_symbol = lower;
-        LOG_DEBUG("state: %0x consumed: %0x.", event->xkey.state, consumed);
+        KLOG_DEBUG("state: %0x consumed: %0x.", event->xkey.state, consumed);
         key_state.mods = event->xkey.state & ~consumed & GDK_MODIFIER_MASK;
         return key_state;
     }
@@ -134,7 +144,7 @@ std::vector<uint32_t> ShortCutHelper::get_keycode(uint32_t key_symbol, KeyCodeFi
     {
         for (int32_t i = 0; i < n_keys; ++i)
         {
-            // LOG_DEBUG("%d keysym: %0x level: %d grouop: %d keycode: %0x.", i, key_symbol, keys[i].level, keys[i].group, keys[i].keycode);
+            // KLOG_DEBUG("%d keysym: %0x level: %d grouop: %d keycode: %0x.", i, key_symbol, keys[i].level, keys[i].group, keys[i].keycode);
             if (filter(keys[i].group, keys[i].level))
             {
                 result.push_back(keys[i].keycode);

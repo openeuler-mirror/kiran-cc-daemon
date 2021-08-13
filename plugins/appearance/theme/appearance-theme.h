@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-12-02 15:45:52
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-12-09 16:31:11
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/appearance/theme/appearance-theme.h
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #pragma once
 
 #include <queue>
@@ -40,8 +51,8 @@ public:
 
     void init();
 
+    // 获取指定类型的主题列表
     ThemeInfoVec get_themes_by_type(AppearanceThemeType type);
-
     std::shared_ptr<ThemeBase> get_theme(ThemeUniqueKey unique_key);
     // 如果存在多个类型和名字相同的主题，则返回优先级最高的主题
     std::shared_ptr<ThemeBase> get_theme(ThemeKey key);
@@ -51,13 +62,21 @@ public:
     // 获取指定类型的主题名，直接从gsettings中读取
     std::string get_theme(AppearanceThemeType type);
 
+    sigc::signal<void, ThemeKey> signal_theme_changed() { return this->theme_changed_; };
+
 private:
     bool add_theme(std::shared_ptr<ThemeBase> theme);
     bool replace_theme(std::shared_ptr<ThemeBase> theme);
     bool del_theme(ThemeUniqueKey unique_key);
 
     void set_meta_theme(std::shared_ptr<ThemeMeta> theme);
+    void set_gtk_theme(const std::string& theme_name);
+    void set_icon_theme(const std::string& theme_name);
+    void set_cursor_theme(const std::string& theme_name);
+    void set_metacity_theme(const std::string& theme_name);
 
+    // xsettings插件的settings项发生变化处理
+    void on_xsettings_settings_changed(const Glib::ustring& key);
     void on_monitor_event_changed(std::shared_ptr<ThemeMonitorInfo> monitor_info, ThemeMonitorEventType event_type);
 
 private:
@@ -67,6 +86,9 @@ private:
 
     std::map<ThemeKey, ThemeKeyValue> themes_;
 
+    // 某个类型的主题设置发生了变化
+    sigc::signal<void, ThemeKey> theme_changed_;
+    // 某个类型的主题列表发生了变化
     sigc::signal<void, ThemeKey, ThemeEventType> themes_changed_;
 
     Glib::RefPtr<Gio::Settings> xsettings_settings_;

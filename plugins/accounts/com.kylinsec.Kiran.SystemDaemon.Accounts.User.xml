@@ -120,13 +120,13 @@
             the previously configured autologin user.</description>
         </method>
 
-        <method name="GetPasswordExpirationPolicy">
-            <arg name="expiration_time" direction="out" type="x" />
-            <arg name="last_change_time" direction="out" type="x" />
-            <arg name="min_days_between_changes" direction="out" type="x" />
-            <arg name="max_days_between_changes" direction="out" type="x" />
-            <arg name="days_to_warn" direction="out" type="x" />
-            <arg name="days_after_expiration_until_lock" direction="out" type="x" />
+        <method name="SetPasswordExpirationPolicy">
+            <arg name="options" direction="in" type="s">
+                <description>The password expiration policy options that is a jason string which format refer to
+                property password_expiration_policy.</description>
+            </arg>
+            <description>Set user password expiry information which contain expiration_time, last_change_time, min_days_between_changes,
+            max_days_between_changes, days_to_warn, inactive_days_after_expiration</description>
         </method>
 
         <method name="AddAuthItem">
@@ -236,6 +236,10 @@
 
         <property name="auth_modes" type="i" access="read">
             <description>Bitwise OR the enabled authentication mode.</description>
+        </property>
+
+        <property name="password_expiration_policy" type="s" access="read">
+            <description>The password expiration policy that is a jason string.</description>
         </property>
 
         <signal name="AuthItemChanged">

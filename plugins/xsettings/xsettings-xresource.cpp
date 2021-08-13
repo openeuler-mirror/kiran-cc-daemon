@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-11-24 09:52:27
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-30 20:05:40
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/xsettings/xsettings-xresource.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/xsettings/xsettings-xresource.h"
@@ -45,7 +55,7 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
 
     std::string props = XResourceManagerString(dpy);
 
-    LOG_DEBUG("Old Xresource: %s", props.c_str());
+    KLOG_DEBUG("Old Xresource: %s", props.c_str());
     auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_gtk_cursor_theme_size()));
 
     switch (shash(key.c_str()))
@@ -85,7 +95,7 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
         break;
     }
 
-    LOG_DEBUG("New Xresource: %s", props.c_str());
+    KLOG_DEBUG("New Xresource: %s", props.c_str());
 
     XChangeProperty(dpy,
                     RootWindow(dpy, 0),

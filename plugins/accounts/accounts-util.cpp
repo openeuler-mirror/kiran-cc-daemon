@@ -1,11 +1,22 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-07-24 13:42:19
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-11-06 17:53:59
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/accounts/accounts-util.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 #include "plugins/accounts/accounts-util.h"
 
 #include <fcntl.h>
@@ -70,13 +81,13 @@ bool AccountsUtil::get_caller_pid(Glib::RefPtr<Gio::DBus::MethodInvocation> invo
         }
         catch (const Glib::Error &e)
         {
-            LOG_WARNING("failed to call GetConnectionUnixProcessID: %s", e.what().c_str());
+            KLOG_WARNING("failed to call GetConnectionUnixProcessID: %s", e.what().c_str());
             return false;
         }
     }
     else
     {
-        LOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
+        KLOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
         return false;
     }
 
@@ -102,13 +113,13 @@ bool AccountsUtil::get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invo
         }
         catch (const Glib::Error &e)
         {
-            LOG_WARNING("failed to call GetConnectionUnixUser: %s", e.what().c_str());
+            KLOG_WARNING("failed to call GetConnectionUnixUser: %s", e.what().c_str());
             return false;
         }
     }
     else
     {
-        LOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
+        KLOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
         return false;
     }
 
@@ -134,7 +145,7 @@ void AccountsUtil::get_caller_loginuid(const Glib::RefPtr<Gio::DBus::MethodInvoc
         }
         catch (const Glib::FileError &e)
         {
-            LOG_DEBUG("%s", e.what().c_str());
+            KLOG_DEBUG("%s", e.what().c_str());
             loginuid = fmt::format("{0}", uid);
         }
     }
@@ -149,7 +160,7 @@ void AccountsUtil::setup_loginuid(const std::string &id)
     auto fd = open("/proc/self/loginuid", O_WRONLY);
     if (write(fd, id.c_str(), id.length()) != (int)id.length())
     {
-        LOG_WARNING("Failed to write loginuid '%s'\n", id.c_str());
+        KLOG_WARNING("Failed to write loginuid '%s'\n", id.c_str());
     }
     close(fd);
 }
@@ -158,7 +169,7 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
                                         const std::vector<std::string> argv,
                                         CCErrorCode &error_code)
 {
-    SETTINGS_PROFILE("command: %s.", StrUtils::join(argv, " ").c_str());
+    KLOG_DEBUG("command: %s.", StrUtils::join(argv, " ").c_str());
 
     std::string loginuid;
     int status;
@@ -178,11 +189,11 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
     }
     catch (const Glib::SpawnError &e)
     {
-        LOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("%s.", e.what().c_str());
         error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED;
         return false;
     }
-    LOG_DEBUG("status: %d.", status);
+    KLOG_DEBUG("status: %d.", status);
     return AccountsUtil::parse_exit_status(status, error_code);
 }
 
@@ -194,7 +205,7 @@ bool AccountsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_cod
         auto result = g_spawn_check_exit_status(exit_status, &g_error);
         if (!result)
         {
-            LOG_WARNING("%s.", g_error->message);
+            KLOG_WARNING("%s.", g_error->message);
             error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS;
         }
         return result;

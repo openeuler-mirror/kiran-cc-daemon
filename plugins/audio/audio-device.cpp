@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/audio/audio-device.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/audio/audio-device.h"
@@ -47,7 +59,7 @@ double AudioDevice::base_volume_get()
 
 void AudioDevice::SetActivePort(const Glib::ustring &name, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("port name: %s.", name.c_str());
+    KLOG_PROFILE("port name: %s.", name.c_str());
 
     if (!this->active_port_set(name))
     {
@@ -58,7 +70,7 @@ void AudioDevice::SetActivePort(const Glib::ustring &name, MethodInvocation &inv
 
 void AudioDevice::GetPorts(MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
 
     Json::Value values;
     Json::FastWriter writer;
@@ -77,7 +89,7 @@ void AudioDevice::GetPorts(MethodInvocation &invocation)
 
 void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("volume: %f.", volume);
+    KLOG_PROFILE("volume: %f.", volume);
 
     if (volume < 0 || volume > 1.0 + EPS)
     {
@@ -99,7 +111,7 @@ void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
 
 void AudioDevice::SetBalance(double balance, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("balance: %f.", balance);
+    KLOG_PROFILE("balance: %f.", balance);
 
     if (balance < -1 || balance > 1)
     {
@@ -115,7 +127,7 @@ void AudioDevice::SetBalance(double balance, MethodInvocation &invocation)
 
 void AudioDevice::SetFade(double fade, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("fade: %f.", fade);
+    KLOG_PROFILE("fade: %f.", fade);
 
     if (fade < -1 || fade > 1)
     {
@@ -131,7 +143,7 @@ void AudioDevice::SetFade(double fade, MethodInvocation &invocation)
 
 void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
 {
-    SETTINGS_PROFILE("mute: %d.", mute);
+    KLOG_PROFILE("mute: %d.", mute);
 
     if (!this->mute_set(mute))
     {
@@ -157,7 +169,7 @@ bool AudioDevice::volume_setHandler(double value)
 
 bool AudioDevice::dbus_register()
 {
-    SETTINGS_PROFILE("register object path: %s.", this->object_path_.c_str());
+    KLOG_PROFILE("register object path: %s.", this->object_path_.c_str());
 
     RETURN_VAL_IF_FALSE(this->device_, false);
 
@@ -167,7 +179,7 @@ bool AudioDevice::dbus_register()
     }
     catch (const Glib::Error &e)
     {
-        LOG_WARNING("Failed to get session bus: %s.", e.what().c_str());
+        KLOG_WARNING("Failed to get session bus: %s.", e.what().c_str());
         return false;
     }
 
@@ -177,7 +189,7 @@ bool AudioDevice::dbus_register()
 
 void AudioDevice::dbus_unregister()
 {
-    SETTINGS_PROFILE("unregister object path: %s.", this->object_path_.c_str());
+    KLOG_PROFILE("unregister object path: %s.", this->object_path_.c_str());
 
     if (this->object_register_id_)
     {

@@ -1,9 +1,22 @@
 /**
- * @file          /kiran-cc-daemon/plugins/audio/pulse/pulse-card.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
+
 
 #include "plugins/audio/pulse/pulse-card.h"
 
@@ -49,7 +62,7 @@ void PulseCard::load(const pa_card_info *card_info)
         auto iter = this->card_ports_.emplace(card_port->get_name(), card_port);
         if (!iter.second)
         {
-            LOG_WARNING("The port %s is already exist.", card_port->get_name().c_str());
+            KLOG_WARNING("The port %s is already exist.", card_port->get_name().c_str());
         }
     }
 
@@ -59,7 +72,7 @@ void PulseCard::load(const pa_card_info *card_info)
         auto iter = this->card_profiles_.emplace(card_profile->get_name(), card_profile);
         if (!iter.second)
         {
-            LOG_WARNING("The profile %s is already exist.", card_profile->get_name().c_str());
+            KLOG_WARNING("The profile %s is already exist.", card_profile->get_name().c_str());
         }
     }
 

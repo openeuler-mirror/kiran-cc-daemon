@@ -1,8 +1,20 @@
 /**
- * @file          /kiran-cc-daemon/plugins/power/wrapper/power-screensaver.cpp
- * @brief         
- * @author        tangjie02 <tangjie02@kylinos.com.cn>
- * @copyright (c) 2020 KylinSec. All rights reserved. 
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/power/wrapper/power-screensaver.h"
@@ -31,14 +43,14 @@ void PowerScreenSaver::init()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return;
     }
 }
 
 bool PowerScreenSaver::lock()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
 
     // Lock函数无返回，因此这里使用异步调用后再循环检查屏幕保护程序是否已经启动
@@ -48,7 +60,7 @@ bool PowerScreenSaver::lock()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return false;
     }
 
@@ -61,13 +73,13 @@ bool PowerScreenSaver::lock()
             is_running = true;
             break;
         }
-        LOG_DEBUG("timeout waiting for screensaver");
+        KLOG_DEBUG("timeout waiting for screensaver");
         g_usleep(1000 * 100);
     }
 
     if (!is_running)
     {
-        LOG_WARNING("Failed to lock screen.");
+        KLOG_WARNING("Failed to lock screen.");
         return false;
     }
 
@@ -76,7 +88,7 @@ bool PowerScreenSaver::lock()
 
 uint32_t PowerScreenSaver::add_throttle(const std::string& reason)
 {
-    SETTINGS_PROFILE("reason: %s.", reason.c_str());
+    KLOG_PROFILE("reason: %s.", reason.c_str());
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, 0);
 
     auto parameters = g_variant_new("(ss)", "Power screensaver", reason.c_str());
@@ -89,7 +101,7 @@ uint32_t PowerScreenSaver::add_throttle(const std::string& reason)
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return 0;
     }
 
@@ -97,19 +109,19 @@ uint32_t PowerScreenSaver::add_throttle(const std::string& reason)
     {
         auto v1 = retval.get_child(0);
         auto cookie = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(v1).get();
-        LOG_DEBUG("cookie: %u.", cookie);
+        KLOG_DEBUG("cookie: %u.", cookie);
         return cookie;
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return 0;
 }
 
 uint32_t PowerScreenSaver::lock_and_throttle(const std::string& reason)
 {
-    SETTINGS_PROFILE("reason: %s.", reason.c_str());
+    KLOG_PROFILE("reason: %s.", reason.c_str());
 
     RETURN_VAL_IF_FALSE(this->lock(), 0);
     return this->add_throttle(reason);
@@ -117,7 +129,7 @@ uint32_t PowerScreenSaver::lock_and_throttle(const std::string& reason)
 
 bool PowerScreenSaver::remove_throttle(uint32_t cookie)
 {
-    SETTINGS_PROFILE("cookie: %u", cookie);
+    KLOG_PROFILE("cookie: %u", cookie);
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
 
     auto parameters = g_variant_new("(u)", cookie);
@@ -129,7 +141,7 @@ bool PowerScreenSaver::remove_throttle(uint32_t cookie)
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return false;
     }
 
@@ -138,7 +150,7 @@ bool PowerScreenSaver::remove_throttle(uint32_t cookie)
 
 bool PowerScreenSaver::poke()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
 
     try
@@ -147,7 +159,7 @@ bool PowerScreenSaver::poke()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return false;
     }
 
@@ -156,7 +168,7 @@ bool PowerScreenSaver::poke()
 
 bool PowerScreenSaver::check_running()
 {
-    SETTINGS_PROFILE("");
+    KLOG_PROFILE("");
     Glib::VariantContainerBase retval;
 
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
@@ -167,7 +179,7 @@ bool PowerScreenSaver::check_running()
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING("%s", e.what().c_str());
         return false;
     }
 
@@ -179,7 +191,7 @@ bool PowerScreenSaver::check_running()
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s", e.what());
+        KLOG_WARNING("%s", e.what());
     }
     return false;
 }

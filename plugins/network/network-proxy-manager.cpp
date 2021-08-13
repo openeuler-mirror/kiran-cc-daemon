@@ -51,7 +51,7 @@ void NetworkProxyManager::global_init()
 void NetworkProxyManager::SetMode(gint32 mode,
                                   MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("Mode: %d.", mode);
+    KLOG_PROFILE("Mode: %d.", mode);
 
     if (mode < NETWORK_PROXY_MODE_NONE || mode >= NETWORK_PROXY_MODE_LAST)
     {
@@ -69,7 +69,7 @@ void NetworkProxyManager::SetMode(gint32 mode,
 void NetworkProxyManager::SetManualProxy(const Glib::ustring& options,
                                          MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("Options: %s.", options.c_str());
+    KLOG_PROFILE("Options: %s.", options.c_str());
 
     if (NETWORK_PROXY_MODE_MANUAL != this->mode_get())
     {
@@ -118,7 +118,7 @@ void NetworkProxyManager::SetManualProxy(const Glib::ustring& options,
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_NETWORK_PROXY_SET_MANUAL_PROXY_FAILED);
     }
 
@@ -150,7 +150,7 @@ void NetworkProxyManager::GetManualProxy(MethodInvocation& invocation)
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_NETWORK_PROXY_GET_MANUAL_PROXY_FAILED);
     }
 
@@ -161,7 +161,7 @@ void NetworkProxyManager::GetManualProxy(MethodInvocation& invocation)
 void NetworkProxyManager::SetAutoProxy(const Glib::ustring& url,
                                        MethodInvocation& invocation)
 {
-    SETTINGS_PROFILE("Auto proxy url: %s.", url.c_str());
+    KLOG_PROFILE("Auto proxy url: %s.", url.c_str());
 
     if (NETWORK_PROXY_MODE_AUTO != this->mode_get())
     {
@@ -238,7 +238,7 @@ void NetworkProxyManager::save_http_settings(const Json::Value& values)
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
     }
 }
 
@@ -263,7 +263,7 @@ void NetworkProxyManager::save_https_settings(const Json::Value& values)
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
     }
 }
 
@@ -288,7 +288,7 @@ void NetworkProxyManager::save_ftp_settings(const Json::Value& values)
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
     }
 }
 
@@ -313,7 +313,7 @@ void NetworkProxyManager::save_socks_settings(const Json::Value& values)
     }
     catch (const std::exception& e)
     {
-        LOG_WARNING("%s.", e.what());
+        KLOG_WARNING("%s.", e.what());
     }
 }
 
@@ -346,7 +346,7 @@ void NetworkProxyManager::on_settings_changed(const Glib::ustring& key)
 
 bool NetworkProxyManager::on_manual_proxy_changed(const Glib::ustring& key)
 {
-    SETTINGS_PROFILE("Key: %s.", key.c_str());
+    KLOG_PROFILE("Key: %s.", key.c_str());
 
     this->ManualProxyChanged_signal.emit('0');
     return false;
@@ -354,10 +354,10 @@ bool NetworkProxyManager::on_manual_proxy_changed(const Glib::ustring& key)
 
 void NetworkProxyManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    SETTINGS_PROFILE("Name: %s.", name.c_str());
+    KLOG_PROFILE("Name: %s.", name.c_str());
     if (!connect)
     {
-        LOG_WARNING("Failed to connect dbus name: %s.", name.c_str());
+        KLOG_WARNING("Failed to connect dbus name: %s.", name.c_str());
         return;
     }
 
@@ -367,18 +367,18 @@ void NetworkProxyManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connecti
     }
     catch (const Glib::Error& e)
     {
-        LOG_WARNING("Register object_path %s fail: %s.", NETWORK_PROXY_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING("Register object_path %s fail: %s.", NETWORK_PROXY_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void NetworkProxyManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_DEBUG("Success to register dbus name: %s.", name.c_str());
+    KLOG_DEBUG("Success to register dbus name: %s.", name.c_str());
 }
 
 void NetworkProxyManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    LOG_WARNING("Failed to register dbus name: %s.", name.c_str());
+    KLOG_WARNING("Failed to register dbus name: %s.", name.c_str());
 }
 
 }  // namespace Kiran

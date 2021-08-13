@@ -25,7 +25,6 @@ SET_COMMON_SHARED_LINKER_FLAGS()
 target_include_directories(${TARGET_NAME} PUBLIC 
     ${PROJECT_BINARY_DIR}/generated
     ${GTKMM3_INCLUDE_DIRS}
-    ${UPOWER_GLIB_INCLUDE_DIRS}
     ${LIBNOTIFY_INCLUDE_DIRS}
     ${XEXT_INCLUDE_DIRS})
 
@@ -33,7 +32,6 @@ target_include_directories(${TARGET_NAME} PUBLIC
 target_link_libraries(${TARGET_NAME} PRIVATE
     ${KSD_LINKER_FLAGS}
     ${GTKMM3_LIBRARIES}
-    ${UPOWER_GLIB_LIBRARIES}
     ${XEXT_LIBRARIES}
     ${LIBNOTIFY_LIBRARIES}
     lib-base)

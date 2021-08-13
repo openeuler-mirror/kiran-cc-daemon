@@ -1,10 +1,20 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-08-26 11:53:14
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-02 16:59:17
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/plugins/keybinding/keylist-entries-parser.cpp
+/**
+ * @Copyright (C) 2020 ~ 2021 KylinSec Co., Ltd. 
+ *
+ * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http: //www.gnu.org/licenses/>. 
  */
 
 #include "plugins/keybinding/keylist-entries-parser.h"
@@ -21,7 +31,7 @@ KeyListEntriesParser::KeyListEntriesParser(const std::string &key_entry_dir) : k
 
 bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string &err)
 {
-    SETTINGS_PROFILE("%s.", this->key_entry_dir_.c_str());
+    KLOG_PROFILE("%s.", this->key_entry_dir_.c_str());
     try
     {
         Glib::Dir dir(this->key_entry_dir_);
@@ -37,7 +47,7 @@ bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string 
                 KeyListEntries keylist_entries;
                 if (!this->process_keylist_entries(root_node, keylist_entries, err))
                 {
-                    LOG_WARNING("failed to paerse %s: %s. ignore it.", file_path.c_str(), err.c_str());
+                    KLOG_WARNING("failed to paerse %s: %s. ignore it.", file_path.c_str(), err.c_str());
                     continue;
                 }
                 keys.push_back(std::move(keylist_entries));
@@ -98,7 +108,7 @@ bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyL
             // no deal
             break;
         default:
-            LOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
