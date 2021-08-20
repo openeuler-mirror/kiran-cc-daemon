@@ -38,16 +38,19 @@ public:
     static void global_deinit() { delete instance_; };
 
 protected:
-    // 添加键盘布局。键盘布局最多只能设置4个，如果超过4个则返回添加；
-    // 如果布局不在GetValidLayouts返回的列表中，或者布局已经存在用户布局列表中，则返回添加失败；
-    // 如果设置布局命令执行错误，也返回添加失败；
-    // 否则返回添加成功。
+    /* 添加键盘布局。键盘布局最多只能设置4个，如果超过4个则返回添加；
+       如果布局不在GetValidLayouts返回的列表中，或者布局已经存在用户布局列表中，则返回添加失败；
+       如果设置布局命令执行错误，也返回添加失败；
+       否则返回添加成功。*/
     virtual void AddLayout(const Glib::ustring &layout, MethodInvocation &invocation);
 
-    // 从用户布局列表中删除键盘布局，如果用户布局列表中不存在该布局，则返回删除失败；
-    // 如果设置布局命令执行错误，也返回删除失败；
-    // 否则返回删除成功
+    /* 从用户布局列表中删除键盘布局，如果用户布局列表中不存在该布局，则返回删除失败；
+       如果设置布局命令执行错误，也返回删除失败；
+       否则返回删除成功 */
     virtual void DelLayout(const Glib::ustring &layout, MethodInvocation &invocation);
+
+    // 应用键盘布局，该键盘布局必须是已经通过AddLayout添加到键盘布局列表中的布局
+    virtual void ApplyLayout(const Glib::ustring &layout, MethodInvocation &invocation);
 
     // 获取所有合法的键盘布局列表，这个列表是从/usr/share/X11/xkb/rules/base.xml中读取。
     virtual void GetValidLayouts(MethodInvocation &invocation);
@@ -76,7 +79,6 @@ private:
 
     void load_from_settings();
     void settings_changed(const Glib::ustring &key);
-
     void load_xkb_rules();
 
     void set_all_props();

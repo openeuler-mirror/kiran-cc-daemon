@@ -159,7 +159,7 @@ void SystemShortCutManager::load_system_shortcuts(std::map<std::string, std::sha
                              keylist_entry.name.c_str());
                 continue;
             }
-            system_settings->signal_changed(keylist_entry.name).connect(sigc::bind(sigc::mem_fun(this, &SystemShortCutManager::settings_changed), system_settings));
+            system_settings->signal_changed(keylist_entry.name).connect(sigc::bind(sigc::mem_fun(this, &SystemShortCutManager::settings_changed), shortcut->uid));
         }
     }
 }
@@ -196,16 +196,14 @@ void SystemShortCutManager::wm_window_changed()
     }
 }
 
-void SystemShortCutManager::settings_changed(const Glib::ustring &key, const Glib::RefPtr<Gio::Settings> settings)
+void SystemShortCutManager::settings_changed(const Glib::ustring &key, std::string shortcut_uid)
 {
-    auto uid = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5,
-                                                (settings->property_schema_id().get_value() + "+" + key).raw());
-
-    auto shortcut = this->get(uid);
+    auto shortcut = this->get(shortcut_uid);
+    RETURN_IF_FALSE(shortcut);
 
     if (shortcut)
     {
-        auto value = settings->get_string(key);
+        auto value = shortcut->settings->get_string(key);
         if (shortcut->key_combination != value &&
             ShortCutHelper::get_keystate(value) != INVALID_KEYSTATE)
         {

@@ -74,7 +74,7 @@ void PowerUPower::init()
     auto display_device_object_path = this->get_display_device_object_path();
     this->display_device_ = std::make_shared<PowerUPowerDevice>(display_device_object_path);
     this->display_device_->signal_props_changed().connect(sigc::bind(sigc::mem_fun(this, &PowerUPower::on_device_props_changed),
-                                                                     this->display_device_));
+                                                                     this->display_device_->get_object_path()));
 
     auto devices_object_path = this->get_devices_object_path();
     for (auto &o : devices_object_path)
@@ -147,7 +147,7 @@ bool PowerUPower::add_upower_device(const Glib::DBusObjectPathString &object_pat
         KLOG_WARNING("The upwer device %s already exists.", object_path.c_str());
         return false;
     }
-    device->signal_props_changed().connect(sigc::bind(sigc::mem_fun(this, &PowerUPower::on_device_props_changed), device));
+    device->signal_props_changed().connect(sigc::bind(sigc::mem_fun(this, &PowerUPower::on_device_props_changed), object_path));
     return true;
 }
 
@@ -221,14 +221,25 @@ void PowerUPower::on_upower_signal(const Glib::ustring &sender_name,
 
 void PowerUPower::on_device_props_changed(const UPowerDeviceProps &old_props,
                                           const UPowerDeviceProps &new_props,
-                                          std::shared_ptr<PowerUPowerDevice> device)
+                                          Glib::DBusObjectPathString device_object_path)
 {
     // 不处理单个电池设备的状态信息，电池设备的状态信息以混合设备的为准
     if (new_props.type == UP_DEVICE_KIND_BATTERY &&
-        device->get_object_path() != this->display_device_->get_object_path())
+        device_object_path != this->display_device_->get_object_path())
     {
         return;
     }
+
+    std::shared_ptr<PowerUPowerDevice> device;
+    if (device_object_path == this->display_device_->get_object_path())
+    {
+        device = this->display_device_;
+    }
+    else
+    {
+        device = this->get_device(device_object_path);
+    }
+    RETURN_IF_FALSE(device);
 
     if (old_props.state != new_props.state)
     {

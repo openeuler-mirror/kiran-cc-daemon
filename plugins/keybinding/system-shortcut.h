@@ -68,7 +68,7 @@ private:
 
     void wm_window_changed();
 
-    void settings_changed(const Glib::ustring &key, const Glib::RefPtr<Gio::Settings> settings);
+    void settings_changed(const Glib::ustring &key, std::string shortcut_uid);
 
     bool should_show_key(const KeyListEntry &entry);
 

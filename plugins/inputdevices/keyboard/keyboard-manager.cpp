@@ -72,8 +72,7 @@ void KeyboardManager::AddLayout(const Glib::ustring &layout, MethodInvocation &i
 {
     KLOG_PROFILE("layout: %s.", layout.c_str());
 
-    auto layouts = this->layouts_;
-
+    auto layouts = this->layouts_get();
     if (layouts.size() >= LAYOUT_MAX_NUMBER)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_EXCEED_LIMIT, LAYOUT_MAX_NUMBER);
@@ -85,7 +84,6 @@ void KeyboardManager::AddLayout(const Glib::ustring &layout, MethodInvocation &i
     }
 
     auto iter = std::find(layouts.begin(), layouts.end(), layout);
-
     if (iter != layouts.end())
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_ALREADY_EXIST);
@@ -103,8 +101,7 @@ void KeyboardManager::DelLayout(const Glib::ustring &layout, MethodInvocation &i
 {
     KLOG_PROFILE("layout: %s.", layout.c_str());
 
-    auto layouts = this->layouts_;
-
+    auto layouts = this->layouts_get();
     auto iter = std::find(layouts.begin(), layouts.end(), layout);
 
     if (iter == layouts.end())
@@ -113,6 +110,25 @@ void KeyboardManager::DelLayout(const Glib::ustring &layout, MethodInvocation &i
     }
     layouts.erase(iter);
 
+    if (!this->layouts_set(layouts))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_UPDATE_FAILED);
+    }
+    invocation.ret();
+}
+
+void KeyboardManager::ApplyLayout(const Glib::ustring &layout, MethodInvocation &invocation)
+{
+    KLOG_PROFILE("layout: %s.", layout.c_str());
+
+    auto layouts = this->layouts_get();
+    auto iter = std::find(layouts.begin(), layouts.end(), layout);
+    if (iter == layouts.end())
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_NOT_EXIST);
+    }
+    layouts.erase(iter);
+    layouts.insert(layouts.begin(), layout);
     if (!this->layouts_set(layouts))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_UPDATE_FAILED);
