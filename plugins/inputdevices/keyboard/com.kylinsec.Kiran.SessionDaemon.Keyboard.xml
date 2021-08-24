@@ -24,8 +24,8 @@
         </method>
 
         <method name="GetValidLayouts">
-            <arg type="a{ss}" name="layouts" direction="out">
-                <summary>All valid layout list.</summary>
+            <arg type="s" name="layouts" direction="out">
+                <summary>All valid layout list that is json string.</summary>
             </arg>
             <description>Get all valid layout list from the file /usr/share/X11/xkb/rules/base.xml</description>
         </method>

@@ -768,8 +768,6 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
 {
     KLOG_DEBUG("options: %s.", options.c_str());
 
-    Json::Value values;
-    std::string error;
     std::vector<std::string> argv{"/usr/bin/chage"};
 
     this->freeze_notify();
@@ -777,10 +775,7 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
         this->thaw_notify();
     });
 
-    if (!StrUtils::json_str2value(options, values, error))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID);
-    }
+    auto values = StrUtils::str2json(options);
 
     for (auto key : values.getMemberNames())
     {

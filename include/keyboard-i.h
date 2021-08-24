@@ -23,6 +23,9 @@ extern "C"
 #define KEYBOARD_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keyboard"
 #define KEYBOARD_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Keyboard"
 
+#define KEYBOARD_VALID_LAYOUTS_LAYOUT_NAME "layout_name"
+#define KEYBOARD_VALID_LAYOUTS_COUNTRY_NAME "country_name"
+
 #ifdef __cplusplus
 }
 #endif

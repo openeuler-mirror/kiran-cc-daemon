@@ -54,8 +54,9 @@ public:
     static std::string rtrim(const std::string &s);
     static std::string trim(const std::string &s);
 
-    // json字符串转Json::Value
-    static bool json_str2value(const std::string &str, Json::Value &value, std::string &error);
+    // json字符串和Json::Value相互转化
+    static std::string json2str(const Json::Value &json);
+    static Json::Value str2json(const std::string &str);
 
     // 格式化日期
     static std::string timestamp2str(time_t t);

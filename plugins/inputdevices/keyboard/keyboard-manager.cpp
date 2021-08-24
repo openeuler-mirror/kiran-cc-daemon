@@ -133,7 +133,25 @@ void KeyboardManager::ApplyLayout(const Glib::ustring &layout, MethodInvocation 
 
 void KeyboardManager::GetValidLayouts(MethodInvocation &invocation)
 {
-    invocation.ret(this->valid_layouts_);
+    KLOG_PROFILE("");
+    try
+    {
+        Json::Value values;
+        for (auto &iter : this->valid_layouts_)
+        {
+            Json::Value value;
+            value[KEYBOARD_VALID_LAYOUTS_LAYOUT_NAME] = std::string(iter.first);
+            value[KEYBOARD_VALID_LAYOUTS_COUNTRY_NAME] = std::string(iter.second);
+            values.append(std::move(value));
+        }
+        auto retval = StrUtils::json2str(values);
+        invocation.ret(retval);
+    }
+    catch (const std::exception &e)
+    {
+        KLOG_WARNING("%s.", e.what());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_LAYOUT_GET_FAILED);
+    }
 }
 
 void KeyboardManager::AddLayoutOption(const Glib::ustring &option, MethodInvocation &invocation)

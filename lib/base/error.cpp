@@ -407,6 +407,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_NETWORK_PROXY_SET_AUTO_PROXY_URL_FAILED:
     case CCErrorCode::ERROR_NETWORK_PROXY_SET_MANUAL_PROXY_FAILED:
     case CCErrorCode::ERROR_NETWORK_PROXY_GET_MANUAL_PROXY_FAILED:
+    case CCErrorCode::ERROR_KEYBOARD_LAYOUT_GET_FAILED:
         error_desc = _("Internel error.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:

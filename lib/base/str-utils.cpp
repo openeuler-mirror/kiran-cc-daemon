@@ -112,11 +112,29 @@ std::string StrUtils::trim(const std::string &s)
     return StrUtils::ltrim(StrUtils::rtrim(s));
 }
 
-bool StrUtils::json_str2value(const std::string &str, Json::Value &value, std::string &error)
+std::string StrUtils::json2str(const Json::Value &json)
 {
-    Json::CharReaderBuilder reader_builder;
-    std::unique_ptr<Json::CharReader> reader(reader_builder.newCharReader());
-    return reader->parse(str.c_str(), str.c_str() + str.length(), &value, &error);
+    Json::StreamWriterBuilder wbuilder;
+    wbuilder["indentation"] = "";
+    return Json::writeString(wbuilder, json);
+}
+
+Json::Value StrUtils::str2json(const std::string &str)
+{
+    KLOG_DEBUG("json str: %s.", str.c_str());
+    Json::Value result;
+    Json::CharReaderBuilder rbuilder;
+    std::unique_ptr<Json::CharReader> reader(rbuilder.newCharReader());
+    std::string error;
+
+    RETURN_VAL_IF_TRUE(str.empty(), Json::Value());
+
+    if (!reader->parse(str.c_str(), str.c_str() + str.length(), &result, &error))
+    {
+        KLOG_WARNING("%s", error.c_str());
+        return Json::Value();
+    }
+    return result;
 }
 
 std::string StrUtils::timestamp2str(time_t t)
