@@ -5,123 +5,69 @@
 
         <method name="ListPropertyNames">
             <arg type="as" name="names" direction="out">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property names list.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property names list.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>List all XSettings Registry property names.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>List all XSettings Registry property names.</description>
         </method>
 
         <method name="GetInteger">
             <arg type="s" name="name" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property name.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property name.</summary>
             </arg>
             <arg type="i" name="value" direction="out">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property value.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property value.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Get the XSettings Registry value whose type is integer.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Get the XSettings Registry value whose type is integer.</description>
         </method>
 
         <method name="SetInteger">
             <arg type="s" name="name" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property name.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property name.</summary>
             </arg>
             <arg type="i" name="value" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property value.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property value.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set the XSettings Registry value type is integer.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set the XSettings Registry value type is integer.</description>
         </method>
 
         <method name="GetString">
             <arg type="s" name="name" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property name.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property name.</summary>
             </arg>
             <arg type="s" name="value" direction="out">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property value.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property value.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Get the XSettings Registry value whose type is string.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Get the XSettings Registry value whose type is string.</description>
         </method>
 
         <method name="SetString">
             <arg type="s" name="name" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property name.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property name.</summary>
             </arg>
             <arg type="s" name="value" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property value.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property value.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set the XSettings Registry value whose type is string.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set the XSettings Registry value whose type is string.</description>
         </method>
 
         <method name="GetColor">
             <arg type="s" name="name" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property name.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property name.</summary>
             </arg>
             <arg type="(qqqq)" name="value" direction="out">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property value.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property value.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Get the XSettings Registry value whose type is color.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Get the XSettings Registry value whose type is color.</description>
         </method>
 
         <method name="SetColor">
             <arg type="s" name="name" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property name.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property name.</summary>
             </arg>
             <arg type="(qqqq)" name="value" direction="in">
-                <doc:doc>
-                    <doc:summary>The XSettings Registry property value.</doc:summary>
-                </doc:doc>
+                <summary>The XSettings Registry property value.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set the XSettings Registry value whose type is color.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set the XSettings Registry value whose type is color.</description>
         </method>
 
     </interface>

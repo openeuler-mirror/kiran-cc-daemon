@@ -70,7 +70,7 @@
             <description>Size of the cursor referenced by cursor_theme.</description>
         </key>
         <key name="gtk-font-name" type="s">
-            <default>'Sans 10'</default>
+            <default>'Noto Sans CJK SC 10'</default>
             <description>Name of default font to use.</description>
         </key>
         <key name="gtk-key-theme-name" type="s">
