@@ -16,6 +16,7 @@
 
 #include <fstream>
 
+#include "config.h"
 #include "lib/base/base.h"
 #include "plugins/display/display-util.h"
 
@@ -27,7 +28,9 @@ namespace Kiran
 #define INTERFACE_SCHEMA_ID "org.mate.interface"
 #define INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR "window-scaling-factor"
 
+#define DISPLAY_CONF_DIR "kylinsec/" PROJECT_NAME "/display"
 #define DISPLAY_FILE_NAME "display.xml"
+
 #define MONITOR_JOIN_CHAR ","
 #define XRANDR_CMD "xrandr"
 
