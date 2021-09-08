@@ -167,18 +167,7 @@ Glib::ustring User::icon_file_get()
             // 使用用户主目录的图标
             auto home_dir = this->home_directory_get();
             filename = Glib::build_filename(home_dir, ".face");
-            if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
-            {
-                filename = Glib::ustring();
-            }
         }
-    }
-
-    // 获取函数中不能有设置操作，所以这里做延时处理
-    if (filename != cache_filename)
-    {
-        auto idle = Glib::MainContext::get_default()->signal_idle();
-        idle.connect(sigc::bind(sigc::mem_fun(this, &User::icon_file_changed), filename));
     }
 
     return filename;
@@ -347,8 +336,6 @@ void User::udpate_nocache_var(PasswdShadow passwd_shadow)
     this->user_name_set(this->passwd_->pw_name);
     this->home_directory_set(this->passwd_->pw_dir);
     this->shell_set(this->passwd_->pw_shell);
-    // TODO:
-    // this->reset_icon_file();
 
     std::shared_ptr<std::string> passwd;
     bool locked = false;
@@ -987,13 +974,15 @@ void User::reset_icon_file()
 {
     auto icon_file = this->icon_file_get();
     auto home_dir = this->home_directory_get();
-    bool icon_is_default = (icon_file.length() == 0 || icon_file == this->default_icon_file_);
-    // 更新默认图标路径，因为用户主目录可能已经变化
-    this->default_icon_file_ = Glib::build_filename(home_dir, ".face");
-    // 如果用户之前未使用图标或者使用的是默认图标，则重新更新路径（主目录可能发生变化）。
-    if (icon_is_default)
+
+    // 如果用户主目录发生变化，且用户使用的是之前的用户主目录的图标，则重新更新路径。
+    if (!icon_file.empty() && icon_file == this->default_icon_file_)
     {
-        this->icon_file_set(this->default_icon_file_);
+        this->default_icon_file_ = Glib::build_filename(home_dir, ".face");
+        if (icon_file != this->default_icon_file_)
+        {
+            this->icon_file_set(this->default_icon_file_);
+        }
     }
 }
 
