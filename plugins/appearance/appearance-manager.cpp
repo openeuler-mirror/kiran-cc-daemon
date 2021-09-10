@@ -196,7 +196,7 @@ void AppearanceManager::load_from_settings()
 
 void AppearanceManager::on_theme_changed_cb(ThemeKey theme_key)
 {
-    KLOG_PROFILE("type: %d, theme name: %s.", theme_key.first, theme_key.second);
+    KLOG_PROFILE("type: %d, theme name: %s.", theme_key.first, theme_key.second.c_str());
 
     this->ThemeChanged_signal.emit(theme_key.first, theme_key.second);
 }
