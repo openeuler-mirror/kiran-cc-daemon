@@ -97,12 +97,31 @@ void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInv
 void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
     KLOG_PROFILE("");
-    auto custom_shortcut = CustomShortCutManager::get_instance()->get(uid.raw());
-    if (!custom_shortcut)
+
+    Json::Value values;
+    Json::StreamWriterBuilder wbuilder;
+    wbuilder["indentation"] = "";
+
+    try
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_3);
+        auto custom_shortcut = CustomShortCutManager::get_instance()->get(uid.raw());
+        if (!custom_shortcut)
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST);
+        }
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_NAME] = custom_shortcut->name;
+        values[KEYBINDING_SHORTCUT_JK_ACTION] = custom_shortcut->action;
+        values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = custom_shortcut->key_combination;
+
+        auto retval = StrUtils::json2str(values);
+        invocation.ret(retval);
     }
-    invocation.ret(std::make_tuple(uid, custom_shortcut->name, custom_shortcut->action, custom_shortcut->key_combination));
+    catch (const std::exception &e)
+    {
+        KLOG_WARNING("%s.", e.what());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
+    }
 }
 
 void KeybindingManager::ListCustomShortcuts(MethodInvocation &invocation)

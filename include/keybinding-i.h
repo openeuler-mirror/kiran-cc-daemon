@@ -23,6 +23,12 @@ extern "C"
 #define KEYBINDING_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keybinding"
 #define KEYBINDING_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Keybinding"
 
+// JK: JSON KEY
+#define KEYBINDING_SHORTCUT_JK_UID "uid"
+#define KEYBINDING_SHORTCUT_JK_NAME "name"
+#define KEYBINDING_SHORTCUT_JK_ACTION "action"
+#define KEYBINDING_SHORTCUT_JK_KEY_COMBINATION "key_combination"
+
 #ifdef __cplusplus
 }
 #endif
