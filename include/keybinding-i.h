@@ -23,11 +23,30 @@ extern "C"
 #define KEYBINDING_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keybinding"
 #define KEYBINDING_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Keybinding"
 
+/* The example of the shotcut list in json.
+{"system":[
+           {"key_combination":"key_comb_1","kind":"kind_1","name":"name_1","uid":"uid_1"},
+           {"key_combination":"key_comb_2","kind":"kind_2","name":"name_2","uid":"uid_2"},
+             ...
+            ]
+}
+{"custom":[
+           {"key_combination":"key_comb_1","action":"action_1","name":"name_1","uid":"uid_1"},
+           {"key_combination":"key_comb_2","action":"action_2","name":"name_2","uid":"uid_2"},
+             ...
+          ]
+}
+*/
+
 // JK: JSON KEY
 #define KEYBINDING_SHORTCUT_JK_UID "uid"
+#define KEYBINDING_SHORTCUT_JK_KIND "kind"
 #define KEYBINDING_SHORTCUT_JK_NAME "name"
 #define KEYBINDING_SHORTCUT_JK_ACTION "action"
 #define KEYBINDING_SHORTCUT_JK_KEY_COMBINATION "key_combination"
+
+#define KEYBINDING_SHORTCUT_JK_CUSTOM "custom"
+#define KEYBINDING_SHORTCUT_JK_SYSTEM "system"
 
 #ifdef __cplusplus
 }

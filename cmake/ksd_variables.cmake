@@ -29,6 +29,7 @@ set(enable-plugin-systeminfo "true" CACHE STRING "Enable plugin systeminfo")
 set(enable-plugin-timedate "true" CACHE STRING  "Enable plugin timedate")
 set(enable-plugin-xsettings "false" CACHE STRING "Enable plugin xsettings")
 set(enable-plugin-network "false" CACHE STRING "Enable plugin network")
+set(enable-plugin-clipboard "false" CACHE STRING "Enable plugin clipboard")
 
 
 # Determine the platform.
