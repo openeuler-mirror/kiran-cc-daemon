@@ -392,12 +392,12 @@ void User::update_password_expiration_policy(std::shared_ptr<SPwd> spwd)
 
     try
     {
-        values[ACCOUNTS_PEP_EXPIRATION_TIME] = int64_t(spwd->sp_expire);
-        values[ACCOUNTS_PEP_LAST_CHANGED_TIME] = int64_t(spwd->sp_lstchg);
-        values[ACCOUNTS_PEP_MIN_DAYS] = int64_t(spwd->sp_min);
-        values[ACCOUNTS_PEP_MAX_DAYS] = int64_t(spwd->sp_max);
-        values[ACCOUNTS_PEP_DAYS_TO_WARN] = int64_t(spwd->sp_warn);
-        values[ACCOUNTS_PEP_INACTIVE_DAYS] = int64_t(spwd->sp_inact);
+        values[ACCOUNTS_PEP_EXPIRATION_TIME] = Json::Int64(spwd->sp_expire);
+        values[ACCOUNTS_PEP_LAST_CHANGED_TIME] = Json::Int64(spwd->sp_lstchg);
+        values[ACCOUNTS_PEP_MIN_DAYS] = Json::Int64(spwd->sp_min);
+        values[ACCOUNTS_PEP_MAX_DAYS] = Json::Int64(spwd->sp_max);
+        values[ACCOUNTS_PEP_DAYS_TO_WARN] = Json::Int64(spwd->sp_warn);
+        values[ACCOUNTS_PEP_INACTIVE_DAYS] = Json::Int64(spwd->sp_inact);
 
         auto password_expiration_policy = Json::writeString(wbuilder, values);
         this->password_expiration_policy_set(password_expiration_policy);

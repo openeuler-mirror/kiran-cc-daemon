@@ -92,7 +92,7 @@ bool CustomShortCutManager::modify(const std::string &uid, std::shared_ptr<Custo
 
     if (!this->keyfile_.has_group(uid))
     {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_1;
+        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST;
         return false;
     }
 
@@ -121,7 +121,7 @@ bool CustomShortCutManager::remove(const std::string &uid, CCErrorCode &error_co
 
     if (!this->keyfile_.has_group(uid))
     {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_2;
+        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST;
         return false;
     }
     auto old_key_comb = this->keyfile_.get_value(uid, CUSTOM_KEYFILE_KEYCOMB);

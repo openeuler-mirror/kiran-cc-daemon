@@ -286,9 +286,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_INVALID:
         error_desc = _("The custom shortcut is invalid.");
         break;
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_1:
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_2:
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST_3:
+    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST:
         error_desc = _("The custom shortcut isn't exist.");
         break;
     case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_ALREADY_EXIST:
@@ -408,6 +406,9 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
     case CCErrorCode::ERROR_NETWORK_PROXY_SET_MANUAL_PROXY_FAILED:
     case CCErrorCode::ERROR_NETWORK_PROXY_GET_MANUAL_PROXY_FAILED:
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_GET_FAILED:
+    case CCErrorCode::ERROR_JSON_READ_EXCEPTION:
+    case CCErrorCode::ERROR_JSON_WRITE_EXCEPTION:
+    case CCErrorCode::ERROR_JSON_RW_EXCEPTION:
         error_desc = _("Internel error.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:
