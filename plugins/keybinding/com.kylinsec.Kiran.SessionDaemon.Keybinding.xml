@@ -52,8 +52,8 @@
         </method>
 
         <method name="ListCustomShortcuts">
-            <arg type="a(ssss)" name="shortcuts" direction="out">
-                <summary>The struct in array contains uid, name, action and key_combination.</summary>
+            <arg type="s" name="shortcuts" direction="out">
+                <summary>The shortcuts is a json string which is a list that contains uid, name, action and key_combination. the json key refers to keybinding-i.h</summary>
             </arg>
             <description>List custom shortcuts.</description>
         </method>
@@ -72,22 +72,25 @@
             <arg type="s" name="uid" direction="in">
                 <summary>The unique ID to identify the shortcut.</summary>
             </arg>
-            <arg type="(ssss)" name="shortcut" direction="out">
-                <summary>The struct contains uid, kind, name and key_combination.</summary>
+            <arg type="s" name="shortcut" direction="out">
+                <summary>The shortcut is a json string that contains uid, name, kind and key_combination. the json key refers to keybinding-i.h.</summary>
             </arg>
             <description>Get system shortcut.</description>
         </method>
 
         <method name="ListSystemShortcuts">
-            <arg type="a(ssss)" name="shortcuts" direction="out">
-                <summary>The struct in array contains uid, kind, name and key_combination.</summary>
+            <arg type="s" name="shortcuts" direction="out">
+                <summary>The shortcuts is a json string which is a list that contains uid, name, kind and key_combination. the json key refers to keybinding-i.h.</summary>
             </arg>
             <description>List system shortcuts.</description>
         </method>
 
         <method name="ListShortcuts">
-            <arg type="a(ssss)" name="shortcuts" direction="out">
-                <summary>The struct in array contains uid, kind, name and key_combination.</summary>
+            <arg type="s" name="shortcuts" direction="out">
+                <summary>The shortcuts is a json string list custom and system info, 
+                the custom that contains uid, name, action and key_combination, 
+                the system that contains uid, name, kind and key_combination. 
+                the json key refers to keybinding-i.h.</summary>
             </arg>
             <description>List all shortcuts that contain custom shortcuts and system shortcuts.</description>
         </method>
