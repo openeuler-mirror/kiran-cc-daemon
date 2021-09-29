@@ -54,8 +54,13 @@ void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
     }
     else
     {
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        std::string signal_val = StrUtils::json2str(values);
+
         invocation.ret(uid);
-        this->Added_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
+        this->Added_signal.emit(Glib::ustring(signal_val));
     }
 }
 
@@ -74,8 +79,13 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
     }
     else
     {
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        std::string signal_val = StrUtils::json2str(values);
+
         invocation.ret();
-        this->Changed_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
+        this->Changed_signal.emit(Glib::ustring(signal_val));
     }
 }
 
@@ -89,8 +99,13 @@ void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInv
     }
     else
     {
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        std::string signal_val = StrUtils::json2str(values);
+
         invocation.ret();
-        this->Deleted_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
+        this->Deleted_signal.emit(Glib::ustring(signal_val));
     }
 }
 
@@ -292,7 +307,12 @@ void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> 
 {
     if (system_shortcut)
     {
-        this->Changed_signal.emit(std::make_tuple(system_shortcut->uid, system_shortcut->kind));
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
+        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
+        std::string signal_val = StrUtils::json2str(values);
+
+        this->Changed_signal.emit(Glib::ustring(signal_val));
     }
 }
 

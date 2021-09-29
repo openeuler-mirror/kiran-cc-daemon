@@ -96,20 +96,20 @@
         </method>
 
         <signal name="Added">
-            <arg type="(ss)" name="result">
-                <summary>The struct contains uid and kind.</summary>
+            <arg type="s" name="result">
+                <summary>The struct is a json string which contains uid and kind.</summary>
             </arg>
         </signal>
 
         <signal name="Deleted">
-            <arg type="(ss)" name="result">
-                <summary>The struct contains uid and kind.</summary>
+            <arg type="s" name="result">
+                <summary>The struct is a json string which contains uid and kind.</summary>
             </arg>
         </signal>
 
         <signal name="Changed">
-            <arg type="(ss)" name="result">
-                <summary>The struct contains uid and kind.</summary>
+            <arg type="s" name="result">
+                <summary>The struct is a json string which contains uid and kind.</summary>
             </arg>
         </signal>
 
