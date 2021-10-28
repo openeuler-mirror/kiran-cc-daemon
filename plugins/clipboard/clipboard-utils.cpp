@@ -17,6 +17,8 @@
 #include "clipboard-i.h"
 #include "plugins/clipboard/clipboard-utils.h"
 
+namespace Kiran
+{
 Atom XA_NULL;
 Atom XA_TARGETS;
 Atom XA_TIMESTAMP;
@@ -33,7 +35,7 @@ Atom XA_CLIPBOARD;
 
 unsigned long SELECTION_MAX_SIZE = 0;
 
-void init_atoms(Display *display)
+void ClipboardUtils::init_atoms(Display *display)
 {
     XA_NULL = XInternAtom(display, CLIPBOARD_ATOM_STR_NULL, False);
     XA_TARGETS = XInternAtom(display, CLIPBOARD_ATOM_STR_TARGETS, False);
@@ -49,9 +51,12 @@ void init_atoms(Display *display)
     XA_MANAGER = XInternAtom(display, CLIPBOARD_ATOM_STR_MANAGER, False);
     XA_CLIPBOARD_MANAGER = XInternAtom(display, CLIPBOARD_ATOM_STR_CLIPBOARD_MANAGER, False);
     XA_CLIPBOARD = XInternAtom(display, CLIPBOARD_ATOM_STR_CLIPBOARD, False);
+
+    KLOG_DEBUG("TARGETS: %lu, INCR: %lu, MULTIPLE: %lu, SAVE_TARGETS: %lu.",
+               XA_TARGETS, XA_INCR, XA_MULTIPLE, XA_SAVE_TARGETS);
 }
 
-void init_selection_max_size(Display *display)
+void ClipboardUtils::init_selection_max_size(Display *display)
 {
     if (SELECTION_MAX_SIZE > 0)
         return;
@@ -67,7 +72,7 @@ void init_selection_max_size(Display *display)
         SELECTION_MAX_SIZE = 262144;
 }
 
-bool is_valid_target_in_save_targets(Atom target)
+bool ClipboardUtils::is_valid_target_in_save_targets(Atom target)
 {
     if (target == XA_TARGETS ||
         target == XA_MULTIPLE ||
@@ -82,7 +87,7 @@ bool is_valid_target_in_save_targets(Atom target)
     return true;
 }
 
-int bytes_per_item(int format)
+int ClipboardUtils::bytes_per_item(int format)
 {
     switch (format)
     {
@@ -114,8 +119,8 @@ timestamp_predicate(Display *display,
     return False;
 }
 
-Time get_server_time(Display *display,
-                     Window window)
+Time ClipboardUtils::get_server_time(Display *display,
+                                     Window window)
 {
     unsigned char c = 'a';
     XEvent xevent;
@@ -134,31 +139,101 @@ Time get_server_time(Display *display,
     return xevent.xproperty.time;
 }
 
-bool get_window_property_return_struct(Display *display,
-                                       Window window,
-                                       Atom property,
-                                       Bool is_delete,
-                                       Atom req_type,
-                                       WindowPropRetStruct *prop_ret)
+void ClipboardUtils::change_window_filter(Window window,
+                                          FilterChangeType type,
+                                          GdkFilterFunc filter_func,
+                                          void *filter_user)
 {
-    int retsult = XGetWindowProperty(display,
-                                     window,
-                                     property,
-                                     0, 0x1FFFFFFF, is_delete, req_type,
-                                     &prop_ret->type, &prop_ret->format, &prop_ret->nitems, &prop_ret->remaining,
-                                     (unsigned char **)&prop_ret->data);
+    GdkDisplay *gdkdisplay = gdk_display_get_default();
+    GdkWindow *gdkwin = gdk_x11_window_lookup_for_display(gdkdisplay, window);
 
-    if (retsult != Success)
+    switch (type)
     {
-        if (prop_ret->data)
+    case FILTER_CHANGE_ADD:
+    {
+        if (gdkwin == NULL)
         {
-            XFree(prop_ret->data);
+            gdkwin = gdk_x11_window_foreign_new_for_display(gdkdisplay, window);
+        }
+        else
+        {
+            g_object_ref(gdkwin);
         }
 
-        KLOG_WARNING("Failed window: %lu, property: %s.", window, XGetAtomName(display, property));
+        gdk_window_add_filter(gdkwin,
+                              filter_func,
+                              filter_user);
+    }
+    break;
+    case FILTER_CHANGE_REMOVE:
+    {
+        if (gdkwin == NULL)
+        {
+            return;
+        }
+        gdk_window_remove_filter(gdkwin,
+                                 filter_func,
+                                 filter_user);
+
+        g_object_unref(gdkwin);
+    }
+    break;
+    default:
+        break;
+    }
+}
+
+void ClipboardUtils::response_selection_request(Display *display, XEvent *xev, bool success)
+{
+    KLOG_DEBUG("requestor: %u, success: %d.", xev->xselectionrequest.requestor, success);
+
+    XSelectionEvent notify;
+
+    notify.type = SelectionNotify;
+    notify.serial = 0;
+    notify.send_event = True;
+    notify.display = xev->xselectionrequest.display;
+    notify.requestor = xev->xselectionrequest.requestor;
+    notify.selection = xev->xselectionrequest.selection;
+    notify.target = xev->xselectionrequest.target;
+    notify.property = success ? xev->xselectionrequest.property : None;
+    notify.time = xev->xselectionrequest.time;
+
+    GdkDisplay *gdkdisplay = gdk_display_get_default();
+    gdk_x11_display_error_trap_push(gdkdisplay);
+
+    XSendEvent(notify.display,
+               notify.requestor,
+               False,
+               NoEventMask,
+               (XEvent *)&notify);
+    XSync(display, False);
+
+    gdk_x11_display_error_trap_pop_ignored(gdkdisplay);
+}
+
+bool ClipboardUtils::get_window_property_group(Display *display,
+                                               Window window,
+                                               Atom property,
+                                               Bool is_delete,
+                                               Atom req_type,
+                                               WindowPropertyGroup *prop_group)
+{
+    int result = XGetWindowProperty(display,
+                                    window,
+                                    property,
+                                    0, 0x1FFFFFFF, is_delete, req_type,
+                                    &prop_group->type, &prop_group->format, &prop_group->nitems, &prop_group->remaining,
+                                    (unsigned char **)&prop_group->data);
+
+    if (result != Success)
+    {
+        KLOG_WARNING("Failed window: %lu, property: <%lu, %s>.", window, property, XGetAtomName(display, property));
         return false;
     }
 
-    KLOG_DEBUG("Success window: %lu, property: %s.", window, XGetAtomName(display, property));
+    KLOG_DEBUG("Success window: %lu, property: <%lu, %s>.", window, property, XGetAtomName(display, property));
     return true;
 }
+
+}  // namespace Kiran
