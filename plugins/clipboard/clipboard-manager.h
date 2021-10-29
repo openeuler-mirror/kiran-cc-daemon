@@ -16,36 +16,33 @@
 
 #include "lib/base/base.h"
 
-#include <X11/Xatom.h>
 #include <gdk/gdkx.h>
-#include <list>
+#include "plugins/clipboard/clipboard-data.h"
 #include "plugins/clipboard/clipboard-utils.h"
+#include "plugins/clipboard/clipboard.h"
+
+class ClipboardSave;
+class ClipboardSend;
 
 namespace Kiran
 {
 /**
- * 窗口事件筛选项变更
+ * 剪切板管理类 
+ * 包含目标为SAVE_TARGETS的事件处理机制,存储窗口数据到管理服务中
+ * 监听display相关窗口事件，并响应窗口请求
  */
-enum FilterChangeType
-{
-    FILTER_CHANGE_ADD = 0,
-    FILTER_CHANGE_REMOVE = 1
-};
-
 class ClipboardManager
 {
 public:
     ClipboardManager();
-    ~ClipboardManager(){};
+    ~ClipboardManager();
 
-public:
-    static ClipboardManager *get_instance() { return instance_; };
+    static ClipboardManager *get_instance() { return instance_; }
 
     static void global_init();
 
     static void global_deinit();
 
-private:
     static GdkFilterReturn event_filter(GdkXEvent *xevent,
                                         GdkEvent *event,
                                         ClipboardManager *manager);
@@ -55,79 +52,58 @@ private:
 
     void deinit();
 
-    // 清空存储内容
-    void clear_contents();
+    // 清理剪切板存储请求者窗口
+    void clear_requestor();
 
-    // 清空转换数据
-    void clear_conversions();
+    // 清理剪切板所有者
+    void clear_clipboard_owner();
 
-    // 发送客户端消息事件
-    void send_client_message();
-
-    // 保存目标数据内容
-    void save_target_data(TargetData *tdata);
-
-    // 转换剪切板目标数据
-    void convert_clipboard_target(IncrConversion *rdata);
-
-    // 收集转换数据
-    void collect_incremental(IncrConversion *rdata);
-
-    // 更改窗口事件筛选
-    void change_window_filter(Window window, FilterChangeType type);
-
-    // 处理事件
+    // 处理通信各类事件
     bool process_event(XEvent *xev);
 
-    // 处理selection为剪切板管理的SelectionRequest事件
-    void process_selectionrequestor_clipboard_manager(XEvent *xev);
+    // 剪切板管理服务启动后 发送ClientMessage消息
+    void send_client_message();
 
-    // 处理selection为剪切板的SelectionRequest事件
-    void process_selectionrequestor_clipboard(XEvent *xev);
+    // 处理 Selection 为 CLIPBOARD_MANAGER 相关的 SelectionRequest 消息
+    void selection_request_clipboard_manager(XEvent *xev);
 
-    // 处理selection为剪切板的SelectionNotify事件
-    void process_selectionnotify_clipboard(XEvent *xev);
-
-    // 保存所有目标条目
-    void save_targets(Atom *targets, unsigned long nitems);
-
-    // 接收增量数据
-    bool receive_incrementally(XEvent *xev);
-
-    // 发送增量数据
-    bool send_incrementally(XEvent *xev);
-
-    // 响应管理服务保存目标事件请求
-    void response_manager_save_targets(bool success);
-
-    // 响应Selection请求
-    void response_selection_request(XEvent *xev, bool success);
-
-    // 处理保存目标数据的Selection请求
+    // 处理 Target 为 SAVE_TARGETS 相关的 SelectionRequest 消息
     void selection_request_save_targets(XEvent *xev);
 
-    // 处理多类目标的Selection通知
-    void selection_notify_clipboard_multiple(XEvent *xev);
+    // 保存target列表数据
+    void save_targets(Atom *targets, unsigned long nitems);
 
-    // 处理多重目标的Selection请求
-    void selection_request_clipboard_multiple(XEvent *xev);
+    // 处理 SelectionNotify 消息
+    void selection_notify(XEvent *xev);
 
-    // 处理单个目标的Selection请求
-    void selection_request_clipboard_single(XEvent *xev);
+    // 保存多类target窗口属性数据
+    void save_multiple_property(XEvent *xev);
+
+    // 响应 Selection：CLIPBOARD_MANAGER 并且Target：SAVE_TARGETS的消息
+    void response_manager_save_targets(bool success);
+
+    // 接收剪切板增量更新的数据内容
+    bool receive_incrementally(XEvent *xev);
 
 private:
     static ClipboardManager *instance_;
 
     Display *display_;
+    // 剪切板窗口
     Window window_;
+    // 剪切板管理服务事件戳
     Time timestamp_;
 
+    // 剪切板存储请求者窗口
     Window requestor_;
+    // 请求者属性
     Atom property_;
+    // 请求者时间
     Time time_;
 
-    std::list<TargetData *> contents_;
-    std::list<IncrConversion *> conversions_;
+    // 剪切板数据管理类
+    ClipboardData clipboard_data_;
+    // 剪切板内容
+    Clipboard clipboard_;
 };
-
 }  // namespace Kiran

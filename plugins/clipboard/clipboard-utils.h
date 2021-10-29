@@ -20,6 +20,8 @@
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 
+namespace Kiran
+{
 extern Atom XA_NULL;
 extern Atom XA_SAVE_TARGETS;
 extern Atom XA_TARGETS;
@@ -37,63 +39,18 @@ extern Atom XA_CLIPBOARD;
 extern unsigned long SELECTION_MAX_SIZE;
 
 /**
- * 目标类型数据存储结构
+ * 窗口事件筛选项变更
  */
-struct TargetData
+enum FilterChangeType
 {
-    Atom target;
-    Atom type;
-    int format;
-    unsigned long length;
-    unsigned char *data;
-
-    TargetData()
-    {
-        target = None;
-        type = None;
-        format = 0;
-        length = 0;
-        data = NULL;
-    }
-
-    ~TargetData()
-    {
-        // 销毁时释放内部数据
-        if (data)
-        {
-            delete data;
-            data = NULL;
-        }
-    }
+    FILTER_CHANGE_ADD = 0,
+    FILTER_CHANGE_REMOVE = 1
 };
 
 /**
- * 转换类型数据存储结构
+ * 窗口属性组结构
  */
-struct IncrConversion
-{
-    Window requestor;
-    Atom target;
-    Atom property;
-    // 数据偏移 为-1时表示非增量数据类型; 为>=0时表示增量INCR数据类型
-    int offset;
-    // 目标数据这里仅使用变量，数据内存由外部申请并由外部释放
-    TargetData *data;
-
-    IncrConversion()
-    {
-        requestor = None;
-        target = None;
-        property = None;
-        offset = -1;
-        data = NULL;
-    }
-};
-
-/**
- * 窗口类型数据
- */
-struct WindowPropRetStruct
+struct WindowPropertyGroup
 {
     Atom type;
     int format;
@@ -101,13 +58,22 @@ struct WindowPropRetStruct
     unsigned long remaining;
     unsigned char *data;
 
-    WindowPropRetStruct()
+    WindowPropertyGroup()
     {
         type = None;
         format = 0;
         nitems = 0;
         remaining = 0;
-        data = NULL;
+        data = nullptr;
+    }
+
+    ~WindowPropertyGroup()
+    {
+        if (data)
+        {
+            XFree(data);
+            data = nullptr;
+        }
     }
 };
 
@@ -120,97 +86,54 @@ typedef struct
     Atom timestamp_prop_atom;
 } TimeStampInfo;
 
-/**
- * 查找存储内容目标
- */
-class FindContentTarget
+class ClipboardUtils
 {
 public:
-    FindContentTarget(Atom target) : target_(target) {}
+    ClipboardUtils() {}
+    ~ClipboardUtils() {}
 
-    bool operator()(TargetData *targetdata)
-    {
-        if (targetdata->target == target_)
-        {
-            return true;
-        }
+    // 初始化Atoms
+    static void init_atoms(Display *display);
 
-        return false;
-    }
+    // 初始化selection允许最大数据长度SELECTION_MAX_SIZE
+    static void init_selection_max_size(Display *display);
 
-private:
-    Atom target_;
+    // 每个条目数据格式字节数
+    static int bytes_per_item(int format);
+
+    // 判断当前目标是否有效
+    static bool is_valid_target_in_save_targets(Atom target);
+
+    // 获取服务器当前时间
+    static Time get_server_time(Display *display, Window window);
+
+    // 更改窗口消息筛选器
+    static void change_window_filter(Window window,
+                                     FilterChangeType type,
+                                     GdkFilterFunc filter_func,
+                                     void *user_data);
+
+    // 响应SelectionRequest发送SelectionNotify
+    static void response_selection_request(Display *display,
+                                           XEvent *xev,
+                                           bool success);
+
+    /**
+     * @brief 获取窗口属性参数
+     * @param[in] {display}
+     * @param[in] {window} 窗口
+     * @param[in] {property} 属性
+     * @param[in] {is_delete} 删除标识
+     * @param[in] {req_type} 请求类型
+     * @param[out] {prop_group} 窗口属性组结构
+     * @return 如果获取成功则返回true，否则返回false。
+    */
+    static bool get_window_property_group(Display *display,
+                                          Window window,
+                                          Atom property,
+                                          Bool is_delete,
+                                          Atom req_type,
+                                          WindowPropertyGroup *prop_group);
 };
 
-/**
- * 查找存储内容类型
- */
-class FindContentType
-{
-public:
-    FindContentType(Atom type) : type_(type) {}
-
-    bool operator()(TargetData *tdata)
-    {
-        if (tdata->type == type_)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-private:
-    Atom type_;
-};
-
-/**
- * 查找转换数据请求窗口
- */
-class FindConversionRequestor
-{
-public:
-    FindConversionRequestor(XEvent *xev) : xev_(xev) {}
-
-    bool operator()(IncrConversion *rdata)
-    {
-        if (rdata->requestor == xev_->xproperty.window &&
-            rdata->property == xev_->xproperty.atom)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-private:
-    XEvent *xev_;
-};
-
-void init_atoms(Display *display);
-
-void init_selection_max_size(Display *display);
-
-int bytes_per_item(int format);
-
-bool is_valid_target_in_save_targets(Atom target);
-
-Time get_server_time(Display *display,
-                     Window window);
-
-/**
- * @brief 获取窗口属性参数
- * @param[in] {display} 
- * @param[in] {window} 窗口
- * @param[in] {property} 属性
- * @param[in] {is_delete} 删除标识
- * @param[in] {req_type} 请求类型
- * @param[out] {prop_ret} 窗口属性结构
- * @return 如果获取成功则返回true，否则返回false。
- */
-bool get_window_property_return_struct(Display *display,
-                                       Window window,
-                                       Atom property,
-                                       Bool is_delete,
-                                       Atom req_type,
-                                       WindowPropRetStruct *prop_ret);
+}  // namespace Kiran
