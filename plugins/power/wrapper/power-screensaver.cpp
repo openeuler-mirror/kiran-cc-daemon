@@ -16,9 +16,9 @@
 
 namespace Kiran
 {
-#define SCREENSAVER_DBUS_NAME "org.mate.ScreenSaver"
-#define SCREENSAVER_DBUS_OBJECT_PATH "/org/mate/ScreenSaver"
-#define SCREENSAVER_DBUS_INTERFACE "org.mate.ScreenSaver"
+#define SCREENSAVER_DBUS_NAME "com.kylinsec.Kiran.ScreenSaver"
+#define SCREENSAVER_DBUS_OBJECT_PATH "/com/kylinsec/Kiran/ScreenSaver"
+#define SCREENSAVER_DBUS_INTERFACE "com.kylinsec.Kiran.ScreenSaver"
 
 // 屏保锁屏后，检查锁屏状态的最大次数
 #define SCREENSAVER_LOCK_CHECK_MAX_COUNT 50
