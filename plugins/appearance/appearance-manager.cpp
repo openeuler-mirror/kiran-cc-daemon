@@ -175,6 +175,7 @@ void AppearanceManager::init()
     this->load_from_settings();
 
     this->appearance_theme_.signal_theme_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_theme_changed_cb));
+    this->appearance_font_.signal_font_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_font_chnaged_cb));
     this->appearance_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_settings_changed_cb));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
@@ -199,6 +200,13 @@ void AppearanceManager::on_theme_changed_cb(ThemeKey theme_key)
     KLOG_PROFILE("type: %d, theme name: %s.", theme_key.first, theme_key.second.c_str());
 
     this->ThemeChanged_signal.emit(theme_key.first, theme_key.second);
+}
+
+void AppearanceManager::on_font_chnaged_cb(AppearanceFontType type, const std::string& font)
+{
+    KLOG_PROFILE("type: %d, font: %s.", int32_t(type), font.c_str());
+
+    this->FontChanged_signal.emit(int32_t(type), font);
 }
 
 void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)

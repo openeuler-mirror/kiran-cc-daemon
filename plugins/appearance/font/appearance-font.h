@@ -30,10 +30,18 @@ public:
     std::string get_font(AppearanceFontType type);
     bool set_font(AppearanceFontType type, const std::string& font);
 
+    // 字体变化信号
+    sigc::signal<void, AppearanceFontType, const std::string&> signal_font_changed() { return this->font_changed_; };
+
+private:
+    void on_font_changed_cb(const Glib::ustring& key);
+
 private:
     Glib::RefPtr<Gio::Settings> xsettings_settings_;
     Glib::RefPtr<Gio::Settings> interface_settings_;
     Glib::RefPtr<Gio::Settings> marco_settings_;
     Glib::RefPtr<Gio::Settings> caja_settings_;
+
+    sigc::signal<void, AppearanceFontType, const std::string&> font_changed_;
 };
 }  // namespace  Kiran
