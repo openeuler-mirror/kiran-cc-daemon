@@ -139,13 +139,13 @@ bool AppearanceManager::desktop_background_setHandler(const Glib::ustring& value
     KLOG_PROFILE("value: %s.", value.c_str());
 
     RETURN_VAL_IF_TRUE(value == this->desktop_background_, false);
+    this->desktop_background_ = value;
 
     if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG) != value)
     {
         this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, value);
     }
 
-    this->desktop_background_ = value;
     this->appearance_background_.set_background(this->desktop_background_);
 
     return true;
@@ -156,13 +156,13 @@ bool AppearanceManager::lock_screen_background_setHandler(const Glib::ustring& v
     KLOG_PROFILE("value: %s.", value.c_str());
 
     RETURN_VAL_IF_TRUE(value == this->lock_screen_background_, false);
+    this->lock_screen_background_ = value;
 
     if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG) != value)
     {
         this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, value);
     }
 
-    this->lock_screen_background_ = value;
     return true;
 }
 
