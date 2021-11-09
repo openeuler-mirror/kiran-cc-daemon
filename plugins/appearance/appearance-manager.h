@@ -67,6 +67,7 @@ private:
     void load_from_settings();
 
     void on_theme_changed_cb(ThemeKey theme_key);
+    void on_font_chnaged_cb(AppearanceFontType type, const std::string& font);
     void on_settings_changed_cb(const Glib::ustring& key);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
