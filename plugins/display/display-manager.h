@@ -120,7 +120,7 @@ private:
     void resources_changed();
 
     void display_settings_changed(const Glib::ustring& key);
-    void interface_settings_changed(const Glib::ustring& key);
+    void xsettings_settings_changed(const Glib::ustring& key);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
@@ -136,7 +136,7 @@ private:
     std::unique_ptr<DisplayConfigInfo> display_config_;
 
     Glib::RefPtr<Gio::Settings> display_settings_;
-    Glib::RefPtr<Gio::Settings> interface_settings_;
+    Glib::RefPtr<Gio::Settings> xsettings_settings_;
     DisplayStyle default_style_;
     // 主显示器名字
     std::string primary_;
