@@ -19,14 +19,12 @@
 #include "config.h"
 #include "lib/base/base.h"
 #include "plugins/display/display-util.h"
+#include "xsettings-i.h"
 
 namespace Kiran
 {
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_STYLE "display-style"
-
-#define INTERFACE_SCHEMA_ID "org.mate.interface"
-#define INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR "window-scaling-factor"
 
 #define DISPLAY_CONF_DIR "kylinsec/" PROJECT_NAME "/display"
 #define DISPLAY_FILE_NAME "display.xml"
@@ -44,7 +42,7 @@ DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(
                                                    DISPLAY_FILE_NAME);
 
     this->display_settings_ = Gio::Settings::create(DISPLAY_SCHEMA_ID);
-    this->interface_settings_ = Gio::Settings::create(INTERFACE_SCHEMA_ID);
+    this->xsettings_settings_ = Gio::Settings::create(XSETTINGS_SCHEMA_ID);
 }
 
 DisplayManager::~DisplayManager()
@@ -224,7 +222,7 @@ void DisplayManager::init()
     this->load_config();
 
     this->display_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::display_settings_changed));
-    this->interface_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::interface_settings_changed));
+    this->xsettings_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::xsettings_settings_changed));
     this->xrandr_manager_->signal_resources_changed().connect(sigc::mem_fun(this, &DisplayManager::resources_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
@@ -249,9 +247,9 @@ void DisplayManager::load_settings()
         this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE));
     }
 
-    if (this->interface_settings_)
+    if (this->xsettings_settings_)
     {
-        this->window_scaling_factor_ = this->interface_settings_->get_int(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR);
+        this->window_scaling_factor_ = this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR);
     }
 }
 
@@ -510,7 +508,7 @@ bool DisplayManager::apply(CCErrorCode &error_code)
 {
     // 应用缩放因子
     auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
-    if (!this->interface_settings_->set_value(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
+    if (!this->xsettings_settings_->set_value(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
     {
         error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
         return false;
@@ -818,15 +816,15 @@ void DisplayManager::display_settings_changed(const Glib::ustring &key)
     }
 }
 
-void DisplayManager::interface_settings_changed(const Glib::ustring &key)
+void DisplayManager::xsettings_settings_changed(const Glib::ustring &key)
 {
     KLOG_PROFILE("key: %s.", key.c_str());
 
     switch (shash(key.c_str()))
     {
-    case CONNECT(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
     {
-        this->window_scaling_factor_ = this->interface_settings_->get_int(key);
+        this->window_scaling_factor_ = this->xsettings_settings_->get_int(key);
     }
     break;
     }
