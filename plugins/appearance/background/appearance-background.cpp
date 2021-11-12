@@ -41,7 +41,7 @@ void AppearanceBackground::init()
        mate是通过判断前后两次屏幕大小变化来决定是否重新绘制背景，没有说明这样做的原因，但这样做的话当显示器位置变化时显然不会对背景进行重绘，
        这和只监控size-changed信号区别不大。*/
     screen->signal_size_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
-    // screen->signal_monitors_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
+    screen->signal_monitors_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
 }
 
 void AppearanceBackground::set_background(const std::string &path)
@@ -55,6 +55,18 @@ void AppearanceBackground::set_background(const std::string &path)
     this->mate_background_settings_->set_string(MATE_BACKGROUND_SCHAME_KEY_PICTURE_FILENAME, path);
 
     this->draw_background();
+}
+
+void AppearanceBackground::delay_draw_background()
+{
+    if (!this->delay_hander_)
+    {
+        auto idle = Glib::MainContext::get_default()->signal_idle();
+        this->delay_hander_ = idle.connect([this]() -> bool {
+            this->draw_background();
+            return false;
+        });
+    }
 }
 
 void AppearanceBackground::draw_background()
@@ -239,7 +251,7 @@ Glib::RefPtr<Gdk::Pixbuf> AppearanceBackground::get_pixbuf_by_file(const std::st
     auto cache_pixbuf = this->background_cache_.get_pixbuf(file_name, width, height);
     RETURN_VAL_IF_TRUE(cache_pixbuf, cache_pixbuf);
 
-    auto pixbuf_format = Glib::wrap(gdk_pixbuf_get_file_info(file_name.c_str(), NULL, NULL));
+    auto pixbuf_format = Glib::wrap(gdk_pixbuf_get_file_info(file_name.c_str(), NULL, NULL), true);
     std::string format_name;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 
@@ -473,7 +485,7 @@ void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustri
     switch (shash(key.c_str()))
     {
     case CONNECT(MATE_BACKGROUND_SCHAME_KEY_SHOW_DESKTOP_ICONS, _hash):
-        this->draw_background();
+        this->delay_draw_background();
         break;
     default:
         break;
@@ -483,6 +495,6 @@ void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustri
 void AppearanceBackground::on_screen_size_changed()
 {
     KLOG_PROFILE("");
-    this->draw_background();
+    this->delay_draw_background();
 }
 }  // namespace Kiran

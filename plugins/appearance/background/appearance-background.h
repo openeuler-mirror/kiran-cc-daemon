@@ -33,6 +33,8 @@ public:
     void set_background(const std::string &path);
 
 private:
+    // 延时绘制背景
+    void delay_draw_background();
     // 画桌面背景
     void draw_background();
 
@@ -66,6 +68,7 @@ private:
     void on_screen_size_changed();
 
 private:
+    sigc::connection delay_hander_;
     std::string desktop_background_;
 
     Glib::RefPtr<Gio::Settings> mate_background_settings_;

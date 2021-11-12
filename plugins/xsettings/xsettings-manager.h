@@ -65,7 +65,7 @@ private:
     void scale_settings();
     void scale_change_workarounds(int32_t scale);
     void on_screen_changed();
-    // bool delayed_toggle_bg_draw(bool value);
+    bool delayed_toggle_bg_draw(bool value);
     void on_fontconfig_timestamp_changed();
 
     void set_registry_var(std::shared_ptr<XSettingsPropertyBase> var, MethodInvocation &invocation);

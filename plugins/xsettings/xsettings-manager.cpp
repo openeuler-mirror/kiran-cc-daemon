@@ -385,28 +385,8 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
     {
         // 延时隐藏/显示桌面图标，给文件管理器一定的时间重绘
         auto timeout = Glib::MainContext::get_default()->signal_timeout();
-        this->switch_desktop_icon_[0] = timeout.connect_seconds([this]() -> bool {
-            KLOG_DEBUG("show-desktop-icons: false.");
-            if (this->background_settings_)
-            {
-                this->background_settings_->set_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, false);
-            }
-            return false;
-        },
-                                                                1);
-        this->switch_desktop_icon_[1] = timeout.connect_seconds([this]() -> bool {
-            KLOG_DEBUG("show-desktop-icons: true.");
-            if (this->background_settings_)
-            {
-                this->background_settings_->set_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, true);
-            }
-            return false;
-        },
-                                                                2);
-
-        // 使用bind相同成员函数的方式会导致第二个定时器不执行：
-        // this->switch_desktop_icon_[0] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), false), 1);
-        // this->switch_desktop_icon_[1] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), true), 2);
+        this->switch_desktop_icon_[0] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), false), 1);
+        this->switch_desktop_icon_[1] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), true), 2);
     }
 }
 
@@ -422,15 +402,15 @@ void XSettingsManager::on_screen_changed()
     this->registry_.notify();
 }
 
-// bool XSettingsManager::delayed_toggle_bg_draw(bool value)
-// {
-//     KLOG_DEBUG("show-desktop-icons: %d.", value);
-//     if (this->background_settings_)
-//     {
-//         this->background_settings_->set_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, value);
-//     }
-//     return false;
-// }
+bool XSettingsManager::delayed_toggle_bg_draw(bool value)
+{
+    KLOG_DEBUG("show-desktop-icons: %d.", value);
+    if (this->background_settings_)
+    {
+        this->background_settings_->set_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, value);
+    }
+    return false;
+}
 
 void XSettingsManager::on_fontconfig_timestamp_changed()
 {
