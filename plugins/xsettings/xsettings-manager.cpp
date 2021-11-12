@@ -346,49 +346,46 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
             }
         }
     }
-    else
+    this->window_scale_ = scale;
+
+    // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
+    // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
+
+    // 重启marco窗口管理器
+    auto wm_name = EWMH::get_instance()->get_wm_name();
+    if (wm_name == WM_COMMON_MARCO)
     {
-        // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
-        // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
+        std::vector<std::string> argv = {"marco", "--replace"};
 
-        // 重启marco窗口管理器
-        auto wm_name = EWMH::get_instance()->get_wm_name();
-        if (wm_name == WM_COMMON_MARCO)
-        {
-            std::vector<std::string> argv = {"marco", "--replace"};
-
-            try
-            {
-                Glib::spawn_async(std::string(), argv, Glib::SPAWN_SEARCH_PATH);
-            }
-            catch (const Glib::Error &e)
-            {
-                KLOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
-            }
-        }
-        // 重启面板
-        std::vector<std::string> argv = {"killall", "mate-panel"};
         try
         {
             Glib::spawn_async(std::string(), argv, Glib::SPAWN_SEARCH_PATH);
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
-        }
-
-        // 重置桌面图标大小
-        if (this->background_settings_ &&
-            this->background_settings_->get_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS))
-        {
-            // 延时隐藏/显示桌面图标，给文件管理器一定的时间重绘
-            auto timeout = Glib::MainContext::get_default()->signal_timeout();
-            timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), false), 1);
-            timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), true), 2);
+            KLOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
         }
     }
+    // 重启面板
+    std::vector<std::string> argv = {"killall", "mate-panel", "kiran-panel"};
+    try
+    {
+        Glib::spawn_async(std::string(), argv, Glib::SPAWN_SEARCH_PATH);
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
+    }
 
-    this->window_scale_ = scale;
+    // 重置桌面图标大小
+    if (this->background_settings_ &&
+        this->background_settings_->get_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS))
+    {
+        // 延时隐藏/显示桌面图标，给文件管理器一定的时间重绘
+        auto timeout = Glib::MainContext::get_default()->signal_timeout();
+        timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), false), 1);
+        timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), true), 2);
+    }
 }
 
 void XSettingsManager::on_screen_changed()
@@ -405,6 +402,7 @@ void XSettingsManager::on_screen_changed()
 
 bool XSettingsManager::delayed_toggle_bg_draw(bool value)
 {
+    KLOG_DEBUG("show-desktop-icons: %d.", value);
     if (this->background_settings_)
     {
         this->background_settings_->set_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, value);
