@@ -42,12 +42,10 @@ void XSettingsPlugin::activate()
     auto schemas = Gio::Settings::list_schemas();
     if (std::find(schemas.begin(), schemas.end(), MATE_XSETTINGS_SCHEMA_ID) != schemas.end())
     {
-        auto mate_xrandr = Gio::Settings::create(MATE_XSETTINGS_SCHEMA_ID);
-        if (mate_xrandr->get_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE))
+        auto mate_xsettings = Gio::Settings::create(MATE_XSETTINGS_SCHEMA_ID);
+        if (mate_xsettings->get_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE))
         {
-            mate_xrandr->set_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE, false);
-            // 停顿0.1秒让mate关闭插件
-            usleep(100000);
+            mate_xsettings->set_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE, false);
         }
     }
 
@@ -57,6 +55,17 @@ void XSettingsPlugin::activate()
 void XSettingsPlugin::deactivate()
 {
     KLOG_PROFILE("deactive xsettings plugin.");
+
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MATE_XSETTINGS_SCHEMA_ID) != schemas.end())
+    {
+        auto mate_xsettings = Gio::Settings::create(MATE_XSETTINGS_SCHEMA_ID);
+        if (!mate_xsettings->get_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE))
+        {
+            mate_xsettings->set_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE, true);
+        }
+    }
+
     XSettingsManager::global_deinit();
 }
 }  // namespace Kiran

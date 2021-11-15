@@ -42,10 +42,10 @@ void MousePlugin::activate()
     auto schemas = Gio::Settings::list_schemas();
     if (std::find(schemas.begin(), schemas.end(), MATE_MOUSE_SCHEMA_ID) != schemas.end())
     {
-        auto mate_xrandr = Gio::Settings::create(MATE_MOUSE_SCHEMA_ID);
-        if (mate_xrandr->get_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE))
+        auto mate_mouse = Gio::Settings::create(MATE_MOUSE_SCHEMA_ID);
+        if (mate_mouse->get_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE))
         {
-            mate_xrandr->set_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE, false);
+            mate_mouse->set_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE, false);
         }
     }
     MouseManager::global_init();
@@ -54,6 +54,17 @@ void MousePlugin::activate()
 void MousePlugin::deactivate()
 {
     KLOG_PROFILE("deactive mouse plugin.");
+
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MATE_MOUSE_SCHEMA_ID) != schemas.end())
+    {
+        auto mate_mouse = Gio::Settings::create(MATE_MOUSE_SCHEMA_ID);
+        if (!mate_mouse->get_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE))
+        {
+            mate_mouse->set_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE, true);
+        }
+    }
+
     MouseManager::global_deinit();
 }
 }  // namespace Kiran

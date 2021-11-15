@@ -43,6 +43,8 @@ SettingsManager::~SettingsManager()
     {
         Gio::DBus::unown_name(this->dbus_connect_id_);
     }
+
+    this->deactivate_plugins();
 }
 
 SettingsManager* SettingsManager::instance_ = nullptr;
@@ -60,6 +62,22 @@ std::shared_ptr<PluginHelper> SettingsManager::lookup_plugin(const std::string& 
         return iter->second;
     }
     return nullptr;
+}
+
+void SettingsManager::deactivate_plugins()
+{
+    for (auto& iter : this->plugins_)
+    {
+        CONTINUE_IF_TRUE(!iter.second->activate());
+
+        CCErrorCode error_code = CCErrorCode::SUCCESS;
+        iter.second->deactivate_plugin(error_code);
+
+        if (error_code != CCErrorCode::SUCCESS)
+        {
+            KLOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
+        }
+    }
 }
 
 void SettingsManager::GetPlugins(MethodInvocation& invocation)

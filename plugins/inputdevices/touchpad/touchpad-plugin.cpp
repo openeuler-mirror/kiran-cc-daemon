@@ -42,10 +42,10 @@ void TouchPadPlugin::activate()
     auto schemas = Gio::Settings::list_schemas();
     if (std::find(schemas.begin(), schemas.end(), MATE_MOUSE_SCHEMA_ID) != schemas.end())
     {
-        auto mate_xrandr = Gio::Settings::create(MATE_MOUSE_SCHEMA_ID);
-        if (mate_xrandr->get_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE))
+        auto mate_touchpad = Gio::Settings::create(MATE_MOUSE_SCHEMA_ID);
+        if (mate_touchpad->get_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE))
         {
-            mate_xrandr->set_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE, false);
+            mate_touchpad->set_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE, false);
         }
     }
 
@@ -55,6 +55,17 @@ void TouchPadPlugin::activate()
 void TouchPadPlugin::deactivate()
 {
     KLOG_PROFILE("deactive touchpad plugin.");
+
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MATE_MOUSE_SCHEMA_ID) != schemas.end())
+    {
+        auto mate_touchpad = Gio::Settings::create(MATE_MOUSE_SCHEMA_ID);
+        if (!mate_touchpad->get_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE))
+        {
+            mate_touchpad->set_boolean(MATE_MOUSE_SCHEMA_KEY_ACTIVE, true);
+        }
+    }
+
     TouchPadManager::global_deinit();
 }
 }  // namespace Kiran

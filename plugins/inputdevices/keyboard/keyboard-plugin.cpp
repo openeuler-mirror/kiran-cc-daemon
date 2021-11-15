@@ -21,6 +21,9 @@
 
 PLUGIN_EXPORT_FUNC_DEF(KeyboardPlugin);
 
+#define MATE_KEYBOARD_SCHEMA_ID "org.mate.SettingsDaemon.plugins.keyboard"
+#define MATE_KEYBOARD_SCHEMA_KEY_ACTIVE "active"
+
 namespace Kiran
 {
 KeyboardPlugin::KeyboardPlugin()
@@ -34,12 +37,35 @@ KeyboardPlugin::~KeyboardPlugin()
 void KeyboardPlugin::activate()
 {
     KLOG_PROFILE("active keyboard plugin.");
+
+    // kiran和mate的插件最好不要同时运行，如果开启了kiran的插件，则将mate的插件停用
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MATE_KEYBOARD_SCHEMA_ID) != schemas.end())
+    {
+        auto mate_keyboard = Gio::Settings::create(MATE_KEYBOARD_SCHEMA_ID);
+        if (mate_keyboard->get_boolean(MATE_KEYBOARD_SCHEMA_KEY_ACTIVE))
+        {
+            mate_keyboard->set_boolean(MATE_KEYBOARD_SCHEMA_KEY_ACTIVE, false);
+        }
+    }
+
     KeyboardManager::global_init();
 }
 
 void KeyboardPlugin::deactivate()
 {
     KLOG_PROFILE("deactive keyboard plugin.");
+
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MATE_KEYBOARD_SCHEMA_ID) != schemas.end())
+    {
+        auto mate_keyboard = Gio::Settings::create(MATE_KEYBOARD_SCHEMA_ID);
+        if (!mate_keyboard->get_boolean(MATE_KEYBOARD_SCHEMA_KEY_ACTIVE))
+        {
+            mate_keyboard->set_boolean(MATE_KEYBOARD_SCHEMA_KEY_ACTIVE, true);
+        }
+    }
+
     KeyboardManager::global_deinit();
 }
 }  // namespace Kiran

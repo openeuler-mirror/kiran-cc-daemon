@@ -42,10 +42,10 @@ void DisplayPlugin::activate()
     auto schemas = Gio::Settings::list_schemas();
     if (std::find(schemas.begin(), schemas.end(), MATE_XRANDR_SCHEMA_ID) != schemas.end())
     {
-        auto mate_xrandr = Gio::Settings::create(MATE_XRANDR_SCHEMA_ID);
-        if (mate_xrandr->get_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE))
+        auto mate_display = Gio::Settings::create(MATE_XRANDR_SCHEMA_ID);
+        if (mate_display->get_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE))
         {
-            mate_xrandr->set_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE, false);
+            mate_display->set_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE, false);
         }
     }
 
@@ -56,6 +56,18 @@ void DisplayPlugin::activate()
 void DisplayPlugin::deactivate()
 {
     KLOG_PROFILE("deactive display plugin.");
+
+    // 恢复MATE的插件
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), MATE_XRANDR_SCHEMA_ID) != schemas.end())
+    {
+        auto mate_display = Gio::Settings::create(MATE_XRANDR_SCHEMA_ID);
+        if (!mate_display->get_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE))
+        {
+            mate_display->set_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE, true);
+        }
+    }
+
     DisplayManager::global_deinit();
     XrandrManager::global_deinit();
 }
