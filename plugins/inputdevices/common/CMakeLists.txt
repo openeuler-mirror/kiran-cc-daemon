@@ -5,7 +5,7 @@ set (TARGET_NAME inputdevices-common)
 file(GLOB_RECURSE COMMON_H_FILES ./*.h)
 file(GLOB_RECURSE COMMON_CPP_FILES ./*.cpp)
 
-add_library(${TARGET_NAME} 
+add_library(${TARGET_NAME} STATIC
     ${COMMON_H_FILES}
     ${COMMON_CPP_FILES})
 
