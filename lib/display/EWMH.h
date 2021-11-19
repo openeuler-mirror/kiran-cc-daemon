@@ -41,7 +41,7 @@ public:
     // 获取窗口管理器名字
     std::string get_wm_name();
 
-    sigc::signal<void> signal_wm_window_change() { return this->wm_window_changed_; }
+    sigc::signal<void>& signal_wm_window_change() { return this->wm_window_changed_; }
 
 private:
     void init();
