@@ -34,6 +34,7 @@
 #ifdef KCC_SESSION_TYPE
 static void on_session_end()
 {
+    Kiran::SettingsManager::get_instance()->deactivate_plugins();
     gtk_main_quit();
 }
 #endif
@@ -100,6 +101,13 @@ int main(int argc, char* argv[])
     loop->run();
 #elif defined KCC_SESSION_TYPE
     gtk_main();
+#endif
+
+    Kiran::SettingsManager::global_deinit();
+    Kiran::ISOTranslation::global_deinit();
+    Kiran::AuthManager::global_deinit();
+
+#ifdef KCC_SESSION_TYPE
     Kiran::SessionGuarder::global_deinit();
     Kiran::EWMH::global_deinit();
     notify_uninit();

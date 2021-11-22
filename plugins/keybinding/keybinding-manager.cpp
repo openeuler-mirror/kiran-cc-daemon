@@ -54,8 +54,13 @@ void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
     }
     else
     {
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        std::string signal_val = StrUtils::json2str(values);
+
         invocation.ret(uid);
-        this->Added_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
+        this->Added_signal.emit(Glib::ustring(signal_val));
     }
 }
 
@@ -74,8 +79,13 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
     }
     else
     {
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        std::string signal_val = StrUtils::json2str(values);
+
         invocation.ret();
-        this->Changed_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
+        this->Changed_signal.emit(Glib::ustring(signal_val));
     }
 }
 
@@ -89,8 +99,13 @@ void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInv
     }
     else
     {
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        std::string signal_val = StrUtils::json2str(values);
+
         invocation.ret();
-        this->Deleted_signal.emit(std::make_tuple(uid, std::string(CUSTOM_SHORTCUT_KIND)));
+        this->Deleted_signal.emit(Glib::ustring(signal_val));
     }
 }
 
@@ -98,12 +113,10 @@ void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvoca
 {
     KLOG_PROFILE("");
 
-    Json::Value values;
-    Json::StreamWriterBuilder wbuilder;
-    wbuilder["indentation"] = "";
-
     try
     {
+        Json::Value values;
+
         auto custom_shortcut = CustomShortCutManager::get_instance()->get(uid.raw());
         if (!custom_shortcut)
         {
@@ -127,13 +140,31 @@ void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvoca
 void KeybindingManager::ListCustomShortcuts(MethodInvocation &invocation)
 {
     KLOG_PROFILE("");
-    auto custom_shortcuts = CustomShortCutManager::get_instance()->get();
-    std::vector<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>> result;
-    for (const auto &shortcut : custom_shortcuts)
+
+    try
     {
-        result.push_back(std::make_tuple(shortcut.first, shortcut.second->name, shortcut.second->action, shortcut.second->key_combination));
+        Json::Value root;
+        Json::Value values;
+
+        auto custom_shortcuts = CustomShortCutManager::get_instance()->get();
+        for (const auto &shortcut : custom_shortcuts)
+        {
+            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
+            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
+            values[KEYBINDING_SHORTCUT_JK_ACTION] = shortcut.second->action;
+            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
+
+            root[KEYBINDING_SHORTCUT_JK_CUSTOM].append(values);
+        }
+
+        auto retval = StrUtils::json2str(root);
+        invocation.ret(retval);
     }
-    invocation.ret(result);
+    catch (const std::exception &e)
+    {
+        KLOG_WARNING("%s.", e.what());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
+    }
 }
 
 void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
@@ -152,42 +183,103 @@ void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
 
 void KeybindingManager::GetSystemShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
-    auto system_shortcut = this->system_shorcut_manager_->get(uid);
-    if (!system_shortcut)
+    KLOG_PROFILE("");
+
+    try
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST_2);
+        Json::Value values;
+
+        auto system_shortcut = this->system_shorcut_manager_->get(uid);
+        if (!system_shortcut)
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST_1);
+        }
+
+        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
+        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
+        values[KEYBINDING_SHORTCUT_JK_NAME] = system_shortcut->name;
+        values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = system_shortcut->key_combination;
+
+        auto retval = StrUtils::json2str(values);
+        invocation.ret(retval);
     }
-    invocation.ret(std::make_tuple(uid, system_shortcut->kind, system_shortcut->name, system_shortcut->key_combination));
+    catch (const std::exception &e)
+    {
+        KLOG_WARNING("%s.", e.what());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
+    }
 }
 
 void KeybindingManager::ListSystemShortcuts(MethodInvocation &invocation)
 {
-    auto system_shortcuts = this->system_shorcut_manager_->get();
-    std::vector<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>> result;
-    for (const auto &shortcut : system_shortcuts)
+    KLOG_PROFILE("");
+
+    try
     {
-        result.push_back(std::make_tuple(shortcut.first, shortcut.second->kind, shortcut.second->name, shortcut.second->key_combination));
+        Json::Value root;
+        Json::Value values;
+
+        auto system_shortcuts = this->system_shorcut_manager_->get();
+        for (const auto &shortcut : system_shortcuts)
+        {
+            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
+            values[KEYBINDING_SHORTCUT_JK_KIND] = shortcut.second->kind;
+            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
+            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
+
+            root[KEYBINDING_SHORTCUT_JK_SYSTEM].append(values);
+        }
+
+        auto retval = StrUtils::json2str(root);
+        invocation.ret(retval);
     }
-    invocation.ret(result);
+    catch (const std::exception &e)
+    {
+        KLOG_WARNING("%s.", e.what());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
+    }
 }
 
 void KeybindingManager::ListShortcuts(MethodInvocation &invocation)
 {
     KLOG_PROFILE("");
-    std::vector<std::tuple<Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring>> result;
 
-    auto custom_shortcuts = CustomShortCutManager::get_instance()->get();
-    for (const auto &shortcut : custom_shortcuts)
+    try
     {
-        result.push_back(std::make_tuple(shortcut.first, CUSTOM_SHORTCUT_KIND, shortcut.second->name, shortcut.second->key_combination));
-    }
+        Json::Value root;
 
-    auto system_shortcuts = this->system_shorcut_manager_->get();
-    for (const auto &shortcut : system_shortcuts)
-    {
-        result.push_back(std::make_tuple(shortcut.first, shortcut.second->kind, shortcut.second->name, shortcut.second->key_combination));
+        auto custom_shortcuts = CustomShortCutManager::get_instance()->get();
+        for (const auto &shortcut : custom_shortcuts)
+        {
+            Json::Value values;
+            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
+            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
+            values[KEYBINDING_SHORTCUT_JK_ACTION] = shortcut.second->action;
+            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
+
+            root[KEYBINDING_SHORTCUT_JK_CUSTOM].append(values);
+        }
+
+        auto system_shortcuts = this->system_shorcut_manager_->get();
+        for (const auto &shortcut : system_shortcuts)
+        {
+            Json::Value values;
+            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
+            values[KEYBINDING_SHORTCUT_JK_KIND] = shortcut.second->kind;
+            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
+            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
+
+            root[KEYBINDING_SHORTCUT_JK_SYSTEM].append(values);
+        }
+
+        auto retval = StrUtils::json2str(root);
+        invocation.ret(retval);
     }
-    invocation.ret(result);
+    catch (const std::exception &e)
+    {
+        KLOG_WARNING("%s.", e.what());
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
+    }
 }
 
 void KeybindingManager::init()
@@ -215,7 +307,12 @@ void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> 
 {
     if (system_shortcut)
     {
-        this->Changed_signal.emit(std::make_tuple(system_shortcut->uid, system_shortcut->kind));
+        Json::Value values;
+        values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
+        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
+        std::string signal_val = StrUtils::json2str(values);
+
+        this->Changed_signal.emit(Glib::ustring(signal_val));
     }
 }
 

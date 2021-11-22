@@ -118,6 +118,9 @@ void SessionGuarder::on_session_query_end()
 
 void SessionGuarder::on_session_end()
 {
+    // 发送会话退出的信号，让资源释放等逻辑先处理完，然后再回复dbus消息，否则可能会导致资源释放到一半进程直接被干掉了
+    this->session_end_.emit();
+
     try
     {
         this->sm_private_proxy_->call_sync("EndSessionResponse",
@@ -127,7 +130,5 @@ void SessionGuarder::on_session_end()
     {
         KLOG_WARNING("Failed to send end session response: %s", e.what().c_str());
     }
-
-    this->session_end_.emit();
 }
 }  // namespace Kiran

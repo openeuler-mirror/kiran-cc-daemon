@@ -35,6 +35,9 @@ public:
 
     std::shared_ptr<PluginHelper> lookup_plugin(const std::string& id);
 
+    // 取消激活所有插件
+    void deactivate_plugins();
+
 protected:
     virtual void GetPlugins(MethodInvocation& invocation);
 

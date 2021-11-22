@@ -53,3 +53,7 @@ Name=Network
 Description=Network plugin
 Available=@enable-plugin-network@
 
+[clipboard]
+Name=Clipboard
+Description=Clipboard plugin
+Available=@enable-plugin-clipboard@
