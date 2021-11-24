@@ -47,14 +47,12 @@ void PowerPlugin::activate()
     PowerIdleControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerEventControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerNotificationManager::global_init(PowerWrapperManager::get_instance());
-    PowerTray::global_init(PowerWrapperManager::get_instance());
 }
 
 void PowerPlugin::deactivate()
 {
     KLOG_PROFILE("deactive power plugin.");
 
-    PowerTray::global_deinit();
     PowerNotificationManager::global_deinit();
     PowerEventControl::global_deinit();
     PowerIdleControl::global_deinit();

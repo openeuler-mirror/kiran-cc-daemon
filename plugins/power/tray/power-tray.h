@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <gtk/gtk.h>
+#include <gtkmm.h>
 
 #include "plugins/power/wrapper/power-wrapper-manager.h"
 
@@ -23,23 +23,26 @@ namespace Kiran
 class PowerTray
 {
 public:
-    PowerTray(PowerWrapperManager* wrapper_manager);
+    PowerTray();
     virtual ~PowerTray();
 
     static PowerTray* get_instance() { return instance_; };
 
-    static void global_init(PowerWrapperManager* wrapper_manager);
+    static void global_init();
 
     static void global_deinit() { delete instance_; };
-
-private:
-    void init();
 
     // 更新托盘图标
     void update_status_icon();
 
+private:
+    void init();
+
+    void delay_update_status_icon();
+
     // 获取图标名，按照device_types设置的设备类型顺序进行搜索
     std::string get_icon_name(const std::vector<uint32_t>& device_types);
+    Glib::RefPtr<Gdk::Pixbuf> get_pixbuf_by_icon_name(const std::string& icon_name);
 
     // 获取设备图标名
     std::string get_device_icon_name(std::shared_ptr<PowerUPowerDevice> upower_device);
@@ -61,5 +64,7 @@ private:
     Glib::RefPtr<Gio::Settings> upower_settings_;
 
     GtkStatusIcon* status_icon_;
+    Glib::RefPtr<Gdk::Pixbuf> icon_pixbuf_;
+    sigc::connection update_icon_handler_;
 };
 }  // namespace Kiran

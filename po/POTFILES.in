@@ -24,4 +24,5 @@ plugins/power/power-utils.cpp
 plugins/power/notification/power-notification-manager.cpp
 plugins/power/wrapper/power-upower-device.cpp
 plugins/power/tools/power-backlight-helper.cpp
+plugins/power/tray/kiran-power-status-icon.desktop.in
 plugins/xsettings/xsettings-manager.cpp

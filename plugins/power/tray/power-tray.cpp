@@ -13,16 +13,17 @@
  */
 
 #include "plugins/power/tray/power-tray.h"
+#include "plugins/power/wrapper/power-upower.h"
 
 #include "power-i.h"
 
 namespace Kiran
 {
-#define DEFAULT_ICON_NAME "gpm-ac-adapter"
+#define DEFAULT_ICON_NAME "ksm-ac-adapter-symbolic"
 
-PowerTray::PowerTray(PowerWrapperManager* wrapper_manager) : wrapper_manager_(wrapper_manager)
+PowerTray::PowerTray()
 {
-    this->upower_client_ = wrapper_manager_->get_default_upower();
+    this->upower_client_ = std::make_shared<PowerUPower>();
     this->upower_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
     this->status_icon_ = gtk_status_icon_new();
 }
@@ -33,27 +34,30 @@ PowerTray::~PowerTray()
 }
 
 PowerTray* PowerTray::instance_ = nullptr;
-void PowerTray::global_init(PowerWrapperManager* wrapper_manager)
+void PowerTray::global_init()
 {
-    instance_ = new PowerTray(wrapper_manager);
+    instance_ = new PowerTray();
     instance_->init();
 }
 
 void PowerTray::init()
 {
+    KLOG_PROFILE("");
+
     this->update_status_icon();
 
     this->upower_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerTray::on_settings_changed));
     this->upower_client_->signal_device_props_changed().connect(sigc::mem_fun(this, &PowerTray::on_device_props_changed));
+    // 这里需要进行延时处理，因为StatusIcon需要从x11中获取新的前景色，需要等获取到前景色后再进行更新
+    Gtk::Settings::get_default()->property_gtk_theme_name().signal_changed().connect(sigc::mem_fun0(this, &PowerTray::delay_update_status_icon));
 }
 
 void PowerTray::update_status_icon()
 {
+    KLOG_PROFILE("");
     // 托盘图标显示只考虑电源、电池和UPS供电的情况。
     auto icon_policy = PowerTrayIconPolicy(this->upower_settings_->get_enum(POWER_SCHEMA_TRAY_ICON_POLICY));
     auto icon_name = this->get_icon_name({UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS});
-
-    KLOG_DEBUG("icon name: %s.", icon_name.c_str());
 
     switch (icon_policy)
     {
@@ -75,15 +79,31 @@ void PowerTray::update_status_icon()
         break;
     }
 
+    KLOG_DEBUG("icon name: %s.", icon_name.c_str());
+
     if (icon_name.empty())
     {
         gtk_status_icon_set_visible(this->status_icon_, false);
     }
     else
     {
+        // this->icon_pixbuf_ = this->get_pixbuf_by_icon_name(icon_name);
+        // gtk_status_icon_set_from_pixbuf(this->status_icon_, this->icon_pixbuf_->gobj());
         gtk_status_icon_set_from_icon_name(this->status_icon_, icon_name.c_str());
         gtk_status_icon_set_visible(this->status_icon_, true);
     }
+}
+
+void PowerTray::delay_update_status_icon()
+{
+    RETURN_IF_TRUE(this->update_icon_handler_);
+
+    auto timeout = Glib::MainContext::get_default()->signal_timeout();
+    this->update_icon_handler_ = timeout.connect([this]() -> bool {
+        this->update_status_icon();
+        return false;
+    },
+                                                 100);
 }
 
 std::string PowerTray::get_icon_name(const std::vector<uint32_t>& device_types)
@@ -104,6 +124,34 @@ std::string PowerTray::get_icon_name(const std::vector<uint32_t>& device_types)
     return std::string();
 }
 
+Glib::RefPtr<Gdk::Pixbuf> PowerTray::get_pixbuf_by_icon_name(const std::string& icon_name)
+{
+    auto theme_name = Gtk::Settings::get_default()->property_gtk_theme_name().get_value();
+    bool was_symbolic = false;
+    Gdk::RGBA fg_color;
+
+    if (theme_name.empty())
+    {
+        KLOG_WARNING("Not found theme name.");
+        return Glib::RefPtr<Gdk::Pixbuf>();
+    }
+
+    auto provider = Gtk::CssProvider::get_named(theme_name, std::string());
+    if (!provider)
+    {
+        KLOG_WARNING("Not found provider for %s.", theme_name.c_str());
+        return Glib::RefPtr<Gdk::Pixbuf>();
+    }
+
+    KLOG_DEBUG("Theme name: %s.", theme_name.c_str());
+
+    auto style_context = Gtk::StyleContext::create();
+    style_context->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+    auto scale = Gdk::Window::get_default_root_window()->get_scale_factor();
+    auto icon_info = Gtk::IconTheme::get_default()->lookup_icon(icon_name, 16, scale);
+    return icon_info.load_symbolic(style_context, was_symbolic);
+}
+
 std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> upower_device)
 {
     RETURN_VAL_IF_FALSE(upower_device, std::string());
@@ -120,9 +168,10 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     switch (device_props.type)
     {
     case UP_DEVICE_KIND_LINE_POWER:
-        return "gpm-ac-adapter";
+        return DEFAULT_ICON_NAME;
     case UP_DEVICE_KIND_MONITOR:
-        return "gpm-monitor";
+        return DEFAULT_ICON_NAME;
+        // return "ksm-monitor";
     case UP_DEVICE_KIND_UPS:
     case UP_DEVICE_KIND_BATTERY:
     case UP_DEVICE_KIND_MOUSE:
@@ -131,21 +180,26 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     {
         if (!device_props.is_present)
         {
-            return fmt::format("gpm-{0}-missing", kind_str);
+            // TODO: 暂时用默认图标，后面需要改
+            // return fmt::format("ksm-{0}-missing", kind_str);
+            return DEFAULT_ICON_NAME;
         }
+        auto percentage = this->percentage2index(device_props.percentage);
         switch (device_props.state)
         {
         case UP_DEVICE_STATE_EMPTY:
-            return fmt::format("gpm-{0}-000", kind_str);
+            return fmt::format("ksm-battery-000", kind_str);
         case UP_DEVICE_STATE_FULLY_CHARGED:
         case UP_DEVICE_STATE_CHARGING:
         case UP_DEVICE_STATE_PENDING_CHARGE:
-            return fmt::format("gpm-{0}-{1}-charging", kind_str, this->percentage2index(device_props.percentage));
+            return fmt::format("ksm-battery-{1}-charging-symbolic", kind_str, percentage);
         case UP_DEVICE_STATE_DISCHARGING:
         case UP_DEVICE_STATE_PENDING_DISCHARGE:
-            return fmt::format("gpm-{0}-{1}", kind_str, this->percentage2index(device_props.percentage));
+            return fmt::format("ksm-battery-{1}{2}", kind_str, percentage, percentage != "000" ? "-symbolic" : "");
         default:
-            return fmt::format("gpm-{0}-missing", kind_str);
+            // TODO: 暂时用默认图标，后面需要改
+            // return fmt::format("ksm-battery-missing", kind_str);
+            return DEFAULT_ICON_NAME;
         }
         break;
     }

@@ -8,7 +8,7 @@ file(GLOB_RECURSE POWER_CPP_FILES ./*.cpp)
 # Filter tools directory
 # list(FILTER POWER_H_FILES EXCLUDE REGEX .*tools/.*)
 # list(FILTER POWER_CPP_FILES EXCLUDE REGEX .*tools/.*)
-list(FILTER POWER_CPP_FILES EXCLUDE REGEX .*tools/main.cpp)
+list(FILTER POWER_CPP_FILES EXCLUDE REGEX "(.*tools/main.cpp|.*/tray/.*)")
 
 GEN_DBUS_STUB(POWER power com.kylinsec. ${CMAKE_SOURCE_DIR}/plugins/power/com.kylinsec.Kiran.SessionDaemon.Power.xml)
 
@@ -40,3 +40,4 @@ install(TARGETS ${TARGET_NAME}
         DESTINATION  ${KCC_PLUGIN_DIR}/session)
 
 add_subdirectory(tools)
+add_subdirectory(tray)
