@@ -162,6 +162,10 @@ std::map<std::string, std::shared_ptr<CustomShortCut>> CustomShortCutManager::ge
 std::string CustomShortCutManager::lookup_shortcut(const std::string &keycomb)
 {
     KLOG_PROFILE("keycomb: %s", keycomb.c_str());
+
+    // 禁用快捷键不进行搜索
+    RETURN_VAL_IF_TRUE(keycomb == SHORTCUT_KEYCOMB_DISABLE, std::string());
+
     for (const auto &group : this->keyfile_.get_groups())
     {
         auto value = this->keyfile_.get_value(group, CUSTOM_KEYFILE_KEYCOMB);
