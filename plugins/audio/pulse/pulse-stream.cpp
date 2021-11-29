@@ -16,50 +16,31 @@
 
 namespace Kiran
 {
-PulseStreamInfo::PulseStreamInfo(const pa_sink_input_info *sink_input_info) : index(sink_input_info->index),
-                                                                              name(POINTER_TO_STRING(sink_input_info->name)),
-                                                                              channel_map(sink_input_info->channel_map),
-                                                                              cvolume(sink_input_info->volume),
-                                                                              mute(sink_input_info->mute),
+PulseStreamInfo::PulseStreamInfo(const pa_sink_input_info *sink_input_info) : PulseNodeInfo(PulseNodeInfo{.index = sink_input_info->index,
+                                                                                                          .name = POINTER_TO_STRING(sink_input_info->name),
+                                                                                                          .channel_map = sink_input_info->channel_map,
+                                                                                                          .cvolume = sink_input_info->volume,
+                                                                                                          .mute = sink_input_info->mute,
+                                                                                                          .base_volume = 0,
+                                                                                                          .proplist = sink_input_info->proplist}),
                                                                               has_volume(sink_input_info->has_volume),
                                                                               volume_writable(sink_input_info->volume_writable)
 {
-    if (sink_input_info->proplist)
-    {
-        auto app_name = pa_proplist_gets(sink_input_info->proplist, PA_PROP_APPLICATION_NAME);
-        this->application_name = POINTER_TO_STRING(app_name);
-
-        auto app_icon_name = pa_proplist_gets(sink_input_info->proplist, PA_PROP_APPLICATION_ICON_NAME);
-        this->icon_name = POINTER_TO_STRING(app_icon_name);
-    }
 }
 
-PulseStreamInfo::PulseStreamInfo(const pa_source_output_info *source_output_info) : index(source_output_info->index),
-                                                                                    name(POINTER_TO_STRING(source_output_info->name)),
-                                                                                    channel_map(source_output_info->channel_map),
-                                                                                    cvolume(source_output_info->volume),
-                                                                                    mute(source_output_info->mute),
+PulseStreamInfo::PulseStreamInfo(const pa_source_output_info *source_output_info) : PulseNodeInfo(PulseNodeInfo{.index = source_output_info->index,
+                                                                                                                .name = POINTER_TO_STRING(source_output_info->name),
+                                                                                                                .channel_map = source_output_info->channel_map,
+                                                                                                                .cvolume = source_output_info->volume,
+                                                                                                                .mute = source_output_info->mute,
+                                                                                                                .base_volume = 0,
+                                                                                                                .proplist = source_output_info->proplist}),
                                                                                     has_volume(source_output_info->has_volume),
                                                                                     volume_writable(source_output_info->volume_writable)
 {
-    if (source_output_info->proplist)
-    {
-        auto app_name = pa_proplist_gets(source_output_info->proplist, PA_PROP_APPLICATION_NAME);
-        this->application_name = POINTER_TO_STRING(app_name);
-
-        auto app_icon_name = pa_proplist_gets(source_output_info->proplist, PA_PROP_APPLICATION_ICON_NAME);
-        this->icon_name = POINTER_TO_STRING(app_icon_name);
-    }
 }
 
-PulseStream::PulseStream(const PulseStreamInfo &stream_info) : PulseNode(stream_info.index,
-                                                                         stream_info.name,
-                                                                         stream_info.channel_map,
-                                                                         stream_info.cvolume,
-                                                                         stream_info.mute,
-                                                                         0),
-                                                               application_name_(stream_info.application_name),
-                                                               icon_name_(stream_info.icon_name)
+PulseStream::PulseStream(const PulseStreamInfo &stream_info) : PulseNode(stream_info)
 {
     // has_volume如果为false，说明volume字段是未定义的，这个在基类中已经通过pa_cvolume_valid做过判断了，这里再校验一次
     if (!stream_info.has_volume)
@@ -83,12 +64,6 @@ PulseStream::PulseStream(const PulseStreamInfo &stream_info) : PulseNode(stream_
 
 void PulseStream::update(const PulseStreamInfo &stream_info)
 {
-    if (this->icon_name_ != stream_info.icon_name)
-    {
-        this->icon_name_ = stream_info.icon_name;
-        this->icon_name_changed_.emit(this->icon_name_);
-    }
-
     this->PulseNode::update(stream_info.channel_map, stream_info.cvolume, stream_info.mute, 0);
 }
 }  // namespace Kiran

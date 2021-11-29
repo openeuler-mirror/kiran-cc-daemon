@@ -16,23 +16,26 @@
 
 namespace Kiran
 {
-PulseNode::PulseNode(uint32_t index,
-                     const std::string &name,
-                     const pa_channel_map &channel_map,
-                     const pa_cvolume &cvolume,
-                     int32_t mute,
-                     pa_volume_t base_volume) : flags_(AudioNodeState::AUDIO_NODE_STATE_NONE),
-                                                index_(index),
-                                                name_(name),
-                                                channel_map_(channel_map),
-                                                cvolume_(cvolume),
-                                                base_volume_(base_volume),
-                                                mute_(mute != 0),
-                                                volume_(PA_VOLUME_MUTED),
-                                                balance_(0.0),
-                                                fade_(0.0)
+PulseNode::PulseNode(const PulseNodeInfo &node_info) : flags_(AudioNodeState::AUDIO_NODE_STATE_NONE),
+                                                       index_(node_info.index),
+                                                       name_(node_info.name),
+                                                       channel_map_(node_info.channel_map),
+                                                       cvolume_(node_info.cvolume),
+                                                       base_volume_(node_info.base_volume),
+                                                       mute_(node_info.mute != 0),
+                                                       volume_(PA_VOLUME_MUTED),
+                                                       balance_(0.0),
+                                                       fade_(0.0)
 {
     this->update_flags();
+
+    // 解析所有属性
+    void *state = NULL;
+    auto key = pa_proplist_iterate(node_info.proplist, &state);
+    for (; key != NULL; key = pa_proplist_iterate(node_info.proplist, &state))
+    {
+        this->attrs_[key] = POINTER_TO_STRING(pa_proplist_gets(node_info.proplist, key));
+    }
 }
 
 bool PulseNode::set_mute(bool mute)

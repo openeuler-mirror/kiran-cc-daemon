@@ -39,15 +39,27 @@ enum PulseNodeField
     PULSE_NODE_FIELD_FADE,
 };
 
+struct PulseNodeInfo
+{
+public:
+    uint32_t index;
+    std::string name;
+    // 控制声道
+    pa_channel_map channel_map;
+    // 声音
+    pa_cvolume cvolume;
+    // 静音
+    int32_t mute;
+    // 基本音量，一般又硬件决定
+    pa_volume_t base_volume;
+    // 属性
+    pa_proplist *proplist;
+};
+
 class PulseNode
 {
 public:
-    PulseNode(uint32_t index,
-              const std::string &name,
-              const pa_channel_map &channel_map,
-              const pa_cvolume &cvolume,
-              int32_t mute,
-              pa_volume_t base_volume);
+    PulseNode(const PulseNodeInfo &node_info);
 
     virtual ~PulseNode(){};
 
@@ -82,6 +94,9 @@ public:
     uint32_t get_normal_volume() { return uint32_t(PA_VOLUME_NORM); };
     // base音量
     uint32_t get_base_volume();
+
+    // 获取属性
+    std::string get_property(const std::string &key) { return MapHelper::get_value(this->attrs_, key); };
 
     sigc::signal<void, PulseNodeField> &signal_node_info_changed() { return this->node_info_changed_; };
 
@@ -121,6 +136,9 @@ private:
     float balance_;
     // 前后声道的平衡
     float fade_;
+
+    // 属性信息
+    std::map<std::string, std::string> attrs_;
 
     sigc::signal<void, PulseNodeField> node_info_changed_;
 };

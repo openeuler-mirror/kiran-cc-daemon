@@ -19,22 +19,12 @@
 
 namespace Kiran
 {
-struct PulseDeviceInfo
+struct PulseDeviceInfo : public PulseNodeInfo
 {
 public:
     PulseDeviceInfo(const pa_sink_info *sink_info);
     PulseDeviceInfo(const pa_source_info *source_info);
 
-    uint32_t index;
-    std::string name;
-    // 控制声道
-    pa_channel_map channel_map;
-    // 声音
-    pa_cvolume cvolume;
-    // 静音
-    int32_t mute;
-    // 基本音量，一般又硬件决定
-    pa_volume_t base_volume;
     // 设备对应的声卡
     uint32_t card_index;
     // 设备可用的端口

@@ -153,6 +153,14 @@ void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
     invocation.ret();
 }
 
+void AudioDevice::GetProperty(const Glib::ustring &key, MethodInvocation &invocation)
+{
+    KLOG_PROFILE("key: %s.", key.c_str());
+
+    auto value = this->device_->get_property(key);
+    invocation.ret(value);
+}
+
 bool AudioDevice::volume_setHandler(double value)
 {
     auto volume_absolute = AudioUtils::volume_range2absolute(value,

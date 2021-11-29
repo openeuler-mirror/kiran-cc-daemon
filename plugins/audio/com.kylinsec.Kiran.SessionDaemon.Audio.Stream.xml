@@ -32,6 +32,16 @@
             <description>Set the mute.</description>
         </method>
 
+        <method name="GetProperty">
+            <arg type="s" name="key" direction="in">
+                <summary>The property key.</summary>
+            </arg>
+            <arg type="s" name="value" direction="out">
+                <summary>The property value.</summary>
+            </arg>
+            <description>Get property value by key.</description>
+        </method>
+
         <property name="index" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>The stream index.</description>
@@ -50,16 +60,6 @@
         <property name="volume" type="d" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>The volume value which range is [0, 1.0].</description>
-        </property>
-
-        <property name="application_name" type="s" access="read">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <description>The application name.</description>
-        </property>
-
-        <property name="icon_name" type="s" access="read">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <description>The icon name of the application.</description>
         </property>
 
         <!--<property name="balance" type="d" access="read">

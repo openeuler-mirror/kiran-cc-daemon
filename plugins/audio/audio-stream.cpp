@@ -21,7 +21,6 @@ AudioStream::AudioStream(std::shared_ptr<PulseStream> stream) : stream_(stream),
                                                                 object_register_id_(0)
 {
     this->stream_->signal_node_info_changed().connect(sigc::mem_fun(this, &AudioStream::on_node_info_changed_cb));
-    this->stream_->signal_icon_name_changed().connect(sigc::mem_fun(this, &AudioStream::on_icon_name_changed_cb));
 }
 
 AudioStream::~AudioStream()
@@ -80,6 +79,14 @@ void AudioStream::SetMute(bool mute, MethodInvocation &invocation)
     invocation.ret();
 }
 
+void AudioStream::GetProperty(const Glib::ustring &key, MethodInvocation &invocation)
+{
+    KLOG_PROFILE("key: %s.", key.c_str());
+
+    auto value = this->stream_->get_property(key);
+    invocation.ret(value);
+}
+
 bool AudioStream::volume_setHandler(double value)
 {
     auto volume_absolute = AudioUtils::volume_range2absolute(value,
@@ -136,9 +143,4 @@ void AudioStream::on_node_info_changed_cb(PulseNodeField field)
     }
 }
 
-void AudioStream::on_icon_name_changed_cb(const std::string &icon_name)
-{
-    // 这里的主要目的是为了触发dbus属性信号
-    this->icon_name_set(icon_name);
-}
 }  // namespace Kiran

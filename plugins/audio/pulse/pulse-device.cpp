@@ -16,12 +16,14 @@
 
 namespace Kiran
 {
-PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sink_info) : index(sink_info->index),
-                                                                  name(POINTER_TO_STRING(sink_info->name)),
-                                                                  channel_map(sink_info->channel_map),
-                                                                  cvolume(sink_info->volume),
-                                                                  mute(sink_info->mute),
-                                                                  base_volume(sink_info->base_volume),
+PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sink_info) : PulseNodeInfo(PulseNodeInfo{.index = sink_info->index,
+                                                                                              .name = POINTER_TO_STRING(sink_info->name),
+                                                                                              .channel_map = sink_info->channel_map,
+                                                                                              .cvolume = sink_info->volume,
+                                                                                              .mute = sink_info->mute,
+                                                                                              .base_volume = sink_info->base_volume,
+                                                                                              .proplist = sink_info->proplist}),
+
                                                                   card_index(sink_info->card)
 {
     for (uint32_t i = 0; i < sink_info->n_ports; ++i)
@@ -40,12 +42,13 @@ PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sink_info) : index(sink_inf
     }
 }
 
-PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *source_info) : index(source_info->index),
-                                                                      name(POINTER_TO_STRING(source_info->name)),
-                                                                      channel_map(source_info->channel_map),
-                                                                      cvolume(source_info->volume),
-                                                                      mute(source_info->mute),
-                                                                      base_volume(source_info->base_volume),
+PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *source_info) : PulseNodeInfo(PulseNodeInfo{.index = source_info->index,
+                                                                                                  .name = POINTER_TO_STRING(source_info->name),
+                                                                                                  .channel_map = source_info->channel_map,
+                                                                                                  .cvolume = source_info->volume,
+                                                                                                  .mute = source_info->mute,
+                                                                                                  .base_volume = source_info->base_volume,
+                                                                                                  .proplist = source_info->proplist}),
                                                                       card_index(source_info->card)
 {
     for (uint32_t i = 0; i < source_info->n_ports; ++i)
@@ -64,12 +67,7 @@ PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *source_info) : index(sour
     }
 }
 
-PulseDevice::PulseDevice(const PulseDeviceInfo &device_info) : PulseNode(device_info.index,
-                                                                         device_info.name,
-                                                                         device_info.channel_map,
-                                                                         device_info.cvolume,
-                                                                         device_info.mute,
-                                                                         device_info.base_volume),
+PulseDevice::PulseDevice(const PulseDeviceInfo &device_info) : PulseNode(device_info),
                                                                card_index_(device_info.card_index),
                                                                ports_(device_info.ports),
                                                                active_port_name_(device_info.active_port_name)

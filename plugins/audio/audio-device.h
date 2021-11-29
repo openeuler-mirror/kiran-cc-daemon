@@ -55,6 +55,8 @@ protected:
     virtual void SetFade(double fade, MethodInvocation &invocation);
     // 设置静音
     virtual void SetMute(bool mute, MethodInvocation &invocation);
+    // 获取属性
+    virtual void GetProperty(const Glib::ustring &key, MethodInvocation &invocation);
 
     virtual bool index_setHandler(guint32 value) { return true; };
     virtual bool name_setHandler(const Glib::ustring &value) { return true; };

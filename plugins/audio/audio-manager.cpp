@@ -337,7 +337,7 @@ std::shared_ptr<AudioStream> AudioManager::add_source_output(std::shared_ptr<Pul
     auto audio_source_output = std::make_shared<AudioStream>(pulse_source_output);
     if (audio_source_output->init(AUDIO_SOURCE_OUTPUT_OBJECT_PATH))
     {
-        auto iter = this->sink_inputs_.emplace(audio_source_output->index_get(), audio_source_output);
+        auto iter = this->source_outputs_.emplace(audio_source_output->index_get(), audio_source_output);
         if (!iter.second)
         {
             KLOG_WARNING("The audio source output is already exist. source output index: %d.", audio_source_output->index_get());
