@@ -319,7 +319,7 @@ std::shared_ptr<AudioStream> AudioManager::add_sink_input(std::shared_ptr<PulseS
             KLOG_WARNING("The audio sink input is already exist. sink input index: %d.", audio_sink_input->index_get());
             return nullptr;
         }
-        this->SinkInputDelete_signal.emit(audio_sink_input->index_get());
+        this->SinkInputAdded_signal.emit(audio_sink_input->index_get());
         return audio_sink_input;
     }
     else
@@ -343,7 +343,7 @@ std::shared_ptr<AudioStream> AudioManager::add_source_output(std::shared_ptr<Pul
             KLOG_WARNING("The audio source output is already exist. source output index: %d.", audio_source_output->index_get());
             return nullptr;
         }
-        this->SourceOutputDelete_signal.emit(audio_source_output->index_get());
+        this->SourceOutputAdded_signal.emit(audio_source_output->index_get());
         return audio_source_output;
     }
     else
@@ -450,15 +450,8 @@ void AudioManager::on_sink_event_cb(PulseSinkEvent event, std::shared_ptr<PulseS
         break;
     }
     case PulseSinkEvent::PULSE_SINK_EVENT_ADDED:
-    {
-        RETURN_IF_FALSE(pulse_sink);
-        auto audio_sink = this->add_sink(pulse_sink);
-        if (audio_sink)
-        {
-            this->SinkAdded_signal.emit(audio_sink->index_get());
-        }
+        this->add_sink(pulse_sink);
         break;
-    }
     default:
         break;
     }
@@ -485,12 +478,7 @@ void AudioManager::on_sink_input_event_cb(PulseSinkInputEvent event, std::shared
     }
     case PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_ADDED:
     {
-        RETURN_IF_FALSE(pulse_sink_input);
-        auto audio_sink_input = this->add_sink_input(pulse_sink_input);
-        if (audio_sink_input)
-        {
-            this->SinkInputAdded_signal.emit(audio_sink_input->index_get());
-        }
+        this->add_sink_input(pulse_sink_input);
         break;
     }
     default:
@@ -518,15 +506,8 @@ void AudioManager::on_source_event_cb(PulseSourceEvent event, std::shared_ptr<Pu
         break;
     }
     case PulseSourceEvent::PULSE_SOURCE_EVENT_ADDED:
-    {
-        RETURN_IF_FALSE(pulse_source);
-        auto audio_source = this->add_source(pulse_source);
-        if (audio_source)
-        {
-            this->SourceAdded_signal.emit(audio_source->index_get());
-        }
+        this->add_source(pulse_source);
         break;
-    }
     default:
         break;
     }
@@ -552,15 +533,8 @@ void AudioManager::on_source_output_event_cb(PulseSourceOutputEvent event, std::
         break;
     }
     case PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_ADDED:
-    {
-        RETURN_IF_FALSE(pulse_source_output);
-        auto audio_source_output = this->add_source_output(pulse_source_output);
-        if (audio_source_output)
-        {
-            this->SourceOutputAdded_signal.emit(audio_source_output->index_get());
-        }
+        this->add_source_output(pulse_source_output);
         break;
-    }
     default:
         break;
     }
