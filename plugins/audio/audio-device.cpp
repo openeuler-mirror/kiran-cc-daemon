@@ -23,6 +23,14 @@ namespace Kiran
 AudioDevice::AudioDevice(std::shared_ptr<PulseDevice> device) : device_(device),
                                                                 object_register_id_(0)
 {
+    this->mute_ = this->device_->get_mute();
+    this->volume_ = AudioUtils::volume_absolute2range(this->device_->get_volume(),
+                                                      this->device_->get_min_volume(),
+                                                      this->device_->get_max_volume());
+    this->balance_ = this->device_->get_balance();
+    this->fade_ = this->device_->get_fade();
+    this->active_port_ = this->device_->get_active_port();
+
     this->device_->signal_node_info_changed().connect(sigc::mem_fun(this, &AudioDevice::on_node_info_changed_cb));
     this->device_->signal_active_port_changed().connect(sigc::mem_fun(this, &AudioDevice::on_active_port_changed_cb));
 }
@@ -40,12 +48,6 @@ bool AudioDevice::init(const std::string &object_path_prefix)
     return this->dbus_register();
 }
 
-double AudioDevice::volume_get()
-{
-    auto volume = this->device_->get_volume();
-    return AudioUtils::volume_absolute2range(volume, this->device_->get_min_volume(), this->device_->get_max_volume());
-}
-
 double AudioDevice::base_volume_get()
 {
     auto volume = this->device_->get_base_volume();
@@ -56,7 +58,7 @@ void AudioDevice::SetActivePort(const Glib::ustring &name, MethodInvocation &inv
 {
     KLOG_PROFILE("port name: %s.", name.c_str());
 
-    if (!this->active_port_set(name))
+    if (!this->device_->set_active_port(name))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_SET_SINK_ACTIVE_PORT_FAILED);
     }
@@ -91,7 +93,11 @@ void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID);
     }
 
-    if (!this->volume_set(volume))
+    auto volume_absolute = AudioUtils::volume_range2absolute(volume,
+                                                             this->device_->get_min_volume(),
+                                                             this->device_->get_max_volume());
+
+    if (!this->device_->set_volume(volume_absolute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_VOLUME_FAILED);
     }
@@ -113,7 +119,7 @@ void AudioDevice::SetBalance(double balance, MethodInvocation &invocation)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_BALANCE_RANGE_INVLAID);
     }
 
-    if (!this->balance_set(balance))
+    if (!this->device_->set_balance(balance))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_BALANCE_FAILED);
     }
@@ -129,7 +135,7 @@ void AudioDevice::SetFade(double fade, MethodInvocation &invocation)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_FADE_RANGE_INVLAID);
     }
 
-    if (!this->fade_set(fade))
+    if (!this->device_->set_fade(fade))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_FADE_FAILED);
     }
@@ -140,7 +146,7 @@ void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
 {
     KLOG_PROFILE("mute: %d.", mute);
 
-    if (!this->mute_set(mute))
+    if (!this->device_->set_mute(mute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED);
     }
@@ -161,14 +167,30 @@ void AudioDevice::GetProperty(const Glib::ustring &key, MethodInvocation &invoca
     invocation.ret(value);
 }
 
-bool AudioDevice::volume_setHandler(double value)
-{
-    auto volume_absolute = AudioUtils::volume_range2absolute(value,
-                                                             this->device_->get_min_volume(),
-                                                             this->device_->get_max_volume());
+#define SET_COMMON_PROPERTY(property, type)                    \
+    bool AudioDevice::property##_setHandler(type value)        \
+    {                                                          \
+        RETURN_VAL_IF_TRUE(this->property##_ == value, false); \
+        this->property##_ = value;                             \
+        return true;                                           \
+    }
 
-    return this->device_->set_volume(volume_absolute);
-}
+#define SET_DOUBLE_PROPERTY(property)                     \
+    bool AudioDevice::property##_setHandler(double value) \
+    {                                                     \
+        if (std::fabs(this->property##_ - value) < EPS)   \
+        {                                                 \
+            return false;                                 \
+        }                                                 \
+        this->property##_ = value;                        \
+        return true;                                      \
+    }
+
+SET_COMMON_PROPERTY(mute, bool)
+SET_DOUBLE_PROPERTY(volume)
+SET_DOUBLE_PROPERTY(balance)
+SET_DOUBLE_PROPERTY(fade)
+SET_COMMON_PROPERTY(active_port, const Glib::ustring &)
 
 bool AudioDevice::dbus_register()
 {
@@ -203,21 +225,25 @@ void AudioDevice::dbus_unregister()
 
 void AudioDevice::on_node_info_changed_cb(PulseNodeField field)
 {
-    // 这里的主要目的是为了触发dbus属性信号，小心使用，避免出现死循环
     switch (field)
     {
     case PulseNodeField::PULSE_NODE_FIELD_BALANCE:
-        this->balance_set(this->balance_get());
+        this->balance_set(this->device_->get_balance());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_FADE:
-        this->fade_set(this->fade_get());
+        this->fade_set(this->device_->get_fade());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_MUTE:
-        this->mute_set(this->mute_get());
+        this->mute_set(this->device_->get_mute());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_VOLUME:
-        this->volume_set(this->volume_get());
+    {
+        auto volume_range = AudioUtils::volume_absolute2range(this->device_->get_volume(),
+                                                              this->device_->get_min_volume(),
+                                                              this->device_->get_max_volume());
+        this->volume_set(volume_range);
         break;
+    }
     default:
         break;
     }
@@ -225,7 +251,6 @@ void AudioDevice::on_node_info_changed_cb(PulseNodeField field)
 
 void AudioDevice::on_active_port_changed_cb(const std::string &active_port_name)
 {
-    // 这里的主要目的是为了触发dbus属性信号，小心使用，避免出现死循环
     this->active_port_set(active_port_name);
 }
 

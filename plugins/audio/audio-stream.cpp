@@ -20,6 +20,10 @@ namespace Kiran
 AudioStream::AudioStream(std::shared_ptr<PulseStream> stream) : stream_(stream),
                                                                 object_register_id_(0)
 {
+    this->mute_ = this->stream_->get_mute();
+    this->volume_ = AudioUtils::volume_absolute2range(this->stream_->get_volume(),
+                                                      this->stream_->get_min_volume(),
+                                                      this->stream_->get_max_volume());
     this->stream_->signal_node_info_changed().connect(sigc::mem_fun(this, &AudioStream::on_node_info_changed_cb));
 }
 
@@ -36,12 +40,6 @@ bool AudioStream::init(const std::string &object_path_prefix)
     return this->dbus_register();
 }
 
-double AudioStream::volume_get()
-{
-    auto volume = this->stream_->get_volume();
-    return AudioUtils::volume_absolute2range(volume, this->stream_->get_min_volume(), this->stream_->get_max_volume());
-}
-
 void AudioStream::SetVolume(double volume, MethodInvocation &invocation)
 {
     if (volume < 0 || volume > 1.0 + EPS)
@@ -49,7 +47,11 @@ void AudioStream::SetVolume(double volume, MethodInvocation &invocation)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_VOLUME_RANGE_INVLAID);
     }
 
-    if (!this->volume_set(volume))
+    auto volume_absolute = AudioUtils::volume_range2absolute(volume,
+                                                             this->stream_->get_min_volume(),
+                                                             this->stream_->get_max_volume());
+
+    if (!this->stream_->set_volume(volume_absolute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_SET_VOLUME_FAILED);
     }
@@ -65,7 +67,7 @@ void AudioStream::SetVolume(double volume, MethodInvocation &invocation)
 
 void AudioStream::SetMute(bool mute, MethodInvocation &invocation)
 {
-    if (!this->mute_set(mute))
+    if (!this->stream_->set_mute(mute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED);
     }
@@ -87,14 +89,27 @@ void AudioStream::GetProperty(const Glib::ustring &key, MethodInvocation &invoca
     invocation.ret(value);
 }
 
-bool AudioStream::volume_setHandler(double value)
-{
-    auto volume_absolute = AudioUtils::volume_range2absolute(value,
-                                                             this->stream_->get_min_volume(),
-                                                             this->stream_->get_max_volume());
+#define SET_COMMON_PROPERTY(property, type)                    \
+    bool AudioStream::property##_setHandler(type value)        \
+    {                                                          \
+        RETURN_VAL_IF_TRUE(this->property##_ == value, false); \
+        this->property##_ = value;                             \
+        return true;                                           \
+    }
 
-    return this->stream_->set_volume(volume_absolute);
-}
+#define SET_DOUBLE_PROPERTY(property)                     \
+    bool AudioStream::property##_setHandler(double value) \
+    {                                                     \
+        if (std::fabs(this->property##_ - value) < EPS)   \
+        {                                                 \
+            return false;                                 \
+        }                                                 \
+        this->property##_ = value;                        \
+        return true;                                      \
+    }
+
+SET_COMMON_PROPERTY(mute, bool)
+SET_DOUBLE_PROPERTY(volume)
 
 bool AudioStream::dbus_register()
 {
@@ -129,15 +144,19 @@ void AudioStream::dbus_unregister()
 
 void AudioStream::on_node_info_changed_cb(PulseNodeField field)
 {
-    // 这里的主要目的是为了触发dbus属性信号，小心使用，避免出现死循环
     switch (field)
     {
     case PulseNodeField::PULSE_NODE_FIELD_MUTE:
-        this->mute_set(this->mute_get());
+        this->mute_set(this->stream_->get_mute());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_VOLUME:
-        this->volume_set(this->volume_get());
+    {
+        auto volume_range = AudioUtils::volume_absolute2range(this->stream_->get_volume(),
+                                                              this->stream_->get_min_volume(),
+                                                              this->stream_->get_max_volume());
+        this->volume_set(volume_range);
         break;
+    }
     default:
         break;
     }

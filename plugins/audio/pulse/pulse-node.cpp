@@ -58,7 +58,7 @@ bool PulseNode::set_volume(uint32_t volume)
         return false;
     }
 
-    // 这里需要跟原始音量对比，否则可能初夏死循环，因为其他模块可能在后面的信号处理中又调用set_volume
+    // 这里需要跟原始音量对比，否则可能出现死循环，因为其他模块可能在后面的信号处理中又调用set_volume
     RETURN_VAL_IF_TRUE(this->volume_ == volume, true);
     this->update_volume(volume);
 

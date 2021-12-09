@@ -33,13 +33,13 @@ public:
 
     virtual guint32 index_get() { return this->device_->get_index(); };
     virtual Glib::ustring name_get() { return this->device_->get_name(); };
-    virtual bool mute_get() { return this->device_->get_mute(); };
-    virtual double volume_get();
-    virtual double balance_get() { return this->device_->get_balance(); }
-    virtual double fade_get() { return this->device_->get_balance(); }
+    virtual bool mute_get() { return this->mute_; };
+    virtual double volume_get() { return this->volume_; }
+    virtual double balance_get() { return this->balance_; }
+    virtual double fade_get() { return this->fade_; }
     virtual double base_volume_get();
     virtual guint32 card_index_get() { return this->device_->get_card_index(); };
-    virtual Glib::ustring active_port_get() { return this->device_->get_active_port(); };
+    virtual Glib::ustring active_port_get() { return this->active_port_; };
     virtual guint32 state_get() { return this->device_->get_flags(); };
 
 protected:
@@ -60,13 +60,13 @@ protected:
 
     virtual bool index_setHandler(guint32 value) { return true; };
     virtual bool name_setHandler(const Glib::ustring &value) { return true; };
-    virtual bool mute_setHandler(bool value) { return this->device_->set_mute(value); };
+    virtual bool mute_setHandler(bool value);
     virtual bool volume_setHandler(double value);
-    virtual bool balance_setHandler(double value) { return this->device_->set_balance(value); };
-    virtual bool fade_setHandler(double value) { return this->device_->set_fade(value); };
+    virtual bool balance_setHandler(double value);
+    virtual bool fade_setHandler(double value);
     virtual bool base_volume_setHandler(double value) { return true; };
     virtual bool card_index_setHandler(guint32 value) { return true; };
-    virtual bool active_port_setHandler(const Glib::ustring &value) { return this->device_->set_active_port(value.raw()); };
+    virtual bool active_port_setHandler(const Glib::ustring &value);
     virtual bool state_setHandler(guint32 value) { return true; }
 
 private:
@@ -82,6 +82,12 @@ private:
     Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
     uint32_t object_register_id_;
     Glib::DBusObjectPathString object_path_;
+
+    bool mute_;
+    double volume_;
+    double balance_;
+    double fade_;
+    std::string active_port_;
 };
 
 }  // namespace Kiran
