@@ -105,7 +105,7 @@ void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
     // 如果音量大于0，则取消静音
     if (volume > EPS)
     {
-        this->mute_set(false);
+        this->device_->set_mute(false);
     }
     invocation.ret();
 }
@@ -154,7 +154,14 @@ void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
     // 如果设置了静音，则将音量也设置为0
     if (mute)
     {
-        this->volume_set(0);
+        auto volume_absolute = AudioUtils::volume_range2absolute(0,
+                                                                 this->device_->get_min_volume(),
+                                                                 this->device_->get_max_volume());
+
+        if (!this->device_->set_volume(volume_absolute))
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_VOLUME_FAILED);
+        }
     }
     invocation.ret();
 }
