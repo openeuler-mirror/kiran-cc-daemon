@@ -328,9 +328,15 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
     KLOG_PROFILE("window_scale: %d, scale: %d", this->window_scale_, scale);
 
     std::string error;
+    bool is_init = (!this->window_scale_);
+
     RETURN_IF_TRUE(this->window_scale_ == scale);
-    // 第一次初始化时设置
-    if (!this->window_scale_)
+    this->window_scale_ = scale;
+
+    /* 第一次初始化时缩放率是没有变化的，所以不应该重启底部面板、文件管理器和窗口管理器，
+    这样会导致进入会话时出现屏幕刷新的视觉效果，而且底部面板和文件管理器崩溃的概率较大*/
+
+    if (is_init)
     {
         // 如果开启QT缩放同步，则将缩放值同步到QT缩放相关的环境变量
         if (this->get_window_scaling_factor_qt_sync())
@@ -346,47 +352,48 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
             }
         }
     }
-    this->window_scale_ = scale;
-
-    // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
-    // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
-
-    // 重启marco窗口管理器
-    auto wm_name = EWMH::get_instance()->get_wm_name();
-    if (wm_name == WM_COMMON_MARCO)
+    else
     {
-        std::vector<std::string> argv = {"marco", "--replace"};
+        // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
+        // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
 
+        // 重启marco窗口管理器
+        auto wm_name = EWMH::get_instance()->get_wm_name();
+        if (wm_name == WM_COMMON_MARCO)
+        {
+            std::vector<std::string> argv = {"marco", "--replace"};
+
+            try
+            {
+                Glib::spawn_async(std::string(), argv, Glib::SPAWN_SEARCH_PATH);
+            }
+            catch (const Glib::Error &e)
+            {
+                KLOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
+            }
+        }
+        // 重启面板
+        std::vector<std::string> argv = {"killall", "mate-panel", "kiran-panel"};
         try
         {
             Glib::spawn_async(std::string(), argv, Glib::SPAWN_SEARCH_PATH);
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
+            KLOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
         }
-    }
-    // 重启面板
-    std::vector<std::string> argv = {"killall", "mate-panel", "kiran-panel"};
-    try
-    {
-        Glib::spawn_async(std::string(), argv, Glib::SPAWN_SEARCH_PATH);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
-    }
 
-    // 重置桌面图标大小
-    if (this->background_settings_ &&
-        this->background_settings_->get_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS) &&
-        !this->switch_desktop_icon_[0] &&
-        !this->switch_desktop_icon_[1])
-    {
-        // 延时隐藏/显示桌面图标，给文件管理器一定的时间重绘
-        auto timeout = Glib::MainContext::get_default()->signal_timeout();
-        this->switch_desktop_icon_[0] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), false), 1);
-        this->switch_desktop_icon_[1] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), true), 2);
+        // 重置桌面图标大小
+        if (this->background_settings_ &&
+            this->background_settings_->get_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS) &&
+            !this->switch_desktop_icon_[0] &&
+            !this->switch_desktop_icon_[1])
+        {
+            // 延时隐藏/显示桌面图标，给文件管理器一定的时间重绘
+            auto timeout = Glib::MainContext::get_default()->signal_timeout();
+            this->switch_desktop_icon_[0] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), false), 1);
+            this->switch_desktop_icon_[1] = timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &XSettingsManager::delayed_toggle_bg_draw), true), 2);
+        }
     }
 }
 
