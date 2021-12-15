@@ -23,7 +23,7 @@ CCError::CCError()
 {
 }
 
-std::string CCError::get_error_desc(CCErrorCode error_code)
+std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_code)
 {
     std::string error_desc;
     switch (error_code)
@@ -419,7 +419,10 @@ std::string CCError::get_error_desc(CCErrorCode error_code)
         break;
     }
 
-    error_desc += fmt::format(_(" (error code: 0x{:x})"), int32_t(error_code));
+    if (attach_error_code)
+    {
+        error_desc += fmt::format(_(" (error code: 0x{:x})"), int32_t(error_code));
+    }
     return error_desc;
 }
 }  // namespace Kiran

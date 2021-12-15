@@ -440,7 +440,7 @@ void User::change_user_name_authorized_cb(MethodInvocation invocation, const Gli
     {
         auto old_name = this->user_name_get();
 
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-l", name, "--", this->user_name_get().raw());
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-l", name, "--", this->user_name_get().raw());
 
         this->user_name_set(name);
         this->move_extra_data(old_name, name);
@@ -454,7 +454,7 @@ void User::change_real_name_authorized_cb(MethodInvocation invocation, const Gli
     KLOG_PROFILE("RealName: %s", name.c_str());
     if (this->real_name_get() != name)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-c", name, "--", this->user_name_get().raw());
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-c", name, "--", this->user_name_get().raw());
 
         this->real_name_set(name);
     }
@@ -486,7 +486,7 @@ void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib
 
     if (this->home_directory_get() != home_dir)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw())
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw())
 
         this->home_directory_set(home_dir);
         this->reset_icon_file();
@@ -500,7 +500,7 @@ void User::change_shell_authorized_cb(MethodInvocation invocation, const Glib::u
 
     if (this->shell_get() != shell)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->user_name_get().raw());
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->user_name_get().raw());
         this->shell_set(shell);
     }
     invocation.ret();
@@ -636,7 +636,7 @@ void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
 
     if (this->locked_get() != locked)
     {
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->user_name_get().raw());
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->user_name_get().raw());
         this->locked_set(locked);
         if (this->automatic_login_get() && locked)
         {
@@ -676,7 +676,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
             groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), admin_gid);
         }
 
-        SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->user_name_get().raw());
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->user_name_get().raw());
         this->account_type_set(account_type);
     }
     invocation.ret();
@@ -696,18 +696,18 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
         if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN) ||
             password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE))
         {
-            SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/passwd", "-d", "--", this->user_name_get().raw());
+            SPAWN_DBUS(invocation, "/usr/bin/passwd", "-d", "--", this->user_name_get().raw());
 
             if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN))
             {
-                SPAWN_WITH_LOGIN_UID(invocation, "/usr/bin/chage", "-d", "0", "--", this->user_name_get().raw());
+                SPAWN_DBUS(invocation, "/usr/bin/chage", "-d", "0", "--", this->user_name_get().raw());
             }
 
             this->password_hint_set(std::string());
         }
         else if (this->locked_get())
         {
-            SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-U", "--", this->user_name_get().raw());
+            SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-U", "--", this->user_name_get().raw());
         }
         this->locked_set(false);
         this->password_mode_set(password_mode);
@@ -725,7 +725,7 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
         this->thaw_notify();
     });
 
-    SPAWN_WITH_LOGIN_UID(invocation, "/usr/sbin/usermod", "-p", password.raw(), "--", this->user_name_get().raw());
+    SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-p", password.raw(), "--", this->user_name_get().raw());
 
     this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
     this->locked_set(false);
@@ -812,12 +812,7 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY);
     }
     argv.push_back(this->user_name_get());
-
-    CCErrorCode error_code;
-    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
+    SPAWN_DBUS_WITH_ARGS(invocation, argv);
 
     invocation.ret();
 }

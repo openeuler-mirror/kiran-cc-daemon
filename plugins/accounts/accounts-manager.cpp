@@ -486,12 +486,7 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
     }
 
     argv.insert(argv.end(), {"--", name.raw()});
-
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
+    SPAWN_DBUS_WITH_ARGS(invocation, argv);
 
     auto user = this->find_and_create_user_by_name(name);
     if (user)
@@ -538,12 +533,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
         argv = std::vector<std::string>({"/usr/sbin/userdel", "-f", "--", user->user_name_get().raw()});
     }
 
-    error_code = CCErrorCode::SUCCESS;
-    if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
-
+    SPAWN_DBUS_WITH_ARGS(invocation, argv);
     invocation.ret();
 }
 

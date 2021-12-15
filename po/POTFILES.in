@@ -13,6 +13,7 @@ data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in
 src/main.cpp
 lib/base/error.cpp
 lib/dbus/auth-manager.cpp
+plugins/accounts/accounts-util.cpp
 plugins/timedate/timedate-manager.cpp
 plugins/timedate/timedate-format.cpp
 plugins/display/display-manager.cpp

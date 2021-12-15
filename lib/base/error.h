@@ -39,7 +39,7 @@ public:
     CCError();
     virtual ~CCError(){};
 
-    static std::string get_error_desc(CCErrorCode error_code);
+    static std::string get_error_desc(CCErrorCode error_code, bool attach_error_code = true);
 };
 
 }  // namespace Kiran

@@ -15,6 +15,7 @@
 #include "plugins/accounts/accounts-util.h"
 
 #include <fcntl.h>
+#include <glib/gi18n.h>
 
 enum CommandExitStatus
 {
@@ -162,13 +163,15 @@ void AccountsUtil::setup_loginuid(const std::string &id)
 
 bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                         const std::vector<std::string> argv,
-                                        CCErrorCode &error_code)
+                                        std::string &error)
 {
     KLOG_DEBUG("command: %s.", StrUtils::join(argv, " ").c_str());
 
     std::string loginuid;
+    std::string standard_error;
     int status;
     std::string working_directory;
+    CCErrorCode error_code = CCErrorCode::SUCCESS;
 
     AccountsUtil::get_caller_loginuid(invocation, loginuid);
 
@@ -179,17 +182,35 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
                          Glib::SPAWN_DEFAULT,
                          sigc::bind(&AccountsUtil::setup_loginuid, loginuid),
                          nullptr,
-                         nullptr,
+                         &standard_error,
                          &status);
     }
     catch (const Glib::SpawnError &e)
     {
         KLOG_WARNING("%s.", e.what().c_str());
         error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED;
-        return false;
     }
     KLOG_DEBUG("status: %d.", status);
-    return AccountsUtil::parse_exit_status(status, error_code);
+
+    if (error_code == CCErrorCode::SUCCESS)
+    {
+        AccountsUtil::parse_exit_status(status, error_code);
+    }
+
+    if (error_code != CCErrorCode::SUCCESS)
+    {
+        error = CCError::get_error_desc(error_code, false);
+        if (!standard_error.empty())
+        {
+            error += fmt::format(_(" ({0}, error code: 0x{1:x})"), StrUtils::rtrim(standard_error), int32_t(error_code));
+        }
+        else
+        {
+            error += fmt::format(_(" (error code: 0x{:x})"), int32_t(error_code));
+        }
+        return false;
+    }
+    return true;
 }
 
 bool AccountsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_code)
