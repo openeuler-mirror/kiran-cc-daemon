@@ -117,7 +117,8 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/accounts_i.h
               ${PROJECT_SOURCE_DIR}/include/systeminfo-i.h
         DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
 
-install(FILES ${PROJECT_SOURCE_DIR}/include/display_i.h
+install(FILES ${PROJECT_SOURCE_DIR}/include/audio-i.h
+              ${PROJECT_SOURCE_DIR}/include/display_i.h
               ${PROJECT_SOURCE_DIR}/include/appearance-i.h
               ${PROJECT_SOURCE_DIR}/include/display-i.h
               ${PROJECT_SOURCE_DIR}/include/keybinding-i.h
