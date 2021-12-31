@@ -794,6 +794,12 @@ void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t m
     {
         current_mode = current_mode & (~mode);
     }
+
+    if (!current_mode)
+    {
+        LOG_WARNING("All authorization mode is off, the authorization mode will automatically be set to password authorization mode.");
+    }
+
     this->auth_modes_set(current_mode);
     invocation.ret();
 }

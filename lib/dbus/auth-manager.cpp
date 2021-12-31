@@ -1,13 +1,12 @@
-/*
- * @Author       : tangjie02
- * @Date         : 2020-07-24 14:43:40
- * @LastEditors  : tangjie02
- * @LastEditTime : 2020-09-03 13:42:40
- * @Description  : 
- * @FilePath     : /kiran-cc-daemon/lib/dbus/auth-manager.cpp
+/**
+ * @file          /kiran-cc-daemon/lib/dbus/auth-manager.cpp
+ * @brief         
+ * @author        tangjie02 <tangjie02@kylinos.com.cn>
+ * @copyright (c) 2020 KylinSec. All rights reserved. 
  */
 
 #include "lib/dbus/auth-manager.h"
+#include <glib/gi18n.h>
 
 namespace Kiran
 {
@@ -138,7 +137,7 @@ void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::sh
     }
     else
     {
-        auth_check->invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_AUTH_FAILED, "Not authorized"));
+        auth_check->invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_AUTH_FAILED, _("Authorization failed")));
     }
 
     g_return_if_fail(this->running_auth_checks_ > 0);
