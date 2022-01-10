@@ -49,9 +49,7 @@ void KeybindingPlugin::activate()
         }
     }
 
-    CustomShortCutManager::global_init();
-    SystemShortCutManager::global_init();
-    KeybindingManager::global_init(SystemShortCutManager::get_instance());
+    KeybindingManager::global_init();
 }
 
 void KeybindingPlugin::deactivate()
@@ -69,7 +67,5 @@ void KeybindingPlugin::deactivate()
     }
 
     KeybindingManager::global_deinit();
-    SystemShortCutManager::global_deinit();
-    CustomShortCutManager::global_deinit();
 }
 }  // namespace Kiran

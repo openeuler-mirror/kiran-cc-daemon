@@ -27,40 +27,45 @@ namespace Kiran
 struct CustomShortCut
 {
     CustomShortCut() = default;
+    CustomShortCut(const std::string &u, const std::string &n, const std::string a, const std::string &k) : uid(u),
+                                                                                                            name(n),
+                                                                                                            action(a),
+                                                                                                            key_combination(k) {}
     CustomShortCut(const std::string &n, const std::string a, const std::string &k) : name(n),
                                                                                       action(a),
-                                                                                      key_combination(k)
-    {
-    }
+                                                                                      key_combination(k) {}
+
+    // 快捷键的uid，对应keyfile文件中的group name
+    std::string uid;
+    // 快捷键名称
     std::string name;
+    // 触发快捷键后执行的命令
     std::string action;
+    // 快捷键
     std::string key_combination;
 };
 
-class CustomShortCutManager
+class CustomShortCuts
 {
 public:
-    CustomShortCutManager();
-    virtual ~CustomShortCutManager();
+    CustomShortCuts();
+    virtual ~CustomShortCuts();
 
-    static CustomShortCutManager *get_instance() { return instance_; };
-
-    static void global_init();
-
-    static void global_deinit() { delete instance_; };
+    // 初始化
+    void init();
 
     // 添加自定义快捷键
-    std::string add(std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code);
+    bool add(std::shared_ptr<CustomShortCut> shortcut);
     // 修改自定义快捷键，如果uid不存在则返回错误
-    bool modify(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code);
+    bool modify(std::shared_ptr<CustomShortCut> shortcut);
     // 删除自定义快捷键
-    bool remove(const std::string &uid, CCErrorCode &error_code);
+    bool remove(const std::string &uid);
     // 获取自定义快捷键
     std::shared_ptr<CustomShortCut> get(const std::string &uid);
+    // 通过keycomb搜索快捷键，如果存在多个快捷键有相同的keycomb，则返回第一个找到的快捷键
+    std::shared_ptr<CustomShortCut> get_by_keycomb(const std::string &keycomb);
     // 获取所有自定义快捷键
     std::map<std::string, std::shared_ptr<CustomShortCut>> get();
-    // 通过keycomb搜索快捷键
-    std::string lookup_shortcut(const std::string &keycomb);
 
     // 自定义快捷键变化信号。
     // 如果第一个CustomShortCut为空，则为新增快捷键；
@@ -69,7 +74,6 @@ public:
     // sigc::signal<void, std::shared_ptr<CustomShortCut>, std::shared_ptr<CustomShortCut>> signal_custom_shortcut_changed() const { return this->custom_shortcut_changed_; }
 
 private:
-    void init();
     // 初始化需要使用的修饰符
     void init_modifiers();
     // 获取NumLock修饰键，NumLock修饰键可能对应Mod1-Mod5中的其中一个。
@@ -77,20 +81,18 @@ private:
     // 生成自定义快捷键唯一ID
     std::string gen_uid();
     // 校验自定义快捷键是否合法
-    bool check_valid(std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code);
+    bool check_valid(std::shared_ptr<CustomShortCut> shortcut);
     // 设置自定义快捷键，如果uid不存在则创建，不做合法性校验
-    void change_and_save(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut);
+    void change_and_save(std::shared_ptr<CustomShortCut> shortcut, bool is_remove = false);
     // 保存自定义按键到文件
     bool save_to_file();
     // 抓取组合按键或者取消抓取组合按键
-    bool grab_keycomb_change(const std::string &key_comb, bool grab, CCErrorCode &error_code);
-    bool grab_keystate_change(const KeyState &keystate, bool grab, CCErrorCode &error_code);
+    bool grab_keycomb_change(const std::string &key_comb, bool is_grab);
+    bool grab_keystate_change(const KeyState &keystate, bool is_grab);
 
     static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
 
 private:
-    static CustomShortCutManager *instance_;
-
     uint32_t ignored_mods_;
     uint32_t used_mods_;
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 11:46+0800\n"
+"POT-Creation-Date: 2022-01-10 19:34+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -401,415 +401,415 @@ msgstr "输出版本信息并退出"
 msgid "Control center"
 msgstr "控制中心"
 
-#: ../lib/base/error.cpp:33
+#: ../lib/base/error.cpp:32
+msgid "The argument is invalid."
+msgstr "参数不合法。"
+
+#: ../lib/base/error.cpp:35
+msgid "Operation failed."
+msgstr "操作失败。"
+
+#: ../lib/base/error.cpp:39
 msgid "The plugin doesn't exist."
 msgstr "插件不存在。"
 
-#: ../lib/base/error.cpp:40
+#: ../lib/base/error.cpp:46
 msgid "No user found."
 msgstr "没有发现用户。"
 
-#: ../lib/base/error.cpp:43
+#: ../lib/base/error.cpp:49
 msgid "Multiple users have the same authentication data."
 msgstr "多个用户存在相同的认证数据"
 
-#: ../lib/base/error.cpp:46
+#: ../lib/base/error.cpp:52
 msgid "The user already exists."
 msgstr "用户已存在。"
 
-#: ../lib/base/error.cpp:49
+#: ../lib/base/error.cpp:55
 msgid "Unknown account type."
 msgstr "未知的用户类型。"
 
-#: ../lib/base/error.cpp:52
+#: ../lib/base/error.cpp:58
 msgid "Can't update password file."
 msgstr "不能更新password文件。"
 
-#: ../lib/base/error.cpp:55
+#: ../lib/base/error.cpp:61
 msgid "Invalid command syntax."
 msgstr "命令语法无效。"
 
-#: ../lib/base/error.cpp:58
+#: ../lib/base/error.cpp:64
 msgid "Invalid argument to option."
 msgstr "命令参数无效。"
 
-#: ../lib/base/error.cpp:61
+#: ../lib/base/error.cpp:67
 msgid "UID already in use."
 msgstr "UID已在使用中。"
 
-#: ../lib/base/error.cpp:64
+#: ../lib/base/error.cpp:70
 msgid "Passwd file contains errors."
 msgstr "Passwd文件存在错误。"
 
-#: ../lib/base/error.cpp:67
+#: ../lib/base/error.cpp:73
 msgid "Specified user/group doesn't exist."
 msgstr "指定的用户/组不存在。"
 
-#: ../lib/base/error.cpp:70
+#: ../lib/base/error.cpp:76
 msgid "User to modify is logged in."
 msgstr "要修改的用户已登陆。"
 
-#: ../lib/base/error.cpp:73
+#: ../lib/base/error.cpp:79
 msgid "Username already in use."
 msgstr "用户名已经在使用中。"
 
-#: ../lib/base/error.cpp:76
+#: ../lib/base/error.cpp:82
 msgid "Can't update group file."
 msgstr "不能更新group文件。"
 
-#: ../lib/base/error.cpp:79
+#: ../lib/base/error.cpp:85
 msgid "Insufficient space to move home dir."
 msgstr "空间不足，无法移动主目录。"
 
-#: ../lib/base/error.cpp:82
+#: ../lib/base/error.cpp:88
 msgid "Can't create/remove/move home directory."
 msgstr "不能创建/删除/移动主目录。"
 
-#: ../lib/base/error.cpp:86
+#: ../lib/base/error.cpp:92
 msgid "Can't update SELinux user mapping."
 msgstr "无法更新SELinux用户映射。"
 
-#: ../lib/base/error.cpp:89
+#: ../lib/base/error.cpp:95
 msgid "Can't update the subordinate uid file."
 msgstr "无法更新下级uid文件。"
 
-#: ../lib/base/error.cpp:92
+#: ../lib/base/error.cpp:98
 msgid "Can't update the subordinate gid file."
 msgstr "无法更新下级gid文件。"
 
-#: ../lib/base/error.cpp:95
+#: ../lib/base/error.cpp:101
 msgid "Refuse to delete root user."
 msgstr "禁止删除root用户。"
 
-#: ../lib/base/error.cpp:101
+#: ../lib/base/error.cpp:107
 msgid "The authentication mode isn't supported."
 msgstr "认证模式不支持。"
 
-#: ../lib/base/error.cpp:104
+#: ../lib/base/error.cpp:110
 msgid "User is locked."
 msgstr "用户被锁定。"
 
-#: ../lib/base/error.cpp:107
+#: ../lib/base/error.cpp:113
 msgid "The name already exists."
 msgstr "名字已存在"
 
-#: ../lib/base/error.cpp:111
+#: ../lib/base/error.cpp:117
 msgid "The range of volume is between 0 and 1.0."
 msgstr "音量范围必须在[0, 1.0]之间"
 
-#: ../lib/base/error.cpp:115
+#: ../lib/base/error.cpp:121
 msgid "The range of balance is between -1 and 1."
 msgstr "平衡范围必须在[-1, 1]之间"
 
-#: ../lib/base/error.cpp:119
+#: ../lib/base/error.cpp:125
 msgid "The sink device isn't found."
 msgstr "未找到输出设备。"
 
-#: ../lib/base/error.cpp:123
+#: ../lib/base/error.cpp:129
 msgid "The source device isn't found."
 msgstr "未找到输入设备。"
 
-#: ../lib/base/error.cpp:127
+#: ../lib/base/error.cpp:133
 msgid "The sink stream isn't found."
 msgstr "未找到输出流。"
 
-#: ../lib/base/error.cpp:130
+#: ../lib/base/error.cpp:136
 msgid "NTP unit is active."
 msgstr "NTP服务已开启。"
 
-#: ../lib/base/error.cpp:133
+#: ../lib/base/error.cpp:139
 msgid "Invalid timezone."
 msgstr "不合法的时区。"
 
-#: ../lib/base/error.cpp:136
+#: ../lib/base/error.cpp:142
 msgid "No NTP unit available."
 msgstr "没有NTP服务可用。"
 
-#: ../lib/base/error.cpp:140
+#: ../lib/base/error.cpp:146
 msgid "Unknown date format type."
 msgstr "未知的日期格式化类型。"
 
-#: ../lib/base/error.cpp:143
+#: ../lib/base/error.cpp:149
 msgid "Failed to set date format."
 msgstr "设置日期显示格式失败。"
 
-#: ../lib/base/error.cpp:146
+#: ../lib/base/error.cpp:152
 msgid "Failed to set hour format."
 msgstr "设置时间显示格式失败。"
 
-#: ../lib/base/error.cpp:149
+#: ../lib/base/error.cpp:155
 msgid "Failed to set seconds showing."
 msgstr "设置秒数是否显示失败。"
 
-#: ../lib/base/error.cpp:152
+#: ../lib/base/error.cpp:158
 msgid "Failed to start NTP unit."
 msgstr "开启NTP服务失败。"
 
-#: ../lib/base/error.cpp:155
+#: ../lib/base/error.cpp:161
 msgid "Failed to stop NTP unit."
 msgstr "停止NTP服务失败。"
 
-#: ../lib/base/error.cpp:159
+#: ../lib/base/error.cpp:165
 msgid "Unknown display style."
 msgstr "未知的显示类型。"
 
-#: ../lib/base/error.cpp:162
+#: ../lib/base/error.cpp:168
 msgid ""
 "The mode of monitors which contain resolution and refresh rate is no "
 "intersection."
 msgstr "所有显示器没有相同的分辨率和刷新率。"
 
-#: ../lib/base/error.cpp:165
+#: ../lib/base/error.cpp:171
 msgid "Auto mode is set failed."
 msgstr "自动模式设置失败。"
 
-#: ../lib/base/error.cpp:169
+#: ../lib/base/error.cpp:175
 msgid "Failed to set the window scaling factor."
 msgstr "设置窗口缩放因子失败。"
 
-#: ../lib/base/error.cpp:172
+#: ../lib/base/error.cpp:178
 msgid "The custom configuration file isn't found."
 msgstr "未找到自定义配置文件。"
 
-#: ../lib/base/error.cpp:175
+#: ../lib/base/error.cpp:181
 msgid "Not found matched item in custom configuration file."
 msgstr "不能找到匹配的配置项。"
 
-#: ../lib/base/error.cpp:178
+#: ../lib/base/error.cpp:184
 msgid "The primary monitor must not be empty."
 msgstr "主显示器不能为空。"
 
-#: ../lib/base/error.cpp:181
+#: ../lib/base/error.cpp:187
 msgid "Not found the primary monitor."
 msgstr "未找到主显示器。"
 
-#: ../lib/base/error.cpp:184
+#: ../lib/base/error.cpp:190
 msgid ""
 "Cannot disable the monitor, because the number of the enabled monitor is "
 "less than 1."
 msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个。"
 
-#: ../lib/base/error.cpp:187
+#: ../lib/base/error.cpp:193
 msgid "Exist null mode in mode list."
 msgstr "模式列表中存在空的模式。"
 
-#: ../lib/base/error.cpp:190
+#: ../lib/base/error.cpp:196
 msgid "Exist null mode in preferred mode list."
 msgstr "在推荐模式中存在空的模式。"
 
-#: ../lib/base/error.cpp:193
+#: ../lib/base/error.cpp:199
 msgid "The current mode is not exist."
 msgstr "当前模式不存在。"
 
-#: ../lib/base/error.cpp:197
+#: ../lib/base/error.cpp:203
 msgid "Not found match mode."
 msgstr "未发现匹配的模式。"
 
-#: ../lib/base/error.cpp:200
+#: ../lib/base/error.cpp:206
 msgid "The mode is not exist."
 msgstr "当前模式不存在。"
 
-#: ../lib/base/error.cpp:203
+#: ../lib/base/error.cpp:209
 msgid "Unknown rotation type."
 msgstr "未知的旋转类型。"
 
-#: ../lib/base/error.cpp:206
+#: ../lib/base/error.cpp:212
 msgid "Unknown reflect type."
 msgstr "未知的映射类型。"
 
-#: ../lib/base/error.cpp:209
+#: ../lib/base/error.cpp:215
 msgid "Theme not exist."
 msgstr "主题不存在。"
 
-#: ../lib/base/error.cpp:212
+#: ../lib/base/error.cpp:218
 msgid "Unsupported theme type."
 msgstr "主题类型不支持。"
 
-#: ../lib/base/error.cpp:215
+#: ../lib/base/error.cpp:221
 msgid "Invalid theme type."
 msgstr "主题类型不合法。"
 
-#: ../lib/base/error.cpp:219
+#: ../lib/base/error.cpp:225
 msgid "Invalid font type."
 msgstr "字体类型不合法。"
 
-#: ../lib/base/error.cpp:222
+#: ../lib/base/error.cpp:228
 msgid "Unsupported font type."
 msgstr "字体类型不支持。"
 
-#: ../lib/base/error.cpp:225
+#: ../lib/base/error.cpp:231
 msgid "An incomplete request already exists."
 msgstr "存在未完成的请求。"
 
-#: ../lib/base/error.cpp:228
+#: ../lib/base/error.cpp:234
 msgid "The request is canceled."
 msgstr "请求被取消。"
 
-#: ../lib/base/error.cpp:234
+#: ../lib/base/error.cpp:240
 msgid "The request is rejected."
 msgstr "请求被拒绝。"
 
-#: ../lib/base/error.cpp:237
+#: ../lib/base/error.cpp:243
 msgid "Not found adapter."
 msgstr "未发现适配器。"
 
-#: ../lib/base/error.cpp:245
+#: ../lib/base/error.cpp:251
 msgid "Sync to file failed."
 msgstr "同步到文件失败。"
 
-#: ../lib/base/error.cpp:251
+#: ../lib/base/error.cpp:257
 msgid "Invalid scale mode."
 msgstr "缩放模式不合法。"
 
-#: ../lib/base/error.cpp:254
+#: ../lib/base/error.cpp:260
 msgid "The number of the layout can't exceeds {0}."
 msgstr "布局数量不能超过{0}个。"
 
-#: ../lib/base/error.cpp:257
+#: ../lib/base/error.cpp:263
 msgid "The layout is invalid."
 msgstr "该布局不合法。"
 
-#: ../lib/base/error.cpp:260
+#: ../lib/base/error.cpp:266
 msgid "The layout already exist."
 msgstr "该布局已存在。"
 
-#: ../lib/base/error.cpp:263
+#: ../lib/base/error.cpp:269
 msgid "Failed to set the layout."
 msgstr "设置布局失败。"
 
-#: ../lib/base/error.cpp:266
+#: ../lib/base/error.cpp:272
 msgid "The layout is no exist."
 msgstr "该布局不存在。"
 
-#: ../lib/base/error.cpp:269
+#: ../lib/base/error.cpp:275
 msgid "Failed to update the layout."
 msgstr "更新布局失败。"
 
-#: ../lib/base/error.cpp:272
+#: ../lib/base/error.cpp:278
 msgid "The layout option already exist."
 msgstr "布局选项已存在。"
 
-#: ../lib/base/error.cpp:275
+#: ../lib/base/error.cpp:281
 msgid "Failed to set the layout option."
 msgstr "设置布局选项失败。"
 
-#: ../lib/base/error.cpp:278
+#: ../lib/base/error.cpp:284
 msgid "The layout option is no exist."
 msgstr "布局选项不存在。"
 
-#: ../lib/base/error.cpp:281
+#: ../lib/base/error.cpp:287
 msgid "Failed to update the layout option."
 msgstr "更新布局选项失败。"
 
-#: ../lib/base/error.cpp:284
+#: ../lib/base/error.cpp:290
 msgid "Failed to clear the layout option."
 msgstr "清理布局选项失败。"
 
-#: ../lib/base/error.cpp:287
-msgid "The custom shortcut is invalid."
-msgstr "自定义快捷键不合法。"
-
-#: ../lib/base/error.cpp:290
+#: ../lib/base/error.cpp:293
 msgid "The custom shortcut isn't exist."
 msgstr "自定义快捷键不存在。"
-
-#: ../lib/base/error.cpp:293
-msgid "The custom shortcut already exist."
-msgstr "自定义快捷键已存在。"
 
 #: ../lib/base/error.cpp:297
 msgid "The key combination already exist."
 msgstr "按键组合已经存在。"
 
-#: ../lib/base/error.cpp:302
+#: ../lib/base/error.cpp:301
 msgid "The key combination is invalid."
 msgstr "按键组合不合法。"
 
-#: ../lib/base/error.cpp:306
+#: ../lib/base/error.cpp:304
 msgid "The system shortcut isn't exist."
 msgstr "该系统快捷键不存在。"
 
-#: ../lib/base/error.cpp:312
+#: ../lib/base/error.cpp:310
 msgid "Unsupported power supply mode."
 msgstr "不支持该供电模式。"
 
-#: ../lib/base/error.cpp:318
+#: ../lib/base/error.cpp:316
 msgid "Unsupported power device."
 msgstr "不支持该设备。"
 
-#: ../lib/base/error.cpp:321
+#: ../lib/base/error.cpp:319
 msgid "The value must be between 0 and 100."
 msgstr "值必须在0到100之间"
 
-#: ../lib/base/error.cpp:325
+#: ../lib/base/error.cpp:323
 msgid "Unknown power action."
 msgstr "未知电源动作。"
 
-#: ../lib/base/error.cpp:329
+#: ../lib/base/error.cpp:327
 msgid "Unsupported power event."
 msgstr "事件不支持。"
 
-#: ../lib/base/error.cpp:332
+#: ../lib/base/error.cpp:330
 msgid "Failed to set the action."
 msgstr "设置触发行为失败。"
 
-#: ../lib/base/error.cpp:335
+#: ../lib/base/error.cpp:333
 msgid "Failed to set brightness."
 msgstr "设置亮度失败。"
 
-#: ../lib/base/error.cpp:338
+#: ../lib/base/error.cpp:336
 msgid "The systeminfo type is invalid."
 msgstr "系统信息类型不合法。"
 
-#: ../lib/base/error.cpp:341
+#: ../lib/base/error.cpp:339
 msgid "Failed to set host name."
 msgstr "设置主机名失败。"
 
-#: ../lib/base/error.cpp:344
+#: ../lib/base/error.cpp:342
 msgid "Not found the property."
 msgstr "未找到该属性。"
 
-#: ../lib/base/error.cpp:347
+#: ../lib/base/error.cpp:345
 msgid "The type is mismatch."
 msgstr "类型不匹配。"
 
-#: ../lib/base/error.cpp:350
+#: ../lib/base/error.cpp:348
 msgid "The property is invalid."
 msgstr "属性不合法"
 
-#: ../lib/base/error.cpp:353
+#: ../lib/base/error.cpp:351
 msgid "The property must not be modified manually."
 msgstr "属性不能手动修改。"
 
-#: ../lib/base/error.cpp:356
+#: ../lib/base/error.cpp:354
 msgid "The property is unsupported."
 msgstr "属性不支持。"
 
-#: ../lib/base/error.cpp:360
+#: ../lib/base/error.cpp:358
 msgid "Arguments invalid."
 msgstr "参数不合法"
 
-#: ../lib/base/error.cpp:363
+#: ../lib/base/error.cpp:361
 msgid "The network proxy mode is invalid."
 msgstr "代理模式不合法"
 
-#: ../lib/base/error.cpp:366
+#: ../lib/base/error.cpp:364
 msgid "The current network proxy mode is not manual."
 msgstr "当前代理模式不是手动模式。"
 
-#: ../lib/base/error.cpp:369
+#: ../lib/base/error.cpp:367
 msgid "The current network proxy mode is not auto."
 msgstr "当前代理模式不是自动模式。"
 
-#: ../lib/base/error.cpp:412
+#: ../lib/base/error.cpp:408
 msgid "Internel error."
 msgstr "内部错误。"
 
-#: ../lib/base/error.cpp:415 ../lib/base/error.cpp:418
+#: ../lib/base/error.cpp:411 ../lib/base/error.cpp:414
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../lib/base/error.cpp:424 ../plugins/accounts/accounts-util.cpp:209
+#: ../lib/base/error.cpp:420 ../plugins/accounts/accounts-util.cpp:209
 msgid " (error code: 0x{:x})"
 msgstr "(错误码：0x{:x})"
 
@@ -1174,6 +1174,12 @@ msgstr "电源管理"
 #: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
 msgid "Power management daemon"
 msgstr "电源管理后端"
+
+#~ msgid "The custom shortcut is invalid."
+#~ msgstr "自定义快捷键不合法。"
+
+#~ msgid "The custom shortcut already exist."
+#~ msgstr "自定义快捷键已存在。"
 
 #~ msgid "The expiration policy isn't found."
 #~ msgstr "未找到过期策略"

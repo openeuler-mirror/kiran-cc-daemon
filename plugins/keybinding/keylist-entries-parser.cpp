@@ -42,7 +42,7 @@ bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string 
                 KeyListEntries keylist_entries;
                 if (!this->process_keylist_entries(root_node, keylist_entries, err))
                 {
-                    KLOG_WARNING("failed to paerse %s: %s. ignore it.", file_path.c_str(), err.c_str());
+                    KLOG_WARNING("Failed to paerse %s: %s. ignore it.", file_path.c_str(), err.c_str());
                     continue;
                 }
                 keys.push_back(std::move(keylist_entries));

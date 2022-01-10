@@ -95,6 +95,10 @@
             <description>List all shortcuts that contain custom shortcuts and system shortcuts.</description>
         </method>
 
+        <method name="ResetShortcuts">
+            <description>Reset the shortcuts to default value.</description>
+        </method>
+
         <signal name="Added">
             <arg type="s" name="result">
                 <summary>The struct is a json string which contains uid and kind.</summary>

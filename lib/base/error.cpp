@@ -28,6 +28,12 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     std::string error_desc;
     switch (error_code)
     {
+    case CCErrorCode::ERROR_ARGUMENT_INVALID:
+        error_desc = _("The argument is invalid.");
+        break;
+    case CCErrorCode::ERROR_CALL_FUNCTION_FAILED:
+        error_desc = _("Operation failed.");
+        break;
     case CCErrorCode::ERROR_PLUGIN_NOT_EXIST_1:
     case CCErrorCode::ERROR_PLUGIN_NOT_EXIST_2:
         error_desc = _("The plugin doesn't exist.");
@@ -283,26 +289,18 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_CLEAR_FAILED:
         error_desc = _("Failed to clear the layout option.");
         break;
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_INVALID:
-        error_desc = _("The custom shortcut is invalid.");
-        break;
     case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST:
         error_desc = _("The custom shortcut isn't exist.");
         break;
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_ALREADY_EXIST:
-        error_desc = _("The custom shortcut already exist.");
-        break;
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST_1:
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST_2:
+    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST:
+    case CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_ALREADY_EXIST:
         error_desc = _("The key combination already exist.");
         break;
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID_1:
-    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID_2:
-    case CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_INVALID_1:
+    case CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID:
+    case CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_INVALID:
         error_desc = _("The key combination is invalid.");
         break;
-    case CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST_1:
-    case CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST_2:
+    case CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST:
         error_desc = _("The system shortcut isn't exist.");
         break;
     case CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_1:
@@ -386,8 +384,6 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED:
-    case CCErrorCode::ERROR_KEYBINDING_GEN_UID_FAILED:
-    case CCErrorCode::ERROR_KEYBINDING_GRAB_KEY_FAILED:
     case CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED:
     case CCErrorCode::ERROR_PLUGIN_NOTFOUND_NEW_PLUGIN_FUNC:
     case CCErrorCode::ERROR_PLUGIN_NOTFOUND_DEL_PLUGIN_FUNC:

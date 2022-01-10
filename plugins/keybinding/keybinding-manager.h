@@ -25,12 +25,12 @@ namespace Kiran
 class KeybindingManager : public SessionDaemon::KeybindingStub
 {
 public:
-    KeybindingManager(SystemShortCutManager *system);
+    KeybindingManager();
     virtual ~KeybindingManager();
 
     static KeybindingManager *get_instance() { return instance_; };
 
-    static void global_init(SystemShortCutManager *system);
+    static void global_init();
 
     static void global_deinit() { delete instance_; };
 
@@ -62,12 +62,17 @@ protected:
     virtual void ListSystemShortcuts(MethodInvocation &invocation);
     // 获取所有快捷键，包括自定义和系统快捷键
     virtual void ListShortcuts(MethodInvocation &invocation);
+    // 重置所有的系统快捷键
+    virtual void ResetShortcuts(MethodInvocation &invocation);
 
 private:
     using ShortCutTuple = std::tuple<std::string, std::string, std::string>;
 
 private:
     void init();
+
+    // 判断快捷键是否已经存在
+    bool has_same_keycomb(const std::string &uid, const std::string &key_combination);
 
     void system_shortcut_added(std::shared_ptr<SystemShortCut> system_shortcut);
     void system_shortcut_deleted(std::shared_ptr<SystemShortCut> system_shortcut);
@@ -80,7 +85,8 @@ private:
 private:
     static KeybindingManager *instance_;
 
-    SystemShortCutManager *system_shorcut_manager_;
+    std::shared_ptr<CustomShortCuts> custom_shortcuts_;
+    std::shared_ptr<SystemShortCuts> system_shortcuts_;
 
     uint32_t dbus_connect_id_;
     uint32_t object_register_id_;

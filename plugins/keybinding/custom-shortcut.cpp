@@ -28,123 +28,155 @@ namespace Kiran
 #define GEN_ID_MAX_NUM 5
 #define SAVE_TIMEOUT_MILLISECONDS 500
 
-CustomShortCutManager::CustomShortCutManager() : rand_((uint32_t)time(NULL))
+CustomShortCuts::CustomShortCuts() : rand_((uint32_t)time(NULL))
 {
     this->conf_file_path_ = Glib::build_filename(Glib::get_user_config_dir(),
                                                  KEYBINDING_CONF_DIR,
                                                  CUSTOM_SHORTCUT_FILE);
 }
 
-CustomShortCutManager::~CustomShortCutManager()
+CustomShortCuts::~CustomShortCuts()
 {
     if (this->root_window_)
     {
-        this->root_window_->remove_filter(&CustomShortCutManager::window_event, this);
+        this->root_window_->remove_filter(&CustomShortCuts::window_event, this);
     }
 }
 
-CustomShortCutManager *CustomShortCutManager::instance_ = nullptr;
-void CustomShortCutManager::global_init()
+void CustomShortCuts::init()
 {
-    instance_ = new CustomShortCutManager();
-    instance_->init();
+    this->init_modifiers();
+    try
+    {
+        this->keyfile_.load_from_file(this->conf_file_path_, Glib::KEY_FILE_KEEP_COMMENTS);
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("failed to load %s: %s.", this->conf_file_path_.c_str(), e.what().c_str());
+    };
+
+    auto display = Gdk::Display::get_default();
+    this->root_window_ = display->get_default_screen()->get_root_window();
+    this->root_window_->add_filter(&CustomShortCuts::window_event, this);
+    auto event_mask = this->root_window_->get_events();
+    this->root_window_->set_events(event_mask | Gdk::KEY_PRESS_MASK);
+
+    for (const auto &group : this->keyfile_.get_groups())
+    {
+        auto shortcut = this->get(group.raw());
+        if (shortcut)
+        {
+            if (!this->check_valid(shortcut) ||
+                !this->grab_keycomb_change(shortcut->key_combination, true))
+            {
+                shortcut->key_combination = SHORTCUT_KEYCOMB_DISABLE;
+                this->change_and_save(shortcut);
+                KLOG_WARNING("Disable custom shortcut %s.", shortcut->name.c_str());
+            }
+        }
+    }
 }
 
-std::string CustomShortCutManager::add(std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code)
+bool CustomShortCuts::add(std::shared_ptr<CustomShortCut> shortcut)
 {
-    KLOG_PROFILE("name: %s action: %s keycomb: %s.",
+    KLOG_PROFILE("Name: %s action: %s keycomb: %s.",
                  shortcut->name.c_str(),
                  shortcut->action.c_str(),
                  shortcut->key_combination.c_str());
 
-    RETURN_VAL_IF_FALSE(this->check_valid(shortcut, error_code), std::string());
-
-    auto tmp_uid = this->lookup_shortcut(shortcut->key_combination);
-    if (tmp_uid != std::string())
-    {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST_1;
-        return std::string();
-    }
+    RETURN_VAL_IF_FALSE(this->check_valid(shortcut), false);
 
     auto uid = this->gen_uid();
     if (uid.length() == 0)
     {
-        KLOG_WARNING("cannot generate unique ID for custom shortcut.");
-        error_code = CCErrorCode::ERROR_KEYBINDING_GEN_UID_FAILED;
-        return std::string();
+        KLOG_WARNING("Cannot generate unique ID for custom shortcut.");
+        return false;
     }
 
-    RETURN_VAL_IF_FALSE(this->grab_keycomb_change(shortcut->key_combination, true, error_code), std::string());
+    RETURN_VAL_IF_FALSE(this->grab_keycomb_change(shortcut->key_combination, true), false);
 
-    this->change_and_save(uid, shortcut);
-
-    return uid;
+    shortcut->uid = uid;
+    this->change_and_save(shortcut, false);
+    return true;
 }
 
-bool CustomShortCutManager::modify(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code)
+bool CustomShortCuts::modify(std::shared_ptr<CustomShortCut> shortcut)
 {
-    KLOG_PROFILE("name: %s action: %s keycomb: %s.",
+    KLOG_PROFILE("Name: %s action: %s keycomb: %s.",
                  shortcut->name.c_str(),
                  shortcut->action.c_str(),
                  shortcut->key_combination.c_str());
 
-    RETURN_VAL_IF_FALSE(this->check_valid(shortcut, error_code), false);
+    RETURN_VAL_IF_FALSE(this->check_valid(shortcut), false);
 
-    if (!this->keyfile_.has_group(uid))
+    if (!this->keyfile_.has_group(shortcut->uid))
     {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST;
+        KLOG_WARNING("The shortcut %s is not exists.", shortcut->uid.c_str());
         return false;
     }
 
-    auto tmp_uid = this->lookup_shortcut(shortcut->key_combination);
-    if (tmp_uid != std::string() && tmp_uid != uid)
-    {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST_2;
-        return false;
-    }
-
-    auto old_key_comb = this->keyfile_.get_value(uid, CUSTOM_KEYFILE_KEYCOMB);
+    auto old_key_comb = this->keyfile_.get_value(shortcut->uid, CUSTOM_KEYFILE_KEYCOMB);
 
     if (old_key_comb != shortcut->key_combination)
     {
-        RETURN_VAL_IF_FALSE(this->grab_keycomb_change(old_key_comb, false, error_code), false);
-        RETURN_VAL_IF_FALSE(this->grab_keycomb_change(shortcut->key_combination, true, error_code), false);
+        RETURN_VAL_IF_FALSE(this->grab_keycomb_change(old_key_comb, false), false);
+        RETURN_VAL_IF_FALSE(this->grab_keycomb_change(shortcut->key_combination, true), false);
     }
 
-    this->change_and_save(uid, shortcut);
+    this->change_and_save(shortcut, false);
     return true;
 }
 
-bool CustomShortCutManager::remove(const std::string &uid, CCErrorCode &error_code)
+bool CustomShortCuts::remove(const std::string &uid)
 {
-    KLOG_PROFILE("id: %s.", uid.c_str());
+    KLOG_PROFILE("Uid: %s.", uid.c_str());
 
-    if (!this->keyfile_.has_group(uid))
+    auto shortcut = this->get(uid);
+    if (!shortcut)
     {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST;
+        KLOG_WARNING("The keycomb %s is not exists.", uid.c_str());
         return false;
     }
-    auto old_key_comb = this->keyfile_.get_value(uid, CUSTOM_KEYFILE_KEYCOMB);
-    RETURN_VAL_IF_FALSE(this->grab_keycomb_change(old_key_comb, false, error_code), false);
-    this->change_and_save(uid, nullptr);
+
+    RETURN_VAL_IF_FALSE(this->grab_keycomb_change(shortcut->key_combination, false), false);
+    this->change_and_save(shortcut, true);
     return true;
 }
 
-std::shared_ptr<CustomShortCut> CustomShortCutManager::get(const std::string &uid)
+std::shared_ptr<CustomShortCut> CustomShortCuts::get(const std::string &uid)
 {
-    KLOG_PROFILE("id: %s.", uid.c_str());
+    KLOG_PROFILE("Id: %s.", uid.c_str());
     if (!this->keyfile_.has_group(uid))
     {
         return nullptr;
     }
     auto shortcut = std::make_shared<CustomShortCut>();
+    shortcut->uid = uid;
     shortcut->name = this->keyfile_.get_value(uid, CUSTOM_KEYFILE_NAME);
     shortcut->action = this->keyfile_.get_value(uid, CUSTOM_KEYFILE_ACTION);
     shortcut->key_combination = this->keyfile_.get_value(uid, CUSTOM_KEYFILE_KEYCOMB);
     return shortcut;
 }
 
-std::map<std::string, std::shared_ptr<CustomShortCut>> CustomShortCutManager::get()
+std::shared_ptr<CustomShortCut> CustomShortCuts::get_by_keycomb(const std::string &keycomb)
+{
+    KLOG_PROFILE("Keycomb: %s", keycomb.c_str());
+
+    // 禁用快捷键不进行搜索
+    RETURN_VAL_IF_TRUE(keycomb == SHORTCUT_KEYCOMB_DISABLE, nullptr);
+
+    for (const auto &group : this->keyfile_.get_groups())
+    {
+        auto value = this->keyfile_.get_value(group, CUSTOM_KEYFILE_KEYCOMB);
+        if (value == keycomb)
+        {
+            return this->get(group);
+        }
+    }
+    return nullptr;
+}
+
+std::map<std::string, std::shared_ptr<CustomShortCut>> CustomShortCuts::get()
 {
     KLOG_PROFILE("");
     std::map<std::string, std::shared_ptr<CustomShortCut>> shortcuts;
@@ -159,60 +191,7 @@ std::map<std::string, std::shared_ptr<CustomShortCut>> CustomShortCutManager::ge
     return shortcuts;
 }
 
-std::string CustomShortCutManager::lookup_shortcut(const std::string &keycomb)
-{
-    KLOG_PROFILE("keycomb: %s", keycomb.c_str());
-
-    // 禁用快捷键不进行搜索
-    RETURN_VAL_IF_TRUE(keycomb == SHORTCUT_KEYCOMB_DISABLE, std::string());
-
-    for (const auto &group : this->keyfile_.get_groups())
-    {
-        auto value = this->keyfile_.get_value(group, CUSTOM_KEYFILE_KEYCOMB);
-        if (value == keycomb)
-        {
-            return group;
-        }
-    }
-    return std::string();
-}
-
-void CustomShortCutManager::init()
-{
-    this->init_modifiers();
-    try
-    {
-        this->keyfile_.load_from_file(this->conf_file_path_, Glib::KEY_FILE_KEEP_COMMENTS);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("failed to load %s: %s.", this->conf_file_path_.c_str(), e.what().c_str());
-    };
-
-    auto display = Gdk::Display::get_default();
-    this->root_window_ = display->get_default_screen()->get_root_window();
-    this->root_window_->add_filter(&CustomShortCutManager::window_event, this);
-    auto event_mask = this->root_window_->get_events();
-    this->root_window_->set_events(event_mask | Gdk::KEY_PRESS_MASK);
-
-    for (const auto &group : this->keyfile_.get_groups())
-    {
-        auto shortcut = this->get(group.raw());
-        if (shortcut)
-        {
-            CCErrorCode error_code = CCErrorCode::SUCCESS;
-            if (!this->check_valid(shortcut, error_code) ||
-                !this->grab_keycomb_change(shortcut->key_combination, true, error_code))
-            {
-                shortcut->key_combination = SHORTCUT_KEYCOMB_DISABLE;
-                this->change_and_save(group, shortcut);
-                KLOG_WARNING("disable custom shortcut '%s'. error_code: %d.", shortcut->name.c_str(), int32_t(error_code));
-            }
-        }
-    }
-}
-
-void CustomShortCutManager::init_modifiers()
+void CustomShortCuts::init_modifiers()
 {
     this->ignored_mods_ = GDK_LOCK_MASK | GDK_HYPER_MASK;
     this->used_mods_ = GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_MOD2_MASK | GDK_MOD3_MASK | GDK_MOD4_MASK |
@@ -223,7 +202,7 @@ void CustomShortCutManager::init_modifiers()
     this->used_mods_ &= ~numlock_modifier;
 }
 
-uint32_t CustomShortCutManager::get_numlock_modifier()
+uint32_t CustomShortCuts::get_numlock_modifier()
 {
     uint32_t mask = 0;
     /*
@@ -266,7 +245,7 @@ uint32_t CustomShortCutManager::get_numlock_modifier()
     return mask;
 }
 
-std::string CustomShortCutManager::gen_uid()
+std::string CustomShortCuts::gen_uid()
 {
     for (int i = 0; i < GEN_ID_MAX_NUM; ++i)
     {
@@ -279,75 +258,65 @@ std::string CustomShortCutManager::gen_uid()
     return std::string();
 }
 
-bool CustomShortCutManager::check_valid(std::shared_ptr<CustomShortCut> shortcut, CCErrorCode &error_code)
+bool CustomShortCuts::check_valid(std::shared_ptr<CustomShortCut> shortcut)
 {
     if (shortcut->name.length() == 0 ||
         shortcut->action.length() == 0)
     {
-        KLOG_WARNING("the name or action is null string");
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_INVALID;
+        KLOG_WARNING("The name or action is null string");
         return false;
     }
 
     if (ShortCutHelper::get_keystate(shortcut->key_combination) == INVALID_KEYSTATE)
     {
-        KLOG_WARNING("the format of the key_combination '%s' is invalid.", shortcut->key_combination.c_str());
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_INVALID;
+        KLOG_WARNING("The format of the key_combination '%s' is invalid.", shortcut->key_combination.c_str());
         return false;
     }
     return true;
 }
 
-void CustomShortCutManager::change_and_save(const std::string &uid, std::shared_ptr<CustomShortCut> shortcut)
+void CustomShortCuts::change_and_save(std::shared_ptr<CustomShortCut> shortcut, bool is_remove)
 {
-    KLOG_PROFILE("uid: %s.", uid.c_str());
+    RETURN_IF_FALSE(shortcut);
+    RETURN_IF_FALSE(!(shortcut->uid.empty()));
 
-    if (shortcut)
+    if (!is_remove)
     {
-        this->keyfile_.set_value(uid, CUSTOM_KEYFILE_NAME, shortcut->name);
-        this->keyfile_.set_value(uid, CUSTOM_KEYFILE_ACTION, shortcut->action);
-        this->keyfile_.set_value(uid, CUSTOM_KEYFILE_KEYCOMB, shortcut->key_combination);
+        this->keyfile_.set_value(shortcut->uid, CUSTOM_KEYFILE_NAME, shortcut->name);
+        this->keyfile_.set_value(shortcut->uid, CUSTOM_KEYFILE_ACTION, shortcut->action);
+        this->keyfile_.set_value(shortcut->uid, CUSTOM_KEYFILE_KEYCOMB, shortcut->key_combination);
     }
     else
     {
-        this->keyfile_.remove_group(uid);
+        this->keyfile_.remove_group(shortcut->uid);
     }
 
     RETURN_IF_TRUE(this->save_id_);
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
-    this->save_id_ = timeout.connect(sigc::mem_fun(this, &CustomShortCutManager::save_to_file), SAVE_TIMEOUT_MILLISECONDS);
+    this->save_id_ = timeout.connect(sigc::mem_fun(this, &CustomShortCuts::save_to_file), SAVE_TIMEOUT_MILLISECONDS);
 }
 
-bool CustomShortCutManager::save_to_file()
+bool CustomShortCuts::save_to_file()
 {
     this->keyfile_.save_to_file(this->conf_file_path_);
     return false;
 }
 
-bool CustomShortCutManager::grab_keycomb_change(const std::string &key_comb, bool grab, CCErrorCode &error_code)
+bool CustomShortCuts::grab_keycomb_change(const std::string &key_comb, bool is_grab)
 {
-    KLOG_PROFILE("key_comb: %s grab: %d.", key_comb.c_str(), grab);
+    KLOG_PROFILE("key_comb: %s is_grab: %d.", key_comb.c_str(), is_grab);
 
     auto key_state = ShortCutHelper::get_keystate(key_comb);
-    if (key_state == INVALID_KEYSTATE)
-    {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID_1;
-        return false;
-    }
-    return this->grab_keystate_change(key_state, grab, error_code);
+    RETURN_VAL_IF_FALSE(key_state != INVALID_KEYSTATE, false);
+    return this->grab_keystate_change(key_state, is_grab);
 }
 
-bool CustomShortCutManager::grab_keystate_change(const KeyState &keystate, bool grab, CCErrorCode &error_code)
+bool CustomShortCuts::grab_keystate_change(const KeyState &keystate, bool is_grab)
 {
     KLOG_PROFILE("symbol: %0x mods: %0x", keystate.key_symbol, keystate.mods);
 
     RETURN_VAL_IF_TRUE(keystate == NULL_KEYSTATE, true);
-
-    if (keystate == INVALID_KEYSTATE)
-    {
-        error_code = CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID_2;
-        return false;
-    }
+    RETURN_VAL_IF_FALSE(keystate != INVALID_KEYSTATE, false);
 
     std::vector<int32_t> mask_bits;
     uint32_t mask = this->ignored_mods_ & ~(keystate.mods) & GDK_MODIFIER_MASK;
@@ -378,7 +347,7 @@ bool CustomShortCutManager::grab_keystate_change(const KeyState &keystate, bool 
 
         for (auto &keycode : keystate.keycodes)
         {
-            if (grab)
+            if (is_grab)
             {
                 XGrabKey(GDK_DISPLAY_XDISPLAY(display),
                          keycode,
@@ -399,20 +368,18 @@ bool CustomShortCutManager::grab_keystate_change(const KeyState &keystate, bool 
         if (gdk_x11_display_error_trap_pop(display))
         {
             KLOG_WARNING("Grab failed for some keys, another application may already have access the them.");
-            error_code = CCErrorCode::ERROR_KEYBINDING_GRAB_KEY_FAILED;
             return false;
         }
     }
     return true;
 }
 
-GdkFilterReturn CustomShortCutManager::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
+GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
     XEvent *xevent = (XEvent *)gdk_event;
     RETURN_VAL_IF_TRUE(xevent->type != KeyPress, GDK_FILTER_CONTINUE);
 
-    CustomShortCutManager *manager = (CustomShortCutManager *)data;
-    g_return_val_if_fail(CustomShortCutManager::get_instance() == manager, GDK_FILTER_REMOVE);
+    CustomShortCuts *manager = (CustomShortCuts *)data;
 
     for (const auto &group : manager->keyfile_.get_groups())
     {
