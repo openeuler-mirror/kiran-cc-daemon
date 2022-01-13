@@ -59,14 +59,26 @@ endif()
 if(build-session-daemon)
 
     # policy files
+
+    # policy.ini.in files
+    execute_process(COMMAND ${INTLTOOL-MERGE} 
+                            -x ${PROJECT_SOURCE_DIR}/po/
+                            ${PROJECT_SOURCE_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in.in
+                            ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in)
+    configure_file(${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in
+                   ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy)
+
+    install(FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy
+                   DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
+
+    # policy.in files
     file(GLOB POLICY_IN_FILES ./*SessionDaemon*.policy.in)
-
     foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
-    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
-    execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
+        string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
+        execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
 
-    install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
-        DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
+        install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
+                DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
     endforeach()
 
     # gschema.xml
