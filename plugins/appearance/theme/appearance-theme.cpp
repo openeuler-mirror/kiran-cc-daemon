@@ -20,6 +20,10 @@
 #define MARCO_SCHEMA_ID "org.mate.Marco.general"
 #define MARCO_SCHEMA_KEY_THEME "theme"
 
+#define MOUSE_SCHEMA_ID "org.mate.peripherals-mouse"
+#define MOUSE_SCHEMA_KEY_CURSOR_THEME "cursor-theme"
+#define MOUSE_SCHEMA_KEY_CURSOR_SIZE "cursor-size"
+
 namespace Kiran
 {
 AppearanceTheme::AppearanceTheme()
@@ -30,6 +34,11 @@ AppearanceTheme::AppearanceTheme()
     if (std::find(schemas.begin(), schemas.end(), MARCO_SCHEMA_ID) != schemas.end())
     {
         this->marco_settings_ = Gio::Settings::create(MARCO_SCHEMA_ID);
+    }
+
+    if (std::find(schemas.begin(), schemas.end(), MOUSE_SCHEMA_ID) != schemas.end())
+    {
+        this->mouse_settings_ = Gio::Settings::create(MOUSE_SCHEMA_ID);
     }
 }
 
@@ -207,6 +216,11 @@ void AppearanceTheme::set_cursor_theme(const std::string& theme_name)
 {
     RETURN_IF_TRUE(theme_name.empty());
     this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, theme_name);
+    // 由于Marco是从org.mate.peripherals-mouse读取光标主题的，所以这里要做一下适配
+    if (this->mouse_settings_)
+    {
+        this->mouse_settings_->set_string(MOUSE_SCHEMA_KEY_CURSOR_THEME, theme_name);
+    }
     this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR, theme_name));
 }
 

@@ -88,5 +88,6 @@ private:
 
     Glib::RefPtr<Gio::Settings> xsettings_settings_;
     Glib::RefPtr<Gio::Settings> marco_settings_;
+    Glib::RefPtr<Gio::Settings> mouse_settings_;
 };
 }  // namespace Kiran

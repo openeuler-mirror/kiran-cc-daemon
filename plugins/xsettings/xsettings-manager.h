@@ -19,6 +19,7 @@
 #include "plugins/xsettings/fontconfig-monitor.h"
 #include "plugins/xsettings/xsettings-common.h"
 #include "plugins/xsettings/xsettings-registry.h"
+#include "plugins/xsettings/xsettings-xresource.h"
 
 namespace Kiran
 {
@@ -87,6 +88,7 @@ private:
     Glib::RefPtr<Gio::Settings> xsettings_settings_;
     Glib::RefPtr<Gio::Settings> background_settings_;
     XSettingsRegistry registry_;
+    XSettingsXResource xresource_;
 
     const static std::map<std::string, std::string> schema2registry_;
     std::map<std::string, std::string> registry2schema_;

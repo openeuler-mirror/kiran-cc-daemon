@@ -27,8 +27,10 @@ public:
     void init();
 
 private:
-    void on_xsettings_changed(const std::string &key);
-
+    // 更新Xresource属性
+    void update_properties();
     void update_property(std::string &props, const std::string &key, const std::string &value);
+
+    void on_xsettings_changed(const std::string &key);
 };
 }  // namespace Kiran

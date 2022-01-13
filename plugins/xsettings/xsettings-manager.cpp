@@ -181,8 +181,9 @@ void XSettingsManager::init()
     RETURN_IF_FALSE(this->xsettings_settings_);
     RETURN_IF_FALSE(this->registry_.init());
     this->fontconfig_monitor_.init();
-
     this->load_from_settings();
+
+    this->xresource_.init();
 
     this->xsettings_settings_->signal_changed().connect(sigc::bind(sigc::mem_fun(this, &XSettingsManager::settings_changed), true));
     auto screen = Gdk::Screen::get_default();
@@ -296,10 +297,9 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 
     this->registry_.update(XSETTINGS_REGISTRY_PROP_NET_FALLBACK_ICON_THEME, "mate");
 
-    this->xsettings_changed_.emit(key.raw());
-
     if (is_notify)
     {
+        this->xsettings_changed_.emit(key.raw());
         this->registry_.notify();
     }
 }

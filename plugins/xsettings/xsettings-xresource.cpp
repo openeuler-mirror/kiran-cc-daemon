@@ -36,10 +36,12 @@ XSettingsXResource::XSettingsXResource()
 
 void XSettingsXResource::init()
 {
+    this->update_properties();
+
     XSettingsManager::get_instance()->signal_xsettings_changed().connect(sigc::mem_fun(this, &XSettingsXResource::on_xsettings_changed));
 }
 
-void XSettingsXResource::on_xsettings_changed(const std::string &key)
+void XSettingsXResource::update_properties()
 {
     char dpibuf[G_ASCII_DTOSTR_BUF_SIZE];
     auto dpy = XOpenDisplay(NULL);
@@ -53,42 +55,18 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
     KLOG_DEBUG("Old Xresource: %s", props.c_str());
     auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_gtk_cursor_theme_size()));
 
-    switch (shash(key.c_str()))
-    {
-    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
-    {
-        auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_xft_dpi() / 1024.0));
-        this->update_property(props, XRESOURCE_PROP_XFT_DPI, dpi);
-        this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
-        break;
-    }
-    case CONNECT(XSETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
-        this->update_property(props, XRESOURCE_PROP_XFT_ANTIALIAS, xsettings_manager->get_xft_antialias() > 0 ? "1" : "0");
-        break;
-    case CONNECT(XSETTINGS_SCHEMA_XFT_HINTING, _hash):
-        this->update_property(props, XRESOURCE_PROP_XFT_HINTING, xsettings_manager->get_xft_hinting() > 0 ? "1" : "0");
-        break;
-    case CONNECT(XSETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
-        this->update_property(props, XRESOURCE_PROP_XFT_HINTSTYLE, xsettings_manager->get_xft_hint_style());
-        break;
-    case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
-    {
-        auto lcdfilter = (xsettings_manager->get_xft_rgba() == "rgb") ? "lcddefault" : "none";
-        this->update_property(props, XRESOURCE_PROP_XFT_RGBA, xsettings_manager->get_xft_rgba());
-        this->update_property(props, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
-        break;
-    }
-    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
-        this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->get_gtk_cursor_theme_name());
-        break;
-    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
-    {
-        this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
-        break;
-    }
-    default:
-        break;
-    }
+    auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_xft_dpi() / 1024.0));
+    auto lcdfilter = (xsettings_manager->get_xft_rgba() == "rgb") ? "lcddefault" : "none";
+
+    this->update_property(props, XRESOURCE_PROP_XFT_DPI, dpi);
+    this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
+    this->update_property(props, XRESOURCE_PROP_XFT_ANTIALIAS, xsettings_manager->get_xft_antialias() > 0 ? "1" : "0");
+    this->update_property(props, XRESOURCE_PROP_XFT_HINTING, xsettings_manager->get_xft_hinting() > 0 ? "1" : "0");
+    this->update_property(props, XRESOURCE_PROP_XFT_HINTSTYLE, xsettings_manager->get_xft_hint_style());
+    this->update_property(props, XRESOURCE_PROP_XFT_RGBA, xsettings_manager->get_xft_rgba());
+    this->update_property(props, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
+    this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->get_gtk_cursor_theme_name());
+    this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
 
     KLOG_DEBUG("New Xresource: %s", props.c_str());
 
@@ -100,6 +78,7 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
                     PropModeReplace,
                     (unsigned char *)props.c_str(),
                     props.length());
+
     XCloseDisplay(dpy);
 }
 
@@ -128,6 +107,24 @@ void XSettingsXResource::update_property(std::string &props, const std::string &
     else
     {
         props += fmt::format("{0}:\t{1}\n", key, value);
+    }
+}
+
+void XSettingsXResource::on_xsettings_changed(const std::string &key)
+{
+    switch (shash(key.c_str()))
+    {
+    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_XFT_HINTING, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
+        this->update_properties();
+        break;
+    default:
+        break;
     }
 }
 }  // namespace Kiran
