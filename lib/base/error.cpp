@@ -48,6 +48,9 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_ACCOUNTS_AUTH_DATA_CONFLICT:
         error_desc = _("Multiple users have the same authentication data.");
         break;
+    case CCErrorCode::ERROR_ACCOUNTS_ALREADY_LOGIN:
+        error_desc = _("The user is already logined in, Please log off the user before deleting it.");
+        break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST:
         error_desc = _("The user already exists.");
         break;
