@@ -224,11 +224,11 @@ void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocatio
         }
         catch (const std::exception &e)
         {
-            KLOG_WARNING("%s.", e.what());
+            KLOG_DEBUG("%s.", e.what());
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("%s.", e.what().c_str());
+            KLOG_DEBUG("%s.", e.what().c_str());
         }
     }
 
