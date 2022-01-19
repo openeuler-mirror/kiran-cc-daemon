@@ -44,6 +44,8 @@ void PowerTray::init()
 {
     KLOG_PROFILE("");
 
+    this->upower_client_->init();
+
     this->update_status_icon();
 
     this->upower_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerTray::on_settings_changed));
