@@ -88,8 +88,6 @@ int main(int argc, char* argv[])
     Gtk::wrap_init();
     notify_init(_("Control center"));
     Kiran::EWMH::global_init();
-    Kiran::SessionGuarder::global_init();
-    Kiran::SessionGuarder::get_instance()->signal_session_end().connect(&on_session_end);
 
 #endif
 
@@ -97,10 +95,19 @@ int main(int argc, char* argv[])
     Kiran::ISOTranslation::global_init();
     Kiran::SettingsManager::global_init();
 
+#if defined KCC_SESSION_TYPE
+    Kiran::SessionGuarder::global_init();
+    Kiran::SessionGuarder::get_instance()->signal_session_end().connect(&on_session_end);
+#endif
+
 #if defined KCC_SYSTEM_TYPE
     loop->run();
 #elif defined KCC_SESSION_TYPE
     gtk_main();
+#endif
+
+#ifdef KCC_SESSION_TYPE
+    Kiran::SessionGuarder::global_deinit();
 #endif
 
     Kiran::SettingsManager::global_deinit();
@@ -108,7 +115,6 @@ int main(int argc, char* argv[])
     Kiran::AuthManager::global_deinit();
 
 #ifdef KCC_SESSION_TYPE
-    Kiran::SessionGuarder::global_deinit();
     Kiran::EWMH::global_deinit();
     notify_uninit();
 #endif
