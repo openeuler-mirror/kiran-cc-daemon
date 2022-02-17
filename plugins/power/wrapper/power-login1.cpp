@@ -40,18 +40,47 @@ void PowerLogin1::init()
     }
 }
 
+int32_t PowerLogin1::inhibit(const std::string& what)
+{
+    try
+    {
+        Glib::RefPtr<Gio::UnixFDList> fd_list;
+        Glib::RefPtr<Gio::UnixFDList> out_fd_list;
+        auto g_parameters = g_variant_new("(ssss)", what.c_str(),
+                                          Glib::get_user_name().c_str(),
+                                          "The power plugin of kiran-session-daemon handles these events",
+                                          "block");
+        Glib::VariantContainerBase parameters(g_parameters, false);
+        auto retval = this->login1_proxy_->call_sync("Inhibit", parameters, fd_list, out_fd_list);
+        auto v1 = retval.get_child(0);
+        auto fd_index = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(v1).get();
+        auto fd = out_fd_list->get(fd_index);
+        KLOG_DEBUG("Inhibit file descriptor[index: %d]: %d.", fd_index, fd);
+        return fd;
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("%s", e.what().c_str());
+    }
+    catch (const std::exception& e)
+    {
+        KLOG_WARNING("%s", e.what());
+    }
+    return -1;
+}
+
 bool PowerLogin1::suspend()
 {
     KLOG_PROFILE("");
 
     RETURN_VAL_IF_FALSE(this->login1_proxy_, false);
 
-    auto parameters = g_variant_new("(b)", FALSE);
-    Glib::VariantContainerBase base(parameters, false);
+    auto g_parameters = g_variant_new("(b)", FALSE);
+    Glib::VariantContainerBase parameters(g_parameters, false);
 
     try
     {
-        this->login1_proxy_->call_sync("Suspend", base);
+        this->login1_proxy_->call_sync("Suspend", parameters);
     }
     catch (const Glib::Error& e)
     {
@@ -67,12 +96,12 @@ bool PowerLogin1::hibernate()
 
     RETURN_VAL_IF_FALSE(this->login1_proxy_, false);
 
-    auto parameters = g_variant_new("(b)", FALSE);
-    Glib::VariantContainerBase base(parameters, false);
+    auto g_parameters = g_variant_new("(b)", FALSE);
+    Glib::VariantContainerBase parameters(g_parameters, false);
 
     try
     {
-        this->login1_proxy_->call_sync("Hibernate", base);
+        this->login1_proxy_->call_sync("Hibernate", parameters);
     }
     catch (const Glib::Error& e)
     {
@@ -88,12 +117,12 @@ bool PowerLogin1::shutdown()
 
     RETURN_VAL_IF_FALSE(this->login1_proxy_, false);
 
-    auto parameters = g_variant_new("(b)", FALSE);
-    Glib::VariantContainerBase base(parameters, false);
+    auto g_parameters = g_variant_new("(b)", FALSE);
+    Glib::VariantContainerBase parameters(g_parameters, false);
 
     try
     {
-        this->login1_proxy_->call_sync("PowerOff", base);
+        this->login1_proxy_->call_sync("PowerOff", parameters);
     }
     catch (const Glib::Error& e)
     {

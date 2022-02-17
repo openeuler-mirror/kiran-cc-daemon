@@ -27,6 +27,9 @@ public:
 
     void init();
 
+    // 禁止systemd-login1对电源、休眠、挂起按键和合上盖子进行操作。
+    int32_t inhibit(const std::string &what);
+
     // 挂机
     bool suspend();
     // 休眠

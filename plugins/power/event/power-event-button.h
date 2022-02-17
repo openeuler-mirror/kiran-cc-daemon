@@ -51,6 +51,9 @@ private:
     GdkWindow *root_window_;
     Window xroot_window_;
 
+    // 抑制systemd-login1对电源、休眠、挂起按键和合上盖子进行操作。
+    int32_t login1_inhibit_fd_;
+
     std::shared_ptr<PowerUPower> upower_client_;
 
     std::map<std::string, PowerEvent> buttons_;

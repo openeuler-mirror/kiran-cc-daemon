@@ -33,7 +33,7 @@ void PowerSave::global_init(PowerWrapperManager* wrapper_manager)
 
 bool PowerSave::do_save(PowerAction action, std::string& error)
 {
-    KLOG_PROFILE("action: %d.", action);
+    KLOG_PROFILE("Do action: %s.", this->action2str(action).c_str());
 
     switch (action)
     {
@@ -58,7 +58,6 @@ bool PowerSave::do_save(PowerAction action, std::string& error)
     case PowerAction::POWER_ACTION_COMPUTER_HIBERNATE:
         this->save_computer_.hibernate();
         break;
-    // TODO:
     case PowerAction::POWER_ACTION_NOTHING:
         break;
     default:
@@ -72,5 +71,31 @@ void PowerSave::init()
 {
     this->save_computer_.init();
     this->save_dpms_.init();
+}
+
+std::string PowerSave::action2str(PowerAction action)
+{
+    switch (action)
+    {
+    case PowerAction::POWER_ACTION_DISPLAY_ON:
+        return "display on";
+    case PowerAction::POWER_ACTION_DISPLAY_STANDBY:
+        return "display standby";
+    case PowerAction::POWER_ACTION_DISPLAY_SUSPEND:
+        return "display suspend";
+    case PowerAction::POWER_ACTION_DISPLAY_OFF:
+        return "display off";
+    case PowerAction::POWER_ACTION_COMPUTER_SUSPEND:
+        return "computer suspend";
+    case PowerAction::POWER_ACTION_COMPUTER_SHUTDOWN:
+        return "computer shutdown";
+    case PowerAction::POWER_ACTION_COMPUTER_HIBERNATE:
+        return "computer hibernate";
+    case PowerAction::POWER_ACTION_NOTHING:
+        return "nothing";
+    default:
+        break;
+    };
+    return "unknown action";
 }
 }  // namespace Kiran

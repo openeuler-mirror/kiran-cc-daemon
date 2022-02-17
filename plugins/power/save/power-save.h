@@ -39,6 +39,8 @@ public:
 private:
     void init();
 
+    std::string action2str(PowerAction action);
+
 private:
     static PowerSave* instance_;
     PowerWrapperManager* wrapper_manager_;

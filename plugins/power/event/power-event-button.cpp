@@ -20,7 +20,7 @@ namespace Kiran
 {
 #define POWER_BUTTON_DUPLICATE_TIMEOUT 0.125f
 
-PowerEventButton::PowerEventButton()
+PowerEventButton::PowerEventButton() : login1_inhibit_fd_(-1)
 {
     this->display_ = gdk_display_get_default();
     this->xdisplay_ = GDK_DISPLAY_XDISPLAY(this->display_);
@@ -35,10 +35,19 @@ PowerEventButton::PowerEventButton()
 PowerEventButton::~PowerEventButton()
 {
     gdk_window_remove_filter(this->root_window_, &PowerEventButton::window_event, this);
+
+    if (this->login1_inhibit_fd_ > 0)
+    {
+        close(this->login1_inhibit_fd_);
+    }
 }
 
 void PowerEventButton::init()
 {
+    // 这里需要对systemd-login1添加抑制器，避免systemd-login1对电源、休眠、挂起按键和合上盖子进行操作。
+    auto login1 = PowerWrapperManager::get_instance()->get_default_login1();
+    this->login1_inhibit_fd_ = login1->inhibit("handle-power-key:handle-suspend-key:handle-lid-switch");
+
     this->register_button(XF86XK_PowerOff, PowerEvent::POWER_EVENT_PRESSED_POWEROFF);
     this->register_button(XF86XK_Suspend, PowerEvent::POWER_EVENT_PRESSED_SUSPEND);
     this->register_button(XF86XK_Sleep, PowerEvent::POWER_EVENT_PRESSED_SLEEP);
