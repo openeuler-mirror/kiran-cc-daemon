@@ -26,9 +26,9 @@ int main(int argc, char* argv[])
     klog_gtk3_init(std::string(), "kylinsec-session", "kiran-cc-daemon", "kiran-power-status-icon");
 
     setlocale(LC_ALL, "");
-    bindtextdomain(GETTEXT_PACKAGE, KCC_LOCALEDIR);
-    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-    textdomain(GETTEXT_PACKAGE);
+    bindtextdomain("kiran-power-status-icon", KCC_LOCALEDIR);
+    bind_textdomain_codeset("kiran-power-status-icon", "UTF-8");
+    textdomain("kiran-power-status-icon");
 
     gtk_init(&argc, &argv);
     Gtk::Main::init_gtkmm_internals();

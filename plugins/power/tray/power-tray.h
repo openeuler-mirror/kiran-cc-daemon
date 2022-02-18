@@ -40,8 +40,8 @@ private:
 
     void delay_update_status_icon();
 
-    // 获取图标名，按照device_types设置的设备类型顺序进行搜索
-    std::string get_icon_name(const std::vector<uint32_t>& device_types);
+    // 获取托盘图标对应的设备和需要显示的图标名
+    std::shared_ptr<PowerUPowerDevice> get_device_for_tray(const std::vector<uint32_t>& device_types, std::string& icon_name);
     Glib::RefPtr<Gdk::Pixbuf> get_pixbuf_by_icon_name(const std::string& icon_name);
 
     // 获取设备图标名

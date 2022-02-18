@@ -29,3 +29,4 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kiran-power-status-icon.desktop
         DESTINATION ${SYSCONFDIR}/xdg/autostart/)
 
 add_subdirectory(icons)
+add_subdirectory(po)

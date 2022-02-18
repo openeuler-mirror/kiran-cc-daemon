@@ -13,8 +13,9 @@
  */
 
 #include "plugins/power/tray/power-tray.h"
-#include "plugins/power/wrapper/power-upower.h"
 
+#include <glib/gi18n.h>
+#include "plugins/power/wrapper/power-upower.h"
 #include "power-i.h"
 
 namespace Kiran
@@ -57,9 +58,10 @@ void PowerTray::init()
 void PowerTray::update_status_icon()
 {
     KLOG_PROFILE("");
+    std::string icon_name;
     // 托盘图标显示只考虑电源、电池和UPS供电的情况。
     auto icon_policy = PowerTrayIconPolicy(this->upower_settings_->get_enum(POWER_SCHEMA_TRAY_ICON_POLICY));
-    auto icon_name = this->get_icon_name({UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS});
+    auto device_for_tray = this->get_device_for_tray({UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS}, icon_name);
 
     switch (icon_policy)
     {
@@ -94,6 +96,13 @@ void PowerTray::update_status_icon()
         gtk_status_icon_set_from_icon_name(this->status_icon_, icon_name.c_str());
         gtk_status_icon_set_visible(this->status_icon_, true);
     }
+
+    // 对于电源和UPS设备需要显示电量
+    if (device_for_tray)
+    {
+        auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%"), device_for_tray->get_props().percentage);
+        gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+    }
 }
 
 void PowerTray::delay_update_status_icon()
@@ -108,7 +117,7 @@ void PowerTray::delay_update_status_icon()
                                                  100);
 }
 
-std::string PowerTray::get_icon_name(const std::vector<uint32_t>& device_types)
+std::shared_ptr<PowerUPowerDevice> PowerTray::get_device_for_tray(const std::vector<uint32_t>& device_types, std::string& icon_name)
 {
     for (auto device_type : device_types)
     {
@@ -118,12 +127,12 @@ std::string PowerTray::get_icon_name(const std::vector<uint32_t>& device_types)
             if (device_props.type == device_type &&
                 device_props.is_present)
             {
-                auto icon_name = this->get_device_icon_name(upower_device);
-                RETURN_VAL_IF_TRUE(icon_name.length() > 0, icon_name);
+                icon_name = this->get_device_icon_name(upower_device);
+                RETURN_VAL_IF_TRUE(icon_name.length() > 0, upower_device);
             }
         }
     }
-    return std::string();
+    return std::shared_ptr<PowerUPowerDevice>();
 }
 
 Glib::RefPtr<Gdk::Pixbuf> PowerTray::get_pixbuf_by_icon_name(const std::string& icon_name)
