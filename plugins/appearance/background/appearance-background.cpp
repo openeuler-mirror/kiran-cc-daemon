@@ -71,7 +71,7 @@ void AppearanceBackground::delay_draw_background()
 
 void AppearanceBackground::draw_background()
 {
-    KLOG_PROFILE("")
+    KLOG_PROFILE("");
 
     RETURN_IF_FALSE(this->can_draw_background());
 

@@ -55,7 +55,7 @@ ClipboardManager::event_filter(GdkXEvent *xevent,
 
 void ClipboardManager::init()
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
 
     this->display_ = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
 
@@ -231,7 +231,7 @@ bool ClipboardManager::process_event(XEvent *xev)
 
 void ClipboardManager::send_client_message()
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
 
     XClientMessageEvent xev;
     xev.type = ClientMessage;
@@ -287,7 +287,7 @@ void ClipboardManager::selection_request_clipboard_manager(XEvent *xev)
 
 void ClipboardManager::selection_request_save_targets(XEvent *xev)
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
 
     if (this->requestor_ != None || !(this->clipboard_data_.is_contents_empty()))
     {
@@ -413,7 +413,7 @@ void ClipboardManager::selection_notify(XEvent *xev)
 
 void ClipboardManager::save_multiple_property(XEvent *xev)
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
     this->clipboard_data_.save_targets_data(this->display_, this->window_);
 
     this->time_ = xev->xselection.time;
@@ -445,7 +445,7 @@ void ClipboardManager::save_multiple_property(XEvent *xev)
 
 void ClipboardManager::response_manager_save_targets(bool success)
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
     XSelectionEvent notify;
 
     notify.type = SelectionNotify;

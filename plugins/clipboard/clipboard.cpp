@@ -111,7 +111,7 @@ void Clipboard::selection_request_clipboard(XEvent* xev)
 
 void Clipboard::selection_request_clipboard_single(XEvent* xev)
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
     std::shared_ptr<IncrConversion> rdata = std::make_shared<IncrConversion>();
     rdata->requestor = xev->xselectionrequest.requestor;
     rdata->target = xev->xselectionrequest.target;
@@ -134,7 +134,7 @@ void Clipboard::selection_request_clipboard_single(XEvent* xev)
 
 void Clipboard::selection_request_clipboard_multiple(XEvent* xev)
 {
-    KLOG_PROFILE();
+    KLOG_PROFILE("");
     WindowPropertyGroup prop_group;
     int ret = ClipboardUtils::get_window_property_group(xev->xselectionrequest.display,
                                                         xev->xselectionrequest.requestor,
