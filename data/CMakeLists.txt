@@ -6,7 +6,7 @@ find_program(INTLTOOL-MERGE NAMES "intltool-merge" REQUIRED)
 if(build-system-daemon)
 
     # policy files
-    file(GLOB POLICY_IN_FILES ./*SystemDaemon*.policy.in)
+    file(GLOB POLICY_IN_FILES ${PROJECT_SOURCE_DIR}/data/*SystemDaemon*.policy.in)
 
     foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
@@ -18,7 +18,7 @@ if(build-system-daemon)
 
 
     # service files
-    file(GLOB SERVICE_IN_FILES ./*SystemDaemon*service.in ./kiran-system-daemon.service.in)
+    file(GLOB SERVICE_IN_FILES ${PROJECT_SOURCE_DIR}/data/*SystemDaemon*service.in ${PROJECT_SOURCE_DIR}/data/kiran-system-daemon.service.in)
 
     foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
@@ -41,7 +41,7 @@ if(build-system-daemon)
             DESTINATION ${KCC_INSTALL_DATADIR}/dbus-1/system-services)
 
     # conf files
-    file(GLOB CONF_FILES ./*.conf)
+    file(GLOB CONF_FILES ${PROJECT_SOURCE_DIR}/data/*.conf)
 
     foreach(CONF_FILE IN LISTS CONF_FILES)    
         install(FILES ${CONF_FILE}
@@ -71,18 +71,8 @@ if(build-session-daemon)
     install(FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy
                    DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
 
-    # policy.in files
-    file(GLOB POLICY_IN_FILES ./*SessionDaemon*.policy.in)
-    foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
-        string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
-        execute_process(COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE} ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
-
-        install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
-                DESTINATION ${KCC_INSTALL_DATADIR}/polkit-1/actions/)
-    endforeach()
-
     # gschema.xml
-    file(GLOB SCHEMA_IN_FILES ./*.gschema.xml.in)
+    file(GLOB SCHEMA_IN_FILES ${PROJECT_SOURCE_DIR}/data/*.gschema.xml.in)
 
     foreach(SCHEMA_IN_FILE IN LISTS SCHEMA_IN_FILES)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SCHEMA_FILE ${SCHEMA_IN_FILE})
@@ -101,7 +91,7 @@ if(build-session-daemon)
             RENAME plugin_options)
 
     # service files
-    file(GLOB SERVICE_IN_FILES ./*SessionDaemon*service.in)
+    file(GLOB SERVICE_IN_FILES ${PROJECT_SOURCE_DIR}/data/*SessionDaemon*service.in)
 
     foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
         string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
@@ -147,7 +137,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/error-i.h
         DESTINATION ${KCC_INSTALL_INCLUDE})
 
 # pc file
-file(GLOB PC_IN_FILES ./*.pc.in)
+file(GLOB PC_IN_FILES ${PROJECT_SOURCE_DIR}/data/*.pc.in)
 
 foreach(PC_IN_FILE IN LISTS PC_IN_FILES)
     string(REGEX REPLACE ".+/(.+)\\..*" "\\1" PC_FILE ${PC_IN_FILE})
