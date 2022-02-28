@@ -424,7 +424,6 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
         }
     }
 
-    RETURN_VAL_IF_FALSE(this->apply(error_code), false);
     return true;
 }
 
@@ -518,17 +517,23 @@ bool DisplayManager::apply(CCErrorCode &error_code)
     std::string cmdline = XRANDR_CMD;
     std::shared_ptr<DisplayMonitor> primary_monitor;
 
-    // 这里会对主显示器的设置进行修正，因为必须要在已开启的显示器中设置一个主显示器，否则可能出现鼠标键盘操作卡顿情况
+    /* 加上auto为了确保屏幕大小和显示器之间的缝隙能够自适应。
+       例如在扩展屏模式下拔掉一个显示器后，默认屏幕大小还是两个显示器大小之和，如果不做自适应的话被拔掉的显示器上面的窗口就看不到了
+    */
+    cmdline.append(" --auto");
+
+    // 如果没有设置主显示器，这里会默认使用第一个遍历到的显示器作为主显示器，因为必须要在已开启的显示器中设置一个主显示器，否则可能出现鼠标键盘操作卡顿情况
     for (const auto &iter : this->monitors_)
     {
-        if (!iter.second->enabled_get())
+        const auto &monitor = iter.second;
+        if (!monitor->enabled_get())
         {
             continue;
         }
 
-        if (!primary_monitor || iter.second->name_get() == this->primary_)
+        if (!primary_monitor || monitor->name_get() == this->primary_)
         {
-            primary_monitor = iter.second;
+            primary_monitor = monitor;
         }
     }
 
@@ -562,20 +567,31 @@ bool DisplayManager::switch_style(DisplayStyle style, CCErrorCode &error_code)
         RETURN_VAL_IF_FALSE(this->switch_to_mirrors(error_code), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_EXTEND:
-        RETURN_VAL_IF_FALSE(this->switch_to_extend(error_code), false);
+        this->switch_to_extend();
         break;
     case DisplayStyle::DISPLAY_STYLE_CUSTOM:
         RETURN_VAL_IF_FALSE(this->switch_to_custom(error_code), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_AUTO:
-        RETURN_VAL_IF_FALSE(this->switch_to_auto(error_code), false);
+        this->switch_to_auto();
         break;
     default:
         error_code = CCErrorCode::ERROR_DISPLAY_UNKNOWN_DISPLAY_STYLE_1;
         return false;
     }
 
-    RETURN_VAL_IF_FALSE(this->apply(error_code), false);
+    // 因为自定义模式下可能由于参数错误导致设置失败，为了增强鲁棒性，这里再做一次扩展模式的设置尝试
+    if (!this->apply(error_code))
+    {
+        KLOG_WARNING("The first apply failed: %s, try use extend mode", CC_ERROR2STR(error_code).c_str());
+        this->switch_to_extend();
+        error_code = CCErrorCode::SUCCESS;
+        if (!this->apply(error_code))
+        {
+            KLOG_WARNING("The second apply also failed: %s.", CC_ERROR2STR(error_code).c_str());
+            return false;
+        }
+    }
     return true;
 }
 
@@ -646,7 +662,7 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
     return result;
 }
 
-bool DisplayManager::switch_to_extend(CCErrorCode &error_code)
+void DisplayManager::switch_to_extend()
 {
     KLOG_PROFILE("");
 
@@ -673,8 +689,6 @@ bool DisplayManager::switch_to_extend(CCErrorCode &error_code)
 
         startx += best_mode->width;
     }
-
-    return true;
 }
 
 bool DisplayManager::switch_to_custom(CCErrorCode &error_code)
@@ -684,15 +698,14 @@ bool DisplayManager::switch_to_custom(CCErrorCode &error_code)
     return this->apply_config(error_code);
 }
 
-bool DisplayManager::switch_to_auto(CCErrorCode &error_code)
+void DisplayManager::switch_to_auto()
 {
     KLOG_PROFILE("");
 
-    RETURN_VAL_IF_TRUE(this->switch_to_custom(error_code), true);
-    RETURN_VAL_IF_TRUE(this->switch_to_extend(error_code), true);
-    RETURN_VAL_IF_TRUE(this->switch_to_mirrors(error_code), true);
-    error_code = CCErrorCode::ERROR_DISPLAY_SET_AUTO_MODE_FAILED;
-    return false;
+    CCErrorCode error_code;
+    RETURN_IF_TRUE(this->switch_to_custom(error_code));
+    RETURN_IF_TRUE(this->switch_to_mirrors(error_code));
+    this->switch_to_extend();
 }
 
 std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor(uint32_t id)

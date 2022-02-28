@@ -98,11 +98,11 @@ private:
     // 获取在所有monitor中都可用的mode列表
     ModeInfoVec monitors_common_modes(const DisplayMonitorVec& monitors);
     // 切换到扩展模式
-    bool switch_to_extend(CCErrorCode& error_code);
+    void switch_to_extend();
     // 切换到自定义模式
     bool switch_to_custom(CCErrorCode& error_code);
     // 切换到自动模式
-    bool switch_to_auto(CCErrorCode& error_code);
+    void switch_to_auto();
 
     // 获取monitor
     std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
