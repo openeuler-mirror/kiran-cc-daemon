@@ -140,7 +140,7 @@ void DisplayManager::RestoreChanges(MethodInvocation &invocation)
     KLOG_PROFILE("");
 
     CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->apply_config(error_code))
+    if (!this->switch_style(this->default_style_, error_code))
     {
         DBUS_ERROR_REPLY_AND_RET(error_code);
     }
