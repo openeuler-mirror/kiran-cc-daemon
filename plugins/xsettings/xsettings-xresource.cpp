@@ -50,7 +50,8 @@ void XSettingsXResource::update_properties()
     RETURN_IF_TRUE(dpy == NULL);
     RETURN_IF_TRUE(xsettings_manager == NULL);
 
-    std::string props = XResourceManagerString(dpy);
+    auto p_porps = XResourceManagerString(dpy);
+    std::string props = POINTER_TO_STRING(p_porps);
 
     KLOG_DEBUG("Old Xresource: %s", props.c_str());
     auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_gtk_cursor_theme_size()));
