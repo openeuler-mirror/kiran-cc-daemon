@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.kylinsec.Kiran.SessionDaemon.Keyboard
+Exec=@KCC_INSTALL_BINDIR@/kiran-session-daemon

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Kiran Session Daemon
+Exec=/usr/bin/kiran-session-daemon
+OnlyShowIn=KIRAN;
+X-KIRAN-Autostart-Phase=Initialization
+X-KIRAN-Autostart-Notify=true
+X-KIRAN-AutoRestart=true

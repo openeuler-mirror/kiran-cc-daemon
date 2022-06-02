@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Power">
+
+        <!--<method name="GetAvaliableIdleActions">
+            <arg type="i" name="device" direction="in">
+                <description>The idle device that could be 'computer' or 'monitor'.</description>
+            </arg>
+            <arg type="i" name="actions_mask" direction="out">
+                <description>The actions mask. If the bit is 1, then associate action is avaliable</description>
+            </arg>
+            <description>Get the avaliable actions for the specified device.</description>
+        </method>-->
+
+        <method name="SetIdleAction">
+            <arg type="i" name="device" direction="in">
+                <description>The device could be computer or backlight. Refer to PowerDeviceType definition in power-i.h</description>
+            </arg>
+            <arg type="i" name="supply" direction="in">
+                <description>Refer to PowerSupplyMode definition in power-i.h.</description>
+            </arg>
+            <arg type="i" name="idle_timeout" direction="in">
+                <description>The idle timeout in seconds. If the value is less than or equal to 0, then the idle action will be cancel and the action field is ignored.</description>
+            </arg>
+            <arg type="i" name="action" direction="in">
+                <description>Refer to PowerAction definition in power-i.h, etc.</description>
+            </arg>
+            <description>If the idle time of the device exceed idle_timeout, then it will trigger the action.</description>
+        </method>
+
+        <method name="GetIdleAction">
+            <arg type="i" name="device" direction="in" />
+            <arg type="i" name="supply" direction="in" />
+            <arg type="(ii)" name="idle_action" direction="out">
+                <description>The field contains idle timeout and action.</description>
+            </arg>
+            <description>Get the idle action for the specified device on the supply.</description>
+        </method>
+
+        <method name="SetEventAction">
+            <arg type="i" name="event" direction="in">
+                <description>Refer to PowerEvent definition in power-i.h.</description>
+            </arg>
+            <arg type="i" name="action" direction="in">
+                <summary>The triggered action.</summary>
+            </arg>
+            <description>The action is triggered when the event is happened.</description>
+        </method>
+
+        <method name="GetEventAction">
+            <arg type="i" name="event" direction="in" />
+            <arg type="i" name="action" direction="out" />
+            <description>The action when the event is happened.</description>
+        </method>
+
+        <method name="SetBrightness">
+            <arg type="i" name="device" direction="in">
+                <description>The device could be monitor or keyboard. Refer to PowerDeviceType definition in power-i.h</description>
+            </arg>
+            <arg type="i" name="brightness_percentage" direction="in">
+                <summary>The brightness percentage.</summary>
+            </arg>
+            <description>Set the brightness percentage for the specified device.</description>
+        </method>
+
+        <method name="GetBrightness">
+            <arg type="i" name="device" direction="in" />
+            <arg type="i" name="brightness_percentage" direction="out" />
+            <description>Get the brightness percentage for the specified device. Return -1 if the device doesn't support brightness setting.</description>
+        </method>
+
+        <method name="SetIdleDimmed">
+            <arg type="i" name="scale" direction="in">
+                <description>The range of value is [0, 100].</description>
+            </arg>
+            <description>Set display dimmed scale when computer is idle.</description>
+        </method>
+
+        <property name="on_battery" type="b" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Indicates whether the system is running on battery power.</description>
+        </property>
+
+        <property name="lid_is_present" type="b" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>If the system has a lid device.</description>
+        </property>
+
+        <property name="idle_dimmed_scale" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The display dimmed scale when computer is idle. The range of value is [0, 100].</description>
+        </property>
+
+        <signal name="IdleActionChanged">
+            <arg name="device" type="i" />
+            <arg name="supply" type="i" />
+        </signal>
+
+        <signal name="EventActionChanged">
+            <arg name="event" type="i" />
+        </signal>
+
+        <signal name="BrightnessChanged">
+            <arg name="device" type="i" />
+        </signal>
+
+    </interface>
+</node>
