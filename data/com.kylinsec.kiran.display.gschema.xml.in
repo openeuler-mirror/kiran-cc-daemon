@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="@PROJECT_NAME@">
+    <enum id="com.kylinsec.kiran.display.display-style">
+        <value value="0" nick="mirrors" />
+        <value value="1" nick="extend" />
+        <value value="2" nick="custom" />
+        <value value="3" nick="auto" />
+    </enum>
+
+    <schema id="com.kylinsec.kiran.display" path="/com/kylinsec/kiran/display/">
+
+        <key name="display-style" enum="com.kylinsec.kiran.display.display-style">
+            <default>'auto'</default>
+            <description>Layout of connected monitors in the screen.</description>
+        </key>
+
+    </schema>
+</schemalist>

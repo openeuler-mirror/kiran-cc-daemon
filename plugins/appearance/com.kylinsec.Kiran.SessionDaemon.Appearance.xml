@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Appearance">
+
+        <method name="GetThemes">
+            <arg type="i" name="type" direction="in">
+                <summary>The theme type that contains gtk, icon and cursor, etc.</summary>
+            </arg>
+            <arg type="s" name="theme_json" direction="out">
+                <summary>The theme info that contain name and path.</summary>
+            </arg>
+            <description>Get the theme info.</description>
+        </method>
+
+        <method name="SetTheme">
+            <arg type="i" name="type" direction="in">
+                <summary>The theme type that contains gtk, icon and cursor, etc.</summary>
+            </arg>
+            <arg type="s" name="theme_name" direction="in">
+                <summary>The theme name.</summary>
+            </arg>
+            <description>Set the theme name for the type.</description>
+        </method>
+
+        <method name="GetTheme">
+            <arg type="i" name="type" direction="in">
+                <summary>The theme type that contains gtk, icon and cursor, etc.</summary>
+            </arg>
+            <arg type="s" name="theme_name" direction="out">
+                <summary>The theme name.</summary>
+            </arg>
+            <description>Get the theme name for the type.</description>
+        </method>
+
+        <method name="GetFont">
+            <arg type="i" name="type" direction="in">
+                <summary>The font type that contains application font, document font, desktop font and monospace font, etc.</summary>
+            </arg>
+            <arg type="s" name="font" direction="out">
+                <summary>The font that contain name and size, for example 'San 10'.</summary>
+            </arg>
+            <description>Get the font for the type.</description>
+        </method>
+
+        <method name="SetFont">
+            <arg type="i" name="type" direction="in">
+                <summary>The font type that contains application font, document font, desktop font and monospace font, etc.</summary>
+            </arg>
+            <arg type="s" name="font" direction="in">
+                <summary>The font, for example 'San 10'.</summary>
+            </arg>
+            <description>Set the font for the type.</description>
+        </method>
+
+        <method name="SetDesktopBackground">
+            <arg type="s" name="desktop_background" direction="in">
+                <summary>File path of desktop background.</summary>
+            </arg>
+            <description>Set the desktop background.</description>
+        </method>
+
+        <method name="SetLockScreenBackground">
+            <arg type="s" name="lock_screen_background" direction="in">
+                <summary>File path of lock screen background.</summary>
+            </arg>
+            <description>Set the lock screen background.</description>
+        </method>
+
+        <property name="desktop_background" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The file path of desktop background.</description>
+        </property>
+
+        <property name="lock_screen_background" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The file path of lock screen background.</description>
+        </property>
+
+        <signal name="ThemeChanged">
+            <arg name="type" type="i">
+                <summary>The theme type.</summary>
+            </arg>
+            <arg name="theme_name" type="s">
+                <summary>The new theme name.</summary>
+            </arg>
+        </signal>
+
+    </interface>
+</node>

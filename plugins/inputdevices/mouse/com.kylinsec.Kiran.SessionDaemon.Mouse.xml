@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Mouse">
+        <method name="Reset">
+            <description>Reset all properties to default value.</description>
+        </method>
+
+        <property name="left_handed" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Swap left and right mouse buttons for left-handed mice.</description>
+        </property>
+
+        <property name="motion_acceleration" type="d" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Acceleration multiplier for mouse motion. the range the value is [-1,1], the default value is 0.</description>
+        </property>
+
+        <property name="middle_emulation_enabled" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Enables middle mouse button emulation through simultaneous left and right button click.</description>
+        </property>
+
+        <property name="natural_scroll" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>"Natural scrolling" is the terminology for moving the content in the direction of scrolling, 
+            i.e. moving the wheel or fingers down moves the page down. Traditional scrolling moves the content in the
+            opposite direction. Natural scrolling can be turned on or off, it is usually off by default.</description>
+        </property>
+
+    </interface>
+</node>

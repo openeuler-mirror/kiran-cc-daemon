@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.XSettings">
+
+        <method name="ListPropertyNames">
+            <arg type="as" name="names" direction="out">
+                <summary>The XSettings Registry property names list.</summary>
+            </arg>
+            <description>List all XSettings Registry property names.</description>
+        </method>
+
+        <method name="GetInteger">
+            <arg type="s" name="name" direction="in">
+                <summary>The XSettings Registry property name.</summary>
+            </arg>
+            <arg type="i" name="value" direction="out">
+                <summary>The XSettings Registry property value.</summary>
+            </arg>
+            <description>Get the XSettings Registry value whose type is integer.</description>
+        </method>
+
+        <method name="SetInteger">
+            <arg type="s" name="name" direction="in">
+                <summary>The XSettings Registry property name.</summary>
+            </arg>
+            <arg type="i" name="value" direction="in">
+                <summary>The XSettings Registry property value.</summary>
+            </arg>
+            <description>Set the XSettings Registry value type is integer.</description>
+        </method>
+
+        <method name="GetString">
+            <arg type="s" name="name" direction="in">
+                <summary>The XSettings Registry property name.</summary>
+            </arg>
+            <arg type="s" name="value" direction="out">
+                <summary>The XSettings Registry property value.</summary>
+            </arg>
+            <description>Get the XSettings Registry value whose type is string.</description>
+        </method>
+
+        <method name="SetString">
+            <arg type="s" name="name" direction="in">
+                <summary>The XSettings Registry property name.</summary>
+            </arg>
+            <arg type="s" name="value" direction="in">
+                <summary>The XSettings Registry property value.</summary>
+            </arg>
+            <description>Set the XSettings Registry value whose type is string.</description>
+        </method>
+
+        <method name="GetColor">
+            <arg type="s" name="name" direction="in">
+                <summary>The XSettings Registry property name.</summary>
+            </arg>
+            <arg type="(qqqq)" name="value" direction="out">
+                <summary>The XSettings Registry property value.</summary>
+            </arg>
+            <description>Get the XSettings Registry value whose type is color.</description>
+        </method>
+
+        <method name="SetColor">
+            <arg type="s" name="name" direction="in">
+                <summary>The XSettings Registry property name.</summary>
+            </arg>
+            <arg type="(qqqq)" name="value" direction="in">
+                <summary>The XSettings Registry property value.</summary>
+            </arg>
+            <description>Set the XSettings Registry value whose type is color.</description>
+        </method>
+
+    </interface>
+</node>

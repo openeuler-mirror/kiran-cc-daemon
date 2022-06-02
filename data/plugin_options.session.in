@@ -1,0 +1,59 @@
+[audio]
+Name=Audio
+Description=Audio plugin
+Available=false
+
+[appearance]
+Name=Appearance
+Description=Appearance plugin
+Available=@enable-plugin-appearance@
+
+[bluetooth]
+Name=Bluetooth
+Description=Bluetooth plugin
+Available=@enable-plugin-bluetooth@
+
+[display]
+Name=Display
+Description=Display plugin
+Available=@enable-plugin-display@
+
+[keyboard]
+Name=Keyboard
+Description=Keyboard plugin
+Available=@enable-plugin-keyboard@
+
+[keybinding]
+Name=Keybinding
+Description=Keybinding plugin
+Available=@enable-plugin-keybinding@
+
+[mouse]
+Name=Mouse
+Description=Mouse plugin
+Available=@enable-plugin-mouse@
+
+[power]
+Name=Power
+Description=Power plugin
+Available=@enable-plugin-power@
+
+[touchpad]
+Name=TouchPad
+Description=TouchPad plugin
+Available=@enable-plugin-touchpad@
+
+[xsettings]
+Name=XSettings
+Description=XSettings plugin
+Available=@enable-plugin-xsettings@
+
+[network]
+Name=Network
+Description=Network plugin
+Available=@enable-plugin-network@
+
+[clipboard]
+Name=Clipboard
+Description=Clipboard plugin
+Available=@enable-plugin-clipboard@

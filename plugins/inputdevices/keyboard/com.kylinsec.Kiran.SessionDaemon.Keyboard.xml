@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Keyboard">
+        <method name="AddLayout">
+            <arg type="s" name="layout" direction="in">
+                <summary>Layout name. example us, cn, etc</summary>
+            </arg>
+            <description>Add an user layout to usr layout lists.</description>
+        </method>
+
+        <method name="DelLayout">
+            <arg type="s" name="layout" direction="in">
+                <summary>Layout name. example us, cn, etc</summary>
+            </arg>
+            <description>Delete an user layout from usr layout lists.</description>
+        </method>
+
+        <method name="ApplyLayout">
+            <arg type="s" name="layout" direction="in">
+                <summary>Layout name.</summary>
+            </arg>
+            <description>Apply the layout which is added by AddLayout.</description>
+        </method>
+
+        <method name="GetValidLayouts">
+            <arg type="s" name="layouts" direction="out">
+                <summary>All valid layout list that is json string.</summary>
+            </arg>
+            <description>Get all valid layout list from the file /usr/share/X11/xkb/rules/base.xml</description>
+        </method>
+
+        <method name="AddLayoutOption">
+            <arg type="s" name="option" direction="in">
+                <summary>layout option.</summary>
+            </arg>
+            <description>add layout option.</description>
+        </method>
+
+        <method name="DelLayoutOption">
+            <arg type="s" name="option" direction="in">
+                <summary>layout option.</summary>
+            </arg>
+            <description>delete layout option.</description>
+        </method>
+
+        <method name="ClearLayoutOption">
+            <description>clear layout option.</description>
+        </method>
+
+        <property name="repeat_enabled" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</description>
+        </property>
+
+        <property name="repeat_delay" type="i" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The delay time in ms after the initial press of an auto-repeating key and the first generated repeat event.</description>
+        </property>
+
+        <property name="repeat_interval" type="i" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The delay time in ms between all subsequent generated repeat events.</description>
+        </property>
+
+
+        <property name="layouts" type="as" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Keyboard layouts.</description>
+
+        </property>
+
+        <property name="options" type="as" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Keyboard options.</description>
+        </property>
+    </interface>
+</node>

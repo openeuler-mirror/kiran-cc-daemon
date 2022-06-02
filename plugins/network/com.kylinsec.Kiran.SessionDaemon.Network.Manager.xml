@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Network.Manager">
+
+        <method name="AddConnection">
+            <arg name="settings" direction="in" type="s">
+                <description>The connection settings.</description>
+            </arg>
+            <arg name="path" direction="out" type="o">
+                <description>The object path for connection.</description>
+            </arg>
+        </method>
+
+        <method name="DeleteConnection">
+            <arg name="uuid" direction="in" type="s">
+                <description>The uuid of connection.</description>
+            </arg>
+        </method>
+
+        <method name="GetConnections">
+            <arg name="connections" direction="out" type="ao">
+                <description>The object path for connections.</description>
+            </arg>
+        </method>
+
+        <signal name="ConnectionChanged">
+            <arg name="event_type" type="i">
+                <description>The event type contain added, deleted and changed for connection and the definition refer to network-i.h.</description>
+            </arg>
+            <arg name="path" type="o">
+                <description>The object path for connection.</description>
+            </arg>
+        </signal>
+
+    </interface>
+</node>
