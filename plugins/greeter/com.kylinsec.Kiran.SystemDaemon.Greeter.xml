@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SystemDaemon.Greeter">
+
+        <method name="SetBackground">
+            <arg name="file_path" direction="in" type="s">
+            </arg>
+            <description>Setting the background image path of login interface.</description>
+        </method>
+
+        <method name="SetAutologinUser">
+            <arg name="user_name" direction="in" type="s">
+            </arg>
+            <description>Set automatic login user name.</description>
+        </method>
+
+        <method name="SetAutologinTimeout">
+            <arg name="seconds" direction="in" type="t">
+            </arg>
+            <description>Set the automatic login delay in seconds.</description>
+        </method>
+
+        <method name="SetHideUserList">
+            <arg name="hide" direction="in" type="b">
+            </arg>
+            <description>Set whether to hide the user list.</description>
+        </method>
+
+        <method name="SetAllowManualLogin">
+            <arg name="allow" direction="in" type="b">
+            </arg>
+            <description>Set whether manual login is allowed.</description>
+        </method>
+
+        <method name="SetScaleMode">
+            <arg name="mode" direction="in" type="q">
+                <summary>The new username.</summary>
+            </arg>
+            <arg name="factor" direction="in" type="q">
+                <summary>The mode can be 0, 1 or 2, where 0 means automatic, 1 means manual and 2 means disabled.</summary>
+            </arg>
+            <description>Factor is the scale factor, 1 is 100%, 2 is 200%. The factor parameter is valid only when mode is 1.</description>
+        </method>
+
+        <property name="background" type="s" access="read">
+        </property>
+
+        <property name="autologin_user" type="s" access="read">
+        </property>
+
+        <property name="autologin_timeout" type="t" access="read">
+        </property>
+
+        <property name="allow_manual_login" type="b" access="read">
+        </property>
+
+        <property name="hide_user_list" type="b" access="read">
+        </property>
+
+        <property name="scale_mode" type="q" access="read">
+        </property>
+
+        <property name="scale_factor" type="q" access="read">
+        </property>
+
+    </interface>
+</node>

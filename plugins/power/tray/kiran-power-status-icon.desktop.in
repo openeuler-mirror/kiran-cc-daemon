@@ -1,0 +1,12 @@
+[Desktop Entry]
+_Name=Power Manager
+_Comment=Power management daemon
+Icon=kcp-power
+Exec=kiran-power-status-icon
+Terminal=false
+Type=Application
+Categories=X-System-Server;
+Keywords=KIRAN;power;
+NoDisplay=true
+OnlyShowIn=KIRAN;
+X-KIRAN-NoDisplay=true

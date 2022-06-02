@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Audio">
+
+        <method name="GetDefaultSink">
+            <arg type="s" name="sink" direction="out">
+                <summary>The object path of the default sink.</summary>
+            </arg>
+            <description>Get the object path of the default sink.</description>
+        </method>
+
+        <method name="SetDefaultSink">
+            <arg type="u" name="sink_index" direction="in">
+                <summary>The index of the sink.</summary>
+            </arg>
+            <description>Set the default sink by index.</description>
+        </method>
+
+        <method name="GetSinks">
+            <arg type="as" name="sinks" direction="out">
+                <summary>The object path of all sinks</summary>
+            </arg>
+            <description>Get the object path of all sinks.</description>
+        </method>
+
+        <method name="GetSink">
+            <arg type="u" name="index" direction="in">
+                <summary>The sink index</summary>
+            </arg>
+            <arg type="s" name="sink" direction="out">
+                <summary>The object path of the sink</summary>
+            </arg>
+            <description>Get the object path of the sink by index .</description>
+        </method>
+
+        <method name="GetDefaultSource">
+            <arg type="s" name="source" direction="out">
+                <summary>The object path of the default source.</summary>
+            </arg>
+            <description>Get the object path of the default source.</description>
+        </method>
+
+        <method name="SetDefaultSource">
+            <arg type="u" name="source_index" direction="in">
+                <summary>The index of the source.</summary>
+            </arg>
+            <description>Set the default source by index.</description>
+        </method>
+
+        <method name="GetSources">
+            <arg type="as" name="sources" direction="out">
+                <summary>The object path of all sources</summary>
+            </arg>
+            <description>Get the object path of all sources.</description>
+        </method>
+
+        <method name="GetSource">
+            <arg type="u" name="index" direction="in">
+                <summary>The source index.</summary>
+            </arg>
+            <arg type="s" name="source" direction="out">
+                <summary>The object path of the source.</summary>
+            </arg>
+            <description>Get the object path of the source by index .</description>
+        </method>
+
+        <method name="GetSinkInputs">
+            <arg type="as" name="sink_inputs" direction="out">
+                <summary>The object path of all sink inputs</summary>
+            </arg>
+            <description>Get the object path of all sink inputs.</description>
+        </method>
+
+        <method name="GetSinkInput">
+            <arg type="u" name="index" direction="in">
+                <summary>The sink input index.</summary>
+            </arg>
+            <arg type="s" name="sink_input" direction="out">
+                <summary>The object path of the sink input.</summary>
+            </arg>
+            <description>Get the object path of the sink input by index .</description>
+        </method>
+
+        <method name="GetSourceOutputs">
+            <arg type="as" name="soruce_outputs" direction="out">
+                <summary>The object path of all source outputs</summary>
+            </arg>
+            <description>Get the object path of all source outputs.</description>
+        </method>
+
+        <method name="GetSourceOutput">
+            <arg type="u" name="index" direction="in">
+                <summary>The source output index.</summary>
+            </arg>
+            <arg type="s" name="source_output" direction="out">
+                <summary>The object path of the source output.</summary>
+            </arg>
+            <description>Get the object path of the source output by index .</description>
+        </method>
+
+        <signal name="DefaultSinkChange">
+            <arg type="u" name="index">
+                <description>If the index is equal to PA_INVALID_INDEX, then the default sink is not set.</description>
+            </arg>
+        </signal>
+        <signal name="DefaultSourceChange">
+            <arg type="u" name="index">
+                <description>If the index is equal to PA_INVALID_INDEX, then the default sink is not set.</description>
+            </arg>
+        </signal>
+
+        <signal name="SinkAdded">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SinkDelete">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SourceAdded">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SourceDelete">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SinkInputAdded">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SinkInputDelete">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SourceOutputAdded">
+            <arg type="u" name="index" />
+        </signal>
+
+        <signal name="SourceOutputDelete">
+            <arg type="u" name="index" />
+        </signal>
+
+        <property name="state" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Refer to enum PulseState in audio-i.h. The backend is available only when the state is PULSE_STATE_READY.</description>
+        </property>
+
+    </interface>
+</node>

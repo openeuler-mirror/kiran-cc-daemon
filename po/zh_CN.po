@@ -1,0 +1,1190 @@
+# Chinese translations for kiran package
+# kiran 软件包的简体中文翻译.
+# Copyright (C) 2020 THE kiran'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiran package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiran-cc-daemon 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-17 19:40+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
+msgid "File to use for the desktop background image."
+msgstr "桌面背景图片的文件路径。"
+
+#: ../data/com.kylinsec.kiran.appearance.gschema.xml.in.h:2
+msgid "File to use for the lock screen background image."
+msgstr "锁屏背景图片的文件路径。"
+
+#: ../data/com.kylinsec.kiran.display.gschema.xml.in.h:1
+msgid "Layout of connected monitors in the screen."
+msgstr "已连接的显示器在屏幕中的位置布局。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
+msgid ""
+"Whether repeat to trigger KeyPress and KeyRelease event when key is pressed."
+msgstr "当键被长按后是否重复触发按下和弹起事件。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
+msgid ""
+"The delay time in ms after the initial press of an auto-repeating key and "
+"the first generated repeat event."
+msgstr "当键被按下时第一次触发按下事件的延时(毫秒)。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
+msgid "The delay time in ms between all subsequent generated repeat events."
+msgstr "当键被按下后每个按键(按下或者弹起)事件之间的间隔时间。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
+msgid "Keyboard layouts."
+msgstr "键盘布局。"
+
+#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
+msgid "Keyboard options."
+msgstr "键盘选项。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
+msgid "Swap left and right buttons for left-handed."
+msgstr "启动左手模式后，左右键功能进行切换。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
+msgid "Acceleration multiplier for mouse motion."
+msgstr "鼠标移动加速。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
+msgid ""
+"Enables middle mouse button emulation through simultaneous left and right "
+"button click."
+msgstr "通过同时左键和右键启用鼠标中键模拟按钮点击。"
+
+#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
+msgid ""
+"Enables or disables natural scroll. Natural scrolling is the terminology for "
+"moving the content in the direction of scrolling, i.e. moving the wheel or "
+"fingers down moves the page down."
+msgstr ""
+"启用或禁用自然滚动。自然滚动是沿滚动方向移动内容，即移动滚轮或手指向下时页面"
+"向下移动。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
+msgid "Indicates if diable while typing is enabled or disabled."
+msgstr "打字时禁用触摸板功能。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
+msgid ""
+"Set this to TRUE to be able to send mouse clicks by tapping on the touchpad."
+msgstr "设置为真则表示轻击触摸板触发对应的鼠标事件，例如双击等同于鼠标右键。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
+msgid ""
+"Enables a click method. Permitted methods are buttonareas and clickfinger, "
+"respectively conreesponding to 0 and 1."
+msgstr "设置单击方法。可通过按下和轻触的方式触发点击事件。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
+msgid ""
+"Enables a scroll method. Permitted methods are twofinger, edge and button, "
+"respectively conrresponding to 0, 1 and 2."
+msgstr ""
+"设置滚动方法。可通过双指滑动、边缘滑动和按键(键盘中间的红色按钮)的方式触发滚"
+"动操作。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
+msgid "Set this to TRUE to enable all touchpads."
+msgstr "开启或关闭触摸板。"
+
+#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
+msgid "Acceleration multiplier for touchpad motion."
+msgstr "触摸板移动加速。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
+msgid ""
+"Maximum time allowed between two clicks for them to be considered a double "
+"click (in milliseconds)."
+msgstr "触发双击事件时两次单击之间允许的最大时间 (毫秒)。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
+msgid ""
+"Maximum distance allowed between two clicks for them to be considered a "
+"double click (in pixels)."
+msgstr "触发双击事件时两次单击之间允许的最大距离 (像素)。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
+msgid "Number of pixels the cursor can move before dragging."
+msgstr "拖动前光标可以移动的像素数。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
+msgid "Whether the cursor should blink."
+msgstr "光标是否应该闪烁。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
+msgid "Length of the cursor blink cycle, in milleseconds."
+msgstr "光标闪烁周期的长度 (毫秒)。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
+msgid "Name of gtk theme to use."
+msgstr "系统使用的主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
+msgid "Name of icon theme to use for icons."
+msgstr "系统使用的图标主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
+msgid "Whether to play sounds on user events."
+msgstr "是否在用户事件中播放声音。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
+msgid "The XDG sound theme to use for event sounds."
+msgstr "用于事件声音的XDG声音主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
+msgid "Whether to play sounds on input events."
+msgstr "是否在输入事件上播放声音。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
+msgid "Whether to antialias Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "是否开启Xft字体抗锯齿；-1表示默认值。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
+msgid "Whether to hint Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "是否开启Xft字体微调；-1表示默认值。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
+msgid ""
+"What degree of hinting to use; \"hintnone\", \"hintslight\", \"hintmedium\", "
+"or \"hintfull\"."
+msgstr "使用什么程度的微调。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
+msgid ""
+"Type of subpixel antialiasing; \"none\", \"rgb\", \"bgr\", \"vrgb\", \"vbgr"
+"\"."
+msgstr "抗锯齿次像素顺序。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
+msgid ""
+"Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not "
+"modify it manually."
+msgstr "字体分辨率，请不要手动修改。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
+msgid "Name of the cursor theme."
+msgstr "光标主题。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
+msgid "Size of the cursor referenced by cursor_theme."
+msgstr "光标大小。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
+msgid "Name of default font to use."
+msgstr "GTK默认字体。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
+msgid "Name of key theme RC file to load."
+msgstr "GTK要加载的关键主题的名称。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
+msgid ""
+"Whether default toolbars have text only, text and icons, icons only, etc."
+msgstr "默认工具栏是否只有文本、文本和图标、图标。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
+msgid "Size of icons in default toolbars."
+msgstr "默认工具栏中图标的大小。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
+msgid "How to draw the input method preedit string."
+msgstr "如何绘制输入法预编辑字符串。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
+msgid "How to draw the input method statusbar."
+msgstr "如何绘制输入法状态栏。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
+msgid "Name of the input method module used by GTK+."
+msgstr "GTK使用的输入法模块的名称。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
+msgid "Whether images should be shown in menus."
+msgstr "是否应在菜单中显示图像。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
+msgid "Whether stock icons should be shown in buttons."
+msgstr "图像是否显示在按钮中。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
+msgid "The accelerator for moving the focus to the menubar."
+msgstr "将焦点移动到菜单栏的加速器"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
+msgid ""
+"A '\\n' separated list of \"name:color\" as defined by the 'gtk-color-"
+"scheme' setting"
+msgstr "颜色主题"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
+msgid ""
+"Module to use as the filesystem model for the GtkFileChooser widget. "
+"Possible values are \"gio\" and \"gtk+\"."
+msgstr "用作GtkFileChooser小部件的文件系统模型的模块"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
+msgid ""
+"This setting determines which buttons should be put in the titlebar of "
+"client-side decorated windows, and whether they should be placed at the left "
+"of right."
+msgstr ""
+"此设置确定哪些按钮应放在客户端装饰窗口的标题栏中，以及是否应放在右侧的左侧。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
+msgid ""
+"This setting determines where application menu will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"此设置确定应用程序菜单的显示位置，在窗口中或使用MenuModel协议的面板上。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
+msgid ""
+"This setting determines where window menubars will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr "此设置确定窗口菜单栏的显示位置，在窗口中或使用MenuModel协议的面板上"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
+msgid ""
+"Whether the context menus of entries and text views should offer to change "
+"the input method."
+msgstr "条目和文本视图的上下文菜单是否应提供更改输入法的功能。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
+msgid ""
+"Whether the context menus of entries and text views should offer to insert "
+"control characters."
+msgstr "条目和文本视图的上下文菜单是否应提供更改输入法的功能。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
+msgid ""
+"Whether mnemonics should be automatically shown and hidden when the user "
+"presses the Alt key."
+msgstr "当用户按Alt键时，助记符是否应自动显示和隐藏。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
+msgid ""
+"If true, gtk+ uses the primary paste selection, usually triggered by a "
+"middle mouse button click."
+msgstr "如果为true，gtk+将使用主粘贴选择，通常由鼠标中键单击触发。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
+msgid "Whether to enable toolkit-wide animations."
+msgstr "是否启用工具箱范围的动画。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
+msgid ""
+"Whether builtin GTK+ dialogs such as the file chooser, the color chooser or "
+"the font chooser will use a header bar at the top to show action widgets, or "
+"an action area at the bottom."
+msgstr ""
+"无论是内置的GTK+对话框、文件选择器、颜色选择器或字体选择器，都将使用顶部的标"
+"题栏或者底部的操作区域来显示操作小部件。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
+msgid ""
+"This controls the GTK scale factor that maps from window coordinates to the "
+"actual device pixels."
+msgstr "控制从窗口坐标映射到实际设备像素的GTK比例因子。"
+
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
+msgid ""
+"This setting determines whether MATE controls the scale factor for QT "
+"applications."
+msgstr "此设置确定MATE是否控制QT应用程序的比例因子。"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
+msgid "Change your own user data"
+msgstr "更改本用户数据"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:2
+msgid "Authentication is required to change your own user data"
+msgstr "更改本用户数据之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:3
+msgid "Change your own user password"
+msgstr "更改本用户密码"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:4
+msgid "Authentication is required to change your own user password"
+msgstr "更改本用户密码之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:5
+msgid "Manage user accounts"
+msgstr "管理用户账户"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:6
+msgid "Authentication is required to change user data"
+msgstr "更改用户数据之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:7
+msgid "Change the login screen configuration"
+msgstr "更改登录屏幕设置"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:8
+msgid "Authentication is required to change the login screen configuration"
+msgstr "更改登录屏幕设置之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:1
+msgid "Set system time"
+msgstr "设置系统时间"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:2
+msgid "Authentication is required to set the system time."
+msgstr "设置系统时间之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:3
+msgid "Set system timezone"
+msgstr "设置系统时区"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:4
+msgid "Authentication is required to set the system timezone."
+msgstr "设置系统时区之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:5
+msgid "Set RTC to local timezone or UTC"
+msgstr "设置RTC为本地时区或者UTC"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:6
+msgid ""
+"Authentication is required to control whether the RTC stores the local or "
+"UTC time."
+msgstr "设置RTC为本地时区或者UTC之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:7
+msgid "Turn network time synchronization on or off"
+msgstr "设置网络时间同步"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:8
+msgid ""
+"Authentication is required to control whether network time synchronization "
+"shall be enabled."
+msgstr "设置网络时间同步之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
+msgid "Greeter settings"
+msgstr "登陆设置"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr "登陆设置之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "设置主机名"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr "设置主机名之前需要身份验证"
+
+#: ../src/main.cpp:63
+msgid "Output version infomation and exit"
+msgstr "输出版本信息并退出"
+
+#: ../src/main.cpp:89
+msgid "Control center"
+msgstr "控制中心"
+
+#: ../lib/base/error.cpp:32
+msgid "The argument is invalid."
+msgstr "参数不合法。"
+
+#: ../lib/base/error.cpp:35
+msgid "Operation failed."
+msgstr "操作失败。"
+
+#: ../lib/base/error.cpp:39
+msgid "The plugin doesn't exist."
+msgstr "插件不存在。"
+
+#: ../lib/base/error.cpp:46
+msgid "No user found."
+msgstr "没有发现用户。"
+
+#: ../lib/base/error.cpp:49
+msgid "Multiple users have the same authentication data."
+msgstr "多个用户存在相同的认证数据"
+
+#: ../lib/base/error.cpp:52
+msgid ""
+"The user is already logined in, Please log off the user before deleting it."
+msgstr "用户已经登录，请注销该用户后再删除"
+
+#: ../lib/base/error.cpp:55
+msgid "The user already exists."
+msgstr "用户已存在。"
+
+#: ../lib/base/error.cpp:58
+msgid "Unknown account type."
+msgstr "未知的用户类型。"
+
+#: ../lib/base/error.cpp:61
+msgid "Can't update password file."
+msgstr "不能更新password文件。"
+
+#: ../lib/base/error.cpp:64
+msgid "Invalid command syntax."
+msgstr "命令语法无效。"
+
+#: ../lib/base/error.cpp:67
+msgid "Invalid argument to option."
+msgstr "命令参数无效。"
+
+#: ../lib/base/error.cpp:70
+msgid "UID already in use."
+msgstr "UID已在使用中。"
+
+#: ../lib/base/error.cpp:73
+msgid "Passwd file contains errors."
+msgstr "Passwd文件存在错误。"
+
+#: ../lib/base/error.cpp:76
+msgid "Specified user/group doesn't exist."
+msgstr "指定的用户/组不存在。"
+
+#: ../lib/base/error.cpp:79
+msgid "User to modify is logged in."
+msgstr "要修改的用户已登陆。"
+
+#: ../lib/base/error.cpp:82
+msgid "Username already in use."
+msgstr "用户名已经在使用中。"
+
+#: ../lib/base/error.cpp:85
+msgid "Can't update group file."
+msgstr "不能更新group文件。"
+
+#: ../lib/base/error.cpp:88
+msgid "Insufficient space to move home dir."
+msgstr "空间不足，无法移动主目录。"
+
+#: ../lib/base/error.cpp:91
+msgid "Can't create/remove/move home directory."
+msgstr "不能创建/删除/移动主目录。"
+
+#: ../lib/base/error.cpp:95
+msgid "Can't update SELinux user mapping."
+msgstr "无法更新SELinux用户映射。"
+
+#: ../lib/base/error.cpp:98
+msgid "Can't update the subordinate uid file."
+msgstr "无法更新下级uid文件。"
+
+#: ../lib/base/error.cpp:101
+msgid "Can't update the subordinate gid file."
+msgstr "无法更新下级gid文件。"
+
+#: ../lib/base/error.cpp:104
+msgid "Refuse to delete root user."
+msgstr "禁止删除root用户。"
+
+#: ../lib/base/error.cpp:110
+msgid "The authentication mode isn't supported."
+msgstr "认证模式不支持。"
+
+#: ../lib/base/error.cpp:113
+msgid "User is locked."
+msgstr "用户被锁定。"
+
+#: ../lib/base/error.cpp:116
+msgid "The name already exists."
+msgstr "名字已存在"
+
+#: ../lib/base/error.cpp:120
+msgid "The range of volume is between 0 and 1.0."
+msgstr "音量范围必须在[0, 1.0]之间"
+
+#: ../lib/base/error.cpp:124
+msgid "The range of balance is between -1 and 1."
+msgstr "平衡范围必须在[-1, 1]之间"
+
+#: ../lib/base/error.cpp:128
+msgid "The sink device isn't found."
+msgstr "未找到输出设备。"
+
+#: ../lib/base/error.cpp:132
+msgid "The source device isn't found."
+msgstr "未找到输入设备。"
+
+#: ../lib/base/error.cpp:136
+msgid "The sink stream isn't found."
+msgstr "未找到输出流。"
+
+#: ../lib/base/error.cpp:139
+msgid "NTP unit is active."
+msgstr "NTP服务已开启。"
+
+#: ../lib/base/error.cpp:142
+msgid "Invalid timezone."
+msgstr "不合法的时区。"
+
+#: ../lib/base/error.cpp:145
+msgid "No NTP unit available."
+msgstr "没有NTP服务可用。"
+
+#: ../lib/base/error.cpp:149
+msgid "Unknown date format type."
+msgstr "未知的日期格式化类型。"
+
+#: ../lib/base/error.cpp:152
+msgid "Failed to set date format."
+msgstr "设置日期显示格式失败。"
+
+#: ../lib/base/error.cpp:155
+msgid "Failed to set hour format."
+msgstr "设置时间显示格式失败。"
+
+#: ../lib/base/error.cpp:158
+msgid "Failed to set seconds showing."
+msgstr "设置秒数是否显示失败。"
+
+#: ../lib/base/error.cpp:161
+msgid "Failed to start NTP unit."
+msgstr "开启NTP服务失败。"
+
+#: ../lib/base/error.cpp:164
+msgid "Failed to stop NTP unit."
+msgstr "停止NTP服务失败。"
+
+#: ../lib/base/error.cpp:168
+msgid "Unknown display style."
+msgstr "未知的显示类型。"
+
+#: ../lib/base/error.cpp:171
+msgid ""
+"The mode of monitors which contain resolution and refresh rate is no "
+"intersection."
+msgstr "所有显示器没有相同的分辨率和刷新率。"
+
+#: ../lib/base/error.cpp:174
+msgid "Auto mode is set failed."
+msgstr "自动模式设置失败。"
+
+#: ../lib/base/error.cpp:178
+msgid "Failed to set the window scaling factor."
+msgstr "设置窗口缩放因子失败。"
+
+#: ../lib/base/error.cpp:181
+msgid "The custom configuration file isn't found."
+msgstr "未找到自定义配置文件。"
+
+#: ../lib/base/error.cpp:184
+msgid "Not found matched item in custom configuration file."
+msgstr "不能找到匹配的配置项。"
+
+#: ../lib/base/error.cpp:187
+msgid "The primary monitor must not be empty."
+msgstr "主显示器不能为空。"
+
+#: ../lib/base/error.cpp:190
+msgid "Not found the primary monitor."
+msgstr "未找到主显示器。"
+
+#: ../lib/base/error.cpp:193
+msgid ""
+"Cannot disable the monitor, because the number of the enabled monitor is "
+"less than 1."
+msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个。"
+
+#: ../lib/base/error.cpp:196
+msgid "Exist null mode in mode list."
+msgstr "模式列表中存在空的模式。"
+
+#: ../lib/base/error.cpp:199
+msgid "Exist null mode in preferred mode list."
+msgstr "在推荐模式中存在空的模式。"
+
+#: ../lib/base/error.cpp:202
+msgid "The current mode is not exist."
+msgstr "当前模式不存在。"
+
+#: ../lib/base/error.cpp:206
+msgid "Not found match mode."
+msgstr "未发现匹配的模式。"
+
+#: ../lib/base/error.cpp:209
+msgid "The mode is not exist."
+msgstr "当前模式不存在。"
+
+#: ../lib/base/error.cpp:212
+msgid "Unknown rotation type."
+msgstr "未知的旋转类型。"
+
+#: ../lib/base/error.cpp:215
+msgid "Unknown reflect type."
+msgstr "未知的映射类型。"
+
+#: ../lib/base/error.cpp:218
+msgid "Theme not exist."
+msgstr "主题不存在。"
+
+#: ../lib/base/error.cpp:221
+msgid "Unsupported theme type."
+msgstr "主题类型不支持。"
+
+#: ../lib/base/error.cpp:224
+msgid "Invalid theme type."
+msgstr "主题类型不合法。"
+
+#: ../lib/base/error.cpp:228
+msgid "Invalid font type."
+msgstr "字体类型不合法。"
+
+#: ../lib/base/error.cpp:231
+msgid "Unsupported font type."
+msgstr "字体类型不支持。"
+
+#: ../lib/base/error.cpp:234
+msgid "An incomplete request already exists."
+msgstr "存在未完成的请求。"
+
+#: ../lib/base/error.cpp:237
+msgid "The request is canceled."
+msgstr "请求被取消。"
+
+#: ../lib/base/error.cpp:243
+msgid "The request is rejected."
+msgstr "请求被拒绝。"
+
+#: ../lib/base/error.cpp:246
+msgid "Not found adapter."
+msgstr "未发现适配器。"
+
+#: ../lib/base/error.cpp:254
+msgid "Sync to file failed."
+msgstr "同步到文件失败。"
+
+#: ../lib/base/error.cpp:260
+msgid "Invalid scale mode."
+msgstr "缩放模式不合法。"
+
+#: ../lib/base/error.cpp:263
+msgid "The number of the layout can't exceeds {0}."
+msgstr "布局数量不能超过{0}个。"
+
+#: ../lib/base/error.cpp:266
+msgid "The layout is invalid."
+msgstr "该布局不合法。"
+
+#: ../lib/base/error.cpp:269
+msgid "The layout already exist."
+msgstr "该布局已存在。"
+
+#: ../lib/base/error.cpp:272
+msgid "Failed to set the layout."
+msgstr "设置布局失败。"
+
+#: ../lib/base/error.cpp:275
+msgid "The layout is no exist."
+msgstr "该布局不存在。"
+
+#: ../lib/base/error.cpp:278
+msgid "Failed to update the layout."
+msgstr "更新布局失败。"
+
+#: ../lib/base/error.cpp:281
+msgid "The layout option already exist."
+msgstr "布局选项已存在。"
+
+#: ../lib/base/error.cpp:284
+msgid "Failed to set the layout option."
+msgstr "设置布局选项失败。"
+
+#: ../lib/base/error.cpp:287
+msgid "The layout option is no exist."
+msgstr "布局选项不存在。"
+
+#: ../lib/base/error.cpp:290
+msgid "Failed to update the layout option."
+msgstr "更新布局选项失败。"
+
+#: ../lib/base/error.cpp:293
+msgid "Failed to clear the layout option."
+msgstr "清理布局选项失败。"
+
+#: ../lib/base/error.cpp:296
+msgid "The custom shortcut isn't exist."
+msgstr "自定义快捷键不存在。"
+
+#: ../lib/base/error.cpp:300
+msgid "The key combination already exist."
+msgstr "按键组合已经存在。"
+
+#: ../lib/base/error.cpp:304
+msgid "The key combination is invalid."
+msgstr "按键组合不合法。"
+
+#: ../lib/base/error.cpp:307
+msgid "The system shortcut isn't exist."
+msgstr "该系统快捷键不存在。"
+
+#: ../lib/base/error.cpp:313
+msgid "Unsupported power supply mode."
+msgstr "不支持该供电模式。"
+
+#: ../lib/base/error.cpp:319
+msgid "Unsupported power device."
+msgstr "不支持该设备。"
+
+#: ../lib/base/error.cpp:322
+msgid "The value must be between 0 and 100."
+msgstr "值必须在0到100之间"
+
+#: ../lib/base/error.cpp:326
+msgid "Unknown power action."
+msgstr "未知电源动作。"
+
+#: ../lib/base/error.cpp:330
+msgid "Unsupported power event."
+msgstr "事件不支持。"
+
+#: ../lib/base/error.cpp:333
+msgid "Failed to set the action."
+msgstr "设置触发行为失败。"
+
+#: ../lib/base/error.cpp:336
+msgid "Failed to set brightness."
+msgstr "设置亮度失败。"
+
+#: ../lib/base/error.cpp:339
+msgid "The systeminfo type is invalid."
+msgstr "系统信息类型不合法。"
+
+#: ../lib/base/error.cpp:342
+msgid "Failed to set host name."
+msgstr "设置主机名失败。"
+
+#: ../lib/base/error.cpp:345
+msgid "Not found the property."
+msgstr "未找到该属性。"
+
+#: ../lib/base/error.cpp:348
+msgid "The type is mismatch."
+msgstr "类型不匹配。"
+
+#: ../lib/base/error.cpp:351
+msgid "The property is invalid."
+msgstr "属性不合法"
+
+#: ../lib/base/error.cpp:354
+msgid "The property must not be modified manually."
+msgstr "属性不能手动修改。"
+
+#: ../lib/base/error.cpp:357
+msgid "The property is unsupported."
+msgstr "属性不支持。"
+
+#: ../lib/base/error.cpp:361
+msgid "Arguments invalid."
+msgstr "参数不合法"
+
+#: ../lib/base/error.cpp:364
+msgid "The network proxy mode is invalid."
+msgstr "代理模式不合法"
+
+#: ../lib/base/error.cpp:367
+msgid "The current network proxy mode is not manual."
+msgstr "当前代理模式不是手动模式。"
+
+#: ../lib/base/error.cpp:370
+msgid "The current network proxy mode is not auto."
+msgstr "当前代理模式不是自动模式。"
+
+#: ../lib/base/error.cpp:411
+msgid "Internel error."
+msgstr "内部错误。"
+
+#: ../lib/base/error.cpp:414 ../lib/base/error.cpp:417
+msgid "Unknown error."
+msgstr "未知错误。"
+
+#: ../lib/base/error.cpp:423 ../plugins/accounts/accounts-util.cpp:209
+msgid " (error code: 0x{:x})"
+msgstr "(错误码：0x{:x})"
+
+#: ../lib/dbus/auth-manager.cpp:147
+msgid "Authorization failed"
+msgstr "授权失败"
+
+#: ../plugins/accounts/accounts-util.cpp:205
+msgid " ({0}, error code: 0x{1:x})"
+msgstr "({0}，错误码：0x{1:x})"
+
+#: ../plugins/timedate/timedate-format.cpp:137
+#: ../plugins/timedate/timedate-format.cpp:138
+#: ../plugins/timedate/timedate-format.cpp:139
+msgid "%b %d %Y"
+msgstr "%Y年%m月%d日"
+
+#: ../plugins/keybinding/custom-shortcut.h:25
+msgid "Custom"
+msgstr "自定义"
+
+#: ../plugins/power/power-utils.cpp:26
+msgid "Less than 1 minute"
+msgstr "小于1分钟"
+
+#: ../plugins/power/power-utils.cpp:30
+msgid "{0} minute"
+msgid_plural "{0} minutes"
+msgstr[0] "{0}分钟"
+
+#: ../plugins/power/power-utils.cpp:38
+msgid "{0} hour"
+msgid_plural "{0} hours"
+msgstr[0] "{0}小时"
+
+#: ../plugins/power/power-utils.cpp:44
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "小时"
+
+#: ../plugins/power/power-utils.cpp:46
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "分钟"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:115
+msgid "Battery Discharging"
+msgstr "电池正在放电"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:116
+msgid "{0} of battery power remaining ({1:.1f}%)"
+msgstr "电池电量剩余 {0} ({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:121
+msgid "UPS Discharging"
+msgstr "UPS 正在放电"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:122
+msgid "{0} of UPS backup power remaining ({1:.1f}%)"
+msgstr "UPS 备用电池电量剩余 {0} ({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:139
+msgid "Battery Charged"
+msgstr "电池已充满"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:163
+msgid "Battery low"
+msgstr "电池电量低。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:164
+msgid "Approximately <b>{0}</b> remaining ({1:.1f}%)"
+msgstr "大约剩余 <b>{0}</b>({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:171
+msgid "UPS low"
+msgstr "UPS 电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:172
+msgid "Approximately <b>{0}</b> of remaining UPS backup power ({1:.1f}%)"
+msgstr "UPS 备用电源的剩余电量大约可维持 <b>{0}</b>，为总电量的 {1:.1f}%"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:178
+#: ../plugins/power/notification/power-notification-manager.cpp:246
+msgid "Mouse battery low"
+msgstr "鼠标电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:179
+msgid "Wireless mouse is low in power ({0:.1f}%)"
+msgstr "无线鼠标电量不足(仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:182
+#: ../plugins/power/notification/power-notification-manager.cpp:251
+msgid "Keyboard battery low"
+msgstr "键盘电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:183
+msgid "Wireless keyboard is low in power ({0:.1f}%)"
+msgstr "无线键盘电量不足 (仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:186
+#: ../plugins/power/notification/power-notification-manager.cpp:256
+msgid "PDA battery low"
+msgstr "PDA 电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:187
+msgid "PDA is low in power ({0:.1f}%)"
+msgstr "PDA 电量不足 (仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:190
+#: ../plugins/power/notification/power-notification-manager.cpp:261
+#: ../plugins/power/notification/power-notification-manager.cpp:266
+msgid "Cell phone battery low"
+msgstr "手机电池电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:191
+msgid "Cell phone is low in power ({0:.1f}%)"
+msgstr "手机电量不足 (仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:194
+msgid "Media player battery low"
+msgstr "媒体播放器电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:195
+msgid "Media player is low in power ({0:1f}%)"
+msgstr "媒体播放器电量不足 (仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:198
+#: ../plugins/power/notification/power-notification-manager.cpp:271
+msgid "Tablet battery low"
+msgstr "触摸板电池电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:199
+msgid "Tablet is low in power ({0:1f}%)"
+msgstr "触摸板电量不足 (仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:202
+#: ../plugins/power/notification/power-notification-manager.cpp:276
+msgid "Attached computer battery low"
+msgstr "连接的计算机电池电量低"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:203
+msgid "Attached computer is low in power ({0:.1f}%)"
+msgstr "连接的计算机电量不足 (仅剩 {0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:233
+msgid "Battery critically low"
+msgstr "电池电量将用尽。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:234
+msgid ""
+"Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to "
+"avoid losing data."
+msgstr "大约剩余 <b>{0}</b>({1:.1f}%)。接入您的交流电源以避免丢失数据。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:240
+#: ../plugins/power/notification/power-notification-manager.cpp:333
+msgid "UPS critically low"
+msgstr "UPS 电量将用尽"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:241
+msgid ""
+"Approximately <b>{0}</b> of remaining UPS power ({1:.1f}%). Restore AC power "
+"to your computer to avoid losing data."
+msgstr ""
+"您的 UPS 剩余电量大约可维持 <b>{0}</b>，为总电量的 {1:.1f}%。请恢复交流电源以"
+"防丢失数据。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:247
+msgid ""
+"Wireless mouse is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"无线鼠标电池电量严重不足 (仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止"
+"工作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:252
+msgid ""
+"Wireless keyboard is very low in power ({0:.1f}%). This device will soon "
+"stop functioning if not charged."
+msgstr ""
+"无线键盘电量严重不足 (仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工"
+"作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:257
+msgid ""
+"PDA is very low in power ({0:.1f}%). This device will soon stop functioning "
+"if not charged."
+msgstr ""
+"PDA 电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:262
+msgid ""
+"Cell phone is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"您的手机电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:267
+msgid ""
+"Media player is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"媒体播放器电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工"
+"作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:272
+msgid ""
+"Tablet is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"触摸板电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止工作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:277
+msgid ""
+"Attached computer is very low in power ({0:.1f}%). The device will soon "
+"shutdown if not charged."
+msgstr ""
+"连接的此计算机电量严重不足(仅剩 {0:.1f}%)。如果不充电的话，此设备将会很快停止"
+"工作。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:308
+msgid "Laptop battery critically low"
+msgstr "笔记本电池电量将用尽"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:316
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+"电池的电量将用尽，计算机将开始挂起。<br><b>注意：</b>将您的计算机保持在挂起状"
+"态也需要一点电量。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:320
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"hibernate."
+msgstr "电池的电量将用尽，计算机将开始休眠。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:323
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"shutdown."
+msgstr "电池的电量将用尽，计算机将开始关机。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:326
+msgid ""
+"The battery is below the critical level and this computer will <b>power-off</"
+"b> when the battery becomes completely empty."
+msgstr "电池的电量将用尽，电池的电量完全用尽时计算机将会<b>关机</b>。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:341
+msgid ""
+"The UPS is below the critical level and this computer is about to suspend."
+"<br><b>NOTE:</b> A small amount of power is required to keep your computer "
+"in a suspended state."
+msgstr ""
+"UPS的电量将用尽，计算机将开始挂起。<br><b>注意：</b>将您的计算机保持在挂起状"
+"态也需要一点电量。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:345
+msgid ""
+"The UPS is below the critical level and this computer is about to hibernate."
+msgstr "UPS 电量将用尽，计算机将开始休眠到硬盘。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:348
+msgid ""
+"The UPS is below the critical level and this computer is about to shutdown."
+msgstr "UPS 电量将用尽，计算机将开始关机。"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:351
+msgid ""
+"The UPS is below the critical level and this computer will <b>power-off</b> "
+"when the UPS becomes completely empty."
+msgstr "UPS 电量将用尽。UPS 电量完全用尽时计算将会<b>关机</b>。"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:86
+msgid "AC adapter"
+msgid_plural "AC adapters"
+msgstr[0] "交流电源适配器"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:89
+msgid "Laptop battery"
+msgid_plural "Laptop batteries"
+msgstr[0] "笔记本电池"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:92
+msgid "UPS"
+msgid_plural "UPSs"
+msgstr[0] "不间断电源"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:95
+msgid "Monitor"
+msgid_plural "Monitors"
+msgstr[0] "显示器"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:98
+msgid "Mouse"
+msgid_plural "Mice"
+msgstr[0] "鼠标"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:101
+msgid "Keyboard"
+msgid_plural "Keyboards"
+msgstr[0] "键盘"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:104
+msgid "PDA"
+msgid_plural "PDAs"
+msgstr[0] "PDA（个人数码助理）"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:107
+msgid "Cell phone"
+msgid_plural "Cell phones"
+msgstr[0] "手机"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:110
+msgid "Media player"
+msgid_plural "Media players"
+msgstr[0] "媒体播放器"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:113
+msgid "Tablet"
+msgid_plural "Tablets"
+msgstr[0] "平板电脑"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:116
+msgid "Computer"
+msgid_plural "Computers"
+msgstr[0] "计算机"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:119
+msgid "Unknown"
+msgid_plural "Unknown"
+msgstr[0] "未知"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:102
+msgid "This program can only be used by the root user"
+msgstr "此程序只能由 root 用户使用"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:109
+msgid "This program must only be run through pkexec"
+msgstr "此程序只能通过 pkexec 运行"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:118
+msgid "Could not set the value of the backlight"
+msgstr "无法设置背光的值"
+
+#. namespace  Kiran
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:1
+msgid "Power Manager"
+msgstr "电源管理"
+
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
+msgid "Power management daemon"
+msgstr "电源管理后端"
+
+#~ msgid "The custom shortcut is invalid."
+#~ msgstr "自定义快捷键不合法。"
+
+#~ msgid "The custom shortcut already exist."
+#~ msgstr "自定义快捷键已存在。"
+
+#~ msgid "The expiration policy isn't found."
+#~ msgstr "未找到过期策略"
