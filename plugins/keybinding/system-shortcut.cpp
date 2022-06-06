@@ -148,7 +148,7 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
         // 过滤掉没有翻译文件的配置
         if (package.empty())
         {
-            KLOG_WARNING("Filter the keylist entries which name is %s, because the translation file not be found.", keylist_entries.name);
+            KLOG_WARNING("Filter the keylist entries which name is %s, because the translation file not be found.", keylist_entries.name.c_str());
             continue;
         }
 
