@@ -82,6 +82,8 @@ private:
 
     bool is_explicitly_requested_user(const std::string &user_name);
 
+    bool is_security_policy_user(uint64_t uid);
+
     bool read_autologin_from_file(std::string &name, bool &enabled, std::string &err);
     bool save_autologin_to_file(const std::string &name, bool enabled, std::string &err);
 
