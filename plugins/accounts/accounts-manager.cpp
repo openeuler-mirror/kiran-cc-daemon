@@ -206,6 +206,12 @@ void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocatio
 {
     KLOG_PROFILE("Uid: %" PRIu64 " remove_files: %d", uid, remove_files);
 
+    // 如果是三权用户，则禁止删除
+    if (this->is_security_policy_user(uid))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_THREE_AUTH_USER);
+    }
+
     // 如果用户已经登录, 则禁止删除
     if (this->login1_proxy_)
     {
@@ -582,6 +588,22 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 bool AccountsManager::is_explicitly_requested_user(const std::string &user_name)
 {
     return (this->explicitly_requested_users_.find(user_name) != this->explicitly_requested_users_.end());
+}
+
+bool AccountsManager::is_security_policy_user(uint64_t uid)
+{
+    auto user = this->find_and_create_user_by_id(uid);
+    if (user)
+    {
+        if (user->user_name_get().raw() == "audadm" ||
+            user->user_name_get().raw() == "sysadm" ||
+            user->user_name_get().raw() == "secadm")
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool AccountsManager::read_autologin_from_file(std::string &name, bool &enabled, std::string &err)
