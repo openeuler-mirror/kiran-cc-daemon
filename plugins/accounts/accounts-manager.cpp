@@ -209,7 +209,7 @@ void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocatio
     // 如果是三权用户，则禁止删除
     if (this->is_security_policy_user(uid))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_SECURITY_USER);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_THREE_AUTH_USER);
     }
 
     // 如果用户已经登录, 则禁止删除
