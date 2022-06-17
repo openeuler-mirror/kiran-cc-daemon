@@ -29,6 +29,10 @@ namespace Kiran
 {
 #define PATH_GDM_CUSTOM "/etc/gdm/custom.conf"
 
+#define LOGIN1_DBUS_NAME "org.freedesktop.login1"
+#define LOGIN1_DBUS_OBJECT_PATH "/org/freedesktop/login1"
+#define LOGIN1_MANAGER_DBUS_INTERFACE "org.freedesktop.login1.Manager"
+
 AccountsManager::AccountsManager(AccountsWrapper *passwd_wrapper) : passwd_wrapper_(passwd_wrapper),
                                                                     dbus_connect_id_(0),
                                                                     object_register_id_(0)
@@ -200,7 +204,33 @@ void AccountsManager::CreateUser(const Glib::ustring &name,
 
 void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("uid: %" PRIu64 " remoev_files: %d", uid, remove_files);
+    KLOG_PROFILE("Uid: %" PRIu64 " remove_files: %d", uid, remove_files);
+
+    // 如果用户已经登录, 则禁止删除
+    if (this->login1_proxy_)
+    {
+        auto parameters = g_variant_new("(u)", uint32_t(uid));
+        Glib::VariantContainerBase base(parameters, false);
+        try
+        {
+            auto retval = this->login1_proxy_->call_sync("GetUser", base);
+            auto v1 = retval.get_child(0);
+            auto user_object_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(v1).get();
+
+            if (!user_object_path.empty())
+            {
+                DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_ALREADY_LOGIN);
+            }
+        }
+        catch (const std::exception &e)
+        {
+            KLOG_WARNING("%s.", e.what());
+        }
+        catch (const Glib::Error &e)
+        {
+            KLOG_WARNING("%s.", e.what().c_str());
+        }
+    }
 
     AuthManager::get_instance()->start_auth_check(AUTH_USER_ADMIN,
                                                   TRUE,
@@ -213,6 +243,18 @@ void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocatio
 void AccountsManager::init()
 {
     KLOG_PROFILE("");
+
+    try
+    {
+        this->login1_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                                    LOGIN1_DBUS_NAME,
+                                                                    LOGIN1_DBUS_OBJECT_PATH,
+                                                                    LOGIN1_MANAGER_DBUS_INTERFACE);
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("%s", e.what().c_str());
+    }
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
                                                  ACCOUNTS_DBUS_NAME,

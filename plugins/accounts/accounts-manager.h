@@ -103,5 +103,7 @@ private:
     std::map<std::string, std::shared_ptr<User>> users_;
     std::weak_ptr<User> autologin_;
     std::set<std::string> explicitly_requested_users_;
+
+    Glib::RefPtr<Gio::DBus::Proxy> login1_proxy_;
 };
 }  // namespace Kiran
