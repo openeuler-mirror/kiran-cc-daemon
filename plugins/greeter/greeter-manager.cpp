@@ -20,7 +20,7 @@
 
 #include "lib/base/base.h"
 
-#define LIGHTDM_PROFILE_PATH "/etc/lightdm/lightdm.conf"
+#define LIGHTDM_PROFILE_PATH "/usr/share/lightdm/lightdm.conf.d/99-kiran-greeter-login.conf"
 #define LIGHTDM_GROUP_NAME "Seat:*"
 
 #define GREETER_PROFILE_PATH "/etc/lightdm/kiran-greeter.conf"
@@ -28,6 +28,8 @@
 
 #define KEY_AUTOLOGIN_USER "autologin-user"
 #define KEY_AUTOLOGIN_DELAY "autologin-user-timeout"
+#define KEY_AUTOLOGIN_SESSION "autologin-session"
+#define DEFAULT_AUTOLOGIN_SESSION "kiran"
 
 #define KEY_LIGHTDM_HIDE_USER_LIST "greeter-hide-users"
 #define KEY_LIGHTDM_ENABLE_MANUAL_LOGIN "greeter-show-manual-login"
@@ -538,6 +540,12 @@ bool GreeterManager::load_lightdm_settings(GreeterData *data, Glib::KeyFile *set
             {
                 auto delay = tmp_settings->get_uint64(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_DELAY);
                 data->autologin_delay = delay;
+            }
+
+            // 自动登录用户需要默认配置 autologin-session=kiran
+            if (!settings_has_key(tmp_settings, LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_SESSION))
+            {
+                tmp_settings->set_string(LIGHTDM_GROUP_NAME, KEY_AUTOLOGIN_SESSION, DEFAULT_AUTOLOGIN_SESSION);
             }
 
             if (settings_has_key(tmp_settings, LIGHTDM_GROUP_NAME, KEY_LIGHTDM_ENABLE_MANUAL_LOGIN))
