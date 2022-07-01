@@ -30,6 +30,3 @@ install(TARGETS ${TARGET_NAME}
 
 install(FILES ${PROJECT_SOURCE_DIR}/plugins/greeter/kiran-greeter.conf
         DESTINATION ${SYSCONFDIR}/lightdm/)
-
-install(FILES ${PROJECT_SOURCE_DIR}/plugins/greeter/99-kiran-greeter-login.conf
-        DESTINATION /usr/share/lightdm/lightdm.conf.d/)
