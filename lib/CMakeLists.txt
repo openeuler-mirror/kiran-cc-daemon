@@ -5,5 +5,5 @@ add_subdirectory(dbus)
 add_subdirectory(iso)
 
 if(build-session-daemon)
-add_subdirectory(display)
+  add_subdirectory(display)
 endif()
