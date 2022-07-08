@@ -1,5 +1,5 @@
 [D-BUS Service]
 Name=com.kylinsec.Kiran.SystemDaemon
-Exec=@KCC_INSTALL_BINDIR@/kiran-system-daemon
+Exec=@CMAKE_INSTALL_FULL_BINDIR@/kiran-system-daemon
 User=root
 SystemdService=kiran-system-daemon.service
