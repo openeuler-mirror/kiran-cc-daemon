@@ -73,6 +73,7 @@ void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
         Json::Value values;
         values[KEYBINDING_SHORTCUT_JK_UID] = std::string(custom_shortcut->uid);
         values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
         std::string signal_val = StrUtils::json2str(values);
 
         invocation.ret(custom_shortcut->uid);
@@ -113,6 +114,7 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
         Json::Value values;
         values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
         values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
         std::string signal_val = StrUtils::json2str(values);
 
         invocation.ret();
@@ -132,6 +134,7 @@ void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInv
         Json::Value values;
         values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
         values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
+        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
         std::string signal_val = StrUtils::json2str(values);
 
         invocation.ret();
@@ -362,6 +365,7 @@ void KeybindingManager::system_shortcut_added(std::shared_ptr<SystemShortCut> sy
         Json::Value values;
         values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
         values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
+        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
         std::string signal_val = StrUtils::json2str(values);
 
         this->Added_signal.emit(Glib::ustring(signal_val));
@@ -375,6 +379,7 @@ void KeybindingManager::system_shortcut_deleted(std::shared_ptr<SystemShortCut> 
         Json::Value values;
         values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
         values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
+        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
         std::string signal_val = StrUtils::json2str(values);
 
         this->Deleted_signal.emit(Glib::ustring(signal_val));
@@ -388,6 +393,7 @@ void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> 
         Json::Value values;
         values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
         values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
+        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
         std::string signal_val = StrUtils::json2str(values);
 
         this->Changed_signal.emit(Glib::ustring(signal_val));
