@@ -42,6 +42,7 @@ extern "C"
 #define KEYBINDING_SHORTCUT_JK_UID "uid"
 #define KEYBINDING_SHORTCUT_JK_KIND "kind"
 #define KEYBINDING_SHORTCUT_JK_NAME "name"
+#define KEYBINDING_SHORTCUT_JK_TYPE "type"  // "custom or system"
 #define KEYBINDING_SHORTCUT_JK_ACTION "action"
 #define KEYBINDING_SHORTCUT_JK_KEY_COMBINATION "key_combination"
 

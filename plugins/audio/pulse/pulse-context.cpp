@@ -108,8 +108,6 @@ void PulseContext::disconnect()
 
 bool PulseContext::load_server_info()
 {
-    KLOG_PROFILE("");
-
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
                             this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_CONNECTED,
                         false);
@@ -120,8 +118,6 @@ bool PulseContext::load_server_info()
 
 bool PulseContext::load_card_info(uint32_t index)
 {
-    KLOG_PROFILE("load card info: %d.", index);
-
     pa_operation *op = NULL;
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -143,7 +139,7 @@ bool PulseContext::load_card_info(uint32_t index)
 
 bool PulseContext::load_card_info_by_name(const std::string &name)
 {
-    KLOG_PROFILE("load card info: %s.", name.c_str());
+    KLOG_DEBUG("Load card info: %s.", name.c_str());
 
     RETURN_VAL_IF_FALSE(!name.empty(), false);
 
@@ -160,8 +156,6 @@ bool PulseContext::load_card_info_by_name(const std::string &name)
 
 bool PulseContext::load_sink_info(uint32_t index)
 {
-    KLOG_PROFILE("load sink info: %d.", index);
-
     pa_operation *op = NULL;
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -201,8 +195,6 @@ bool PulseContext::load_sink_info_by_name(const std::string &name)
 
 bool PulseContext::load_sink_input_info(uint32_t index)
 {
-    KLOG_PROFILE("load sink input info: %d.", index);
-
     pa_operation *op = NULL;
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -227,8 +219,6 @@ bool PulseContext::load_sink_input_info(uint32_t index)
 
 bool PulseContext::load_source_info(uint32_t index)
 {
-    KLOG_PROFILE("load source info: %d.", index);
-
     pa_operation *op = NULL;
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -270,8 +260,6 @@ bool PulseContext::load_source_info_by_name(const std::string &name)
 
 bool PulseContext::load_source_output_info(uint32_t index)
 {
-    KLOG_PROFILE("load source output info: %d.", index);
-
     pa_operation *op = NULL;
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -633,9 +621,59 @@ void PulseContext::on_pulse_state_cb(pa_context *context, void *userdata)
     return;
 }
 
-void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_event_type_t event_type, uint32_t idx, void *userdata)
+static std::string event2facility(int32_t event)
+{
+    auto facility = (event & PA_SUBSCRIPTION_EVENT_FACILITY_MASK);
+    switch (facility)
+    {
+    case PA_SUBSCRIPTION_EVENT_SERVER:
+        return "Server";
+    case PA_SUBSCRIPTION_EVENT_CARD:
+        return "Card";
+    case PA_SUBSCRIPTION_EVENT_SINK:
+        return "Sink";
+    case PA_SUBSCRIPTION_EVENT_SINK_INPUT:
+        return "SinkInput";
+    case PA_SUBSCRIPTION_EVENT_SOURCE:
+        return "Source";
+    case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
+        return "SourceOutput";
+    default:
+        return "Other";
+    }
+    return "Other";
+}
+
+static std::string event2type(int32_t event)
+{
+    auto type = (event & PA_SUBSCRIPTION_EVENT_TYPE_MASK);
+    switch (type)
+    {
+    case PA_SUBSCRIPTION_EVENT_NEW:
+        return "New";
+    case PA_SUBSCRIPTION_EVENT_CHANGE:
+        return "Change";
+    case PA_SUBSCRIPTION_EVENT_REMOVE:
+        return "Remove";
+    default:
+        return "Other";
+    }
+    return "Other";
+}
+
+void PulseContext::on_pulse_subscribe_cb(pa_context *context,
+                                         pa_subscription_event_type_t event_type,
+                                         uint32_t idx,
+                                         void *userdata)
 {
     PulseContext *self = (PulseContext *)(userdata);
+
+    KLOG_DEBUG("Receive subscribe event. facility: %s, type: %s, idx: %d.",
+               event2facility(event_type).c_str(),
+               event2type(event_type).c_str(),
+               idx);
+
+    auto type = (event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK);
 
     switch (event_type & PA_SUBSCRIPTION_EVENT_FACILITY_MASK)
     {
@@ -643,7 +681,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_ev
         self->load_server_info();
         break;
     case PA_SUBSCRIPTION_EVENT_CARD:
-        if ((event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
+        if (type == PA_SUBSCRIPTION_EVENT_REMOVE)
         {
             self->card_info_removed_.emit(idx);
         }
@@ -653,7 +691,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_ev
         }
         break;
     case PA_SUBSCRIPTION_EVENT_SINK:
-        if ((event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
+        if (type == PA_SUBSCRIPTION_EVENT_REMOVE)
         {
             self->sink_info_removed_.emit(idx);
         }
@@ -663,7 +701,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_ev
         }
         break;
     case PA_SUBSCRIPTION_EVENT_SINK_INPUT:
-        if ((event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
+        if (type == PA_SUBSCRIPTION_EVENT_REMOVE)
         {
             self->sink_input_info_removed_.emit(idx);
         }
@@ -673,7 +711,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_ev
         }
         break;
     case PA_SUBSCRIPTION_EVENT_SOURCE:
-        if ((event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
+        if (type == PA_SUBSCRIPTION_EVENT_REMOVE)
         {
             self->source_info_removed_.emit(idx);
         }
@@ -683,7 +721,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_ev
         }
         break;
     case PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
-        if ((event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
+        if (type == PA_SUBSCRIPTION_EVENT_REMOVE)
         {
             self->source_output_info_removed_.emit(idx);
         }
@@ -699,8 +737,6 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context, pa_subscription_ev
 
 void PulseContext::on_pulse_server_info_cb(pa_context *context, const pa_server_info *server_info, void *userdata)
 {
-    KLOG_PROFILE("");
-
     PulseContext *self = (PulseContext *)(userdata);
     RETURN_IF_FALSE(self != NULL && self->context_ == context);
 

@@ -295,7 +295,7 @@ void PulseBackend::on_card_info_changed_cb(const pa_card_info *card_info)
 {
     RETURN_IF_FALSE(card_info != NULL);
 
-    KLOG_DEBUG("card changed, index: %d, name: %s.", card_info->index, card_info->name ? card_info->name : "NULL");
+    KLOG_DEBUG("Card changed, index: %d, name: %s.", card_info->index, card_info->name ? card_info->name : "NULL");
 
     auto card = this->get_card(card_info->index);
 
@@ -314,7 +314,7 @@ void PulseBackend::on_card_info_changed_cb(const pa_card_info *card_info)
 
 void PulseBackend::on_card_info_removed_cb(uint32_t index)
 {
-    KLOG_DEBUG("card removed, index: %d.", index);
+    KLOG_DEBUG("Card removed, index: %d.", index);
 
     auto card = this->get_card(index);
 
@@ -333,7 +333,7 @@ void PulseBackend::on_sink_info_changed_cb(const pa_sink_info *sink_info)
 {
     RETURN_IF_FALSE(sink_info != NULL);
 
-    KLOG_DEBUG("sink changed, index: %d, name: %s.", sink_info->index, sink_info->name ? sink_info->name : "NULL");
+    KLOG_DEBUG("Sink changed, index: %d, name: %s.", sink_info->index, sink_info->name ? sink_info->name : "NULL");
 
     auto sink = this->get_sink(sink_info->index);
 
@@ -367,7 +367,7 @@ void PulseBackend::on_sink_info_changed_cb(const pa_sink_info *sink_info)
 
 void PulseBackend::on_sink_info_removed_cb(uint32_t index)
 {
-    KLOG_DEBUG("sink removed, index: %d.", index);
+    KLOG_DEBUG("Sink removed, index: %d.", index);
 
     auto sink = this->get_sink(index);
 
@@ -399,7 +399,7 @@ void PulseBackend::on_sink_input_info_changed_cb(const pa_sink_input_info *sink_
 {
     RETURN_IF_FALSE(sink_input_info != NULL);
 
-    KLOG_DEBUG("sink input changed, index: %d, name: %s.", sink_input_info->index, sink_input_info->name ? sink_input_info->name : "NULL");
+    KLOG_DEBUG("Sink input changed, index: %d, name: %s.", sink_input_info->index, sink_input_info->name ? sink_input_info->name : "NULL");
 
     auto sink_input = this->get_sink_input(sink_input_info->index);
 
@@ -418,7 +418,7 @@ void PulseBackend::on_sink_input_info_changed_cb(const pa_sink_input_info *sink_
 
 void PulseBackend::on_sink_input_info_removed_cb(uint32_t index)
 {
-    KLOG_DEBUG("sink input removed, index: %d.", index);
+    KLOG_DEBUG("Sink input removed, index: %d.", index);
 
     auto sink_input = this->get_sink_input(index);
 
@@ -436,7 +436,7 @@ void PulseBackend::on_source_info_changed_cb(const pa_source_info *source_info)
 {
     RETURN_IF_FALSE(source_info != NULL);
 
-    KLOG_DEBUG("source changed, index: %d, name: %s.", source_info->index, source_info->name ? source_info->name : "NULL");
+    KLOG_DEBUG("Source changed, index: %d, name: %s.", source_info->index, source_info->name ? source_info->name : "NULL");
 
     auto source = this->get_source(source_info->index);
 
@@ -468,7 +468,7 @@ void PulseBackend::on_source_info_changed_cb(const pa_source_info *source_info)
 
 void PulseBackend::on_source_info_removed_cb(uint32_t index)
 {
-    KLOG_DEBUG("source removed, index: %d.", index);
+    KLOG_DEBUG("Source removed, index: %d.", index);
 
     auto source = this->get_source(index);
 
@@ -500,7 +500,7 @@ void PulseBackend::on_source_output_info_changed_cb(const pa_source_output_info 
 {
     RETURN_IF_FALSE(source_output_info != NULL);
 
-    KLOG_DEBUG("source output changed, index: %d, name: %s.", source_output_info->index, source_output_info->name ? source_output_info->name : "NULL");
+    KLOG_DEBUG("Source output changed, index: %d, name: %s.", source_output_info->index, source_output_info->name ? source_output_info->name : "NULL");
 
     auto source_output = this->get_source_output(source_output_info->index);
 
@@ -519,7 +519,7 @@ void PulseBackend::on_source_output_info_changed_cb(const pa_source_output_info 
 
 void PulseBackend::on_source_output_info_removed_cb(uint32_t index)
 {
-    KLOG_DEBUG("source output removed, index: %d.", index);
+    KLOG_DEBUG("Source output removed, index: %d.", index);
 
     auto source_output = this->get_source_output(index);
 
