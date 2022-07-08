@@ -1,0 +1,19 @@
+[accounts]
+Name=Accounts
+Description=Accounts plugin
+Available=@enable-plugin-accounts@
+
+[systeminfo]
+Name=SystemInfo
+Description=SystemInfo plugin
+Available=@enable-plugin-systeminfo@
+
+[timedate]
+Name=TimeDate
+Description=TimeDate plugin
+Available=@enable-plugin-timedate@
+
+[greeter]
+Name=Greeter
+Description=Greeter plugin
+Available=@enable-plugin-greeter@

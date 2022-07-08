@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--*-nxml-*-->
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+
+<policyconfig>
+
+    <vendor> kiran-session-daemon </vendor>
+
+    <action id="com.kylinsec.kiran.session-daemon.power.backlight-helper">
+        <_description>Modify the laptop brightness</_description>
+        <_message>Authentication is required to modify the laptop brightness</_message>
+        <defaults>
+            <allow_any>no</allow_any>
+            <allow_inactive>no</allow_inactive>
+            <allow_active>yes</allow_active>
+        </defaults>
+        <annotate key="org.freedesktop.policykit.exec.path">@KCC_INSTALL_BINDIR@/kiran-power-backlight-helper</annotate>
+    </action>
+</policyconfig>

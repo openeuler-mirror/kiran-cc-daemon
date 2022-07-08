@@ -1,0 +1,4 @@
+Name: Kiran System Daemon
+Description: Development files for communicating with control center daemon.
+Version: 2.0
+Cflags: -I@KCC_INSTALL_INCLUDE@

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Display">
+        <method name="ListMonitors">
+            <arg type="as" name="monitors" direction="out">
+                <doc:doc>
+                    <doc:summary>The object path list.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Get the object paths for all the outputs.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SwitchStyle">
+            <arg type="u" name="style" direction="in">
+                <doc:doc>
+                    <doc:summary>The dispaly style for these connected monitors.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The display styles contain mirrors(0), extend(1), custom(2) and auto(3). 
+                    The mirrors indicates all monitors have the same pos and size;
+                    The extend indicates all monitors is extended horizontally;
+                    The custom is set from local configuration display.xml;
+                    The auto is set by the order of custom, extend, mirrors until success.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetDefaultStyle">
+            <arg type="u" name="style" direction="in">
+                <doc:doc>
+                    <doc:summary>The default display style.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the default display style. The display styles contain mirrors(0), extend(1), custom(2) and auto(3).
+                    Used when the program starts running or new monitor device is added or existing monitor device is deleted.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="ApplyChanges">
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Apply all changes.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="RestoreChanges">
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Restore all changes.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetPrimary">
+            <arg type="s" name="name" direction="in">
+                <doc:doc>
+                    <doc:summary>The name of the monitor.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the primary monitor by name.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="Save">
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Save all changes to file.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <method name="SetWindowScalingFactor">
+            <arg type="i" name="window_scaling_factor" direction="in">
+                <doc:doc>
+                    <doc:summary>The window scaling factor.</doc:summary>
+                </doc:doc>
+            </arg>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>Set the window scaling factor.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </method>
+
+        <property name="default_style" type="u" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The default display style. </doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="primary" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The name of the primary monitor.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <property name="window_scaling_factor" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <doc:doc>
+                <doc:description>
+                    <doc:para>The window scaling factor.</doc:para>
+                </doc:description>
+            </doc:doc>
+        </property>
+
+        <signal name="MonitorsChanged">
+            <arg name="placeholder" type="b">
+                <doc:doc>
+                    <doc:summary>The placeholder.</doc:summary>
+                </doc:doc>
+            </arg>
+        </signal>
+
+    </interface>
+</node>

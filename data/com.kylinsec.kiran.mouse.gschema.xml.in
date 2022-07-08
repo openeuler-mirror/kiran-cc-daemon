@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="@PROJECT_NAME@">
+    <schema id="com.kylinsec.kiran.mouse" path="/com/kylinsec/kiran/mouse/">
+        <key name="left-handed" type="b">
+            <default>false</default>
+            <description>Swap left and right buttons for left-handed.</description>
+        </key>
+
+        <key name="motion-acceleration" type="d">
+            <default>0</default>
+            <range min="-1" max="1" />
+            <description>Acceleration multiplier for mouse motion.</description>
+        </key>
+
+        <key name="middle-emulation-enabled" type="b">
+            <default>false</default>
+            <description>Enables middle mouse button emulation through simultaneous left and right button click.</description>
+        </key>
+
+        <key name="natural-scroll" type="b">
+            <default>false</default>
+            <description>Enables or disables natural scroll. Natural scrolling is the terminology for moving the content in the direction of scrolling, 
+            i.e. moving the wheel or fingers down moves the page down.</description>
+        </key>
+    </schema>
+</schemalist>
