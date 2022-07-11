@@ -16,8 +16,10 @@
 
 namespace Kiran
 {
+#define MAX_RECONNECTION_NUM 50
+
 PulseBackend::PulseBackend() : state_(AudioState::AUDIO_STATE_IDLE),
-                               connected_once_(false),
+                               reconnection_count_(0),
                                reconnection_handle_(0)
 {
     this->context_ = std::make_shared<PulseContext>();
@@ -99,7 +101,7 @@ bool PulseBackend::init()
 
     this->set_state(AudioState::AUDIO_STATE_CONNECTING);
 
-    if (!this->context_->connect(false))
+    if (!this->context_->connect(true))
     {
         this->set_state(AudioState::AUDIO_STATE_FAILED);
         return false;
@@ -110,7 +112,7 @@ bool PulseBackend::init()
 
 void PulseBackend::set_state(AudioState state)
 {
-    KLOG_PROFILE("state: %d.", state);
+    KLOG_DEBUG("Audio state: %d.", state);
 
     if (this->state_ != state)
     {
@@ -121,7 +123,16 @@ void PulseBackend::set_state(AudioState state)
 
 bool PulseBackend::try_reconnection()
 {
-    KLOG_PROFILE("");
+    ++this->reconnection_count_;
+
+    KLOG_DEBUG("Try to reconnect pulseaudio service. reconnection count: %d.", this->reconnection_count_);
+
+    if (this->reconnection_count_ > MAX_RECONNECTION_NUM)
+    {
+        KLOG_WARNING("The maximum number of reconnections (%d) has been exceeded. Stop reconnection", MAX_RECONNECTION_NUM);
+        this->reconnection_handle_ = 0;
+        return G_SOURCE_REMOVE;
+    }
 
     if (this->context_->connect(true))
     {
@@ -168,38 +179,28 @@ void PulseBackend::reset_data()
 
 void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connection_state)
 {
-    KLOG_PROFILE("connection state: %d.", connection_state);
+    KLOG_DEBUG("Connection state: %d.", connection_state);
 
     switch (connection_state)
     {
     case PulseConnectionState::PULSE_CONNECTION_DISCONNECTED:
     {
-        // 如果之前已经成功连接过一次，此时突然断开了连接，则重新进行连接
         // 重新连接之前需要清理掉之前的数据，需要测试一下重启pulseaudio服务程序会不会出问题
         this->reset_data();
+        this->set_state(AudioState::AUDIO_STATE_CONNECTING);
 
-        if (this->connected_once_)
+        if (this->reconnection_handle_)
         {
-            this->set_state(AudioState::AUDIO_STATE_CONNECTING);
-
-            if (this->reconnection_handle_)
-            {
-                KLOG_DEBUG("The reconnection handle is already exist. handle: %d.", this->reconnection_handle_);
-                break;
-            }
-
-            if (!this->context_->connect(true))
-            {
-                auto timeout_source = Glib::TimeoutSource::create(200);
-                timeout_source->connect(sigc::mem_fun(this, &PulseBackend::try_reconnection));
-                auto glib_context = Glib::wrap(g_main_context_get_thread_default());
-                this->reconnection_handle_ = timeout_source->attach(glib_context);
-            }
+            KLOG_DEBUG("The reconnection handle is already exist. handle: %d.", this->reconnection_handle_);
         }
         else
         {
-            this->set_state(AudioState::AUDIO_STATE_FAILED);
+            auto timeout_source = Glib::TimeoutSource::create(400);
+            timeout_source->connect(sigc::mem_fun(this, &PulseBackend::try_reconnection));
+            auto glib_context = Glib::wrap(g_main_context_get_thread_default());
+            this->reconnection_handle_ = timeout_source->attach(glib_context);
         }
+
         break;
     }
     case PulseConnectionState::PULSE_CONNECTION_CONNECTING:
@@ -209,7 +210,8 @@ void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connectio
         break;
     case PulseConnectionState::PULSE_CONNECTION_CONNECTED:
     {
-        this->connected_once_ = true;
+        // 如果连接成功，重连次数清0
+        this->reconnection_count_ = 0;
         this->set_state(AudioState::AUDIO_STATE_READY);
         break;
     }

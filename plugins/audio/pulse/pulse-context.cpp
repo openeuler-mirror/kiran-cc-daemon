@@ -56,7 +56,7 @@ PulseContext::~PulseContext()
 
 bool PulseContext::connect(bool wait_for_daemon)
 {
-    KLOG_PROFILE("wait for deamon: %d.", wait_for_daemon);
+    KLOG_DEBUG("Wait for deamon: %d.", wait_for_daemon);
 
     RETURN_VAL_IF_FALSE(this->main_loop_ != NULL, false);
 
@@ -75,7 +75,6 @@ bool PulseContext::connect(bool wait_for_daemon)
     pa_context_set_state_callback(this->context_, &PulseContext::on_pulse_state_cb, this);
 
     pa_context_flags_t flags = wait_for_daemon ? PA_CONTEXT_NOFAIL : PA_CONTEXT_NOFLAGS;
-
     if (pa_context_connect(this->context_, NULL, flags, NULL) == 0)
     {
         this->set_connection_state(PulseConnectionState::PULSE_CONNECTION_CONNECTING);
@@ -83,6 +82,7 @@ bool PulseContext::connect(bool wait_for_daemon)
     }
     else
     {
+        KLOG_WARNING("Failed to connect pulseaudio service.");
         // on_pulse_state_cb回调函数可能已经进行了释放操作，所以这里需要进一步判断
         if (this->context_)
         {
@@ -568,6 +568,8 @@ void PulseContext::on_pulse_state_cb(pa_context *context, void *userdata)
 {
     PulseContext *self = (PulseContext *)(userdata);
     auto state = pa_context_get_state(self->context_);
+
+    KLOG_DEBUG("Pulse state change, state: %d.", state);
 
     if (state == PA_CONTEXT_READY)
     {

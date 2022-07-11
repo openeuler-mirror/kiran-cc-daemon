@@ -171,8 +171,8 @@ private:
 
     // 可用状态
     AudioState state_;
-    // 是否成功连接过一次
-    bool connected_once_;
+    // 重新连接次数
+    int32_t reconnection_count_;
     uint32_t reconnection_handle_;
 
     PulseServerInfo server_info_;
