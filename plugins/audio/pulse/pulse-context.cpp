@@ -83,8 +83,12 @@ bool PulseContext::connect(bool wait_for_daemon)
     }
     else
     {
-        pa_context_unref(this->context_);
-        this->context_ = NULL;
+        // on_pulse_state_cb回调函数可能已经进行了释放操作，所以这里需要进一步判断
+        if (this->context_)
+        {
+            pa_context_unref(this->context_);
+            this->context_ = NULL;
+        }
         return false;
     }
 }
