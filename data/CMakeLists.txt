@@ -20,29 +20,30 @@ if(build-system-daemon)
 
   # service files
   file(GLOB SERVICE_IN_FILES
-       ${PROJECT_SOURCE_DIR}/data/*SystemDaemon*service.in
-       ${PROJECT_SOURCE_DIR}/data/kiran-system-daemon.service.in)
+       ${PROJECT_SOURCE_DIR}/data/services/*SystemDaemon*service.in
+       ${PROJECT_SOURCE_DIR}/data/services/kiran-system-daemon.service.in)
 
   foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
     string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
     configure_file(${SERVICE_IN_FILE}
-                   ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE})
+                   ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE})
   endforeach()
 
   if(SYSTEMD_FOUND)
     pkg_get_variable(SYSTEM_UNIT_DIR systemd systemdsystemunitdir)
     message(STATUS "systemdsystemunitdir: ${SYSTEM_UNIT_DIR}")
-    install(FILES ${PROJECT_BINARY_DIR}/data/kiran-system-daemon.service
-            DESTINATION ${SYSTEM_UNIT_DIR})
+    install(
+      FILES ${PROJECT_BINARY_DIR}/data/services/kiran-system-daemon.service
+      DESTINATION ${SYSTEM_UNIT_DIR})
   endif()
 
   install(
     FILES
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.service
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Accounts.service
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.Greeter.service
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
+      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.service
+      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Accounts.service
+      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
+      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Greeter.service
+      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
     DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/system-services)
 
   # conf files
@@ -83,13 +84,14 @@ if(build-session-daemon)
     DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/polkit-1/actions/)
 
   # gschema.xml
-  file(GLOB SCHEMA_IN_FILES ${PROJECT_SOURCE_DIR}/data/*.gschema.xml.in)
+  file(GLOB SCHEMA_IN_FILES ${PROJECT_SOURCE_DIR}/data/schemas/*.gschema.xml.in)
 
   foreach(SCHEMA_IN_FILE IN LISTS SCHEMA_IN_FILES)
     string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SCHEMA_FILE ${SCHEMA_IN_FILE})
-    configure_file(${SCHEMA_IN_FILE} ${PROJECT_BINARY_DIR}/data/${SCHEMA_FILE})
+    configure_file(${SCHEMA_IN_FILE}
+                   ${PROJECT_BINARY_DIR}/data/schemas/${SCHEMA_FILE})
 
-    install(FILES ${PROJECT_BINARY_DIR}/data/${SCHEMA_FILE}
+    install(FILES ${PROJECT_BINARY_DIR}/data/schemas/${SCHEMA_FILE}
             DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/)
   endforeach()
 
@@ -107,13 +109,13 @@ if(build-session-daemon)
 
   # service files
   file(GLOB SERVICE_IN_FILES
-       ${PROJECT_SOURCE_DIR}/data/*SessionDaemon*service.in)
+       ${PROJECT_SOURCE_DIR}/data/services/*SessionDaemon*service.in)
 
   foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
     string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
     configure_file(${SERVICE_IN_FILE}
-                   ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE})
-    install(FILES ${PROJECT_BINARY_DIR}/data/${SERVICE_FILE}
+                   ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE})
+    install(FILES ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE}
             DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/services)
   endforeach()
 
@@ -122,6 +124,12 @@ if(build-session-daemon)
                  ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop)
   install(FILES ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop
           DESTINATION ${SYSCONFDIR}/xdg/autostart)
+
+  # keybindings
+  file(GLOB KEYBINDINGS_XML_FILES ${PROJECT_SOURCE_DIR}/data/keybindings/*.xml)
+  install(
+    FILES ${KEYBINDINGS_XML_FILES}
+    DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}/keybindings/)
 
 endif()
 
