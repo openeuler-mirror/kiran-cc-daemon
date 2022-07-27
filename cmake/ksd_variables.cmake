@@ -17,7 +17,7 @@ set(enable-plugin-appearance
     "true"
     CACHE STRING "Enable plugin appearance")
 set(enable-plugin-audio
-    "false"
+    "true"
     CACHE STRING "Enable plugin audio")
 set(enable-plugin-bluetooth
     "false"
@@ -53,7 +53,7 @@ set(enable-plugin-xsettings
     "true"
     CACHE STRING "Enable plugin xsettings")
 set(enable-plugin-network
-    "false"
+    "true"
     CACHE STRING "Enable plugin network")
 set(enable-plugin-clipboard
     "false"
