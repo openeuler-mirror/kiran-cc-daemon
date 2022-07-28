@@ -21,7 +21,7 @@
 
 namespace Kiran
 {
-#define MATECC_KEYBINDINGS_DIR "/usr/share/mate-control-center/keybindings"
+#define KCC_KEYBINDINGS_DIR KCC_INSTALL_DATADIR "/keybindings"
 
 SystemShortCuts::SystemShortCuts()
 {
@@ -123,12 +123,12 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
 {
     KLOG_PROFILE("");
 
-    KeyListEntriesParser parser(MATECC_KEYBINDINGS_DIR);
+    KeyListEntriesParser parser(KCC_KEYBINDINGS_DIR);
     std::vector<KeyListEntries> keys;
     std::string err;
     if (!parser.parse(keys, err))
     {
-        KLOG_WARNING("failed to parse %s: %s.", MATECC_KEYBINDINGS_DIR, err.c_str());
+        KLOG_WARNING("failed to parse %s: %s.", KCC_KEYBINDINGS_DIR, err.c_str());
         return;
     }
 
