@@ -65,8 +65,6 @@ bool SystemInfoSoftware::set_host_name(const std::string &host_name)
 
 bool SystemInfoSoftware::read_kernel_info(SoftwareInfo &software_info)
 {
-    KLOG_PROFILE("");
-
     struct utsname uts_name;
 
     auto retval = uname(&uts_name);
@@ -85,25 +83,25 @@ bool SystemInfoSoftware::read_kernel_info(SoftwareInfo &software_info)
     return true;
 }
 
-bool SystemInfoSoftware::read_product_info(SoftwareInfo &software_info)
+void SystemInfoSoftware::read_product_info(SoftwareInfo &software_info)
 {
-    KLOG_PROFILE("");
-
-    Glib::KeyFile keyfile;
-
-    try
-    {
-        keyfile.load_from_file(KYINFO_FILE);
-
-        software_info.product_name = keyfile.get_string(KYINFO_GROUP_NAME, KYINFO_KEY_NAME);
-        software_info.product_release = keyfile.get_string(KYINFO_GROUP_NAME, KYINFO_KEY_MILESTONE);
+#define GET_RELEASE_INFO(cmd, var)                                       \
+    try                                                                  \
+    {                                                                    \
+        Glib::spawn_command_line_sync(cmd, &var);                        \
+        var = StrUtils::trim(var);                                       \
+        if (var.length() > 1 && var.front() == '"' && var.back() == '"') \
+        {                                                                \
+            var.erase(0, 1);                                             \
+            var.pop_back();                                              \
+        }                                                                \
+    }                                                                    \
+    catch (const Glib::Error &e)                                         \
+    {                                                                    \
+        KLOG_WARNING("%s", e.what().c_str());                            \
     }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("%s", e.what().c_str());
-        return false;
-    }
 
-    return true;
+    GET_RELEASE_INFO("lsb_release -i -s", software_info.product_name)
+    GET_RELEASE_INFO("lsb_release -d -s", software_info.product_release)
 }
 }  // namespace Kiran
