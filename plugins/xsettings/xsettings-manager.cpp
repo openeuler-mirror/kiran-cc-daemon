@@ -346,9 +346,18 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
                 KLOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
             }
 
+
+            /* FIXME: 由于QT_SCALE_FACTOR将会放大窗口以及pt大小字体，而缩放将会更改Xft.dpi属性，该属性也会导致qt pt字体大小放大，字体将会放大过多。
+            目前暂时解决方案：缩放两倍时固定Qt字体DPI 96，由QT_SCALE_FACTOR环境变量对窗口以及字体进行放大.
+            后续应弃用QT_SCALE_FACTOR方案
+            */
             if (!XSettingsUtils::update_user_env_variable("QT_SCALE_FACTOR", scale == 2 ? "2" : "1", error))
             {
                 KLOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
+            }
+            else if ( scale==2 && !XSettingsUtils::update_user_env_variable("QT_FONT_DPI","96",error) )
+            {
+                KLOG_WARNING("There was a problem when setting QT_FONT_DPI=96: %s", error.c_str());
             }
         }
     }
