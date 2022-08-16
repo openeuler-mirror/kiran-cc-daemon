@@ -126,12 +126,13 @@ public:
     bool update(const std::string &name, const XSettingsColor &value);
     bool update(std::shared_ptr<XSettingsPropertyBase> var);
 
-    void notify();
-
     std::shared_ptr<XSettingsPropertyBase> get_property(const std::string &name);
     XSettingsPropertyBaseVec get_properties();
 
+    sigc::signal<void, std::vector<Glib::ustring>> signal_properties_changed() { return this->properties_changed_; };
+
 private:
+    bool notify();
     char byte_order();
 
 private:
@@ -146,5 +147,9 @@ private:
     Window xsettings_window_;
 
     std::map<std::string, std::shared_ptr<XSettingsPropertyBase>> properties_;
+    // 记录发生变化的属性，在改变后发送信号
+    std::vector<Glib::ustring> changed_properties_;
+    sigc::connection notify_handler_;
+    sigc::signal<void, std::vector<Glib::ustring>> properties_changed_;
 };
 }  // namespace Kiran

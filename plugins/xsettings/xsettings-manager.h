@@ -68,6 +68,7 @@ private:
     void on_screen_changed();
     bool delayed_toggle_bg_draw(bool value);
     void on_fontconfig_timestamp_changed();
+    void on_properties_changed(const std::vector<Glib::ustring> &properties);
 
     void set_registry_var(std::shared_ptr<XSettingsPropertyBase> var, MethodInvocation &invocation);
 

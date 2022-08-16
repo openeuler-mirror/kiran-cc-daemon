@@ -16,6 +16,7 @@
 
 #include <fstream>
 
+#include <glib/gi18n.h>
 #include "config.h"
 #include "lib/base/base.h"
 #include "plugins/display/display-util.h"
@@ -34,6 +35,8 @@ namespace Kiran
 
 DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(xrandr_manager),
                                                                 default_style_(DisplayStyle::DISPLAY_STYLE_EXTEND),
+                                                                window_scaling_factor_(0),
+                                                                dynamic_scaling_window_(false),
                                                                 dbus_connect_id_(0),
                                                                 object_register_id_(0)
 {
@@ -180,10 +183,28 @@ void DisplayManager::SetWindowScalingFactor(gint32 window_scaling_factor, Method
 {
     KLOG_PROFILE("");
 
+    if (this->window_scaling_factor_get() == window_scaling_factor)
+    {
+        invocation.ret();
+        return;
+    }
+
+    if (!this->dynamic_scaling_window_)
+    {
+        std::string standard_error;
+        auto command_line = fmt::format("/usr/bin/notify-send \"{0}\"", _("The scaling rate can only take effect after logging out and logging in again"));
+        Glib::spawn_command_line_sync(command_line, nullptr, &standard_error);
+        if (!standard_error.empty())
+        {
+            KLOG_WARNING("Failed to run notify-send: %s", standard_error.c_str());
+        }
+    }
+
     if (!this->window_scaling_factor_set(window_scaling_factor))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_2);
     }
+
     invocation.ret();
 }
 
@@ -222,7 +243,6 @@ void DisplayManager::init()
     this->load_config();
 
     this->display_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::display_settings_changed));
-    this->xsettings_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::xsettings_settings_changed));
     this->xrandr_manager_->signal_resources_changed().connect(sigc::mem_fun(this, &DisplayManager::resources_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
@@ -236,21 +256,25 @@ void DisplayManager::init()
     {
         KLOG_WARNING("%s.", CC_ERROR2STR(error_code).c_str());
     }
+
+    /* window_scaling_factor的初始化顺序：
+       1. 先读取xsettings中的window-scaling-factor属性; (load_settings)
+       2. 读取monitor.xml中维护的window-scaling-factor值 （switch_style_and_save）
+       3. 如果第2步和第1步的值不相同，则说明在上一次进入会话时用户修改了缩放率，需要在这一次进入会话时生效，
+          因此需要将monitor.xml中的缩放率更新到xsettings中的window-scaling-factor属性中*/
+    if (this->window_scaling_factor_ != this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR))
+    {
+        this->xsettings_settings_->set_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, this->window_scaling_factor_);
+    }
 }
 
 void DisplayManager::load_settings()
 {
     KLOG_PROFILE("settings: %p.", this->display_settings_.get());
 
-    if (this->display_settings_)
-    {
-        this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE));
-    }
-
-    if (this->xsettings_settings_)
-    {
-        this->window_scaling_factor_ = this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR);
-    }
+    this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE));
+    this->dynamic_scaling_window_ = this->display_settings_->get_boolean(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW);
+    this->window_scaling_factor_ = this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR);
 }
 
 void DisplayManager::load_monitors()
@@ -505,12 +529,15 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
 
 bool DisplayManager::apply(CCErrorCode &error_code)
 {
-    // 应用缩放因子
-    auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
-    if (!this->xsettings_settings_->set_value(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
+    if (this->dynamic_scaling_window_)
     {
-        error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
-        return false;
+        // 应用缩放因子
+        auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
+        if (!this->xsettings_settings_->set_value(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
+        {
+            error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
+            return false;
+        }
     }
 
     // 应用xrandr
@@ -652,10 +679,11 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
     for (uint32_t i = 1; i < monitors.size(); ++i)
     {
         auto monitor = monitors[i];
-        auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool {
-            auto modes = monitor->get_modes_by_size(mode->width, mode->height);
-            return (modes.size() == 0);
-        });
+        auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool
+                                   {
+                                       auto modes = monitor->get_modes_by_size(mode->width, mode->height);
+                                       return (modes.size() == 0);
+                                   });
 
         result.erase(iter, result.end());
     }
@@ -824,20 +852,6 @@ void DisplayManager::display_settings_changed(const Glib::ustring &key)
     {
         auto style = this->display_settings_->get_enum(key);
         this->default_style_set(style);
-    }
-    break;
-    }
-}
-
-void DisplayManager::xsettings_settings_changed(const Glib::ustring &key)
-{
-    KLOG_PROFILE("key: %s.", key.c_str());
-
-    switch (shash(key.c_str()))
-    {
-    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
-    {
-        this->window_scaling_factor_ = this->xsettings_settings_->get_int(key);
     }
     break;
     }
