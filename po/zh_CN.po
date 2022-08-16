@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-08 11:05+0800\n"
+"POT-Creation-Date: 2022-08-16 17:47+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -17,58 +17,63 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../data/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
 msgid "File to use for the desktop background image."
 msgstr "桌面背景图片的文件路径。"
 
-#: ../data/com.kylinsec.kiran.appearance.gschema.xml.in.h:2
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:2
 msgid "File to use for the lock screen background image."
 msgstr "锁屏背景图片的文件路径。"
 
-#: ../data/com.kylinsec.kiran.display.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:1
 msgid "Layout of connected monitors in the screen."
 msgstr "已连接的显示器在屏幕中的位置布局。"
 
-#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:2
+msgid ""
+"It takes effect immediately when the scaling factor of window is changed."
+msgstr "当窗口缩放率发生变化时立即生效。"
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
 msgid ""
 "Whether repeat to trigger KeyPress and KeyRelease event when key is pressed."
 msgstr "当键被长按后是否重复触发按下和弹起事件。"
 
-#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
 msgid ""
 "The delay time in ms after the initial press of an auto-repeating key and "
 "the first generated repeat event."
 msgstr "当键被按下时第一次触发按下事件的延时(毫秒)。"
 
-#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
 msgid "The delay time in ms between all subsequent generated repeat events."
 msgstr "当键被按下后每个按键(按下或者弹起)事件之间的间隔时间。"
 
-#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
 msgid "Keyboard layouts."
 msgstr "键盘布局。"
 
-#: ../data/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
 msgid "Keyboard options."
 msgstr "键盘选项。"
 
-#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
 msgid "Swap left and right buttons for left-handed."
 msgstr "启动左手模式后，左右键功能进行切换。"
 
-#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
 msgid "Acceleration multiplier for mouse motion."
 msgstr "鼠标移动加速。"
 
-#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
 msgid ""
 "Enables middle mouse button emulation through simultaneous left and right "
 "button click."
 msgstr "通过同时左键和右键启用鼠标中键模拟按钮点击。"
 
-#: ../data/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
 msgid ""
 "Enables or disables natural scroll. Natural scrolling is the terminology for "
 "moving the content in the direction of scrolling, i.e. moving the wheel or "
@@ -77,22 +82,22 @@ msgstr ""
 "启用或禁用自然滚动。自然滚动是沿滚动方向移动内容，即移动滚轮或手指向下时页面"
 "向下移动。"
 
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
 msgid "Indicates if diable while typing is enabled or disabled."
 msgstr "打字时禁用触摸板功能。"
 
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
 msgid ""
 "Set this to TRUE to be able to send mouse clicks by tapping on the touchpad."
 msgstr "设置为真则表示轻击触摸板触发对应的鼠标事件，例如双击等同于鼠标右键。"
 
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
 msgid ""
 "Enables a click method. Permitted methods are buttonareas and clickfinger, "
 "respectively conreesponding to 0 and 1."
 msgstr "设置单击方法。可通过按下和轻触的方式触发点击事件。"
 
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
 msgid ""
 "Enables a scroll method. Permitted methods are twofinger, edge and button, "
 "respectively conrresponding to 0, 1 and 2."
@@ -100,146 +105,146 @@ msgstr ""
 "设置滚动方法。可通过双指滑动、边缘滑动和按键(键盘中间的红色按钮)的方式触发滚"
 "动操作。"
 
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
 msgid "Set this to TRUE to enable all touchpads."
 msgstr "开启或关闭触摸板。"
 
-#: ../data/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
 msgid "Acceleration multiplier for touchpad motion."
 msgstr "触摸板移动加速。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
 msgid ""
 "Maximum time allowed between two clicks for them to be considered a double "
 "click (in milliseconds)."
 msgstr "触发双击事件时两次单击之间允许的最大时间 (毫秒)。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
 msgid ""
 "Maximum distance allowed between two clicks for them to be considered a "
 "double click (in pixels)."
 msgstr "触发双击事件时两次单击之间允许的最大距离 (像素)。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
 msgid "Number of pixels the cursor can move before dragging."
 msgstr "拖动前光标可以移动的像素数。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
 msgid "Whether the cursor should blink."
 msgstr "光标是否应该闪烁。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
 msgid "Length of the cursor blink cycle, in milleseconds."
 msgstr "光标闪烁周期的长度 (毫秒)。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
 msgid "Name of gtk theme to use."
 msgstr "系统使用的主题。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
 msgid "Name of icon theme to use for icons."
 msgstr "系统使用的图标主题。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
 msgid "Whether to play sounds on user events."
 msgstr "是否在用户事件中播放声音。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
 msgid "The XDG sound theme to use for event sounds."
 msgstr "用于事件声音的XDG声音主题。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
 msgid "Whether to play sounds on input events."
 msgstr "是否在输入事件上播放声音。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
 msgid "Whether to antialias Xft fonts; 0=no, 1=yes, -1=default."
 msgstr "是否开启Xft字体抗锯齿；-1表示默认值。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
 msgid "Whether to hint Xft fonts; 0=no, 1=yes, -1=default."
 msgstr "是否开启Xft字体微调；-1表示默认值。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
 msgid ""
 "What degree of hinting to use; \"hintnone\", \"hintslight\", \"hintmedium\", "
 "or \"hintfull\"."
 msgstr "使用什么程度的微调。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
 msgid ""
 "Type of subpixel antialiasing; \"none\", \"rgb\", \"bgr\", \"vrgb\", \"vbgr"
 "\"."
 msgstr "抗锯齿次像素顺序。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
 msgid ""
 "Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not "
 "modify it manually."
 msgstr "字体分辨率，请不要手动修改。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
 msgid "Name of the cursor theme."
 msgstr "光标主题。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
 msgid "Size of the cursor referenced by cursor_theme."
 msgstr "光标大小。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
 msgid "Name of default font to use."
 msgstr "GTK默认字体。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
 msgid "Name of key theme RC file to load."
 msgstr "GTK要加载的关键主题的名称。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
 msgid ""
 "Whether default toolbars have text only, text and icons, icons only, etc."
 msgstr "默认工具栏是否只有文本、文本和图标、图标。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
 msgid "Size of icons in default toolbars."
 msgstr "默认工具栏中图标的大小。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
 msgid "How to draw the input method preedit string."
 msgstr "如何绘制输入法预编辑字符串。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
 msgid "How to draw the input method statusbar."
 msgstr "如何绘制输入法状态栏。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
 msgid "Name of the input method module used by GTK+."
 msgstr "GTK使用的输入法模块的名称。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
 msgid "Whether images should be shown in menus."
 msgstr "是否应在菜单中显示图像。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
 msgid "Whether stock icons should be shown in buttons."
 msgstr "图像是否显示在按钮中。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
 msgid "The accelerator for moving the focus to the menubar."
 msgstr "将焦点移动到菜单栏的加速器"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
 msgid ""
 "A '\\n' separated list of \"name:color\" as defined by the 'gtk-color-"
 "scheme' setting"
 msgstr "颜色主题"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
 msgid ""
 "Module to use as the filesystem model for the GtkFileChooser widget. "
 "Possible values are \"gio\" and \"gtk+\"."
 msgstr "用作GtkFileChooser小部件的文件系统模型的模块"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
 msgid ""
 "This setting determines which buttons should be put in the titlebar of "
 "client-side decorated windows, and whether they should be placed at the left "
@@ -247,48 +252,48 @@ msgid ""
 msgstr ""
 "此设置确定哪些按钮应放在客户端装饰窗口的标题栏中，以及是否应放在右侧的左侧。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
 msgid ""
 "This setting determines where application menu will be displayed - in a "
 "window or on a panel with MenuModel protocol."
 msgstr ""
 "此设置确定应用程序菜单的显示位置，在窗口中或使用MenuModel协议的面板上。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
 msgid ""
 "This setting determines where window menubars will be displayed - in a "
 "window or on a panel with MenuModel protocol."
 msgstr "此设置确定窗口菜单栏的显示位置，在窗口中或使用MenuModel协议的面板上"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
 msgid ""
 "Whether the context menus of entries and text views should offer to change "
 "the input method."
 msgstr "条目和文本视图的上下文菜单是否应提供更改输入法的功能。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
 msgid ""
 "Whether the context menus of entries and text views should offer to insert "
 "control characters."
 msgstr "条目和文本视图的上下文菜单是否应提供更改输入法的功能。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
 msgid ""
 "Whether mnemonics should be automatically shown and hidden when the user "
 "presses the Alt key."
 msgstr "当用户按Alt键时，助记符是否应自动显示和隐藏。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
 msgid ""
 "If true, gtk+ uses the primary paste selection, usually triggered by a "
 "middle mouse button click."
 msgstr "如果为true，gtk+将使用主粘贴选择，通常由鼠标中键单击触发。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
 msgid "Whether to enable toolkit-wide animations."
 msgstr "是否启用工具箱范围的动画。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
 msgid ""
 "Whether builtin GTK+ dialogs such as the file chooser, the color chooser or "
 "the font chooser will use a header bar at the top to show action widgets, or "
@@ -297,13 +302,13 @@ msgstr ""
 "无论是内置的GTK+对话框、文件选择器、颜色选择器或字体选择器，都将使用顶部的标"
 "题栏或者底部的操作区域来显示操作小部件。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
 msgid ""
 "This controls the GTK scale factor that maps from window coordinates to the "
 "actual device pixels."
 msgstr "控制从窗口坐标映射到实际设备像素的GTK比例因子。"
 
-#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
 msgid ""
 "This setting determines whether MATE controls the scale factor for QT "
 "applications."
@@ -835,6 +840,11 @@ msgstr "({0}，错误码：0x{1:x})"
 #: ../plugins/timedate/timedate-format.cpp:139
 msgid "%b %d %Y"
 msgstr "%Y年%m月%d日"
+
+#: ../plugins/display/display-manager.cpp:195
+msgid ""
+"The scaling rate can only take effect after logging out and logging in again"
+msgstr "缩放率需要注销后重新登录才能生效"
 
 #: ../plugins/keybinding/custom-shortcut.h:25
 msgid "Custom"

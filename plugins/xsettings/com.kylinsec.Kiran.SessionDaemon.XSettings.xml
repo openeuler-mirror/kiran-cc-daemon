@@ -70,5 +70,12 @@
             <description>Set the XSettings Registry value whose type is color.</description>
         </method>
 
+        <signal name="PropertiesChanged">
+            <arg type="as" name="names">
+                <summary>The XSettings Registry property name list.</summary>
+            </arg>
+            <description>Emit this signal when XSettings Registry property is changed.</description>
+        </signal>
+
     </interface>
 </node>

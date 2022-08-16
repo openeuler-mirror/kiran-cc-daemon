@@ -39,6 +39,8 @@ extern "C"
 #define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
 #define DISPLAY_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
 
+#define DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW "dynamic-scaling-window"
+
     // 显示模式，只有在下列情况会使用显示模式进行设置：
     // 1. 程序第一次启动
     // 2. 有连接设备删除和添加时
