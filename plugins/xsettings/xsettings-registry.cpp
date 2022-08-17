@@ -236,8 +236,15 @@ bool XSettingsRegistry::update(std::shared_ptr<XSettingsPropertyBase> var)
         return true;
     }
 
+    this->changed_properties_.push_back(var->get_name());
     this->properties_.erase(var->get_name());
     auto iter = this->properties_.emplace(var->get_name(), var);
+
+    // 空闲时修改，因为update可能会被连续调用多次。
+    if (!this->notify_handler_)
+    {
+        this->notify_handler_ = Glib::signal_idle().connect(sigc::mem_fun(this, &XSettingsRegistry::notify));
+    }
     return iter.second;
 }
 
@@ -261,9 +268,10 @@ XSettingsPropertyBaseVec XSettingsRegistry::get_properties()
     return retval;
 }
 
-void XSettingsRegistry::notify()
+bool XSettingsRegistry::notify()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG("Notify properties changed to other client.");
+
     std::string data;
 
     // 注意：填充的相关变量类型不能随意修改
@@ -276,7 +284,6 @@ void XSettingsRegistry::notify()
     data.append(std::string((char *)&nsettings, 4));
 
     // 填充body
-
     for (const auto &iter : this->properties_)
     {
         data.append(iter.second->serialize());
@@ -290,6 +297,11 @@ void XSettingsRegistry::notify()
                     PropModeReplace,
                     (unsigned char *)data.c_str(),
                     data.length());
+
+    auto changed_properties = std::move(this->changed_properties_);
+    this->properties_changed_.emit(changed_properties);
+
+    return false;
 }
 
 char XSettingsRegistry::byte_order()

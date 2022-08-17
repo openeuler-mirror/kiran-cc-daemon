@@ -120,7 +120,6 @@ private:
     void resources_changed();
 
     void display_settings_changed(const Glib::ustring& key);
-    void xsettings_settings_changed(const Glib::ustring& key);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
@@ -142,6 +141,8 @@ private:
     std::string primary_;
     // 窗口缩放率
     int32_t window_scaling_factor_;
+    // 开启动态缩放窗口
+    bool dynamic_scaling_window_;
 
     std::map<uint32_t, std::shared_ptr<DisplayMonitor>> monitors_;
 

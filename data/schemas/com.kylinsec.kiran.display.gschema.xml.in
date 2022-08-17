@@ -14,5 +14,9 @@
             <description>Layout of connected monitors in the screen.</description>
         </key>
 
+        <key name="dynamic-scaling-window" type="b">
+            <default>false</default>
+            <description>It takes effect immediately when the scaling factor of window is changed.</description>
+        </key>
     </schema>
 </schemalist>
