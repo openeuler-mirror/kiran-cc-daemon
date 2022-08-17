@@ -190,6 +190,7 @@ void XSettingsManager::init()
     screen->signal_size_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_screen_changed));
     screen->signal_monitors_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_screen_changed));
     this->fontconfig_monitor_.signal_timestamp_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_fontconfig_timestamp_changed));
+    this->registry_.signal_properties_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_properties_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  XSETTINGS_DBUS_NAME,
@@ -207,8 +208,6 @@ void XSettingsManager::load_from_settings()
         // 这里不做通知，等初始化完后统一通知
         this->settings_changed(key, false);
     }
-    // 这里统一通知
-    this->registry_.notify();
 }
 
 void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify)
@@ -300,7 +299,6 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
     if (is_notify)
     {
         this->xsettings_changed_.emit(key.raw());
-        this->registry_.notify();
     }
 }
 
@@ -346,9 +344,18 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
                 KLOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
             }
 
+
+            /* FIXME: 由于QT_SCALE_FACTOR将会放大窗口以及pt大小字体，而缩放将会更改Xft.dpi属性，该属性也会导致qt pt字体大小放大，字体将会放大过多。
+            目前暂时解决方案：缩放两倍时固定Qt字体DPI 96，由QT_SCALE_FACTOR环境变量对窗口以及字体进行放大.
+            后续应弃用QT_SCALE_FACTOR方案
+            */
             if (!XSettingsUtils::update_user_env_variable("QT_SCALE_FACTOR", scale == 2 ? "2" : "1", error))
             {
                 KLOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
+            }
+            else if ( scale==2 && !XSettingsUtils::update_user_env_variable("QT_FONT_DPI","96",error) )
+            {
+                KLOG_WARNING("There was a problem when setting QT_FONT_DPI=96: %s", error.c_str());
             }
         }
     }
@@ -406,7 +413,6 @@ void XSettingsManager::on_screen_changed()
     {
         this->scale_settings();
     }
-    this->registry_.notify();
 }
 
 bool XSettingsManager::delayed_toggle_bg_draw(bool value)
@@ -423,7 +429,11 @@ void XSettingsManager::on_fontconfig_timestamp_changed()
 {
     int32_t timestamp = time(NULL);
     this->registry_.update(XSETTINGS_REGISTRY_PROP_FONTCONFIG_TIMESTAMP, timestamp);
-    this->registry_.notify();
+}
+
+void XSettingsManager::on_properties_changed(const std::vector<Glib::ustring> &properties)
+{
+    this->PropertiesChanged_signal.emit(properties);
 }
 
 void XSettingsManager::set_registry_var(std::shared_ptr<XSettingsPropertyBase> var, MethodInvocation &invocation)
