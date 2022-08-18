@@ -499,6 +499,13 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
         this->display_config_ = std::unique_ptr<DisplayConfigInfo>(new DisplayConfigInfo());
     }
 
+    // 禁止保存没有开启任何显示器的配置，这可能会导致下次进入会话屏幕无法显示
+    if (this->get_enabled_monitors().size() == 0)
+    {
+        error_code = CCErrorCode::ERROR_DISPLAY_ONLY_ONE_ENABLED_MONITOR;
+        return false;
+    }
+
     auto monitors_uid = this->get_monitors_uid();
     auto &c_screens = this->display_config_->screen();
     bool matched = false;
