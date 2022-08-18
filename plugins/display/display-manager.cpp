@@ -140,7 +140,7 @@ void DisplayManager::RestoreChanges(MethodInvocation &invocation)
     KLOG_PROFILE("");
 
     CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->apply_config(error_code))
+    if (!this->switch_style(this->default_style_, error_code))
     {
         DBUS_ERROR_REPLY_AND_RET(error_code);
     }
@@ -475,6 +475,13 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
     if (!this->display_config_)
     {
         this->display_config_ = std::unique_ptr<DisplayConfigInfo>(new DisplayConfigInfo());
+    }
+
+    // 禁止保存没有开启任何显示器的配置，这可能会导致下次进入会话屏幕无法显示
+    if (this->get_enabled_monitors().size() == 0)
+    {
+        error_code = CCErrorCode::ERROR_DISPLAY_ONLY_ONE_ENABLED_MONITOR;
+        return false;
     }
 
     auto monitors_uid = this->get_monitors_uid();
