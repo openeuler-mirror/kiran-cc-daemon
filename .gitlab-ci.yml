@@ -1,0 +1,8 @@
+variables:
+  RPM_BUILD_REQUIRES: 'cmake make systemd-devel libselinux-devel gettext gcc-c++ intltool libX11-devel xerces-c-devel xsd fontconfig-devel jsoncpp-devel cairomm-devel kiran-log-gtk3-devel fmt-devel python3-jinja2 gdbus-codegen-glibmm gtest-devel libnotify-devel pulseaudio-libs-devel libxml++-devel gtkmm30-devel'
+
+include:
+  - project: 'os/gitlab-ci'
+    ref: main
+    file: '/cxx.gitlab-ci.yml'
+
