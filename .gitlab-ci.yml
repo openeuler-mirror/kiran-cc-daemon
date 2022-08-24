@@ -4,5 +4,5 @@ variables:
 include:
   - project: 'os/gitlab-ci'
     ref: main
-    file: '/cxx.gitlab-ci.yml'
+    file: '/cmake/cxx.gitlab-ci.yml'
 
