@@ -23,6 +23,8 @@ CCError::CCError()
 {
 }
 
+// sonarqube off
+
 std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_code)
 {
     std::string error_desc;
@@ -427,4 +429,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     }
     return error_desc;
 }
+
+// sonarqube on
+
 }  // namespace Kiran
