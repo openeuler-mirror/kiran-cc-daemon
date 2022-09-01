@@ -555,13 +555,23 @@ bool DisplayManager::apply(CCErrorCode &error_code)
 
     try
     {
+        std::string standard_error;
+        int32_t exit_status = 0;
+
         KLOG_DEBUG("cmdline: %s.", cmdline.c_str());
-        Glib::spawn_command_line_sync(cmdline);
+        Glib::spawn_command_line_sync(cmdline, nullptr, &standard_error, &exit_status);
+
+        if (!standard_error.empty() || exit_status != 0)
+        {
+            error_code = CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED;
+            KLOG_WARNING("Failed to run xrandr: %s.", standard_error.c_str());
+            return false;
+        }
     }
     catch (const Glib::Error &e)
     {
         error_code = CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED;
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING("Failed to run xrandr: %s.", e.what().c_str());
         return false;
     }
     return true;
@@ -661,10 +671,11 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
     for (uint32_t i = 1; i < monitors.size(); ++i)
     {
         auto monitor = monitors[i];
-        auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool {
-            auto modes = monitor->get_modes_by_size(mode->width, mode->height);
-            return (modes.size() == 0);
-        });
+        auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool
+                                   {
+                                       auto modes = monitor->get_modes_by_size(mode->width, mode->height);
+                                       return (modes.size() == 0);
+                                   });
 
         result.erase(iter, result.end());
     }

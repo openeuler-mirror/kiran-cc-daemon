@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-17 09:44+0800\n"
+"POT-Creation-Date: 2022-09-01 17:49+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -623,198 +623,202 @@ msgid "Unknown reflect type."
 msgstr "未知的映射类型。"
 
 #: ../lib/base/error.cpp:212
+msgid "The current settings cannot be applied."
+msgstr "无法应用当前设置。"
+
+#: ../lib/base/error.cpp:215
 msgid "Theme not exist."
 msgstr "主题不存在。"
 
-#: ../lib/base/error.cpp:215
+#: ../lib/base/error.cpp:218
 msgid "Unsupported theme type."
 msgstr "主题类型不支持。"
 
-#: ../lib/base/error.cpp:218
+#: ../lib/base/error.cpp:221
 msgid "Invalid theme type."
 msgstr "主题类型不合法。"
 
-#: ../lib/base/error.cpp:222
+#: ../lib/base/error.cpp:225
 msgid "Invalid font type."
 msgstr "字体类型不合法。"
 
-#: ../lib/base/error.cpp:225
+#: ../lib/base/error.cpp:228
 msgid "Unsupported font type."
 msgstr "字体类型不支持。"
 
-#: ../lib/base/error.cpp:228
+#: ../lib/base/error.cpp:231
 msgid "An incomplete request already exists."
 msgstr "存在未完成的请求。"
 
-#: ../lib/base/error.cpp:231
+#: ../lib/base/error.cpp:234
 msgid "The request is canceled."
 msgstr "请求被取消。"
 
-#: ../lib/base/error.cpp:237
+#: ../lib/base/error.cpp:240
 msgid "The request is rejected."
 msgstr "请求被拒绝。"
 
-#: ../lib/base/error.cpp:240
+#: ../lib/base/error.cpp:243
 msgid "Not found adapter."
 msgstr "未发现适配器。"
 
-#: ../lib/base/error.cpp:248
+#: ../lib/base/error.cpp:251
 msgid "Sync to file failed."
 msgstr "同步到文件失败。"
 
-#: ../lib/base/error.cpp:254
+#: ../lib/base/error.cpp:257
 msgid "Invalid scale mode."
 msgstr "缩放模式不合法。"
 
-#: ../lib/base/error.cpp:257
+#: ../lib/base/error.cpp:260
 msgid "The number of the layout can't exceeds {0}."
 msgstr "布局数量不能超过{0}个。"
 
-#: ../lib/base/error.cpp:260
+#: ../lib/base/error.cpp:263
 msgid "The layout is invalid."
 msgstr "该布局不合法。"
 
-#: ../lib/base/error.cpp:263
+#: ../lib/base/error.cpp:266
 msgid "The layout already exist."
 msgstr "该布局已存在。"
 
-#: ../lib/base/error.cpp:266
+#: ../lib/base/error.cpp:269
 msgid "Failed to set the layout."
 msgstr "设置布局失败。"
 
-#: ../lib/base/error.cpp:269
+#: ../lib/base/error.cpp:272
 msgid "The layout is no exist."
 msgstr "该布局不存在。"
 
-#: ../lib/base/error.cpp:272
+#: ../lib/base/error.cpp:275
 msgid "Failed to update the layout."
 msgstr "更新布局失败。"
 
-#: ../lib/base/error.cpp:275
+#: ../lib/base/error.cpp:278
 msgid "The layout option already exist."
 msgstr "布局选项已存在。"
 
-#: ../lib/base/error.cpp:278
+#: ../lib/base/error.cpp:281
 msgid "Failed to set the layout option."
 msgstr "设置布局选项失败。"
 
-#: ../lib/base/error.cpp:281
+#: ../lib/base/error.cpp:284
 msgid "The layout option is no exist."
 msgstr "布局选项不存在。"
 
-#: ../lib/base/error.cpp:284
+#: ../lib/base/error.cpp:287
 msgid "Failed to update the layout option."
 msgstr "更新布局选项失败。"
 
-#: ../lib/base/error.cpp:287
+#: ../lib/base/error.cpp:290
 msgid "Failed to clear the layout option."
 msgstr "清理布局选项失败。"
 
-#: ../lib/base/error.cpp:290
+#: ../lib/base/error.cpp:293
 msgid "The custom shortcut is invalid."
 msgstr "自定义快捷键不合法。"
 
-#: ../lib/base/error.cpp:293
+#: ../lib/base/error.cpp:296
 msgid "The custom shortcut isn't exist."
 msgstr "自定义快捷键不存在。"
 
-#: ../lib/base/error.cpp:296
+#: ../lib/base/error.cpp:299
 msgid "The custom shortcut already exist."
 msgstr "自定义快捷键已存在。"
 
-#: ../lib/base/error.cpp:300
+#: ../lib/base/error.cpp:303
 msgid "The key combination already exist."
 msgstr "按键组合已经存在。"
 
-#: ../lib/base/error.cpp:305
+#: ../lib/base/error.cpp:308
 msgid "The key combination is invalid."
 msgstr "按键组合不合法。"
 
-#: ../lib/base/error.cpp:309
+#: ../lib/base/error.cpp:312
 msgid "The system shortcut isn't exist."
 msgstr "该系统快捷键不存在。"
 
-#: ../lib/base/error.cpp:315
+#: ../lib/base/error.cpp:318
 msgid "Unsupported power supply mode."
 msgstr "不支持该供电模式。"
 
-#: ../lib/base/error.cpp:321
+#: ../lib/base/error.cpp:324
 msgid "Unsupported power device."
 msgstr "不支持该设备。"
 
-#: ../lib/base/error.cpp:324
+#: ../lib/base/error.cpp:327
 msgid "The value must be between 0 and 100."
 msgstr "值必须在0到100之间"
 
-#: ../lib/base/error.cpp:328
+#: ../lib/base/error.cpp:331
 msgid "Unknown power action."
 msgstr "未知电源动作。"
 
-#: ../lib/base/error.cpp:332
+#: ../lib/base/error.cpp:335
 msgid "Unsupported power event."
 msgstr "事件不支持。"
 
-#: ../lib/base/error.cpp:335
+#: ../lib/base/error.cpp:338
 msgid "Failed to set the action."
 msgstr "设置触发行为失败。"
 
-#: ../lib/base/error.cpp:338
+#: ../lib/base/error.cpp:341
 msgid "Failed to set brightness."
 msgstr "设置亮度失败。"
 
-#: ../lib/base/error.cpp:341
+#: ../lib/base/error.cpp:344
 msgid "The systeminfo type is invalid."
 msgstr "系统信息类型不合法。"
 
-#: ../lib/base/error.cpp:344
+#: ../lib/base/error.cpp:347
 msgid "Failed to set host name."
 msgstr "设置主机名失败。"
 
-#: ../lib/base/error.cpp:347
+#: ../lib/base/error.cpp:350
 msgid "Not found the property."
 msgstr "未找到该属性。"
 
-#: ../lib/base/error.cpp:350
+#: ../lib/base/error.cpp:353
 msgid "The type is mismatch."
 msgstr "类型不匹配。"
 
-#: ../lib/base/error.cpp:353
+#: ../lib/base/error.cpp:356
 msgid "The property is invalid."
 msgstr "属性不合法"
 
-#: ../lib/base/error.cpp:356
+#: ../lib/base/error.cpp:359
 msgid "The property must not be modified manually."
 msgstr "属性不能手动修改。"
 
-#: ../lib/base/error.cpp:359
+#: ../lib/base/error.cpp:362
 msgid "The property is unsupported."
 msgstr "属性不支持。"
 
-#: ../lib/base/error.cpp:363
+#: ../lib/base/error.cpp:366
 msgid "Arguments invalid."
 msgstr "参数不合法"
 
-#: ../lib/base/error.cpp:366
+#: ../lib/base/error.cpp:369
 msgid "The network proxy mode is invalid."
 msgstr "代理模式不合法"
 
-#: ../lib/base/error.cpp:369
+#: ../lib/base/error.cpp:372
 msgid "The current network proxy mode is not manual."
 msgstr "当前代理模式不是手动模式。"
 
-#: ../lib/base/error.cpp:372
+#: ../lib/base/error.cpp:375
 msgid "The current network proxy mode is not auto."
 msgstr "当前代理模式不是自动模式。"
 
-#: ../lib/base/error.cpp:415
+#: ../lib/base/error.cpp:417
 msgid "Internel error."
 msgstr "内部错误。"
 
-#: ../lib/base/error.cpp:418 ../lib/base/error.cpp:421
+#: ../lib/base/error.cpp:420 ../lib/base/error.cpp:423
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../lib/base/error.cpp:425
+#: ../lib/base/error.cpp:427
 msgid " (error code: 0x{:x})"
 msgstr "(错误码：0x{:x})"
 
