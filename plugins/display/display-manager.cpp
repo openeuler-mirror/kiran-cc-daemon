@@ -391,15 +391,17 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
         if (!monitor)
         {
             KLOG_WARNING("cannot find monitor for %s.", uid.c_str());
-            continue;
+            return false;
         }
 
+        /* 一般情况下uid相同时name也是相同的，但是有些特殊情况会出现不一样，这里uid主要是为了唯一标识一台显示器，
+           而name是用来区分显示器接口的，比如有一台显示器最开始是接入在HDMI-1，后面改到HDMI-2了，那么在能获取到edid的
+           情况下uid是不变的，但是name会发生变化。如果出现name不一样的情况下这里仅仅记录日志，方便后续跟踪问题。*/
         if (c_monitor.name() != monitor->name_get())
         {
-            KLOG_WARNING("the name is mismatch. config name: %s, monitor name: %s.",
-                         c_monitor.name().c_str(),
-                         monitor->name_get().c_str());
-            continue;
+            KLOG_DEBUG("The monitor name is dismatch. config name: %s, monitor name: %s.",
+                       c_monitor.name().c_str(),
+                       monitor->name_get().c_str());
         }
 
         auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
@@ -478,7 +480,10 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
     // 禁止保存没有开启任何显示器的配置，这可能会导致下次进入会话屏幕无法显示
     if (this->get_enabled_monitors().size() == 0)
     {
-        error_code = CCErrorCode::ERROR_DISPLAY_ONLY_ONE_ENABLED_MONITOR;
+        KLOG_WARNING("It is forbidden to save the configuration without any display turned on, "
+                     "which may cause the next session screen not to be displayed.");
+        error_code = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
+
         return false;
     }
 
