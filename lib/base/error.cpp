@@ -23,6 +23,8 @@ CCError::CCError()
 {
 }
 
+// sonarqube off
+
 std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_code)
 {
     std::string error_desc;
@@ -217,6 +219,9 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_DISPLAY_UNKNOWN_REFLECT_TYPE:
         error_desc = _("Unknown reflect type.");
         break;
+    case CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED:
+        error_desc = _("The current settings cannot be applied.");
+        break;
     case CCErrorCode::ERROR_APPEARANCE_THEME_NOT_EXIST:
         error_desc = _("Theme not exist.");
         break;
@@ -385,9 +390,9 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_ACCOUNTS_USER_GROUP_NOT_FOUND:
     case CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_SAVE_DATA_FAILED:
     case CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_DEL_DATA_FAILED:
-    case CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED:
     case CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED:
     case CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED:
+    case CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR:
     case CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED:
@@ -427,4 +432,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     }
     return error_desc;
 }
+
+// sonarqube on
+
 }  // namespace Kiran
