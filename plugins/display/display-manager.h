@@ -16,8 +16,7 @@
 
 #include <display_dbus_stub.h>
 
-#define DISPLAY_NEW_INTERFACE
-#include "display_i.h"
+#include "display-i.h"
 #include "plugins/display/display-monitor.h"
 #include "plugins/display/display.hxx"
 #include "plugins/display/xrandr-manager.h"

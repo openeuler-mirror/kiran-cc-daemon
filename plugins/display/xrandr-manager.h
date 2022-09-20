@@ -19,8 +19,7 @@
 #include <X11/extensions/Xrandr.h>
 #include <gdk/gdkx.h>
 
-#define DISPLAY_NEW_INTERFACE
-#include "display_i.h"
+#include "display-i.h"
 
 namespace Kiran
 {

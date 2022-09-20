@@ -97,13 +97,15 @@ std::vector<std::string> StrUtils::split_with_char(const std::string &s, char de
 
 std::string StrUtils::ltrim(const std::string &s)
 {
-    auto iter = std::find_if(s.begin(), s.end(), [](char c) -> bool { return (std::isspace(c) == 0); });
+    auto iter = std::find_if(s.begin(), s.end(), [](char c) -> bool
+                             { return (std::isspace(c) == 0); });
     return std::string(iter, s.end());
 }
 
 std::string StrUtils::rtrim(const std::string &s)
 {
-    auto iter = std::find_if(s.rbegin(), s.rend(), [](char c) -> bool { return (std::isspace(c) == 0); });
+    auto iter = std::find_if(s.rbegin(), s.rend(), [](char c) -> bool
+                             { return (std::isspace(c) == 0); });
     return std::string(s.begin(), iter.base());
 }
 
@@ -135,6 +137,42 @@ Json::Value StrUtils::str2json(const std::string &str)
         return Json::Value();
     }
     return result;
+}
+
+bool StrUtils::startswith(const std::string &str, const std::string &prefix)
+{
+    RETURN_VAL_IF_TRUE(str.size() < prefix.size(), false);
+    return (str.substr(0, prefix.size()) == prefix);
+}
+
+bool StrUtils::endswith(const std::string &str, const std::string &suffix)
+{
+    RETURN_VAL_IF_TRUE(str.size() < suffix.size(), false);
+    return (str.substr(str.size() - suffix.size(), suffix.size()) == suffix);
+}
+
+bool StrUtils::contains_oneof_substrs(const std::string &str, const std::vector<std::string> &substrs)
+{
+    for (auto &substr : substrs)
+    {
+        if (str.find(substr) != std::string::npos)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool StrUtils::contains_allof_substrs(const std::string &str, const std::vector<std::string> &substrs)
+{
+    for (auto &substr : substrs)
+    {
+        if (str.find(substr) == std::string::npos)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::string StrUtils::timestamp2str(time_t t)

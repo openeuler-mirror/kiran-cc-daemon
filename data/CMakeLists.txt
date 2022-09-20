@@ -135,11 +135,7 @@ endif()
 
 # include files
 install(
-  FILES ${PROJECT_SOURCE_DIR}/include/accounts_i.h
-        ${PROJECT_SOURCE_DIR}/include/timedate_i.h
-        ${PROJECT_SOURCE_DIR}/include/greeter_i.h
-        ${PROJECT_SOURCE_DIR}/include/systeminfo_i.h
-        ${PROJECT_SOURCE_DIR}/include/accounts-i.h
+  FILES ${PROJECT_SOURCE_DIR}/include/accounts-i.h
         ${PROJECT_SOURCE_DIR}/include/timedate-i.h
         ${PROJECT_SOURCE_DIR}/include/greeter-i.h
         ${PROJECT_SOURCE_DIR}/include/systeminfo-i.h
@@ -147,7 +143,7 @@ install(
 
 install(
   FILES ${PROJECT_SOURCE_DIR}/include/audio-i.h
-        ${PROJECT_SOURCE_DIR}/include/display_i.h
+        ${PROJECT_SOURCE_DIR}/include/display-i.h
         ${PROJECT_SOURCE_DIR}/include/appearance-i.h
         ${PROJECT_SOURCE_DIR}/include/display-i.h
         ${PROJECT_SOURCE_DIR}/include/keybinding-i.h
