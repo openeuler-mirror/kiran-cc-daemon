@@ -120,6 +120,12 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHMODE_NAME_ALREADY_EXIST:
         error_desc = _("The name already exists.");
         break;
+    case CCErrorCode::ERROR_ACCOUNTS_USER_MODIFYING_PASSWORD:
+        error_desc = _("A user is modifying the password.");
+        break;
+    case CCErrorCode::ERROR_ACCOUNTS_USER_MODIFY_PASSWORD_FAILED:
+        error_desc = _("{0}");
+        break;
     case CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID:
     case CCErrorCode::ERROR_AUDIO_STREAM_VOLUME_RANGE_INVLAID:
         error_desc = _("The range of volume is between 0 and 1.0.");

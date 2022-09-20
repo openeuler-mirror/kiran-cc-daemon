@@ -58,6 +58,15 @@ public:
     static std::string json2str(const Json::Value &json);
     static Json::Value str2json(const std::string &str);
 
+    // 判断str是否以prefix字符串开头
+    static bool startswith(const std::string &str, const std::string &prefix);
+    static bool endswith(const std::string &str, const std::string &suffix);
+
+    // 字符串包含任何一个子串则返回true，否则返回false
+    static bool contains_oneof_substrs(const std::string &str, const std::vector<std::string> &substrs);
+    // 字符串包含所有子串则返回true，否则返回false
+    static bool contains_allof_substrs(const std::string &str, const std::vector<std::string> &substrs);
+
     // 格式化日期
     static std::string timestamp2str(time_t t);
     static std::string gdate2str(const GDate *date);

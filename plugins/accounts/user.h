@@ -16,9 +16,9 @@
 
 #include <user_dbus_stub.h>
 
-#define ACCOUNTS_NEW_INTERFACE
-#include "accounts_i.h"
+#include "accounts-i.h"
 #include "plugins/accounts/accounts-wrapper.h"
+#include "plugins/accounts/passwd-wrapper.h"
 #include "plugins/accounts/user-cache.h"
 
 namespace Kiran
@@ -48,6 +48,7 @@ public:
 
 public:
     virtual guint64 uid_get() { return this->uid_; };
+    virtual guint64 gid_get() { return this->gid_; };
     virtual Glib::ustring user_name_get() { return this->user_name_; };
     virtual Glib::ustring real_name_get() { return this->real_name_; };
     // 参考AccountsAccountType
@@ -67,9 +68,6 @@ public:
     virtual bool system_account_get() { return this->system_account_; };
     virtual gint32 auth_modes_get();
     virtual Glib::ustring password_expiration_policy_get() { return this->password_expiration_policy_; }
-
-public:
-    bool get_gid() { return this->passwd_->pw_gid; };
 
 protected:
     // 设置用户名
@@ -96,8 +94,12 @@ protected:
     virtual void SetAccountType(gint32 accountType, MethodInvocation &invocation);
     // 设置密码模式，同时会对用户解除锁定
     virtual void SetPasswordMode(gint32 mode, MethodInvocation &invocation);
-    // 设置用户密码，同时会对用户解除锁定
+    // 设置用户密码，同时会对用户解除锁定，密码为加密密码
     virtual void SetPassword(const Glib::ustring &password, const Glib::ustring &hint, MethodInvocation &invocation);
+    // 通过passwd命令设置用户密码
+    virtual void SetPasswordByPasswd(const Glib::ustring &current_password,
+                                     const Glib::ustring &new_password,
+                                     MethodInvocation &invocation);
     // 设置用户密码提示
     virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);
     // 设置用户是否自动登陆
@@ -120,6 +122,7 @@ protected:
     virtual void EnableAuthMode(gint32 mode, bool enabled, MethodInvocation &invocation);
 
     virtual bool uid_setHandler(guint64 value);
+    virtual bool gid_setHandler(guint64 value);
     virtual bool user_name_setHandler(const Glib::ustring &value);
     virtual bool real_name_setHandler(const Glib::ustring &value);
     virtual bool account_type_setHandler(gint32 value);
@@ -190,6 +193,10 @@ private:
     void change_account_type_authorized_cb(MethodInvocation invocation, int32_t account_type);
     void change_password_mode_authorized_cb(MethodInvocation invocation, int32_t password_mode);
     void change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint);
+    void change_password_by_passwd_authorized_cb(MethodInvocation invocation,
+                                                 const Glib::ustring &current_password,
+                                                 const Glib::ustring &new_password);
+    void on_exec_passwd_finished(const std::string &error_desc, MethodInvocation invocation);
     void change_password_hint_authorized_cb(MethodInvocation invocation, const Glib::ustring &password_hint);
     void change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login);
     void change_password_expiration_policy_cb(MethodInvocation invocation, const Glib::ustring &options);
@@ -208,6 +215,7 @@ private:
     void move_extra_data(const std::string &old_name, const std::string &new_name);
 
 private:
+private:
     Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
 
     // 绑定的passwd和shadow文件
@@ -222,6 +230,7 @@ private:
     std::shared_ptr<SPwd> spwd_;
 
     uint64_t uid_;
+    uint64_t gid_;
     Glib::ustring user_name_;
     Glib::ustring real_name_;
     int32_t account_type_;
@@ -232,6 +241,8 @@ private:
     bool automatic_login_;
     bool system_account_;
     Glib::ustring password_expiration_policy_;
+
+    std::shared_ptr<PasswdWrapper> passwd_wrapper_;
 
     // 用户缓存数据管理
     std::shared_ptr<UserCache> user_cache_;

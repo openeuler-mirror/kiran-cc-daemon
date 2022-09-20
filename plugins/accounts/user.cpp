@@ -43,6 +43,7 @@ User::User(PasswdShadow passwd_shadow) : passwd_shadow_(passwd_shadow),
 
 {
     this->uid_ = this->passwd_shadow_.first->pw_uid;
+    this->gid_ = this->passwd_shadow_.first->pw_gid;
 }
 
 User::~User()
@@ -261,6 +262,7 @@ USER_SET_ONE_PROP_AUTH(SetLocked, change_locked_authorized_cb, AUTH_USER_ADMIN, 
 USER_SET_ONE_PROP_AUTH(SetAccountType, change_account_type_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
 USER_SET_ONE_PROP_AUTH(SetPasswordMode, change_password_mode_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
 USER_SET_TWO_PROP_AUTH(SetPassword, change_password_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
+USER_SET_TWO_PROP_AUTH(SetPasswordByPasswd, change_password_by_passwd_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetPasswordHint, change_password_hint_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetAutomaticLogin, change_auto_login_authorized_cb, AUTH_USER_ADMIN, bool);
 USER_SET_ONE_PROP_AUTH(SetPasswordExpirationPolicy, change_password_expiration_policy_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
@@ -329,6 +331,7 @@ void User::udpate_nocache_var(PasswdShadow passwd_shadow)
 
     this->real_name_set(real_name);
     this->uid_set(this->passwd_->pw_uid);
+    this->gid_set(this->passwd_->pw_gid);
 
     auto account_type = this->account_type_from_pwent(this->passwd_);
     this->account_type_set(int32_t(account_type));
@@ -661,7 +664,7 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
         }
         auto admin_gid = grp->gr_gid;
 
-        auto groups = AccountsWrapper::get_instance()->get_user_groups(this->user_name_get(), this->get_gid());
+        auto groups = AccountsWrapper::get_instance()->get_user_groups(this->user_name_get(), this->gid_get());
         std::string groups_join;
         for (auto i = 0; i < (int)groups.size(); ++i)
         {
@@ -718,7 +721,7 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
 
 void User::change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint)
 {
-    KLOG_PROFILE("Password: %s PasswordHint: %s", password.c_str(), password_hint.c_str());
+    KLOG_DEBUG("Password: %s PasswordHint: %s", password.c_str(), password_hint.c_str());
 
     this->freeze_notify();
     SCOPE_EXIT({
@@ -731,6 +734,42 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
     this->locked_set(false);
     this->password_hint_set(password_hint);
     invocation.ret();
+}
+
+void User::change_password_by_passwd_authorized_cb(MethodInvocation invocation,
+                                                   const Glib::ustring &current_password,
+                                                   const Glib::ustring &new_password)
+{
+    this->freeze_notify();
+    SCOPE_EXIT({
+        this->thaw_notify();
+    });
+
+    if (this->passwd_wrapper_ && this->passwd_wrapper_->get_state() != PasswdState::PASSWD_STATE_NONE)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_MODIFYING_PASSWORD);
+    }
+    else
+    {
+        this->passwd_wrapper_ = std::make_shared<PasswdWrapper>(this->shared_from_this());
+    }
+
+    this->passwd_wrapper_->signal_exec_finished().connect(sigc::bind(sigc::mem_fun(this, &User::on_exec_passwd_finished), invocation));
+    this->passwd_wrapper_->exec(invocation.getMessage(), current_password, new_password);
+}
+
+void User::on_exec_passwd_finished(const std::string &error_desc, MethodInvocation invocation)
+{
+    if (!error_desc.empty())
+    {
+        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, error_desc));
+    }
+    else
+    {
+        this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
+        this->locked_set(false);
+        invocation.ret();
+    }
 }
 
 USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, password_hint);
@@ -908,15 +947,16 @@ std::string User::mode_to_groupname(int32_t mode)
     return std::string();
 }
 
-#define USER_PROP_SET_HANDLER(prop, type)                              \
-    bool User::prop##_setHandler(type value)                           \
-    {                                                                  \
-        KLOG_PROFILE("value: %s.", fmt::format("{0}", value).c_str()); \
-        this->prop##_ = value;                                         \
-        return true;                                                   \
+#define USER_PROP_SET_HANDLER(prop, type)                                                      \
+    bool User::prop##_setHandler(type value)                                                   \
+    {                                                                                          \
+        KLOG_DEBUG("Set property %s to value: %s.", #prop, fmt::format("{0}", value).c_str()); \
+        this->prop##_ = value;                                                                 \
+        return true;                                                                           \
     }
 
 USER_PROP_SET_HANDLER(uid, guint64);
+USER_PROP_SET_HANDLER(gid, guint64);
 USER_PROP_SET_HANDLER(user_name, const Glib::ustring &);
 USER_PROP_SET_HANDLER(real_name, const Glib::ustring &);
 USER_PROP_SET_HANDLER(account_type, gint32);
