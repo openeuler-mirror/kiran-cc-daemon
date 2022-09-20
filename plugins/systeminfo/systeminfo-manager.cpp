@@ -18,8 +18,7 @@
 
 #include "lib/dbus/dbus.h"
 
-#define SYSTEMINFO_NEW_INTERFACE
-#include "systeminfo_i.h"
+#include "systeminfo-i.h"
 
 namespace Kiran
 {

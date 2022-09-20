@@ -21,8 +21,7 @@
 #include <cinttypes>
 #include <cstdint>
 
-#define GREETER_NEW_INTERFACE
-#include "greeter_i.h"
+#include "greeter-i.h"
 #include "lib/base/base.h"
 #include "lib/dbus/dbus.h"
 

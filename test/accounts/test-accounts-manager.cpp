@@ -15,8 +15,7 @@
 #include "test/accounts/test-accounts-manager.h"
 #include "lib/base/base.h"
 
-#define ACCOUNTS_NEW_INTERFACE
-#include <accounts_i.h>
+#include <accounts-i.h>
 #include <user_dbus_proxy.h>
 
 namespace Kiran
@@ -43,14 +42,15 @@ TEST_F(AccountsManagerProxy, CreateUser)
     Glib::RefPtr<Kiran::SystemDaemon::Accounts::UserProxy> user_proxy;
 
     // 删除test001用户
-    IGNORE_EXCEPTION({
-        user_object_path = this->accounts_proxy_->FindUserByName_sync(USRE_NAME_TEST001);
-        user_proxy = SystemDaemon::Accounts::UserProxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                                          Gio::DBus::PROXY_FLAGS_NONE,
-                                                                          ACCOUNTS_DBUS_NAME,
-                                                                          user_object_path);
-        this->accounts_proxy_->DeleteUser_sync(user_proxy->uid_get(), true);
-    });
+    IGNORE_EXCEPTION(
+        {
+            user_object_path = this->accounts_proxy_->FindUserByName_sync(USRE_NAME_TEST001);
+            user_proxy = SystemDaemon::Accounts::UserProxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                                              Gio::DBus::PROXY_FLAGS_NONE,
+                                                                              ACCOUNTS_DBUS_NAME,
+                                                                              user_object_path);
+            this->accounts_proxy_->DeleteUser_sync(user_proxy->uid_get(), true);
+        });
 
     // 创建test001用户
     ASSERT_NO_THROW(user_object_path = this->accounts_proxy_->CreateUser_sync(USRE_NAME_TEST001,

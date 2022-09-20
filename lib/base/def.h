@@ -64,6 +64,16 @@ private:
 // helper macro for Defer class
 #define SCOPE_EXIT(block) Defer CONNECT(_defer_, __LINE__)([&](std::string _arg_function) block, __FUNCTION__)
 
+#define BREAK_IF_FALSE(cond) \
+    {                        \
+        if (!(cond)) break;  \
+    }
+
+#define BREAK_IF_TRUE(cond) \
+    {                       \
+        if (cond) break;    \
+    }
+
 #define RETURN_VAL_IF_FALSE(cond, val)             \
     {                                              \
         if (!(cond))                               \

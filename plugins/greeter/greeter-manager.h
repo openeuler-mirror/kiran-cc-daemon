@@ -19,8 +19,7 @@
 #include <giomm/filemonitor.h>
 #include <glibmm.h>
 
-#define GREETER_NEW_INTERFACE
-#include "greeter_i.h"
+#include "greeter-i.h"
 
 // 登录界面配置项数据
 struct GreeterData

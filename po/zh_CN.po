@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-01 17:39+0800\n"
+"POT-Creation-Date: 2022-09-20 10:04+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -515,319 +515,327 @@ msgstr "用户被锁定。"
 msgid "The name already exists."
 msgstr "名字已存在"
 
-#: ../lib/base/error.cpp:125
+#: ../lib/base/error.cpp:124
+msgid "A user is modifying the password."
+msgstr "有用户正在修改密码。"
+
+#: ../lib/base/error.cpp:127
+msgid "{0}"
+msgstr "{0}"
+
+#: ../lib/base/error.cpp:131
 msgid "The range of volume is between 0 and 1.0."
 msgstr "音量范围必须在[0, 1.0]之间"
 
-#: ../lib/base/error.cpp:129
+#: ../lib/base/error.cpp:135
 msgid "The range of balance is between -1 and 1."
 msgstr "平衡范围必须在[-1, 1]之间"
 
-#: ../lib/base/error.cpp:133
+#: ../lib/base/error.cpp:139
 msgid "The sink device isn't found."
 msgstr "未找到输出设备。"
 
-#: ../lib/base/error.cpp:137
+#: ../lib/base/error.cpp:143
 msgid "The source device isn't found."
 msgstr "未找到输入设备。"
 
-#: ../lib/base/error.cpp:141
+#: ../lib/base/error.cpp:147
 msgid "The sink stream isn't found."
 msgstr "未找到输出流。"
 
-#: ../lib/base/error.cpp:144
+#: ../lib/base/error.cpp:150
 msgid "NTP unit is active."
 msgstr "NTP服务已开启。"
 
-#: ../lib/base/error.cpp:147
+#: ../lib/base/error.cpp:153
 msgid "Invalid timezone."
 msgstr "不合法的时区。"
 
-#: ../lib/base/error.cpp:150
+#: ../lib/base/error.cpp:156
 msgid "No NTP unit available."
 msgstr "没有NTP服务可用。"
 
-#: ../lib/base/error.cpp:154
+#: ../lib/base/error.cpp:160
 msgid "Unknown date format type."
 msgstr "未知的日期格式化类型。"
 
-#: ../lib/base/error.cpp:157
+#: ../lib/base/error.cpp:163
 msgid "Failed to set date format."
 msgstr "设置日期显示格式失败。"
 
-#: ../lib/base/error.cpp:160
+#: ../lib/base/error.cpp:166
 msgid "Failed to set hour format."
 msgstr "设置时间显示格式失败。"
 
-#: ../lib/base/error.cpp:163
+#: ../lib/base/error.cpp:169
 msgid "Failed to set seconds showing."
 msgstr "设置秒数是否显示失败。"
 
-#: ../lib/base/error.cpp:166
+#: ../lib/base/error.cpp:172
 msgid "Failed to start NTP unit."
 msgstr "开启NTP服务失败。"
 
-#: ../lib/base/error.cpp:169
+#: ../lib/base/error.cpp:175
 msgid "Failed to stop NTP unit."
 msgstr "停止NTP服务失败。"
 
-#: ../lib/base/error.cpp:173
+#: ../lib/base/error.cpp:179
 msgid "Unknown display style."
 msgstr "未知的显示类型。"
 
-#: ../lib/base/error.cpp:176
+#: ../lib/base/error.cpp:182
 msgid ""
 "The mode of monitors which contain resolution and refresh rate is no "
 "intersection."
 msgstr "所有显示器没有相同的分辨率和刷新率。"
 
-#: ../lib/base/error.cpp:179
+#: ../lib/base/error.cpp:185
 msgid "Auto mode is set failed."
 msgstr "自动模式设置失败。"
 
-#: ../lib/base/error.cpp:183
+#: ../lib/base/error.cpp:189
 msgid "Failed to set the window scaling factor."
 msgstr "设置窗口缩放因子失败。"
 
-#: ../lib/base/error.cpp:186
+#: ../lib/base/error.cpp:192
 msgid "The custom configuration file isn't found."
 msgstr "未找到自定义配置文件。"
 
-#: ../lib/base/error.cpp:189
+#: ../lib/base/error.cpp:195
 msgid "Not found matched item in custom configuration file."
 msgstr "不能找到匹配的配置项。"
 
-#: ../lib/base/error.cpp:192
+#: ../lib/base/error.cpp:198
 msgid "The primary monitor must not be empty."
 msgstr "主显示器不能为空。"
 
-#: ../lib/base/error.cpp:195
+#: ../lib/base/error.cpp:201
 msgid "Not found the primary monitor."
 msgstr "未找到主显示器。"
 
-#: ../lib/base/error.cpp:198
+#: ../lib/base/error.cpp:204
 msgid ""
 "Cannot disable the monitor, because the number of the enabled monitor is "
 "less than 1."
 msgstr "不能禁用显示器，因为启用的显示器数量已经少于2个。"
 
-#: ../lib/base/error.cpp:201
+#: ../lib/base/error.cpp:207
 msgid "Exist null mode in mode list."
 msgstr "模式列表中存在空的模式。"
 
-#: ../lib/base/error.cpp:204
+#: ../lib/base/error.cpp:210
 msgid "Exist null mode in preferred mode list."
 msgstr "在推荐模式中存在空的模式。"
 
-#: ../lib/base/error.cpp:207
+#: ../lib/base/error.cpp:213
 msgid "The current mode is not exist."
 msgstr "当前模式不存在。"
 
-#: ../lib/base/error.cpp:211
+#: ../lib/base/error.cpp:217
 msgid "Not found match mode."
 msgstr "未发现匹配的模式。"
 
-#: ../lib/base/error.cpp:214
+#: ../lib/base/error.cpp:220
 msgid "The mode is not exist."
 msgstr "当前模式不存在。"
 
-#: ../lib/base/error.cpp:217
+#: ../lib/base/error.cpp:223
 msgid "Unknown rotation type."
 msgstr "未知的旋转类型。"
 
-#: ../lib/base/error.cpp:220
+#: ../lib/base/error.cpp:226
 msgid "Unknown reflect type."
 msgstr "未知的映射类型。"
 
-#: ../lib/base/error.cpp:223
+#: ../lib/base/error.cpp:229
 msgid "The current settings cannot be applied."
 msgstr "无法应用当前设置。"
 
-#: ../lib/base/error.cpp:226
+#: ../lib/base/error.cpp:232
 msgid "Theme not exist."
 msgstr "主题不存在。"
 
-#: ../lib/base/error.cpp:229
+#: ../lib/base/error.cpp:235
 msgid "Unsupported theme type."
 msgstr "主题类型不支持。"
 
-#: ../lib/base/error.cpp:232
+#: ../lib/base/error.cpp:238
 msgid "Invalid theme type."
 msgstr "主题类型不合法。"
 
-#: ../lib/base/error.cpp:236
+#: ../lib/base/error.cpp:242
 msgid "Invalid font type."
 msgstr "字体类型不合法。"
 
-#: ../lib/base/error.cpp:239
+#: ../lib/base/error.cpp:245
 msgid "Unsupported font type."
 msgstr "字体类型不支持。"
 
-#: ../lib/base/error.cpp:242
+#: ../lib/base/error.cpp:248
 msgid "An incomplete request already exists."
 msgstr "存在未完成的请求。"
 
-#: ../lib/base/error.cpp:245
+#: ../lib/base/error.cpp:251
 msgid "The request is canceled."
 msgstr "请求被取消。"
 
-#: ../lib/base/error.cpp:251
+#: ../lib/base/error.cpp:257
 msgid "The request is rejected."
 msgstr "请求被拒绝。"
 
-#: ../lib/base/error.cpp:254
+#: ../lib/base/error.cpp:260
 msgid "Not found adapter."
 msgstr "未发现适配器。"
 
-#: ../lib/base/error.cpp:262
+#: ../lib/base/error.cpp:268
 msgid "Sync to file failed."
 msgstr "同步到文件失败。"
 
-#: ../lib/base/error.cpp:268
+#: ../lib/base/error.cpp:274
 msgid "Invalid scale mode."
 msgstr "缩放模式不合法。"
 
-#: ../lib/base/error.cpp:271
+#: ../lib/base/error.cpp:277
 msgid "The number of the layout can't exceeds {0}."
 msgstr "布局数量不能超过{0}个。"
 
-#: ../lib/base/error.cpp:274
+#: ../lib/base/error.cpp:280
 msgid "The layout is invalid."
 msgstr "该布局不合法。"
 
-#: ../lib/base/error.cpp:277
+#: ../lib/base/error.cpp:283
 msgid "The layout already exist."
 msgstr "该布局已存在。"
 
-#: ../lib/base/error.cpp:280
+#: ../lib/base/error.cpp:286
 msgid "Failed to set the layout."
 msgstr "设置布局失败。"
 
-#: ../lib/base/error.cpp:283
+#: ../lib/base/error.cpp:289
 msgid "The layout is no exist."
 msgstr "该布局不存在。"
 
-#: ../lib/base/error.cpp:286
+#: ../lib/base/error.cpp:292
 msgid "Failed to update the layout."
 msgstr "更新布局失败。"
 
-#: ../lib/base/error.cpp:289
+#: ../lib/base/error.cpp:295
 msgid "The layout option already exist."
 msgstr "布局选项已存在。"
 
-#: ../lib/base/error.cpp:292
+#: ../lib/base/error.cpp:298
 msgid "Failed to set the layout option."
 msgstr "设置布局选项失败。"
 
-#: ../lib/base/error.cpp:295
+#: ../lib/base/error.cpp:301
 msgid "The layout option is no exist."
 msgstr "布局选项不存在。"
 
-#: ../lib/base/error.cpp:298
+#: ../lib/base/error.cpp:304
 msgid "Failed to update the layout option."
 msgstr "更新布局选项失败。"
 
-#: ../lib/base/error.cpp:301
+#: ../lib/base/error.cpp:307
 msgid "Failed to clear the layout option."
 msgstr "清理布局选项失败。"
 
-#: ../lib/base/error.cpp:304
+#: ../lib/base/error.cpp:310
 msgid "The custom shortcut isn't exist."
 msgstr "自定义快捷键不存在。"
 
-#: ../lib/base/error.cpp:308
+#: ../lib/base/error.cpp:314
 msgid "The key combination already exist."
 msgstr "按键组合已经存在。"
 
-#: ../lib/base/error.cpp:312
+#: ../lib/base/error.cpp:318
 msgid "The key combination is invalid."
 msgstr "按键组合不合法。"
 
-#: ../lib/base/error.cpp:315
+#: ../lib/base/error.cpp:321
 msgid "The system shortcut isn't exist."
 msgstr "该系统快捷键不存在。"
 
-#: ../lib/base/error.cpp:321
+#: ../lib/base/error.cpp:327
 msgid "Unsupported power supply mode."
 msgstr "不支持该供电模式。"
 
-#: ../lib/base/error.cpp:327
+#: ../lib/base/error.cpp:333
 msgid "Unsupported power device."
 msgstr "不支持该设备。"
 
-#: ../lib/base/error.cpp:330
+#: ../lib/base/error.cpp:336
 msgid "The value must be between 0 and 100."
 msgstr "值必须在0到100之间"
 
-#: ../lib/base/error.cpp:334
+#: ../lib/base/error.cpp:340
 msgid "Unknown power action."
 msgstr "未知电源动作。"
 
-#: ../lib/base/error.cpp:338
+#: ../lib/base/error.cpp:344
 msgid "Unsupported power event."
 msgstr "事件不支持。"
 
-#: ../lib/base/error.cpp:341
+#: ../lib/base/error.cpp:347
 msgid "Failed to set the action."
 msgstr "设置触发行为失败。"
 
-#: ../lib/base/error.cpp:344
+#: ../lib/base/error.cpp:350
 msgid "Failed to set brightness."
 msgstr "设置亮度失败。"
 
-#: ../lib/base/error.cpp:347
+#: ../lib/base/error.cpp:353
 msgid "The systeminfo type is invalid."
 msgstr "系统信息类型不合法。"
 
-#: ../lib/base/error.cpp:350
+#: ../lib/base/error.cpp:356
 msgid "Failed to set host name."
 msgstr "设置主机名失败。"
 
-#: ../lib/base/error.cpp:353
+#: ../lib/base/error.cpp:359
 msgid "Not found the property."
 msgstr "未找到该属性。"
 
-#: ../lib/base/error.cpp:356
+#: ../lib/base/error.cpp:362
 msgid "The type is mismatch."
 msgstr "类型不匹配。"
 
-#: ../lib/base/error.cpp:359
+#: ../lib/base/error.cpp:365
 msgid "The property is invalid."
 msgstr "属性不合法"
 
-#: ../lib/base/error.cpp:362
+#: ../lib/base/error.cpp:368
 msgid "The property must not be modified manually."
 msgstr "属性不能手动修改。"
 
-#: ../lib/base/error.cpp:365
+#: ../lib/base/error.cpp:371
 msgid "The property is unsupported."
 msgstr "属性不支持。"
 
-#: ../lib/base/error.cpp:369
+#: ../lib/base/error.cpp:375
 msgid "Arguments invalid."
 msgstr "参数不合法"
 
-#: ../lib/base/error.cpp:372
+#: ../lib/base/error.cpp:378
 msgid "The network proxy mode is invalid."
 msgstr "代理模式不合法"
 
-#: ../lib/base/error.cpp:375
+#: ../lib/base/error.cpp:381
 msgid "The current network proxy mode is not manual."
 msgstr "当前代理模式不是手动模式。"
 
-#: ../lib/base/error.cpp:378
+#: ../lib/base/error.cpp:384
 msgid "The current network proxy mode is not auto."
 msgstr "当前代理模式不是自动模式。"
 
-#: ../lib/base/error.cpp:418
+#: ../lib/base/error.cpp:425
 msgid "Internel error."
 msgstr "内部错误。"
 
-#: ../lib/base/error.cpp:421 ../lib/base/error.cpp:424
+#: ../lib/base/error.cpp:428 ../lib/base/error.cpp:431
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../lib/base/error.cpp:430 ../plugins/accounts/accounts-util.cpp:209
+#: ../lib/base/error.cpp:437 ../plugins/accounts/accounts-util.cpp:209
 msgid " (error code: 0x{:x})"
 msgstr "(错误码：0x{:x})"
 
@@ -838,6 +846,48 @@ msgstr "授权失败"
 #: ../plugins/accounts/accounts-util.cpp:205
 msgid " ({0}, error code: 0x{1:x})"
 msgstr "({0}，错误码：0x{1:x})"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:373
+msgid "The password contains less than {0} character classes."
+msgstr "密码至少包含{0}个字符类型。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:374
+msgid "The password contains less than {0} digits."
+msgstr "密码至少包含{0}个数字。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:375
+msgid "The password contains less than {0} lowercase letters."
+msgstr "密码至少包含{0}个小写字母。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:376
+msgid "The password contains less than {0} non-alphanumeric characters."
+msgstr "密码至少包含{0}个非字母数字字符。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:377
+msgid "The password contains less than {0} uppercase letters."
+msgstr "密码至少包含1个大写字母。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:378
+msgid "The password contains monotonic sequence longer than {0} characters."
+msgstr "密码包含超过了{0}个字符的单调序列。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:379
+msgid ""
+"The password contains more than {0} characters of the same class "
+"consecutively."
+msgstr "密码包含超过{0}个同类型的连续字符"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:380
+msgid "The password contains more than {0} same characters consecutively."
+msgstr "密码包含超过{0}个的相同连续字符。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:381
+msgid "The password is shorter than {0} characters."
+msgstr "密码少于{0}个字符。"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:444
+msgid "Password modification timeout."
+msgstr "修改密码超时。"
 
 #: ../plugins/timedate/timedate-format.cpp:137
 #: ../plugins/timedate/timedate-format.cpp:138
@@ -1197,15 +1247,3 @@ msgstr "电源管理"
 #: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
 msgid "Power management daemon"
 msgstr "电源管理后端"
-
-#~ msgid "Display setting failed."
-#~ msgstr "显示设置失败。"
-
-#~ msgid "The custom shortcut is invalid."
-#~ msgstr "自定义快捷键不合法。"
-
-#~ msgid "The custom shortcut already exist."
-#~ msgstr "自定义快捷键已存在。"
-
-#~ msgid "The expiration policy isn't found."
-#~ msgstr "未找到过期策略"
