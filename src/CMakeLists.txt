@@ -8,6 +8,8 @@ file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
 gen_dbus_stub(CC_DAEMON cc_daemon com.kylinsec.
               ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.xml)
 
+add_custom_target(TARGET_CC_DAEMON DEPENDS ${CC_DAEMON_GENERATED_STUB})
+
 configure_file(config.h.in ${PROJECT_BINARY_DIR}/config.h)
 
 if(build-system-daemon)
@@ -27,6 +29,8 @@ if(build-system-daemon)
 
   target_link_libraries(${TARGET_SYSTEM_DAEMON}
                         PRIVATE ${GMODULE_LIBRARIES} lib-base lib-dbus lib-iso)
+
+  add_dependencies(${TARGET_SYSTEM_DAEMON} TARGET_CC_DAEMON)
 
   install(TARGETS ${TARGET_SYSTEM_DAEMON}
           DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
@@ -59,6 +63,8 @@ if(build-session-daemon)
             lib-dbus
             lib-iso
             lib-display)
+
+  add_dependencies(${TARGET_SESSION_DAEMON} TARGET_CC_DAEMON)
 
   install(TARGETS ${TARGET_SESSION_DAEMON}
           DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
