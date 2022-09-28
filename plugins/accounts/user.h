@@ -97,8 +97,8 @@ protected:
     // 设置用户密码，同时会对用户解除锁定，密码为加密密码
     virtual void SetPassword(const Glib::ustring &password, const Glib::ustring &hint, MethodInvocation &invocation);
     // 通过passwd命令设置用户密码
-    virtual void SetPasswordByPasswd(const Glib::ustring &current_password,
-                                     const Glib::ustring &new_password,
+    virtual void SetPasswordByPasswd(const Glib::ustring &encrypted_current_password,
+                                     const Glib::ustring &encrypted_new_password,
                                      MethodInvocation &invocation);
     // 设置用户密码提示
     virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);

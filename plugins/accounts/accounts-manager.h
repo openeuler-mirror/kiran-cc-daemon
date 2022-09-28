@@ -40,6 +40,8 @@ public:
 
     bool set_automatic_login(std::shared_ptr<User> user, bool enabled, CCErrorCode &error_code);
 
+    std::string get_rsa_private_key() { return this->rsa_private_key_; };
+
 protected:
     // 获取非系统用户的DBusObjectPath，非系统用户一般为用户自己创建的账号。例如root为系统账户
     virtual void GetNonSystemUsers(MethodInvocation &invocation);
@@ -57,6 +59,9 @@ protected:
                             MethodInvocation &invocation);
     // 删除一个用户
     virtual void DeleteUser(guint64 uid, bool remove_files, MethodInvocation &invocation);
+
+    virtual bool rsa_public_key_setHandler(const Glib::ustring &value);
+    virtual Glib::ustring rsa_public_key_get() { return this->rsa_public_key_; };
 
 private:
     void init();
@@ -93,6 +98,9 @@ private:
 
 private:
     static AccountsManager *instance_;
+
+    std::string rsa_public_key_;
+    std::string rsa_private_key_;
 
     AccountsWrapper *passwd_wrapper_;
 

@@ -19,9 +19,13 @@ target_include_directories(
          ${FMT_INCLUDE_DIRS}
          ${JSONCPP_INCLUDE_DIRS})
 
+target_include_directories(${TARGET_NAME} PRIVATE ${CRYPTOPP_INCLUDE_DIRS})
+
 target_compile_options(${TARGET_NAME} PUBLIC ${KSD_COMPILER_FLAGS}
                                              ${GIOMM_COMPILER_FLAGS})
 
 target_link_libraries(
   ${TARGET_NAME} PUBLIC ${GIOMM_LIBRARIES} ${KLOG_GTK3_LIBRARIES}
                         ${FMT_LIBRARIES} ${JSONCPP_LIBRARIES})
+
+target_link_libraries(${TARGET_NAME} PRIVATE ${CRYPTOPP_LIBRARIES})
