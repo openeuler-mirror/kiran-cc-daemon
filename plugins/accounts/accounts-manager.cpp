@@ -21,11 +21,14 @@
 
 #include "accounts-i.h"
 #include "lib/base/base.h"
+#include "lib/base/crypto-helper.h"
 #include "lib/dbus/dbus.h"
 #include "plugins/accounts/accounts-util.h"
 
 namespace Kiran
 {
+// 最少需要512长度
+#define RSA_KEY_LENGTH 512
 #define PATH_GDM_CUSTOM "/etc/gdm/custom.conf"
 
 #define LOGIN1_DBUS_NAME "org.freedesktop.login1"
@@ -245,6 +248,12 @@ void AccountsManager::DeleteUser(guint64 uid, bool remove_files, MethodInvocatio
     return;
 }
 
+bool AccountsManager::rsa_public_key_setHandler(const Glib::ustring &value)
+{
+    KLOG_DEBUG("Unsupported operation.");
+    return false;
+}
+
 void AccountsManager::init()
 {
     KLOG_PROFILE("");
@@ -269,6 +278,8 @@ void AccountsManager::init()
 
     this->passwd_wrapper_->signal_file_changed().connect(sigc::mem_fun(this, &AccountsManager::accounts_file_changed));
     this->gdm_custom_monitor_ = FileUtils::make_monitor_file(PATH_GDM_CUSTOM, sigc::mem_fun(this, &AccountsManager::gdm_custom_changed));
+
+    CryptoHelper::generate_rsa_key(RSA_KEY_LENGTH, this->rsa_private_key_, this->rsa_public_key_);
 
     reload_users();
     update_automatic_login();

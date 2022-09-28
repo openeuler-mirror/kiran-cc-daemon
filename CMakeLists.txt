@@ -18,6 +18,7 @@ pkg_search_module(KLOG_GTK3 REQUIRED klog-gtk3)
 pkg_search_module(JSONCPP REQUIRED jsoncpp)
 pkg_search_module(GTEST REQUIRED gtest)
 pkg_search_module(FMT REQUIRED fmt)
+pkg_search_module(CRYPTOPP REQUIRED cryptopp)
 
 if(build-session-daemon)
   pkg_search_module(GDKMM3 REQUIRED gdkmm-3.0)

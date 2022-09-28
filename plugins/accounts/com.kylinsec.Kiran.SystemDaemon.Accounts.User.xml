@@ -104,11 +104,12 @@
         </method>
 
         <method name="SetPasswordByPasswd">
-            <arg name="current_password" direction="in" type="s">
-                <description>The current password is required when set the user itself. otherwise, the current password can be set to null.</description>
+            <arg name="encrypted_current_password" direction="in" type="s">
+                <description>The current password is required when set the user itself. otherwise, the current password can be set to null.
+                The password should be encrypted by rsa algorithm.</description>
             </arg>
-            <arg name="new_password" direction="in" type="s">
-                <description>The new password.</description>
+            <arg name="encrypted_new_password" direction="in" type="s">
+                <description>The new password. The password should be encrypted by rsa algorithm.</description>
             </arg>
             <description>Sets a new password by passwd command for this user. Note that setting a password has the side-effect of unlocking the account.</description>
         </method>
