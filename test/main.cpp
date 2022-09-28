@@ -18,7 +18,7 @@
 
 int main(int argc, char **argv)
 {
-    klog_gtk3_init(std::string(), "kylinsec-system", "kiran-cc-daemon", "kiran-cc-test");
+    klog_gtk3_init(std::string(), "kylinsec-session", "kiran-cc-daemon", "kiran-cc-test");
 
     Gio::init();
 

@@ -23,6 +23,7 @@
 #include <cinttypes>
 
 #include "lib/base/base.h"
+#include "lib/base/crypto-helper.h"
 #include "lib/dbus/dbus.h"
 #include "plugins/accounts/accounts-manager.h"
 #include "plugins/accounts/accounts-util.h"
@@ -737,13 +738,16 @@ void User::change_password_authorized_cb(MethodInvocation invocation, const Glib
 }
 
 void User::change_password_by_passwd_authorized_cb(MethodInvocation invocation,
-                                                   const Glib::ustring &current_password,
-                                                   const Glib::ustring &new_password)
+                                                   const Glib::ustring &encrypted_current_password,
+                                                   const Glib::ustring &encrypted_new_password)
 {
     this->freeze_notify();
     SCOPE_EXIT({
         this->thaw_notify();
     });
+
+    auto current_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_current_password);
+    auto new_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_new_password);
 
     if (this->passwd_wrapper_ && this->passwd_wrapper_->get_state() != PasswdState::PASSWD_STATE_NONE)
     {
