@@ -31,9 +31,11 @@ struct CPUInfo
 // 内存信息
 struct MemInfo
 {
-    MemInfo() : total_size(0){};
+    MemInfo() : total_size(0), available_size(0){};
     // 内存总大小
     int64_t total_size;
+    // 内存可用大小
+    int64_t available_size;
 };
 
 // 硬盘信息
@@ -123,5 +125,29 @@ private:
     KVList get_pcis_by_major_class_id(PCIMajorClassID major_class_id);
 
     KVList format_to_kv_list(const std::string &contents);
+
+    void init_meminfo_with_lshw();
+
+    void parse_lshw_memory_info();
+
+    bool on_lshw_output(Glib::IOCondition io_condition, Glib::RefPtr<Glib::IOChannel> io_channel);
+
+    void on_child_watch(GPid pid, int child_status);
+
+    int64_t get_memory_size_with_lshw();
+
+    int64_t get_memory_size_with_libgtop();
+
+    int64_t get_memory_size_with_dmi();
+
+private:
+    Glib::ustring hardware_info_lshw;
+    int64_t mem_size_lshw;
+
+    Glib::RefPtr<Glib::IOChannel> out_io_channel_;
+    Glib::RefPtr<Glib::IOSource> out_io_source_;
+    sigc::connection out_io_connection_;
+    sigc::connection watch_child_connection_;
+    Glib::Pid child_pid_;
 };
 }  // namespace Kiran

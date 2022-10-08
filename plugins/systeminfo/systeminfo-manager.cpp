@@ -63,6 +63,7 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
             values["cpu"]["model"] = hardware_info.cpu_info.model;
             values["cpu"]["cores_number"] = hardware_info.cpu_info.cores_number;
             values["mem"]["total_size"] = Json::Int64(hardware_info.mem_info.total_size);
+            values["mem"]["available_size"] = Json::Int64(hardware_info.mem_info.available_size);
             for (uint32_t i = 0; i < hardware_info.disks_info.size(); ++i)
             {
                 Json::Value disk_value;

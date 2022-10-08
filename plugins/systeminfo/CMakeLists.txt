@@ -17,11 +17,19 @@ add_library(${TARGET_NAME} SHARED ${SYSTEMINFO_H_FILES} ${SYSTEMINFO_CPP_FILES}
 
 set_common_shared_linker_flags()
 
-target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_BINARY_DIR}/generated
-                                                 ${JSONCPP_INCLUDE_DIRS})
+target_include_directories(
+  ${TARGET_NAME}
+  PUBLIC ${PROJECT_BINARY_DIR}/generated ${JSONCPP_INCLUDE_DIRS}
+         ${LIBGTOP_INCLUDE_DIRS} ${GUDEV_INCLUDE_DIRS} ${GIOUNIX_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_NAME} PRIVATE ${KSD_LINKER_FLAGS} ${JSONCPP_LIBRARIES} lib-base
-                         lib-dbus)
+  ${TARGET_NAME}
+  PRIVATE ${KSD_LINKER_FLAGS}
+          ${JSONCPP_LIBRARIES}
+          ${LIBGTOP_LIBRARIES}
+          ${GUDEV_LIBRARIES}
+          ${GIOUNIX_LIBRARIES}
+          lib-base
+          lib-dbus)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/system)
