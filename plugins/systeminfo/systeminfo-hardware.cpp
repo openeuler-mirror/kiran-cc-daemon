@@ -14,6 +14,9 @@
 
 #include "plugins/systeminfo/systeminfo-hardware.h"
 
+#include <gio/gunixinputstream.h>
+#include <glibtop/mem.h>
+#include <gudev/gudev.h>
 #include <cinttypes>
 #include <fstream>
 
@@ -34,8 +37,36 @@ namespace Kiran
 #define PCIINFO_CMD "/usr/sbin/lspci"
 #define PCIINFO_KEY_DELIMITER ':'
 
-SystemInfoHardware::SystemInfoHardware()
+SystemInfoHardware::SystemInfoHardware() : mem_size_lshw(0)
 {
+    init_meminfo_with_lshw();
+}
+
+void SystemInfoHardware::init_meminfo_with_lshw()
+{
+    // 使用工具lshw获取硬件信息返回结果可能耗时1s左右，为避免用户读取数据延迟在初始化过程中调用一次即可
+    std::string action = std::string("/usr/sbin/lshw -json");
+    std::vector<std::string> argv = Glib::shell_parse_argv(action);
+    std::vector<Glib::ustring> envp;
+    int standard_output = 0;
+
+    Glib::spawn_async_with_pipes(Glib::ustring(),
+                                 argv,
+                                 envp,
+                                 Glib::SPAWN_DO_NOT_REAP_CHILD,
+                                 Glib::SlotSpawnChildSetup(),
+                                 &this->child_pid_,
+                                 nullptr,
+                                 &standard_output,
+                                 nullptr);
+
+    this->out_io_channel_ = Glib::IOChannel::create_from_fd(standard_output);
+
+    this->out_io_source_ = this->out_io_channel_->create_watch(Glib::IOCondition::IO_IN | Glib::IOCondition::IO_PRI);
+    this->out_io_connection_ = this->out_io_source_->connect(sigc::bind(sigc::mem_fun(this, &SystemInfoHardware::on_lshw_output), this->out_io_channel_));
+    this->out_io_source_->attach(Glib::MainContext::get_default());
+
+    this->watch_child_connection_ = Glib::signal_child_watch().connect(sigc::mem_fun(this, &SystemInfoHardware::on_child_watch), this->child_pid_);
 }
 
 HardwareInfo SystemInfoHardware::get_hardware_info()
@@ -121,16 +152,24 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 MemInfo SystemInfoHardware::get_mem_info()
 {
     MemInfo mem_info;
-    auto mem_maps = this->parse_info_file(MEMINFO_FILE, MEMINFO_KEY_DELIMITER);
-    auto total_fields = StrUtils::split_with_char(mem_maps[MEMINFO_KEY_MEMTOTAL], ' ', true);
-    if (total_fields.size() == 2)
+
+    mem_info.total_size = this->get_memory_size_with_dmi();
+    mem_info.available_size = this->get_memory_size_with_libgtop();
+
+    if (mem_info.total_size == 0)
     {
-        mem_info.total_size = strtoll(total_fields[0].c_str(), NULL, 0) * 1024;
+        mem_info.total_size = this->get_memory_size_with_lshw();
+        KLOG_DEBUG("Get total size with lshw:%ld.", mem_info.total_size);
     }
-    else
+
+    if (mem_info.total_size == 0)
     {
-        KLOG_WARNING("Not found valid record: %s.", mem_maps[MEMINFO_KEY_MEMTOTAL].c_str());
+        mem_info.total_size = mem_info.available_size;
+        KLOG_DEBUG("Get total size with libgtop:%ld.", mem_info.total_size);
     }
+
+    KLOG_DEBUG("Use total size:%ld, available size:%ld.", mem_info.total_size, mem_info.available_size);
+
     return mem_info;
 }
 
@@ -352,6 +391,143 @@ KVList SystemInfoHardware::format_to_kv_list(const std::string& contents)
         }
     }
     return pcis_info;
+}
+
+void SystemInfoHardware::on_child_watch(GPid pid, int child_status)
+{
+    if (WIFEXITED(child_status))
+    {
+        if (WEXITSTATUS(child_status) >= 255)
+        {
+            KLOG_WARNING("Child exited unexpectedly");
+        }
+        else
+        {
+            this->parse_lshw_memory_info();
+        }
+    }
+    else
+    {
+        KLOG_WARNING("Child exited error");
+    }
+
+    this->watch_child_connection_.disconnect();
+
+    if (this->out_io_source_)
+    {
+        this->out_io_source_->destroy();
+    }
+
+    if (this->child_pid_)
+    {
+        Glib::spawn_close_pid(this->child_pid_);
+        this->child_pid_ = 0;
+    }
+
+    this->out_io_connection_.disconnect();
+    this->out_io_channel_.reset();
+}
+
+bool SystemInfoHardware::on_lshw_output(Glib::IOCondition io_condition, Glib::RefPtr<Glib::IOChannel> io_channel)
+{
+    try
+    {
+        Glib::ustring channel_info;
+        auto retval = io_channel->read_to_end(channel_info);
+        if (retval != Glib::IO_STATUS_NORMAL)
+        {
+            KLOG_WARNING("Failed to read data from IO channel. retval: %d.", retval);
+        }
+        else
+        {
+            this->hardware_info_lshw.append(channel_info);
+        }
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("IO Channel read error: %s.", e.what().c_str());
+    }
+
+    return true;
+}
+
+void SystemInfoHardware::parse_lshw_memory_info()
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    if (!reader.parse(this->hardware_info_lshw.c_str(), root))
+    {
+        KLOG_WARNING("Failed to parse lshw info size:%d.", this->hardware_info_lshw.size());
+        return;
+    }
+
+    try
+    {
+        std::string class_val;
+        std::string desc_val;
+
+        for (unsigned int i = 0; i < root["children"].size(); i++)
+        {
+            Json::Value children = root["children"][i];
+            for (unsigned int j = 0; j < children["children"].size(); j++)
+            {
+                class_val = children["children"][j]["class"].asString();
+                desc_val = children["children"][j]["description"].asString();
+                if (class_val == "memory" && (desc_val == "System memory" || desc_val == "System Memory"))
+                {
+                    this->mem_size_lshw = children["children"][j]["size"].asInt64();
+                    KLOG_DEBUG("Find System memory size:%ld", this->mem_size_lshw);
+                    break;
+                }
+            }
+        }
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("%s.", e.what().c_str());
+    }
+
+    return;
+}
+
+int64_t SystemInfoHardware::get_memory_size_with_lshw()
+{
+    return this->mem_size_lshw;
+}
+
+int64_t SystemInfoHardware::get_memory_size_with_libgtop()
+{
+    glibtop_mem mem;
+    glibtop_get_mem(&mem);
+
+    return mem.total;
+}
+
+int64_t SystemInfoHardware::get_memory_size_with_dmi()
+{
+    g_autoptr(GUdevClient) client = NULL;
+    g_autoptr(GUdevDevice) dmi = NULL;
+    const gchar* const subsystems[] = {"dmi", NULL};
+    uint64_t ram_total = 0;
+    uint64_t num_ram = 0;
+
+    client = g_udev_client_new(subsystems);
+    dmi = g_udev_client_query_by_sysfs_path(client, "/sys/devices/virtual/dmi/id");
+    if (!dmi)
+    {
+        KLOG_WARNING("Get dmi failed.");
+        return 0;
+    }
+
+    num_ram = g_udev_device_get_property_as_uint64(dmi, "MEMORY_ARRAY_NUM_DEVICES");
+    for (uint64_t i = 0; i < num_ram; i++)
+    {
+        std::string prop = fmt::format("MEMORY_DEVICE_{0}_SIZE", i);
+        ram_total += g_udev_device_get_property_as_uint64(dmi, prop.c_str());
+    }
+
+    return ram_total;
 }
 
 }  // namespace Kiran
