@@ -390,7 +390,7 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
 
         if (!monitor)
         {
-            KLOG_WARNING("cannot find monitor for %s.", uid.c_str());
+            KLOG_WARNING("Cannot find monitor for %s.", uid.c_str());
             return false;
         }
 
@@ -405,8 +405,16 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
         }
 
         auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
+        if (!mode)
+        {
+            KLOG_WARNING("Cannot match the mode. width: %d, height: %d, refresh: %.2f.",
+                         c_monitor.width(),
+                         c_monitor.height(),
+                         c_monitor.refresh_rate());
+            return false;
+        }
 
-        if (!c_monitor.enabled() || !mode)
+        if (!c_monitor.enabled())
         {
             monitor->enabled_set(false);
             monitor->x_set(0);
