@@ -141,8 +141,11 @@ void PasswdWrapper::on_child_setup(uint32_t caller_uid)
     // 如果是设置当前用户密码，则需要进行降权
     if (caller_uid == user->uid_get())
     {
-        setuid(user->uid_get());
-        setgid(user->gid_get());
+        if (setuid(user->uid_get()) != 0 ||
+            setgid(user->gid_get()) != 0)
+        {
+            exit(1);
+        }
     }
 }
 
