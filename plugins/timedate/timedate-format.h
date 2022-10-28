@@ -16,8 +16,7 @@
 
 #include "lib/base/base.h"
 
-#define TIMEDATE_NEW_INTERFACE
-#include "timedate_i.h"
+#include "timedate-i.h"
 
 namespace Kiran
 {
