@@ -33,8 +33,7 @@
 #include "plugins/timedate/timedate-def.h"
 #include "plugins/timedate/timedate-util.h"
 
-#define TIMEDATE_NEW_INTERFACE
-#include "timedate_i.h"
+#include "timedate-i.h"
 
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
@@ -899,9 +898,8 @@ bool TimedateManager::check_timezone_name(const std::string &name)
         name.length() > MAX_TIMEZONE_LENGTH)
         return false;
 
-    auto iter = std::find_if(name.begin(), name.end(), [](char c) -> bool {
-        return !g_ascii_isalnum(c) && !strchr("+-_/", c);
-    });
+    auto iter = std::find_if(name.begin(), name.end(), [](char c) -> bool
+                             { return !g_ascii_isalnum(c) && !strchr("+-_/", c); });
 
     if (iter != name.end())
     {
