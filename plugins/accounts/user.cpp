@@ -749,6 +749,8 @@ void User::change_password_by_passwd_authorized_cb(MethodInvocation invocation,
     auto current_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_current_password);
     auto new_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_new_password);
 
+    // KLOG_DEBUG("The currentPassword: %s, newPassword: %s.", current_password.c_str(), new_password.c_str());
+
     if (this->passwd_wrapper_ && this->passwd_wrapper_->get_state() != PasswdState::PASSWD_STATE_NONE)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_MODIFYING_PASSWORD);
