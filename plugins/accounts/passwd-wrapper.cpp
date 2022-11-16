@@ -141,8 +141,9 @@ void PasswdWrapper::on_child_setup(uint32_t caller_uid)
     // 如果是设置当前用户密码，则需要进行降权
     if (caller_uid == user->uid_get())
     {
-        if (setuid(user->uid_get()) != 0 ||
-            setgid(user->gid_get()) != 0)
+        // 必须先设置gid然后再设置uid，否则在设置uid后已经不是特权用户，无法设置gid
+        if (setgid(user->gid_get()) != 0 ||
+            setuid(user->uid_get()) != 0)
         {
             exit(1);
         }
@@ -196,8 +197,8 @@ bool PasswdWrapper::on_passwd_output(Glib::IOCondition io_condition, Glib::RefPt
 
         auto retval = this->process_passwd_output_line(handled_passwd_tips);
 
-        // 处理出错，直接退出
-        if (!this->additional_error_message_.empty())
+        // 处理出错且后面不再有数据则退出
+        if (!this->additional_error_message_.empty() && this->unhandled_passwd_tips_.empty())
         {
             this->end_passwd(false);
             break;
@@ -277,7 +278,8 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
             this->in_io_channel_->write(this->new_password_ + "\n");
             retval = true;
         }
-        // 如果是整行信息，说明出现了错误
+        /* 如果是整行信息，说明是错误或者告警信息。因为这里没法区分是错误或者告警信息，所以只能继续往下处理到数据结束，
+           如果最后一条是提示信息，说明当前属于告警信息，否则是错误信息。*/
         else if (line.find_first_of('\n') != std::string::npos)
         {
             this->state_ = PASSWD_STATE_ERROR;
@@ -304,6 +306,17 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
             retval = true;
         }
         break;
+    case PASSWD_STATE_ERROR:
+    {
+        // 这里说明上一条信息是告警消息而非错误消息，因此清空错误消息并继续往下走
+        if (StrUtils::endswith(lowercase_passwd_tips, "retype new password: "))
+        {
+            this->state_ = PASSWD_STATE_RETYPE;
+            this->in_io_channel_->write(this->new_password_ + "\n");
+            this->additional_error_message_.clear();
+            retval = true;
+        }
+    }
     default:
         retval = true;
         break;
@@ -314,13 +327,16 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
 
 void PasswdWrapper::on_child_watch(GPid pid, int child_status)
 {
-    KLOG_DEBUG("Process passwd(%d) exit.", (int32_t)pid);
+    KLOG_DEBUG("Process passwd(%d) exit, exit status: %d.", (int32_t)pid, child_status);
 
-    if (WIFEXITED(child_status))
+    g_autoptr(GError) g_error = NULL;
+    auto result = g_spawn_check_exit_status(child_status, &g_error);
+    if (!result)
     {
-        if (WEXITSTATUS(child_status) >= 255)
+        KLOG_WARNING("%s.", g_error->message);
+        if (this->error_message_.empty())
         {
-            KLOG_WARNING("Child exited unexpectedly");
+            this->error_message_ = CC_ERROR2STR(CCErrorCode::ERROR_FAILED);
         }
     }
 
