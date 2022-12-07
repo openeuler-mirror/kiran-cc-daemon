@@ -59,4 +59,19 @@ public:
 };
 
 using PowerBacklightAbsoluteVec = std::vector<std::shared_ptr<PowerBacklightAbsolute>>;
+
+class PowerBacklightMonitors
+{
+public:
+    PowerBacklightMonitors(){};
+    virtual ~PowerBacklightMonitors(){};
+
+    virtual void init() = 0;
+
+    // 获取所有显示器亮度设置对象
+    virtual PowerBacklightAbsoluteVec get_monitors() = 0;
+    virtual sigc::signal<void> signal_monitor_changed() = 0;
+    virtual sigc::signal<void> signal_brightness_changed() = 0;
+};
+
 }  // namespace Kiran

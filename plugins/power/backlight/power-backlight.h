@@ -14,9 +14,8 @@
 
 #pragma once
 
-#include "plugins/power/backlight/power-backlight-base.h"
+#include "plugins/power/backlight/power-backlight-interface.h"
 #include "power-i.h"
-
 
 namespace Kiran
 {
