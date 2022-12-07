@@ -18,17 +18,18 @@
 //
 #include <X11/extensions/Xrandr.h>
 #include <gdk/gdkx.h>
+#include "plugins/power/backlight/power-backlight-interface.h"
 
-#include "plugins/power/backlight/power-backlight-base.h"
+typedef struct _XDisplay Display;
 
 namespace Kiran
 {
 // 通过Xrandr扩展调节单个显示设备亮度值
-class PowerBacklightMonitorX11 : public PowerBacklightAbsolute
+class PowerBacklightMonitorX11Atom : public PowerBacklightAbsolute
 {
 public:
-    PowerBacklightMonitorX11(Atom backlight_atom, RROutput output);
-    virtual ~PowerBacklightMonitorX11(){};
+    PowerBacklightMonitorX11Atom(Atom backlight_atom, RROutput output);
+    virtual ~PowerBacklightMonitorX11Atom(){};
 
     // 设置亮度值
     virtual bool set_brightness_value(int32_t brightness_value) override;
@@ -44,5 +45,4 @@ private:
     RROutput output_;
 };
 
-using PowerBacklightMonitorX11Vec = std::vector<std::shared_ptr<PowerBacklightMonitorX11>>;
 }  // namespace Kiran

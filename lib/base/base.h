@@ -26,5 +26,6 @@
 #include "lib/base/def.h"
 #include "lib/base/error.h"
 #include "lib/base/file-utils.h"
+#include "lib/base/misc-utils.h"
 #include "lib/base/stl-helper.h"
 #include "lib/base/str-utils.h"

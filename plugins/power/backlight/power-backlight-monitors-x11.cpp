@@ -12,15 +12,17 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-x11.h"
+#include "plugins/power/backlight/power-backlight-monitors-x11.h"
+#include "plugins/power/backlight/power-backlight-monitor-x11-atom.h"
+#include "plugins/power/backlight/power-backlight-monitor-x11-gamma.h"
 
 namespace Kiran
 {
-PowerBacklightX11::PowerBacklightX11() : event_base_(0),
-                                         error_base_(0),
-                                         extension_supported_(false),
-                                         backlight_atom_(None),
-                                         resources_(NULL)
+PowerBacklightMonitorsX11::PowerBacklightMonitorsX11() : event_base_(0),
+                                                         error_base_(0),
+                                                         extension_supported_(false),
+                                                         backlight_atom_(None),
+                                                         resources_(NULL)
 {
     this->display_ = gdk_display_get_default();
     this->xdisplay_ = GDK_DISPLAY_XDISPLAY(this->display_);
@@ -30,24 +32,21 @@ PowerBacklightX11::PowerBacklightX11() : event_base_(0),
     this->xroot_window_ = GDK_WINDOW_XID(this->root_window_);
 }
 
-PowerBacklightX11::~PowerBacklightX11()
+PowerBacklightMonitorsX11::~PowerBacklightMonitorsX11()
 {
     this->clear_resource();
 
     if (this->extension_supported_)
     {
-        gdk_window_remove_filter(this->root_window_, &PowerBacklightX11::window_event, this);
+        gdk_window_remove_filter(this->root_window_, &PowerBacklightMonitorsX11::window_event, this);
     }
 }
 
-void PowerBacklightX11::init()
+void PowerBacklightMonitorsX11::init()
 {
     RETURN_IF_FALSE(this->init_xrandr());
 
     this->backlight_atom_ = this->get_backlight_atom();
-    RETURN_IF_TRUE(this->backlight_atom_ == None);
-
-    KLOG_DEBUG("Support brightness settings");
     this->load_resource();
 
     XRRSelectInput(this->xdisplay_, this->xroot_window_, RRScreenChangeNotifyMask | RROutputPropertyNotifyMask);
@@ -55,11 +54,11 @@ void PowerBacklightX11::init()
                                          this->event_base_,
                                          RRNotify + 1);
 
-    gdk_window_add_filter(this->root_window_, &PowerBacklightX11::window_event, this);
+    gdk_window_add_filter(this->root_window_, &PowerBacklightMonitorsX11::window_event, this);
     this->extension_supported_ = true;
 }
 
-bool PowerBacklightX11::init_xrandr()
+bool PowerBacklightMonitorsX11::init_xrandr()
 {
     KLOG_PROFILE("");
 
@@ -84,7 +83,7 @@ bool PowerBacklightX11::init_xrandr()
     return true;
 }
 
-Atom PowerBacklightX11::get_backlight_atom()
+Atom PowerBacklightMonitorsX11::get_backlight_atom()
 {
     RETURN_VAL_IF_TRUE(this->xdisplay_ == NULL, false);
 
@@ -103,7 +102,7 @@ Atom PowerBacklightX11::get_backlight_atom()
     return backlight_atom;
 }
 
-void PowerBacklightX11::load_resource()
+void PowerBacklightMonitorsX11::load_resource()
 {
     this->clear_resource();
     this->resources_ = XRRGetScreenResourcesCurrent(this->xdisplay_, this->xroot_window_);
@@ -111,12 +110,33 @@ void PowerBacklightX11::load_resource()
     this->backlight_monitors_.clear();
     for (int32_t i = 0; i < this->resources_->noutput; ++i)
     {
-        auto monitor = std::make_shared<PowerBacklightMonitorX11>(this->backlight_atom_, this->resources_->outputs[i]);
+        std::shared_ptr<PowerBacklightAbsolute> monitor;
+        auto output_info = XRRGetOutputInfo(this->xdisplay_, this->resources_, this->resources_->outputs[i]);
+        if (!output_info)
+        {
+            KLOG_WARNING("Not found output info for %d.", (int)this->resources_->outputs[i]);
+            continue;
+        }
+
+        if (!output_info->crtc)
+        {
+            KLOG_DEBUG("Not found crtc for output %d, ignore it.", (int)this->resources_->outputs[i]);
+            continue;
+        }
+
+        if (this->backlight_atom_ != None)
+        {
+            monitor = std::make_shared<PowerBacklightMonitorX11Atom>(this->backlight_atom_, this->resources_->outputs[i]);
+        }
+        else
+        {
+            monitor = std::make_shared<PowerBacklightMonitorX11Gamma>(this->resources_->outputs[i], output_info->crtc);
+        }
         this->backlight_monitors_.push_back(monitor);
     }
 }
 
-void PowerBacklightX11::clear_resource()
+void PowerBacklightMonitorsX11::clear_resource()
 {
     if (this->resources_)
     {
@@ -125,9 +145,9 @@ void PowerBacklightX11::clear_resource()
     }
 }
 
-GdkFilterReturn PowerBacklightX11::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
+GdkFilterReturn PowerBacklightMonitorsX11::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    PowerBacklightX11 *backlight = (PowerBacklightX11 *)data;
+    PowerBacklightMonitorsX11 *backlight = (PowerBacklightMonitorsX11 *)data;
 
     XEvent *xevent = (XEvent *)gdk_event;
     RETURN_VAL_IF_FALSE(backlight, GDK_FILTER_CONTINUE);
@@ -138,12 +158,12 @@ GdkFilterReturn PowerBacklightX11::window_event(GdkXEvent *gdk_event, GdkEvent *
     case RRScreenChangeNotify:
     {
         backlight->load_resource();
-        backlight->monitor_changed_.emit(PBXMonitorEvent::PBX_MONITOR_EVENT_SCREEN_CHANGED);
+        backlight->monitor_changed_.emit();
         break;
     }
     case RROutputPropertyNotifyMask:
     {
-        backlight->monitor_changed_.emit(PBXMonitorEvent::PBX_MONITOR_EVENT_PROPERTY_CHANGED);
+        backlight->brightness_changed_.emit();
         break;
     }
     default:

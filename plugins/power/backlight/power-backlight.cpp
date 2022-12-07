@@ -15,13 +15,13 @@
 #include "plugins/power/backlight/power-backlight.h"
 
 #include "plugins/power/backlight/power-backlight-kbd.h"
-#include "plugins/power/backlight/power-backlight-monitor.h"
+#include "plugins/power/backlight/power-backlight-monitors-controller.h"
 
 namespace Kiran
 {
 PowerBacklight::PowerBacklight()
 {
-    this->backlight_monitor_ = std::make_shared<PowerBacklightMonitor>();
+    this->backlight_monitor_ = std::make_shared<PowerBacklightMonitorsController>();
     this->backlight_kbd_ = std::make_shared<PowerBacklightKbd>();
 }
 

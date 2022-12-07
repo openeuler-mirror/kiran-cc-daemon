@@ -18,9 +18,7 @@
 //
 #include <X11/Xatom.h>
 
-#include "plugins/power/backlight/power-backlight-base.h"
-#include "plugins/power/backlight/power-backlight-x11.h"
-#include "plugins/power/tools/power-backlight-helper.h"
+#include "plugins/power/backlight/power-backlight-interface.h"
 
 namespace Kiran
 {
@@ -28,11 +26,12 @@ namespace Kiran
    台式机的显示器不一定带有背光控制器，因此可能无法通过该模块的接口调节亮度，
    台式机的显示器一般可以直接通过显示器周边的按钮调节亮度 */
 
-class PowerBacklightMonitor : public PowerBacklightPercentage
+
+class PowerBacklightMonitorsController : public PowerBacklightPercentage
 {
 public:
-    PowerBacklightMonitor();
-    virtual ~PowerBacklightMonitor();
+    PowerBacklightMonitorsController();
+    virtual ~PowerBacklightMonitorsController();
 
     virtual void init();
 
@@ -55,7 +54,7 @@ public:
     virtual sigc::signal<void, int32_t> &signal_brightness_changed() override { return this->brightness_changed_; };
 
 private:
-    void load_absolute_monitors();
+    void load_backlight_monitors();
     // 设置单个显示器的亮度百分比
     bool set_brightness_percentage(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor, int32_t percentage);
     // 获取单个显示器的亮度
@@ -71,18 +70,14 @@ private:
 
     // 更新缓存的亮度百分比并发送信号
     void update_cached_brightness();
-
-    void on_x11_monitor_changed(PBXMonitorEvent x11_monitor_event);
-    void on_helper_brightness_changed(int32_t brightness_value);
+    void on_monitor_changed();
 
 private:
-    PowerBacklightX11 backlight_x11_;
-    PowerBacklightHelper backlight_helper_;
-
-    // 用于调节显示器的绝对值
-    PowerBacklightAbsoluteVec absolute_monitors_;
+    std::shared_ptr<PowerBacklightMonitors> backlight_monitors_;
 
     int32_t brightness_percentage_;
     sigc::signal<void, int32_t> brightness_changed_;
+
+    Glib::RefPtr<Gio::Settings> power_settings_;
 };
 }  // namespace Kiran
