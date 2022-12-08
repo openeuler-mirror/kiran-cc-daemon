@@ -7,7 +7,7 @@ file(GLOB_RECURSE POWER_CPP_FILES ./*.cpp)
 
 # Filter tools directory list(FILTER POWER_H_FILES EXCLUDE REGEX .*tools/.*)
 # list(FILTER POWER_CPP_FILES EXCLUDE REGEX .*tools/.*)
-list(FILTER POWER_CPP_FILES EXCLUDE REGEX "(.*tools/main.cpp|.*/tray/.*)")
+list(FILTER POWER_CPP_FILES EXCLUDE REGEX "(.*tools/.*|.*/tray/.*)")
 
 gen_dbus_stub(
   POWER power com.kylinsec.
