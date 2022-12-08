@@ -18,8 +18,25 @@
 #include "config.h"
 #include "plugins/power/tools/power-backlight-helper.h"
 
+struct CommandOptions
+{
+    CommandOptions() : show_version(false),
+                       support_backlight(false),
+                       get_backlight_direcotry(false),
+                       get_brightness_value(false),
+                       get_max_brightness_value(false),
+                       set_brightness_value(-1) {}
+    bool show_version;
+    bool support_backlight;
+    bool get_backlight_direcotry;
+    bool get_brightness_value;
+    bool get_max_brightness_value;
+    int32_t set_brightness_value;
+};
+
 int main(int argc, char* argv[])
 {
+    CommandOptions options;
     Kiran::PowerBacklightHelper backlight_helper;
 
     Gio::init();
@@ -35,67 +52,21 @@ int main(int argc, char* argv[])
     Glib::OptionContext context;
     Glib::OptionGroup group("backlight-helper", _("power backlight helper"));
 
-    Glib::OptionEntry entry1;
-    entry1.set_long_name("get-brightness-value");
-    entry1.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
-    entry1.set_description(N_("Get the current brightness value"));
-
-    Glib::OptionEntry entry2;
-    entry2.set_long_name("get-max-brightness-value");
-    entry2.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
-    entry2.set_description(N_("Get the max brightness value"));
-
-    Glib::OptionEntry entry3;
-    entry3.set_long_name("set-brightness-value");
-    entry3.set_description(N_("Set the brightness value"));
-
-    group.add_entry(entry1, [&backlight_helper](const Glib::ustring& option_name, const Glib::ustring&, bool) -> bool {
-        auto brightness_value = backlight_helper.get_brightness_value();
-        if (brightness_value >= 0)
-        {
-            fmt::print("{0}", brightness_value);
-        }
-        else
-        {
-            fmt::print("{0}", _("Could not get the value of the backlight"));
-            return false;
-        }
-        return true;
-    });
-
-    group.add_entry(entry2, [&backlight_helper](const Glib::ustring& option_name, const Glib::ustring&, bool) -> bool {
-        auto brightness_value = backlight_helper.get_brightness_max_value();
-        if (brightness_value >= 0)
-        {
-            fmt::print("{0}", brightness_value);
-        }
-        else
-        {
-            fmt::print("{0}", _("Could not get the maximum value of the backlight"));
-            return false;
-        }
-        return true;
-    });
-
-    group.add_entry(entry3, [&backlight_helper](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
-        std::string error;
-        auto brightness_value = std::strtol(value.c_str(), nullptr, 0);
-        if (!backlight_helper.set_brightness_value(brightness_value, error))
-        {
-            fmt::print("{0}", error);
-        }
-        return true;
-    });
+    group.add_entry(Kiran::MiscUtils::create_option_entry("version", N_("Output version infomation and exit.")),
+                    options.show_version);
+    group.add_entry(Kiran::MiscUtils::create_option_entry("support-backlight", N_("Whether the backlight device exists.")),
+                    options.support_backlight);
+    group.add_entry(Kiran::MiscUtils::create_option_entry("get-backlight-directory", N_("Get backlight monitor directory.")),
+                    options.support_backlight);
+    group.add_entry(Kiran::MiscUtils::create_option_entry("get-brightness-value", N_("Get the current brightness value.")),
+                    options.get_brightness_value);
+    group.add_entry(Kiran::MiscUtils::create_option_entry("get-max-brightness-value", N_("Get the max brightness value.")),
+                    options.get_max_brightness_value);
+    group.add_entry(Kiran::MiscUtils::create_option_entry("set-brightness-value", N_("Set the brightness value.")),
+                    options.set_brightness_value);
 
     group.set_translation_domain(GETTEXT_PACKAGE);
     context.set_main_group(group);
-
-    // 不支持获取和设置则直接返回
-    if (!backlight_helper.support_backlight())
-    {
-        fmt::print("{0}", _("No backlights were found on your system"));
-        return EXIT_FAILURE;
-    }
 
     try
     {
@@ -105,6 +76,72 @@ int main(int argc, char* argv[])
     {
         KLOG_WARNING("%s", e.what().c_str());
         return EXIT_FAILURE;
+    }
+
+    if (options.show_version)
+    {
+        fmt::print("{0}", PROJECT_VERSION);
+        return EXIT_SUCCESS;
+    }
+
+    if (options.support_backlight)
+    {
+        fmt::print("{0}", backlight_helper.support_backlight() ? 1 : 0);
+        return EXIT_SUCCESS;
+    }
+
+    if (options.get_backlight_direcotry)
+    {
+        fmt::print("{0}", backlight_helper.get_backlight_dir());
+        return EXIT_SUCCESS;
+    }
+
+    // 不支持获取和设置则直接返回
+    if (!backlight_helper.support_backlight())
+    {
+        fmt::print(stderr, "{0}", _("No backlights were found on your system"));
+        return EXIT_FAILURE;
+    }
+
+    if (options.get_brightness_value)
+    {
+        auto brightness_value = backlight_helper.get_brightness_value();
+        if (brightness_value >= 0)
+        {
+            fmt::print("{0}", brightness_value);
+        }
+        else
+        {
+            fmt::print(stderr, "{0}", _("Could not get the value of the backlight"));
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
+    }
+
+    if (options.get_max_brightness_value)
+    {
+        auto brightness_value = backlight_helper.get_brightness_max_value();
+        if (brightness_value >= 0)
+        {
+            fmt::print("{0}", brightness_value);
+        }
+        else
+        {
+            fmt::print(stderr, "{0}", _("Could not get the maximum value of the backlight"));
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
+    }
+
+    if (options.set_brightness_value >= 0)
+    {
+        std::string error;
+        if (!backlight_helper.set_brightness_value(options.set_brightness_value, error))
+        {
+            fmt::print(stderr, "{0}", error);
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
     }
 
     return EXIT_SUCCESS;

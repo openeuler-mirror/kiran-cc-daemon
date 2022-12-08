@@ -28,6 +28,7 @@ public:
 
     // 是否支持亮度设置
     bool support_backlight() { return (this->brightness_value_ >= 0); };
+    std::string get_backlight_dir() { return this->backlight_dir_; };
 
     // 获取亮度值
     int32_t get_brightness_value();

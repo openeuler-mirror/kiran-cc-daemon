@@ -12,20 +12,19 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-monitor-x11.h"
-
+#include "plugins/power/backlight/power-backlight-monitor-x11-atom.h"
 #include <X11/Xatom.h>
 
 namespace Kiran
 {
-PowerBacklightMonitorX11::PowerBacklightMonitorX11(Atom backlight_atom, RROutput output) : backlight_atom_(backlight_atom),
-                                                                                           output_(output)
+PowerBacklightMonitorX11Atom::PowerBacklightMonitorX11Atom(Atom backlight_atom, RROutput output) : backlight_atom_(backlight_atom),
+                                                                                                   output_(output)
 {
     this->display_ = gdk_display_get_default();
     this->xdisplay_ = GDK_DISPLAY_XDISPLAY(this->display_);
 }
 
-bool PowerBacklightMonitorX11::set_brightness_value(int32_t brightness_value)
+bool PowerBacklightMonitorX11Atom::set_brightness_value(int32_t brightness_value)
 {
     gdk_x11_display_error_trap_push(this->display_);
 
@@ -46,7 +45,7 @@ bool PowerBacklightMonitorX11::set_brightness_value(int32_t brightness_value)
     return true;
 }
 
-int32_t PowerBacklightMonitorX11::get_brightness_value()
+int32_t PowerBacklightMonitorX11Atom::get_brightness_value()
 {
     RETURN_VAL_IF_TRUE(this->backlight_atom_ == None, -1);
 
@@ -91,16 +90,17 @@ int32_t PowerBacklightMonitorX11::get_brightness_value()
     return result;
 }
 
-bool PowerBacklightMonitorX11::get_brightness_range(int32_t &min, int32_t &max)
+bool PowerBacklightMonitorX11Atom::get_brightness_range(int32_t &min, int32_t &max)
 {
     XRRPropertyInfo *info = NULL;
 
-    SCOPE_EXIT({
-        if (info != NULL)
+    SCOPE_EXIT(
         {
-            XFree(info);
-        }
-    });
+            if (info != NULL)
+            {
+                XFree(info);
+            }
+        });
 
     info = XRRQueryOutputProperty(this->xdisplay_, this->output_, this->backlight_atom_);
     if (info == NULL)
