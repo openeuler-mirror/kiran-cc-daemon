@@ -108,6 +108,14 @@ extern "C"
         POWER_TRAY_ICON_POLICY_NERVER,
     };
 
+    enum PowerMonitorBacklightPolicy
+    {
+        // 自动
+        POWER_MONITOR_BACKLIGHT_POLICY_AUTO = 0,
+        POWER_MONITOR_BACKLIGHT_POLICY_TOOL = 1,
+        POWER_MONITOR_BACKLIGHT_POLICY_X11 = 2,
+    };
+
 #define POWER_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Power"
 #define POWER_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Power"
 
@@ -141,6 +149,8 @@ extern "C"
 #define POWER_SCHEMA_BATTERY_CRITICAL_ACTION "battery-critical-action"
 // 在什么情况下需要显示托盘图标
 #define POWER_SCHEMA_TRAY_ICON_POLICY "tray-icon-policy"
+// 设置获取显示器亮度值的策略，'tool'是直接操作背光设备文件，'x11'是通过xrandr接口调节亮度
+#define POWER_SCHEMA_MONITOR_BACKLIGHT_POLICY "monitor-backlight-policy"
 
 #ifdef __cplusplus
 }

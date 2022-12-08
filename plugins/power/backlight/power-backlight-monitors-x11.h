@@ -12,37 +12,33 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-monitor-x11.h"
+#include <gdkmm.h>
+//
+#include <X11/extensions/Xrandr.h>
+#include <gdk/gdkx.h>
+
+#include "plugins/power/backlight/power-backlight-interface.h"
 
 namespace Kiran
 {
-enum PBXMonitorEvent
-{
-    // 显示器列表变化
-    PBX_MONITOR_EVENT_SCREEN_CHANGED,
-    // 显示器属性(亮度)可能发生变化
-    PBX_MONITOR_EVENT_PROPERTY_CHANGED,
-};
-
-class PowerBacklightX11
+class PowerBacklightMonitorsX11 : public PowerBacklightMonitors
 {
 public:
-    PowerBacklightX11();
-    virtual ~PowerBacklightX11();
+    PowerBacklightMonitorsX11();
+    virtual ~PowerBacklightMonitorsX11();
 
-    void init();
-
-    // 是否支持设置亮度
-    bool support_backlight_extension() { return this->extension_supported_; };
-
+    virtual void init();
     // 获取所有显示器亮度设置对象
-    PowerBacklightMonitorX11Vec get_monitors() { return this->backlight_monitors_; }
-
-    sigc::signal<void, PBXMonitorEvent> signal_monitor_changed() { return this->monitor_changed_; };
+    virtual PowerBacklightAbsoluteVec get_monitors() { return this->backlight_monitors_; }
+    virtual sigc::signal<void> signal_monitor_changed() { return this->monitor_changed_; };
+    virtual sigc::signal<void> signal_brightness_changed() { return this->brightness_changed_; }
 
 private:
     bool init_xrandr();
     Atom get_backlight_atom();
+
+    // 是否支持设置亮度
+    bool support_backlight_extension() { return this->extension_supported_; };
 
     void load_resource();
     void clear_resource();
@@ -62,8 +58,9 @@ private:
     Atom backlight_atom_;
     XRRScreenResources *resources_;
 
-    PowerBacklightMonitorX11Vec backlight_monitors_;
+    PowerBacklightAbsoluteVec backlight_monitors_;
 
-    sigc::signal<void, PBXMonitorEvent> monitor_changed_;
+    sigc::signal<void> monitor_changed_;
+    sigc::signal<void> brightness_changed_;
 };
 }  // namespace Kiran

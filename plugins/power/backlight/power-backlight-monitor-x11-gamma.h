@@ -14,16 +14,30 @@
 
 #pragma once
 
+#include <gdkmm.h>
+//
+#include <X11/extensions/Xrandr.h>
+#include <gdk/gdkx.h>
+
 #include "plugins/power/backlight/power-backlight-interface.h"
 
 namespace Kiran
 {
-// 直接通过读写配置文件调节亮度值
-class PowerBacklightMonitorTool : public PowerBacklightAbsolute
+struct GammaInfo
+{
+    GammaInfo() : brightness(0.0), red(1.0), green(1.0), blue(1.0) {}
+    double brightness;
+    double red;
+    double green;
+    double blue;
+};
+
+// 通过Xrandr扩展调节crtc的gamma值来实现亮度变化
+class PowerBacklightMonitorX11Gamma : public PowerBacklightAbsolute
 {
 public:
-    PowerBacklightMonitorTool();
-    virtual ~PowerBacklightMonitorTool(){};
+    PowerBacklightMonitorX11Gamma(RROutput output, RRCrtc crtc);
+    virtual ~PowerBacklightMonitorX11Gamma(){};
 
     // 设置亮度值
     virtual bool set_brightness_value(int32_t brightness_value) override;
@@ -31,5 +45,16 @@ public:
     virtual int32_t get_brightness_value() override;
     // 获取亮度最大最小值
     virtual bool get_brightness_range(int32_t &min, int32_t &max) override;
+
+private:
+    int find_last_non_clamped(unsigned short array[], int size);
+    GammaInfo get_gamma_info();
+
+private:
+    GdkDisplay *display_;
+    Display *xdisplay_;
+    RROutput output_;
+    RRCrtc crtc_;
 };
+
 }  // namespace Kiran

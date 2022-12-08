@@ -12,50 +12,42 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-monitor-tool.h"
-#include "plugins/power/backlight/power-backlight-monitor.h"
+#include "plugins/power/backlight/power-backlight-monitors-controller.h"
+#include "plugins/power/backlight/power-backlight-monitors-tool.h"
+#include "plugins/power/backlight/power-backlight-monitors-x11.h"
 
 namespace Kiran
 {
-PowerBacklightMonitor::PowerBacklightMonitor() : brightness_percentage_(-1)
+PowerBacklightMonitorsController::PowerBacklightMonitorsController() : brightness_percentage_(-1)
+{
+    this->power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
+}
+
+PowerBacklightMonitorsController::~PowerBacklightMonitorsController()
 {
 }
 
-PowerBacklightMonitor::~PowerBacklightMonitor()
+void PowerBacklightMonitorsController::init()
 {
-}
-
-void PowerBacklightMonitor::init()
-{
-    KLOG_PROFILE("");
-
-    backlight_x11_.init();
-    this->backlight_helper_.init();
-
-    this->load_absolute_monitors();
+    this->load_backlight_monitors();
     this->brightness_percentage_ = this->get_brightness();
-
-    this->backlight_x11_.signal_monitor_changed().connect(sigc::mem_fun(this, &PowerBacklightMonitor::on_x11_monitor_changed));
-    this->backlight_helper_.signal_brightness_changed().connect(sigc::mem_fun(this, &PowerBacklightMonitor::on_helper_brightness_changed));
 }
 
-bool PowerBacklightMonitor::set_brightness(int32_t percentage)
+bool PowerBacklightMonitorsController::set_brightness(int32_t percentage)
 {
-    KLOG_PROFILE("percentage: %d.", percentage);
-
-    RETURN_VAL_IF_TRUE(this->absolute_monitors_.size() == 0, false);
-
-    for (auto &monitor : this->absolute_monitors_)
+    auto monitors = this->backlight_monitors_->get_monitors();
+    for (auto &monitor : monitors)
     {
         RETURN_VAL_IF_FALSE(this->set_brightness_percentage(monitor, percentage), false);
     }
-
+    this->update_cached_brightness();
     return true;
 }
 
-int32_t PowerBacklightMonitor::get_brightness()
+int32_t PowerBacklightMonitorsController::get_brightness()
 {
-    for (auto &monitor : this->absolute_monitors_)
+    auto monitors = this->backlight_monitors_->get_monitors();
+    for (auto &monitor : monitors)
     {
         auto percentage = this->get_brightness_percentage(monitor);
         RETURN_VAL_IF_TRUE(percentage >= 0, percentage);
@@ -63,43 +55,57 @@ int32_t PowerBacklightMonitor::get_brightness()
     return -1;
 }
 
-bool PowerBacklightMonitor::brightness_up()
+bool PowerBacklightMonitorsController::brightness_up()
 {
-    RETURN_VAL_IF_TRUE(this->absolute_monitors_.size() == 0, false);
-
-    for (auto &monitor : this->absolute_monitors_)
+    auto monitors = this->backlight_monitors_->get_monitors();
+    for (auto &monitor : monitors)
     {
         this->brightness_value_up(monitor);
     }
     return true;
 }
 
-bool PowerBacklightMonitor::brightness_down()
+bool PowerBacklightMonitorsController::brightness_down()
 {
-    RETURN_VAL_IF_TRUE(this->absolute_monitors_.size() == 0, false);
-    for (auto &monitor : this->absolute_monitors_)
+    auto monitors = this->backlight_monitors_->get_monitors();
+    for (auto &monitor : monitors)
     {
         this->brightness_value_down(monitor);
     }
     return true;
 }
 
-void PowerBacklightMonitor::load_absolute_monitors()
+void PowerBacklightMonitorsController::load_backlight_monitors()
 {
-    this->absolute_monitors_.clear();
+    auto monitor_backlight_policy = this->power_settings_->get_enum(POWER_SCHEMA_MONITOR_BACKLIGHT_POLICY);
 
-    if (this->backlight_x11_.support_backlight_extension())
+    switch (monitor_backlight_policy)
     {
-        auto monitors = this->backlight_x11_.get_monitors();
-        this->absolute_monitors_ = PowerBacklightAbsoluteVec(monitors.begin(), monitors.end());
-    }
-    else
+    case PowerMonitorBacklightPolicy::POWER_MONITOR_BACKLIGHT_POLICY_TOOL:
+        this->backlight_monitors_ = std::make_shared<PowerBacklightMonitorsTool>();
+        break;
+    case PowerMonitorBacklightPolicy::POWER_MONITOR_BACKLIGHT_POLICY_X11:
+        this->backlight_monitors_ = std::make_shared<PowerBacklightMonitorsX11>();
+        break;
+    default:
     {
-        this->absolute_monitors_.push_back(std::make_shared<PowerBacklightMonitorTool>());
+        if (PowerBacklightMonitorsTool::support_backlight())
+        {
+            this->backlight_monitors_ = std::make_shared<PowerBacklightMonitorsTool>();
+        }
+        else
+        {
+            this->backlight_monitors_ = std::make_shared<PowerBacklightMonitorsX11>();
+        }
     }
+    }
+
+    this->backlight_monitors_->init();
+    this->backlight_monitors_->signal_monitor_changed().connect(sigc::mem_fun(this, &PowerBacklightMonitorsController::on_monitor_changed));
+    this->backlight_monitors_->signal_brightness_changed().connect(sigc::mem_fun(this, &PowerBacklightMonitorsController::update_cached_brightness));
 }
 
-bool PowerBacklightMonitor::set_brightness_percentage(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor, int32_t percentage)
+bool PowerBacklightMonitorsController::set_brightness_percentage(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor, int32_t percentage)
 {
     int32_t brightness_min = -1;
     int32_t brightness_max = -1;
@@ -161,7 +167,7 @@ bool PowerBacklightMonitor::set_brightness_percentage(std::shared_ptr<PowerBackl
     return true;
 }
 
-int32_t PowerBacklightMonitor::get_brightness_percentage(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor)
+int32_t PowerBacklightMonitorsController::get_brightness_percentage(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor)
 {
     int32_t brightness_min = -1;
     int32_t brightness_max = -1;
@@ -182,7 +188,7 @@ int32_t PowerBacklightMonitor::get_brightness_percentage(std::shared_ptr<PowerBa
     return percentage;
 }
 
-bool PowerBacklightMonitor::brightness_value_up(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor)
+bool PowerBacklightMonitorsController::brightness_value_up(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor)
 {
     int32_t brightness_min = -1;
     int32_t brightness_max = -1;
@@ -199,7 +205,7 @@ bool PowerBacklightMonitor::brightness_value_up(std::shared_ptr<PowerBacklightAb
     return absolute_monitor->set_brightness_value(brightness_current_value);
 }
 
-bool PowerBacklightMonitor::brightness_value_down(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor)
+bool PowerBacklightMonitorsController::brightness_value_down(std::shared_ptr<PowerBacklightAbsolute> absolute_monitor)
 {
     int32_t brightness_min = -1;
     int32_t brightness_max = -1;
@@ -216,15 +222,14 @@ bool PowerBacklightMonitor::brightness_value_down(std::shared_ptr<PowerBacklight
     return absolute_monitor->set_brightness_value(brightness_current_value);
 }
 
-int32_t PowerBacklightMonitor::brightness_discrete2percent(int32_t discrete, int32_t levels)
+int32_t PowerBacklightMonitorsController::brightness_discrete2percent(int32_t discrete, int32_t levels)
 {
-    // TODO: test
     RETURN_VAL_IF_TRUE(discrete > levels, 100);
     RETURN_VAL_IF_TRUE(levels <= 1, 0);
     return (int32_t)(((double)discrete * (100.0 / (double)(levels - 1))) + 0.5);
 }
 
-int32_t PowerBacklightMonitor::brightness_percent2discrete(int32_t percentage, int32_t levels)
+int32_t PowerBacklightMonitorsController::brightness_percent2discrete(int32_t percentage, int32_t levels)
 {
     RETURN_VAL_IF_TRUE(percentage > 100, levels);
     RETURN_VAL_IF_TRUE(levels == 0, 0);
@@ -232,7 +237,7 @@ int32_t PowerBacklightMonitor::brightness_percent2discrete(int32_t percentage, i
     return (int32_t)((((double)percentage * (double)(levels - 1)) / 100.0) + 0.5);
 }
 
-int32_t PowerBacklightMonitor::get_brightness_step(uint32_t levels)
+int32_t PowerBacklightMonitorsController::get_brightness_step(uint32_t levels)
 {
     if (levels > 20)
     {
@@ -241,7 +246,7 @@ int32_t PowerBacklightMonitor::get_brightness_step(uint32_t levels)
     return 1;
 }
 
-void PowerBacklightMonitor::update_cached_brightness()
+void PowerBacklightMonitorsController::update_cached_brightness()
 {
     auto brightness_percentage = this->get_brightness();
     if (brightness_percentage != this->brightness_percentage_)
@@ -251,24 +256,7 @@ void PowerBacklightMonitor::update_cached_brightness()
     }
 }
 
-void PowerBacklightMonitor::on_x11_monitor_changed(PBXMonitorEvent x11_monitor_event)
-{
-    switch (x11_monitor_event)
-    {
-    case PBXMonitorEvent::PBX_MONITOR_EVENT_PROPERTY_CHANGED:
-    {
-        this->update_cached_brightness();
-        break;
-    }
-    case PBXMonitorEvent::PBX_MONITOR_EVENT_SCREEN_CHANGED:
-        this->load_absolute_monitors();
-        break;
-    default:
-        break;
-    }
-}
-
-void PowerBacklightMonitor::on_helper_brightness_changed(int32_t brightness_value)
+void PowerBacklightMonitorsController::on_monitor_changed()
 {
     this->update_cached_brightness();
 }
