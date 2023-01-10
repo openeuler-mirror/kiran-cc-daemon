@@ -77,21 +77,24 @@ CrtcInfo::CrtcInfo(RRCrtc crtc_id, XRRCrtcInfo* crtc_info) : id(crtc_id),
 ModeInfo::ModeInfo() : id(0),
                        width(0),
                        height(0),
-                       refresh_rate(0)
+                       refresh_rate(0),
+                       name(std::string(""))
 {
 }
 
 ModeInfo::ModeInfo(XRRModeInfo* mode_info) : id(mode_info->id),
                                              width(mode_info->width),
                                              height(mode_info->height),
-                                             refresh_rate((mode_info->dotClock / (double)mode_info->hTotal) / mode_info->vTotal)
+                                             refresh_rate((mode_info->dotClock / (double)mode_info->hTotal) / mode_info->vTotal),
+                                             name(std::string(mode_info->name))
 {
 }
 
-ModeInfo::ModeInfo(std::tuple<guint32, guint32, guint32, double> mode_info) : id(std::get<0>(mode_info)),
-                                                                              width(std::get<1>(mode_info)),
-                                                                              height(std::get<2>(mode_info)),
-                                                                              refresh_rate(std::get<3>(mode_info))
+ModeInfo::ModeInfo(std::tuple<guint32, guint32, guint32, double, std::string> mode_info) : id(std::get<0>(mode_info)),
+                                                                                           width(std::get<1>(mode_info)),
+                                                                                           height(std::get<2>(mode_info)),
+                                                                                           refresh_rate(std::get<3>(mode_info)),
+                                                                                           name(std::get<4>(mode_info))
 {
 }
 
@@ -485,11 +488,12 @@ void XrandrManager::load_mods()
         auto mode = std::make_shared<ModeInfo>(&this->resources_->modes[i]);
         this->modes_.emplace(mode->id, mode);
 
-        KLOG_DEBUG("mode(%u) width: %u, height: %u refresh_rate: %f.",
+        KLOG_DEBUG("mode(%u) width: %u, height: %u refresh_rate: %f name: %s.",
                    mode->id,
                    mode->width,
                    mode->height,
-                   mode->refresh_rate);
+                   mode->refresh_rate,
+                   mode->name.c_str());
     }
 }
 
