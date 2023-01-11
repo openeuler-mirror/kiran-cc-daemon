@@ -99,27 +99,28 @@ struct ModeInfo
 {
     ModeInfo();
     ModeInfo(XRRModeInfo* mode_info);
-    ModeInfo(std::tuple<guint32, guint32, guint32, double> mode_info);
+    ModeInfo(std::tuple<guint32, guint32, guint32, double, std::string> mode_info);
     RRMode id;
-    // mode的名字
-    // std::string name;
     // 分辨率大小
     unsigned int width;
     unsigned int height;
     // 刷新率
     double refresh_rate;
+    // mode的名字
+    std::string name;
 
-    operator std::tuple<guint32, guint32, guint32, double>() const
+    operator std::tuple<guint32, guint32, guint32, double, std::string>() const
     {
-        return std::make_tuple(id, width, height, refresh_rate);
+        return std::make_tuple(id, width, height, refresh_rate, name);
     }
 
-    ModeInfo& operator=(const std::tuple<guint32, guint32, guint32, double>& value)
+    ModeInfo& operator=(const std::tuple<guint32, guint32, guint32, double, std::string>& value)
     {
         this->id = std::get<0>(value);
         this->width = std::get<1>(value);
         this->height = std::get<2>(value);
         this->refresh_rate = std::get<3>(value);
+        this->name = std::get<4>(value);
         return *this;
     }
 };
