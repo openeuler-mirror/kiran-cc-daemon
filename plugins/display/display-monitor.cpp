@@ -112,10 +112,7 @@ std::string DisplayMonitor::generate_cmdline(bool priamry)
     }
     else
     {
-        result += fmt::format(" --mode {0}x{1} --rate {2}",
-                              mode->width,
-                              mode->height,
-                              mode->refresh_rate);
+        result += fmt::format(" --mode 0x{0:x}", mode->id);
     }
 
     if (this->monitor_info_.x >= 0 && this->monitor_info_.y >= 0)
@@ -228,7 +225,7 @@ void DisplayMonitor::ListModes(MethodInvocation &invocation)
         auto monitor = XrandrManager::get_instance()->get_mode(mode_id);
         if (monitor)
         {
-            result.push_back(*monitor.get());
+            result.push_back(std::make_tuple(monitor->id, monitor->width, monitor->height, monitor->refresh_rate));
         }
         else
         {
@@ -248,7 +245,7 @@ void DisplayMonitor::ListPreferredModes(MethodInvocation &invocation)
         auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.modes[i]);
         if (monitor)
         {
-            result.push_back(*monitor.get());
+            result.push_back(std::make_tuple(monitor->id, monitor->width, monitor->height, monitor->refresh_rate));
         }
         else
         {
@@ -266,7 +263,7 @@ void DisplayMonitor::GetCurrentMode(MethodInvocation &invocation)
     auto monitor = XrandrManager::get_instance()->get_mode(this->monitor_info_.mode);
     if (monitor)
     {
-        result = *monitor.get();
+        result = std::make_tuple(monitor->id, monitor->width, monitor->height, monitor->refresh_rate);
         invocation.ret(result);
     }
     else
