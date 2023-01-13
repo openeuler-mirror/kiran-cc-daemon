@@ -33,7 +33,12 @@ AppearanceFont::AppearanceFont()
     this->xsettings_settings_ = Gio::Settings::create(XSETTINGS_SCHEMA_ID);
     this->interface_settings_ = Gio::Settings::create(INTERFACE_SCHEMA_ID);
     this->marco_settings_ = Gio::Settings::create(MARCO_SCHEMA_ID);
-    this->caja_settings_ = Gio::Settings::create(CAJA_SCHEMA_ID);
+
+    auto schemas = Gio::Settings::list_schemas();
+    if (std::find(schemas.begin(), schemas.end(), CAJA_SCHEMA_ID) != schemas.end())
+    {
+        this->caja_settings_ = Gio::Settings::create(CAJA_SCHEMA_ID);
+    }
 }
 
 void AppearanceFont::init()
