@@ -52,7 +52,6 @@ void AppearanceTheme::init()
         auto theme = parse.parse();
         if (theme)
         {
-            // KLOG_DEBUG("path: %s type: %d", theme->path.c_str(), theme->type);
             this->add_theme(theme);
         }
     }

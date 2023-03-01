@@ -13,6 +13,7 @@
  */
 
 #include "plugins/appearance/background/appearance-background.h"
+#include "appearance-i.h"
 
 #include <X11/Xatom.h>
 #include <gdk/gdkx.h>
@@ -29,11 +30,15 @@ namespace Kiran
 AppearanceBackground::AppearanceBackground()
 {
     this->mate_background_settings_ = Gio::Settings::create(MATE_BACKGROUND_SCHEMA_ID);
+    this->appearance_settings_ = Gio::Settings::create(APPEARANCE_SCHAME_ID);
 }
 
 void AppearanceBackground::init()
 {
+    this->set_background(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG));
+
     this->mate_background_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_mate_background_settings_changed));
+    this->appearance_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_appearance_settings_changed));
 
     auto screen = Gdk::Screen::get_default();
     /* FIXME：size-changed和monitors-changed两个信号不能同时监控，如果同时监控会导致第二次设置背景时调用XOpenDisplay函数连接阻塞，具体原因未知
@@ -46,7 +51,7 @@ void AppearanceBackground::init()
 
 void AppearanceBackground::set_background(const std::string &path)
 {
-    KLOG_PROFILE("path: %s", path.c_str());
+    KLOG_DEBUG("Set background path to %s", path.c_str());
 
     RETURN_IF_TRUE(this->desktop_background_ == path);
     this->desktop_background_ = path;
@@ -71,9 +76,9 @@ void AppearanceBackground::delay_draw_background()
 
 void AppearanceBackground::draw_background()
 {
-    KLOG_PROFILE("");
-
     RETURN_IF_FALSE(this->can_draw_background());
+
+    KLOG_DEBUG("Draw desktop background %s", this->desktop_background_.c_str());
 
     auto screen = Gdk::Screen::get_default();
     auto surface = this->create_surface(screen);
@@ -82,8 +87,6 @@ void AppearanceBackground::draw_background()
 
 bool AppearanceBackground::can_draw_background()
 {
-    KLOG_PROFILE("");
-
     /* caja也会画背景，这里需要判断一下caja是否会去画桌面背景。
     如果org.mate.background中的show-desktop-icons字段为false，则caja不会去画桌面背景，此时插件需要负责去画背景。*/
     if (!this->mate_background_settings_->get_boolean(MATE_BACKGROUND_SCHAME_KEY_SHOW_DESKTOP_ICONS))
@@ -479,8 +482,6 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
 
 void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustring &key)
 {
-    KLOG_PROFILE("");
-
     // 这里不感知picture-filename的变化，也不使用这个字段，因为这个字段的值可能是一个xml文件路径，新的背景设置插件无法兼容
     switch (shash(key.c_str()))
     {
@@ -492,9 +493,22 @@ void AppearanceBackground::on_mate_background_settings_changed(const Glib::ustri
     }
 }
 
+void AppearanceBackground::on_appearance_settings_changed(const Glib::ustring &key)
+{
+    switch (shash(key.c_str()))
+    {
+    case CONNECT(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, _hash):
+        this->set_background(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG));
+        break;
+    default:
+        break;
+    }
+}
+
 void AppearanceBackground::on_screen_size_changed()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG("Receive screen changed signal.");
+
     this->delay_draw_background();
 }
 }  // namespace Kiran

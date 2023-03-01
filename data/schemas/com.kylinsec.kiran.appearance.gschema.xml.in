@@ -9,6 +9,10 @@
             <default>'/usr/share/backgrounds/kiran/default.jpg'</default>
             <description>File to use for the lock screen background image.</description>
         </key>
+        <key name="auto-switch-window-theme" type="b">
+            <default>false</default>
+            <description>Whether turn on automatic window theme switching according to time.</description>
+        </key>
     </schema>
 
 </schemalist>

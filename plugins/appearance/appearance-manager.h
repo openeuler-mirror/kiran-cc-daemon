@@ -39,6 +39,8 @@ protected:
     virtual void GetThemes(gint32 type, MethodInvocation& invocation);
     // 将type类型的主题设置为theme_name。
     virtual void SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation);
+    // 开启窗口主题自动切换后，在启动程序时会根据当前时间来选择一个主题。
+    virtual void EnableAutoSwitchWindowTheme(MethodInvocation& invocation);
     // 获取指定类型的主题名
     virtual void GetTheme(gint32 type, MethodInvocation& invocation);
     // 获取类型为type的字体，字体包括了字体名和字体大小(注意：其他项目的命名规范可能是字体名已经包含了字体大小，可能存在术语不统一的情况）。
@@ -53,18 +55,19 @@ protected:
 
     virtual bool desktop_background_setHandler(const Glib::ustring& value);
     virtual bool lock_screen_background_setHandler(const Glib::ustring& value);
+    virtual bool AutoSwitchWindowTheme_setHandler(bool value);
 
-    // virtual Glib::ustring gtk_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK); };
-    // virtual Glib::ustring metacity_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY); };
-    // virtual Glib::ustring icon_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON); };
-    // virtual Glib::ustring cursor_theme_get() { return this->appearance_theme_.get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR); };
     virtual Glib::ustring desktop_background_get() { return this->desktop_background_; };
     virtual Glib::ustring lock_screen_background_get() { return this->lock_screen_background_; };
+    virtual bool AutoSwitchWindowTheme_get() { return this->auto_switch_window_theme_; };
 
 private:
     void init();
 
     void load_from_settings();
+
+    // 开启主题自动切换
+    void auto_switch_for_window_theme();
 
     void on_theme_changed_cb(ThemeKey theme_key);
     void on_font_chnaged_cb(AppearanceFontType type, const std::string& font);
@@ -85,6 +88,7 @@ private:
 
     Glib::ustring desktop_background_;
     Glib::ustring lock_screen_background_;
+    bool auto_switch_window_theme_;
 
     // dbus
     uint32_t dbus_connect_id_;
