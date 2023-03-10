@@ -29,12 +29,13 @@ public:
 
     void init();
 
+private:
     // 更新桌面背景图片路径并画桌面背景
     void set_background(const std::string &path);
 
-private:
     // 延时绘制背景
     void delay_draw_background();
+
     // 画桌面背景
     void draw_background();
 
@@ -65,6 +66,7 @@ private:
     void set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, Pixmap xpixmap);
 
     void on_mate_background_settings_changed(const Glib::ustring &key);
+    void on_appearance_settings_changed(const Glib::ustring &key);
     void on_screen_size_changed();
 
 private:
@@ -72,6 +74,7 @@ private:
     std::string desktop_background_;
 
     Glib::RefPtr<Gio::Settings> mate_background_settings_;
+    Glib::RefPtr<Gio::Settings> appearance_settings_;
 
     BackgroundCache background_cache_;
 };

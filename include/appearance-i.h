@@ -23,6 +23,16 @@ extern "C"
 #define APPEARANCE_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Appearance"
 #define APPEARANCE_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Appearance"
 
+// 默认浅色主题
+#define APPEARANCE_DEFAULT_LIGHT_GTK_THEME "Kiran"
+// 默认深色主题
+#define APPEARANCE_DEFAULT_DARK_GTK_THEME "Kiran-dark"
+
+#define APPEARANCE_SCHAME_ID "com.kylinsec.kiran.appearance"
+#define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktop-background"
+#define APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG "lock-screen-background"
+#define APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME "auto-switch-window-theme"
+
     enum AppearanceFontType
     {
         // 应用程序字体

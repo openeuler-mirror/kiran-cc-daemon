@@ -18,12 +18,10 @@
 
 namespace Kiran
 {
-#define APPEARANCE_SCHAME_ID "com.kylinsec.kiran.appearance"
-#define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktop-background"
-#define APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG "lock-screen-background"
-
-AppearanceManager::AppearanceManager() : dbus_connect_id_(0),
+AppearanceManager::AppearanceManager() : auto_switch_window_theme_(false),
+                                         dbus_connect_id_(0),
                                          object_register_id_(0)
+
 {
     this->appearance_settings_ = Gio::Settings::create(APPEARANCE_SCHAME_ID);
 }
@@ -45,8 +43,6 @@ void AppearanceManager::global_init()
 
 void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("type: %d.", type);
-
     if (type < 0 || type >= int32_t(AppearanceThemeType::APPEARANCE_THEME_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_INVALID);
@@ -66,7 +62,7 @@ void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("type: %d, theme name: %s.", type, theme_name.c_str());
+    KLOG_DEBUG("Set theme which type is (%d) to %s", type, theme_name.c_str());
 
     ThemeKey key = std::make_pair(type, theme_name);
     CCErrorCode error_code = CCErrorCode::SUCCESS;
@@ -74,19 +70,30 @@ void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, M
     {
         DBUS_ERROR_REPLY_AND_RET(error_code);
     }
+
+    // 如果手动设置了GTK或者窗口标题主题，则取消主题自动切换
+    if (type == AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK ||
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY)
+    {
+        this->AutoSwitchWindowTheme_set(false);
+    }
+
+    invocation.ret();
+}
+
+void AppearanceManager::EnableAutoSwitchWindowTheme(MethodInvocation& invocation)
+{
+    this->AutoSwitchWindowTheme_set(true);
     invocation.ret();
 }
 
 void AppearanceManager::GetTheme(gint32 type, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("type: %d.", type);
     invocation.ret(this->appearance_theme_.get_theme(AppearanceThemeType(type)));
 }
 
 void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("type: %d.", type);
-
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_1);
@@ -96,7 +103,7 @@ void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("type: %d, font: %s.", type, font.c_str());
+    KLOG_DEBUG("Set font which type is (%d) to %s", type, font.c_str());
 
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
@@ -112,7 +119,7 @@ void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodIn
 
 void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("desktop background: %s", desktop_background.c_str());
+    KLOG_DEBUG("Set desktop background to %s", desktop_background.c_str());
 
     if (desktop_background != this->desktop_background_get() &&
         !this->desktop_background_set(desktop_background))
@@ -124,7 +131,7 @@ void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_backgr
 
 void AppearanceManager::SetLockScreenBackground(const Glib::ustring& lock_screen_background, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("lock screen background: %s", lock_screen_background.c_str());
+    KLOG_DEBUG("Set lock screen background to %s", lock_screen_background.c_str());
 
     if (lock_screen_background != this->lock_screen_background_get() &&
         !this->lock_screen_background_set(lock_screen_background))
@@ -136,34 +143,42 @@ void AppearanceManager::SetLockScreenBackground(const Glib::ustring& lock_screen
 
 bool AppearanceManager::desktop_background_setHandler(const Glib::ustring& value)
 {
-    KLOG_PROFILE("value: %s.", value.c_str());
-
     RETURN_VAL_IF_TRUE(value == this->desktop_background_, false);
     this->desktop_background_ = value;
 
     if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG) != value)
     {
         this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, value);
+        return true;
     }
 
-    this->appearance_background_.set_background(this->desktop_background_);
-
-    return true;
+    return false;
 }
 
 bool AppearanceManager::lock_screen_background_setHandler(const Glib::ustring& value)
 {
-    KLOG_PROFILE("value: %s.", value.c_str());
-
     RETURN_VAL_IF_TRUE(value == this->lock_screen_background_, false);
     this->lock_screen_background_ = value;
 
     if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG) != value)
     {
         this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, value);
+        return true;
     }
+    return false;
+}
 
-    return true;
+bool AppearanceManager::AutoSwitchWindowTheme_setHandler(bool value)
+{
+    RETURN_VAL_IF_TRUE(value == this->auto_switch_window_theme_, false);
+    this->auto_switch_window_theme_ = value;
+
+    if (this->appearance_settings_->get_boolean(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME) != value)
+    {
+        this->appearance_settings_->set_boolean(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, value);
+        return true;
+    }
+    return false;
 }
 
 void AppearanceManager::init()
@@ -187,11 +202,30 @@ void AppearanceManager::init()
 
 void AppearanceManager::load_from_settings()
 {
-    KLOG_PROFILE("");
-
     for (const auto& key : this->appearance_settings_->list_keys())
     {
         this->on_settings_changed_cb(key);
+    }
+}
+
+void AppearanceManager::auto_switch_for_window_theme()
+{
+    auto current_datetime = Glib::DateTime::create_now_local();
+    auto current_hour = current_datetime.get_hour();
+    auto error_code = CCErrorCode::SUCCESS;
+
+    // 下午8点之后到早上8点之前判定为晚上，使用深色主题，否则使用浅色主题
+    auto theme_name = (current_hour < 8 || current_hour > 20) ? APPEARANCE_DEFAULT_DARK_GTK_THEME : APPEARANCE_DEFAULT_LIGHT_GTK_THEME;
+    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name),
+                                           error_code))
+    {
+        KLOG_WARNING("Failed to set window gtk theme: %x.", error_code);
+    }
+
+    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name),
+                                           error_code))
+    {
+        KLOG_WARNING("Failed to set window metacity theme: %x.", error_code);
     }
 }
 
@@ -216,11 +250,24 @@ void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)
     switch (shash(key.c_str()))
     {
     case CONNECT(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, _hash):
+    {
         this->desktop_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG));
         break;
+    }
     case CONNECT(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, _hash):
+    {
         this->lock_screen_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG));
         break;
+    }
+    case CONNECT(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, _hash):
+    {
+        this->AutoSwitchWindowTheme_set(this->appearance_settings_->get_boolean(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME));
+        if (this->AutoSwitchWindowTheme_get())
+        {
+            this->auto_switch_for_window_theme();
+        }
+        break;
+    }
     default:
         break;
     }

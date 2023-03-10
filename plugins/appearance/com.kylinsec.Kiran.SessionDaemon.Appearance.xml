@@ -23,6 +23,11 @@
             <description>Set the theme name for the type.</description>
         </method>
 
+        <method name="EnableAutoSwitchWindowTheme">
+            <description>Window theme automatically changes according to time. Cancel automatic switch when the SetTheme function is called 
+            and type is gtk theme or metacity theme.</description>
+        </method>
+
         <method name="GetTheme">
             <arg type="i" name="type" direction="in">
                 <summary>The theme type that contains gtk, icon and cursor, etc.</summary>
@@ -75,6 +80,11 @@
         <property name="lock_screen_background" type="s" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>The file path of lock screen background.</description>
+        </property>
+
+        <property name="AutoSwitchWindowTheme" type="b" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Whether turn on automatic window theme switching.</description>
         </property>
 
         <signal name="ThemeChanged">
