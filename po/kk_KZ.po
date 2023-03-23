@@ -1,0 +1,1307 @@
+# Chinese translations for kiran package
+# kiran 软件包的简体中文翻译.
+# Copyright (C) 2020 THE kiran'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiran package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiran-cc-daemon 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-20 10:04+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
+msgid "File to use for the desktop background image."
+msgstr "Жұмыс үстелінің фондық кескіні үшін қолданылатын файл."
+
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:2
+msgid "File to use for the lock screen background image."
+msgstr "Құлыптау экранының фондық кескіні үшін қолданылатын файл."
+
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:1
+msgid "Layout of connected monitors in the screen."
+msgstr "Экранда қосылған мониторлардың орналасуы."
+
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:2
+msgid ""
+"It takes effect immediately when the scaling factor of window is changed."
+msgstr ""
+"Бұл терезенің масштабтау коэффициенті өзгерген кезде бірден күшіне енеді."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
+msgid ""
+"Whether repeat to trigger KeyPress and KeyRelease event when key is pressed."
+msgstr ""
+"Кілт басылған кезде KeyPress және KeyReission оқиғасын бастау үшін "
+"қайталаңыз ба."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
+msgid ""
+"The delay time in ms after the initial press of an auto-repeating key and "
+"the first generated repeat event."
+msgstr ""
+"Авто қайталанатын кілтті және алғашқы қайталанған оқиғаны басқаннан кейін "
+"ms-тегі кідіріс уақыты."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
+msgid "The delay time in ms between all subsequent generated repeat events."
+msgstr "Барлық кейінгі қайталанған оқиғалар арасындағы кідіріс уақыты."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
+msgid "Keyboard layouts."
+msgstr "Пернетақтаның макеттері."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
+msgid "Keyboard options."
+msgstr "Пернетақта нұсқалары."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
+msgid "Swap left and right buttons for left-handed."
+msgstr "Сол жақтағы сол және оң жақ батырмаларды ауыстырыңыз."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
+msgid "Acceleration multiplier for mouse motion."
+msgstr "Тінтуірдің қозғалысына арналған үдеткіш мультипликатор."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
+msgid ""
+"Enables middle mouse button emulation through simultaneous left and right "
+"button click."
+msgstr ""
+"Сол және оң жақ батырмаларды бір уақытта басу арқылы тінтуірдің ортаңғы "
+"батырмасын эмуляциялауға мүмкіндік береді."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
+msgid ""
+"Enables or disables natural scroll. Natural scrolling is the terminology for"
+" moving the content in the direction of scrolling, i.e. moving the wheel or "
+"fingers down moves the page down."
+msgstr ""
+"Табиғи айналдырғыштар немесе айнымалы. Табиғи айналдыру - бұл мазмұнды "
+"айналдыру бағытында, яғни доңғалақты немесе саусақтарды төмен қарай жылжыту "
+"үшін терминология."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
+msgid "Indicates if diable while typing is enabled or disabled."
+msgstr "Теру кезінде теруге болатын немесе қосылмайтындығын көрсетеді."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
+msgid ""
+"Set this to TRUE to be able to send mouse clicks by tapping on the touchpad."
+msgstr ""
+"Сенсор тақтасын түрту арқылы тінтуірдің басқыштарын жібере алатындай етіп "
+"оны TRUE қойыңыз."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
+msgid ""
+"Enables a click method. Permitted methods are buttonareas and clickfinger, "
+"respectively conreesponding to 0 and 1."
+msgstr ""
+"Басу әдісін қосады. Рұқсат етілген әдістер - сәйкесінше 0 және 1-ге сәйкес "
+"келетін түймелер мен кликфингер."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
+msgid ""
+"Enables a scroll method. Permitted methods are twofinger, edge and button, "
+"respectively conrresponding to 0, 1 and 2."
+msgstr ""
+"Айналдыру әдісін қосады. Рұқсат етілген әдістер сәйкесінше 0, 1 және 2 "
+"сәйкес келетін екі саусақ, жиек және түйме болып табылады."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
+msgid "Set this to TRUE to enable all touchpads."
+msgstr "Мұны барлық сенсорлық қондырғыларды қосу үшін TRUE-ге орнатыңыз."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
+msgid "Acceleration multiplier for touchpad motion."
+msgstr "Сенсорлы қозғалысқа арналған үдеткіш."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
+msgid ""
+"Maximum time allowed between two clicks for them to be considered a double "
+"click (in milliseconds)."
+msgstr ""
+"Екі рет басу арасындағы ең көп уақыт, миллисекундта ( екі рет басу деп "
+"санауға болады."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
+msgid ""
+"Maximum distance allowed between two clicks for them to be considered a "
+"double click (in pixels)."
+msgstr ""
+"Екі рет басу арасындағы максималды қашықтық, олар пиксельде ( қос рет басу "
+"ретінде қарастырылуы мүмкін."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
+msgid "Number of pixels the cursor can move before dragging."
+msgstr "Курсор сүйрегенге дейін қозғалатын пиксельдер саны."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
+msgid "Whether the cursor should blink."
+msgstr "Курсор жыпылықтауы керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
+msgid "Length of the cursor blink cycle, in milleseconds."
+msgstr "Курсордың жыпылықтайтын циклінің ұзындығы, миллисекундта."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
+msgid "Name of gtk theme to use."
+msgstr "Пайдаланылатын gtk тақырыбының атауы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
+msgid "Name of icon theme to use for icons."
+msgstr "Мұз айдындары үшін қолданылатын белгішенің тақырыбының атауы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
+msgid "Whether to play sounds on user events."
+msgstr "Пайдаланушы оқиғаларында дыбыс ойнау керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
+msgid "The XDG sound theme to use for event sounds."
+msgstr "Оқиға дыбыстары үшін қолданылатын XDG дыбыстық тақырыбы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
+msgid "Whether to play sounds on input events."
+msgstr "Кіріс оқиғаларында дыбыстарды ойнау керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
+msgid "Whether to antialias Xft fonts; 0=no, 1=yes, -1=default."
+msgstr ""
+"Антиалияға қарсы Xft шрифтіне қарамастан; 0 = жоқ, 1 = иә, -1 = әдепкі."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
+msgid "Whether to hint Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "Xft шрифтін айту керек пе; 0 = жоқ, 1 = иә, -1 = әдепкі."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
+msgid ""
+"What degree of hinting to use; \"hintnone\", \"hintslight\", \"hintmedium\","
+" or \"hintfull\"."
+msgstr ""
+"Қолдану дәрежесі қандай; «хинтон», «хинчайт», «гинтрек» немесе «хинтуаль»\"."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
+msgid "Type of subpixel antialiasing; \"none\", \"rgb\", \"bgr\", \"vrgb\", \"vbgr\"."
+msgstr "Субпиксельді антиализация түрі; «жоқ», «rgb», «bgr», «vrgb», «vbgr»\"."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
+msgid ""
+"Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not "
+"modify it manually."
+msgstr ""
+"Xft шешімі, 1024 * нүктелер / дюймдер. -1 әдепкі мәнді қолдану. Қолмен "
+"өзгертпеңіз."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
+msgid "Name of the cursor theme."
+msgstr "Курсор тақырыбының атауы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
+msgid "Size of the cursor referenced by cursor_theme."
+msgstr "Курсор_темамен көрсетілген курсордың мөлшері."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
+msgid "Name of default font to use."
+msgstr "Пайдаланылатын әдепкі қаріптің атауы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
+msgid "Name of key theme RC file to load."
+msgstr "Жүктеуге арналған RC негізгі тақырыбының атауы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
+msgid ""
+"Whether default toolbars have text only, text and icons, icons only, etc."
+msgstr ""
+"Әдепкі құралдарда тек мәтін, мәтін және белгішелер, белгішелер және т.б. бар"
+" ма."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
+msgid "Size of icons in default toolbars."
+msgstr "Әдепкі құралдардағы белгішелердің мөлшері."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
+msgid "How to draw the input method preedit string."
+msgstr "Кіріс әдісін алдын-ала жолды қалай сызуға болады."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
+msgid "How to draw the input method statusbar."
+msgstr "Кіріс әдісінің күй тақтасын қалай сызуға болады."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
+msgid "Name of the input method module used by GTK+."
+msgstr "GTK + пайдаланатын енгізу әдісі модулінің атауы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
+msgid "Whether images should be shown in menus."
+msgstr "Суреттер мәзірде көрсетілуі керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
+msgid "Whether stock icons should be shown in buttons."
+msgstr "Қораптағы белгішелерді түймелерде көрсету керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
+msgid "The accelerator for moving the focus to the menubar."
+msgstr "Фокусты менубарға жылжытуға арналған үдеткіш."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
+msgid ""
+"A '\\n' separated list of \"name:color\" as defined by the 'gtk-color-"
+"scheme' setting"
+msgstr ""
+"A 'name' бөлінген «атауы: түсі» 'гтк-колор-схема' параметрімен анықталған"
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
+msgid ""
+"Module to use as the filesystem model for the GtkFileChooser widget. "
+"Possible values are \"gio\" and \"gtk+\"."
+msgstr ""
+"GtkFileChooser виджеті үшін файлдық жүйе моделі ретінде пайдалануға арналған"
+" модуль. Мүмкін болатын мәндер - «гио» және «гтк +»\"."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
+msgid ""
+"This setting determines which buttons should be put in the titlebar of "
+"client-side decorated windows, and whether they should be placed at the left"
+" of right."
+msgstr ""
+"Бұл параметр клиенттің безендірілген терезелерінің тақтасына қандай "
+"батырмаларды қою керектігін және оларды оң жақтың сол жағында орналастыру "
+"керектігін анықтайды."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
+msgid ""
+"This setting determines where application menu will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"Бұл параметр қолданбалы мәзірдің терезеде немесе MenuModel протоколы бар "
+"панельде қай жерде көрсетілетінін анықтайды."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
+msgid ""
+"This setting determines where window menubars will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"Бұл параметр терезе мәзірлері терезеде немесе MenuModel протоколы бар "
+"панельде қай жерде көрсетілетінін анықтайды."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
+msgid ""
+"Whether the context menus of entries and text views should offer to change "
+"the input method."
+msgstr ""
+"Кірістіру әдісін өзгерту үшін жазбалар мен мәтіндік көзқарастардың "
+"мәтінмәндік мәзірлері ұсынылуы керек."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
+msgid ""
+"Whether the context menus of entries and text views should offer to insert "
+"control characters."
+msgstr ""
+"Мәтіндік көріністер мен мәтіндік көріністердің мәтінмәндік мәзірлері басқару"
+" таңбаларын енгізуді ұсынуы керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
+msgid ""
+"Whether mnemonics should be automatically shown and hidden when the user "
+"presses the Alt key."
+msgstr ""
+"Пайдаланушы Alt пернесін басқан кезде мнемоника автоматты түрде көрсетілуі "
+"және жасырылуы керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
+msgid ""
+"If true, gtk+ uses the primary paste selection, usually triggered by a "
+"middle mouse button click."
+msgstr ""
+"Егер рас болса, gtk + әдетте тінтуірдің ортаңғы батырмасын басу арқылы "
+"басталатын бастапқы паста таңдауын қолданады."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
+msgid "Whether to enable toolkit-wide animations."
+msgstr "Құралдар жиынтығын жануарларға қосу керек пе."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
+msgid ""
+"Whether builtin GTK+ dialogs such as the file chooser, the color chooser or "
+"the font chooser will use a header bar at the top to show action widgets, or"
+" an action area at the bottom."
+msgstr ""
+"Кіріктірілген GTK + диалогтары, мысалы, файлды таңдау, түсті таңдау немесе "
+"шрифт таңдау құралы іс-әрекеттің виджеттерін көрсету үшін жоғарғы жағындағы "
+"үстіңгі жолақты пайдаланады ма, немесе төменгі жағындағы әрекет аймағы."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
+msgid ""
+"This controls the GTK scale factor that maps from window coordinates to the "
+"actual device pixels."
+msgstr ""
+"Бұл терезе координаттарынан құрылғының нақты пикселдеріне дейінгі GTK "
+"шкаласының коэффициентін басқарады."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
+msgid ""
+"This setting determines whether MATE controls the scale factor for QT "
+"applications."
+msgstr ""
+"Бұл параметр MATE QT қолдану үшін шкалалық факторды басқаратындығын "
+"анықтайды."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
+msgid "Change your own user data"
+msgstr "Пайдаланушының жеке деректерін өзгертіңіз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:2
+msgid "Authentication is required to change your own user data"
+msgstr "Жеке пайдаланушы деректерін өзгерту үшін аутентификация қажет"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:3
+msgid "Change your own user password"
+msgstr "Пайдаланушының паролін өзгертіңіз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:4
+msgid "Authentication is required to change your own user password"
+msgstr "Жеке пайдаланушы паролін өзгерту үшін аутентификация қажет"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:5
+msgid "Manage user accounts"
+msgstr "Пайдаланушы шоттарын басқару"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:6
+msgid "Authentication is required to change user data"
+msgstr "Пайдаланушы деректерін өзгерту үшін аутентификация қажет"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:7
+msgid "Change the login screen configuration"
+msgstr "Кіру экранының конфигурациясын өзгертіңіз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:8
+msgid "Authentication is required to change the login screen configuration"
+msgstr "Репортер экранының конфигурациясын өзгерту үшін аутентификация қажет"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:1
+msgid "Set system time"
+msgstr "Жүйе уақытын орнатыңыз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:2
+msgid "Authentication is required to set the system time."
+msgstr "Жүйенің уақытын белгілеу үшін аутентификация қажет."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:3
+msgid "Set system timezone"
+msgstr "Жүйенің уақыт белдеуін орнатыңыз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:4
+msgid "Authentication is required to set the system timezone."
+msgstr "Жүйенің уақыт белдеуін орнату үшін аутентификация қажет."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:5
+msgid "Set RTC to local timezone or UTC"
+msgstr "Жергілікті уақыт белдеуіне немесе UTC-ге RTC орнатыңыз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:6
+msgid ""
+"Authentication is required to control whether the RTC stores the local or "
+"UTC time."
+msgstr ""
+"Растау RTC жергілікті немесе UTC уақытын сақтайтындығын бақылау үшін қажет."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:7
+msgid "Turn network time synchronization on or off"
+msgstr "Желілік уақытты синхрондауды қосу немесе өшіру"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:8
+msgid ""
+"Authentication is required to control whether network time synchronization "
+"shall be enabled."
+msgstr ""
+"Желінің уақытын синхрондаудың қосылатындығын бақылау үшін аутентификация "
+"қажет."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
+msgid "Greeter settings"
+msgstr "Гретер параметрлері"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr "Гретерді орнату үшін аутентификация қажет."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "Хост атауын орнатыңыз"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr "Хост атауын орнату үшін аутентификация қажет."
+
+#: ../src/main.cpp:63
+msgid "Output version infomation and exit"
+msgstr "Шығару нұсқасы"
+
+#: ../src/main.cpp:89
+msgid "Control center"
+msgstr "Басқару орталығы"
+
+#: ../lib/base/error.cpp:34
+msgid "The argument is invalid."
+msgstr "Дәлел жарамсыз."
+
+#: ../lib/base/error.cpp:37
+msgid "Operation failed."
+msgstr "Пайдалану сәтсіз аяқталды."
+
+#: ../lib/base/error.cpp:41
+msgid "The plugin doesn't exist."
+msgstr "Плагин жоқ."
+
+#: ../lib/base/error.cpp:48
+msgid "No user found."
+msgstr "Пайдаланушы табылмады."
+
+#: ../lib/base/error.cpp:51
+msgid "Multiple users have the same authentication data."
+msgstr "Бірнеше пайдаланушының түпнұсқалық растама деректері бірдей."
+
+#: ../lib/base/error.cpp:54
+msgid ""
+"The user is already logined in, Please log off the user before deleting it."
+msgstr "Пайдаланушы кіріп кеткен, оны жоймас бұрын оны өшіріп қойыңыз."
+
+#: ../lib/base/error.cpp:57
+msgid "The user already exists."
+msgstr "Пайдаланушы бұрыннан бар."
+
+#: ../lib/base/error.cpp:60
+msgid "Unknown account type."
+msgstr "Тіркелгі түрі белгісіз."
+
+#: ../lib/base/error.cpp:63
+msgid "Can't update password file."
+msgstr "Пароль файлын жаңарту мүмкін емес."
+
+#: ../lib/base/error.cpp:66
+msgid "Invalid command syntax."
+msgstr "Жарамсыз командалық синтаксис."
+
+#: ../lib/base/error.cpp:69
+msgid "Invalid argument to option."
+msgstr "Опционға жарамсыз дәлел."
+
+#: ../lib/base/error.cpp:72
+msgid "UID already in use."
+msgstr "UID қазірдің өзінде қолданылуда."
+
+#: ../lib/base/error.cpp:75
+msgid "Passwd file contains errors."
+msgstr "Passwd файлында қателер бар."
+
+#: ../lib/base/error.cpp:78
+msgid "Specified user/group doesn't exist."
+msgstr "Көрсетілген пайдаланушы / топ жоқ."
+
+#: ../lib/base/error.cpp:81
+msgid "User to modify is logged in."
+msgstr "Өзгерту үшін пайдаланушы кіреді."
+
+#: ../lib/base/error.cpp:84
+msgid "Username already in use."
+msgstr "Аusername қазірдің өзінде қолданылуда."
+
+#: ../lib/base/error.cpp:87
+msgid "Can't update group file."
+msgstr "Топтық файлды жаңарту мүмкін емес."
+
+#: ../lib/base/error.cpp:90
+msgid "Insufficient space to move home dir."
+msgstr "Үйге көшу үшін орын жеткіліксіз."
+
+#: ../lib/base/error.cpp:93
+msgid "Can't create/remove/move home directory."
+msgstr "Үй каталогын құру / шығару / жылжыту мүмкін емес."
+
+#: ../lib/base/error.cpp:97
+msgid "Can't update SELinux user mapping."
+msgstr "SELinux пайдаланушысының картасын жаңарту мүмкін емес."
+
+#: ../lib/base/error.cpp:100
+msgid "Can't update the subordinate uid file."
+msgstr "Субъективті Uid файлын жаңарту мүмкін емес."
+
+#: ../lib/base/error.cpp:103
+msgid "Can't update the subordinate gid file."
+msgstr "Субъективті gid файлын жаңарту мүмкін емес."
+
+#: ../lib/base/error.cpp:106
+msgid "Refuse to delete root user."
+msgstr "Түбір пайдаланушысын жоюдан бас тарту."
+
+#: ../lib/base/error.cpp:109
+msgid "Refuse to delete three authority user."
+msgstr "Үш уәкілетті пайдаланушыны жоюдан бас тарту."
+
+#: ../lib/base/error.cpp:115
+msgid "The authentication mode isn't supported."
+msgstr "Аутентификация режимі қолдау көрсетілмейді."
+
+#: ../lib/base/error.cpp:118
+msgid "User is locked."
+msgstr "Пайдаланушы құлыпталған."
+
+#: ../lib/base/error.cpp:121
+msgid "The name already exists."
+msgstr "Аты бұрыннан бар."
+
+#: ../lib/base/error.cpp:124
+msgid "A user is modifying the password."
+msgstr "Пайдаланушы парольді өзгертуде."
+
+#: ../lib/base/error.cpp:127
+msgid "{0}"
+msgstr "{ 0 }"
+
+#: ../lib/base/error.cpp:131
+msgid "The range of volume is between 0 and 1.0."
+msgstr "Көлемнің ауқымы 0-ден 1,0-ге дейін."
+
+#: ../lib/base/error.cpp:135
+msgid "The range of balance is between -1 and 1."
+msgstr "Тепе-теңдік диапазоны -1 мен 1 аралығында."
+
+#: ../lib/base/error.cpp:139
+msgid "The sink device isn't found."
+msgstr "Раковина құрылғысы табылмады."
+
+#: ../lib/base/error.cpp:143
+msgid "The source device isn't found."
+msgstr "Бастапқы құрылғы табылмады."
+
+#: ../lib/base/error.cpp:147
+msgid "The sink stream isn't found."
+msgstr "Раковина ағыны табылмады."
+
+#: ../lib/base/error.cpp:150
+msgid "NTP unit is active."
+msgstr "NTP блогы белсенді."
+
+#: ../lib/base/error.cpp:153
+msgid "Invalid timezone."
+msgstr "Жарамсыз уақыт аймағы."
+
+#: ../lib/base/error.cpp:156
+msgid "No NTP unit available."
+msgstr "NTP қондырғысы жоқ."
+
+#: ../lib/base/error.cpp:160
+msgid "Unknown date format type."
+msgstr "Белгісіз күн форматының түрі."
+
+#: ../lib/base/error.cpp:163
+msgid "Failed to set date format."
+msgstr "Күн форматын орната алмады."
+
+#: ../lib/base/error.cpp:166
+msgid "Failed to set hour format."
+msgstr "Сағат форматын орната алмады."
+
+#: ../lib/base/error.cpp:169
+msgid "Failed to set seconds showing."
+msgstr "Көрсететін секундтарды сәтсіз аяқтады."
+
+#: ../lib/base/error.cpp:172
+msgid "Failed to start NTP unit."
+msgstr "NTP қондырғысын іске қосу сәтсіз аяқталды."
+
+#: ../lib/base/error.cpp:175
+msgid "Failed to stop NTP unit."
+msgstr "NTP қондырғысын тоқтата алмады."
+
+#: ../lib/base/error.cpp:179
+msgid "Unknown display style."
+msgstr "Белгісіз дисплей стилі."
+
+#: ../lib/base/error.cpp:182
+msgid ""
+"The mode of monitors which contain resolution and refresh rate is no "
+"intersection."
+msgstr ""
+"Ажыратымдылық пен жаңару жылдамдығы бар мониторлардың режимі қиылыспайды."
+
+#: ../lib/base/error.cpp:185
+msgid "Auto mode is set failed."
+msgstr "Авто режимі сәтсіз аяқталды."
+
+#: ../lib/base/error.cpp:189
+msgid "Failed to set the window scaling factor."
+msgstr "Терезенің масштабтау коэффициентін орната алмады."
+
+#: ../lib/base/error.cpp:192
+msgid "The custom configuration file isn't found."
+msgstr "Жеке конфигурация файлы табылмайды."
+
+#: ../lib/base/error.cpp:195
+msgid "Not found matched item in custom configuration file."
+msgstr "Әдеттегі конфигурация файлында сәйкес элемент табылмады."
+
+#: ../lib/base/error.cpp:198
+msgid "The primary monitor must not be empty."
+msgstr "Бастапқы монитор бос болмауы керек."
+
+#: ../lib/base/error.cpp:201
+msgid "Not found the primary monitor."
+msgstr "Бастапқы монитор табылмады."
+
+#: ../lib/base/error.cpp:204
+msgid ""
+"Cannot disable the monitor, because the number of the enabled monitor is "
+"less than 1."
+msgstr ""
+"Мониторды өшіру мүмкін емес, өйткені қосылған монитордың саны 1-ден аз."
+
+#: ../lib/base/error.cpp:207
+msgid "Exist null mode in mode list."
+msgstr "Нөлдік режимді режимдер тізіміне енгізіңіз."
+
+#: ../lib/base/error.cpp:210
+msgid "Exist null mode in preferred mode list."
+msgstr "Бос режимді артықшылықты режим тізіміне енгізіңіз."
+
+#: ../lib/base/error.cpp:213
+msgid "The current mode is not exist."
+msgstr "Ағымдағы режим жоқ."
+
+#: ../lib/base/error.cpp:217
+msgid "Not found match mode."
+msgstr "Сәйкестік режимі табылмады."
+
+#: ../lib/base/error.cpp:220
+msgid "The mode is not exist."
+msgstr "Режим жоқ."
+
+#: ../lib/base/error.cpp:223
+msgid "Unknown rotation type."
+msgstr "Белгісіз айналу түрі."
+
+#: ../lib/base/error.cpp:226
+msgid "Unknown reflect type."
+msgstr "Белгісіз шағылыс түрі."
+
+#: ../lib/base/error.cpp:229
+msgid "The current settings cannot be applied."
+msgstr "Қазіргі параметрлерді қолдану мүмкін емес."
+
+#: ../lib/base/error.cpp:232
+msgid "Theme not exist."
+msgstr "Тақырып жоқ."
+
+#: ../lib/base/error.cpp:235
+msgid "Unsupported theme type."
+msgstr "Қолдау көрсетілмейтін тақырып түрі."
+
+#: ../lib/base/error.cpp:238
+msgid "Invalid theme type."
+msgstr "Жарамсыз тақырып түрі."
+
+#: ../lib/base/error.cpp:242
+msgid "Invalid font type."
+msgstr "Жарамсыз шрифт түрі."
+
+#: ../lib/base/error.cpp:245
+msgid "Unsupported font type."
+msgstr "Қолайсыз шрифт түрі."
+
+#: ../lib/base/error.cpp:248
+msgid "An incomplete request already exists."
+msgstr "Толық емес сұраныс бұрыннан бар."
+
+#: ../lib/base/error.cpp:251
+msgid "The request is canceled."
+msgstr "Сұраныс жойылды."
+
+#: ../lib/base/error.cpp:257
+msgid "The request is rejected."
+msgstr "Өтініш қабылданбады."
+
+#: ../lib/base/error.cpp:260
+msgid "Not found adapter."
+msgstr "Бейімделмеді."
+
+#: ../lib/base/error.cpp:268
+msgid "Sync to file failed."
+msgstr "Сәтсіз жіберу үшін синхрондау сәтсіз аяқталды."
+
+#: ../lib/base/error.cpp:274
+msgid "Invalid scale mode."
+msgstr "Жарамсыз шкала режимі."
+
+#: ../lib/base/error.cpp:277
+msgid "The number of the layout can't exceeds {0}."
+msgstr "Орналасу саны { 0 } аспауы керек."
+
+#: ../lib/base/error.cpp:280
+msgid "The layout is invalid."
+msgstr "Орналасу жарамсыз."
+
+#: ../lib/base/error.cpp:283
+msgid "The layout already exist."
+msgstr "Орналасу бұрыннан бар."
+
+#: ../lib/base/error.cpp:286
+msgid "Failed to set the layout."
+msgstr "Орналасуды орната алмады."
+
+#: ../lib/base/error.cpp:289
+msgid "The layout is no exist."
+msgstr "Орналасу жоқ."
+
+#: ../lib/base/error.cpp:292
+msgid "Failed to update the layout."
+msgstr "Орналасуды жаңарта алмады."
+
+#: ../lib/base/error.cpp:295
+msgid "The layout option already exist."
+msgstr "Орналастыру опциясы бұрыннан бар."
+
+#: ../lib/base/error.cpp:298
+msgid "Failed to set the layout option."
+msgstr "Орналастыру опциясын орната алмады."
+
+#: ../lib/base/error.cpp:301
+msgid "The layout option is no exist."
+msgstr "Орналастыру опциясы жоқ."
+
+#: ../lib/base/error.cpp:304
+msgid "Failed to update the layout option."
+msgstr "Орналастыру опциясын жаңарта алмады."
+
+#: ../lib/base/error.cpp:307
+msgid "Failed to clear the layout option."
+msgstr "Орналастыру опциясын өшіре алмады."
+
+#: ../lib/base/error.cpp:310
+msgid "The custom shortcut isn't exist."
+msgstr "Әдеттегі сілтеме жоқ."
+
+#: ../lib/base/error.cpp:314
+msgid "The key combination already exist."
+msgstr "Кілттердің тіркесімі бұрыннан бар."
+
+#: ../lib/base/error.cpp:318
+msgid "The key combination is invalid."
+msgstr "Кілттердің тіркесімі жарамсыз."
+
+#: ../lib/base/error.cpp:321
+msgid "The system shortcut isn't exist."
+msgstr "Жүйенің төте жолы жоқ."
+
+#: ../lib/base/error.cpp:327
+msgid "Unsupported power supply mode."
+msgstr "Қолдау көрсетілмейтін қуат режимі."
+
+#: ../lib/base/error.cpp:333
+msgid "Unsupported power device."
+msgstr "Қолдау көрсетілмейтін қуат құрылғысы."
+
+#: ../lib/base/error.cpp:336
+msgid "The value must be between 0 and 100."
+msgstr "Мән 0-ден 100-ге дейін болуы керек."
+
+#: ../lib/base/error.cpp:340
+msgid "Unknown power action."
+msgstr "Белгісіз күш әрекеті."
+
+#: ../lib/base/error.cpp:344
+msgid "Unsupported power event."
+msgstr "Қолдау көрсетілмейтін қуат оқиғасы."
+
+#: ../lib/base/error.cpp:347
+msgid "Failed to set the action."
+msgstr "Әрекетті орната алмады."
+
+#: ../lib/base/error.cpp:350
+msgid "Failed to set brightness."
+msgstr "Жарықтылықты орната алмады."
+
+#: ../lib/base/error.cpp:353
+msgid "The systeminfo type is invalid."
+msgstr "Жүйелік түрі жарамсыз."
+
+#: ../lib/base/error.cpp:356
+msgid "Failed to set host name."
+msgstr "Хост атауын орната алмады."
+
+#: ../lib/base/error.cpp:359
+msgid "Not found the property."
+msgstr "Мүлік табылмады."
+
+#: ../lib/base/error.cpp:362
+msgid "The type is mismatch."
+msgstr "Түрі сәйкес келмейді."
+
+#: ../lib/base/error.cpp:365
+msgid "The property is invalid."
+msgstr "Меншік жарамсыз."
+
+#: ../lib/base/error.cpp:368
+msgid "The property must not be modified manually."
+msgstr "Мүлік қолмен өзгертілмеуі керек."
+
+#: ../lib/base/error.cpp:371
+msgid "The property is unsupported."
+msgstr "Меншік қолдау көрсетілмейді."
+
+#: ../lib/base/error.cpp:375
+msgid "Arguments invalid."
+msgstr "Дәлелдер жарамсыз."
+
+#: ../lib/base/error.cpp:378
+msgid "The network proxy mode is invalid."
+msgstr "Желінің прокси режимі жарамсыз."
+
+#: ../lib/base/error.cpp:381
+msgid "The current network proxy mode is not manual."
+msgstr "Ағымдағы желінің прокси режимі нұсқаулық емес."
+
+#: ../lib/base/error.cpp:384
+msgid "The current network proxy mode is not auto."
+msgstr "Ағымдағы желінің прокси режимі автоматты емес."
+
+#: ../lib/base/error.cpp:425
+msgid "Internel error."
+msgstr "Интернационалды қате."
+
+#: ../lib/base/error.cpp:428 ../lib/base/error.cpp:431
+msgid "Unknown error."
+msgstr "Белгісіз қате."
+
+#: ../lib/base/error.cpp:437 ../plugins/accounts/accounts-util.cpp:209
+msgid " (error code: 0x{:x})"
+msgstr "( қате коды: 0x {: x } ) <TAG1>"
+
+#: ../lib/dbus/auth-manager.cpp:147
+msgid "Authorization failed"
+msgstr "Авторизация сәтсіз аяқталды"
+
+#: ../plugins/accounts/accounts-util.cpp:205
+msgid " ({0}, error code: 0x{1:x})"
+msgstr "( { 0 }, қате коды: 0x { 1: x } ) <TAG1>"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:373
+msgid "The password contains less than {0} character classes."
+msgstr "Парольде { 0 } таңбалар кластары аз."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:374
+msgid "The password contains less than {0} digits."
+msgstr "Парольде { 0 } цифрларынан аз сан бар."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:375
+msgid "The password contains less than {0} lowercase letters."
+msgstr "Парольде { 0 } кіші әріптерден аз әріптер бар."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:376
+msgid "The password contains less than {0} non-alphanumeric characters."
+msgstr "Парольде { 0 } әріптік-сандық емес таңбалардан аз болады."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:377
+msgid "The password contains less than {0} uppercase letters."
+msgstr "Парольде { 0 } бас әріптерден аз әріптер бар."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:378
+msgid "The password contains monotonic sequence longer than {0} characters."
+msgstr "Парольде { 0 } таңбаларынан ұзағырақ монотонды реттілік бар."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:379
+msgid ""
+"The password contains more than {0} characters of the same class "
+"consecutively."
+msgstr "Парольде бірізді түрде бір сыныптағы { 0 } таңбалары бар."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:380
+msgid "The password contains more than {0} same characters consecutively."
+msgstr "Парольде дәйекті түрде { 0 } -ден көп таңбалар бар."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:381
+msgid "The password is shorter than {0} characters."
+msgstr "Пароль { 0 } таңбаларынан қысқа."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:444
+msgid "Password modification timeout."
+msgstr "Парольді өзгерту уақыты."
+
+#: ../plugins/timedate/timedate-format.cpp:137
+#: ../plugins/timedate/timedate-format.cpp:138
+#: ../plugins/timedate/timedate-format.cpp:139
+msgid "%b %d %Y"
+msgstr "%b%%%% Y"
+
+#: ../plugins/display/display-manager.cpp:195
+msgid ""
+"The scaling rate can only take effect after logging out and logging in again"
+msgstr ""
+"Масштабтау жылдамдығы тек тіркеліп, қайта кіргеннен кейін күшіне енеді"
+
+#: ../plugins/keybinding/custom-shortcut.h:25
+msgid "Custom"
+msgstr "Клиент"
+
+#: ../plugins/power/power-utils.cpp:26
+msgid "Less than 1 minute"
+msgstr "1 минуттан аз"
+
+#: ../plugins/power/power-utils.cpp:30
+msgid "{0} minute"
+msgid_plural "{0} minutes"
+msgstr[0] "{ 0 } минут"
+
+#: ../plugins/power/power-utils.cpp:38
+msgid "{0} hour"
+msgid_plural "{0} hours"
+msgstr[0] "{ 0 } сағат"
+
+#: ../plugins/power/power-utils.cpp:44
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "сағат"
+
+#: ../plugins/power/power-utils.cpp:46
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "минут"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:115
+msgid "Battery Discharging"
+msgstr "Батарея Зарядтау"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:116
+msgid "{0} of battery power remaining ({1:.1f}%)"
+msgstr "{ 0 } қалған батарея қуаты ( 1:.1f {% }"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:121
+msgid "UPS Discharging"
+msgstr "UPS Зарядтау"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:122
+msgid "{0} of UPS backup power remaining ({1:.1f}%)"
+msgstr "{ 0 } UPS резервтік қуаты ( 1:.1f {% }"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:139
+msgid "Battery Charged"
+msgstr "Батарея зарядталған"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:163
+msgid "Battery low"
+msgstr "Батарея деңгейі төмен"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:164
+msgid "Approximately <b>{0}</b> remaining ({1:.1f}%)"
+msgstr "Шамамен < b > { } < > / b ( қалған { } 1:.1f ) <TAG1>"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:171
+msgid "UPS low"
+msgstr "UPS төмен"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:172
+msgid "Approximately <b>{0}</b> of remaining UPS backup power ({1:.1f}%)"
+msgstr "Шамамен < b > { } < > қалған UPS резервтік қуаты ( { 1:.1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:178
+#: ../plugins/power/notification/power-notification-manager.cpp:246
+msgid "Mouse battery low"
+msgstr "Тышқанның батареясы аз"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:179
+msgid "Wireless mouse is low in power ({0:.1f}%)"
+msgstr "Сымсыз тінтуірдің қуаты төмен ( { 0:.1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:182
+#: ../plugins/power/notification/power-notification-manager.cpp:251
+msgid "Keyboard battery low"
+msgstr "Пернетақта батареясы аз"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:183
+msgid "Wireless keyboard is low in power ({0:.1f}%)"
+msgstr "Сымсыз пернетақта қуаты төмен ( { 0:.1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:186
+#: ../plugins/power/notification/power-notification-manager.cpp:256
+msgid "PDA battery low"
+msgstr "PDA батареясы аз"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:187
+msgid "PDA is low in power ({0:.1f}%)"
+msgstr "PDA қуаты төмен ( { 0:.1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:190
+#: ../plugins/power/notification/power-notification-manager.cpp:261
+#: ../plugins/power/notification/power-notification-manager.cpp:266
+msgid "Cell phone battery low"
+msgstr "Ұялы телефонның батареясы төмен"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:191
+msgid "Cell phone is low in power ({0:.1f}%)"
+msgstr "Ұялы телефонның қуаты төмен ( { 0:.1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:194
+msgid "Media player battery low"
+msgstr "Медиа ойнатқыштың батареясы аз"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:195
+msgid "Media player is low in power ({0:1f}%)"
+msgstr "Медиа ойнатқыштың қуаты төмен ( { 0: 1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:198
+#: ../plugins/power/notification/power-notification-manager.cpp:271
+msgid "Tablet battery low"
+msgstr "Планшеттік батарея аз"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:199
+msgid "Tablet is low in power ({0:1f}%)"
+msgstr "Планшеттің қуаты төмен ( { 0: 1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:202
+#: ../plugins/power/notification/power-notification-manager.cpp:276
+msgid "Attached computer battery low"
+msgstr "Бекітілген компьютерлік батарея аз"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:203
+msgid "Attached computer is low in power ({0:.1f}%)"
+msgstr "Бекітілген компьютердің қуаты төмен ( { 0:.1f }% )"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:233
+msgid "Battery critically low"
+msgstr "Батарея өте төмен"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:234
+msgid ""
+"Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to "
+"avoid losing data."
+msgstr ""
+"Шамамен < b > { } < > / b ( қалған { 1:.1f } ). Деректерді жоғалтпау үшін "
+"айнымалы токқа бейімдеңіз."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:240
+#: ../plugins/power/notification/power-notification-manager.cpp:333
+msgid "UPS critically low"
+msgstr "UPS өте төмен"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:241
+msgid ""
+"Approximately <b>{0}</b> of remaining UPS power ({1:.1f}%). Restore AC power"
+" to your computer to avoid losing data."
+msgstr ""
+"Шамамен қалған UPS қуаты < > { } < / b > қалған UPS қуаты ( { 1:.1f }% ). "
+"Деректерді жоғалтпау үшін айнымалы ток қуатын компьютеріңізге қалпына "
+"келтіріңіз."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:247
+msgid ""
+"Wireless mouse is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Сымсыз тінтуірдің қуаты өте төмен ( { 0:.1f }% ). Бұл құрылғы зарядталмаған "
+"жағдайда жақын арада жұмысын тоқтатады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:252
+msgid ""
+"Wireless keyboard is very low in power ({0:.1f}%). This device will soon "
+"stop functioning if not charged."
+msgstr ""
+"Сымсыз пернетақта өте төмен ( { 0:.1f }% ) <TAG1>. Бұл құрылғы зарядталмаған"
+" жағдайда жақын арада жұмысын тоқтатады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:257
+msgid ""
+"PDA is very low in power ({0:.1f}%). This device will soon stop functioning "
+"if not charged."
+msgstr ""
+"PDA қуаты өте төмен ( { 0:.1f }% ). Бұл құрылғы зарядталмаған жағдайда жақын"
+" арада жұмысын тоқтатады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:262
+msgid ""
+"Cell phone is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Ұялы телефонның қуаты өте төмен ( { 0:.1f }% ). Бұл құрылғы зарядталмаған "
+"жағдайда жақын арада жұмысын тоқтатады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:267
+msgid ""
+"Media player is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Медиа ойнатқыштың қуаты өте төмен ( { 0:.1f }% )>. Бұл құрылғы зарядталмаған"
+" жағдайда жақын арада жұмысын тоқтатады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:272
+msgid ""
+"Tablet is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Планшеттің қуаты өте төмен ( { 0:.1f }% ). Бұл құрылғы зарядталмаған "
+"жағдайда жақын арада жұмысын тоқтатады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:277
+msgid ""
+"Attached computer is very low in power ({0:.1f}%). The device will soon "
+"shutdown if not charged."
+msgstr ""
+"Бекітілген компьютердің қуаты өте төмен ( { 0:.1f }% ) <TAG1>. Егер "
+"зарядталмаса, құрылғы жақын арада өшіріледі."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:308
+msgid "Laptop battery critically low"
+msgstr "Ноутбук батареясы өте төмен"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:316
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+"Батарея критикалық деңгейден төмен және бұл компьютер тоқтата тұр. < br > < "
+"> b < NOTE: <TAG1>/b > Компьютерді уақытша күйде ұстау үшін аз қуат қажет."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:320
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"hibernate."
+msgstr "Батарея критикалық деңгейден төмен және бұл компьютер күтуге жақын."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:323
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"shutdown."
+msgstr "Батарея критикалық деңгейден төмен және бұл компьютер істен шығады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:326
+msgid ""
+"The battery is below the critical level and this computer will <b>power-"
+"off</b> when the battery becomes completely empty."
+msgstr ""
+"Батарея критикалық деңгейден төмен және бұл компьютер батарея толық бос "
+"болған кезде < b > қуаттан тыс < / b > болады."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:341
+msgid ""
+"The UPS is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+"UPS сыни деңгейден төмен және бұл компьютер тоқтата тұр. < br > < > b < "
+"NOTE: <TAG1>/b > Компьютерді уақытша күйде ұстау үшін аз қуат қажет."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:345
+msgid ""
+"The UPS is below the critical level and this computer is about to hibernate."
+msgstr "UPS сыни деңгейден төмен және бұл компьютер күтуге жақын."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:348
+msgid ""
+"The UPS is below the critical level and this computer is about to shutdown."
+msgstr ""
+"UPS критикалық деңгейден төмен және бұл компьютер жұмысын тоқтатпақшы."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:351
+msgid ""
+"The UPS is below the critical level and this computer will <b>power-off</b> "
+"when the UPS becomes completely empty."
+msgstr ""
+"UPS критикалық деңгейден төмен және бұл компьютер UPS толығымен бос болған "
+"кезде < b > қуаттан тыс < / b > болады."
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:86
+msgid "AC adapter"
+msgid_plural "AC adapters"
+msgstr[0] "Айнымалы"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:89
+msgid "Laptop battery"
+msgid_plural "Laptop batteries"
+msgstr[0] "Ноутбук батареясы"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:92
+msgid "UPS"
+msgid_plural "UPSs"
+msgstr[0] "UPS"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:95
+msgid "Monitor"
+msgid_plural "Monitors"
+msgstr[0] "Монитор"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:98
+msgid "Mouse"
+msgid_plural "Mice"
+msgstr[0] "Тышқан"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:101
+msgid "Keyboard"
+msgid_plural "Keyboards"
+msgstr[0] "Пернетақта"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:104
+msgid "PDA"
+msgid_plural "PDAs"
+msgstr[0] "PDA"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:107
+msgid "Cell phone"
+msgid_plural "Cell phones"
+msgstr[0] "Ұялы телефон"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:110
+msgid "Media player"
+msgid_plural "Media players"
+msgstr[0] "Медиа ойнатқыш"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:113
+msgid "Tablet"
+msgid_plural "Tablets"
+msgstr[0] "Планшет"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:116
+msgid "Computer"
+msgid_plural "Computers"
+msgstr[0] "Компьютер"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:119
+msgid "Unknown"
+msgid_plural "Unknown"
+msgstr[0] "Белгісіз"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:102
+msgid "This program can only be used by the root user"
+msgstr "Бұл бағдарламаны тек тамыр қолданушысы қолдана алады"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:109
+msgid "This program must only be run through pkexec"
+msgstr "Бұл бағдарлама тек pkexec арқылы іске қосылуы керек"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:118
+msgid "Could not set the value of the backlight"
+msgstr "Артқы жарық шамасын орната алмады"
+
+#. namespace  Kiran
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:1
+msgid "Power Manager"
+msgstr "Электр менеджері"
+
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
+msgid "Power management daemon"
+msgstr "Электр қуатын басқару демон"

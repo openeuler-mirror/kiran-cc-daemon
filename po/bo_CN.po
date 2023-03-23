@@ -1,0 +1,1317 @@
+# Chinese translations for kiran package
+# kiran 软件包的简体中文翻译.
+# Copyright (C) 2020 THE kiran'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiran package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiran-cc-daemon 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-20 10:04+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
+msgid "File to use for the desktop background image."
+msgstr "ས་ལ་སྤྱོད་པའི་ཅོག་ངོས་རྒྱབ་ལྗོངས་པར་རིས་ཡིག་ཆ། "
+
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:2
+msgid "File to use for the lock screen background image."
+msgstr "སྤྱོད་于锁屏རྒྱབ་ལྗོངས་པར་རིས་ཡིག་ཆ། "
+
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:1
+msgid "Layout of connected monitors in the screen."
+msgstr "བརྙན་ཤེལ་ནང་སྦྲེལ་བརྡ་སྟོན་ཡོ་ཆས་བཀོད་པ། "
+
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:2
+msgid ""
+"It takes effect immediately when the scaling factor of window is changed."
+msgstr ""
+"ང་ཚོ་འི་སྐར་ཁུང་བསྡུར་ཚད་གྱི་རྐྱེན་གྲངས་འགྱུར་ལྡོག་བྱུང་བའི་ཚེ། "
+"དེས་འཕྲལ་མར་ནུས་པ་འཐོན་རྒྱུ། "
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
+msgid ""
+"Whether repeat to trigger KeyPress and KeyRelease event when key is pressed."
+msgstr ""
+"ཡིན་མིན་བསྐྱར་ཟློས་བྱེད་ཐབས་ལྟར་འོག་འབྲེལ་རྡང་སྐབས་ཕོག་ཐུག་བཏང་ནས་བྱུང་བ་按键དང་按键གློད་འགྲོལ་དོན་རྐྱེན།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
+msgid ""
+"The delay time in ms after the initial press of an auto-repeating key and "
+"the first generated repeat event."
+msgstr ""
+"ཐོག་མར་ལྟར་འོག་རང་འགུལ་གྱིས་བསྐྱར་ཟློས་འབྲེལ་རྡང་དང་དང་པོ་འབྱུང་བའི་བསྐྱར་ཟློས་དོན་རྐྱེན་རྗེས་དུས་འགྱངས་དུས་ཚོད་（毫秒སྡེ་ཚན་）།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
+msgid "The delay time in ms between all subsequent generated repeat events."
+msgstr ""
+"ཡོད་ཚད་རྗེས་མཐུད་གྲུབ་པའི་བསྐྱར་ཟློས་དོན་རྐྱེན་བར་བཤོལ་བ་དུས་ཚོད་（毫秒སྡེ་ཚན་）།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
+msgid "Keyboard layouts."
+msgstr "ཕབ་གཞོང་བཀོད་པ། "
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
+msgid "Keyboard options."
+msgstr "ཕབ་གཞོང་选项། "
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
+msgid "Swap left and right buttons for left-handed."
+msgstr "ས་ཡས་མས་གཅུས་སྒོ་切换དེ་གཡོན་ལག   "
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
+msgid "Acceleration multiplier for mouse motion."
+msgstr "鼠标འགུལ་སྐྱོད་མགྱོགས་འཕར་ལྡབ་གྲངས། "
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
+msgid ""
+"Enables middle mouse button emulation through simultaneous left and right "
+"button click."
+msgstr "བརྒྱུད་ནས་དུས་མཚུངས་སུ་单击左键和右键ཡོང་སྤྱོད་འགོ་ཚུགས་鼠标中键仿真། "
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
+msgid ""
+"Enables or disables natural scroll. Natural scrolling is the terminology for"
+" moving the content in the direction of scrolling, i.e. moving the wheel or "
+"fingers down moves the page down."
+msgstr ""
+"སྤྱོད་འགོ་ཚུགས་པ་འམ་ཡང་ན་མི་ཆོག་པའི་རང་བྱུང་འགྲིལ་བ། "
+"རང་བྱུང་འགྲིལ་བ་ནི་མཚོ་རྒྱུད་འགྲིལ་བ་ཁ་ཕྱོགས་གནས་སྤོ་ནང་དོན་བརྡ་ཆད་སྟེ་མར་སྤོ་འགྲིལ་འཁོར་འམ་མཛུབ་མོ་རྣམས་འོག་གནས་སྤོ་ཤོག་ལྷེ།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
+msgid "Indicates if diable while typing is enabled or disabled."
+msgstr "མཛུབ་སྟོན་འབྲེལ་རྡང་དུས་དང་མཐུན་པ་ནི་སྤྱོད་འགོ་ཚུགས་ད་དུང་མི་ཆོག་པ། "
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
+msgid ""
+"Set this to TRUE to be able to send mouse clicks by tapping on the touchpad."
+msgstr ""
+"འདི་བཙུགས་པ་དེ། "
+"TRUEརྒྱུད་སྤེལ་ཐུབ་པར་བརྟེན་ནས་དེ་མཚུངས་ཀྱི་ཐུག་རེག་ལེབ་མོ་སྐྱེལ་བ་鼠标单击། "
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
+msgid ""
+"Enables a click method. Permitted methods are buttonareas and clickfinger, "
+"respectively conreesponding to 0 and 1."
+msgstr ""
+"སྤྱོད་འགོ་ཚུགས་单击བྱེད་ཐབས། "
+"ཆོག་པའི་བྱེད་ཐབས་འདུས་གཅུས་སྒོ་ས་ཁོངས་དང་དེ་མཚུངས་མཛུབ་མོ་སོ་སོ་ར་ཟླ་སྒྲིལ་0དང་1།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
+msgid ""
+"Enables a scroll method. Permitted methods are twofinger, edge and button, "
+"respectively conrresponding to 0, 1 and 2."
+msgstr ""
+"སྤྱོད་འགོ་ཚུགས་འགྲིལ་བ་བྱེད་ཐབས། "
+"ཆོག་པའི་བྱེད་ཐབས་འདུས་གཉིས་ལྡན་ཞེས་པ་དང་མཐའ་དང་གཅུས་སྒོ་སོ་སོ་ར་དང་ལེན་0དང་1དང་2།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
+msgid "Set this to TRUE to enable all touchpads."
+msgstr "འདི་བཙུགས་པ་དེ། TRUEལ་བརྟེན་ནས་སྤྱོད་འགོ་ཚུགས་ཡོད་ཚད་ཐུག་རེག་ལེབ་མོ། "
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
+msgid "Acceleration multiplier for touchpad motion."
+msgstr "ཐུག་རེག་ལེབ་མོ་འི་ལས་འགུལ་གྱི་མགྱོགས་འཕར་ལྡབ་གྲངས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
+msgid ""
+"Maximum time allowed between two clicks for them to be considered a double "
+"click (in milliseconds)."
+msgstr ""
+"ཐེངས་གཉིས་单击བར་འཇུག་གི་ཆེས་རིང་བའི་དུས་ཚོད་དེ་དག་ལ་བརྩི་གཉིས་ལྡན་དགྲ་ལན་（毫秒སྡེ་ཚན་）།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
+msgid ""
+"Maximum distance allowed between two clicks for them to be considered a "
+"double click (in pixels)."
+msgstr ""
+"ཐེངས་གཉིས་单击བར་ཆོག་པའི་ཆེས་ཆེ་བའི་བར་ཐག་ར་བརྩི་རྒྱུ་གཉིས་ལྡན་དགྲ་ལན་（像素སྡེ་ཚན་）།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
+msgid "Number of pixels the cursor can move before dragging."
+msgstr "光标ནི་拖动གོང་ཆོག་པའི་གནས་སྤོ་འི་像素གྲངས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
+msgid "Whether the cursor should blink."
+msgstr "光标མིན་ས་འགྱུ་བ། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
+msgid "Length of the cursor blink cycle, in milleseconds."
+msgstr "光标མེར་དུས་འཁོར་གྱི་རིང་ཚད་ལ་བརྟེན་ནས་སྟོང་སྐར་ཆ་སྡེ་ཚན། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
+msgid "Name of gtk theme to use."
+msgstr "སྤྱད་པ་འི། Gtkབརྗོད་བྱ་གཙོ་བོ་འི་མིང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
+msgid "Name of icon theme to use for icons."
+msgstr "སྤྱོད་图标འི་图标བརྗོད་བྱ་གཙོ་བོ་འི་མིང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
+msgid "Whether to play sounds on user events."
+msgstr "ཡིན་མིན་སྤྱོད་མཁན་དོན་རྐྱེན་ཐོག་བསྟན་པའི་སྐད། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
+msgid "The XDG sound theme to use for event sounds."
+msgstr "སྤྱོད་པའི་དོན་རྐྱེན་སྒྲ་འི། XDGསྐད་ཀྱི་བརྗོད་བྱ་གཙོ་བོ་ཡིན། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
+msgid "Whether to play sounds on input events."
+msgstr "ཡིན་མིན་ནང་འདྲེན་དོན་རྐྱེན་ཐོག་བསྟན་པའི་སྐད། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
+msgid "Whether to antialias Xft fonts; 0=no, 1=yes, -1=default."
+msgstr ""
+"ཡིན་མིན་འགོག་པའི་སོ་ཁ། Xftཡིག་གཟུགས་པར་0སྲང་དགག  ༡་སྲང་ནི་-༡་སྲང་ཁོག་བཏེགས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
+msgid "Whether to hint Xft fonts; 0=no, 1=yes, -1=default."
+msgstr ""
+"ཡིན་མིན་སྣེ་སྟོན། Xftཡིག་གཟུགས་པར་0སྲང་དགག  ༡་སྲང་ནི་-༡་སྲང་ཁོག་བཏེགས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
+msgid ""
+"What degree of hinting to use; \"hintnone\", \"hintslight\", \"hintmedium\","
+" or \"hintfull\"."
+msgstr ""
+"བཀོལ་སྤྱོད་ཅི་ཞིག་ཚད་སྣེ་སྟོན་པར་“hintnone”དང་“hintslight”དང་“hintmedium”འམ་“hintfull”།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
+msgid "Type of subpixel antialiasing; \"none\", \"rgb\", \"bgr\", \"vrgb\", \"vbgr\"."
+msgstr ""
+"གཉིས་པ་像素འགོག་པ་སོག་ལེ་འི་དབྱིབས། “མེད་”དང་“RGB”དང་“BGR”དང་“VRGB”དང་“VBGR”། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
+msgid ""
+"Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not "
+"modify it manually."
+msgstr ""
+"Xftའི་分辨率། 1024*གནས་/ཚོན་སྡེ་ཚན། -1བཀོལ་སྤྱོད་ཁོག་བཏེགས། "
+"སྣབས་རྟུག་手动བཟོ་བཅོས་རྒྱག་རྒྱུ་དེ་ཡིན། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
+msgid "Name of the cursor theme."
+msgstr "光标བརྗོད་བྱ་གཙོ་བོ་འི་མིང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
+msgid "Size of the cursor referenced by cursor_theme."
+msgstr "Cursor_themeསྤྱད་པའི་ཡོ་བྱད་སྤོ་ཐུབ་མ་ཆེ་ཆུང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
+msgid "Name of default font to use."
+msgstr "སྤྱད་པའི་ཁོག་ནས་ཡིག་གཟུགས་ཀྱི་མིང། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
+msgid "Name of key theme RC file to load."
+msgstr "ས་སྣོན་ལོ་བཞི་འི་འགག་རྩ་འི་བརྗོད་བྱ་གཙོ་བོ། RCཡིག་ཆ་མིང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
+msgid ""
+"Whether default toolbars have text only, text and icons, icons only, etc."
+msgstr "ཁོག་工具栏མིན་ཙམ་འདུས་པའི་དཔེ་དེབ་དང་དཔེ་དེབ་དང་图标དང་ཁོ་ན་图标སོགས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
+msgid "Size of icons in default toolbars."
+msgstr "ཁོག་工具栏ཁྲོད་图标ཆེ་ཆུང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
+msgid "How to draw the input method preedit string."
+msgstr "ཇི་ལྟར་བཞེངས་པ་ནང་འདྲེན་བཅའ་ཁྲིམས་སྔོན་རྩོམ་སྒྲིག་字符串། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
+msgid "How to draw the input method statusbar."
+msgstr "ཇི་ལྟར་བཞེངས་པ་ནང་འདྲེན་བཅའ་ཁྲིམས་状态栏། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
+msgid "Name of the input method module used by GTK+."
+msgstr ""
+"GTK+བཀོལ་སྤྱོད་བྱས་ནས་ནང་འདྲེན་བྱེད་ཐབས་ཕྱོགས་བསྡུས་བཀོད་འདོམས་ཀྱི་མིང། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
+msgid "Whether images should be shown in menus."
+msgstr "ཡིན་མིན་འོས་པ་菜单ཁྲོད་མངོན་པའི་འཆར་སྣང་། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
+msgid "Whether stock icons should be shown in buttons."
+msgstr "ཡིན་མིན་འོས་པ་གཅུས་སྒོ་ཁྲོད་མངོན་པའི་མ་རྐང་འཛིན་ཤོག་图标། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
+msgid "The accelerator for moving the focus to the menubar."
+msgstr "སྤྱོད་ཀྱིས་གནད་འགག་སྤོས་པ་ནས་菜单ལན་ཀན་འི་འཕྲུལ་ཆས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
+msgid ""
+"A '\\n' separated list of \"name:color\" as defined by the 'gtk-color-"
+"scheme' setting"
+msgstr ""
+"“gtk-color-scheme”འཛུགས་རྒྱུ་འི་མཚན་ཉིད་ལ་“མིང་། "
+"ཁ་དོག་”“\\n”བར་མཚམས་གཅོད་རེའུ་མིག་བཀོད། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
+msgid ""
+"Module to use as the filesystem model for the GtkFileChooser widget. "
+"Possible values are \"gio\" and \"gtk+\"."
+msgstr ""
+"ཚོང་རྫས་ཀྱི། "
+"GtkFileChooserཆུང་བའི་ལྷུ་ལག་ཡིག་ཆ་མ་ལག་དཔེ་དབྱིབས་ཀྱི་ཕྱོགས་བསྡུས་བཀོད་འདོམས་དང་།"
+" སྲིད་པའི་ཚད་ལ་“gio”དང་“gtk+”། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
+msgid ""
+"This setting determines which buttons should be put in the titlebar of "
+"client-side decorated windows, and whether they should be placed at the left"
+" of right."
+msgstr ""
+"དེའི་བཀོད་སྒྲིག་གཏན་འཁེལ་གང་དག་གཅུས་སྒོ་དགོས་པ་དེ་མཁོ་མཁན་གྱི་རྒྱལ་བོ་འི་རྒྱན་སྤྲས་པ་སྐར་ཁུང་གི་ཁ་བྱང་ལན་ཀན་ཁྲོད་དེ་དག་མིན་ས་བཞག་པ་གཡས་གཡོན།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
+msgid ""
+"This setting determines where application menu will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"དེའི་བཀོད་སྒྲིག་གཏན་འཁེལ་བཀོལ་སྤྱོད་གོ་རིམ་菜单འི་ཐོག་ནས་མངོན་པར་བཞག། - "
+"སྒེའུ་ཁུང་གི་ཁྲོད་བེད་སྤྱོད། MenuModelགྲོས་མཐུན་面板། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
+msgid ""
+"This setting determines where window menubars will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"དེའི་བཀོད་སྒྲིག་གཏན་འཁེལ་སྐར་ཁུང་菜单ལན་ཀན་འི་ཐོག་ནས་མངོན་པར་བཞག། - "
+"སྒེའུ་ཁུང་གི་ཁྲོད་བེད་སྤྱོད། MenuModelགྲོས་མཐུན་面板། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
+msgid ""
+"Whether the context menus of entries and text views should offer to change "
+"the input method."
+msgstr ""
+"དོན་ཚན་དང་དཔེ་དེབ་མཐོང་རིས་འི་གི་གོང་འོག་菜单མིན་བྱེད་དགོས་ལ་དེ་བས་བཅོས་སྒྲིག་བྱས་ནས་ནང་འདྲེན་བཅའ་ཁྲིམས་བྱེད་ནུས།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
+msgid ""
+"Whether the context menus of entries and text views should offer to insert "
+"control characters."
+msgstr ""
+"དོན་ཚན་དང་དཔེ་དེབ་མཐོང་རིས་འི་གི་གོང་འོག་菜单མིན་དགོས་པར་འཇུག་པ་ཚོད་འཛིན་ཡིག་རྟགས་གཏོང་བ།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
+msgid ""
+"Whether mnemonics should be automatically shown and hidden when the user "
+"presses the Alt key."
+msgstr ""
+"གོ་ཤེས་སྤྱོད་མཁན་ལྟར། "
+"Altའབྲེལ་རྡང་དུས་མིན་ངེས་པར་དུ་རང་འགུལ་ངང་མངོན་པ་དང་སྦས་སྐུང་助记符། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
+msgid ""
+"If true, gtk+ uses the primary paste selection, usually triggered by a "
+"middle mouse button click."
+msgstr ""
+"གལ་ཏེ། "
+"Trueན་gtk+བཀོལ་སྤྱོད་བདག་པོ་སྦྱར་བའི་བསལ་འདེམས་ཀྱིས་སྤྱིར་བཏང་鼠标中键单击ཕོག་ཐུག་བཏང་ནས་བྱུང་བ་རེད།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
+msgid "Whether to enable toolkit-wide animations."
+msgstr "ཡིན་མིན་སྤྱོད་འགོ་ཚུགས་工具包ཁྱབ་ཁོངས་ཀྱི་འགུལ་རིས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
+msgid ""
+"Whether builtin GTK+ dialogs such as the file chooser, the color chooser or "
+"the font chooser will use a header bar at the top to show action widgets, or"
+" an action area at the bottom."
+msgstr ""
+"གང་ལྟར་内置འི། "
+"GTK+对话框（དཔེར་ན་ཡིག་ཆ་འདེམས་ཡོ་བྱད་དང་ཁ་དོག་བསལ་འདེམས་ཀྱི་ཡོ་བྱད་ཀྱང་ཡིག་གཟུགས་འདེམས་ཡོ་བྱད་ཚང་མ་ས་བཀོལ་སྤྱོད་གཙུག་ཏུ་འི་ཁ་བྱང་ལན་ཀན་ལ་བརྟེན་ནས་མངོན་པའི་བྱ་སྤྱོད་ཆུང་བའི་ལྷུ་ལག་འམ་བཀོལ་སྤྱོད་ཀྱི་སྐུབ་བཀོལ་སྤྱོད་ས་ཁོངས།"
+" "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
+msgid ""
+"This controls the GTK scale factor that maps from window coordinates to the "
+"actual device pixels."
+msgstr ""
+"འདི་ནི་ཚོད་འཛིན་ནས་སྐར་ཁུང་གནས་ཚད་映射དོན་དངོས་སྒྲིག་ཆས་像素འི། "
+"GTKབསྡུར་ཚད་གྱི་རྐྱེན་གྲངས། "
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
+msgid ""
+"This setting determines whether MATE controls the scale factor for QT "
+"applications."
+msgstr ""
+"དེའི་བཀོད་སྒྲིག་གཏན་འཁེལ། "
+"MATEམིན་ཚོད་འཛིན་QTབཀོལ་སྤྱོད་གོ་རིམ་བསྡུར་ཚད་གྱི་རྐྱེན་གྲངས། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
+msgid "Change your own user data"
+msgstr "བཟོ་བཅོས་ཁྱེད་ཀྱིས་རང་ཉིད་ཀྱི་སྤྱོད་མཁན་གཞི་གྲངས། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:2
+msgid "Authentication is required to change your own user data"
+msgstr ""
+"དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་བྱས་ན་ད་གཟོད་གསུངས་པ་ཁྱེད་ཀྱིས་རང་ཉིད་ཀྱི་སྤྱོད་མཁན་གཞི་གྲངས།"
+" "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:3
+msgid "Change your own user password"
+msgstr "བཟོ་བཅོས་ཁྱེད་ཀྱིས་རང་ཉིད་ཀྱི་སྤྱོད་མཁན་ཨང་ཡིག། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:4
+msgid "Authentication is required to change your own user password"
+msgstr ""
+"དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་བྱས་ན་ད་གཟོད་གསུངས་པ་ཁྱེད་ཀྱིས་རང་ཉིད་ཀྱི་སྤྱོད་མཁན་ཨང་ཡིག།"
+" "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:5
+msgid "Manage user accounts"
+msgstr "དོ་དམ་སྤྱོད་མཁན་ཐོ་ཁོངས། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:6
+msgid "Authentication is required to change user data"
+msgstr "བཟོ་བཅོས་སྤྱོད་མཁན་གཞི་གྲངས་དགོས་པའི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་ས་ར་སྤྲོད། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:7
+msgid "Change the login screen configuration"
+msgstr "བཟོ་བཅོས་登录བརྙན་ཤེལ་བཀོད་སྒྲིག། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:8
+msgid "Authentication is required to change the login screen configuration"
+msgstr ""
+"དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་བྱས་ན་ད་གཟོད་བཟོ་བཅོས་登录བརྙན་ཤེལ་བཀོད་སྒྲིག། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:1
+msgid "Set system time"
+msgstr "སྒྲིག་འཛུགས་མ་ལག་དུས་ཚོད། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:2
+msgid "Authentication is required to set the system time."
+msgstr "དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་ས་ར་སྤྲོད་ཐུབ་རྒྱུའི་མ་ལག་དུས་ཚོད། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:3
+msgid "Set system timezone"
+msgstr "སྒྲིག་འཛུགས་མ་ལག་དུས་ཁུལ། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:4
+msgid "Authentication is required to set the system timezone."
+msgstr "དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་ས་ར་སྤྲོད་ཐུབ་རྒྱུའི་མ་ལག་དུས་ཁུལ། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:5
+msgid "Set RTC to local timezone or UTC"
+msgstr "ས། RTCའཛུགས་རྒྱུ་དེ་ཡུལ་དེ་དུས་ཁུལ་འམ་UTC། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:6
+msgid ""
+"Authentication is required to control whether the RTC stores the local or "
+"UTC time."
+msgstr ""
+"དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་བྱས་ནས་ཚོད་འཛིན། "
+"RTCནི་ཉར་གསོག་ཡུལ་དེ་འི་དུས་ཚོད་ནི་ད་དུང་UTCདུས་ཚོད། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:7
+msgid "Turn network time synchronization on or off"
+msgstr "འབྱེད་པ་འམ་སྒོ་རྒྱག་དྲ་རྒྱ་འི་དུས་ཚོད་དང་མཉམ་དུ། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:8
+msgid ""
+"Authentication is required to control whether network time synchronization "
+"shall be enabled."
+msgstr ""
+"དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་བྱས་ནས་ཚོད་འཛིན་མིན་ས་སྤྱོད་འགོ་ཚུགས་དྲ་རྒྱ་འི་དུས་ཚོད་དང་མཉམ་དུ།"
+" "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
+msgid "Greeter settings"
+msgstr "接待员བཀོད་སྒྲིག། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr ""
+"དགའ་བསུ་བྱེད་པའི་གོ་རིམ་བཀོད་སྒྲིག་བྱེད་དགོས་པའི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་ས་ར་སྤྲོད་དགོས།"
+" "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "སྒྲིག་ལུགས་འགོ་བྱེད་གནམ་གྲུ་མིང། "
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr ""
+"དགོས་མཁོ་འི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་བྱས་ན་ད་གཟོད་བཟོ་འགོ་བྱེད་གནམ་གྲུ་རེ་ཡོད། "
+
+#: ../src/main.cpp:63
+msgid "Output version infomation and exit"
+msgstr "ཕྱིར་གཏོང་པར་གཞི་འི་བརྡ་འཕྲིན་ཕྱིར་འཐེན། "
+
+#: ../src/main.cpp:89
+msgid "Control center"
+msgstr "ཚོད་འཛིན་ལྟེ་གནས། "
+
+#: ../lib/base/error.cpp:34
+msgid "The argument is invalid."
+msgstr "གྲངས་རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:37
+msgid "Operation failed."
+msgstr "བཀོལ་སྤྱོད་ཕམ་པ་རེད། "
+
+#: ../lib/base/error.cpp:41
+msgid "The plugin doesn't exist."
+msgstr "དེའི་འདོགས་དོན་མི་གནས་པ། "
+
+#: ../lib/base/error.cpp:48
+msgid "No user found."
+msgstr "མ་རྙེད་པ་ས་སྤྱོད་མཁན། "
+
+#: ../lib/base/error.cpp:51
+msgid "Multiple users have the same authentication data."
+msgstr ""
+"མང་པོ་སྤྱོད་མཁན་ལ་གཅིག་མཚུངས་ཡིན་པའི་ངོས་ནས་ཚོད་ལྟ་ས་ར་སྤྲོད་གཞི་གྲངས། "
+
+#: ../lib/base/error.cpp:54
+msgid ""
+"The user is already logined in, Please log off the user before deleting it."
+msgstr "སྤྱོད་མཁན་ཟིན་པ་登录། སྔོན་ལ་བསུབ་སྤྱོད་མཁན་སླར་ཡང་སུབ་པ་སྤྱོད་མཁན། "
+
+#: ../lib/base/error.cpp:57
+msgid "The user already exists."
+msgstr "སྤྱོད་མཁན་གྱིས་གནས་པར། "
+
+#: ../lib/base/error.cpp:60
+msgid "Unknown account type."
+msgstr "ཤེས་མེད་པའི་ཐོ་ཁོངས་དབྱིབས། "
+
+#: ../lib/base/error.cpp:63
+msgid "Can't update password file."
+msgstr "ཐབས་མེད་གསར་སྒྱུར་གསང་བའི་ཡིག་ཆ། "
+
+#: ../lib/base/error.cpp:66
+msgid "Invalid command syntax."
+msgstr "བཀའ་རྒྱ་བརྡ་སྤྲོད་རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:69
+msgid "Invalid argument to option."
+msgstr "选项འི་གྲངས་ལ་རྩིས་འགྲོ་མེད། "
+
+#: ../lib/base/error.cpp:72
+msgid "UID already in use."
+msgstr "UIDདེ་བཀོལ་སྤྱོད་བྱེད་པའི་ཁྲོད། "
+
+#: ../lib/base/error.cpp:75
+msgid "Passwd file contains errors."
+msgstr "གསང་བའི་ཡིག་ཆ་འི་ནང་གི་ནོར་འཁྲུལ་རེད། "
+
+#: ../lib/base/error.cpp:78
+msgid "Specified user/group doesn't exist."
+msgstr "དམིགས་འཛུགས་སྤྱོད་མཁན་/ཚན་སྐོར། "
+
+#: ../lib/base/error.cpp:81
+msgid "User to modify is logged in."
+msgstr "ས་བཟོ་བཅོས་སྤྱོད་མཁན་ཟིན་པ་登录། "
+
+#: ../lib/base/error.cpp:84
+msgid "Username already in use."
+msgstr "用户名དེ་བཀོལ་སྤྱོད་བྱེད་པའི་ཁྲོད། "
+
+#: ../lib/base/error.cpp:87
+msgid "Can't update group file."
+msgstr "ཐབས་མེད་གསར་སྒྱུར་ཚོགས་ཆུང་ཡིག་ཆ། "
+
+#: ../lib/base/error.cpp:90
+msgid "Insufficient space to move home dir."
+msgstr "བར་སྟོང་མི་འདང་ས་ཐབས་མེད་པར་ཁྱིམ་སྤོ། "
+
+#: ../lib/base/error.cpp:93
+msgid "Can't create/remove/move home directory."
+msgstr "བྱེད་ཐབས་གསར་གཏོད་དང་/སུབ་པ་/གནས་སྤོ་གཙོ་དཀར་ཆག   "
+
+#: ../lib/base/error.cpp:97
+msgid "Can't update SELinux user mapping."
+msgstr "ཐབས་མེད་གསར་སྒྱུར། SELinuxསྤྱོད་མཁན་映射། "
+
+#: ../lib/base/error.cpp:100
+msgid "Can't update the subordinate uid file."
+msgstr "ཐབས་མེད་གསར་སྒྱུར་ཁོངས་གཏོགས། Uidཡིག་ཆ། "
+
+#: ../lib/base/error.cpp:103
+msgid "Can't update the subordinate gid file."
+msgstr "ཐབས་མེད་གསར་སྒྱུར་ཁོངས་གཏོགས། Gidཡིག་ཆ། "
+
+#: ../lib/base/error.cpp:106
+msgid "Refuse to delete root user."
+msgstr "མི་སུབ་པ་རྩ་སྤྱོད་མཁན། "
+
+#: ../lib/base/error.cpp:109
+msgid "Refuse to delete three authority user."
+msgstr "མི་སུབ་པ་གསུམ་དབང་ཚད་སྤྱོད་མཁན། "
+
+#: ../lib/base/error.cpp:115
+msgid "The authentication mode isn't supported."
+msgstr "མི་བྱེད་པར་རྒྱབ་སྐྱོར་བྱེད་པའི་ཐོབ་ཐང་ལ་ཚོད་ལྟ་ས་ར་སྤྲོད་བྱེད་སྟངས། "
+
+#: ../lib/base/error.cpp:118
+msgid "User is locked."
+msgstr "སྤྱོད་མཁན་ཟིན་པ་锁定། "
+
+#: ../lib/base/error.cpp:121
+msgid "The name already exists."
+msgstr "དེའི་མིང་གནས་པ། "
+
+#: ../lib/base/error.cpp:124
+msgid "A user is modifying the password."
+msgstr "སྤྱོད་མཁན་བཞིན་བཟོ་བཅོས་གསང་བ། "
+
+#: ../lib/base/error.cpp:127
+msgid "{0}"
+msgstr "{0} "
+
+#: ../lib/base/error.cpp:131
+msgid "The range of volume is between 0 and 1.0."
+msgstr "སྒྲ་གདངས་དྲག་ཞན་ཁོངས་ཀྱི་བར་དུ་གནས་པ་0དང་1.0བར། "
+
+#: ../lib/base/error.cpp:135
+msgid "The range of balance is between -1 and 1."
+msgstr "དོ་མཉམ་ཁོངས་ཀྱི་བར་དུ་གནས་པ་-1དང་1བར། "
+
+#: ../lib/base/error.cpp:139
+msgid "The sink device isn't found."
+msgstr "མི་རྙེད་接收器སྒྲིག་ཆས། "
+
+#: ../lib/base/error.cpp:143
+msgid "The source device isn't found."
+msgstr "མི་རྙེད་པའི་འབྱུང་ཁུངས། སྒྲིག་ཆས། "
+
+#: ../lib/base/error.cpp:147
+msgid "The sink stream isn't found."
+msgstr "མི་རྙེད་接收器བཞུར། "
+
+#: ../lib/base/error.cpp:150
+msgid "NTP unit is active."
+msgstr "NTPསྡེ་ཚན་དུ་གནས་པའི་བྱེད་སྒོ་འི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:153
+msgid "Invalid timezone."
+msgstr "དུས་ཁུལ་རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:156
+msgid "No NTP unit available."
+msgstr "མེད་པའི་རང་བྱུང་གི། NTPསྒྲིག་ཆས། "
+
+#: ../lib/base/error.cpp:160
+msgid "Unknown date format type."
+msgstr "ཤེས་མེད་པའི་ཚེས་གྲངས་རྣམ་གཞག་དབྱིབས། "
+
+#: ../lib/base/error.cpp:163
+msgid "Failed to set date format."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་ཚེས་གྲངས་རྣམ་གཞག་དང་། "
+
+#: ../lib/base/error.cpp:166
+msgid "Failed to set hour format."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་ཆུ་ཚོད་རྣམ་གཞག་དང་། "
+
+#: ../lib/base/error.cpp:169
+msgid "Failed to set seconds showing."
+msgstr "མེད་པ་བཟོ་རྒྱུ་ལས་མངོན་པར་སྐར་ཆ་འགའ། "
+
+#: ../lib/base/error.cpp:172
+msgid "Failed to start NTP unit."
+msgstr "ཐབས་མེད་པའི་འགོ་ཚུགས། NTPསྒྲིག་ཆས། "
+
+#: ../lib/base/error.cpp:175
+msgid "Failed to stop NTP unit."
+msgstr "ཐབས་བྲལ་བའི་མཚམས། NTPསྒྲིག་ཆས། "
+
+#: ../lib/base/error.cpp:179
+msgid "Unknown display style."
+msgstr "མངོན་པའི་གཟུགས་བྱད་ཤེས། "
+
+#: ../lib/base/error.cpp:182
+msgid ""
+"The mode of monitors which contain resolution and refresh rate is no "
+"intersection."
+msgstr ""
+"འདུ་བ་分辨率དང་གསར་གཏོད་ཚད་འི་བརྡ་སྟོན་ཡོ་ཆས་དཔེ་དབྱིབས་མེད་ཅིག་ཅར་དུ་འཆར་བ། "
+
+#: ../lib/base/error.cpp:185
+msgid "Auto mode is set failed."
+msgstr "རང་འགུལ་གྱིས་དཔེ་དབྱིབས་བཟོ་ཕམ་པ་རེད། "
+
+#: ../lib/base/error.cpp:189
+msgid "Failed to set the window scaling factor."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་སྐར་ཁུང་缩放གྱི་རྐྱེན་གྲངས། "
+
+#: ../lib/base/error.cpp:192
+msgid "The custom configuration file isn't found."
+msgstr "བཙལ་ནས་རང་གི་མཚན་ཉིད་བཀོད་སྒྲིག་ཡིག་ཆ། "
+
+#: ../lib/base/error.cpp:195
+msgid "Not found matched item in custom configuration file."
+msgstr ""
+"རང་གི་མཚན་ཉིད་བཀོད་སྒྲིག་བྱེད་པའི་ཡིག་ཆ་འི་ནང་དུ་མི་རྙེད་པ་དོ་མཉམ་པར་བྱེད་པ།"
+" "
+
+#: ../lib/base/error.cpp:198
+msgid "The primary monitor must not be empty."
+msgstr "གཙོ་监视器མི་ཆོག་པར་སྟོང་། "
+
+#: ../lib/base/error.cpp:201
+msgid "Not found the primary monitor."
+msgstr "མི་རྙེད་པའི་མི་ཚང་བརྡ་སྟོན་ཡོ་ཆས། "
+
+#: ../lib/base/error.cpp:204
+msgid ""
+"Cannot disable the monitor, because the number of the enabled monitor is "
+"less than 1."
+msgstr ""
+"ཐབས་མེད་པར་མི་ཆོག་པའི་监视器ནི་སྤྱོད་འགོ་ཚུགས་པའི་监视器གྲངས་འབོར་ལས་ཆུང་བ་1། "
+
+#: ../lib/base/error.cpp:207
+msgid "Exist null mode in mode list."
+msgstr "མ་དཔེ་རེའུ་མིག་བཀོད་ཁྲོད་གནས་པའི་སྟོང་བའི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:210
+msgid "Exist null mode in preferred mode list."
+msgstr "ནི་首选དཔེ་དབྱིབས་རེའུ་མིག་བཀོད་ཁྲོད་གནས་པའི་སྟོང་བའི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:213
+msgid "The current mode is not exist."
+msgstr "མིག་སྔ་འི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:217
+msgid "Not found match mode."
+msgstr "བཙལ་ནས་ཡོང་བའི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:220
+msgid "The mode is not exist."
+msgstr "དེའི་དཔེ་དབྱིབས་མི་གནས་པ། "
+
+#: ../lib/base/error.cpp:223
+msgid "Unknown rotation type."
+msgstr "ཤེས་མེད་པའི་འཁོར་སྐྱོད་ཀྱི་རིགས་དབྱིབས། "
+
+#: ../lib/base/error.cpp:226
+msgid "Unknown reflect type."
+msgstr "ཤེས་མེད་པའི་ལྡོག་འཕྲོ་འི་དབྱིབས། "
+
+#: ../lib/base/error.cpp:229
+msgid "The current settings cannot be applied."
+msgstr "ཐབས་མེད་པར་ཉེར་སྤྱོད་དེང་སྐབས་བྱེད་ཀྱི་ཡོད་པ་རེད། "
+
+#: ../lib/base/error.cpp:232
+msgid "Theme not exist."
+msgstr "བརྗོད་བྱ་གཙོ་བོར་བྱེད་པ། "
+
+#: ../lib/base/error.cpp:235
+msgid "Unsupported theme type."
+msgstr "མི་བྱེད་པར་རྒྱབ་སྐྱོར་བྱེད་པའི་བརྗོད་བྱ་འི་དབྱིབས། "
+
+#: ../lib/base/error.cpp:238
+msgid "Invalid theme type."
+msgstr "བརྗོད་བྱ་གཙོ་བོ་རིགས་གོ་མི་ཆོད་པ་ཡིན། "
+
+#: ../lib/base/error.cpp:242
+msgid "Invalid font type."
+msgstr "ཡིག་གཟུགས་ཀྱི་རིགས་དབྱིབས་ལ་རྩིས་འགྲོ་མེད། "
+
+#: ../lib/base/error.cpp:245
+msgid "Unsupported font type."
+msgstr "མི་བྱེད་པར་རྒྱབ་སྐྱོར་བྱེད་པའི་ཡིག་གཟུགས་ཀྱི་རིགས་དབྱིབས། "
+
+#: ../lib/base/error.cpp:248
+msgid "An incomplete request already exists."
+msgstr "གནས་པར་མི་ཡོང་བའི་རེ་བ། "
+
+#: ../lib/base/error.cpp:251
+msgid "The request is canceled."
+msgstr "རེ་བ་དེ་མེད་པར་བཟོ་དགོས། "
+
+#: ../lib/base/error.cpp:257
+msgid "The request is rejected."
+msgstr "རེ་བ་བྱ་ཡུལ་གྱི་མི། "
+
+#: ../lib/base/error.cpp:260
+msgid "Not found adapter."
+msgstr "མི་རྙེད་适配器། "
+
+#: ../lib/base/error.cpp:268
+msgid "Sync to file failed."
+msgstr "དུས་མཉམ་དུ་ནས་ཡིག་ཆ་ཕམ་པ་རེད། "
+
+#: ../lib/base/error.cpp:274
+msgid "Invalid scale mode."
+msgstr "缩放དཔེ་རྩིས་འགྲོ་མེད། "
+
+#: ../lib/base/error.cpp:277
+msgid "The number of the layout can't exceeds {0}."
+msgstr "བཀོད་པའི་གྲངས་འབོར་ལས་བརྒལ་མི་ཆོག་{0}། "
+
+#: ../lib/base/error.cpp:280
+msgid "The layout is invalid."
+msgstr "བཀོད་པ་རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:283
+msgid "The layout already exist."
+msgstr "བཀོད་པ་གནས་པ། "
+
+#: ../lib/base/error.cpp:286
+msgid "Failed to set the layout."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་བཀོད་པ། "
+
+#: ../lib/base/error.cpp:289
+msgid "The layout is no exist."
+msgstr "བཀོད་པ། "
+
+#: ../lib/base/error.cpp:292
+msgid "Failed to update the layout."
+msgstr "ཐབས་མེད་གསར་སྒྱུར་བཀོད་པ། "
+
+#: ../lib/base/error.cpp:295
+msgid "The layout option already exist."
+msgstr "བཀོད་པ་选项གནས་པ། "
+
+#: ../lib/base/error.cpp:298
+msgid "Failed to set the layout option."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་བཀོད་པ་选项། "
+
+#: ../lib/base/error.cpp:301
+msgid "The layout option is no exist."
+msgstr "བཀོད་པ་选项མི་གནས་པ། "
+
+#: ../lib/base/error.cpp:304
+msgid "Failed to update the layout option."
+msgstr "ཐབས་མེད་གསར་སྒྱུར་བཀོད་པ་选项། "
+
+#: ../lib/base/error.cpp:307
+msgid "Failed to clear the layout option."
+msgstr "ཐབས་མེད་གཙང་སེལ་བཀོད་པ་选项། "
+
+#: ../lib/base/error.cpp:310
+msgid "The custom shortcut isn't exist."
+msgstr "རང་གི་མཚན་ཉིད་ལ་མགྱོགས་པའི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:314
+msgid "The key combination already exist."
+msgstr "组合键གནས་པ། "
+
+#: ../lib/base/error.cpp:318
+msgid "The key combination is invalid."
+msgstr "组合键རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:321
+msgid "The system shortcut isn't exist."
+msgstr "མ་ལག་མགྱོགས་མྱུར་གྱི་བྱེད་སྟངས། "
+
+#: ../lib/base/error.cpp:327
+msgid "Unsupported power supply mode."
+msgstr "མི་བྱེད་པར་རྒྱབ་སྐྱོར་གློག་ཁུངས་ཀྱི་རྣམ་པ། "
+
+#: ../lib/base/error.cpp:333
+msgid "Unsupported power device."
+msgstr "མི་བྱེད་པར་རྒྱབ་སྐྱོར་གློག་ཁུངས་སྒྲིག་ཆས། "
+
+#: ../lib/base/error.cpp:336
+msgid "The value must be between 0 and 100."
+msgstr "དེའི་རིན་ཐང་ངེས་པར་དུ་བར་དུ་གནས་0དང་100བར། "
+
+#: ../lib/base/error.cpp:340
+msgid "Unknown power action."
+msgstr "ཤེས་མེད་པའི་གློག་ཁུངས་བཀོལ་སྤྱོད། "
+
+#: ../lib/base/error.cpp:344
+msgid "Unsupported power event."
+msgstr "མི་བྱེད་པར་རྒྱབ་སྐྱོར་གློག་ཁུངས་དོན་རྐྱེན། "
+
+#: ../lib/base/error.cpp:347
+msgid "Failed to set the action."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་བཀོལ་སྤྱོད། "
+
+#: ../lib/base/error.cpp:350
+msgid "Failed to set brightness."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་གསལ་ཚད། "
+
+#: ../lib/base/error.cpp:353
+msgid "The systeminfo type is invalid."
+msgstr "མ་ལག་གི་ཆ་འཕྲིན་རིགས་གོ་མི་ཆོད་པ་ཡིན། "
+
+#: ../lib/base/error.cpp:356
+msgid "Failed to set host name."
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་འགོ་བྱེད་གནམ་གྲུ་རེ་ཡོད། "
+
+#: ../lib/base/error.cpp:359
+msgid "Not found the property."
+msgstr "མ་རྙེད་དེ་སྡེ་ལས། "
+
+#: ../lib/base/error.cpp:362
+msgid "The type is mismatch."
+msgstr "རིགས་དབྱིབས་མི་དོ་མཉམ་པ་རེད། "
+
+#: ../lib/base/error.cpp:365
+msgid "The property is invalid."
+msgstr "དེའི་ངོ་བོ་རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:368
+msgid "The property must not be modified manually."
+msgstr "མི་ཆོག་手动བཟོ་བཅོས་དང་དེའི་ཁྱད་ཆོས་རེད། "
+
+#: ../lib/base/error.cpp:371
+msgid "The property is unsupported."
+msgstr "དེའི་ངོ་བོ་མི་ཐེབས་པར་རྒྱབ་སྐྱོར་བྱས། "
+
+#: ../lib/base/error.cpp:375
+msgid "Arguments invalid."
+msgstr "གྲངས་རྩིས་མེད་དུ་གཏོང་རྒྱུ། "
+
+#: ../lib/base/error.cpp:378
+msgid "The network proxy mode is invalid."
+msgstr "དྲ་རྒྱ་འི་ལས་ཚབ་དཔེ་རྩིས་འགྲོ་མེད། "
+
+#: ../lib/base/error.cpp:381
+msgid "The current network proxy mode is not manual."
+msgstr "མིག་སྔ་འི་དྲ་རྒྱ་འི་ལས་ཚབ་ཀྱི་དཔེ་དབྱིབས་ནི་手动། "
+
+#: ../lib/base/error.cpp:384
+msgid "The current network proxy mode is not auto."
+msgstr "མིག་སྔ་འི་དྲ་རྒྱ་འི་ལས་ཚབ་ཀྱི་དཔེ་དབྱིབས་ནི་རང་འགུལ། "
+
+#: ../lib/base/error.cpp:425
+msgid "Internel error."
+msgstr "ནང་ཁུལ་གྱི་ནོར་འཁྲུལ་རེད། "
+
+#: ../lib/base/error.cpp:428 ../lib/base/error.cpp:431
+msgid "Unknown error."
+msgstr "ཤེས་མེད་པའི་ནོར་འཁྲུལ་རེད། "
+
+#: ../lib/base/error.cpp:437 ../plugins/accounts/accounts-util.cpp:209
+msgid " (error code: 0x{:x})"
+msgstr "（ནོར་འཁྲུལ་ཚབ་རྟགས། 0x{། x}）། "
+
+#: ../lib/dbus/auth-manager.cpp:147
+msgid "Authorization failed"
+msgstr "དབང་བསྐུར་བའི་ཕམ་ཁ། "
+
+#: ../plugins/accounts/accounts-util.cpp:205
+msgid " ({0}, error code: 0x{1:x})"
+msgstr "（{0}བྱས་ན་ནོར་འཁྲུལ་ཚབ་རྟགས། 0x{1x}）། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:373
+msgid "The password contains less than {0} character classes."
+msgstr "ཨང་ཡིག་འདུ་བའི་ཡིག་རྟགས་རིགས་ལས་ཉུང་{0}། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:374
+msgid "The password contains less than {0} digits."
+msgstr "ཨང་ཡིག་འདུས་པ་ལས་ཉུང་{0}གནས་གྲངས་ཀ   "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:375
+msgid "The password contains less than {0} lowercase letters."
+msgstr "ཨང་ཡིག་འདུས་པ་ལས་ཉུང་{0}ཆུང་འབྲི་ཡིན་ལ། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:376
+msgid "The password contains less than {0} non-alphanumeric characters."
+msgstr "ཨང་ཡིག་འདུས་པ་ལས་ཉུང་{0}ཞིག་མིན་པའི་དབྱངས་གསལ་གྱི་གྲངས་གཞི་ཡིག་རྟགས། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:377
+msgid "The password contains less than {0} uppercase letters."
+msgstr "ཨང་ཡིག་འདུས་པ་ལས་ཉུང་{0}ཞིག་བྲིས་ཀ་མད། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:378
+msgid "The password contains monotonic sequence longer than {0} characters."
+msgstr ""
+"ཨང་ཡིག་འདུ་བའི་རིང་ཚད་ལས་བརྒལ་བ་{0}ཞིག་ཡིག་རྟགས་ཀྱི་སྣ་གཅིག་མ་བཅུག་པ་རེད། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:379
+msgid ""
+"The password contains more than {0} characters of the same class "
+"consecutively."
+msgstr "ཨང་ཡིག་རྒྱུན་མཐུད་དུ་གཅིག་རིགས་{0}མང་བ་ས་ཡི་གེ་རྟགས། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:380
+msgid "The password contains more than {0} same characters consecutively."
+msgstr "ཨང་ཡིག་རྒྱུན་མཐུད་དུ་{0}ཡན་གཅིག་མཚུངས་ཡིག་རྟགས། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:381
+msgid "The password is shorter than {0} characters."
+msgstr "ཨང་ཡིག་ཐུང་{0}ཡི་གེ་རྟགས། "
+
+#: ../plugins/accounts/passwd-wrapper.cpp:444
+msgid "Password modification timeout."
+msgstr "ཨང་ཡིག་བཟོ་བཅོས་超时། "
+
+#: ../plugins/timedate/timedate-format.cpp:137
+#: ../plugins/timedate/timedate-format.cpp:138
+#: ../plugins/timedate/timedate-format.cpp:139
+msgid "%b %d %Y"
+msgstr "%b %d %Y "
+
+#: ../plugins/display/display-manager.cpp:195
+msgid ""
+"The scaling rate can only take effect after logging out and logging in again"
+msgstr "བརྐྱང་བསྐུམ་ཚད་ཁོ་ན་བསུབ་ཡང་བསྐྱར་登录རྗེས་ད་གཟོད་གོ་ཆོད་པ། "
+
+#: ../plugins/keybinding/custom-shortcut.h:25
+msgid "Custom"
+msgstr "གོམས་གཤིས། "
+
+#: ../plugins/power/power-utils.cpp:26
+msgid "Less than 1 minute"
+msgstr "མི་༡་སྐར་མ། "
+
+#: ../plugins/power/power-utils.cpp:30
+msgid "{0} minute"
+msgid_plural "{0} minutes"
+msgstr[0] "{0}སྐར་མ། "
+
+#: ../plugins/power/power-utils.cpp:38
+msgid "{0} hour"
+msgid_plural "{0} hours"
+msgstr[0] "{0}ཆུ་ཚོད། "
+
+#: ../plugins/power/power-utils.cpp:44
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "ཆུ་ཚོད། "
+
+#: ../plugins/power/power-utils.cpp:46
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "སྐར་མ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:115
+msgid "Battery Discharging"
+msgstr "གློག་གཡིས་གློག་གཏོང། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:116
+msgid "{0} of battery power remaining ({1:.1f}%)"
+msgstr "ལྷག་མ་གློག་སྨན་གློག་ཚད་{0}། （{1：.1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:121
+msgid "UPS Discharging"
+msgstr "རྒྱུན་ཆད་མེད་པར་གློག་ཁུངས་ཀྱི་ཁུར་པོ་ཆས། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:122
+msgid "{0} of UPS backup power remaining ({1:.1f}%)"
+msgstr "ལྷག་མ། UPSསྤྱོད་དམིགས་གློག་ཁུངས་ཀྱི་{0}（{1.1f}%）། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:139
+msgid "Battery Charged"
+msgstr "གློག་གཡིས་གློག་གསོག་པ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:163
+msgid "Battery low"
+msgstr "གློག་གཡིས་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:164
+msgid "Approximately <b>{0}</b> remaining ({1:.1f}%)"
+msgstr "ལྷག་མ་ཧ་ལམ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:171
+msgid "UPS low"
+msgstr "UPSདམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:172
+msgid "Approximately <b>{0}</b> of remaining UPS backup power ({1:.1f}%)"
+msgstr "ཧ་ལམ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:178
+#: ../plugins/power/notification/power-notification-manager.cpp:246
+msgid "Mouse battery low"
+msgstr "鼠标གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:179
+msgid "Wireless mouse is low in power ({0:.1f}%)"
+msgstr "སྐུད་མེད་鼠标ཅན་ཟད་གྲོན་དམའ་བ། （{0：.1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:182
+#: ../plugins/power/notification/power-notification-manager.cpp:251
+msgid "Keyboard battery low"
+msgstr "ཕབ་གཞོང་གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:183
+msgid "Wireless keyboard is low in power ({0:.1f}%)"
+msgstr "སྐུད་མེད་ཕབ་གཞོང་ཅན་ཟད་གྲོན་དམའ་བ། （{0：.1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:186
+#: ../plugins/power/notification/power-notification-manager.cpp:256
+msgid "PDA battery low"
+msgstr "ཚབ་བྱས་སྟེང་གློག་ཀླད་གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:187
+msgid "PDA is low in power ({0:.1f}%)"
+msgstr "PDAཅན་ཟད་གྲོན་ཆུང་བ་({0། .1f}%）། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:190
+#: ../plugins/power/notification/power-notification-manager.cpp:261
+#: ../plugins/power/notification/power-notification-manager.cpp:266
+msgid "Cell phone battery low"
+msgstr "ལག་ཐོགས་ཁ་པར་གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:191
+msgid "Cell phone is low in power ({0:.1f}%)"
+msgstr "ལག་ཐོགས་ཁ་པར་གློག་ཚད་དམའ་བ། （{0：.1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:194
+msgid "Media player battery low"
+msgstr "སྨྱན་སྦྱོར་播放器གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:195
+msgid "Media player is low in power ({0:1f}%)"
+msgstr "སྨྱན་སྦྱོར་播放器ཅན་ཟད་གྲོན་དམའ་བ། （{0：1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:198
+#: ../plugins/power/notification/power-notification-manager.cpp:271
+msgid "Tablet battery low"
+msgstr "དཀྱུས་མ་གློག་ཀླད་གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:199
+msgid "Tablet is low in power ({0:1f}%)"
+msgstr "དཀྱུས་མ་གློག་ཀླད་ཅན་ཟད་གྲོན་དམའ་བ། （{0：1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:202
+#: ../plugins/power/notification/power-notification-manager.cpp:276
+msgid "Attached computer battery low"
+msgstr "དེར་མཐུད་རྩིས་འཁོར་གློག་སྨན་གློག་ཚད་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:203
+msgid "Attached computer is low in power ({0:.1f}%)"
+msgstr "དེར་མཐུད་རྩིས་འཁོར་གློག་ཚད་དམའ་བ། （{0：.1f}%） "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:233
+msgid "Battery critically low"
+msgstr "གློག་གཡིས་གློག་ཚད་ཚབས་ཆེན་མི་འདང་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:234
+msgid ""
+"Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to "
+"avoid losing data."
+msgstr "ཧ་ལམ་ཟས་ལྷག་"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:240
+#: ../plugins/power/notification/power-notification-manager.cpp:333
+msgid "UPS critically low"
+msgstr "UPSཚབས་ཆེན་དམའ་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:241
+msgid ""
+"Approximately <b>{0}</b> of remaining UPS power ({1:.1f}%). Restore AC power"
+" to your computer to avoid losing data."
+msgstr "ཧ་ལམ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:247
+msgid ""
+"Wireless mouse is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"སྐུད་མེད་鼠标རྩོལ་བ་ཟད་གྲོན་ཧ་ཅང་དམའ། （{0：.1f}%）。 "
+"གལ་ཏེ་གློག་གསོག་པ་དེར་སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་མཚམས་འཁོར་སྐྱོད། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:252
+msgid ""
+"Wireless keyboard is very low in power ({0:.1f}%). This device will soon "
+"stop functioning if not charged."
+msgstr ""
+"སྐུད་མེད་ཕབ་གཞོང་རྩོལ་བ་ཟད་གྲོན་ཧ་ཅང་དམའ། （{0：.1f}%）。 "
+"གལ་ཏེ་གློག་གསོག་པ་དེར་སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་མཚམས་འཁོར་སྐྱོད། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:257
+msgid ""
+"PDA is very low in power ({0:.1f}%). This device will soon stop functioning "
+"if not charged."
+msgstr ""
+"PDAརྩོལ་བ་ཟད་གྲོན་ཧ་ཅང་དམའ་（{0། .1f}%）། "
+"གལ་ཏེ་གློག་གསོག་པ་དེར་སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་མཚམས་འཁོར་སྐྱོད། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:262
+msgid ""
+"Cell phone is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"ཁ་པར་གློག་ཚད་ཧ་ཅང་དམའ་（{0། .1f}%）། "
+"གལ་ཏེ་གློག་གསོག་པ་དེར་སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་མཚམས་འཁོར་སྐྱོད། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:267
+msgid ""
+"Media player is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"སྨྱན་སྦྱོར་播放器རྩོལ་བ་ཟད་གྲོན་ཧ་ཅང་དམའ་（{0། .1f}%）། "
+"གལ་ཏེ་གློག་གསོག་པ་དེར་སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་མཚམས་འཁོར་སྐྱོད། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:272
+msgid ""
+"Tablet is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"དཀྱུས་མ་གློག་ཀླད་ཀྱི་རྩོལ་བ་ཟད་གྲོན་ཧ་ཅང་དམའ་（{0། .1f}%）། "
+"གལ་ཏེ་གློག་གསོག་པ་དེར་སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་མཚམས་འཁོར་སྐྱོད། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:277
+msgid ""
+"Attached computer is very low in power ({0:.1f}%). The device will soon "
+"shutdown if not charged."
+msgstr ""
+"དེར་མཐུད་རྩིས་འཁོར་གློག་ཚད་ཧ་ཅང་དམའ། （{0：.1f}%）。 གལ་ཏེ་མི་མང་ཙམ་དང་། "
+"སྒྲིག་ཆས་ཤིན་ཏུ་མགྱོགས་པ་སྒོ་རྒྱག   "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:308
+msgid "Laptop battery critically low"
+msgstr "ལག་ཐོགས་གློག་ཀླད་གློག་སྨན་གློག་ཚད་ཚབས་ཆེན་མི་འདང་བ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:316
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+"གློག་གཡིས་གློག་ཚད་ལས་དམའ་འགྱུར་མཚམས་ཀྱི་ཆུ་ཚད་དེ་བས་རྩིས་འཁོར་གྲབས་ཡོད་པ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:320
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"hibernate."
+msgstr ""
+"གློག་གཡིས་གློག་ཚད་ལས་དམའ་འགྱུར་མཚམས་ཀྱི་ཆུ་ཚད་དེ་བས་རྩིས་འཁོར་གྲབས་ཉལ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:323
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"shutdown."
+msgstr ""
+"གློག་གཡིས་གློག་ཚད་ལས་དམའ་འགྱུར་མཚམས་ཀྱི་ཆུ་ཚད་དེ་བས་རྩིས་འཁོར་གྲབས་སྒོ་རྒྱག"
+"   "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:326
+msgid ""
+"The battery is below the critical level and this computer will <b>power-"
+"off</b> when the battery becomes completely empty."
+msgstr ""
+"གློག་གཡིས་ལས་དམའ་འགྱུར་མཚམས་ཀྱི་ཆུ་ཚད་ནི་གློག་སྨན་རྦད་དེ་耗尽དུས་བྱ་རྩིས་འཁོར་གྱིས་"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:341
+msgid ""
+"The UPS is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr "UPSལས་དམའ་འགྱུར་མཚམས་རིམ་པ་དེའི་རྩིས་འཁོར་གྲབས་ཡོད་པ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:345
+msgid ""
+"The UPS is below the critical level and this computer is about to hibernate."
+msgstr "UPSལས་དམའ་འགྱུར་མཚམས་རིམ་པ་དེའི་རྩིས་འཁོར་གྲབས་ཉལ། "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:348
+msgid ""
+"The UPS is below the critical level and this computer is about to shutdown."
+msgstr "UPSལས་དམའ་འགྱུར་མཚམས་རིམ་པ་དེའི་རྩིས་འཁོར་གྲབས་སྒོ་རྒྱག   "
+
+#: ../plugins/power/notification/power-notification-manager.cpp:351
+msgid ""
+"The UPS is below the critical level and this computer will <b>power-off</b> "
+"when the UPS becomes completely empty."
+msgstr "UPSལས་དམའ་འགྱུར་མཚམས་རིམ་པ་ནི་UPSརྦད་དེ་སྟོང་དུས་བྱ་རྩིས་འཁོར་གྱིས་"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:86
+msgid "AC adapter"
+msgid_plural "AC adapters"
+msgstr[0] "སྤེལ་རེས་适配器། "
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:89
+msgid "Laptop battery"
+msgid_plural "Laptop batteries"
+msgstr[0] "ལག་ཐོགས་གློག་ཀླད་གློག་སྨན། "
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:92
+msgid "UPS"
+msgid_plural "UPSs"
+msgstr[0] "རྒྱུན་ཆད་མེད་པར་གློག་ཁུངས། "
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:95
+msgid "Monitor"
+msgid_plural "Monitors"
+msgstr[0] "ཚོད་འཛིན། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:98
+msgid "Mouse"
+msgid_plural "Mice"
+msgstr[0] "བྱི་བ། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:101
+msgid "Keyboard"
+msgid_plural "Keyboards"
+msgstr[0] "ཕབ་གཞོང། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:104
+msgid "PDA"
+msgid_plural "PDAs"
+msgstr[0] "ཚབ་བྱས་སྟེང་གློག་ཀླད། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:107
+msgid "Cell phone"
+msgid_plural "Cell phones"
+msgstr[0] "ལག་ཐོགས་ཁ་པར། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:110
+msgid "Media player"
+msgid_plural "Media players"
+msgstr[0] "སྨྱན་སྦྱོར་播放器། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:113
+msgid "Tablet"
+msgid_plural "Tablets"
+msgstr[0] "ལེབ། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:116
+msgid "Computer"
+msgid_plural "Computers"
+msgstr[0] "རྩིས་འཁོར། "
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:119
+msgid "Unknown"
+msgid_plural "Unknown"
+msgstr[0] "ཤེས་མེད་པ་འི། "
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:102
+msgid "This program can only be used by the root user"
+msgstr "དེའི་གོ་རིམ་ཁོ་ན་ས་རྩ་སྤྱོད་མཁན་གྱི། "
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:109
+msgid "This program must only be run through pkexec"
+msgstr "དེའི་ལས་རིམ་བརྒྱུད་པ། Pkexecའཁོར་སྐྱོད། "
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:118
+msgid "Could not set the value of the backlight"
+msgstr "བྲལ་བའི་སྒྲིག་ལུགས་གྲིབ་ཁུག་ལས་རེས། "
+
+#. namespace  Kiran
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:1
+msgid "Power Manager"
+msgstr "གློག་ཁུངས་དོ་དམ་ཆས། "
+
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
+msgid "Power management daemon"
+msgstr "གློག་ཁུངས་དོ་དམ་སྲུང་སྐྱོང་བྱེད་པའི་གོ་རིམ། "

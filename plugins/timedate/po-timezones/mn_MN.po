@@ -1,0 +1,2568 @@
+# Chinese translations for tangjie package
+# tangjie 软件包的简体中文翻译.
+# Copyright (C) 2020 THE tangjie'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the tangjie package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tangjie02\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-31 15:34+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Africa/Abidjan"
+msgstr "Африк / Абиджан"
+
+msgid "Africa/Accra"
+msgstr "Африк / Аккра"
+
+msgid "Africa/Addis_Ababa"
+msgstr "Африк / Addis_Abab"
+
+msgid "Africa/Algiers"
+msgstr "Африк / Алжир"
+
+msgid "Africa/Asmara"
+msgstr "Африк / Осмар"
+
+msgid "Africa/Asmera"
+msgstr "Африк / Амера"
+
+msgid "Africa/Bamako"
+msgstr "Африк / Бамако"
+
+msgid "Africa/Bangui"
+msgstr "Африк / Банги"
+
+msgid "Africa/Banjul"
+msgstr "Африк / Банжул"
+
+msgid "Africa/Bissau"
+msgstr "Африк / Бисау"
+
+msgid "Africa/Blantyre"
+msgstr "Африк / Блантайр"
+
+msgid "Africa/Brazzaville"
+msgstr "Африк / Браззавиль"
+
+msgid "Africa/Bujumbura"
+msgstr "Африк / Бужумбура"
+
+msgid "Africa/Cairo"
+msgstr "Африк / Каир"
+
+msgid "Africa/Casablanca"
+msgstr "Африк / Касабланка"
+
+msgid "Africa/Ceuta"
+msgstr "Африк / Сеута"
+
+#. comment for time zone Africa/Ceuta
+msgid "Ceuta & Melilla"
+msgstr "Сеута ба Мелилла"
+
+msgid "Africa/Conakry"
+msgstr "Африк /"
+
+msgid "Africa/Dakar"
+msgstr "Африк / Дакар"
+
+msgid "Africa/Dar_es_Salaam"
+msgstr "Африк / Dar_es_Salaam"
+
+msgid "Africa/Djibouti"
+msgstr "Африк / Джибути"
+
+msgid "Africa/Douala"
+msgstr "Африк / Дуала"
+
+msgid "Africa/El_Aaiun"
+msgstr "Африк / Эл_Аайун"
+
+msgid "Africa/Freetown"
+msgstr "Африк / Хотын"
+
+msgid "Africa/Gaborone"
+msgstr "Африк / Габрон"
+
+msgid "Africa/Harare"
+msgstr "Африк / Хараре"
+
+msgid "Africa/Johannesburg"
+msgstr "Африк / Иоханнесбург"
+
+msgid "Africa/Kampala"
+msgstr "Африк / Кампала"
+
+msgid "Africa/Khartoum"
+msgstr "Африк / Хартум"
+
+msgid "Africa/Kigali"
+msgstr "Африк / Кигали"
+
+msgid "Africa/Kinshasa"
+msgstr "Африк / Киншаса"
+
+#. comment for time zone Africa/Kinshasa
+msgid "west Dem. Rep. of Congo"
+msgstr "баруун Дем. Конго улсын төлөөлөгч"
+
+msgid "Africa/Lagos"
+msgstr "Африк / Лагос"
+
+msgid "Africa/Libreville"
+msgstr "Африк / Либревилл"
+
+msgid "Africa/Lome"
+msgstr "Африк / Лом"
+
+msgid "Africa/Luanda"
+msgstr "Африк / Луанда"
+
+msgid "Africa/Lubumbashi"
+msgstr "Африк / Любумбаши"
+
+#. comment for time zone Africa/Lubumbashi
+msgid "east Dem. Rep. of Congo"
+msgstr "зүүн Дем. Конго улсын төлөөлөгч"
+
+msgid "Africa/Lusaka"
+msgstr "Африк / Лусака"
+
+msgid "Africa/Malabo"
+msgstr "Африк / Малабо"
+
+msgid "Africa/Maputo"
+msgstr "Африк / Мапуто"
+
+msgid "Africa/Maseru"
+msgstr "Африк / Масеру"
+
+msgid "Africa/Mbabane"
+msgstr "Африк / Мбабан"
+
+msgid "Africa/Mogadishu"
+msgstr "Африк / Могадишу"
+
+msgid "Africa/Monrovia"
+msgstr "Африк / Монровиа"
+
+msgid "Africa/Nairobi"
+msgstr "Африк / Найроби"
+
+msgid "Africa/Ndjamena"
+msgstr "Африк / Нджамена"
+
+msgid "Africa/Niamey"
+msgstr "Африк / Намей"
+
+msgid "Africa/Nouakchott"
+msgstr "Африк / Нуакчотт"
+
+msgid "Africa/Ouagadougou"
+msgstr "Африк / Оугадугу"
+
+msgid "Africa/Porto-Novo"
+msgstr "Африк / Порто-Ново"
+
+msgid "Africa/Sao_Tome"
+msgstr "Африк / Сао_Том"
+
+msgid "Africa/Timbuktu"
+msgstr "Африк / Тимбукту"
+
+msgid "Africa/Tripoli"
+msgstr "Африк / Триполи"
+
+msgid "Africa/Tunis"
+msgstr "Африк / Тунис"
+
+msgid "Africa/Windhoek"
+msgstr "Африк / Виндхек"
+
+msgid "Africa/Juba"
+msgstr "Африк / Жуба"
+
+msgid "America/Adak"
+msgstr "Америк / Адак"
+
+#. comment for time zone America/Adak
+msgid "Aleutian Islands"
+msgstr "Алеутын арлууд"
+
+msgid "America/Anchorage"
+msgstr "Америк / Анкоридж"
+
+#. comment for time zone America/Anchorage
+msgid "Alaska Time"
+msgstr "Аляска"
+
+msgid "America/Anguilla"
+msgstr "Америк / Ангуилла"
+
+msgid "America/Antigua"
+msgstr "Америк / Антигуа"
+
+msgid "America/Araguaina"
+msgstr "Америк / Агуайна"
+
+#. comment for time zone America/Araguaina
+msgid "Tocantins"
+msgstr "Токантин"
+
+msgid "America/Argentina/Buenos_Aires"
+msgstr "Америк / Аргентин / Buenos_Aires"
+
+#. comment for time zone America/Argentina/Buenos_Aires
+msgid "Buenos Aires (BA, CF)"
+msgstr "Буэнос-Айрес (BA, CF )"
+
+msgid "America/Argentina/Catamarca"
+msgstr "Америк / Аргентин / Катамарка"
+
+#. comment for time zone America/Argentina/Catamarca
+msgid "Catamarca (CT), Chubut (CH)"
+msgstr "Catamarca ( CT ), Chubut ( CH )"
+
+msgid "America/Argentina/ComodRivadavia"
+msgstr "Америк / Аргентин / КомодРивадав"
+
+msgid "America/Argentina/Cordoba"
+msgstr "Америк / Аргентин / Кордоба"
+
+#. comment for time zone America/Argentina/Cordoba
+msgid "most locations (CB, CC, CN, ER, FM, MN, SE, SF)"
+msgstr "ихэнх байршил ( CB, CC, CN, ER, FM, MN, SE, SF )"
+
+msgid "America/Argentina/Jujuy"
+msgstr "Америк / Аргентин / Жужуй"
+
+#. comment for time zone America/Argentina/Jujuy
+msgid "Jujuy (JY)"
+msgstr "Jujuy ( JY )"
+
+msgid "America/Argentina/La_Rioja"
+msgstr "Америк / Аргентин / Ла_Рио"
+
+#. comment for time zone America/Argentina/La_Rioja
+msgid "La Rioja (LR)"
+msgstr "Ла Риожа ( LR )"
+
+msgid "America/Argentina/Mendoza"
+msgstr "Америк / Аргентин / Мендоза"
+
+#. comment for time zone America/Argentina/Mendoza
+msgid "Mendoza (MZ)"
+msgstr "Мендоза ( MZ )"
+
+msgid "America/Argentina/Rio_Gallegos"
+msgstr "Америк / Аргентин / Рио_Галлегос"
+
+#. comment for time zone America/Argentina/Rio_Gallegos
+msgid "Santa Cruz (SC)"
+msgstr "Санта Круз ( SC )"
+
+msgid "America/Argentina/Salta"
+msgstr "Америк / Аргентин / Салта"
+
+#. comment for time zone America/Argentina/Salta
+msgid "(SA, LP, NQ, RN)"
+msgstr "( SA, LP, NQ, RN )"
+
+msgid "America/Argentina/San_Juan"
+msgstr "Америк / Аргентин / Сан_Жуан"
+
+#. comment for time zone America/Argentina/San_Juan
+msgid "San Juan (SJ)"
+msgstr "Сан Хуан ( SJ )"
+
+msgid "America/Argentina/San_Luis"
+msgstr "Америк / Аргентин / Сан_Луис"
+
+#. comment for time zone America/Argentina/San_Luis
+msgid "San Luis (SL)"
+msgstr "Сан Луис ( SL )"
+
+msgid "America/Argentina/Tucuman"
+msgstr "Америк / Аргентин / Тусуман"
+
+#. comment for time zone America/Argentina/Tucuman
+msgid "Tucuman (TM)"
+msgstr "Tucuman ( TM )"
+
+msgid "America/Argentina/Ushuaia"
+msgstr "Америк / Аргентин / Ушуай"
+
+#. comment for time zone America/Argentina/Ushuaia
+msgid "Tierra del Fuego (TF)"
+msgstr "Tierra del Fuego ( TF )"
+
+msgid "America/Aruba"
+msgstr "Америк / Аруба"
+
+msgid "America/Asuncion"
+msgstr "Америк / Зүс"
+
+msgid "America/Atikokan"
+msgstr "Америк / Атикокан"
+
+#. comment for time zone America/Atikokan
+msgid "Eastern Standard Time - Atikokan, Ontario and Southampton I, Nunavut"
+msgstr "Зүүн стандарт цаг-Атикокан, Онтарио, Саутхэмптон I, Нунавут"
+
+msgid "America/Atka"
+msgstr "Америк / Атка"
+
+msgid "America/Bahia"
+msgstr "Америк / Бахиа"
+
+#. comment for time zone America/Bahia
+msgid "Bahia"
+msgstr "Бах"
+
+msgid "America/Bahia_Banderas"
+msgstr "Америк / Бахиа_Бандерас"
+
+#. comment for time zone America/Bahia_Banderas
+msgid "Mexican Central Time - Bahia de Banderas"
+msgstr "Мексикийн Төв цаг-Бахиа де Бандерас"
+
+msgid "America/Barbados"
+msgstr "Америк / Барбадос"
+
+msgid "America/Belem"
+msgstr "Америк / Белл"
+
+#. comment for time zone America/Belem
+msgid "Amapa, E Para"
+msgstr "Амапа, Е Пара"
+
+msgid "America/Belize"
+msgstr "Америк / Бүс"
+
+msgid "America/Blanc-Sablon"
+msgstr "Америк / Бланк-Саблон"
+
+#. comment for time zone America/Blanc-Sablon
+msgid "Atlantic Standard Time - Quebec - Lower North Shore"
+msgstr "Атлантын стандарт цаг-Квебек-Уулын хойд эрэг"
+
+msgid "America/Boa_Vista"
+msgstr "Америк / Boa_Vista"
+
+#. comment for time zone America/Boa_Vista
+msgid "Roraima"
+msgstr "Рора"
+
+msgid "America/Bogota"
+msgstr "Америк / Богота"
+
+msgid "America/Boise"
+msgstr "Америк /"
+
+#. comment for time zone America/Boise
+msgid "Mountain Time - south Idaho & east Oregon"
+msgstr "Уулын цаг-өмнөд Айдахо ба зүүн Орегон"
+
+msgid "America/Buenos_Aires"
+msgstr "Америк / Buenos_Aires"
+
+msgid "America/Cambridge_Bay"
+msgstr "Америк / Кембридж_Бэй"
+
+#. comment for time zone America/Cambridge_Bay
+msgid "Mountain Time - west Nunavut"
+msgstr "Уулын цаг-баруун Нунав"
+
+msgid "America/Campo_Grande"
+msgstr "Америк / Кампо_Гранд"
+
+#. comment for time zone America/Campo_Grande
+msgid "Mato Grosso do Sul"
+msgstr "Мато Гросо-ду"
+
+msgid "America/Cancun"
+msgstr "Америк / Канкун"
+
+#. comment for time zone America/Cancun
+msgid "Central Time - Quintana Roo"
+msgstr "Төв цаг-Квинтана Роо"
+
+msgid "America/Caracas"
+msgstr "Америк / Каракас"
+
+msgid "America/Catamarca"
+msgstr "Америк / Катамарка"
+
+msgid "America/Cayenne"
+msgstr "Америк / Кейн"
+
+msgid "America/Cayman"
+msgstr "Америк / Кайман"
+
+msgid "America/Chicago"
+msgstr "Америк / Чикаго"
+
+#. comment for time zone America/Chicago
+msgid "Central Time"
+msgstr "Төв цаг"
+
+msgid "America/Chihuahua"
+msgstr "Америк / Чихуахуа"
+
+#. comment for time zone America/Chihuahua
+msgid "Mexican Mountain Time - Chihuahua away from US border"
+msgstr "Мексикийн уулын цаг-Чихуахуа АНУ-ын хилээс хол"
+
+msgid "America/Coral_Harbour"
+msgstr "Америк / Корал_Харбор"
+
+msgid "America/Cordoba"
+msgstr "Америк / Кордоба"
+
+msgid "America/Costa_Rica"
+msgstr "Америк / Коста_Рика"
+
+msgid "America/Cuiaba"
+msgstr "Америк / Куйаба"
+
+#. comment for time zone America/Cuiaba
+msgid "Mato Grosso"
+msgstr "Мато Грос"
+
+msgid "America/Curacao"
+msgstr "Америк / Курака"
+
+msgid "America/Danmarkshavn"
+msgstr "Америк / Данмаркшавн"
+
+#. comment for time zone America/Danmarkshavn
+msgid "east coast, north of Scoresbysund"
+msgstr "зүүн эрэг, Скоресбисундын хойд"
+
+msgid "America/Dawson"
+msgstr "Америк / Дэйвсон"
+
+#. comment for time zone America/Dawson
+msgid "Pacific Time - north Yukon"
+msgstr "Номхон далайн цаг хугацааны хувьд Юкон"
+
+msgid "America/Dawson_Creek"
+msgstr "Америк / Dawson_Creek"
+
+#. comment for time zone America/Dawson_Creek
+msgid ""
+"Mountain Standard Time - Dawson Creek & Fort Saint John, British Columbia"
+msgstr "Уулын стандарт цаг-Давсон Крик ба Форт Сент Жон, Британийн Колумбиа"
+
+msgid "America/Denver"
+msgstr "Америк / Денвер"
+
+#. comment for time zone America/Denver
+msgid "Mountain Time"
+msgstr "Уулын цаг"
+
+msgid "America/Detroit"
+msgstr "Америк / Детройт"
+
+#. comment for time zone America/Detroit
+msgid "Eastern Time - Michigan - most locations"
+msgstr "Зүүн цаг-Мичиган-ихиган-их байршил"
+
+msgid "America/Dominica"
+msgstr "Америк / Доминика"
+
+msgid "America/Edmonton"
+msgstr "Америк / Эдмонтон"
+
+#. comment for time zone America/Edmonton
+msgid "Mountain Time - Alberta, east British Columbia & west Saskatchewan"
+msgstr "Уулын цаг-Альберта, зүүн Британийн Колумбиа ба баруун Саскачеван"
+
+msgid "America/Eirunepe"
+msgstr "Америк / Эмирунеп"
+
+#. comment for time zone America/Eirunepe
+msgid "W Amazonas"
+msgstr "W Amazonas"
+
+msgid "America/El_Salvador"
+msgstr "Америк / Эл_Салвадор"
+
+msgid "America/Ensenada"
+msgstr "Америк / Энсенада"
+
+msgid "America/Fortaleza"
+msgstr "Америк / Форталеза"
+
+#. comment for time zone America/Fortaleza
+msgid "NE Brazil (MA, PI, CE, RN, PB)"
+msgstr "NE Бразил ( MA, PI, CE, RN, PB )"
+
+msgid "America/Fort_Wayne"
+msgstr "Америк / Форт_Вайн"
+
+msgid "America/Glace_Bay"
+msgstr "Америк / Glace_Bay"
+
+#. comment for time zone America/Glace_Bay
+msgid ""
+"Atlantic Time - Nova Scotia - places that did not observe DST 1966-1971"
+msgstr "Атлантын цаг-Нова Скотиа-1966-1971 оны DST-ийг ажиглаагүй газрууд"
+
+msgid "America/Godthab"
+msgstr "Америк / Годтаб"
+
+#. comment for time zone America/Godthab
+#. comment for time zone America/Santiago
+#. comment for time zone Asia/Almaty
+#. comment for time zone Asia/Ulaanbaatar
+#. comment for time zone Europe/Kiev
+#. comment for time zone Pacific/Auckland
+#. comment for time zone Pacific/Majuro
+msgid "most locations"
+msgstr "ихэнх"
+
+msgid "America/Goose_Bay"
+msgstr "Америк / Goose_Bay"
+
+#. comment for time zone America/Goose_Bay
+msgid "Atlantic Time - Labrador - most locations"
+msgstr "Атлантын цаг-Лабрадор-их байршил"
+
+msgid "America/Grand_Turk"
+msgstr "Америк / Гранд_Турк"
+
+msgid "America/Grenada"
+msgstr "Америк / Гренада"
+
+msgid "America/Guadeloupe"
+msgstr "Америк / Гваделуп"
+
+msgid "America/Guatemala"
+msgstr "Америк / Гватемал"
+
+msgid "America/Guayaquil"
+msgstr "Америк / Гуаяк"
+
+#. comment for time zone America/Guayaquil
+#. comment for time zone Europe/Lisbon
+#. comment for time zone Europe/Madrid
+msgid "mainland"
+msgstr "эх"
+
+msgid "America/Guyana"
+msgstr "Америк / Гуяна"
+
+msgid "America/Halifax"
+msgstr "Америк / Халифакс"
+
+#. comment for time zone America/Halifax
+msgid "Atlantic Time - Nova Scotia (most places), PEI"
+msgstr "Атлантын цаг-Нова Скотиа ( ихэнх газрууд ), PEI"
+
+msgid "America/Havana"
+msgstr "Америк / Гавана"
+
+msgid "America/Hermosillo"
+msgstr "Америк / Гермосилло"
+
+#. comment for time zone America/Hermosillo
+msgid "Mountain Standard Time - Sonora"
+msgstr "Уулын стандарт цаг-Сонора"
+
+msgid "America/Indiana/Indianapolis"
+msgstr "Америк / Энэтхэг / Индианаполис"
+
+#. comment for time zone America/Indiana/Indianapolis
+msgid "Eastern Time - Indiana - most locations"
+msgstr "Зүүн цаг-Индиана-их байршил"
+
+msgid "America/Indiana/Knox"
+msgstr "Америк / Энэтхэг / Knox"
+
+#. comment for time zone America/Indiana/Knox
+msgid "Central Time - Indiana - Starke County"
+msgstr "Төв цаг-Индиана-Старке Каунти"
+
+msgid "America/Indiana/Marengo"
+msgstr "Америк / Энэтхэг / Марего"
+
+#. comment for time zone America/Indiana/Marengo
+msgid "Eastern Time - Indiana - Crawford County"
+msgstr "Зүүн цаг-Индиана-Кроуфорд Каунти"
+
+msgid "America/Indiana/Petersburg"
+msgstr "Америк / Энэтхэг / Петерсбург"
+
+#. comment for time zone America/Indiana/Petersburg
+msgid "Eastern Time - Indiana - Pike County"
+msgstr "Зүүн цаг-Индиана-Пайк"
+
+msgid "America/Indianapolis"
+msgstr "Америк / Индианаполис"
+
+msgid "America/Indiana/Tell_City"
+msgstr "Америк / Энэтхэг / Телл_Кити"
+
+#. comment for time zone America/Indiana/Tell_City
+msgid "Central Time - Indiana - Perry County"
+msgstr "Төв цаг-Индиана-Перри Каунти"
+
+msgid "America/Indiana/Vevay"
+msgstr "Америк / Энэтхэг / Девай"
+
+#. comment for time zone America/Indiana/Vevay
+msgid "Eastern Time - Indiana - Switzerland County"
+msgstr "Зүүн цаг-Индиана-Швейцар"
+
+msgid "America/Indiana/Vincennes"
+msgstr "Америк / Энэтхэг / Винченнес"
+
+#. comment for time zone America/Indiana/Vincennes
+msgid "Eastern Time - Indiana - Daviess, Dubois, Knox & Martin Counties"
+msgstr "Зүүн цаг-Индиана-Давиц, Дюбуа, Нокс ба Мартин мужууд"
+
+msgid "America/Indiana/Winamac"
+msgstr "Америк / Энэтхэг / Винамак"
+
+#. comment for time zone America/Indiana/Winamac
+msgid "Eastern Time - Indiana - Pulaski County"
+msgstr "Зүүн цаг-Индиана-Пуласки муж"
+
+msgid "America/Inuvik"
+msgstr "Америк / Инувик"
+
+#. comment for time zone America/Inuvik
+msgid "Mountain Time - west Northwest Territories"
+msgstr "Уулын цаг баруун баруун хойд нутаг"
+
+msgid "America/Iqaluit"
+msgstr "Америк / Икалуит"
+
+#. comment for time zone America/Iqaluit
+msgid "Eastern Time - east Nunavut - most locations"
+msgstr "Зүүн цаг Нунавут-их газар"
+
+msgid "America/Jamaica"
+msgstr "Америк / Ямайка"
+
+msgid "America/Jujuy"
+msgstr "Америк / Жужуй"
+
+msgid "America/Juneau"
+msgstr "Америк / Жуна"
+
+#. comment for time zone America/Juneau
+msgid "Alaska Time - Alaska panhandle"
+msgstr "Аляска цаг-Аляска"
+
+msgid "America/Kentucky/Louisville"
+msgstr "Америк / Кентаки / Луисвилл"
+
+#. comment for time zone America/Kentucky/Louisville
+msgid "Eastern Time - Kentucky - Louisville area"
+msgstr "Зүүн цаг-Кентаки-Луисвилл"
+
+msgid "America/Kentucky/Monticello"
+msgstr "Америк / Кентаки / Монтицелло"
+
+#. comment for time zone America/Kentucky/Monticello
+msgid "Eastern Time - Kentucky - Wayne County"
+msgstr "Зүүн цаг-Кентаки-Вайн Каунти"
+
+msgid "America/Knox_IN"
+msgstr "Америк / Knox_IN"
+
+msgid "America/La_Paz"
+msgstr "Америк / Ла_Паз"
+
+msgid "America/Lima"
+msgstr "Америк / Лима"
+
+msgid "America/Los_Angeles"
+msgstr "Америк / Лос_Анжелес"
+
+#. comment for time zone America/Los_Angeles
+msgid "Pacific Time"
+msgstr "Номхон далайн цаг"
+
+msgid "America/Louisville"
+msgstr "Америк / Луисвилл"
+
+msgid "America/Maceio"
+msgstr "Америк / Макей"
+
+#. comment for time zone America/Maceio
+msgid "Alagoas, Sergipe"
+msgstr "Алагоас, Сергип"
+
+msgid "America/Managua"
+msgstr "Америк / Манагуа"
+
+msgid "America/Manaus"
+msgstr "Америк / Мана"
+
+#. comment for time zone America/Manaus
+msgid "E Amazonas"
+msgstr "E Amazonas"
+
+msgid "America/Marigot"
+msgstr "Америк / Маригот"
+
+msgid "America/Martinique"
+msgstr "Америк / Мартиник"
+
+msgid "America/Matamoros"
+msgstr "Америк / Матаморос"
+
+#. comment for time zone America/Matamoros
+msgid ""
+"US Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas near US border"
+msgstr ""
+"АНУ-ын Төв цаг-Коахуила, Дуранго, Нуэво Леон, АНУ-ын хилийн ойролцоо "
+"Тамаулипас"
+
+msgid "America/Mazatlan"
+msgstr "Америк / Мазатлан"
+
+#. comment for time zone America/Mazatlan
+msgid "Mountain Time - S Baja, Nayarit, Sinaloa"
+msgstr "Уулын цаг-S Baja, Nayarit, Sinaloa"
+
+msgid "America/Mendoza"
+msgstr "Америк / Мендоза"
+
+msgid "America/Menominee"
+msgstr "Америк / Эрэгтэй"
+
+#. comment for time zone America/Menominee
+msgid ""
+"Central Time - Michigan - Dickinson, Gogebic, Iron & Menominee Counties"
+msgstr "Төв цаг-Мичиган-Дикинсон, Гогебич, Төмөр ба Меномине мужууд"
+
+msgid "America/Merida"
+msgstr "Америк / Мерида"
+
+#. comment for time zone America/Merida
+msgid "Central Time - Campeche, Yucatan"
+msgstr "Төв цаг-Кампе, Юкатан"
+
+msgid "America/Mexico_City"
+msgstr "Америк / Мексик_"
+
+#. comment for time zone America/Mexico_City
+msgid "Central Time - most locations"
+msgstr "Төв цаг-хамгийн их байршил"
+
+msgid "America/Miquelon"
+msgstr "Америк / Микелон"
+
+msgid "America/Moncton"
+msgstr "Америк / Монктон"
+
+#. comment for time zone America/Moncton
+msgid "Atlantic Time - New Brunswick"
+msgstr "Атлантын цаг-Нью-Брансуик"
+
+msgid "America/Monterrey"
+msgstr "Америк / Монтеррей"
+
+#. comment for time zone America/Monterrey
+msgid ""
+"Mexican Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas away from "
+"US border"
+msgstr ""
+"Мексикийн Төв цаг-Коахуила, Дуранго, Нуэво Леон, Тамаулипас АНУ-ын хилээс "
+"хол"
+
+msgid "America/Montevideo"
+msgstr "Америк / Монтевид"
+
+msgid "America/Montreal"
+msgstr "Америк / Монреаль"
+
+#. comment for time zone America/Montreal
+msgid "Eastern Time - Quebec - most locations"
+msgstr "Зүүн цаг-Квебек-их"
+
+msgid "America/Montserrat"
+msgstr "Америк / Монцеррат"
+
+msgid "America/Nassau"
+msgstr "Америк / Нассау"
+
+msgid "America/New_York"
+msgstr "Америк / Нью_Йорк"
+
+#. comment for time zone America/New_York
+msgid "Eastern Time"
+msgstr "Зүүн цаг"
+
+msgid "America/Nipigon"
+msgstr "Америк / Нипигон"
+
+#. comment for time zone America/Nipigon
+msgid ""
+"Eastern Time - Ontario & Quebec - places that did not observe DST 1967-1973"
+msgstr "DST 1967-1973-ийг ажиглаагүй Зүүн цаг-Онтарио ба Квебек-хотууд"
+
+msgid "America/Nome"
+msgstr "Америк / Ном"
+
+#. comment for time zone America/Nome
+msgid "Alaska Time - west Alaska"
+msgstr "Аляска"
+
+msgid "America/Noronha"
+msgstr "Америк / Норонха"
+
+#. comment for time zone America/Noronha
+msgid "Atlantic islands"
+msgstr "Атлантын арлууд"
+
+msgid "America/North_Dakota/Center"
+msgstr "Америк / North_Dakota / төв"
+
+#. comment for time zone America/North_Dakota/Center
+msgid "Central Time - North Dakota - Oliver County"
+msgstr "Төв цаг-Хойд Дакота-Оливер Каунти"
+
+msgid "America/North_Dakota/New_Salem"
+msgstr "Америк / North_Dakota / New_Salem"
+
+#. comment for time zone America/North_Dakota/New_Salem
+msgid "Central Time - North Dakota - Morton County (except Mandan area)"
+msgstr "Төв цаг-Хойд Дакота-Мортон Каунти ( Мандан бүсээс бусад )"
+
+msgid "America/Ojinaga"
+msgstr "Америк / Ожинага"
+
+#. comment for time zone America/Ojinaga
+msgid "US Mountain Time - Chihuahua near US border"
+msgstr "АНУ-ын хилийн ойролцоо АНУ-ын уулын цаг-Чихуахуа"
+
+msgid "America/Panama"
+msgstr "Америк / Панама"
+
+msgid "America/Pangnirtung"
+msgstr "Америк / Паннирту"
+
+#. comment for time zone America/Pangnirtung
+msgid "Eastern Time - Pangnirtung, Nunavut"
+msgstr "Зүүн цаг-Пангниртунг, Нунавут"
+
+msgid "America/Paramaribo"
+msgstr "Америк / Парамарибо"
+
+msgid "America/Phoenix"
+msgstr "Америк / Финикс"
+
+#. comment for time zone America/Phoenix
+msgid "Mountain Standard Time - Arizona"
+msgstr "Уулын стандарт цаг-Аризона"
+
+msgid "America/Port-au-Prince"
+msgstr "Америк / Порт-о-Пренс"
+
+msgid "America/Porto_Acre"
+msgstr "Америк / Порто_Акр"
+
+msgid "America/Port_of_Spain"
+msgstr "Америк / Port_of_Spain"
+
+msgid "America/Porto_Velho"
+msgstr "Америк / Порто_Велхо"
+
+#. comment for time zone America/Porto_Velho
+msgid "Rondonia"
+msgstr "Рондониа"
+
+msgid "America/Puerto_Rico"
+msgstr "Америк / Пуэрто_ Рико"
+
+msgid "America/Rainy_River"
+msgstr "Америк / Rainy_River"
+
+#. comment for time zone America/Rainy_River
+msgid "Central Time - Rainy River & Fort Frances, Ontario"
+msgstr "Төв цаг-Райн гол ба Форт Фрэнсис, Онтарио"
+
+msgid "America/Rankin_Inlet"
+msgstr "Америк / Ранкин_Инлет"
+
+#. comment for time zone America/Rankin_Inlet
+msgid "Central Time - central Nunavut"
+msgstr "Төв цаг-төв Нунав"
+
+msgid "America/Recife"
+msgstr "Америк / Хүлээн авалт"
+
+#. comment for time zone America/Recife
+msgid "Pernambuco"
+msgstr "Пернамбуко"
+
+msgid "America/Regina"
+msgstr "Америк / Регина"
+
+#. comment for time zone America/Regina
+msgid "Central Standard Time - Saskatchewan - most locations"
+msgstr "Төв стандарт цаг-Саскачеван-их байршил"
+
+msgid "America/Resolute"
+msgstr "Америк / шийдэмгий"
+
+#. comment for time zone America/Resolute
+msgid "Eastern Standard Time - Resolute, Nunavut"
+msgstr "Зүүн стандарт цаг-үнэмлэхүй, Нунавут"
+
+msgid "America/Rio_Branco"
+msgstr "Америк / Рио_Бранко"
+
+#. comment for time zone America/Rio_Branco
+msgid "Acre"
+msgstr "Ак"
+
+msgid "America/Rosario"
+msgstr "Америк / Розарио"
+
+msgid "America/Santa_Isabel"
+msgstr "Америк / Санта_Изабел"
+
+#. comment for time zone America/Santa_Isabel
+msgid "Mexican Pacific Time - Baja California away from US border"
+msgstr "Мексикийн Номхон далайн цаг-Бажа Калифорниа АНУ-ын хилээс хол"
+
+msgid "America/Santarem"
+msgstr "Америк / Сантарем"
+
+#. comment for time zone America/Santarem
+msgid "W Para"
+msgstr "В Пара"
+
+msgid "America/Santiago"
+msgstr "Америк / Санти"
+
+msgid "America/Santo_Domingo"
+msgstr "Америк / Санто_Доминго"
+
+msgid "America/Sao_Paulo"
+msgstr "Америк / Сао_Пауло"
+
+#. comment for time zone America/Sao_Paulo
+msgid "S & SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS)"
+msgstr "S & SE Бразил ( GO, DF, MG, ES, RJ, SP, PR, SC, RS )"
+
+msgid "America/Scoresbysund"
+msgstr "Америк / Скоресбисунд"
+
+#. comment for time zone America/Scoresbysund
+msgid "Scoresbysund / Ittoqqortoormiit"
+msgstr "Scoresbysund / Ittoqortoormiit"
+
+msgid "America/Shiprock"
+msgstr "Америк / Дипрок"
+
+#. comment for time zone America/Shiprock
+msgid "Mountain Time - Navajo"
+msgstr "Уулын цаг-Наважо"
+
+msgid "America/St_Barthelemy"
+msgstr "Америк / Ст_Бартелеми"
+
+msgid "America/St_Johns"
+msgstr "Америк / Ст_Жон"
+
+#. comment for time zone America/St_Johns
+msgid "Newfoundland Time, including SE Labrador"
+msgstr "Ньюфаундландын цаг, үүнд SE Labrador"
+
+msgid "America/St_Kitts"
+msgstr "Америк / Ст_Китт"
+
+msgid "America/St_Lucia"
+msgstr "Америк / Ст_Люси"
+
+msgid "America/St_Thomas"
+msgstr "Америк / Ст_Томас"
+
+msgid "America/St_Vincent"
+msgstr "Америк / Ст_Винсент"
+
+msgid "America/Swift_Current"
+msgstr "Америк / Свифт_Курент"
+
+#. comment for time zone America/Swift_Current
+msgid "Central Standard Time - Saskatchewan - midwest"
+msgstr "Төв стандарт цаг-Саскаеваны баруун"
+
+msgid "America/Tegucigalpa"
+msgstr "Америк / Тегусигалпа"
+
+msgid "America/Thule"
+msgstr "Америк / Тул"
+
+#. comment for time zone America/Thule
+msgid "Thule / Pituffik"
+msgstr "Туле / Питуфик"
+
+msgid "America/Thunder_Bay"
+msgstr "Америк / Thunder_Bay"
+
+#. comment for time zone America/Thunder_Bay
+msgid "Eastern Time - Thunder Bay, Ontario"
+msgstr "Зүүн цаг-Тандер Бэй, Онтарио"
+
+msgid "America/Tijuana"
+msgstr "Америк / Тиху"
+
+#. comment for time zone America/Tijuana
+msgid "US Pacific Time - Baja California near US border"
+msgstr "АНУ-ын хилийн ойролцоо АНУ-ын Номхон далайн цаг-Бажа Калифорниа"
+
+msgid "America/Toronto"
+msgstr "Америк / Торонто"
+
+#. comment for time zone America/Toronto
+msgid "Eastern Time - Ontario - most locations"
+msgstr "Зүүн цаг-Онтарио-их байршил"
+
+msgid "America/Tortola"
+msgstr "Америк / Тортола"
+
+msgid "America/Vancouver"
+msgstr "Америк / Ванкувер"
+
+#. comment for time zone America/Vancouver
+msgid "Pacific Time - west British Columbia"
+msgstr "Номхон далайн цаг баруун Британийн Колумбиа"
+
+msgid "America/Virgin"
+msgstr "Америк / Вирг"
+
+msgid "America/Whitehorse"
+msgstr "Америк / Вайтхорс"
+
+#. comment for time zone America/Whitehorse
+msgid "Pacific Time - south Yukon"
+msgstr "Номхон далайн цаг"
+
+msgid "America/Winnipeg"
+msgstr "Америк / Виннипег"
+
+#. comment for time zone America/Winnipeg
+msgid "Central Time - Manitoba & west Ontario"
+msgstr "Төв цаг-Манитоба ба баруун Онтарио"
+
+msgid "America/Yakutat"
+msgstr "Америк / Якутат"
+
+#. comment for time zone America/Yakutat
+msgid "Alaska Time - Alaska panhandle neck"
+msgstr "Аляска цаг-Аляска хүзүү"
+
+msgid "America/Yellowknife"
+msgstr "Америк / Улкоунай"
+
+msgid "America/Kralendijk"
+msgstr "Америк / Кралендижк"
+
+msgid "America/Creston"
+msgstr "Америк / Крестон"
+
+msgid "America/Fort_Nelson"
+msgstr "Америк / Форт_Нельсон"
+
+msgid "America/Punta_Arenas"
+msgstr "Америк / Пунта_Аренас"
+
+msgid "America/Lower_Princes"
+msgstr "Америк / Доод_"
+
+msgid "America/North_Dakota/Beulah"
+msgstr "Америк / North_Dakota / Beulah"
+
+msgid "America/Sitka"
+msgstr "Америк / Ситка"
+
+msgid "America/Metlakatla"
+msgstr "Америк / Метлакатла"
+
+#. comment for time zone America/Yellowknife
+msgid "Mountain Time - central Northwest Territories"
+msgstr "Уулын цаг-төв баруун хойд нутаг"
+
+msgid "Antarctica/Casey"
+msgstr "Антарктид / Касей"
+
+#. comment for time zone Antarctica/Casey
+msgid "Casey Station, Bailey Peninsula"
+msgstr "Кейси станц, Бэйли хойг"
+
+msgid "Antarctica/Davis"
+msgstr "Антарктид / Дэвис"
+
+#. comment for time zone Antarctica/Davis
+msgid "Davis Station, Vestfold Hills"
+msgstr "Дэвис станц, Вестфолд Хиллс"
+
+msgid "Antarctica/DumontDUrville"
+msgstr "Антарктид / ДумонтДурвилл"
+
+#. comment for time zone Antarctica/DumontDUrville
+msgid "Dumont-d'Urville Station, Terre Adelie"
+msgstr "Дюмонт-д'Урвилл станц, Терре Адели"
+
+msgid "Antarctica/Macquarie"
+msgstr "Антарктид / Маквари"
+
+#. comment for time zone Antarctica/Macquarie
+msgid "Macquarie Island Station, Macquarie Island"
+msgstr "Маквари арлын станц, Маккуари арал"
+
+msgid "Antarctica/Mawson"
+msgstr "Антарктид / Мавсон"
+
+#. comment for time zone Antarctica/Mawson
+msgid "Mawson Station, Holme Bay"
+msgstr "Мавсоны өртөө, Холме булан"
+
+msgid "Antarctica/McMurdo"
+msgstr "Антарктид / МакМурдо"
+
+#. comment for time zone Antarctica/McMurdo
+msgid "McMurdo Station, Ross Island"
+msgstr "МакМурдо станц, Росс арал"
+
+msgid "Antarctica/Palmer"
+msgstr "Антарктид / Палестин"
+
+#. comment for time zone Antarctica/Palmer
+msgid "Palmer Station, Anvers Island"
+msgstr "Палмер станц, Анверс арал"
+
+msgid "Antarctica/Rothera"
+msgstr "Антарктид / Ротера"
+
+#. comment for time zone Antarctica/Rothera
+msgid "Rothera Station, Adelaide Island"
+msgstr "Ротера станц, Аделаида арал"
+
+msgid "Antarctica/South_Pole"
+msgstr "Антарктид / South_Pole"
+
+#. comment for time zone Antarctica/South_Pole
+msgid "Amundsen-Scott Station, South Pole"
+msgstr "Амундсен-Скотт станц, Өмнөд туйл"
+
+msgid "Antarctica/Syowa"
+msgstr "Антарктид / Сова"
+
+#. comment for time zone Antarctica/Syowa
+msgid "Syowa Station, E Ongul I"
+msgstr "Сыова станц, E Ongul I"
+
+msgid "Antarctica/Vostok"
+msgstr "Антарктид / Восток"
+
+msgid "Antarctica/Troll"
+msgstr "Антарктид / Тролл"
+
+#. comment for time zone Antarctica/Vostok
+msgid "Vostok Station, S Magnetic Pole"
+msgstr "Восток станц, S Соронзон туйл"
+
+msgid "Arctic/Longyearbyen"
+msgstr "Арктик / Longyearbyen"
+
+msgid "Asia/Aden"
+msgstr "Ази / Од"
+
+msgid "Asia/Almaty"
+msgstr "Ази / Алмати"
+
+msgid "Asia/Amman"
+msgstr "Ази / Амман"
+
+msgid "Asia/Anadyr"
+msgstr "Ази / Анадир"
+
+#. comment for time zone Asia/Anadyr
+msgid "Moscow+08 - Bering Sea"
+msgstr "Москва + 08-Беринг тэнгис"
+
+msgid "Asia/Aqtau"
+msgstr "Ази / Акта"
+
+#. comment for time zone Asia/Aqtau
+msgid "Atyrau (Atirau, Gur'yev), Mangghystau (Mankistau)"
+msgstr "Atyrau ( Atirau, Gur'yev ), Mangghystau ( Mankistau )"
+
+msgid "Asia/Aqtobe"
+msgstr "Ази / Актоб"
+
+#. comment for time zone Asia/Aqtobe
+msgid "Aqtobe (Aktobe)"
+msgstr "Aqtobe ( Aktobe )"
+
+msgid "Asia/Ashgabat"
+msgstr "Ази / Ашгабат"
+
+msgid "Asia/Ashkhabad"
+msgstr "Ази / Ашхабад"
+
+msgid "Asia/Baghdad"
+msgstr "Ази / Багдад"
+
+msgid "Asia/Bahrain"
+msgstr "Ази / Бахрейн"
+
+msgid "Asia/Baku"
+msgstr "Ази / Бак"
+
+msgid "Asia/Bangkok"
+msgstr "Ази / Бангкок"
+
+msgid "Asia/Beirut"
+msgstr "Ази / Бейрут"
+
+msgid "Asia/Bishkek"
+msgstr "Ази / Бишкек"
+
+msgid "Asia/Brunei"
+msgstr "Ази / Бруней"
+
+msgid "Asia/Calcutta"
+msgstr "Ази / Калькутта"
+
+msgid "Asia/Choibalsan"
+msgstr "Ази / Чойбалсан"
+
+#. comment for time zone Asia/Choibalsan
+msgid "Dornod, Sukhbaatar"
+msgstr "Дорнод, Сухбаатар"
+
+msgid "Asia/Chongqing"
+msgstr "Ази / Дуу"
+
+#. comment for time zone Asia/Chongqing
+msgid "central China - Sichuan, Yunnan, Guangxi, Shaanxi, Guizhou, etc."
+msgstr "төв Хятад-Сичуан, Юньнань, Гуангси, Шаанси, Гуйжоу гэх мэт."
+
+msgid "Asia/Chungking"
+msgstr "Ази /"
+
+msgid "Asia/Colombo"
+msgstr "Ази / Коломбо"
+
+msgid "Asia/Dacca"
+msgstr "Ази / Дакка"
+
+msgid "Asia/Damascus"
+msgstr "Ази / Дамас"
+
+msgid "Asia/Dhaka"
+msgstr "Ази / Дхака"
+
+msgid "Asia/Dili"
+msgstr "Ази / Чили"
+
+msgid "Asia/Dubai"
+msgstr "Ази / Дубай"
+
+msgid "Asia/Dushanbe"
+msgstr "Ази / Душанбе"
+
+msgid "Asia/Gaza"
+msgstr "Ази / Газ"
+
+msgid "Asia/Harbin"
+msgstr "Ази / Харбин"
+
+#. comment for time zone Asia/Harbin
+msgid "Heilongjiang (except Mohe), Jilin"
+msgstr "Heilongjiang ( Mohe ), Jilin-ээс бусад"
+
+msgid "Asia/Ho_Chi_Minh"
+msgstr "Ази / Хо_Чи_Минх"
+
+msgid "Asia/Hong_Kong"
+msgstr "Ази / Хонг_Конг"
+
+msgid "Asia/Hovd"
+msgstr "Ази / Ховд"
+
+#. comment for time zone Asia/Hovd
+msgid "Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan"
+msgstr "Баяан-Олги, Гови-Алтай, Ховд, Увс, Завхан"
+
+msgid "Asia/Irkutsk"
+msgstr "Ази / Иркутск"
+
+#. comment for time zone Asia/Irkutsk
+msgid "Moscow+05 - Lake Baikal"
+msgstr "Москва + 05-Байкал нуур"
+
+msgid "Asia/Istanbul"
+msgstr "Ази / Истанбул"
+
+msgid "Asia/Jakarta"
+msgstr "Ази / Жакарта"
+
+#. comment for time zone Asia/Jakarta
+msgid "Java & Sumatra"
+msgstr "Java & Sumatra"
+
+msgid "Asia/Jayapura"
+msgstr "Ази / Жаяпура"
+
+#. comment for time zone Asia/Jayapura
+msgid "Irian Jaya & the Moluccas"
+msgstr "Ириан Жаяа ба Молукас"
+
+msgid "Asia/Jerusalem"
+msgstr "Ази / Иерусалим"
+
+msgid "Asia/Kabul"
+msgstr "Ази / Кабул"
+
+msgid "Asia/Kamchatka"
+msgstr "Ази / Камчатка"
+
+#. comment for time zone Asia/Kamchatka
+msgid "Moscow+08 - Kamchatka"
+msgstr "Москва + 08-Камчатка"
+
+msgid "Asia/Karachi"
+msgstr "Ази / Карачи"
+
+msgid "Asia/Kashgar"
+msgstr "Ази / Кашгар"
+
+#. comment for time zone Asia/Kashgar
+msgid "west Tibet & Xinjiang"
+msgstr "баруун Төвд ба Шинжаан"
+
+msgid "Asia/Kathmandu"
+msgstr "Ази / Катманду"
+
+msgid "Asia/Katmandu"
+msgstr "Ази / Катманду"
+
+msgid "Asia/Kolkata"
+msgstr "Ази / Колката"
+
+msgid "Asia/Krasnoyarsk"
+msgstr "Ази / Красноярск"
+
+#. comment for time zone Asia/Krasnoyarsk
+msgid "Moscow+04 - Yenisei River"
+msgstr "Москва + 04-Yenisei гол"
+
+msgid "Asia/Kuala_Lumpur"
+msgstr "Ази / Куала_Лумпур"
+
+#. comment for time zone Asia/Kuala_Lumpur
+msgid "peninsular Malaysia"
+msgstr "хойг"
+
+msgid "Asia/Kuching"
+msgstr "Ази /"
+
+#. comment for time zone Asia/Kuching
+msgid "Sabah & Sarawak"
+msgstr "Сабах ба Саравак"
+
+msgid "Asia/Kuwait"
+msgstr "Ази / Кувейт"
+
+msgid "Asia/Macao"
+msgstr "Ази / Макао"
+
+msgid "Asia/Macau"
+msgstr "Ази / Макао"
+
+msgid "Asia/Magadan"
+msgstr "Ази / Магадан"
+
+#. comment for time zone Asia/Magadan
+msgid "Moscow+08 - Magadan"
+msgstr "Москва + 08-Магадан"
+
+msgid "Asia/Makassar"
+msgstr "Ази / Макасар"
+
+#. comment for time zone Asia/Makassar
+msgid "east & south Borneo, Celebes, Bali, Nusa Tengarra, west Timor"
+msgstr "зүүн ба өмнөд Борнео, Селебес, Бали, Нуса Тенгарра, баруун Тимор"
+
+msgid "Asia/Manila"
+msgstr "Ази / Манила"
+
+msgid "Asia/Muscat"
+msgstr "Ази / Мускат"
+
+msgid "Asia/Nicosia"
+msgstr "Ази / Никосиа"
+
+msgid "Asia/Novokuznetsk"
+msgstr "Ази / Новокузнецк"
+
+#. comment for time zone Asia/Novokuznetsk
+msgid "Moscow+03 - Novokuznetsk"
+msgstr "Москва + 03-Novokuznetsk"
+
+msgid "Asia/Novosibirsk"
+msgstr "Ази / Новосибирск"
+
+#. comment for time zone Asia/Novosibirsk
+msgid "Moscow+03 - Novosibirsk"
+msgstr "Москва + 03-Novosibirsk"
+
+msgid "Asia/Omsk"
+msgstr "Ази / Оск"
+
+#. comment for time zone Asia/Omsk
+msgid "Moscow+03 - west Siberia"
+msgstr "Москва + 03-баруун Сибир"
+
+msgid "Asia/Oral"
+msgstr "Ази / Австрали"
+
+#. comment for time zone Asia/Oral
+msgid "West Kazakhstan"
+msgstr "Баруун"
+
+msgid "Asia/Phnom_Penh"
+msgstr "Ази / Пном_Пен"
+
+msgid "Asia/Pontianak"
+msgstr "Ази / Понтианак"
+
+#. comment for time zone Asia/Pontianak
+msgid "west & central Borneo"
+msgstr "баруун ба төв Борнео"
+
+msgid "Asia/Pyongyang"
+msgstr "Ази / Пёнян"
+
+msgid "Asia/Qatar"
+msgstr "Ази / Катар"
+
+msgid "Asia/Qyzylorda"
+msgstr "Ази / Цызилорда"
+
+#. comment for time zone Asia/Qyzylorda
+msgid "Qyzylorda (Kyzylorda, Kzyl-Orda)"
+msgstr "Qyzylorda ( Kyzylorda, Kzyl-Orda )"
+
+msgid "Asia/Rangoon"
+msgstr "Ази / Рангун"
+
+msgid "Asia/Riyadh"
+msgstr "Ази / Эр-Рияд"
+
+msgid "Asia/Riyadh87"
+msgstr "Ази / Эр-Рияд87"
+
+msgid "Asia/Riyadh88"
+msgstr "Ази / Эр-Рияд88"
+
+msgid "Asia/Riyadh89"
+msgstr "Ази / Эр-Рияд89"
+
+msgid "Asia/Saigon"
+msgstr "Ази / Сайгон"
+
+msgid "Asia/Sakhalin"
+msgstr "Ази / Сахалин"
+
+#. comment for time zone Asia/Sakhalin
+msgid "Moscow+07 - Sakhalin Island"
+msgstr "Москва + 07-Сахалин арал"
+
+msgid "Asia/Samarkand"
+msgstr "Ази / Самарканд"
+
+#. comment for time zone Asia/Samarkand
+msgid "west Uzbekistan"
+msgstr "баруун"
+
+msgid "Asia/Seoul"
+msgstr "Ази /"
+
+msgid "Asia/Shanghai"
+msgstr "Ази / Шанхай"
+
+#. comment for time zone Asia/Shanghai
+msgid "east China - Beijing, Guangdong, Shanghai, etc."
+msgstr "зүүн Хятад-Бээжин, Гуандун, Шанхай гэх мэт."
+
+msgid "Asia/Singapore"
+msgstr "Ази / Сингапур"
+
+msgid "Asia/Taipei"
+msgstr "Ази / Тайпэй"
+
+msgid "Asia/Tashkent"
+msgstr "Ази / Ташкент"
+
+#. comment for time zone Asia/Tashkent
+msgid "east Uzbekistan"
+msgstr "зүүн Узбек"
+
+msgid "Asia/Tbilisi"
+msgstr "Ази / Тбилиси"
+
+msgid "Asia/Tehran"
+msgstr "Ази / Тегер"
+
+msgid "Asia/Tel_Aviv"
+msgstr "Ази / Tel_Aviv"
+
+msgid "Asia/Thimbu"
+msgstr "Ази / Тимбу"
+
+msgid "Asia/Thimphu"
+msgstr "Ази / Тимфу"
+
+msgid "Asia/Tokyo"
+msgstr "Ази / Токио"
+
+msgid "Asia/Ujung_Pandang"
+msgstr "Ази / Ujung_Pandang"
+
+msgid "Asia/Ulaanbaatar"
+msgstr "Ази / Улаанбаатар"
+
+msgid "Asia/Ulan_Bator"
+msgstr "Ази / Ulan_Bator"
+
+msgid "Asia/Urumqi"
+msgstr "Ази / Урумки"
+
+#. comment for time zone Asia/Urumqi
+msgid "most of Tibet & Xinjiang"
+msgstr "Түвд ба Шинжаан"
+
+msgid "Asia/Vientiane"
+msgstr "Ази / Вьентьян"
+
+msgid "Asia/Vladivostok"
+msgstr "Ази / Владивосток"
+
+#. comment for time zone Asia/Vladivostok
+msgid "Moscow+07 - Amur River"
+msgstr "Москва + 07-Амур гол"
+
+msgid "Asia/Yakutsk"
+msgstr "Ази / Якутск"
+
+#. comment for time zone Asia/Yakutsk
+msgid "Moscow+06 - Lena River"
+msgstr "Москва + 06-Лена гол"
+
+msgid "Asia/Yekaterinburg"
+msgstr "Ази / Екатеринбург"
+
+#. comment for time zone Asia/Yekaterinburg
+msgid "Moscow+02 - Urals"
+msgstr "Москва + 02-Urals"
+
+msgid "Asia/Yerevan"
+msgstr "Ази / Ереван"
+
+msgid "Asia/Famagusta"
+msgstr "Ази / Фамагуста"
+
+msgid "Europe/Busingen"
+msgstr "Европ / Бусин"
+
+msgid "Asia/Qostanay"
+msgstr "Ази / Костанай"
+
+msgid "Asia/Atyrau"
+msgstr "Ази / Атирау"
+
+msgid "Asia/Yangon"
+msgstr "Ази / Ян"
+
+msgid "Pacific/Bougainville"
+msgstr "Номхон далайн / Бугайнвилл"
+
+msgid "Asia/Hebron"
+msgstr "Ази / Хеброн"
+
+msgid "Asia/Barnaul"
+msgstr "Ази / Барнаул"
+
+msgid "Asia/Tomsk"
+msgstr "Ази / Томск"
+
+msgid "Asia/Chita"
+msgstr "Ази / Чита"
+
+msgid "Asia/Khandyga"
+msgstr "Ази / Хандиг"
+
+msgid "Asia/Ust-Nera"
+msgstr "Ази / Уст-Нера"
+
+msgid "Asia/Srednekolymsk"
+msgstr "Ази / Среднеколимск"
+
+msgid "Atlantic/Azores"
+msgstr "Атлантын / Азор"
+
+#. comment for time zone Atlantic/Azores
+msgid "Azores"
+msgstr "Азор"
+
+msgid "Atlantic/Bermuda"
+msgstr "Атлантын / Бермуд"
+
+msgid "Atlantic/Canary"
+msgstr "Атлантын / Канад"
+
+#. comment for time zone Atlantic/Canary
+msgid "Canary Islands"
+msgstr "Канарын"
+
+msgid "Atlantic/Cape_Verde"
+msgstr "Атлантын / Cape_Verde"
+
+msgid "Atlantic/Faeroe"
+msgstr "Атлантын / Фарер"
+
+msgid "Atlantic/Faroe"
+msgstr "Атлантын / Фаро"
+
+msgid "Atlantic/Jan_Mayen"
+msgstr "Атлантын / Жан_Майен"
+
+msgid "Atlantic/Madeira"
+msgstr "Атлантын / Мадейра"
+
+#. comment for time zone Atlantic/Madeira
+msgid "Madeira Islands"
+msgstr "Мадейра арлууд"
+
+msgid "Atlantic/Reykjavik"
+msgstr "Атлантын / Рейкьявик"
+
+msgid "Atlantic/South_Georgia"
+msgstr "Атлантын / South_Georgia"
+
+msgid "Atlantic/Stanley"
+msgstr "Атлантын / Стэнли"
+
+msgid "Atlantic/St_Helena"
+msgstr "Атлантын / Ст_Хелена"
+
+msgid "Australia/ACT"
+msgstr "Австрали /"
+
+msgid "Australia/Adelaide"
+msgstr "Австрали / Аделаида"
+
+#. comment for time zone Australia/Adelaide
+msgid "South Australia"
+msgstr "Өмнөд"
+
+msgid "Australia/Brisbane"
+msgstr "Австрали / Брисбан"
+
+#. comment for time zone Australia/Brisbane
+msgid "Queensland - most locations"
+msgstr "Квинсленд-бараг"
+
+msgid "Australia/Broken_Hill"
+msgstr "Австрали / Broken_Hill"
+
+#. comment for time zone Australia/Broken_Hill
+msgid "New South Wales - Yancowinna"
+msgstr "Шинэ Өмнөд Уэльс-Яновинна"
+
+msgid "Australia/Canberra"
+msgstr "Австрали / Канберра"
+
+msgid "Australia/Currie"
+msgstr "Австрали / Кэрри"
+
+#. comment for time zone Australia/Currie
+msgid "Tasmania - King Island"
+msgstr "Тасмания-Хаан арал"
+
+msgid "Australia/Darwin"
+msgstr "Австрали / Дарвин"
+
+#. comment for time zone Australia/Darwin
+msgid "Northern Territory"
+msgstr "Хойд"
+
+msgid "Australia/Eucla"
+msgstr "Австрали / Эвкла"
+
+#. comment for time zone Australia/Eucla
+msgid "Western Australia - Eucla area"
+msgstr "Баруун Австрали-Экла"
+
+msgid "Australia/Hobart"
+msgstr "Австрали / Хобарт"
+
+#. comment for time zone Australia/Hobart
+msgid "Tasmania - most locations"
+msgstr "Тасмания-их байршил"
+
+msgid "Australia/LHI"
+msgstr "Австрали / LHI"
+
+msgid "Australia/Lindeman"
+msgstr "Австрали / Линдеман"
+
+#. comment for time zone Australia/Lindeman
+msgid "Queensland - Holiday Islands"
+msgstr "Квинсленд-Хаттай арлууд"
+
+msgid "Australia/Lord_Howe"
+msgstr "Австрали / Lord_Howe"
+
+#. comment for time zone Australia/Lord_Howe
+msgid "Lord Howe Island"
+msgstr "Лорд Хоу арал"
+
+msgid "Australia/Melbourne"
+msgstr "Австрали / Мельбурн"
+
+#. comment for time zone Australia/Melbourne
+msgid "Victoria"
+msgstr "Виктория"
+
+msgid "Australia/North"
+msgstr "Австрали / Хойд"
+
+msgid "Australia/NSW"
+msgstr "Австрали / NSW"
+
+msgid "Australia/Perth"
+msgstr "Австрали /"
+
+#. comment for time zone Australia/Perth
+msgid "Western Australia - most locations"
+msgstr "Баруун Австрали-их байршил"
+
+msgid "Australia/Queensland"
+msgstr "Австрали / Квинсланд"
+
+msgid "Australia/South"
+msgstr "Австрали / Өмнөд"
+
+msgid "Australia/Sydney"
+msgstr "Австрали / Сидней"
+
+#. comment for time zone Australia/Sydney
+msgid "New South Wales - most locations"
+msgstr "Шинэ Өмнөд Уэльс-их байршил"
+
+msgid "Australia/Tasmania"
+msgstr "Австрали / Тасмания"
+
+msgid "Australia/Victoria"
+msgstr "Австрали / Виктория"
+
+msgid "Australia/West"
+msgstr "Австрали / Баруун"
+
+msgid "Australia/Yancowinna"
+msgstr "Австрали / Янковинна"
+
+msgid "Brazil/Acre"
+msgstr "Бразил /"
+
+msgid "Brazil/DeNoronha"
+msgstr "Бразил / ДеНоронха"
+
+msgid "Brazil/East"
+msgstr "Бразил / Зүүн"
+
+msgid "Brazil/West"
+msgstr "Бразил / Баруун"
+
+msgid "Canada/Atlantic"
+msgstr "Канад / Атлантын"
+
+msgid "Canada/Central"
+msgstr "Канад / Төв"
+
+msgid "Canada/Eastern"
+msgstr "Канад / Зүүн"
+
+msgid "Canada/East-Saskatchewan"
+msgstr "Канад / Зүүн-Саска"
+
+msgid "Canada/Mountain"
+msgstr "Канад / Уул"
+
+msgid "Canada/Newfoundland"
+msgstr "Канад / Ньюфаундленд"
+
+msgid "Canada/Pacific"
+msgstr "Канад / Номхон далай"
+
+msgid "Canada/Saskatchewan"
+msgstr "Канад / Саскачеван"
+
+msgid "Canada/Yukon"
+msgstr "Канад / Юкон"
+
+msgid "CET"
+msgstr "CET"
+
+msgid "Chile/Continental"
+msgstr "Чили / Континент"
+
+msgid "Chile/EasterIsland"
+msgstr "Чили / EasterIsland"
+
+msgid "CST6CDT"
+msgstr "CST6CDT"
+
+msgid "Cuba"
+msgstr "Куба"
+
+msgid "EET"
+msgstr "EET"
+
+msgid "Egypt"
+msgstr "Египет"
+
+msgid "Eire"
+msgstr "Eire"
+
+msgid "EST"
+msgstr "EST"
+
+msgid "EST5EDT"
+msgstr "EST5EDT"
+
+msgid "Etc/GMT"
+msgstr "Etc / GMT"
+
+msgid "Etc/GMT0"
+msgstr "Etc / GMT0"
+
+msgid "Etc/GMT-0"
+msgstr "Etc / GMT-0"
+
+msgid "Etc/GMT+0"
+msgstr "Etc / GMT + 0"
+
+msgid "Etc/GMT-1"
+msgstr "Etc / GMT-1"
+
+msgid "Etc/GMT+1"
+msgstr "Etc / GMT + 1"
+
+msgid "Etc/GMT-10"
+msgstr "Etc / GMT-10"
+
+msgid "Etc/GMT+10"
+msgstr "Etc / GMT + 10"
+
+msgid "Etc/GMT-11"
+msgstr "Etc / GMT-11"
+
+msgid "Etc/GMT+11"
+msgstr "Etc / GMT + 11"
+
+msgid "Etc/GMT-12"
+msgstr "Etc / GMT-12"
+
+msgid "Etc/GMT+12"
+msgstr "Etc / GMT + 12"
+
+msgid "Etc/GMT-13"
+msgstr "Etc / GMT-13"
+
+msgid "Etc/GMT-14"
+msgstr "Etc / GMT-14"
+
+msgid "Etc/GMT-2"
+msgstr "Etc / GMT-2"
+
+msgid "Etc/GMT+2"
+msgstr "Etc / GMT + 2"
+
+msgid "Etc/GMT-3"
+msgstr "Etc / GMT-3"
+
+msgid "Etc/GMT+3"
+msgstr "Etc / GMT + 3"
+
+msgid "Etc/GMT-4"
+msgstr "Etc / GMT-4"
+
+msgid "Etc/GMT+4"
+msgstr "Etc / GMT + 4"
+
+msgid "Etc/GMT-5"
+msgstr "Etc / GMT-5"
+
+msgid "Etc/GMT+5"
+msgstr "Etc / GMT + 5"
+
+msgid "Etc/GMT-6"
+msgstr "Etc / GMT-6"
+
+msgid "Etc/GMT+6"
+msgstr "Etc / GMT + 6"
+
+msgid "Etc/GMT-7"
+msgstr "Etc / GMT-7"
+
+msgid "Etc/GMT+7"
+msgstr "Etc / GMT + 7"
+
+msgid "Etc/GMT-8"
+msgstr "Etc / GMT-8"
+
+msgid "Etc/GMT+8"
+msgstr "Etc / GMT + 8"
+
+msgid "Etc/GMT-9"
+msgstr "Etc / GMT-9"
+
+msgid "Etc/GMT+9"
+msgstr "Etc / GMT + 9"
+
+msgid "Etc/Greenwich"
+msgstr "Etc / Гринвич"
+
+msgid "Etc/UCT"
+msgstr "Etc /"
+
+msgid "Etc/Universal"
+msgstr "Etc / Бүх нийтийн"
+
+msgid "Etc/UTC"
+msgstr "Etc / UTC"
+
+msgid "Etc/Zulu"
+msgstr "Etc / Зулу"
+
+msgid "Europe/Amsterdam"
+msgstr "Европ / Амстердам"
+
+msgid "Europe/Andorra"
+msgstr "Европ / Андорра"
+
+msgid "Europe/Athens"
+msgstr "Европ / Афин"
+
+msgid "Europe/Belfast"
+msgstr "Европ / Бельги"
+
+msgid "Europe/Belgrade"
+msgstr "Европ / Бельги"
+
+msgid "Europe/Berlin"
+msgstr "Европ / Берлин"
+
+msgid "Europe/Bratislava"
+msgstr "Европ / Братислава"
+
+msgid "Europe/Brussels"
+msgstr "Европ / Брюссель"
+
+msgid "Europe/Bucharest"
+msgstr "Европ / Хамгийн"
+
+msgid "Europe/Budapest"
+msgstr "Европ / Будапешт"
+
+msgid "Europe/Chisinau"
+msgstr "Европ / Чисина"
+
+msgid "Europe/Copenhagen"
+msgstr "Европ / Копенгаген"
+
+msgid "Europe/Dublin"
+msgstr "Европ / Дублин"
+
+msgid "Europe/Gibraltar"
+msgstr "Европ / Гибралтар"
+
+msgid "Europe/Guernsey"
+msgstr "Европ / Гернси"
+
+msgid "Europe/Helsinki"
+msgstr "Европ / Хельсинки"
+
+msgid "Europe/Isle_of_Man"
+msgstr "Европ / Isle_of_Man"
+
+msgid "Europe/Istanbul"
+msgstr "Европ / Истанбул"
+
+msgid "Europe/Jersey"
+msgstr "Европ / Жерси"
+
+msgid "Europe/Kaliningrad"
+msgstr "Европ / Калининград"
+
+#. comment for time zone Europe/Kaliningrad
+msgid "Moscow-01 - Kaliningrad"
+msgstr "Москва-01-Калининград"
+
+msgid "Europe/Kiev"
+msgstr "Европ / Киев"
+
+msgid "Europe/Lisbon"
+msgstr "Европ / Лиссабон"
+
+msgid "Europe/Ljubljana"
+msgstr "Европ / Любляна"
+
+msgid "Europe/London"
+msgstr "Европ / Лондон"
+
+msgid "Europe/Luxembourg"
+msgstr "Европ / Люксембург"
+
+msgid "Europe/Madrid"
+msgstr "Европ / Мадрид"
+
+msgid "Europe/Malta"
+msgstr "Европ / Мальта"
+
+msgid "Europe/Mariehamn"
+msgstr "Европ / Мархэм"
+
+msgid "Europe/Minsk"
+msgstr "Европ / Минск"
+
+msgid "Europe/Monaco"
+msgstr "Европ / Монако"
+
+msgid "Europe/Moscow"
+msgstr "Европ / Москва"
+
+#. comment for time zone Europe/Moscow
+msgid "Moscow+00 - west Russia"
+msgstr "Москва + 00- баруун Орос"
+
+msgid "Europe/Nicosia"
+msgstr "Европ / Никосиа"
+
+msgid "Europe/Oslo"
+msgstr "Европ / Осло"
+
+msgid "Europe/Paris"
+msgstr "Европ / Парис"
+
+msgid "Europe/Podgorica"
+msgstr "Европ / Подгорика"
+
+msgid "Europe/Prague"
+msgstr "Европ / Прага"
+
+msgid "Europe/Riga"
+msgstr "Европ / Рига"
+
+msgid "Europe/Rome"
+msgstr "Европ / Ром"
+
+msgid "Europe/Samara"
+msgstr "Европ / Самара"
+
+#. comment for time zone Europe/Samara
+msgid "Moscow - Samara, Udmurtia"
+msgstr "Москва-Самара, Удмурти"
+
+msgid "Europe/San_Marino"
+msgstr "Европ / Сан_Марино"
+
+msgid "Europe/Sarajevo"
+msgstr "Европ / Сараево"
+
+msgid "Europe/Simferopol"
+msgstr "Европ / Симферопол"
+
+#. comment for time zone Europe/Simferopol
+msgid "central Crimea"
+msgstr "төв"
+
+msgid "Europe/Skopje"
+msgstr "Европ / Скопье"
+
+msgid "Europe/Sofia"
+msgstr "Европ / София"
+
+msgid "Europe/Stockholm"
+msgstr "Европ / Стокгольм"
+
+msgid "Europe/Tallinn"
+msgstr "Европ / Таллин"
+
+msgid "Europe/Tirane"
+msgstr "Европ / Тиран"
+
+msgid "Europe/Tiraspol"
+msgstr "Европ / Тираспол"
+
+msgid "Europe/Uzhgorod"
+msgstr "Европ / Узгород"
+
+#. comment for time zone Europe/Uzhgorod
+msgid "Ruthenia"
+msgstr "Рутения"
+
+msgid "Europe/Vaduz"
+msgstr "Европ / Вадуз"
+
+msgid "Europe/Vatican"
+msgstr "Европ / Ватикан"
+
+msgid "Europe/Vienna"
+msgstr "Европ / Вена"
+
+msgid "Europe/Vilnius"
+msgstr "Европ / Вильнюс"
+
+msgid "Europe/Volgograd"
+msgstr "Европ / Волгоград"
+
+#. comment for time zone Europe/Volgograd
+msgid "Moscow+00 - Caspian Sea"
+msgstr "Москва + 00-Каспийн тэнгис"
+
+msgid "Europe/Warsaw"
+msgstr "Европ / Варшав"
+
+msgid "Europe/Zagreb"
+msgstr "Европ / Загреб"
+
+msgid "Europe/Zaporozhye"
+msgstr "Европ / Запорозхи"
+
+#. comment for time zone Europe/Zaporozhye
+msgid "Zaporozh'ye, E Lugansk / Zaporizhia, E Luhansk"
+msgstr "Запорозх'йе, Е Луганск / Запоризхиа, Е Луханск"
+
+msgid "Europe/Zurich"
+msgstr "Европ / Цюрих"
+
+msgid "Europe/Kirov"
+msgstr "Европ / Киров"
+
+msgid "Europe/Astrakhan"
+msgstr "Европ / Астрахан"
+
+msgid "Europe/Saratov"
+msgstr "Европ / Саратов"
+
+msgid "Europe/Ulyanovsk"
+msgstr "Европ / Уляновск"
+
+msgid "Factory"
+msgstr "Үйлдвэр"
+
+msgid "GB"
+msgstr "Г"
+
+msgid "GB-Eire"
+msgstr "GB-Eire"
+
+msgid "GMT"
+msgstr "GMT"
+
+msgid "GMT0"
+msgstr "GMT0"
+
+msgid "GMT-0"
+msgstr "GMT-0"
+
+msgid "GMT+0"
+msgstr "GMT + 0"
+
+msgid "Greenwich"
+msgstr "Гринвич"
+
+msgid "Hongkong"
+msgstr "Хонг"
+
+msgid "HST"
+msgstr "ХС"
+
+msgid "Iceland"
+msgstr "Исланд"
+
+msgid "Indian/Antananarivo"
+msgstr "Энэтхэг / Антананариво"
+
+msgid "Indian/Chagos"
+msgstr "Энэтхэг / Шагос"
+
+msgid "Indian/Christmas"
+msgstr "Энэтхэг / Зул сарын"
+
+msgid "Indian/Cocos"
+msgstr "Энэтхэг / Коко"
+
+msgid "Indian/Comoro"
+msgstr "Энэтхэг / Кор"
+
+msgid "Indian/Kerguelen"
+msgstr "Энэтхэг / Кергуелен"
+
+msgid "Indian/Mahe"
+msgstr "Энэтхэг / Ма"
+
+msgid "Indian/Maldives"
+msgstr "Энэтхэг / Мальдив"
+
+msgid "Indian/Mauritius"
+msgstr "Энэтхэг / Маврит"
+
+msgid "Indian/Mayotte"
+msgstr "Энэтхэг / Майотт"
+
+msgid "Indian/Reunion"
+msgstr "Энэтхэг / нэгдэл"
+
+msgid "Iran"
+msgstr "Иран"
+
+msgid "iso3166.tab"
+msgstr "iso3166.tab"
+
+msgid "Israel"
+msgstr "Израиль"
+
+msgid "Jamaica"
+msgstr "Ямайка"
+
+msgid "Japan"
+msgstr "Япон"
+
+#. comment for time zone Pacific/Kwajalein
+msgid "Kwajalein"
+msgstr "Кважалеин"
+
+msgid "Libya"
+msgstr "Ливи"
+
+msgid "MET"
+msgstr "АРГА"
+
+msgid "Mexico/BajaNorte"
+msgstr "Мексик / БажаНорте"
+
+msgid "Mexico/BajaSur"
+msgstr "Мексик / БажаСур"
+
+msgid "Mexico/General"
+msgstr "Мексик / Ерөнхий"
+
+msgid "Mideast/Riyadh87"
+msgstr "Нүүлгэн / Эр-Рияд87"
+
+msgid "Mideast/Riyadh88"
+msgstr "Нүүлгэн / Эр-Рияд88"
+
+msgid "Mideast/Riyadh89"
+msgstr "Нүүлгэн / Эр-Рияд89"
+
+msgid "MST"
+msgstr "МС"
+
+msgid "MST7MDT"
+msgstr "MST7MDT"
+
+msgid "Navajo"
+msgstr "Наважо"
+
+msgid "NZ"
+msgstr "NZ"
+
+msgid "NZ-CHAT"
+msgstr "NZ-CHAT"
+
+msgid "Pacific/Apia"
+msgstr "Номхон далайн /"
+
+msgid "Pacific/Auckland"
+msgstr "Номхон далай / Окланд"
+
+msgid "Pacific/Chatham"
+msgstr "Номхон далай / Чатам"
+
+#. comment for time zone Pacific/Chatham
+msgid "Chatham Islands"
+msgstr "Чатамын арлууд"
+
+msgid "Pacific/Chuuk"
+msgstr "Номхон далай"
+
+#. comment for time zone Pacific/Chuuk
+msgid "Chuuk (Truk) and Yap"
+msgstr "Чук ( Truk ) ба яп"
+
+msgid "Pacific/Easter"
+msgstr "Номхон далайн /"
+
+#. comment for time zone Pacific/Easter
+msgid "Easter Island & Sala y Gomez"
+msgstr "Улаан өндөгний арал ба Сала у Гомез"
+
+msgid "Pacific/Efate"
+msgstr "Номхон далай / хувь"
+
+msgid "Pacific/Enderbury"
+msgstr "Номхон далайн / Эндербери"
+
+#. comment for time zone Pacific/Enderbury
+msgid "Phoenix Islands"
+msgstr "Финикс"
+
+msgid "Pacific/Fakaofo"
+msgstr "Номхон далайн / Факаофо"
+
+msgid "Pacific/Fiji"
+msgstr "Номхон далайн / Фижи"
+
+msgid "Pacific/Funafuti"
+msgstr "Номхон далайн / Фунафути"
+
+msgid "Pacific/Galapagos"
+msgstr "Номхон далай / Галапагос"
+
+#. comment for time zone Pacific/Galapagos
+msgid "Galapagos Islands"
+msgstr "Галапагос арлууд"
+
+msgid "Pacific/Gambier"
+msgstr "Номхон далай / Гамби"
+
+#. comment for time zone Pacific/Gambier
+msgid "Gambier Islands"
+msgstr "Гамбиерийн арлууд"
+
+msgid "Pacific/Guadalcanal"
+msgstr "Номхон далай / Гвадалканал"
+
+msgid "Pacific/Guam"
+msgstr "Номхон далай"
+
+msgid "Pacific/Honolulu"
+msgstr "Номхон далай / Хонолулу"
+
+#. comment for time zone Pacific/Honolulu
+msgid "Hawaii"
+msgstr "Хавай"
+
+msgid "Pacific/Johnston"
+msgstr "Номхон далай / Жонстон"
+
+#. comment for time zone Pacific/Johnston
+msgid "Johnston Atoll"
+msgstr "Жонстон Атолл"
+
+msgid "Pacific/Kiritimati"
+msgstr "Номхон далайн / Киритимати"
+
+#. comment for time zone Pacific/Kiritimati
+msgid "Line Islands"
+msgstr "Шугам"
+
+msgid "Pacific/Kosrae"
+msgstr "Номхон далайн / Косра"
+
+#. comment for time zone Pacific/Kosrae
+msgid "Kosrae"
+msgstr "Косра"
+
+msgid "Pacific/Kwajalein"
+msgstr "Номхон далайн / Кважалин"
+
+msgid "Pacific/Majuro"
+msgstr "Номхон далай / Majuro"
+
+msgid "Pacific/Marquesas"
+msgstr "Номхон далайн / Маркес"
+
+#. comment for time zone Pacific/Marquesas
+msgid "Marquesas Islands"
+msgstr "Маркесас арлууд"
+
+msgid "Pacific/Midway"
+msgstr "Номхон далайн /"
+
+#. comment for time zone Pacific/Midway
+msgid "Midway Islands"
+msgstr "Мидуэй арлууд"
+
+msgid "Pacific/Nauru"
+msgstr "Номхон далайн / Науру"
+
+msgid "Pacific/Niue"
+msgstr "Номхон далайн / Niue"
+
+msgid "Pacific/Norfolk"
+msgstr "Номхон далайн / Норфолк"
+
+msgid "Pacific/Noumea"
+msgstr "Номхон далайн / Нумеа"
+
+msgid "Pacific/Pago_Pago"
+msgstr "Номхон далайн / Pago_Pago"
+
+msgid "Pacific/Palau"
+msgstr "Номхон далайн / Палау"
+
+msgid "Pacific/Pitcairn"
+msgstr "Номхон далайн / Pitcairn"
+
+msgid "Pacific/Pohnpei"
+msgstr "Номхон далайн / Понпей"
+
+#. comment for time zone Pacific/Pohnpei
+msgid "Pohnpei (Ponape)"
+msgstr "Похнеи ( Понапе )"
+
+msgid "Pacific/Ponape"
+msgstr "Номхон далай /"
+
+msgid "Pacific/Port_Moresby"
+msgstr "Номхон далайн / Port_Moresby"
+
+msgid "Pacific/Rarotonga"
+msgstr "Номхон далайн / Rarotonga"
+
+msgid "Pacific/Saipan"
+msgstr "Номхон далай / Сайпан"
+
+msgid "Pacific/Samoa"
+msgstr "Номхон далайн / Самоа"
+
+msgid "Pacific/Tahiti"
+msgstr "Номхон далайн / Таити"
+
+#. comment for time zone Pacific/Tahiti
+msgid "Society Islands"
+msgstr "Нийгмийн арлууд"
+
+msgid "Pacific/Tarawa"
+msgstr "Номхон далайн / Тарава"
+
+#. comment for time zone Pacific/Tarawa
+msgid "Gilbert Islands"
+msgstr "Гилберт"
+
+msgid "Pacific/Tongatapu"
+msgstr "Номхон далайн / Тонгатапу"
+
+msgid "Pacific/Truk"
+msgstr "Номхон далайн / Трук"
+
+msgid "Pacific/Wake"
+msgstr "Номхон далайн /"
+
+#. comment for time zone Pacific/Wake
+msgid "Wake Island"
+msgstr "У"
+
+msgid "Pacific/Wallis"
+msgstr "Номхон далайн / Уоллис"
+
+msgid "Pacific/Yap"
+msgstr "Номхон далайн / яп"
+
+msgid "Poland"
+msgstr "Польш"
+
+msgid "Portugal"
+msgstr "Португал"
+
+msgid "posixrules"
+msgstr "позикрул"
+
+msgid "PRC"
+msgstr "БНХАУ"
+
+msgid "PST8PDT"
+msgstr "PST8PDT"
+
+msgid "ROC"
+msgstr "ROC"
+
+msgid "ROK"
+msgstr "РОК"
+
+msgid "Singapore"
+msgstr "Сингапур"
+
+msgid "Turkey"
+msgstr "Турк"
+
+msgid "UCT"
+msgstr "UC"
+
+msgid "Universal"
+msgstr "Бүх нийтийн"
+
+msgid "US/Alaska"
+msgstr "АНУ / Аляска"
+
+msgid "US/Aleutian"
+msgstr "АНУ / Алеутиан"
+
+msgid "US/Arizona"
+msgstr "АНУ / Аризона"
+
+msgid "US/Central"
+msgstr "АНУ / Төв"
+
+msgid "US/Eastern"
+msgstr "АНУ / Зүүн"
+
+msgid "US/East-Indiana"
+msgstr "АНУ / Зүүн-Индиана"
+
+msgid "US/Hawaii"
+msgstr "АНУ / Хавай"
+
+msgid "US/Indiana-Starke"
+msgstr "АНУ / Энэтхэг-Одстке"
+
+msgid "US/Michigan"
+msgstr "АНУ / Мичиган"
+
+msgid "US/Mountain"
+msgstr "АНУ / Уул"
+
+msgid "US/Pacific"
+msgstr "АНУ / Номхон далай"
+
+msgid "US/Samoa"
+msgstr "АНУ / Самоа"
+
+msgid "UTC"
+msgstr "UTC"
+
+msgid "WET"
+msgstr "У"
+
+msgid "W-SU"
+msgstr "W-SU"
+
+msgid "Zulu"
+msgstr "Зул"
