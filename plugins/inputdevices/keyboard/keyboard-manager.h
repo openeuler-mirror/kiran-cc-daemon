@@ -16,6 +16,8 @@
 
 #include <keyboard_dbus_stub.h>
 
+#include "plugins/inputdevices/keyboard/modifier-lock-manager.h"
+//
 #include "plugins/inputdevices/common/device-helper.h"
 
 namespace Kiran
@@ -87,6 +89,8 @@ private:
 
 private:
     static KeyboardManager *instance_;
+
+    std::shared_ptr<ModifierLockManager> modifier_lock_manager_;
 
     uint32_t dbus_connect_id_;
     uint32_t object_register_id_;
