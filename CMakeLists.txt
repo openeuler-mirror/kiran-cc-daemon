@@ -52,6 +52,7 @@ endif()
 message("gdbus-codegen: ${GDBUS_CODEGEN}")
 
 add_subdirectory(po)
+add_subdirectory(resources)
 add_subdirectory(data)
 add_subdirectory(lib)
 add_subdirectory(src)
