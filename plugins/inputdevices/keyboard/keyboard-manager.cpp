@@ -45,6 +45,7 @@ KeyboardManager::KeyboardManager() : dbus_connect_id_(0),
                                      repeat_delay_(500),
                                      repeat_interval_(30)
 {
+    this->modifier_lock_manager_ = std::make_shared<ModifierLockManager>();
     this->keyboard_settings_ = Gio::Settings::create(KEYBOARD_SCHEMA_ID);
 }
 
@@ -290,6 +291,7 @@ void KeyboardManager::init()
     this->load_from_settings();
     this->load_xkb_rules();
     this->set_all_props();
+    this->modifier_lock_manager_->init();
 
     this->keyboard_settings_->signal_changed().connect(sigc::mem_fun(this, &KeyboardManager::settings_changed));
 

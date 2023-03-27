@@ -26,6 +26,7 @@
 #include <glib/gi18n.h>
 
 #include "config.h"
+#include "common.h"
 #include "lib/base/base.h"
 #include "lib/dbus/auth-manager.h"
 #include "lib/iso/iso-translation.h"
@@ -83,6 +84,7 @@ int main(int argc, char* argv[])
 #if defined KCC_SYSTEM_TYPE
     auto loop = Glib::MainLoop::create();
 #elif defined KCC_SESSION_TYPE
+    auto app = Gtk::Application::create(CC_DAEMON_DBUS_NAME);
     gdk_set_allowed_backends("x11");
     gtk_init(NULL, NULL);
     Gdk::wrap_init();
