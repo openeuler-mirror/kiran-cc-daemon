@@ -49,6 +49,7 @@ private:
 private:
     static PowerSaveComputer* instance_;
 
+    Glib::RefPtr<Gio::Settings> power_settings_;
     std::shared_ptr<PowerLogin1> login1_;
     std::shared_ptr<PowerScreenSaver> screensaver_;
 

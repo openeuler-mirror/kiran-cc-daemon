@@ -22,7 +22,8 @@ namespace Kiran
 PowerEventControl::PowerEventControl(PowerWrapperManager* wrapper_manager,
                                      PowerBacklight* backlight) : wrapper_manager_(wrapper_manager),
                                                                   backlight_(backlight),
-                                                                  lid_closed_throttle_(0)
+                                                                  lid_closed_throttle_(0),
+                                                                  display_dimmed_set_(false)
 {
     this->backlight_kbd_ = backlight->get_backlight_device(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
     this->kbd_last_nozero_brightness_ = this->backlight_kbd_->get_brightness();
@@ -55,7 +56,91 @@ void PowerEventControl::init()
     this->upower_client_->signal_device_status_changed().connect(sigc::mem_fun(this, &PowerEventControl::on_device_status_changed));
 }
 
-bool PowerEventControl::do_critical_action(PowerAction action)
+void PowerEventControl::charging_event()
+{
+    // 未设置过显示器变暗操作，则不要取做恢复操作，因为可能恢复的是其他场景设置的变暗操作。
+    RETURN_IF_FALSE(this->display_dimmed_set_);
+    PowerSave::get_instance()->do_display_restore_dimmed();
+    this->display_dimmed_set_ = false;
+
+    PowerSave::get_instance()->do_cpu_restore_saver();
+}
+
+void PowerEventControl::discharging_event(std::shared_ptr<PowerUPowerDevice> device)
+{
+    const UPowerDeviceProps& device_props = device->get_props();
+
+    // 如果拔掉了电源线，则需要重新判断当前电量情况，然后进行节能操作。
+    switch (device_props.warning_level)
+    {
+    case UpDeviceLevel::UP_DEVICE_LEVEL_LOW:
+        this->charge_low_event(device);
+        break;
+    default:
+        break;
+    }
+}
+
+void PowerEventControl::charge_low_event(std::shared_ptr<PowerUPowerDevice> device)
+{
+    const UPowerDeviceProps& device_props = device->get_props();
+
+    // 如果电池电量过低，但是未使用则忽略
+    if (device_props.type == UP_DEVICE_KIND_BATTERY &&
+        !this->upower_client_->get_on_battery())
+    {
+        return;
+    }
+
+    // 执行电量过低时显示器变暗
+    auto charge_low_dimmed_enabled = this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_DIMMED);
+    // 这里必须要判断当前是否处于变暗状态。如果当前已经处于变暗状态，调用do_display_dimmed函数会导致display_dimmed_set_置为false。
+    if (charge_low_dimmed_enabled && !PowerSave::get_instance()->is_display_dimmed())
+    {
+        this->display_dimmed_set_ = PowerSave::get_instance()->do_display_dimmed();
+    }
+
+    // 执行电量过低时计算机进入节能模式
+    auto charge_low_saver_enabled = this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER);
+    if (charge_low_saver_enabled)
+    {
+        PowerSave::get_instance()->do_cpu_saver();
+    }
+}
+
+void PowerEventControl::charge_action_event(std::shared_ptr<PowerUPowerDevice> device)
+{
+    const UPowerDeviceProps& device_props = device->get_props();
+
+    // 如果电池电量过低，但是未使用则忽略
+    if (device_props.type == UP_DEVICE_KIND_BATTERY &&
+        !this->upower_client_->get_on_battery())
+    {
+        return;
+    }
+
+    PowerAction action = PowerAction::POWER_ACTION_NOTHING;
+
+    switch (device_props.type)
+    {
+    case UP_DEVICE_KIND_BATTERY:
+        action = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_BATTERY_CRITICAL_ACTION));
+        break;
+    case UP_DEVICE_KIND_UPS:
+        action = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_UPS_CRITICAL_ACTION));
+        break;
+        // Ignore other type
+    default:
+        return;
+    }
+
+    // 电量过低执行节能操作，延时执行让用户处理一些紧急事务，notification模块中会进行提示
+    auto timeout = Glib::MainContext::get_default()->signal_timeout();
+    timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &PowerEventControl::do_charge_critical_action), action),
+                            POWER_CRITICAL_ACTION_DELAY);
+}
+
+bool PowerEventControl::do_charge_critical_action(PowerAction action)
 {
     std::string error;
     if (!PowerSave::get_instance()->do_save(action, error))
@@ -162,35 +247,23 @@ void PowerEventControl::on_kbd_brightness_changed(int32_t brightness_value)
 
 void PowerEventControl::on_device_status_changed(std::shared_ptr<PowerUPowerDevice> device, UPowerDeviceEvent event)
 {
-    const UPowerDeviceProps& device_props = device->get_props();
-    PowerAction action = PowerAction::POWER_ACTION_NOTHING;
-
-    RETURN_IF_FALSE(event == UPowerDeviceEvent::UPOWER_DEVICE_EVENT_CHARGE_ACTION);
-
-    // 如果电池电量过低，但是未使用则忽略
-    if (device_props.type == UP_DEVICE_KIND_BATTERY &&
-        !this->upower_client_->get_on_battery())
+    switch (event)
     {
-        return;
-    }
-
-    switch (device_props.type)
-    {
-    case UP_DEVICE_KIND_BATTERY:
-        action = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_BATTERY_CRITICAL_ACTION));
+    case UPowerDeviceEvent::UPOWER_DEVICE_EVENT_CHARGING:
+        this->charging_event();
         break;
-    case UP_DEVICE_KIND_UPS:
-        action = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_UPS_CRITICAL_ACTION));
+    case UPowerDeviceEvent::UPOWER_DEVICE_EVENT_DISCHARGING:
+        this->discharging_event(device);
         break;
-        // Ignore other type
+    case UPowerDeviceEvent::UPOWER_DEVICE_EVENT_CHARGE_LOW:
+        this->charge_low_event(device);
+        break;
+    case UPowerDeviceEvent::UPOWER_DEVICE_EVENT_CHARGE_ACTION:
+        this->charge_action_event(device);
+        break;
     default:
-        return;
+        break;
     }
-
-    // 电量过低执行节能操作，延时执行让用户处理一些紧急事务
-    auto timeout = Glib::MainContext::get_default()->signal_timeout();
-    timeout.connect_seconds(sigc::bind(sigc::mem_fun(this, &PowerEventControl::do_critical_action), action),
-                            POWER_CRITICAL_ACTION_DELAY);
 }
 
 }  // namespace Kiran

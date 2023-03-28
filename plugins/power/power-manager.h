@@ -82,18 +82,34 @@ protected:
     virtual void GetBrightness(gint32 device,
                                MethodInvocation &invocation);
 
-    // 设置空闲时显示器变暗
-    virtual void SetIdleDimmed(gint32 scale, MethodInvocation &invocation);
+    // 空闲时显示器是否变暗
+    virtual void EnableDisplayIdleDimmed(bool enabled, MethodInvocation &invocation);
+    // 电量过低时显示器是否变暗
+    virtual void EnableChargeLowDimmed(bool enabled, MethodInvocation &invocation);
+    // 电量过低时是否进入节能模式
+    virtual void EnableChargeLowSaver(bool enabled, MethodInvocation &invocation);
+    // 待机时是否锁定屏幕
+    virtual void LockScreenWhenSuspend(bool enabled, MethodInvocation &invocation);
+    // 休眠时是否锁定屏幕
+    virtual void LockScreenWhenHibernate(bool enabled, MethodInvocation &invocation);
 
-    virtual bool on_battery_setHandler(bool value) { return true; }
-    virtual bool lid_is_present_setHandler(bool value) { return true; }
-    virtual bool idle_dimmed_scale_setHandler(gint32 value);
+    virtual bool OnBattery_setHandler(bool value) { return true; }
+    virtual bool LidIsPresent_setHandler(bool value) { return true; }
+    virtual bool DisplayIdleDimmedEnabled_setHandler(bool value);
+    virtual bool ChargeLowDimmedEnabled_setHandler(bool value);
+    virtual bool ChargeLowSaverEnabled_setHandler(bool value);
+    virtual bool ScreenLockedWhenSuspend_setHandler(bool value);
+    virtual bool ScreenLockedWhenHibernate_setHandler(bool value);
 
     // 系统是否在使用电池供电
-    virtual bool on_battery_get();
+    virtual bool OnBattery_get();
     // 是否存在笔记本盖子
-    virtual bool lid_is_present_get();
-    virtual gint32 idle_dimmed_scale_get();
+    virtual bool LidIsPresent_get();
+    virtual bool DisplayIdleDimmedEnabled_get();
+    virtual bool ChargeLowDimmedEnabled_get();
+    virtual bool ChargeLowSaverEnabled_get();
+    virtual bool ScreenLockedWhenSuspend_get();
+    virtual bool ScreenLockedWhenHibernate_get();
 
 private:
     void init();

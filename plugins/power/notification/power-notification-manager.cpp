@@ -56,12 +56,14 @@ bool PowerNotificationManager::message_notify(const std::string &title,
                                               const std::string &icon_name,
                                               NotifyUrgency urgency)
 {
-    g_autoptr(GError) error = NULL;
+    GError *error = NULL;
 
     // 关闭之前的通知
     if (!notify_notification_close(this->device_notification_, &error))
     {
         KLOG_DEBUG("%s", error->message);
+        g_error_free(error);
+        error = NULL;
     }
 
     notify_notification_update(this->device_notification_, title.c_str(), message.c_str(), icon_name.c_str());
@@ -71,6 +73,7 @@ bool PowerNotificationManager::message_notify(const std::string &title,
     if (!notify_notification_show(this->device_notification_, &error))
     {
         KLOG_WARNING("%s", error->message);
+        g_error_free(error);
         return false;
     }
     return true;

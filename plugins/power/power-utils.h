@@ -25,5 +25,9 @@ public:
     virtual ~PowerUtils(){};
 
     static std::string get_time_translation(uint32_t seconds);
+    static std::string action_enum2str(uint32_t action);
+    static std::string event_enum2str(uint32_t event);
+    static std::string device_enum2str(uint32_t device);
+    static std::string supply_enum2str(uint32_t supply);
 };
 }  // namespace Kiran

@@ -53,15 +53,17 @@ struct UPowerDeviceProps
 
 enum UPowerDeviceEvent
 {
-    // 断开充电
+    // 电池未供电（充电中）
+    UPOWER_DEVICE_EVENT_CHARGING,
+    // 电池供电中（放电中）
     UPOWER_DEVICE_EVENT_DISCHARGING,
     // 电量充满
     UPOWER_DEVICE_EVENT_FULLY_CHARGED,
-    // 电量过低
+    // 电量过低（电量为10%）
     UPOWER_DEVICE_EVENT_CHARGE_LOW,
-    // 电量过低
+    // 电量过低（电量为3%）
     UPOWER_DEVICE_EVENT_CHARGE_CRITICAL,
-    // 电量过低
+    // 电量过低（电量为2%）
     UPOWER_DEVICE_EVENT_CHARGE_ACTION,
 
 };
@@ -87,7 +89,9 @@ enum UpDeviceKind
 enum UpDeviceState
 {
     UP_DEVICE_STATE_UNKNOWN,
+    // 电池未供电（充电中）
     UP_DEVICE_STATE_CHARGING,
+    // 电池供电中（放电中）
     UP_DEVICE_STATE_DISCHARGING,
     UP_DEVICE_STATE_EMPTY,
     UP_DEVICE_STATE_FULLY_CHARGED,
