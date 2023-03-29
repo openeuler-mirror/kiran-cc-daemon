@@ -18,6 +18,7 @@ namespace Kiran
 {
 PowerSaveComputer::PowerSaveComputer()
 {
+    this->power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
     this->login1_ = PowerWrapperManager::get_instance()->get_default_login1();
     this->screensaver_ = PowerWrapperManager::get_instance()->get_default_screensaver();
 }
@@ -28,10 +29,14 @@ void PowerSaveComputer::init()
 
 void PowerSaveComputer::suspend()
 {
-    KLOG_PROFILE("");
+    uint32_t throttle = 0;
 
+    auto lockscreen = this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND);
     // 挂起之前锁定屏幕
-    auto throttle = this->screensaver_->lock_and_throttle("suspend");
+    if (lockscreen)
+    {
+        throttle = this->screensaver_->lock_and_throttle("suspend");
+    }
 
     this->save_changed_.emit(ComputerSaveState::COMPUTER_SAVE_STATE_SLEEP, PowerAction::POWER_ACTION_COMPUTER_SUSPEND);
     this->login1_->suspend();
@@ -46,10 +51,14 @@ void PowerSaveComputer::suspend()
 
 void PowerSaveComputer::hibernate()
 {
-    KLOG_PROFILE("");
+    uint32_t throttle = 0;
 
+    auto lockscreen = this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE);
     // 休眠之前锁定屏幕
-    auto throttle = this->screensaver_->lock_and_throttle("hibernate");
+    if (lockscreen)
+    {
+        throttle = this->screensaver_->lock_and_throttle("hibernate");
+    }
 
     this->save_changed_.emit(ComputerSaveState::COMPUTER_SAVE_STATE_SLEEP, PowerAction::POWER_ACTION_COMPUTER_HIBERNATE);
     this->login1_->hibernate();
@@ -64,8 +73,6 @@ void PowerSaveComputer::hibernate()
 
 void PowerSaveComputer::shutdown()
 {
-    KLOG_PROFILE("");
-
     this->login1_->shutdown();
 }
 

@@ -22,6 +22,7 @@ PowerWrapperManager::PowerWrapperManager()
     this->screensaver_ = std::make_shared<PowerScreenSaver>();
     this->session_ = std::make_shared<PowerSession>();
     this->upower_ = std::make_shared<PowerUPower>();
+    this->profiles_ = std::make_shared<PowerProfiles>();
 }
 
 PowerWrapperManager::~PowerWrapperManager()
@@ -43,6 +44,7 @@ void PowerWrapperManager::init()
     this->screensaver_->init();
     this->session_->init();
     this->upower_->init();
+    this->profiles_->init();
 }
 
 }  // namespace Kiran

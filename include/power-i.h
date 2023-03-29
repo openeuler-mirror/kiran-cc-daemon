@@ -93,7 +93,7 @@ extern "C"
         POWER_EVENT_PRESSED_LOCK,
         // 按下电源信息显示键
         POWER_EVENT_PRESSED_BATTERY,
-        // 电池电量过低时（upower的state字段变为charge-action)
+        // 电池电量不足时（upower的state字段变为charge-action)
         POWER_EVENT_BATTERY_CHARGE_ACTION,
     };
 
@@ -133,8 +133,18 @@ extern "C"
 // 当使用电源时，空闲超过指定时间后背光设备进入的节能状态
 #define POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME "backlight-ac-idle-time"
 #define POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION "backlight-ac-idle-action"
-// 显示器空闲时屏幕变暗的比例
-#define POWER_SCHEMA_DISPLAY_IDLE_DIM_SCALE "display-idle-dim-scale"
+// 显示器变暗的亮度百分比
+#define POWER_SCHEMA_DISPLAY_DIMMED_BRIGHTNESS "display-dimmed-brightness"
+// 显示器空闲时屏幕是否变暗
+#define POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED "enable-display-idle-dimmed"
+// 电量过低时显示器是否变暗
+#define POWER_SCHEMA_ENABLE_CHARGE_LOW_DIMMED "enable-charge-low-dimmed"
+// 电量过低时计算机是否进入节能模式
+#define POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER "enable-charge-low-saver"
+// 待机时是否锁定屏幕
+#define POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND "screen-locked-when-suspend"
+// 休眠时是否锁定屏幕
+#define POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE "screen-locked-when-hibernate"
 // 按下挂起键触发的节能行为
 #define POWER_SCHEMA_BUTTON_SUSPEND_ACTION "button-suspend-action"
 // 按下休眠键触发的节能行为
@@ -143,9 +153,9 @@ extern "C"
 #define POWER_SCHEMA_BUTTON_POWER_ACTION "button-power-action"
 // 盖子合上后触发的节能行为
 #define POWER_SCHEMA_LID_CLOSED_ACTION "lid-closed-action"
-// 当使用UPS供电时，电量过低时触发的节能行为
+// 当使用UPS供电时，电量不足时触发的节能行为
 #define POWER_SCHEMA_UPS_CRITICAL_ACTION "ups-critical-action"
-// 当使用电池供电时，电量过低时触发的节能行为
+// 当使用电池供电时，电量不足时触发的节能行为
 #define POWER_SCHEMA_BATTERY_CRITICAL_ACTION "battery-critical-action"
 // 在什么情况下需要显示托盘图标
 #define POWER_SCHEMA_TRAY_ICON_POLICY "tray-icon-policy"

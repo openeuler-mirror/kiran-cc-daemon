@@ -110,10 +110,11 @@ void PowerTray::delay_update_status_icon()
     RETURN_IF_TRUE(this->update_icon_handler_);
 
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
-    this->update_icon_handler_ = timeout.connect([this]() -> bool {
-        this->update_status_icon();
-        return false;
-    },
+    this->update_icon_handler_ = timeout.connect([this]() -> bool
+                                                 {
+                                                     this->update_status_icon();
+                                                     return false;
+                                                 },
                                                  100);
 }
 
@@ -179,15 +180,13 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
     switch (device_props.type)
     {
     case UP_DEVICE_KIND_LINE_POWER:
-        return DEFAULT_ICON_NAME;
     case UP_DEVICE_KIND_MONITOR:
-        return DEFAULT_ICON_NAME;
-        // return "ksm-monitor";
-    case UP_DEVICE_KIND_UPS:
-    case UP_DEVICE_KIND_BATTERY:
     case UP_DEVICE_KIND_MOUSE:
     case UP_DEVICE_KIND_KEYBOARD:
     case UP_DEVICE_KIND_PHONE:
+        return DEFAULT_ICON_NAME;
+    case UP_DEVICE_KIND_UPS:
+    case UP_DEVICE_KIND_BATTERY:
     {
         if (!device_props.is_present)
         {
@@ -199,14 +198,14 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
         switch (device_props.state)
         {
         case UP_DEVICE_STATE_EMPTY:
-            return fmt::format("ksm-battery-000", kind_str);
+            return fmt::format("ksm-battery-000");
         case UP_DEVICE_STATE_FULLY_CHARGED:
         case UP_DEVICE_STATE_CHARGING:
         case UP_DEVICE_STATE_PENDING_CHARGE:
-            return fmt::format("ksm-battery-{1}-charging-symbolic", kind_str, percentage);
+            return fmt::format("ksm-battery-{0}-charging-symbolic", percentage);
         case UP_DEVICE_STATE_DISCHARGING:
         case UP_DEVICE_STATE_PENDING_DISCHARGE:
-            return fmt::format("ksm-battery-{1}{2}", kind_str, percentage, percentage != "000" ? "-symbolic" : "");
+            return fmt::format("ksm-battery-{0}{1}", percentage, percentage != "000" ? "-symbolic" : "");
         default:
             // TODO: 暂时用默认图标，后面需要改
             // return fmt::format("ksm-battery-missing", kind_str);
@@ -223,11 +222,11 @@ std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> u
 
 std::string PowerTray::percentage2index(int32_t percentage)
 {
-    RETURN_VAL_IF_TRUE(percentage < 10, "000");
-    RETURN_VAL_IF_TRUE(percentage < 30, "020");
-    RETURN_VAL_IF_TRUE(percentage < 50, "040");
-    RETURN_VAL_IF_TRUE(percentage < 70, "060");
-    RETURN_VAL_IF_TRUE(percentage < 90, "080");
+    RETURN_VAL_IF_TRUE(percentage <= 10, "000");
+    RETURN_VAL_IF_TRUE(percentage <= 30, "020");
+    RETURN_VAL_IF_TRUE(percentage <= 50, "040");
+    RETURN_VAL_IF_TRUE(percentage <= 70, "060");
+    RETURN_VAL_IF_TRUE(percentage <= 90, "080");
     return "100";
 }
 

@@ -43,7 +43,7 @@ void PowerPlugin::activate()
     PowerWrapperManager::global_init();
     PowerBacklight::global_init();
     PowerManager::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
-    PowerSave::global_init(PowerWrapperManager::get_instance());
+    PowerSave::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerIdleControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerEventControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
     PowerNotificationManager::global_init(PowerWrapperManager::get_instance());

@@ -15,6 +15,7 @@
 #pragma once
 
 #include "plugins/power/wrapper/power-login1.h"
+#include "plugins/power/wrapper/power-profiles.h"
 #include "plugins/power/wrapper/power-screensaver.h"
 #include "plugins/power/wrapper/power-session.h"
 #include "plugins/power/wrapper/power-upower.h"
@@ -37,6 +38,7 @@ public:
     std::shared_ptr<PowerScreenSaver> get_default_screensaver() { return this->screensaver_; };
     std::shared_ptr<PowerSession> get_default_session() { return this->session_; };
     std::shared_ptr<PowerUPower> get_default_upower() { return this->upower_; };
+    std::shared_ptr<PowerProfiles> get_default_profiles() { return this->profiles_; };
 
 private:
     void init();
@@ -48,5 +50,6 @@ private:
     std::shared_ptr<PowerScreenSaver> screensaver_;
     std::shared_ptr<PowerSession> session_;
     std::shared_ptr<PowerUPower> upower_;
+    std::shared_ptr<PowerProfiles> profiles_;
 };
 }  // namespace Kiran
