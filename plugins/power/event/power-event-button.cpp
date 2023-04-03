@@ -13,8 +13,8 @@
  */
 
 #include "plugins/power/event/power-event-button.h"
-
 #include <X11/XF86keysym.h>
+#include "plugins/power/power-utils.h"
 
 namespace Kiran
 {
@@ -111,7 +111,7 @@ void PowerEventButton::emit_button_signal(PowerEvent type)
     unsigned long elapsed_msec;
     if (this->button_signal_timer_.elapsed(elapsed_msec) < POWER_BUTTON_DUPLICATE_TIMEOUT)
     {
-        KLOG_DEBUG("ignoring duplicate button %s", type);
+        KLOG_DEBUG("ignoring duplicate button %s", PowerUtils::event_enum2str(type).c_str());
         return;
     }
 

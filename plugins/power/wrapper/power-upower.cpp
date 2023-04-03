@@ -240,6 +240,9 @@ void PowerUPower::on_device_props_changed(const UPowerDeviceProps &old_props,
     {
         switch (new_props.state)
         {
+        case UP_DEVICE_STATE_CHARGING:
+            this->device_status_changed_.emit(device, UPowerDeviceEvent::UPOWER_DEVICE_EVENT_CHARGING);
+            break;
         case UP_DEVICE_STATE_DISCHARGING:
             this->device_status_changed_.emit(device, UPowerDeviceEvent::UPOWER_DEVICE_EVENT_DISCHARGING);
             break;

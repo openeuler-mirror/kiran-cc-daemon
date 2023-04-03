@@ -15,6 +15,7 @@
 #include "plugins/power/power-manager.h"
 
 #include "plugins/power/backlight/power-backlight.h"
+#include "plugins/power/power-utils.h"
 #include "power-i.h"
 
 namespace Kiran
@@ -63,7 +64,11 @@ void PowerManager::SetIdleAction(gint32 device,
                                  gint32 action,
                                  MethodInvocation& invocation)
 {
-    KLOG_PROFILE("device: %d, supply: %d, idle timeout: %d, action: %d.", device, supply, idle_timeout, action);
+    KLOG_DEBUG("Set idle action for device %s which supply=%s, idle timeout=%d, action=%s.",
+               PowerUtils::device_enum2str(device).c_str(),
+               PowerUtils::supply_enum2str(supply).c_str(),
+               idle_timeout,
+               PowerUtils::action_enum2str(action).c_str());
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
@@ -117,8 +122,6 @@ void PowerManager::GetIdleAction(gint32 device,
                                  gint32 supply,
                                  MethodInvocation& invocation)
 {
-    KLOG_PROFILE("device: %d, supply: %d.", device, supply);
-
     int32_t idle_timeout = 0;
     int32_t action = PowerAction::POWER_ACTION_NOTHING;
 
@@ -170,7 +173,9 @@ void PowerManager::SetEventAction(gint32 event,
                                   gint32 action,
                                   MethodInvocation& invocation)
 {
-    KLOG_PROFILE("event: %d, action: %d.", event, action);
+    KLOG_DEBUG("Trigger action %s when event %d happend.",
+               PowerUtils::action_enum2str(action).c_str(),
+               PowerUtils::event_enum2str(event).c_str());
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
@@ -213,8 +218,6 @@ void PowerManager::SetEventAction(gint32 event,
 void PowerManager::GetEventAction(gint32 event,
                                   MethodInvocation& invocation)
 {
-    KLOG_PROFILE("event: %d.", event);
-
     int32_t action = PowerAction::POWER_ACTION_NOTHING;
 
     switch (event)
@@ -246,7 +249,9 @@ void PowerManager::SetBrightness(gint32 device,
                                  gint32 brightness_percentage,
                                  MethodInvocation& invocation)
 {
-    KLOG_PROFILE("device: %d.", device);
+    KLOG_DEBUG("Set brightness percentage of device %s to %d.",
+               PowerUtils::device_enum2str(device).c_str(),
+               brightness_percentage);
 
     bool result = false;
 
@@ -281,7 +286,7 @@ void PowerManager::SetBrightness(gint32 device,
 void PowerManager::GetBrightness(gint32 device,
                                  MethodInvocation& invocation)
 {
-    KLOG_PROFILE("device: %d.", device);
+    KLOG_DEBUG("Get brightness percentage of device %s.", PowerUtils::device_enum2str(device).c_str());
 
     int32_t brightness_percentage = -1;
 
@@ -306,47 +311,109 @@ void PowerManager::GetBrightness(gint32 device,
     invocation.ret(brightness_percentage);
 }
 
-void PowerManager::SetIdleDimmed(gint32 scale, MethodInvocation& invocation)
+void PowerManager::EnableDisplayIdleDimmed(bool enabled, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("scale: %d.", scale);
-
-    if (!this->idle_dimmed_scale_set(scale))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_DIMMED_SCALE_RANGE_ERROR);
-    }
+    this->DisplayIdleDimmedEnabled_set(enabled);
     invocation.ret();
 }
 
-bool PowerManager::idle_dimmed_scale_setHandler(gint32 value)
+void PowerManager::EnableChargeLowDimmed(bool enabled, MethodInvocation& invocation)
 {
-    RETURN_VAL_IF_FALSE(value >= 0 && value <= 100, false);
-    this->power_settings_->set_int(POWER_SCHEMA_DISPLAY_IDLE_DIM_SCALE, value);
+    this->ChargeLowDimmedEnabled_set(enabled);
+    invocation.ret();
+}
+
+void PowerManager::EnableChargeLowSaver(bool enabled, MethodInvocation& invocation)
+{
+    this->ChargeLowSaverEnabled_set(enabled);
+    invocation.ret();
+}
+
+void PowerManager::LockScreenWhenSuspend(bool enabled, MethodInvocation& invocation)
+{
+    this->ScreenLockedWhenSuspend_set(enabled);
+    invocation.ret();
+}
+
+void PowerManager::LockScreenWhenHibernate(bool enabled, MethodInvocation& invocation)
+{
+    this->ScreenLockedWhenHibernate_set(enabled);
+    invocation.ret();
+}
+
+bool PowerManager::DisplayIdleDimmedEnabled_setHandler(bool value)
+{
+    this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED, value);
     return true;
 }
 
-bool PowerManager::on_battery_get()
+bool PowerManager::ChargeLowDimmedEnabled_setHandler(bool value)
+{
+    this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_DIMMED, value);
+    return true;
+}
+
+bool PowerManager::ChargeLowSaverEnabled_setHandler(bool value)
+{
+    this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER, value);
+    return true;
+}
+
+bool PowerManager::ScreenLockedWhenSuspend_setHandler(bool value)
+{
+    this->power_settings_->set_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND, value);
+    return true;
+}
+
+bool PowerManager::ScreenLockedWhenHibernate_setHandler(bool value)
+{
+    this->power_settings_->set_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE, value);
+    return true;
+}
+
+bool PowerManager::OnBattery_get()
 {
     return this->upower_client_->get_on_battery();
 }
 
-bool PowerManager::lid_is_present_get()
+bool PowerManager::LidIsPresent_get()
 {
     return this->upower_client_->get_lid_is_present();
 }
 
-gint32 PowerManager::idle_dimmed_scale_get()
+bool PowerManager::DisplayIdleDimmedEnabled_get()
 {
-    return this->power_settings_->get_int(POWER_SCHEMA_DISPLAY_IDLE_DIM_SCALE);
+    return this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED);
+}
+
+bool PowerManager::ChargeLowDimmedEnabled_get()
+{
+    return this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_DIMMED);
+}
+
+bool PowerManager::ChargeLowSaverEnabled_get()
+{
+    return this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER);
+}
+
+bool PowerManager::ScreenLockedWhenSuspend_get()
+{
+    return this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND);
+}
+
+bool PowerManager::ScreenLockedWhenHibernate_get()
+{
+    return this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE);
 }
 
 void PowerManager::on_battery_changed(bool on_battery)
 {
-    this->on_battery_set(on_battery);
+    this->OnBattery_set(on_battery);
 }
 
 void PowerManager::on_lid_is_closed_changed(bool lid_is_closed)
 {
-    this->lid_is_present_set(lid_is_closed);
+    this->LidIsPresent_set(lid_is_closed);
 }
 
 void PowerManager::on_settings_changed(const Glib::ustring& key)
