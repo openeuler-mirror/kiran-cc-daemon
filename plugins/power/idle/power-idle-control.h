@@ -60,8 +60,6 @@ private:
     Glib::RefPtr<Gio::Settings> power_settings_;
 
     std::shared_ptr<PowerUPower> upower_client_;
-    std::shared_ptr<PowerBacklightPercentage> backlight_kbd_;
-    std::shared_ptr<PowerBacklightPercentage> backlight_monitor_;
 
     int32_t computer_idle_time_;
     PowerAction computer_idle_action_;
@@ -69,8 +67,7 @@ private:
     int32_t display_idle_time_;
     PowerAction display_idle_action_;
 
-    // 上一次处于正常模式时键盘的亮度百分比
-    int32_t kbd_normal_brightness_;
-    int32_t monitor_normal_brightness_;
+    // 设置显示器变暗成功
+    bool display_dimmed_set_;
 };
 }  // namespace Kiran

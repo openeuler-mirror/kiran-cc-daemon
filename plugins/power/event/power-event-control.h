@@ -37,7 +37,15 @@ public:
 private:
     void init();
 
-    bool do_critical_action(PowerAction action);
+    // 执行正在充电事件
+    void charging_event();
+    // 执行放电事件
+    void discharging_event(std::shared_ptr<PowerUPowerDevice> device);
+    // 执行电量过低事件
+    void charge_low_event(std::shared_ptr<PowerUPowerDevice> device);
+    // 执行电量不足事件
+    void charge_action_event(std::shared_ptr<PowerUPowerDevice> device);
+    bool do_charge_critical_action(PowerAction action);
 
     void on_button_changed(PowerEvent evnet);
     void on_kbd_brightness_changed(int32_t brightness_value);
@@ -55,11 +63,10 @@ private:
     std::shared_ptr<PowerBacklightPercentage> backlight_monitor_;
     // 键盘上一次设置的非0值
     int32_t kbd_last_nozero_brightness_;
-
     uint32_t lid_closed_throttle_;
-
     Glib::RefPtr<Gio::Settings> power_settings_;
-
     PowerEventButton event_button_;
+    // 设置显示器变暗成功
+    bool display_dimmed_set_;
 };
 }  // namespace Kiran

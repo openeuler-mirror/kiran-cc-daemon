@@ -332,9 +332,6 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_4:
         error_desc = _("Unsupported power device.");
         break;
-    case CCErrorCode::ERROR_POWER_DIMMED_SCALE_RANGE_ERROR:
-        error_desc = _("The value must be between 0 and 100.");
-        break;
     case CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_1:
     case CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_2:
         error_desc = _("Unknown power action.");
