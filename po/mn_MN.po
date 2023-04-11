@@ -1,0 +1,1325 @@
+# Chinese translations for kiran package
+# kiran 软件包的简体中文翻译.
+# Copyright (C) 2020 THE kiran'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiran package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiran-cc-daemon 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-20 10:04+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:1
+msgid "File to use for the desktop background image."
+msgstr "Ширээний арын зургийг ашиглах файл."
+
+#: ../data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in.h:2
+msgid "File to use for the lock screen background image."
+msgstr "Цоож дэлгэцийн ар талын зургийг ашиглах файл."
+
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:1
+msgid "Layout of connected monitors in the screen."
+msgstr "Дэлгэцэн дэх холбогдсон мониторын загвар."
+
+#: ../data/schemas/com.kylinsec.kiran.display.gschema.xml.in.h:2
+msgid ""
+"It takes effect immediately when the scaling factor of window is changed."
+msgstr ""
+"Цонхны хэмжлийн хүчин зүйл өөрчлөгдөхөд тэр даруй хүчин төгөлдөр болдог."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:1
+msgid ""
+"Whether repeat to trigger KeyPress and KeyRelease event when key is pressed."
+msgstr ""
+"Key дарж байх үед KeyPress болон KeyRelease үйл явдлыг өдөөх дахин давтагдах"
+" эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:2
+msgid ""
+"The delay time in ms after the initial press of an auto-repeating key and "
+"the first generated repeat event."
+msgstr ""
+"Автомашин дахин давтагдашгүй түлхүүрийн анхны хэвлэлийн дараа ms-д саатах "
+"хугацаа болон анхны үүсгэсэн давтан үйл явдал."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:3
+msgid "The delay time in ms between all subsequent generated repeat events."
+msgstr "Дараа дараагийн бүх давтагдсан үйл явдлуудын хоорондох ms-ийн саатал."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:4
+msgid "Keyboard layouts."
+msgstr "Товчлуурын загвар."
+
+#: ../data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in.h:5
+msgid "Keyboard options."
+msgstr "Товчлуурын сонголтууд."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
+msgid "Swap left and right buttons for left-handed."
+msgstr "Зүүн, баруун товчийг зүүн гар тийш сольж болно."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:2
+msgid "Acceleration multiplier for mouse motion."
+msgstr "Маусны хөдөлгөөний хурдацыг үржүүлэгч."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:3
+msgid ""
+"Enables middle mouse button emulation through simultaneous left and right "
+"button click."
+msgstr ""
+"Дунд хулганын товчийг нэгэн зэрэг зүүн, баруун товчийг дарах замаар дуурайх "
+"боломжийг олгодог."
+
+#: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:4
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:6
+msgid ""
+"Enables or disables natural scroll. Natural scrolling is the terminology for"
+" moving the content in the direction of scrolling, i.e. moving the wheel or "
+"fingers down moves the page down."
+msgstr ""
+"Байгалийн хуйлмал бичгийг боломжтой болгож эсвэл үгүй хийдэг. Байгалийн "
+"хуйлмал бичиг гэдэг нь агуулгыг гүйлгэх чиглэлд хөдөлгөх нэр томъёо юм. "
+"Өөрөөр хэлбэл дугуй эсвэл хуруугаа доош нь хөдөлгөх нь хуудсыг доош нь "
+"хөдөлгөдөг."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:2
+msgid "Indicates if diable while typing is enabled or disabled."
+msgstr ""
+"Бичгийн бичлэг хийх боломжтой эсвэл хөгжлийн бэрхшээлтэй бол diable гэдгийг "
+"илтгэнэ."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:3
+msgid ""
+"Set this to TRUE to be able to send mouse clicks by tapping on the touchpad."
+msgstr ""
+"Touchpad дээр дарж mouse дарж илгээх боломжтой байхын тулд үүнийг ҮНЭГҮЙ-д "
+"байрлуул."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:4
+msgid ""
+"Enables a click method. Permitted methods are buttonareas and clickfinger, "
+"respectively conreesponding to 0 and 1."
+msgstr ""
+"Дарах аргыг ашиглах боломжийг олгодог. Зөвшөөрөгдсөн аргууд нь buttonareas "
+"ба clickfinger бөгөөд 0 ба 1-ийг тус тус конрэспондинг хийнэ."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:5
+msgid ""
+"Enables a scroll method. Permitted methods are twofinger, edge and button, "
+"respectively conrresponding to 0, 1 and 2."
+msgstr ""
+"Хуйлмал номыг ашиглах боломжтой. Зөвшөөрөгдсөн аргууд нь 0, 1 ба 2-ыг тус "
+"тус конрреспондингоор хоёр фингер, ирмэг, товч юм."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:7
+msgid "Set this to TRUE to enable all touchpads."
+msgstr "Бүх touchpad-ийг боломжтой болгох үүнийг TRUE-д байрлуул."
+
+#: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:8
+msgid "Acceleration multiplier for touchpad motion."
+msgstr "Touchpad хөдөлгөөний хурдацыг үржүүлэгч."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:1
+msgid ""
+"Maximum time allowed between two clicks for them to be considered a double "
+"click (in milliseconds)."
+msgstr ""
+"Хоёр даралтын хооронд зөвшөөрөгдсөн хамгийн их хугацааг хоёр даралт "
+"(миллисекундэд) гэж үзэх боломжийг олгодог."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:2
+msgid ""
+"Maximum distance allowed between two clicks for them to be considered a "
+"double click (in pixels)."
+msgstr ""
+"Хоёр даралтын хоорондох хамгийн их зайг хоёр даралт (пикселээр) гэж үзэх "
+"боломжийг олгодог."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:3
+msgid "Number of pixels the cursor can move before dragging."
+msgstr "Курсорыг чирэхээс өмнө хөдөлж болох пикселийн тоо."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:4
+msgid "Whether the cursor should blink."
+msgstr "Курсор нүдээ аних уу."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:5
+msgid "Length of the cursor blink cycle, in milleseconds."
+msgstr "Cursor blink циклийн урт, тээрмийн ."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:6
+msgid "Name of gtk theme to use."
+msgstr "Хэрэглэх gtk сэдвийн нэр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:7
+msgid "Name of icon theme to use for icons."
+msgstr "Icon-д ашиглах icon theme-ийн нэр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:8
+msgid "Whether to play sounds on user events."
+msgstr "Хэрэглэгчийн үйл ажиллагаан дээр дуу чимээ тоглох эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:9
+msgid "The XDG sound theme to use for event sounds."
+msgstr "Үйл явдалд ашиглах XDG дууны сэдэв нь дуу чимээ."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:10
+msgid "Whether to play sounds on input events."
+msgstr "Оролтын үйл явдлууд дээр тоглох эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:11
+msgid "Whether to antialias Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "Эсрэг Xft фонт хийх эсэх; 0=үгүй, 1=тийм, -1=default."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:12
+msgid "Whether to hint Xft fonts; 0=no, 1=yes, -1=default."
+msgstr "Xft фонтыг зааж өгөх эсэх; 0=үгүй, 1=тийм, -1=default."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:13
+msgid ""
+"What degree of hinting to use; \"hintnone\", \"hintslight\", \"hintmedium\","
+" or \"hintfull\"."
+msgstr ""
+"Хэрэглэх санааг ямар хэмжээнд; \"hintnone\", \"сануулга\", \"hintmedium\", "
+"эсвэл \"сануулга\"."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:14
+msgid "Type of subpixel antialiasing; \"none\", \"rgb\", \"bgr\", \"vrgb\", \"vbgr\"."
+msgstr "Subpixel antialiasing төрөл; \"аль нь ч биш\", \"ргб\", \"bgr\", \"vrgb\", \"vbgr\"."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:15
+msgid ""
+"Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not "
+"modify it manually."
+msgstr ""
+"Xft-ийн шийдэл, 1024 онд * цэг/инч. -1 дефолт үнэ цэнийг ашиглах. Үүнийг "
+"гараар бүү өөрчил."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:16
+msgid "Name of the cursor theme."
+msgstr "Курсор сэдвийн нэр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:17
+msgid "Size of the cursor referenced by cursor_theme."
+msgstr "cursor_theme дурдсан курсорын хэмжээ."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:18
+msgid "Name of default font to use."
+msgstr "Хэрэглэх default фонтын нэр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:19
+msgid "Name of key theme RC file to load."
+msgstr "Гол сэдэв RC файлыг ачаалах нэр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:20
+msgid ""
+"Whether default toolbars have text only, text and icons, icons only, etc."
+msgstr ""
+"Default toolbars зөвхөн текст, текст, зургууд, зөвхөн зургууд, гэх мэт."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:21
+msgid "Size of icons in default toolbars."
+msgstr "Стандарт багажны тавиур дахь зургуудын хэмжээ."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:22
+msgid "How to draw the input method preedit string."
+msgstr "Оролтын аргыг preedit string хэрхэн зурах вэ?"
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:23
+msgid "How to draw the input method statusbar."
+msgstr "Оролтын аргын статусыг хэрхэн зурах вэ?"
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:24
+msgid "Name of the input method module used by GTK+."
+msgstr "GTK+-ийн ашигласан оролтын арга модулийн нэр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:25
+msgid "Whether images should be shown in menus."
+msgstr "Зураг цэсээр харуулах эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:26
+msgid "Whether stock icons should be shown in buttons."
+msgstr "Үнэт цаасны зургуудыг товчоор харуулах эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:27
+msgid "The accelerator for moving the focus to the menubar."
+msgstr "Фокусыг цэсний тавцан руу шилжүүлэх хурдасгуур."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:28
+msgid ""
+"A '\\n' separated list of \"name:color\" as defined by the 'gtk-color-"
+"scheme' setting"
+msgstr ""
+"'gtk-color-scheme' тохиргоогоор тодорхойлогдсон '\\n' тусгаарлагдсан "
+"жагсаалт \"нэр:color\""
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:29
+msgid ""
+"Module to use as the filesystem model for the GtkFileChooser widget. "
+"Possible values are \"gio\" and \"gtk+\"."
+msgstr ""
+"GtkFileChooser widget-ийн файлын систем загвар болгон ашиглах модуль. "
+"Боломжит үнэ цэнэ нь \"gio\", \"gtk+\" юм."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:30
+msgid ""
+"This setting determines which buttons should be put in the titlebar of "
+"client-side decorated windows, and whether they should be placed at the left"
+" of right."
+msgstr ""
+"Энэ тохиргоо нь үйлчлүүлэгчийн хажуугийн чимэглэсэн цонхнуудын гарчигт аль "
+"товчийг тавих, мөн баруун зүүн талд байрлуулах эсэхийг тодорхойлдог."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:31
+msgid ""
+"This setting determines where application menu will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"Энэ тохиргоо нь хэрэглээний цэсийг хаана харуулахыг тодорхойлно . Цонхонд "
+"эсвэл MenuModel протокол бүхий панел дээр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:32
+msgid ""
+"This setting determines where window menubars will be displayed - in a "
+"window or on a panel with MenuModel protocol."
+msgstr ""
+"Энэ тохиргоо нь цонхны цэсэн тавцанг хаана харуулахыг тодорхойлно . Цонхонд "
+"эсвэл MenuModel протоколтой хавтан дээр."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:33
+msgid ""
+"Whether the context menus of entries and text views should offer to change "
+"the input method."
+msgstr ""
+"Оролтын болон текст хандалтын хам сэдвийн цэс нь оролтын аргыг өөрчлөхийг "
+"санал болгох эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:34
+msgid ""
+"Whether the context menus of entries and text views should offer to insert "
+"control characters."
+msgstr ""
+"Оролт, текст хандалтын хам сэдвийн цэс нь хяналтын дүрүүдийг оруулахыг санал"
+" болгох эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:35
+msgid ""
+"Whether mnemonics should be automatically shown and hidden when the user "
+"presses the Alt key."
+msgstr ""
+"Хэрэглэгч Alt түлхүүрийг дарахад mnemonics автоматаар үзүүлж, нуух ёстой "
+"эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:36
+msgid ""
+"If true, gtk+ uses the primary paste selection, usually triggered by a "
+"middle mouse button click."
+msgstr ""
+"Хэрэв үнэн бол gtk+ нь үндсэн paste сонголтыг ашигладаг бөгөөд ихэвчлэн дунд"
+" оврын товчлуурыг дарахад өдөөгдөг."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:37
+msgid "Whether to enable toolkit-wide animations."
+msgstr "Toolkit өргөн анимэйшнийг боломжтой болгох эсэх."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:38
+msgid ""
+"Whether builtin GTK+ dialogs such as the file chooser, the color chooser or "
+"the font chooser will use a header bar at the top to show action widgets, or"
+" an action area at the bottom."
+msgstr ""
+"File chooser гэх мэтuiltin GTK+ диалогууд, өнгө сонгох эсвэл фонт сонгох нь "
+"дээд талд нь header bar ашиглан үйл ажиллагааны widgets харуулах, эсвэл доод"
+" талд нь үйл ажиллагааны бүсийг ашиглах болно."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:39
+msgid ""
+"This controls the GTK scale factor that maps from window coordinates to the "
+"actual device pixels."
+msgstr ""
+"Энэ нь цонхны координатаас бодит төхөөрөмжийн пиксел хүртэл газрын "
+"зурагладаг GTK масштабын хүчин зүйлийг хянадаг."
+
+#: ../data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in.h:40
+msgid ""
+"This setting determines whether MATE controls the scale factor for QT "
+"applications."
+msgstr ""
+"Энэ тохиргоо нь MATE нь QT-ийн хэрэглээний масштабын хүчин зүйлийг хянадаг "
+"эсэхийг тодорхойлдог."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
+msgid "Change your own user data"
+msgstr "Өөрийн хэрэглэгчийн мэдээллээ өөрчлөх"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:2
+msgid "Authentication is required to change your own user data"
+msgstr "Authentication нь өөрийн хэрэглэгчийн өгөгдлийг өөрчлөх шаардлагатай"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:3
+msgid "Change your own user password"
+msgstr "Өөрийн хэрэглэгчийн нууц үгийг өөрчлөх"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:4
+msgid "Authentication is required to change your own user password"
+msgstr "Authentication нь өөрийн хэрэглэгчийн нууц үгийг өөрчлөх шаардлагатай"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:5
+msgid "Manage user accounts"
+msgstr "Хэрэглэгчийн дансыг удирдах"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:6
+msgid "Authentication is required to change user data"
+msgstr ""
+"Хэрэглэгчийн өгөгдлийг өөрчлөхийн тулд баталгаажуулалт хийх шаардлагатай"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:7
+msgid "Change the login screen configuration"
+msgstr "Логин дэлгэцийн тохиргоог өөрчлөх"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:8
+msgid "Authentication is required to change the login screen configuration"
+msgstr ""
+"Логин дэлгэцийн тохиргоог өөрчлөхийн тулд баталгаажуулалт хийх шаардлагатай"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:1
+msgid "Set system time"
+msgstr "Системийн цаг тогтоох"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:2
+msgid "Authentication is required to set the system time."
+msgstr "Системийн цагийг тогтоохын тулд баталгаажуулалт хийх шаардлагатай."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:3
+msgid "Set system timezone"
+msgstr "Системийн цагийн бүс тогтоох"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:4
+msgid "Authentication is required to set the system timezone."
+msgstr ""
+"Системийн цагийн бүсийг тогтоохын тулд баталгаажуулалт хийх шаардлагатай."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:5
+msgid "Set RTC to local timezone or UTC"
+msgstr "Орон нутгийн цагийн бүс буюу UTC-д RTC-г тогтоох"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:6
+msgid ""
+"Authentication is required to control whether the RTC stores the local or "
+"UTC time."
+msgstr ""
+"RtC нь орон нутгийн эсвэл UTC цагийг хадгалж байгаа эсэхийг хянахын тулд "
+"баталгаажуулалт шаардлагатай."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:7
+msgid "Turn network time synchronization on or off"
+msgstr "Сүлжээний цагийн синхрончлолыг асаах эсвэл унтраах"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:8
+msgid ""
+"Authentication is required to control whether network time synchronization "
+"shall be enabled."
+msgstr ""
+"Сүлжээний цаг хугацааны синхрончлолыг боломжтой эсэхийг хянахын тулд "
+"баталгаажуулалт шаардлагатай."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
+msgid "Greeter settings"
+msgstr "Greeter тохиргоо"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:2
+msgid "Authentication is required for greeter setting."
+msgstr "Greeter тохиргоог баталгаажуулах шаардлагатай."
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
+msgid "Set host name"
+msgstr "Хост нэр тогтоох"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:2
+msgid "Authentication is required to set the host name."
+msgstr "Хостын нэрийг тогтоохын тулд баталгаажуулалт хийх шаардлагатай."
+
+#: ../src/main.cpp:63
+msgid "Output version infomation and exit"
+msgstr "Өгөгдлийн хувилбарын мэдээлэл, гарах"
+
+#: ../src/main.cpp:89
+msgid "Control center"
+msgstr "Хяналтын төв"
+
+#: ../lib/base/error.cpp:34
+msgid "The argument is invalid."
+msgstr "Маргаан нь хүчингүй."
+
+#: ../lib/base/error.cpp:37
+msgid "Operation failed."
+msgstr "Үйл ажиллагаа нь бүтэлгүйтсэн."
+
+#: ../lib/base/error.cpp:41
+msgid "The plugin doesn't exist."
+msgstr "Плагин байхгүй."
+
+#: ../lib/base/error.cpp:48
+msgid "No user found."
+msgstr "Хэрэглэгч олдсонгүй."
+
+#: ../lib/base/error.cpp:51
+msgid "Multiple users have the same authentication data."
+msgstr "Олон хэрэглэгч ижил баталгаажуулалтын өгөгдөлтэй байдаг."
+
+#: ../lib/base/error.cpp:54
+msgid ""
+"The user is already logined in, Please log off the user before deleting it."
+msgstr ""
+"Хэрэглэгч аль хэдийн нэвтэрч орсон байна. Устгахаасаа өмнө хэрэглэгчээс "
+"нэвтэрнэ үү."
+
+#: ../lib/base/error.cpp:57
+msgid "The user already exists."
+msgstr "Хэрэглэгч аль хэдийн оршин тогтнож байна."
+
+#: ../lib/base/error.cpp:60
+msgid "Unknown account type."
+msgstr "Үл мэдэгдэх дансны төрөл."
+
+#: ../lib/base/error.cpp:63
+msgid "Can't update password file."
+msgstr "Нууц үг файлыг шинэчилж чадахгүй."
+
+#: ../lib/base/error.cpp:66
+msgid "Invalid command syntax."
+msgstr "Invalid командын синтакс."
+
+#: ../lib/base/error.cpp:69
+msgid "Invalid argument to option."
+msgstr "Сонголт хийх хүчингүй маргаан."
+
+#: ../lib/base/error.cpp:72
+msgid "UID already in use."
+msgstr "UID аль хэдийн ашиглалтанд орсон."
+
+#: ../lib/base/error.cpp:75
+msgid "Passwd file contains errors."
+msgstr "Passwd файлд алдаанууд агуулагдаж байдаг."
+
+#: ../lib/base/error.cpp:78
+msgid "Specified user/group doesn't exist."
+msgstr "Тодорхой хэрэглэгч/груп байхгүй."
+
+#: ../lib/base/error.cpp:81
+msgid "User to modify is logged in."
+msgstr "Засварлах хэрэглэгч нь бүртгэлтэй байна."
+
+#: ../lib/base/error.cpp:84
+msgid "Username already in use."
+msgstr "Хэрэглэгчийн нэр аль хэдийн хэрэгжээд байгаа."
+
+#: ../lib/base/error.cpp:87
+msgid "Can't update group file."
+msgstr "Бүлгийн файлыг шинэчилж чадахгүй."
+
+#: ../lib/base/error.cpp:90
+msgid "Insufficient space to move home dir."
+msgstr "Гэртээ дир нүүлгэх зай хүрэлцэхгүй."
+
+#: ../lib/base/error.cpp:93
+msgid "Can't create/remove/move home directory."
+msgstr "Гэрийн лавлах үүсгэх/хасах/зөөж болохгүй."
+
+#: ../lib/base/error.cpp:97
+msgid "Can't update SELinux user mapping."
+msgstr "SELinux хэрэглэгчийн газрын зургийг шинэчилж чадахгүй."
+
+#: ../lib/base/error.cpp:100
+msgid "Can't update the subordinate uid file."
+msgstr "Subordinate uid файлыг шинэчилж чадахгүй."
+
+#: ../lib/base/error.cpp:103
+msgid "Can't update the subordinate gid file."
+msgstr "Subordinate gid файлыг шинэчилж чадахгүй."
+
+#: ../lib/base/error.cpp:106
+msgid "Refuse to delete root user."
+msgstr "Root хэрэглэгчийг устгахаас татгалз."
+
+#: ../lib/base/error.cpp:109
+msgid "Refuse to delete three authority user."
+msgstr "Гурван эрх мэдэл хэрэглэгчийг устгахаас татгалз."
+
+#: ../lib/base/error.cpp:115
+msgid "The authentication mode isn't supported."
+msgstr "Баталгаажуулалтын арга нь дэмжигддэггүй."
+
+#: ../lib/base/error.cpp:118
+msgid "User is locked."
+msgstr "Хэрэглэгч түгжээтэй байна."
+
+#: ../lib/base/error.cpp:121
+msgid "The name already exists."
+msgstr "Нэр нь аль хэдийн байдаг."
+
+#: ../lib/base/error.cpp:124
+msgid "A user is modifying the password."
+msgstr "Хэрэглэгч нууц үгийг өөрчилж байна."
+
+#: ../lib/base/error.cpp:127
+msgid "{0}"
+msgstr "{0}"
+
+#: ../lib/base/error.cpp:131
+msgid "The range of volume is between 0 and 1.0."
+msgstr "0-1.0-ийн хооронд хэлбэлзлийн хэмжээ байна."
+
+#: ../lib/base/error.cpp:135
+msgid "The range of balance is between -1 and 1."
+msgstr "Тэнцвэрийн хэмжээ нь -1-1-ийн хооронд байна."
+
+#: ../lib/base/error.cpp:139
+msgid "The sink device isn't found."
+msgstr "Живхний аппарат олдсонгүй."
+
+#: ../lib/base/error.cpp:143
+msgid "The source device isn't found."
+msgstr "Эх үүсвэрийн төхөөрөмж олдсонгүй."
+
+#: ../lib/base/error.cpp:147
+msgid "The sink stream isn't found."
+msgstr "Живхний урсгал олдсонгүй."
+
+#: ../lib/base/error.cpp:150
+msgid "NTP unit is active."
+msgstr "NTP нэгж идэвхтэй байна."
+
+#: ../lib/base/error.cpp:153
+msgid "Invalid timezone."
+msgstr "Хүчингүй цагийн бүс."
+
+#: ../lib/base/error.cpp:156
+msgid "No NTP unit available."
+msgstr "NTP нэгж байхгүй."
+
+#: ../lib/base/error.cpp:160
+msgid "Unknown date format type."
+msgstr "Үл мэдэгдэх огноо форматын төрөл."
+
+#: ../lib/base/error.cpp:163
+msgid "Failed to set date format."
+msgstr "Огнооны форматыг тогтоож чадаагүй."
+
+#: ../lib/base/error.cpp:166
+msgid "Failed to set hour format."
+msgstr "Цагийн форматыг тогтоож чадаагүй."
+
+#: ../lib/base/error.cpp:169
+msgid "Failed to set seconds showing."
+msgstr "Хэдэн секунд үзүүлж чадаагүй."
+
+#: ../lib/base/error.cpp:172
+msgid "Failed to start NTP unit."
+msgstr "NTP нэгжийг эхлүүлж чадаагүй."
+
+#: ../lib/base/error.cpp:175
+msgid "Failed to stop NTP unit."
+msgstr "NTP нэгжийг зогсоож чадаагүй."
+
+#: ../lib/base/error.cpp:179
+msgid "Unknown display style."
+msgstr "Үл мэдэгдэх үзүүлбэрийн хэв маяг."
+
+#: ../lib/base/error.cpp:182
+msgid ""
+"The mode of monitors which contain resolution and refresh rate is no "
+"intersection."
+msgstr ""
+"Шийдвэр гаргах, сэргээх хурд бүхий мониторуудын хэв маяг нь замын уулзвар "
+"биш юм."
+
+#: ../lib/base/error.cpp:185
+msgid "Auto mode is set failed."
+msgstr "Авто замын хэв маяг нь бүтэлгүйтсэн."
+
+#: ../lib/base/error.cpp:189
+msgid "Failed to set the window scaling factor."
+msgstr "Цонхны хэмжүүрийн хүчин зүйлийг тогтоож чадаагүй."
+
+#: ../lib/base/error.cpp:192
+msgid "The custom configuration file isn't found."
+msgstr "Тохиргооны файл олдсонгүй."
+
+#: ../lib/base/error.cpp:195
+msgid "Not found matched item in custom configuration file."
+msgstr "Custom тохиргооны файлаас тохирох зүйл олдсонгүй."
+
+#: ../lib/base/error.cpp:198
+msgid "The primary monitor must not be empty."
+msgstr "Үндсэн монитор хоосон байх ёсгүй."
+
+#: ../lib/base/error.cpp:201
+msgid "Not found the primary monitor."
+msgstr "Үндсэн монитор олдсонгүй."
+
+#: ../lib/base/error.cpp:204
+msgid ""
+"Cannot disable the monitor, because the number of the enabled monitor is "
+"less than 1."
+msgstr ""
+"Мониторыг тахир дутуу болгож чадахгүй. Учир нь боломжтой мониторын тоо 1-ээс"
+" бага байна."
+
+#: ../lib/base/error.cpp:207
+msgid "Exist null mode in mode list."
+msgstr "null mode-г mode-н жагсаалтанд оруул."
+
+#: ../lib/base/error.cpp:210
+msgid "Exist null mode in preferred mode list."
+msgstr "Санал болгож буй mode-д null mode байгаа."
+
+#: ../lib/base/error.cpp:213
+msgid "The current mode is not exist."
+msgstr "Одоогийн хэв маяг байхгүй."
+
+#: ../lib/base/error.cpp:217
+msgid "Not found match mode."
+msgstr "Тохирох арга олдсонгүй."
+
+#: ../lib/base/error.cpp:220
+msgid "The mode is not exist."
+msgstr "Хэв маяг нь байхгүй."
+
+#: ../lib/base/error.cpp:223
+msgid "Unknown rotation type."
+msgstr "Үл мэдэгдэх ээлжийн төрөл."
+
+#: ../lib/base/error.cpp:226
+msgid "Unknown reflect type."
+msgstr "Тодорхой бус тусгалын төрөл."
+
+#: ../lib/base/error.cpp:229
+msgid "The current settings cannot be applied."
+msgstr "Одоогийн тохиргоог хэрэгжүүлж болохгүй."
+
+#: ../lib/base/error.cpp:232
+msgid "Theme not exist."
+msgstr "Сэдэв байдаггүй."
+
+#: ../lib/base/error.cpp:235
+msgid "Unsupported theme type."
+msgstr "Дэмжээгүй сэдвийн төрөл."
+
+#: ../lib/base/error.cpp:238
+msgid "Invalid theme type."
+msgstr "Хүчингүй сэдвийн төрөл."
+
+#: ../lib/base/error.cpp:242
+msgid "Invalid font type."
+msgstr "Хүчингүй фонтын төрөл."
+
+#: ../lib/base/error.cpp:245
+msgid "Unsupported font type."
+msgstr "Дэмжээгүй фонтын төрөл."
+
+#: ../lib/base/error.cpp:248
+msgid "An incomplete request already exists."
+msgstr "Бүрэн бус хүсэлт аль хэдийн байдаг."
+
+#: ../lib/base/error.cpp:251
+msgid "The request is canceled."
+msgstr "Хүсэлтийг цуцална."
+
+#: ../lib/base/error.cpp:257
+msgid "The request is rejected."
+msgstr "Хүсэлтийг хүлээн авахаас татгалздаг."
+
+#: ../lib/base/error.cpp:260
+msgid "Not found adapter."
+msgstr "Адаптер олдсонгүй."
+
+#: ../lib/base/error.cpp:268
+msgid "Sync to file failed."
+msgstr "Файл оруулах Sync бүтэлгүйтсэн."
+
+#: ../lib/base/error.cpp:274
+msgid "Invalid scale mode."
+msgstr "Хүчингүй масштабын хэв маяг."
+
+#: ../lib/base/error.cpp:277
+msgid "The number of the layout can't exceeds {0}."
+msgstr "Загварын тоо {0} хэтэрч болохгүй."
+
+#: ../lib/base/error.cpp:280
+msgid "The layout is invalid."
+msgstr "Төлөвлөгөө нь хүчингүй."
+
+#: ../lib/base/error.cpp:283
+msgid "The layout already exist."
+msgstr "Энэ төлөвлөгөө аль хэдийн бий болсон."
+
+#: ../lib/base/error.cpp:286
+msgid "Failed to set the layout."
+msgstr "Төлөвлөгөө гаргаж чадаагүй."
+
+#: ../lib/base/error.cpp:289
+msgid "The layout is no exist."
+msgstr "Төлөвлөгөө нь байхгүй."
+
+#: ../lib/base/error.cpp:292
+msgid "Failed to update the layout."
+msgstr "Загварыг шинэчилж чадаагүй."
+
+#: ../lib/base/error.cpp:295
+msgid "The layout option already exist."
+msgstr "Төлөвлөгөө сонголт аль хэдийн бий болсон."
+
+#: ../lib/base/error.cpp:298
+msgid "Failed to set the layout option."
+msgstr "Төлөвлөгөө гаргаж чадаагүй."
+
+#: ../lib/base/error.cpp:301
+msgid "The layout option is no exist."
+msgstr "Төлөвлөгөө сонголт байхгүй."
+
+#: ../lib/base/error.cpp:304
+msgid "Failed to update the layout option."
+msgstr "Загвар сонголтыг шинэчилж чадаагүй."
+
+#: ../lib/base/error.cpp:307
+msgid "Failed to clear the layout option."
+msgstr "Төлөвлөгөөт сонголтыг цэвэрлэж чадаагүй."
+
+#: ../lib/base/error.cpp:310
+msgid "The custom shortcut isn't exist."
+msgstr "Хувийн товч зам байдаггүй."
+
+#: ../lib/base/error.cpp:314
+msgid "The key combination already exist."
+msgstr "Гол хослол нь аль хэдийн байдаг."
+
+#: ../lib/base/error.cpp:318
+msgid "The key combination is invalid."
+msgstr "Гол хослол нь хүчингүй."
+
+#: ../lib/base/error.cpp:321
+msgid "The system shortcut isn't exist."
+msgstr "Системийн товч зам байдаггүй."
+
+#: ../lib/base/error.cpp:327
+msgid "Unsupported power supply mode."
+msgstr "Дэмжээгүй эрчим хүчний хангамжийн хэв маяг."
+
+#: ../lib/base/error.cpp:333
+msgid "Unsupported power device."
+msgstr "Дэмжээгүй эрчим хүчний төхөөрөмж."
+
+#: ../lib/base/error.cpp:336
+msgid "The value must be between 0 and 100."
+msgstr "Үнэ нь 0-100 хооронд байх ёстой."
+
+#: ../lib/base/error.cpp:340
+msgid "Unknown power action."
+msgstr "Үл мэдэгдэх хүчдэлийн үйлдэл."
+
+#: ../lib/base/error.cpp:344
+msgid "Unsupported power event."
+msgstr "Дэмжээгүй хүчний үйл явдал."
+
+#: ../lib/base/error.cpp:347
+msgid "Failed to set the action."
+msgstr "Энэ үйлдлийг тогтоож чадаагүй."
+
+#: ../lib/base/error.cpp:350
+msgid "Failed to set brightness."
+msgstr "Гэрэлтэж чадаагүй."
+
+#: ../lib/base/error.cpp:353
+msgid "The systeminfo type is invalid."
+msgstr "Systeminfo төрөл нь хүчингүй."
+
+#: ../lib/base/error.cpp:356
+msgid "Failed to set host name."
+msgstr "Гэрийн эзний нэрийг тогтоож чадаагүй."
+
+#: ../lib/base/error.cpp:359
+msgid "Not found the property."
+msgstr "Эдлэн газраа олсонгүй."
+
+#: ../lib/base/error.cpp:362
+msgid "The type is mismatch."
+msgstr "Төрөл нь хоорондоо тохирохгүй байна."
+
+#: ../lib/base/error.cpp:365
+msgid "The property is invalid."
+msgstr "Эд хөрөнгө хүчингүй."
+
+#: ../lib/base/error.cpp:368
+msgid "The property must not be modified manually."
+msgstr "Өмч хөрөнгийг гараар өөрчлөх ёсгүй."
+
+#: ../lib/base/error.cpp:371
+msgid "The property is unsupported."
+msgstr "Эд хөрөнгийг дэмжээгүй."
+
+#: ../lib/base/error.cpp:375
+msgid "Arguments invalid."
+msgstr "Маргаан хүчингүй."
+
+#: ../lib/base/error.cpp:378
+msgid "The network proxy mode is invalid."
+msgstr "Сүлжээний прокси хэв маяг нь хүчингүй."
+
+#: ../lib/base/error.cpp:381
+msgid "The current network proxy mode is not manual."
+msgstr "Одоогийн сүлжээний прокси хэв маяг нь гарын авлага биш юм."
+
+#: ../lib/base/error.cpp:384
+msgid "The current network proxy mode is not auto."
+msgstr "Одоогийн сүлжээний прокси хэв маяг нь авто биш юм."
+
+#: ../lib/base/error.cpp:425
+msgid "Internel error."
+msgstr "Интернелийн алдаа."
+
+#: ../lib/base/error.cpp:428 ../lib/base/error.cpp:431
+msgid "Unknown error."
+msgstr "Тодорхойгүй алдаа."
+
+#: ../lib/base/error.cpp:437 ../plugins/accounts/accounts-util.cpp:209
+msgid " (error code: 0x{:x})"
+msgstr "(алдааны код: 0x{:x})"
+
+#: ../lib/dbus/auth-manager.cpp:147
+msgid "Authorization failed"
+msgstr "Зөвшөөрөл бүтэлгүйтсэн"
+
+#: ../plugins/accounts/accounts-util.cpp:205
+msgid " ({0}, error code: 0x{1:x})"
+msgstr "({0}, алдааны код: 0x{1:x})"
+
+#: ../plugins/accounts/passwd-wrapper.cpp:373
+msgid "The password contains less than {0} character classes."
+msgstr "Нууц үг нь {0} үсгийн эд ангиудаас бага агуулгатай."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:374
+msgid "The password contains less than {0} digits."
+msgstr "Нууц үг нь {0} цифрээс бага агуулгатай байна."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:375
+msgid "The password contains less than {0} lowercase letters."
+msgstr "Нууц үг нь {0} lowercase үсгийг бага агуулдаг."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:376
+msgid "The password contains less than {0} non-alphanumeric characters."
+msgstr "Нууц үг нь {0} бус алпанум үсэгтэй байна."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:377
+msgid "The password contains less than {0} uppercase letters."
+msgstr "Нууц үг нь {0} uppercase үсэгнээс бага агуулна."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:378
+msgid "The password contains monotonic sequence longer than {0} characters."
+msgstr "Нууц үг нь {0} үсэгнээс илүү урт монотоны дараалалтай байна."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:379
+msgid ""
+"The password contains more than {0} characters of the same class "
+"consecutively."
+msgstr "Нууц үг нь нэг ангийн {0} гаруй тэмдэгтийг дараалан агуулдаг."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:380
+msgid "The password contains more than {0} same characters consecutively."
+msgstr "Нууц үг нь нэг {0} илүү олон тэмдэгтийг дараалан агуулдаг."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:381
+msgid "The password is shorter than {0} characters."
+msgstr "Нууц үг нь {0} үсэгнээс богино байна."
+
+#: ../plugins/accounts/passwd-wrapper.cpp:444
+msgid "Password modification timeout."
+msgstr "Нууц үг өөрчлөх хугацаа."
+
+#: ../plugins/timedate/timedate-format.cpp:137
+#: ../plugins/timedate/timedate-format.cpp:138
+#: ../plugins/timedate/timedate-format.cpp:139
+msgid "%b %d %Y"
+msgstr "%b %d %Y"
+
+#: ../plugins/display/display-manager.cpp:195
+msgid ""
+"The scaling rate can only take effect after logging out and logging in again"
+msgstr ""
+"Скаляр хэмжээ нь зөвхөн орж, дахин орж гарсны дараа л хүчин төгөлдөр болно"
+
+#: ../plugins/keybinding/custom-shortcut.h:25
+msgid "Custom"
+msgstr "Үйлчилгээ"
+
+#: ../plugins/power/power-utils.cpp:26
+msgid "Less than 1 minute"
+msgstr "1 минутаас бага"
+
+#: ../plugins/power/power-utils.cpp:30
+msgid "{0} minute"
+msgid_plural "{0} minutes"
+msgstr[0] "{0} минут"
+
+#: ../plugins/power/power-utils.cpp:38
+msgid "{0} hour"
+msgid_plural "{0} hours"
+msgstr[0] "{0} цаг"
+
+#: ../plugins/power/power-utils.cpp:44
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "цаг"
+
+#: ../plugins/power/power-utils.cpp:46
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "минут"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:115
+msgid "Battery Discharging"
+msgstr "Аккумляторын халалт"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:116
+msgid "{0} of battery power remaining ({1:.1f}%)"
+msgstr "Батарейны хүчдэлийн {0} үлдэгдэл ({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:121
+msgid "UPS Discharging"
+msgstr "UPS-ийн халалт"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:122
+msgid "{0} of UPS backup power remaining ({1:.1f}%)"
+msgstr "UPS нөөц хүчдэлийн {0} үлдсэн ({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:139
+msgid "Battery Charged"
+msgstr "Аккумлятор цэнэглэсэн"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:163
+msgid "Battery low"
+msgstr "Батарей бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:164
+msgid "Approximately <b>{0}</b> remaining ({1:.1f}%)"
+msgstr "Ойролцоогоор <b>{0}</b> үлдсэн ({1:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:171
+msgid "UPS low"
+msgstr "UPS бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:172
+msgid "Approximately <b>{0}</b> of remaining UPS backup power ({1:.1f}%)"
+msgstr "ОЙРОЛЦООГООР <b>UPS</b> нөөц хүч ({1:.1f}%) үлдсэн {0}"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:178
+#: ../plugins/power/notification/power-notification-manager.cpp:246
+msgid "Mouse battery low"
+msgstr "Маусны батарей бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:179
+msgid "Wireless mouse is low in power ({0:.1f}%)"
+msgstr "Утасгүй мясны хүчдэл бага ({0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:182
+#: ../plugins/power/notification/power-notification-manager.cpp:251
+msgid "Keyboard battery low"
+msgstr "Даралтат аккумулятор бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:183
+msgid "Wireless keyboard is low in power ({0:.1f}%)"
+msgstr "Утасгүй товчлуур нь бага хүчдэлтэй ({0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:186
+#: ../plugins/power/notification/power-notification-manager.cpp:256
+msgid "PDA battery low"
+msgstr "PDA батарей бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:187
+msgid "PDA is low in power ({0:.1f}%)"
+msgstr "PDA нь бага хүчдэлтэй ({0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:190
+#: ../plugins/power/notification/power-notification-manager.cpp:261
+#: ../plugins/power/notification/power-notification-manager.cpp:266
+msgid "Cell phone battery low"
+msgstr "Гар утасны батарей бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:191
+msgid "Cell phone is low in power ({0:.1f}%)"
+msgstr "Гар утас бага хүчдэлтэй ({0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:194
+msgid "Media player battery low"
+msgstr "Хэвлэл мэдээллийн хэрэгсэл тоглуулагч батарей бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:195
+msgid "Media player is low in power ({0:1f}%)"
+msgstr "Медиа тоглуулагч хүч бага ({0:1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:198
+#: ../plugins/power/notification/power-notification-manager.cpp:271
+msgid "Tablet battery low"
+msgstr "Таблет аккумулятор бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:199
+msgid "Tablet is low in power ({0:1f}%)"
+msgstr "Таблет нь хүч бага ({0:1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:202
+#: ../plugins/power/notification/power-notification-manager.cpp:276
+msgid "Attached computer battery low"
+msgstr "Компьютерийн батарей бага хавсаргасан"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:203
+msgid "Attached computer is low in power ({0:.1f}%)"
+msgstr "Атташлагдсан компьютер нь хүчин чадал бага ({0:.1f}%)"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:233
+msgid "Battery critically low"
+msgstr "Батарей маш бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:234
+msgid ""
+"Approximately <b>{0}</b> remaining ({1:.1f}%). Plug in your AC adapter to "
+"avoid losing data."
+msgstr ""
+"Ойролцоогоор <b>{0}</b> үлдсэн ({1:.1f}%). Өгөгдөл алдахаас зайлсхийхийн "
+"тулд AC адаптераа суулгаарай."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:240
+#: ../plugins/power/notification/power-notification-manager.cpp:333
+msgid "UPS critically low"
+msgstr "UPS маш бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:241
+msgid ""
+"Approximately <b>{0}</b> of remaining UPS power ({1:.1f}%). Restore AC power"
+" to your computer to avoid losing data."
+msgstr ""
+"Ойролцоогоор <b>UPS</b> хүч ({1:.1f}%) үлдсэн {0}. Өгөгдөл алдагдахаас "
+"зайлсхийхийн тулд таны компьютерт AC хүчийг сэргээх."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:247
+msgid ""
+"Wireless mouse is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Утасгүй хулгана нь маш бага хүчдэлтэй ({0:.1f}%). Энэ төхөөрөмж "
+"цэнэглэгдээгүй бол удахгүй ажиллахаа болино."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:252
+msgid ""
+"Wireless keyboard is very low in power ({0:.1f}%). This device will soon "
+"stop functioning if not charged."
+msgstr ""
+"Утасгүй товчлуур нь маш бага хүчдэлтэй ({0:.1f}%). Энэ төхөөрөмж "
+"цэнэглэгдээгүй бол удахгүй ажиллахаа болино."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:257
+msgid ""
+"PDA is very low in power ({0:.1f}%). This device will soon stop functioning "
+"if not charged."
+msgstr ""
+"PDA нь эрчим хүчний хувьд маш бага ({0:.1f}%). Энэ төхөөрөмж цэнэглэгдээгүй "
+"бол удахгүй ажиллахаа болино."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:262
+msgid ""
+"Cell phone is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Гар утас нь маш бага хүчдэлтэй ({0:.1f}%). Энэ төхөөрөмж цэнэглэгдээгүй бол "
+"удахгүй ажиллахаа болино."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:267
+msgid ""
+"Media player is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Медиа тоглуулагч нь маш бага хүч ({0:.1f}%). Энэ төхөөрөмж цэнэглэгдээгүй "
+"бол удахгүй ажиллахаа болино."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:272
+msgid ""
+"Tablet is very low in power ({0:.1f}%). This device will soon stop "
+"functioning if not charged."
+msgstr ""
+"Таблет нь эрчим хүчний хувьд маш бага ({0:.1f}%). Энэ төхөөрөмж "
+"цэнэглэгдээгүй бол удахгүй ажиллахаа болино."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:277
+msgid ""
+"Attached computer is very low in power ({0:.1f}%). The device will soon "
+"shutdown if not charged."
+msgstr ""
+"Атташед компьютер нь эрчим хүчний хувьд маш бага ({0:.1f}%). Хэрэв "
+"цэнэглэхгүй бол төхөөрөмж удахгүй хаагдах болно."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:308
+msgid "Laptop battery critically low"
+msgstr "Зөөврийн компьютерын батарей маш бага"
+
+#: ../plugins/power/notification/power-notification-manager.cpp:316
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+"Аккумлятор нь эгзэгтэй түвшингээс доогуур байгаа бөгөөд энэ компьютерийг "
+"саатуулах гэж байна. <br><b>АНХААРУУЛГА:</b> Компьютерээ түр саатуулсан "
+"байдалд байлгахын тулд бага хэмжээний хүчин чадал шаардлагатай."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:320
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"hibernate."
+msgstr ""
+"Аккумлятор нь эгзэгтэй түвшингээс доогуур, энэ компьютер хөлд орох гэж "
+"байна."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:323
+msgid ""
+"The battery is below the critical level and this computer is about to "
+"shutdown."
+msgstr ""
+"Аккумлятор нь эгзэгтэй түвшингээс доогуур байгаа бөгөөд энэ компьютер "
+"хаагдах гэж байна."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:326
+msgid ""
+"The battery is below the critical level and this computer will <b>power-"
+"off</b> when the battery becomes completely empty."
+msgstr ""
+"Аккумлятор нь эгзэгтэй түвшингээс доогуур байгаа бөгөөд батарей бүрэн хоосон"
+" болоход энэ компьютер <b>цахилгаанд</b> орно."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:341
+msgid ""
+"The UPS is below the critical level and this computer is about to "
+"suspend.<br><b>NOTE:</b> A small amount of power is required to keep your "
+"computer in a suspended state."
+msgstr ""
+"UPS нь эгзэгтэй түвшнээс доогуур байгаа бөгөөд энэ компьютерийг саатуулах "
+"гэж байна. <br><b>АНХААРУУЛГА:</b> Компьютерээ түр саатуулсан байдалд "
+"байлгахын тулд бага хэмжээний хүчин чадал шаардлагатай."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:345
+msgid ""
+"The UPS is below the critical level and this computer is about to hibernate."
+msgstr ""
+"UPS нь маш чухал түвшнээс доогуур байгаа бөгөөд энэ компьютер нь хөлд орох "
+"гэж байна."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:348
+msgid ""
+"The UPS is below the critical level and this computer is about to shutdown."
+msgstr ""
+"UPS нь эгзэгтэй түвшингээс доогуур байгаа бөгөөд энэ компьютер хаагдах гэж "
+"байна."
+
+#: ../plugins/power/notification/power-notification-manager.cpp:351
+msgid ""
+"The UPS is below the critical level and this computer will <b>power-off</b> "
+"when the UPS becomes completely empty."
+msgstr ""
+"UPS нь эгзэгтэй түвшингээс доогуур байгаа бөгөөд UPS бүрэн хоосон болоход "
+"энэ компьютер <b>эрчимжих</b> болно."
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:86
+msgid "AC adapter"
+msgid_plural "AC adapters"
+msgstr[0] "АС адаптер"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:89
+msgid "Laptop battery"
+msgid_plural "Laptop batteries"
+msgstr[0] "Зөөврийн компьютерийн батарей"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:92
+msgid "UPS"
+msgid_plural "UPSs"
+msgstr[0] "UPS"
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:95
+msgid "Monitor"
+msgid_plural "Monitors"
+msgstr[0] "Монитор"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:98
+msgid "Mouse"
+msgid_plural "Mice"
+msgstr[0] "Муур"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:101
+msgid "Keyboard"
+msgid_plural "Keyboards"
+msgstr[0] "Товчлуур"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:104
+msgid "PDA"
+msgid_plural "PDAs"
+msgstr[0] "PDA"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:107
+msgid "Cell phone"
+msgid_plural "Cell phones"
+msgstr[0] "Гар утас"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:110
+msgid "Media player"
+msgid_plural "Media players"
+msgstr[0] "Медиа тоглуулагч"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:113
+msgid "Tablet"
+msgid_plural "Tablets"
+msgstr[0] "Таблет"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:116
+msgid "Computer"
+msgid_plural "Computers"
+msgstr[0] "Компьютер"
+msgstr[1] ""
+
+#: ../plugins/power/wrapper/power-upower-device.cpp:119
+msgid "Unknown"
+msgid_plural "Unknown"
+msgstr[0] "Үл мэдэгдэх"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:102
+msgid "This program can only be used by the root user"
+msgstr "Энэ програмыг зөвхөн root хэрэглэгч ашиглаж болно"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:109
+msgid "This program must only be run through pkexec"
+msgstr "Энэ хөтөлбөрийг зөвхөн pkexec-ээр л явуулах ёстой"
+
+#: ../plugins/power/tools/power-backlight-helper.cpp:118
+msgid "Could not set the value of the backlight"
+msgstr "Арын гэрлийн үнэ цэнийг тогтоож чадсангүй"
+
+#. namespace  Kiran
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:1
+msgid "Power Manager"
+msgstr "Эрчим хүчний менежер"
+
+#: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
+msgid "Power management daemon"
+msgstr "Эрчим хүчний менежмент daemon"

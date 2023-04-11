@@ -1,0 +1,2580 @@
+# Chinese translations for tangjie package
+# tangjie 软件包的简体中文翻译.
+# Copyright (C) 2020 THE tangjie'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the tangjie package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tangjie02\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-31 15:34+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Africa/Abidjan"
+msgstr "ئافرىقا/ئەبىجان"
+
+msgid "Africa/Accra"
+msgstr "ئافرىقا/ئاقسۆڭەك"
+
+msgid "Africa/Addis_Ababa"
+msgstr "ئافرىقا/Addis_Ababa"
+
+msgid "Africa/Algiers"
+msgstr "ئافرىقا/ئالجىرىيە"
+
+msgid "Africa/Asmara"
+msgstr "ئافرىقا/Asmara"
+
+msgid "Africa/Asmera"
+msgstr "ئافرىقا/Asmera"
+
+msgid "Africa/Bamako"
+msgstr "ئافرىقا/باماكو"
+
+msgid "Africa/Bangui"
+msgstr "ئافرىقا/بانگۈي"
+
+msgid "Africa/Banjul"
+msgstr "ئافرىقا/بانجۈل"
+
+msgid "Africa/Bissau"
+msgstr "ئافرىقا/بىسسائۇ"
+
+msgid "Africa/Blantyre"
+msgstr "ئافرىقا/بلەنترې"
+
+msgid "Africa/Brazzaville"
+msgstr "ئافرىقا/Brazzaville"
+
+msgid "Africa/Bujumbura"
+msgstr "ئافرىقا/بۈگۈر"
+
+msgid "Africa/Cairo"
+msgstr "ئافرىقا/قاھىرە"
+
+msgid "Africa/Casablanca"
+msgstr "ئافرىقا/كاسابلانكا"
+
+msgid "Africa/Ceuta"
+msgstr "ئافرىقا/سېترا"
+
+#. comment for time zone Africa/Ceuta
+msgid "Ceuta & Melilla"
+msgstr "سېكۇلارە & Melilla"
+
+msgid "Africa/Conakry"
+msgstr "ئافرىقا/كونيا"
+
+msgid "Africa/Dakar"
+msgstr "ئافرىقا/داكار"
+
+msgid "Africa/Dar_es_Salaam"
+msgstr "ئافرىقا/Dar_es_Salaam"
+
+msgid "Africa/Djibouti"
+msgstr "ئافرىقا/جىبۇتى"
+
+msgid "Africa/Douala"
+msgstr "ئافرىقا/دولانا"
+
+msgid "Africa/El_Aaiun"
+msgstr "ئافرىقا/El_Aaiun"
+
+msgid "Africa/Freetown"
+msgstr "ئافرىقا/ئەركىن يۇرت"
+
+msgid "Africa/Gaborone"
+msgstr "ئافرىقا/گاۋرون"
+
+msgid "Africa/Harare"
+msgstr "ئافرىقا/خاررې"
+
+msgid "Africa/Johannesburg"
+msgstr "ئافرىقا/جوھاننىسبۇرگ"
+
+msgid "Africa/Kampala"
+msgstr "ئافرىقا/كاپاتالا"
+
+msgid "Africa/Khartoum"
+msgstr "ئافرىقا/خارەزمى"
+
+msgid "Africa/Kigali"
+msgstr "ئافرىقا/كىگالچە"
+
+msgid "Africa/Kinshasa"
+msgstr "ئافرىقا/كىنشاسا"
+
+#. comment for time zone Africa/Kinshasa
+msgid "west Dem. Rep. of Congo"
+msgstr "غەربىي دېم. كونگو جۇمھۇرىيىتى پرىزدىنتى"
+
+msgid "Africa/Lagos"
+msgstr "ئافرىقا/لائوس"
+
+msgid "Africa/Libreville"
+msgstr "ئافرىقا/Libreville"
+
+msgid "Africa/Lome"
+msgstr "ئافرىقا/لومې"
+
+msgid "Africa/Luanda"
+msgstr "ئافرىقا/لۇندا"
+
+msgid "Africa/Lubumbashi"
+msgstr "ئافرىقا/Lubumbashi"
+
+#. comment for time zone Africa/Lubumbashi
+msgid "east Dem. Rep. of Congo"
+msgstr "شەرقىي دېم. كونگو جۇمھۇرىيىتى پىر."
+
+msgid "Africa/Lusaka"
+msgstr "ئافرىقا/لۇساكا"
+
+msgid "Africa/Malabo"
+msgstr "ئافرىقا/مالابو"
+
+msgid "Africa/Maputo"
+msgstr "ئافرىقا/ماپۇتو"
+
+msgid "Africa/Maseru"
+msgstr "ئافرىقا/مېسسى"
+
+msgid "Africa/Mbabane"
+msgstr "ئافرىقا/مىباپپې"
+
+msgid "Africa/Mogadishu"
+msgstr "ئافرىقا/موگادىشۇ"
+
+msgid "Africa/Monrovia"
+msgstr "ئافرىقا/مونروۋىيە"
+
+msgid "Africa/Nairobi"
+msgstr "ئافرىقا/نايروبى"
+
+msgid "Africa/Ndjamena"
+msgstr "ئافرىقا/Ndjamena"
+
+msgid "Africa/Niamey"
+msgstr "ئافرىقا/نىيامېي"
+
+msgid "Africa/Nouakchott"
+msgstr "ئافرىقا/نوۋئاكچوت"
+
+msgid "Africa/Ouagadougou"
+msgstr "ئافرىقا/Ouagadougou"
+
+msgid "Africa/Porto-Novo"
+msgstr "ئافرىقا/پورتو-نوۋ"
+
+msgid "Africa/Sao_Tome"
+msgstr "ئافرىقا/Sao_Tome"
+
+msgid "Africa/Timbuktu"
+msgstr "ئافرىقا/تىمبۇكتۇ"
+
+msgid "Africa/Tripoli"
+msgstr "ئافرىقا/تىرىپول"
+
+msgid "Africa/Tunis"
+msgstr "ئافرىقا/تۇنىس"
+
+msgid "Africa/Windhoek"
+msgstr "ئافرىقا/ۋىندوۋىك"
+
+msgid "Africa/Juba"
+msgstr "ئافرىقا/جۇبا"
+
+msgid "America/Adak"
+msgstr "ئامېرىكا/Adak"
+
+#. comment for time zone America/Adak
+msgid "Aleutian Islands"
+msgstr "ئاقيېلېت تاقىم ئاراللىرى"
+
+msgid "America/Anchorage"
+msgstr "ئامېرىكا/لەڭگەر"
+
+#. comment for time zone America/Anchorage
+msgid "Alaska Time"
+msgstr "ئالياسكا ۋاقتى"
+
+msgid "America/Anguilla"
+msgstr "ئامېرىكا/ئانگولا"
+
+msgid "America/Antigua"
+msgstr "ئامېرىكا/ئانتىگۇئا"
+
+msgid "America/Araguaina"
+msgstr "ئامېرىكا/ئاراگۇئانانا"
+
+#. comment for time zone America/Araguaina
+msgid "Tocantins"
+msgstr "توكانىنلار"
+
+msgid "America/Argentina/Buenos_Aires"
+msgstr "ئامېرىكا/ئارگېنتىنا/Buenos_Aires"
+
+#. comment for time zone America/Argentina/Buenos_Aires
+msgid "Buenos Aires (BA, CF)"
+msgstr "بۇئېنۇس ئايرىس (BA, CF)"
+
+msgid "America/Argentina/Catamarca"
+msgstr "ئامېرىكا/ئارگېنتىنا/كاتاماركا"
+
+#. comment for time zone America/Argentina/Catamarca
+msgid "Catamarca (CT), Chubut (CH)"
+msgstr "كاتاماركا (CT), چۇبۇت (CH)"
+
+msgid "America/Argentina/ComodRivadavia"
+msgstr "ئامېرىكا/ئارگېنتىنا/ComodRivadavia"
+
+msgid "America/Argentina/Cordoba"
+msgstr "ئامېرىكا/ئارگېنتىنا/كوردبا"
+
+#. comment for time zone America/Argentina/Cordoba
+msgid "most locations (CB, CC, CN, ER, FM, MN, SE, SF)"
+msgstr "كۆپ قىسىم ئورۇنلار (CB, CC, CN, ER, FM, MN, SE, SF)"
+
+msgid "America/Argentina/Jujuy"
+msgstr "ئامېرىكا/ئارگېنتىنا/جۇجۈي"
+
+#. comment for time zone America/Argentina/Jujuy
+msgid "Jujuy (JY)"
+msgstr "جۇجۈي (JY)"
+
+msgid "America/Argentina/La_Rioja"
+msgstr "ئامېرىكا/ئارگېنتىنا/La_Rioja"
+
+#. comment for time zone America/Argentina/La_Rioja
+msgid "La Rioja (LR)"
+msgstr "لا رىئودىجا (LR)"
+
+msgid "America/Argentina/Mendoza"
+msgstr "ئامېرىكا/ئارگېنتىنا/مېدروزا"
+
+#. comment for time zone America/Argentina/Mendoza
+msgid "Mendoza (MZ)"
+msgstr "مىندوزا (MZ)"
+
+msgid "America/Argentina/Rio_Gallegos"
+msgstr "ئامېرىكا/ئارگېنتىنا/Rio_Gallegos"
+
+#. comment for time zone America/Argentina/Rio_Gallegos
+msgid "Santa Cruz (SC)"
+msgstr "سانتا كرۇز (SC)"
+
+msgid "America/Argentina/Salta"
+msgstr "ئامېرىكا/ئارگېنتىنا/تۇزا"
+
+#. comment for time zone America/Argentina/Salta
+msgid "(SA, LP, NQ, RN)"
+msgstr "(SA، LP، NQ، RN)"
+
+msgid "America/Argentina/San_Juan"
+msgstr "ئامېرىكا/ئارگېنتىنا/San_Juan"
+
+#. comment for time zone America/Argentina/San_Juan
+msgid "San Juan (SJ)"
+msgstr "سان جۈەن (SJ)"
+
+msgid "America/Argentina/San_Luis"
+msgstr "ئامېرىكا/ئارگېنتىنا/San_Luis"
+
+#. comment for time zone America/Argentina/San_Luis
+msgid "San Luis (SL)"
+msgstr "سان لۇئىس (SL)"
+
+msgid "America/Argentina/Tucuman"
+msgstr "ئامېرىكا/ئارگېنتىنا/تەرخەمەك"
+
+#. comment for time zone America/Argentina/Tucuman
+msgid "Tucuman (TM)"
+msgstr "تەرخەمەك (TM)"
+
+msgid "America/Argentina/Ushuaia"
+msgstr "ئامېرىكا/ئارگېنتىنا/ئۇشۇئايا"
+
+#. comment for time zone America/Argentina/Ushuaia
+msgid "Tierra del Fuego (TF)"
+msgstr "Tierra del Fuego (TF)"
+
+msgid "America/Aruba"
+msgstr "ئامېرىكا/ئارۇبا"
+
+msgid "America/Asuncion"
+msgstr "ئامېرىكا/ئاسىنسىئون"
+
+msgid "America/Atikokan"
+msgstr "ئامېرىكا/Atikokan"
+
+#. comment for time zone America/Atikokan
+msgid "Eastern Standard Time - Atikokan, Ontario and Southampton I, Nunavut"
+msgstr "شەرق ئۆلچەملىك ۋاقتى - Atikokan, Ontario ۋە Southampton I, Nunavut"
+
+msgid "America/Atka"
+msgstr "ئامېرىكا/ئاتكا"
+
+msgid "America/Bahia"
+msgstr "ئامېرىكا/بەھىيا"
+
+#. comment for time zone America/Bahia
+msgid "Bahia"
+msgstr "باھىيا ئوبلاستى"
+
+msgid "America/Bahia_Banderas"
+msgstr "ئامېرىكا/Bahia_Banderas"
+
+#. comment for time zone America/Bahia_Banderas
+msgid "Mexican Central Time - Bahia de Banderas"
+msgstr "مېكسىكا ئوتتۇرا ۋاقتى - Bahia de Banderas"
+
+msgid "America/Barbados"
+msgstr "ئامېرىكا/باربادوس"
+
+msgid "America/Belem"
+msgstr "ئامېرىكا/بېلېم"
+
+#. comment for time zone America/Belem
+msgid "Amapa, E Para"
+msgstr "ئامپا، ۋە تو"
+
+msgid "America/Belize"
+msgstr "ئامېرىكا/بېلىز"
+
+msgid "America/Blanc-Sablon"
+msgstr "ئامېرىكا/Blanc-Sablon"
+
+#. comment for time zone America/Blanc-Sablon
+msgid "Atlantic Standard Time - Quebec - Lower North Shore"
+msgstr ""
+"ئاتلانتىك ئوكيان ئۆلچەملىك ۋاقتى - قىبلىنا - شىمالىي قىرغاقنىڭ تۆۋەنكى "
+"قىرغىقى"
+
+msgid "America/Boa_Vista"
+msgstr "ئامېرىكا/Boa_Vista"
+
+#. comment for time zone America/Boa_Vista
+msgid "Roraima"
+msgstr "روراما"
+
+msgid "America/Bogota"
+msgstr "ئامېرىكا/بوگوتا"
+
+msgid "America/Boise"
+msgstr "ئامېرىكا/بوس"
+
+#. comment for time zone America/Boise
+msgid "Mountain Time - south Idaho & east Oregon"
+msgstr "تاغ ۋاقتى - جەنۇبىي ئىداخو > شەرقىي ئورېگون"
+
+msgid "America/Buenos_Aires"
+msgstr "ئامېرىكا/Buenos_Aires"
+
+msgid "America/Cambridge_Bay"
+msgstr "ئامېرىكا/Cambridge_Bay"
+
+#. comment for time zone America/Cambridge_Bay
+msgid "Mountain Time - west Nunavut"
+msgstr "تاغ ۋاقتى - غەربىي نۇنavut"
+
+msgid "America/Campo_Grande"
+msgstr "ئامېرىكا/Campo_Grande"
+
+#. comment for time zone America/Campo_Grande
+msgid "Mato Grosso do Sul"
+msgstr "Mato Grosso do Sul"
+
+msgid "America/Cancun"
+msgstr "ئامېرىكا/كانكۇن"
+
+#. comment for time zone America/Cancun
+msgid "Central Time - Quintana Roo"
+msgstr "مەركىزىي ۋاقىت - Quintana Roo"
+
+msgid "America/Caracas"
+msgstr "ئامېرىكا/كاراكاز"
+
+msgid "America/Catamarca"
+msgstr "ئامېرىكا/كاتاماركا"
+
+msgid "America/Cayenne"
+msgstr "ئامېرىكا/كايېننې"
+
+msgid "America/Cayman"
+msgstr "ئامېرىكا/سەيمان"
+
+msgid "America/Chicago"
+msgstr "ئامېرىكا/چىكاگو"
+
+#. comment for time zone America/Chicago
+msgid "Central Time"
+msgstr "مەركىزىي ۋاقىت"
+
+msgid "America/Chihuahua"
+msgstr "ئامېرىكا/چىخۇاخۇا"
+
+#. comment for time zone America/Chihuahua
+msgid "Mexican Mountain Time - Chihuahua away from US border"
+msgstr "مېكسىكا تاغ ۋاقتى - چىخۇاخۇا ئامېرىكا چېگرىسىدىن يىراق"
+
+msgid "America/Coral_Harbour"
+msgstr "ئامېرىكا/Coral_Harbour"
+
+msgid "America/Cordoba"
+msgstr "ئامېرىكا/كوردبا"
+
+msgid "America/Costa_Rica"
+msgstr "ئامېرىكا/Costa_Rica"
+
+msgid "America/Cuiaba"
+msgstr "ئامېرىكا/كۇيبا"
+
+#. comment for time zone America/Cuiaba
+msgid "Mato Grosso"
+msgstr "Mato Grosso"
+
+msgid "America/Curacao"
+msgstr "ئامېرىكا/كۇئاكاۋ"
+
+msgid "America/Danmarkshavn"
+msgstr "ئامېرىكا/Danmarkshavn"
+
+#. comment for time zone America/Danmarkshavn
+msgid "east coast, north of Scoresbysund"
+msgstr "شەرقىي دېڭىز قىرغىقى، Scoresbysundنىڭ شىمالى"
+
+msgid "America/Dawson"
+msgstr "ئامېرىكا/داۋسون"
+
+#. comment for time zone America/Dawson
+msgid "Pacific Time - north Yukon"
+msgstr "تىنچ ئوكيان ۋاقتى - شىمالىي يۇكون"
+
+msgid "America/Dawson_Creek"
+msgstr "ئامېرىكا/Dawson_Creek"
+
+#. comment for time zone America/Dawson_Creek
+msgid ""
+"Mountain Standard Time - Dawson Creek & Fort Saint John, British Columbia"
+msgstr ""
+"تاغ ئۆلچەملىك ۋاقتى - Dawson Creek & Fort Saint John, ئەنگىلىيە كولومبىيە"
+
+msgid "America/Denver"
+msgstr "ئامېرىكا/دېنۋېر"
+
+#. comment for time zone America/Denver
+msgid "Mountain Time"
+msgstr "تاغ ۋاقتى"
+
+msgid "America/Detroit"
+msgstr "ئامېرىكا/دېترويت"
+
+#. comment for time zone America/Detroit
+msgid "Eastern Time - Michigan - most locations"
+msgstr "شەرق ۋاقتى - مىچىگان - كۆپ قىسىم جايلار"
+
+msgid "America/Dominica"
+msgstr "ئامېرىكا/دومىنىكا"
+
+msgid "America/Edmonton"
+msgstr "ئامېرىكا/Edmonton"
+
+#. comment for time zone America/Edmonton
+msgid "Mountain Time - Alberta, east British Columbia & west Saskatchewan"
+msgstr "تاغ ۋاقتى - ئالبېرتا، شەرقىي ئەنگىلىيە كولۇمبىيەسى > غەربىي ساسكېچۋان"
+
+msgid "America/Eirunepe"
+msgstr "ئامېرىكا/Eirunepe"
+
+#. comment for time zone America/Eirunepe
+msgid "W Amazonas"
+msgstr "ئامازوندا"
+
+msgid "America/El_Salvador"
+msgstr "ئامېرىكا/El_Salvador"
+
+msgid "America/Ensenada"
+msgstr "ئامېرىكا/ئېنسېندا"
+
+msgid "America/Fortaleza"
+msgstr "ئامېرىكا/Fortaleza"
+
+#. comment for time zone America/Fortaleza
+msgid "NE Brazil (MA, PI, CE, RN, PB)"
+msgstr "NE بىرازىلىيە (MA, PI, CE, RN, PB)"
+
+msgid "America/Fort_Wayne"
+msgstr "ئامېرىكا/Fort_Wayne"
+
+msgid "America/Glace_Bay"
+msgstr "ئامېرىكا/Glace_Bay"
+
+#. comment for time zone America/Glace_Bay
+msgid ""
+"Atlantic Time - Nova Scotia - places that did not observe DST 1966-1971"
+msgstr ""
+"ئاتلانتىك ئوكيان ۋاقتى - Nova Scotia - DST 1966-1971-يىلى كۈزەتمىگەن جايلار"
+
+msgid "America/Godthab"
+msgstr "ئامېرىكا/Godthab"
+
+#. comment for time zone America/Godthab
+#. comment for time zone America/Santiago
+#. comment for time zone Asia/Almaty
+#. comment for time zone Asia/Ulaanbaatar
+#. comment for time zone Europe/Kiev
+#. comment for time zone Pacific/Auckland
+#. comment for time zone Pacific/Majuro
+msgid "most locations"
+msgstr "كۆپ قىسىم ئورۇنلار"
+
+msgid "America/Goose_Bay"
+msgstr "ئامېرىكا/Goose_Bay"
+
+#. comment for time zone America/Goose_Bay
+msgid "Atlantic Time - Labrador - most locations"
+msgstr "ئاتلانتىك ئوكيان ۋاقتى - لابرادور - كۆپ قىسىم جايلار"
+
+msgid "America/Grand_Turk"
+msgstr "ئامېرىكا/Grand_Turk"
+
+msgid "America/Grenada"
+msgstr "ئامېرىكا/گىرېنادا"
+
+msgid "America/Guadeloupe"
+msgstr "ئامېرىكا/گۇئادېللوپې"
+
+msgid "America/Guatemala"
+msgstr "ئامېرىكا/گۋاتېمالا"
+
+msgid "America/Guayaquil"
+msgstr "ئامېرىكا/گۇئارىرىك"
+
+#. comment for time zone America/Guayaquil
+#. comment for time zone Europe/Lisbon
+#. comment for time zone Europe/Madrid
+msgid "mainland"
+msgstr "چوڭ قۇرۇقلۇق"
+
+msgid "America/Guyana"
+msgstr "ئامېرىكا/Guyana"
+
+msgid "America/Halifax"
+msgstr "ئامېرىكا/Halifax"
+
+#. comment for time zone America/Halifax
+msgid "Atlantic Time - Nova Scotia (most places), PEI"
+msgstr "ئاتلانتىك ئوكيان ۋاقتى - Nova Scotia (كۆپ قىسىم جايلار), PEI"
+
+msgid "America/Havana"
+msgstr "ئامېرىكا/ھاۋانا"
+
+msgid "America/Hermosillo"
+msgstr "ئامېرىكا/Hermosillo"
+
+#. comment for time zone America/Hermosillo
+msgid "Mountain Standard Time - Sonora"
+msgstr "تاغ ئۆلچەملىك ۋاقتى - Sonora"
+
+msgid "America/Indiana/Indianapolis"
+msgstr "ئامېرىكا/ئىندىئانا/ئىندىئاناپول"
+
+#. comment for time zone America/Indiana/Indianapolis
+msgid "Eastern Time - Indiana - most locations"
+msgstr "شەرق ۋاقتى - ئىندىئانا - كۆپ قىسىم جايلار"
+
+msgid "America/Indiana/Knox"
+msgstr "ئامېرىكا/ئىندىئانا/Knox"
+
+#. comment for time zone America/Indiana/Knox
+msgid "Central Time - Indiana - Starke County"
+msgstr "ئوتتۇرا ۋاقىت - ئىندىئانا - Starke County"
+
+msgid "America/Indiana/Marengo"
+msgstr "ئامېرىكا/ئىندىئانا/مارېنگو"
+
+#. comment for time zone America/Indiana/Marengo
+msgid "Eastern Time - Indiana - Crawford County"
+msgstr "شەرق ۋاقتى - ئىندىئانا - كراۋفورد ناھىيىسى"
+
+msgid "America/Indiana/Petersburg"
+msgstr "ئامېرىكا/ئىندىئانا/پېتېربۇرگ"
+
+#. comment for time zone America/Indiana/Petersburg
+msgid "Eastern Time - Indiana - Pike County"
+msgstr "شەرق ۋاقتى - ئىندىئانا - پىچان ناھىيىسى"
+
+msgid "America/Indianapolis"
+msgstr "ئامېرىكا/Indianapolis"
+
+msgid "America/Indiana/Tell_City"
+msgstr "ئامېرىكا/ئىندىئانا/Tell_City"
+
+#. comment for time zone America/Indiana/Tell_City
+msgid "Central Time - Indiana - Perry County"
+msgstr "ئوتتۇرا ۋاقىت - ئىندىئانا - پىرى ناھىيىسى"
+
+msgid "America/Indiana/Vevay"
+msgstr "ئامېرىكا/ئىندىئانا/ۋېۋىرا"
+
+#. comment for time zone America/Indiana/Vevay
+msgid "Eastern Time - Indiana - Switzerland County"
+msgstr "شەرق ۋاقتى - ئىندىئانا - شۋېتسارىيە ناھىيىسى"
+
+msgid "America/Indiana/Vincennes"
+msgstr "ئامېرىكا/Indiana/Vincennes"
+
+#. comment for time zone America/Indiana/Vincennes
+msgid "Eastern Time - Indiana - Daviess, Dubois, Knox & Martin Counties"
+msgstr "شەرق ۋاقتى - ئىندىئانا - Daviess, Dubois, Knox & Martin Counties"
+
+msgid "America/Indiana/Winamac"
+msgstr "ئامېرىكا/ئىندىئانا/ۋىنئاماك"
+
+#. comment for time zone America/Indiana/Winamac
+msgid "Eastern Time - Indiana - Pulaski County"
+msgstr "شەرق ۋاقتى - ئىندىئانا - Pulaski County"
+
+msgid "America/Inuvik"
+msgstr "ئامېرىكا/Inuvik"
+
+#. comment for time zone America/Inuvik
+msgid "Mountain Time - west Northwest Territories"
+msgstr "تاغ ۋاقتى _ غەربىي شىمال رايونى"
+
+msgid "America/Iqaluit"
+msgstr "ئامېرىكا/ئىقسات"
+
+#. comment for time zone America/Iqaluit
+msgid "Eastern Time - east Nunavut - most locations"
+msgstr "شەرق ۋاقتى - شەرقىي نۇنۇئات - كۆپ قىسىم جايلار"
+
+msgid "America/Jamaica"
+msgstr "ئامېرىكا/يامايكا"
+
+msgid "America/Jujuy"
+msgstr "ئامېرىكا/جۇجۈي"
+
+msgid "America/Juneau"
+msgstr "ئامېرىكا/ئىيۇن"
+
+#. comment for time zone America/Juneau
+msgid "Alaska Time - Alaska panhandle"
+msgstr "ئالياسكا ۋاقتى - ئالياسكا پالتا"
+
+msgid "America/Kentucky/Louisville"
+msgstr "ئامېرىكا/كېنتاكىي/لۇيىسۋىل"
+
+#. comment for time zone America/Kentucky/Louisville
+msgid "Eastern Time - Kentucky - Louisville area"
+msgstr "شەرق ۋاقتى - كېنتاكىي - لۇيىسۋىل ۋىلايىتى"
+
+msgid "America/Kentucky/Monticello"
+msgstr "ئامېرىكا/Kentucky/Monticello"
+
+#. comment for time zone America/Kentucky/Monticello
+msgid "Eastern Time - Kentucky - Wayne County"
+msgstr "شەرق ۋاقتى _ كېنتاكېي _ Wayne County"
+
+msgid "America/Knox_IN"
+msgstr "ئامېرىكا/Knox_IN"
+
+msgid "America/La_Paz"
+msgstr "ئامېرىكا/La_Paz"
+
+msgid "America/Lima"
+msgstr "ئامېرىكا/لىما"
+
+msgid "America/Los_Angeles"
+msgstr "ئامېرىكا/Los_Angeles"
+
+#. comment for time zone America/Los_Angeles
+msgid "Pacific Time"
+msgstr "تىنچ ئوكيان ۋاقتى"
+
+msgid "America/Louisville"
+msgstr "ئامېرىكا/لۇيىسۋىل"
+
+msgid "America/Maceio"
+msgstr "ئامېرىكا/ئاۋسىئو"
+
+#. comment for time zone America/Maceio
+msgid "Alagoas, Sergipe"
+msgstr "ئالاگوياس، سېرپې"
+
+msgid "America/Managua"
+msgstr "ئامېرىكا/Managua"
+
+msgid "America/Manaus"
+msgstr "ئامېرىكا/مانائۇس"
+
+#. comment for time zone America/Manaus
+msgid "E Amazonas"
+msgstr "ئامازون (ئامازون)،"
+
+msgid "America/Marigot"
+msgstr "ئامېرىكا/مارىgot"
+
+msgid "America/Martinique"
+msgstr "ئامېرىكا/مارتىنكو"
+
+msgid "America/Matamoros"
+msgstr "ئامېرىكا/Matamoros"
+
+#. comment for time zone America/Matamoros
+msgid ""
+"US Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas near US border"
+msgstr ""
+"ئامېرىكا مەركىزىي ۋاقتى - Coahuila, Durango, Nuevo Leon, Tamaulipas "
+"ئەتراپىدىكى ئامېرىكا چېگراسى"
+
+msgid "America/Mazatlan"
+msgstr "ئامېرىكا/قۇتلۇقلان"
+
+#. comment for time zone America/Mazatlan
+msgid "Mountain Time - S Baja, Nayarit, Sinaloa"
+msgstr "تاغ ۋاقتى - S Baja, Nayarit, Sinaloa"
+
+msgid "America/Mendoza"
+msgstr "ئامېرىكا/مېدروزا"
+
+msgid "America/Menominee"
+msgstr "ئامېرىكا/مىنمىننېي"
+
+#. comment for time zone America/Menominee
+msgid ""
+"Central Time - Michigan - Dickinson, Gogebic, Iron & Menominee Counties"
+msgstr ""
+"ئوتتۇرا ۋاقىت - مىچىگان شىتاتى - دىككىنسون، گوگىب، تۆمۈر > مېمېننېي ناھىيسى"
+
+msgid "America/Merida"
+msgstr "ئامېرىكا/مىرىدا"
+
+#. comment for time zone America/Merida
+msgid "Central Time - Campeche, Yucatan"
+msgstr "ئوتتۇرا ۋاقىت - كامپېچ، يۇكەتان"
+
+msgid "America/Mexico_City"
+msgstr "ئامېرىكا/Mexico_City"
+
+#. comment for time zone America/Mexico_City
+msgid "Central Time - most locations"
+msgstr "ئوتتۇرا ۋاقىت - كۆپ قىسىم ئورۇنلار"
+
+msgid "America/Miquelon"
+msgstr "ئامىرىكا/مىكون"
+
+msgid "America/Moncton"
+msgstr "ئامېرىكا/مونچتون"
+
+#. comment for time zone America/Moncton
+msgid "Atlantic Time - New Brunswick"
+msgstr "ئاتلانتىك ئوكيان ۋاقتى - يېڭى برۇنسۋىك"
+
+msgid "America/Monterrey"
+msgstr "ئامېرىكا/Monterrey"
+
+#. comment for time zone America/Monterrey
+msgid ""
+"Mexican Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas away from "
+"US border"
+msgstr ""
+"مېكسىكا ئوتتۇرا ۋاقتى - كوئاخۇالا، دۇرانگو، نۇيېۋ لېئون، تامالېۋلىپا "
+"ئامېرىكا چېگرىسىدىن يىراق"
+
+msgid "America/Montevideo"
+msgstr "ئامېرىكا/مونتېۋىدېئو"
+
+msgid "America/Montreal"
+msgstr "ئامېرىكا/Montreal"
+
+#. comment for time zone America/Montreal
+msgid "Eastern Time - Quebec - most locations"
+msgstr "شەرق ۋاقتى - كەببى - كۆپ قىسىم جايلار"
+
+msgid "America/Montserrat"
+msgstr "ئامېرىكا/Montserrat"
+
+msgid "America/Nassau"
+msgstr "ئامېرىكا/ناسساۋ"
+
+msgid "America/New_York"
+msgstr "ئامېرىكا/New_York"
+
+#. comment for time zone America/New_York
+msgid "Eastern Time"
+msgstr "شەرقىي تۈركىستان ۋاقتى"
+
+msgid "America/Nipigon"
+msgstr "ئامېرىكا/نىپىگون"
+
+#. comment for time zone America/Nipigon
+msgid ""
+"Eastern Time - Ontario & Quebec - places that did not observe DST 1967-1973"
+msgstr ""
+"شەرق ۋاقتى - Ontario & Quebec - DST نى كۆزىتىشكە بولمايدىغان جايلار "
+"1967-1973"
+
+msgid "America/Nome"
+msgstr "ئامېرىكا/نومى"
+
+#. comment for time zone America/Nome
+msgid "Alaska Time - west Alaska"
+msgstr "ئالياسكا ۋاقتى - غەربىي ئالياسكا ئىشتاتى"
+
+msgid "America/Noronha"
+msgstr "ئامېرىكا/نورونھا"
+
+#. comment for time zone America/Noronha
+msgid "Atlantic islands"
+msgstr "ئاتلانتىك ئوكيان ئاراللىرى"
+
+msgid "America/North_Dakota/Center"
+msgstr "ئامېرىكا/North_Dakota/مەركىزى"
+
+#. comment for time zone America/North_Dakota/Center
+msgid "Central Time - North Dakota - Oliver County"
+msgstr "ئوتتۇرا ۋاقىت _ شىمالىي داكوتا _ ئولىۋېر ناھىيىسى"
+
+msgid "America/North_Dakota/New_Salem"
+msgstr "ئامېرىكا/North_Dakota/New_Salem"
+
+#. comment for time zone America/North_Dakota/New_Salem
+msgid "Central Time - North Dakota - Morton County (except Mandan area)"
+msgstr ""
+"ئوتتۇرا ۋاقىت - شىمالىي داكوتا - مورتون ناھىيىسى (ماندان رايونىدىن باشقا)"
+
+msgid "America/Ojinaga"
+msgstr "ئامېرىكا/ئوجىناگا"
+
+#. comment for time zone America/Ojinaga
+msgid "US Mountain Time - Chihuahua near US border"
+msgstr "ئامېرىكا تاغ ۋاقتى - ئامېرىكا چېگرىسى ئەتراپىدىكى چىخۇاخۇا"
+
+msgid "America/Panama"
+msgstr "ئامېرىكا/پاناما"
+
+msgid "America/Pangnirtung"
+msgstr "ئامېرىكا/Pangnirtung"
+
+#. comment for time zone America/Pangnirtung
+msgid "Eastern Time - Pangnirtung, Nunavut"
+msgstr "شەرقىي تۈركىستان ۋاقتى - پاڭنۇڭ، نۇنۇئات"
+
+msgid "America/Paramaribo"
+msgstr "ئامېرىكا/Paramaribo"
+
+msgid "America/Phoenix"
+msgstr "ئامېرىكا/سۇمۇرغ"
+
+#. comment for time zone America/Phoenix
+msgid "Mountain Standard Time - Arizona"
+msgstr "تاغ ئۆلچەملىك ۋاقتى - ئارىزونا"
+
+msgid "America/Port-au-Prince"
+msgstr "ئامېرىكا/شاھزادە پورتى"
+
+msgid "America/Porto_Acre"
+msgstr "ئامېرىكا/Porto_Acre"
+
+msgid "America/Port_of_Spain"
+msgstr "ئامېرىكا/Port_of_Spain"
+
+msgid "America/Porto_Velho"
+msgstr "ئامېرىكا/Porto_Velho"
+
+#. comment for time zone America/Porto_Velho
+msgid "Rondonia"
+msgstr "روندونىيە"
+
+msgid "America/Puerto_Rico"
+msgstr "ئامېرىكا/Puerto_Rico"
+
+msgid "America/Rainy_River"
+msgstr "ئامېرىكا/Rainy_River"
+
+#. comment for time zone America/Rainy_River
+msgid "Central Time - Rainy River & Fort Frances, Ontario"
+msgstr "ئوتتۇرا ۋاقىت - يامغۇرلۇق دەريا > فورت فرانسىس، ئونتارىئو"
+
+msgid "America/Rankin_Inlet"
+msgstr "ئامېرىكا/Rankin_Inlet"
+
+#. comment for time zone America/Rankin_Inlet
+msgid "Central Time - central Nunavut"
+msgstr "ئوتتۇرا ۋاقىت - مەركىزىي نۇنۇئات"
+
+msgid "America/Recife"
+msgstr "ئامېرىكا/Recife"
+
+#. comment for time zone America/Recife
+msgid "Pernambuco"
+msgstr "Pernambuco"
+
+msgid "America/Regina"
+msgstr "ئامېرىكا/Regina"
+
+#. comment for time zone America/Regina
+msgid "Central Standard Time - Saskatchewan - most locations"
+msgstr "ئوتتۇرا ئۆلچەملىك ۋاقتى - Saskatchewan - كۆپ قىسىم ئورۇنلار"
+
+msgid "America/Resolute"
+msgstr "ئامېرىكا/قەتئىيلىك"
+
+#. comment for time zone America/Resolute
+msgid "Eastern Standard Time - Resolute, Nunavut"
+msgstr "شەرق ئۆلچەملىك ۋاقتى - قەتئىي، نۇنۇئات"
+
+msgid "America/Rio_Branco"
+msgstr "ئامېرىكا/Rio_Branco"
+
+#. comment for time zone America/Rio_Branco
+msgid "Acre"
+msgstr "Acre"
+
+msgid "America/Rosario"
+msgstr "ئامېرىكا/روسارىئو"
+
+msgid "America/Santa_Isabel"
+msgstr "ئامېرىكا/Santa_Isabel"
+
+#. comment for time zone America/Santa_Isabel
+msgid "Mexican Pacific Time - Baja California away from US border"
+msgstr ""
+"مېكسىكا تىنچ ئوكيان ۋاقتى - باجا كالىفورنىيە شىتاتى ئامېرىكا چېگرىسىدىن "
+"يىراق"
+
+msgid "America/Santarem"
+msgstr "ئامېرىكا/سانتارېم"
+
+#. comment for time zone America/Santarem
+msgid "W Para"
+msgstr "پارا دا"
+
+msgid "America/Santiago"
+msgstr "ئامېرىكا/سانتىياگو"
+
+msgid "America/Santo_Domingo"
+msgstr "ئامېرىكا/Santo_Domingo"
+
+msgid "America/Sao_Paulo"
+msgstr "ئامېرىكا/Sao_Paulo"
+
+#. comment for time zone America/Sao_Paulo
+msgid "S & SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS)"
+msgstr "S & SE بىرازىلىيە (GO, DF, MG, ES, RJ, SP, PR, SC, RS)"
+
+msgid "America/Scoresbysund"
+msgstr "ئامېرىكا/Scoresbysund"
+
+#. comment for time zone America/Scoresbysund
+msgid "Scoresbysund / Ittoqqortoormiit"
+msgstr "Scoresbysund / Ittoqqortoormiit"
+
+msgid "America/Shiprock"
+msgstr "ئامېرىكا/كېمىسازلىق"
+
+#. comment for time zone America/Shiprock
+msgid "Mountain Time - Navajo"
+msgstr "تاغ ۋاقتى - ناۋاجو"
+
+msgid "America/St_Barthelemy"
+msgstr "ئامېرىكا/St_Barthelemy"
+
+msgid "America/St_Johns"
+msgstr "ئامېرىكا/St_Johns"
+
+#. comment for time zone America/St_Johns
+msgid "Newfoundland Time, including SE Labrador"
+msgstr "SE Labradorنى ئۆز ئىچىگە ئالغان Newfoundland ۋاقتى"
+
+msgid "America/St_Kitts"
+msgstr "ئامېرىكا/St_Kitts"
+
+msgid "America/St_Lucia"
+msgstr "ئامېرىكا/St_Lucia"
+
+msgid "America/St_Thomas"
+msgstr "ئامېرىكا/St_Thomas"
+
+msgid "America/St_Vincent"
+msgstr "ئامېرىكا/St_Vincent"
+
+msgid "America/Swift_Current"
+msgstr "ئامېرىكا/Swift_Current"
+
+#. comment for time zone America/Swift_Current
+msgid "Central Standard Time - Saskatchewan - midwest"
+msgstr "مەركىزىي ئۆلچەملىك ۋاقتى - ساسكېۋەن - ئوتتۇرا قىسىم"
+
+msgid "America/Tegucigalpa"
+msgstr "ئامېرىكا/Tegucigalpa"
+
+msgid "America/Thule"
+msgstr "ئامېرىكا/Thule"
+
+#. comment for time zone America/Thule
+msgid "Thule / Pituffik"
+msgstr "Thule / Pituffik"
+
+msgid "America/Thunder_Bay"
+msgstr "ئامېرىكا/Thunder_Bay"
+
+#. comment for time zone America/Thunder_Bay
+msgid "Eastern Time - Thunder Bay, Ontario"
+msgstr "شەرق ۋاقتى - چاقماق قولتۇقى، ئونتارىئو"
+
+msgid "America/Tijuana"
+msgstr "ئامېرىكا/Tijuana"
+
+#. comment for time zone America/Tijuana
+msgid "US Pacific Time - Baja California near US border"
+msgstr ""
+"ئامېرىكا تىنچ ئوكيان ۋاقتى - ئامېرىكا چېگرىسى ئەتراپىدىكى باجا كالىفورنىيە "
+"شىتاتى"
+
+msgid "America/Toronto"
+msgstr "ئامېرىكا/تورونتو"
+
+#. comment for time zone America/Toronto
+msgid "Eastern Time - Ontario - most locations"
+msgstr "شەرق ۋاقتى - ئونتارىئو - كۆپ قىسىم جايلار"
+
+msgid "America/Tortola"
+msgstr "ئامېرىكا/توترائولا"
+
+msgid "America/Vancouver"
+msgstr "ئامېرىكا قىتئەسى/ۋانكۇۋېر"
+
+#. comment for time zone America/Vancouver
+msgid "Pacific Time - west British Columbia"
+msgstr "تىنچ ئوكيان ۋاقتى - غەربىي ئەنگىلىيە كولۇمبىيە"
+
+msgid "America/Virgin"
+msgstr "ئامېرىكا/ئەۋلىيا"
+
+msgid "America/Whitehorse"
+msgstr "ئامېرىكا/ئاق ھونلار"
+
+#. comment for time zone America/Whitehorse
+msgid "Pacific Time - south Yukon"
+msgstr "تىنچ ئوكيان ۋاقتى - جەنۇبىي يۇكون"
+
+msgid "America/Winnipeg"
+msgstr "ئامېرىكا/Winnipeg"
+
+#. comment for time zone America/Winnipeg
+msgid "Central Time - Manitoba & west Ontario"
+msgstr "ئوتتۇرا ۋاقىت - مانىئوبا & غەربىي ئونتارىئو"
+
+msgid "America/Yakutat"
+msgstr "ئامېرىكا/يەكەن"
+
+#. comment for time zone America/Yakutat
+msgid "Alaska Time - Alaska panhandle neck"
+msgstr "ئالياسكا ۋاقتى - ئالياسكا پالتا بوينى"
+
+msgid "America/Yellowknife"
+msgstr "ئامىرىكا/سېرىق نىفىت"
+
+msgid "America/Kralendijk"
+msgstr "ئامىرىكا/قاغاندىجك"
+
+msgid "America/Creston"
+msgstr "ئامېرىكا/كىرىستون"
+
+msgid "America/Fort_Nelson"
+msgstr "ئامېرىكا/Fort_Nelson"
+
+msgid "America/Punta_Arenas"
+msgstr "ئامېرىكا/Punta_Arenas"
+
+msgid "America/Lower_Princes"
+msgstr "ئامېرىكا/Lower_Princes"
+
+msgid "America/North_Dakota/Beulah"
+msgstr "ئامېرىكا/North_Dakota/بېيلاھ"
+
+msgid "America/Sitka"
+msgstr "ئامېرىكا/Sitka"
+
+msgid "America/Metlakatla"
+msgstr "ئامېرىكا/مېتلاخلا"
+
+#. comment for time zone America/Yellowknife
+msgid "Mountain Time - central Northwest Territories"
+msgstr "تاغ ۋاقتى _ ئوتتۇرا غەربىي شىمال رايونى"
+
+msgid "Antarctica/Casey"
+msgstr "ئانتاركتىكا/كاسىنە"
+
+#. comment for time zone Antarctica/Casey
+msgid "Casey Station, Bailey Peninsula"
+msgstr "ۋاللىي ۋوگزالى، بەيلې يېرىم ئارىلى"
+
+msgid "Antarctica/Davis"
+msgstr "ئانتاركتىكا/داۋىس"
+
+#. comment for time zone Antarctica/Davis
+msgid "Davis Station, Vestfold Hills"
+msgstr "داۋىس ۋوگزالى، ۋېستfold Hills"
+
+msgid "Antarctica/DumontDUrville"
+msgstr "ئانتاركتىكا/DumontDUrville"
+
+#. comment for time zone Antarctica/DumontDUrville
+msgid "Dumont-d'Urville Station, Terre Adelie"
+msgstr "دۇمونت-d'Urville ۋوگزالى، Terre Adelie"
+
+msgid "Antarctica/Macquarie"
+msgstr "Antarctica/Macquarie"
+
+#. comment for time zone Antarctica/Macquarie
+msgid "Macquarie Island Station, Macquarie Island"
+msgstr "Macquarie Island Station, Macquarie Island"
+
+msgid "Antarctica/Mawson"
+msgstr "ئانتاركتىكا/ماۋسسون"
+
+#. comment for time zone Antarctica/Mawson
+msgid "Mawson Station, Holme Bay"
+msgstr "خولمې قولتۇقى ماۋۇس بېكىتى"
+
+msgid "Antarctica/McMurdo"
+msgstr "ئانتاركتىكا/McMurdo"
+
+#. comment for time zone Antarctica/McMurdo
+msgid "McMurdo Station, Ross Island"
+msgstr "روس ئارىلى ماكمۇردو بېكىتى"
+
+msgid "Antarctica/Palmer"
+msgstr "ئانتاركتىكا/پالما"
+
+#. comment for time zone Antarctica/Palmer
+msgid "Palmer Station, Anvers Island"
+msgstr "ئانۋېرس ئارىلى پالمېر پونكىتى"
+
+msgid "Antarctica/Rothera"
+msgstr "ئانتاركتىكا/روتېرتا"
+
+#. comment for time zone Antarctica/Rothera
+msgid "Rothera Station, Adelaide Island"
+msgstr "ئادېلايد ئارىلى روتېرا بېكىتى"
+
+msgid "Antarctica/South_Pole"
+msgstr "ئانتاركتىكا/South_Pole"
+
+#. comment for time zone Antarctica/South_Pole
+msgid "Amundsen-Scott Station, South Pole"
+msgstr "جەنۇبىي قۇتۇپتىكى ئامىندسېن-سىكوت بېكىتى"
+
+msgid "Antarctica/Syowa"
+msgstr "ئانتاركتىكا/سىئوۋا"
+
+#. comment for time zone Antarctica/Syowa
+msgid "Syowa Station, E Ongul I"
+msgstr "Syowa بېكەت، E Ongul I"
+
+msgid "Antarctica/Vostok"
+msgstr "ئانتاركتىكا/Vostok"
+
+msgid "Antarctica/Troll"
+msgstr "ئانتاركتىكا/تېررىتورىيە"
+
+#. comment for time zone Antarctica/Vostok
+msgid "Vostok Station, S Magnetic Pole"
+msgstr "ۋوستوك بېكىتى، S ماگنىت قۇتۇپى"
+
+msgid "Arctic/Longyearbyen"
+msgstr "شىمالىي قۇتۇپ/Longyearbyen"
+
+msgid "Asia/Aden"
+msgstr "ئاسىيا/ئادېن"
+
+msgid "Asia/Almaty"
+msgstr "ئاسىيا/ئالمۇتا"
+
+msgid "Asia/Amman"
+msgstr "ئاسىيا/ئاماننىساخان"
+
+msgid "Asia/Anadyr"
+msgstr "ئاسىيا/ئانارچى"
+
+#. comment for time zone Asia/Anadyr
+msgid "Moscow+08 - Bering Sea"
+msgstr "موسكۋا+08 - بېرىن دېڭىزى"
+
+msgid "Asia/Aqtau"
+msgstr "ئاسىيا/ئاقتاغ"
+
+#. comment for time zone Asia/Aqtau
+msgid "Atyrau (Atirau, Gur'yev), Mangghystau (Mankistau)"
+msgstr "اتىراۋ (Atirau, Gur'yev), مانگگراد (مانقىستاۋ)"
+
+msgid "Asia/Aqtobe"
+msgstr "ئاسىيا/ئاقتوبى"
+
+#. comment for time zone Asia/Aqtobe
+msgid "Aqtobe (Aktobe)"
+msgstr "ئاقتوبى (ئاقتۇبى)"
+
+msgid "Asia/Ashgabat"
+msgstr "ئاسىيا/ئاشگابات"
+
+msgid "Asia/Ashkhabad"
+msgstr "ئاسىيا/Ashkhabad"
+
+msgid "Asia/Baghdad"
+msgstr "ئاسىيا/باغداد"
+
+msgid "Asia/Bahrain"
+msgstr "ئاسىيا/بەھرەين"
+
+msgid "Asia/Baku"
+msgstr "ئاسىيا/باكۇ"
+
+msgid "Asia/Bangkok"
+msgstr "ئاسىيا/باڭكوك"
+
+msgid "Asia/Beirut"
+msgstr "ئاسىيا/بېيرۇت"
+
+msgid "Asia/Bishkek"
+msgstr "ئاسىيا/بىشكەك"
+
+msgid "Asia/Brunei"
+msgstr "ئاسىيا/برۇنېي"
+
+msgid "Asia/Calcutta"
+msgstr "ئاسىيا/كالكۇتتا"
+
+msgid "Asia/Choibalsan"
+msgstr "ئاسىيا/Choibalsan"
+
+#. comment for time zone Asia/Choibalsan
+msgid "Dornod, Sukhbaatar"
+msgstr "Dornod, Sukhbaatar"
+
+msgid "Asia/Chongqing"
+msgstr "ئاسىيا/چۇڭچىڭ"
+
+#. comment for time zone Asia/Chongqing
+msgid "central China - Sichuan, Yunnan, Guangxi, Shaanxi, Guizhou, etc."
+msgstr "ئوتتۇرا جۇڭگو - سىچۈەن، يۈننەن، گۇاڭشى، شەنشى، گۇيجۇ قاتارلىقلار."
+
+msgid "Asia/Chungking"
+msgstr "ئاسىيا/چۈنكىڭ"
+
+msgid "Asia/Colombo"
+msgstr "ئاسىيا/كولومبو"
+
+msgid "Asia/Dacca"
+msgstr "ئاسىيا/داكا"
+
+msgid "Asia/Damascus"
+msgstr "ئاسىيا/دەمەشىق"
+
+msgid "Asia/Dhaka"
+msgstr "ئاسىيا/دىكاكا"
+
+msgid "Asia/Dili"
+msgstr "ئاسىيا/دىلى"
+
+msgid "Asia/Dubai"
+msgstr "ئاسىيا/دۇبەي"
+
+msgid "Asia/Dushanbe"
+msgstr "ئاسىيا/دۈشەنبە"
+
+msgid "Asia/Gaza"
+msgstr "ئاسىيا/غەززە"
+
+msgid "Asia/Harbin"
+msgstr "ئاسىيا/خاربىن"
+
+#. comment for time zone Asia/Harbin
+msgid "Heilongjiang (except Mohe), Jilin"
+msgstr "خېيلۇڭجياڭ (موخېدىن باشقا)، جىلىن"
+
+msgid "Asia/Ho_Chi_Minh"
+msgstr "ئاسىيا/Ho_Chi_Minh"
+
+msgid "Asia/Hong_Kong"
+msgstr "ئاسىيا/Hong_Kong"
+
+msgid "Asia/Hovd"
+msgstr "ئاسىيا/ھ."
+
+#. comment for time zone Asia/Hovd
+msgid "Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan"
+msgstr "قادام تورۇ»بايلانىپ حابارلادى 2018-08-08 12:45:00"
+
+msgid "Asia/Irkutsk"
+msgstr "ئاسىيا/ئىرkutsk"
+
+#. comment for time zone Asia/Irkutsk
+msgid "Moscow+05 - Lake Baikal"
+msgstr "موسكۋا+05 - بايقال كۆلى"
+
+msgid "Asia/Istanbul"
+msgstr "ئاسىيا/ئىستانبۇل"
+
+msgid "Asia/Jakarta"
+msgstr "ئاسىيا/جاكارتا"
+
+#. comment for time zone Asia/Jakarta
+msgid "Java & Sumatra"
+msgstr "Java & Sumatra"
+
+msgid "Asia/Jayapura"
+msgstr "ئاسىيا/Jayapura"
+
+#. comment for time zone Asia/Jayapura
+msgid "Irian Jaya & the Moluccas"
+msgstr "ئېرلان جېييا & Moluccas"
+
+msgid "Asia/Jerusalem"
+msgstr "ئاسىيا/يېرۇسالېم"
+
+msgid "Asia/Kabul"
+msgstr "ئاسىيا/كابۇل"
+
+msgid "Asia/Kamchatka"
+msgstr "ئاسىيا/Kamchatka"
+
+#. comment for time zone Asia/Kamchatka
+msgid "Moscow+08 - Kamchatka"
+msgstr "موسكۋا+08 - كامچاتكا"
+
+msgid "Asia/Karachi"
+msgstr "ئاسىيا/قاراچى"
+
+msgid "Asia/Kashgar"
+msgstr "ئاسىيا/قەشقەر"
+
+#. comment for time zone Asia/Kashgar
+msgid "west Tibet & Xinjiang"
+msgstr "غەربىي شىزاڭ & شىنجاڭ"
+
+msgid "Asia/Kathmandu"
+msgstr "ئاسىيا/كاتماندۇ"
+
+msgid "Asia/Katmandu"
+msgstr "ئاسىيا/كاتاماندۇ"
+
+msgid "Asia/Kolkata"
+msgstr "ئاسىيا/كورلىتا"
+
+msgid "Asia/Krasnoyarsk"
+msgstr "ئاسىيا/كراسنوسارسكى"
+
+#. comment for time zone Asia/Krasnoyarsk
+msgid "Moscow+04 - Yenisei River"
+msgstr "موسكۋا+04 - يېڭىسېي دەرياسى"
+
+msgid "Asia/Kuala_Lumpur"
+msgstr "ئاسىيا/Kuala_Lumpur"
+
+#. comment for time zone Asia/Kuala_Lumpur
+msgid "peninsular Malaysia"
+msgstr "يېرىم ئارال مالايسىيا"
+
+msgid "Asia/Kuching"
+msgstr "ئاسىيا/كۇچىڭ"
+
+#. comment for time zone Asia/Kuching
+msgid "Sabah & Sarawak"
+msgstr "ساباھ & ساباھ"
+
+msgid "Asia/Kuwait"
+msgstr "ئاسىيا/كۇۋەيت"
+
+msgid "Asia/Macao"
+msgstr "ئاسىيا/ئاۋمېن"
+
+msgid "Asia/Macau"
+msgstr "ئاسىيا/ئاۋمېن"
+
+msgid "Asia/Magadan"
+msgstr "ئاسىيا/ماگادان"
+
+#. comment for time zone Asia/Magadan
+msgid "Moscow+08 - Magadan"
+msgstr "موسكۋا+08 - ماگادان"
+
+msgid "Asia/Makassar"
+msgstr "ئاسىيا/Makassar"
+
+#. comment for time zone Asia/Makassar
+msgid "east & south Borneo, Celebes, Bali, Nusa Tengarra, west Timor"
+msgstr "شەرقىي & جەنۇبىي Borneo, Celebes, Bali, Nusa Tengarra, غەربىي تىمور"
+
+msgid "Asia/Manila"
+msgstr "ئاسىيا/مانىلا"
+
+msgid "Asia/Muscat"
+msgstr "ئاسىيا/مۇستاپا"
+
+msgid "Asia/Nicosia"
+msgstr "ئاسىيا/نىكوسىيا"
+
+msgid "Asia/Novokuznetsk"
+msgstr "ئاسىيا/Novokuznetsk"
+
+#. comment for time zone Asia/Novokuznetsk
+msgid "Moscow+03 - Novokuznetsk"
+msgstr "موسكۋا+03 - Novokuznetsk"
+
+msgid "Asia/Novosibirsk"
+msgstr "ئاسىيا/Novosibirsk"
+
+#. comment for time zone Asia/Novosibirsk
+msgid "Moscow+03 - Novosibirsk"
+msgstr "موسكۋا+03 - Novosibirsk"
+
+msgid "Asia/Omsk"
+msgstr "ئاسىيا/Omsk"
+
+#. comment for time zone Asia/Omsk
+msgid "Moscow+03 - west Siberia"
+msgstr "موسكۋا+03 - غەربىي سىبىرىيە"
+
+msgid "Asia/Oral"
+msgstr "ئاسىيا/ئېغىز بوشلۇقى"
+
+#. comment for time zone Asia/Oral
+msgid "West Kazakhstan"
+msgstr "غەربىي قازاقىستان"
+
+msgid "Asia/Phnom_Penh"
+msgstr "ئاسىيا/Phnom_Penh"
+
+msgid "Asia/Pontianak"
+msgstr "ئاسىيا/پونتازىك"
+
+#. comment for time zone Asia/Pontianak
+msgid "west & central Borneo"
+msgstr "غەربىي & ئوتتۇرا Borneo"
+
+msgid "Asia/Pyongyang"
+msgstr "ئاسىيا/پيوڭياڭ"
+
+msgid "Asia/Qatar"
+msgstr "ئاسىيا/قاتار"
+
+msgid "Asia/Qyzylorda"
+msgstr "ئاسىيا/ئۇزدىل تورى"
+
+#. comment for time zone Asia/Qyzylorda
+msgid "Qyzylorda (Kyzylorda, Kzyl-Orda)"
+msgstr "قىزىلوردا وبلىسى (قىزىلوردا وبلىسى)"
+
+msgid "Asia/Rangoon"
+msgstr "ئاسىيا/رانگون"
+
+msgid "Asia/Riyadh"
+msgstr "ئاسىيا/رىياد"
+
+msgid "Asia/Riyadh87"
+msgstr "ئاسىيا/رىياد87"
+
+msgid "Asia/Riyadh88"
+msgstr "ئاسىيا/رىياد88"
+
+msgid "Asia/Riyadh89"
+msgstr "ئاسىيا/رىياد89"
+
+msgid "Asia/Saigon"
+msgstr "ئاسىيا/سايگون"
+
+msgid "Asia/Sakhalin"
+msgstr "ئاسىيا/ساخالىن"
+
+#. comment for time zone Asia/Sakhalin
+msgid "Moscow+07 - Sakhalin Island"
+msgstr "موسكۋا+07 - ساخالىن ئارىلى"
+
+msgid "Asia/Samarkand"
+msgstr "ئاسىيا/سەمەرقەنت"
+
+#. comment for time zone Asia/Samarkand
+msgid "west Uzbekistan"
+msgstr "غەربىي ئۆزبېكىستان"
+
+msgid "Asia/Seoul"
+msgstr "ئاسىيا/سېئول"
+
+msgid "Asia/Shanghai"
+msgstr "ئاسىيا/شاڭخەي"
+
+#. comment for time zone Asia/Shanghai
+msgid "east China - Beijing, Guangdong, Shanghai, etc."
+msgstr "شەرقىي جۇڭگو - بېيجىڭ، گۇاڭدۇڭ، شاڭخەي قاتارلىقلار."
+
+msgid "Asia/Singapore"
+msgstr "ئاسىيا/سىنگاپور"
+
+msgid "Asia/Taipei"
+msgstr "ئاسىيا/تەيبېي"
+
+msgid "Asia/Tashkent"
+msgstr "ئاسىيا/تاشكەنت"
+
+#. comment for time zone Asia/Tashkent
+msgid "east Uzbekistan"
+msgstr "شەرقىي ئۆزبېكىستان"
+
+msgid "Asia/Tbilisi"
+msgstr "ئاسىيا/تىببى"
+
+msgid "Asia/Tehran"
+msgstr "ئاسىيا/تېھران"
+
+msgid "Asia/Tel_Aviv"
+msgstr "ئاسىيا/Tel_Aviv"
+
+msgid "Asia/Thimbu"
+msgstr "ئاسىيا/Thimbu"
+
+msgid "Asia/Thimphu"
+msgstr "ئاسىيا/Thimphu"
+
+msgid "Asia/Tokyo"
+msgstr "ئاسىيا/توكيو"
+
+msgid "Asia/Ujung_Pandang"
+msgstr "ئاسىيا/Ujung_Pandang"
+
+msgid "Asia/Ulaanbaatar"
+msgstr "ئاسىيا/ئۇلانباتور"
+
+msgid "Asia/Ulan_Bator"
+msgstr "ئاسىيا/Ulan_Bator"
+
+msgid "Asia/Urumqi"
+msgstr "ئاسىيا/ئۈرۈمچى"
+
+#. comment for time zone Asia/Urumqi
+msgid "most of Tibet & Xinjiang"
+msgstr "شىزاڭ &شىنجاڭ"
+
+msgid "Asia/Vientiane"
+msgstr "ئاسىيا/ۋىكىپېدىيا"
+
+msgid "Asia/Vladivostok"
+msgstr "ئاسىيا/ۋىلادىۋوستوك"
+
+#. comment for time zone Asia/Vladivostok
+msgid "Moscow+07 - Amur River"
+msgstr "موسكۋا+07 - ئايمۇر دەرياسى"
+
+msgid "Asia/Yakutsk"
+msgstr "ئاسىيا/يەكەن"
+
+#. comment for time zone Asia/Yakutsk
+msgid "Moscow+06 - Lena River"
+msgstr "موسكۋا+06 - لېنا دەرياسى"
+
+msgid "Asia/Yekaterinburg"
+msgstr "ئاسىيا/يېكاتېرىنبۇرگ"
+
+#. comment for time zone Asia/Yekaterinburg
+msgid "Moscow+02 - Urals"
+msgstr "موسكۋا+02 - ئۇرال"
+
+msgid "Asia/Yerevan"
+msgstr "ئاسىيا/يېرېۋان"
+
+msgid "Asia/Famagusta"
+msgstr "ئاسىيا/Famagusta"
+
+msgid "Europe/Busingen"
+msgstr "ياۋروپا/Busingen"
+
+msgid "Asia/Qostanay"
+msgstr "ئاسىيا/ئەرمەن"
+
+msgid "Asia/Atyrau"
+msgstr "ئاسىيا/ئاتۇش"
+
+msgid "Asia/Yangon"
+msgstr "ئاسىيا/ياڭئون"
+
+msgid "Pacific/Bougainville"
+msgstr "تىنچ ئوكيان/بوۋگائىنۋىل"
+
+msgid "Asia/Hebron"
+msgstr "ئاسىيا/ھېبرون"
+
+msgid "Asia/Barnaul"
+msgstr "ئاسىيا/بارناul"
+
+msgid "Asia/Tomsk"
+msgstr "ئاسىيا/تومسكى"
+
+msgid "Asia/Chita"
+msgstr "ئاسىيا/چىتا"
+
+msgid "Asia/Khandyga"
+msgstr "ئاسىيا/خاندىگا"
+
+msgid "Asia/Ust-Nera"
+msgstr "ئاسىيا/UST-قارا"
+
+msgid "Asia/Srednekolymsk"
+msgstr "ئاسىيا/Srednekolymsk"
+
+msgid "Atlantic/Azores"
+msgstr "ئاتلانتىك ئوكيان/ئازورس"
+
+#. comment for time zone Atlantic/Azores
+msgid "Azores"
+msgstr "ئازورس"
+
+msgid "Atlantic/Bermuda"
+msgstr "ئاتلانتىك ئوكيان/بېرمۇدا"
+
+msgid "Atlantic/Canary"
+msgstr "ئاتلانتىك ئوكيان/شام"
+
+#. comment for time zone Atlantic/Canary
+msgid "Canary Islands"
+msgstr "كانال تاقىم ئاراللىرى"
+
+msgid "Atlantic/Cape_Verde"
+msgstr "ئاتلانتىك ئوكيان/Cape_Verde"
+
+msgid "Atlantic/Faeroe"
+msgstr "ئاتلانتىك ئوكيان/فاروي"
+
+msgid "Atlantic/Faroe"
+msgstr "ئاتلانتىك ئوكيان/فارابى"
+
+msgid "Atlantic/Jan_Mayen"
+msgstr "ئاتلانتىك ئوكيان/Jan_Mayen"
+
+msgid "Atlantic/Madeira"
+msgstr "ئاتلانتىك ئوكيان/مادىرە"
+
+#. comment for time zone Atlantic/Madeira
+msgid "Madeira Islands"
+msgstr "مادىرە تاقىم ئاراللىرى"
+
+msgid "Atlantic/Reykjavik"
+msgstr "ئاتلانتىك ئوكيان/رېيكجاۋىك"
+
+msgid "Atlantic/South_Georgia"
+msgstr "ئاتلانتىك ئوكيان/South_Georgia"
+
+msgid "Atlantic/Stanley"
+msgstr "ئاتلانتىك ئوكيان/سىتايلون"
+
+msgid "Atlantic/St_Helena"
+msgstr "ئاتلانتىك ئوكيان/St_Helena"
+
+msgid "Australia/ACT"
+msgstr "ئاۋسترالىيە/ACT"
+
+msgid "Australia/Adelaide"
+msgstr "ئاۋسترالىيە/ئادېلايد"
+
+#. comment for time zone Australia/Adelaide
+msgid "South Australia"
+msgstr "جەنۇبىي ئاۋسترالىيە"
+
+msgid "Australia/Brisbane"
+msgstr "ئاۋسترالىيە/برىسبان"
+
+#. comment for time zone Australia/Brisbane
+msgid "Queensland - most locations"
+msgstr "كۋېنسلاند - كۆپ قىسىم جايلار"
+
+msgid "Australia/Broken_Hill"
+msgstr "ئاۋسترالىيە/Broken_Hill"
+
+#. comment for time zone Australia/Broken_Hill
+msgid "New South Wales - Yancowinna"
+msgstr "يېڭى جەنۇبىي ۋېلش - يەنكوۋىننا"
+
+msgid "Australia/Canberra"
+msgstr "ئاۋسترالىيە/كانبېررا"
+
+msgid "Australia/Currie"
+msgstr "ئاۋسترالىيە/كۇررى"
+
+#. comment for time zone Australia/Currie
+msgid "Tasmania - King Island"
+msgstr "تاسمانىيە - شاھزادە ئاراللىرى"
+
+msgid "Australia/Darwin"
+msgstr "ئاۋسترالىيە/دارۋىن"
+
+#. comment for time zone Australia/Darwin
+msgid "Northern Territory"
+msgstr "شىمالىي تېررىتورىيە"
+
+msgid "Australia/Eucla"
+msgstr "ئاۋستىرالىيە/ەۋروپا"
+
+#. comment for time zone Australia/Eucla
+msgid "Western Australia - Eucla area"
+msgstr "غەربىي ئاۋسترالىيە - ەۋروپا رايونى"
+
+msgid "Australia/Hobart"
+msgstr "ئاۋسترالىيە/خوبەرت"
+
+#. comment for time zone Australia/Hobart
+msgid "Tasmania - most locations"
+msgstr "تاسمانىيە - كۆپ قىسىم جايلار"
+
+msgid "Australia/LHI"
+msgstr "ئاۋسترالىيە/LHI"
+
+msgid "Australia/Lindeman"
+msgstr "ئاۋسترالىيە/لىدېمان"
+
+#. comment for time zone Australia/Lindeman
+msgid "Queensland - Holiday Islands"
+msgstr "كۋېنسلاند - بايرام ئاراللىرى"
+
+msgid "Australia/Lord_Howe"
+msgstr "ئاۋسترالىيە/Lord_Howe"
+
+#. comment for time zone Australia/Lord_Howe
+msgid "Lord Howe Island"
+msgstr "Lord Howe Island"
+
+msgid "Australia/Melbourne"
+msgstr "ئاۋسترالىيە/مېلبۇرن"
+
+#. comment for time zone Australia/Melbourne
+msgid "Victoria"
+msgstr "ۋىكتورىيە"
+
+msgid "Australia/North"
+msgstr "ئاۋستىرالىيە/شىمال"
+
+msgid "Australia/NSW"
+msgstr "ئاۋستىرالىيە/ئۇزدىل تورى"
+
+msgid "Australia/Perth"
+msgstr "ئاۋسترالىيە/Perth"
+
+#. comment for time zone Australia/Perth
+msgid "Western Australia - most locations"
+msgstr "غەربىي ئاۋسترالىيە - كۆپ قىسىم جايلار"
+
+msgid "Australia/Queensland"
+msgstr "ئاۋسترالىيە/كۋېنسلاند"
+
+msgid "Australia/South"
+msgstr "ئاۋسترالىيە/جەنۇب"
+
+msgid "Australia/Sydney"
+msgstr "ئاۋسترالىيە/سىدنېي"
+
+#. comment for time zone Australia/Sydney
+msgid "New South Wales - most locations"
+msgstr "يېڭى جەنۇبىي ۋېلش - كۆپ قىسىم ئورۇنلار"
+
+msgid "Australia/Tasmania"
+msgstr "ئاۋسترالىيە/تاسمانىيە"
+
+msgid "Australia/Victoria"
+msgstr "ئاۋسترالىيە/ۋىكتورىيە"
+
+msgid "Australia/West"
+msgstr "ئاۋستىرالىيە/غەرب"
+
+msgid "Australia/Yancowinna"
+msgstr "ئاۋسترالىيە/يەنكوۋىننا"
+
+msgid "Brazil/Acre"
+msgstr "بىرازىلىيە/Acre"
+
+msgid "Brazil/DeNoronha"
+msgstr "بىرازىلىيە/DeNoronha"
+
+msgid "Brazil/East"
+msgstr "بىرازىلىيە/شەرق"
+
+msgid "Brazil/West"
+msgstr "بىرازىلىيە/غەرب"
+
+msgid "Canada/Atlantic"
+msgstr "كانادا/ئاتلانتىك ئوكيان"
+
+msgid "Canada/Central"
+msgstr "كانادا/ئوتتۇرا"
+
+msgid "Canada/Eastern"
+msgstr "كانادا/شەرق"
+
+msgid "Canada/East-Saskatchewan"
+msgstr "كانادا/شەرق-ساسكچېۋەن"
+
+msgid "Canada/Mountain"
+msgstr "كانادا/تاغ"
+
+msgid "Canada/Newfoundland"
+msgstr "كانادا/Newfoundland"
+
+msgid "Canada/Pacific"
+msgstr "كانادا/تىنچ ئوكيان"
+
+msgid "Canada/Saskatchewan"
+msgstr "كانادا/Saskatchewan"
+
+msgid "Canada/Yukon"
+msgstr "كانادا/يۇكون"
+
+msgid "CET"
+msgstr "بۇ"
+
+msgid "Chile/Continental"
+msgstr "چىلى/قىتئەلەر"
+
+msgid "Chile/EasterIsland"
+msgstr "چىلى/پاسخا بايرىمى"
+
+msgid "CST6CDT"
+msgstr "CST6CDT"
+
+msgid "Cuba"
+msgstr "كۇبا"
+
+msgid "EET"
+msgstr "يېمەك - ئىچمەك"
+
+msgid "Egypt"
+msgstr "مىسىر"
+
+msgid "Eire"
+msgstr "Eire"
+
+msgid "EST"
+msgstr "شەرقىي تۈركىستان"
+
+msgid "EST5EDT"
+msgstr "EST5EDT"
+
+msgid "Etc/GMT"
+msgstr "Etc/GMT"
+
+msgid "Etc/GMT0"
+msgstr "Etc/GMT0"
+
+msgid "Etc/GMT-0"
+msgstr "Etc/GMT-0"
+
+msgid "Etc/GMT+0"
+msgstr "Etc/GMT+0"
+
+msgid "Etc/GMT-1"
+msgstr "Etc/GMT-1"
+
+msgid "Etc/GMT+1"
+msgstr "Etc/GMT+1"
+
+msgid "Etc/GMT-10"
+msgstr "Etc/GMT-10"
+
+msgid "Etc/GMT+10"
+msgstr "Etc/GMT+10"
+
+msgid "Etc/GMT-11"
+msgstr "Etc/GMT-11"
+
+msgid "Etc/GMT+11"
+msgstr "Etc/GMT+11"
+
+msgid "Etc/GMT-12"
+msgstr "Etc/GMT-12"
+
+msgid "Etc/GMT+12"
+msgstr "Etc/GMT+12"
+
+msgid "Etc/GMT-13"
+msgstr "Etc/GMT-13"
+
+msgid "Etc/GMT-14"
+msgstr "Etc/GMT-14"
+
+msgid "Etc/GMT-2"
+msgstr "Etc/GMT-2"
+
+msgid "Etc/GMT+2"
+msgstr "Etc/GMT+2"
+
+msgid "Etc/GMT-3"
+msgstr "Etc/GMT-3"
+
+msgid "Etc/GMT+3"
+msgstr "Etc/GMT+3"
+
+msgid "Etc/GMT-4"
+msgstr "Etc/GMT-4"
+
+msgid "Etc/GMT+4"
+msgstr "Etc/GMT+4"
+
+msgid "Etc/GMT-5"
+msgstr "Etc/GMT-5"
+
+msgid "Etc/GMT+5"
+msgstr "Etc/GMT+5"
+
+msgid "Etc/GMT-6"
+msgstr "Etc/GMT-6"
+
+msgid "Etc/GMT+6"
+msgstr "Etc/GMT+6"
+
+msgid "Etc/GMT-7"
+msgstr "Etc/GMT-7"
+
+msgid "Etc/GMT+7"
+msgstr "Etc/GMT+7"
+
+msgid "Etc/GMT-8"
+msgstr "Etc/GMT-8"
+
+msgid "Etc/GMT+8"
+msgstr "Etc/GMT+8"
+
+msgid "Etc/GMT-9"
+msgstr "Etc/GMT-9"
+
+msgid "Etc/GMT+9"
+msgstr "Etc/GMT+9"
+
+msgid "Etc/Greenwich"
+msgstr "Etc/Greenwich"
+
+msgid "Etc/UCT"
+msgstr "Etc/UCT"
+
+msgid "Etc/Universal"
+msgstr "Etc/ئۇنىۋېرسال"
+
+msgid "Etc/UTC"
+msgstr "Etc/UTC"
+
+msgid "Etc/Zulu"
+msgstr "Etc/زۇلۇ"
+
+msgid "Europe/Amsterdam"
+msgstr "ياۋروپا/ئامستېردام"
+
+msgid "Europe/Andorra"
+msgstr "ياۋروپا/ئاندوررا"
+
+msgid "Europe/Athens"
+msgstr "ياۋروپا/ئافىنا"
+
+msgid "Europe/Belfast"
+msgstr "ياۋروپا/Belfast"
+
+msgid "Europe/Belgrade"
+msgstr "ياۋروپا/بېلگراد"
+
+msgid "Europe/Berlin"
+msgstr "ياۋروپا/بېرلىن"
+
+msgid "Europe/Bratislava"
+msgstr "ياۋروپا/براتىسلالالا"
+
+msgid "Europe/Brussels"
+msgstr "ياۋروپا/بىريۇسسېل"
+
+msgid "Europe/Bucharest"
+msgstr "ياۋروپا/بۇخارېس"
+
+msgid "Europe/Budapest"
+msgstr "ياۋروپا/بۇداپېشت"
+
+msgid "Europe/Chisinau"
+msgstr "ياۋروپا/Chisinau"
+
+msgid "Europe/Copenhagen"
+msgstr "ياۋروپا/كوپېنھاگېن"
+
+msgid "Europe/Dublin"
+msgstr "ياۋروپا/دۇبلىن"
+
+msgid "Europe/Gibraltar"
+msgstr "ياۋروپا/جىبرىئىل"
+
+msgid "Europe/Guernsey"
+msgstr "ياۋروپا/گېربى"
+
+msgid "Europe/Helsinki"
+msgstr "ياۋروپا/خېلسىنكى"
+
+msgid "Europe/Isle_of_Man"
+msgstr "ياۋروپا/Isle_of_Man"
+
+msgid "Europe/Istanbul"
+msgstr "ياۋروپا/ئىستانبۇل"
+
+msgid "Europe/Jersey"
+msgstr "ياۋروپا/جېرسىي"
+
+msgid "Europe/Kaliningrad"
+msgstr "ياۋروپا/Kaliningrad"
+
+#. comment for time zone Europe/Kaliningrad
+msgid "Moscow-01 - Kaliningrad"
+msgstr "موسكۋا-01 - Kaliningrad"
+
+msgid "Europe/Kiev"
+msgstr "ياۋروپا/كىيا"
+
+msgid "Europe/Lisbon"
+msgstr "ياۋروپا/لىسبون"
+
+msgid "Europe/Ljubljana"
+msgstr "ياۋروپا/Ljubljana"
+
+msgid "Europe/London"
+msgstr "ياۋروپا/لوندون"
+
+msgid "Europe/Luxembourg"
+msgstr "ياۋروپا/ليۇكسېمبۇرگ"
+
+msgid "Europe/Madrid"
+msgstr "ياۋروپا/مادرىد"
+
+msgid "Europe/Malta"
+msgstr "ياۋروپا/مالتا"
+
+msgid "Europe/Mariehamn"
+msgstr "ياۋروپا/Mariehamn"
+
+msgid "Europe/Minsk"
+msgstr "ياۋروپا/مىنىسكى"
+
+msgid "Europe/Monaco"
+msgstr "ياۋروپا/موناكو"
+
+msgid "Europe/Moscow"
+msgstr "ياۋروپا/موسكۋا"
+
+#. comment for time zone Europe/Moscow
+msgid "Moscow+00 - west Russia"
+msgstr "موسكۋا+00 - غەربىي رۇسىيە"
+
+msgid "Europe/Nicosia"
+msgstr "ياۋروپا/نىكوسىيا"
+
+msgid "Europe/Oslo"
+msgstr "ياۋروپا/ئوسلو"
+
+msgid "Europe/Paris"
+msgstr "ياۋروپا/پارىژ"
+
+msgid "Europe/Podgorica"
+msgstr "ياۋروپا/Podgorica"
+
+msgid "Europe/Prague"
+msgstr "ياۋروپا/پراگا"
+
+msgid "Europe/Riga"
+msgstr "ياۋروپا/رىگا"
+
+msgid "Europe/Rome"
+msgstr "ياۋروپا/رىم"
+
+msgid "Europe/Samara"
+msgstr "ياۋروپا/سامارا"
+
+#. comment for time zone Europe/Samara
+msgid "Moscow - Samara, Udmurtia"
+msgstr "موسكۋا - سامارا، ئۇدمۇرتىيە"
+
+msgid "Europe/San_Marino"
+msgstr "ياۋروپا/San_Marino"
+
+msgid "Europe/Sarajevo"
+msgstr "ياۋروپا/سارايېۋو"
+
+msgid "Europe/Simferopol"
+msgstr "ياۋروپا/سىموپول"
+
+#. comment for time zone Europe/Simferopol
+msgid "central Crimea"
+msgstr "ئوتتۇرا قىرىم"
+
+msgid "Europe/Skopje"
+msgstr "ياۋروپا/سكوپې"
+
+msgid "Europe/Sofia"
+msgstr "ياۋروپا/سوفىيە"
+
+msgid "Europe/Stockholm"
+msgstr "ياۋروپا/ستوكھولم"
+
+msgid "Europe/Tallinn"
+msgstr "ياۋروپا/Tallinn"
+
+msgid "Europe/Tirane"
+msgstr "ياۋروپا/تىرانا"
+
+msgid "Europe/Tiraspol"
+msgstr "ياۋروپا/تىراسپول"
+
+msgid "Europe/Uzhgorod"
+msgstr "ياۋروپا/ئۇزختۇراتۇرا"
+
+#. comment for time zone Europe/Uzhgorod
+msgid "Ruthenia"
+msgstr "Ruthenia"
+
+msgid "Europe/Vaduz"
+msgstr "ياۋروپا/ۋادۇز"
+
+msgid "Europe/Vatican"
+msgstr "ياۋروپا/ۋاتىكان"
+
+msgid "Europe/Vienna"
+msgstr "ياۋروپا/ۋېنا"
+
+msgid "Europe/Vilnius"
+msgstr "ياۋروپا/ۋىلنىس"
+
+msgid "Europe/Volgograd"
+msgstr "ياۋروپا/ۋولگاگراد"
+
+#. comment for time zone Europe/Volgograd
+msgid "Moscow+00 - Caspian Sea"
+msgstr "موسكۋا+00 - كاسپىي دېڭىزى"
+
+msgid "Europe/Warsaw"
+msgstr "ياۋروپا/ۋارشاۋا"
+
+msgid "Europe/Zagreb"
+msgstr "ياۋروپا/زاگرېب"
+
+msgid "Europe/Zaporozhye"
+msgstr "ياۋروپا/زاپورازخې"
+
+#. comment for time zone Europe/Zaporozhye
+msgid "Zaporozh'ye, E Lugansk / Zaporizhia, E Luhansk"
+msgstr "Zaporozh'ye, E Lugansk / Zaporizhia, E Luhansk"
+
+msgid "Europe/Zurich"
+msgstr "ياۋروپا/زۇھرە"
+
+msgid "Europe/Kirov"
+msgstr "ياۋروپا/كېرىيە"
+
+msgid "Europe/Astrakhan"
+msgstr "ياۋروپا/Astrakhan"
+
+msgid "Europe/Saratov"
+msgstr "ياۋروپا/سارتاشتاغ"
+
+msgid "Europe/Ulyanovsk"
+msgstr "ياۋروپا/ئۇليەنوۋسكىي"
+
+msgid "Factory"
+msgstr "زاۋۇت"
+
+msgid "GB"
+msgstr "GB"
+
+msgid "GB-Eire"
+msgstr "GB-Eire"
+
+msgid "GMT"
+msgstr "GMT"
+
+msgid "GMT0"
+msgstr "GMT0"
+
+msgid "GMT-0"
+msgstr "GMT-0"
+
+msgid "GMT+0"
+msgstr "GMT+0"
+
+msgid "Greenwich"
+msgstr "Greenwich"
+
+msgid "Hongkong"
+msgstr "شياڭگاڭ"
+
+msgid "HST"
+msgstr "HST"
+
+msgid "Iceland"
+msgstr "ئىسلاندىيە"
+
+msgid "Indian/Antananarivo"
+msgstr "ھىندىستان/Antananarivo"
+
+msgid "Indian/Chagos"
+msgstr "ھىندىستان/چاگوس"
+
+msgid "Indian/Christmas"
+msgstr "ھىندىستان/روژدېستۋو بايرىمى"
+
+msgid "Indian/Cocos"
+msgstr "ھىندىستان/كوكۇس"
+
+msgid "Indian/Comoro"
+msgstr "ھىندىستان/كومور"
+
+msgid "Indian/Kerguelen"
+msgstr "ھىندىستان/Kerguelen"
+
+msgid "Indian/Mahe"
+msgstr "ھىندىستان/Mahe"
+
+msgid "Indian/Maldives"
+msgstr "ھىندىستان/مالدىۋې"
+
+msgid "Indian/Mauritius"
+msgstr "ھىندىستان/ماۋرىتىئۇس"
+
+msgid "Indian/Mayotte"
+msgstr "ھىندىستان/Mayotte"
+
+msgid "Indian/Reunion"
+msgstr "ھىندىستان/جەم بولۇش"
+
+msgid "Iran"
+msgstr "ئىران"
+
+msgid "iso3166.tab"
+msgstr "iso3166.tab"
+
+msgid "Israel"
+msgstr "ئىسرائىلىيە"
+
+msgid "Jamaica"
+msgstr "يامايكا"
+
+msgid "Japan"
+msgstr "ياپونىيە"
+
+#. comment for time zone Pacific/Kwajalein
+msgid "Kwajalein"
+msgstr "Kwajalein"
+
+msgid "Libya"
+msgstr "لىبىيە"
+
+msgid "MET"
+msgstr "WITH"
+
+msgid "Mexico/BajaNorte"
+msgstr "مېكسىكا/BajaNorte"
+
+msgid "Mexico/BajaSur"
+msgstr "مېكسىكا/BajaSur"
+
+msgid "Mexico/General"
+msgstr "مېكسىكا/ئادەتتىكى"
+
+msgid "Mideast/Riyadh87"
+msgstr "Mideast/رىياد87"
+
+msgid "Mideast/Riyadh88"
+msgstr "ئوتتۇرا شەرق/رىياد88"
+
+msgid "Mideast/Riyadh89"
+msgstr "ئوتتۇرا شەرق/رىياد89"
+
+msgid "MST"
+msgstr "MST"
+
+msgid "MST7MDT"
+msgstr "MST7MDT"
+
+msgid "Navajo"
+msgstr "ناۋاجو"
+
+msgid "NZ"
+msgstr "NZ"
+
+msgid "NZ-CHAT"
+msgstr "NZ-CHAT"
+
+msgid "Pacific/Apia"
+msgstr "تىنچ ئوكيان/Apia"
+
+msgid "Pacific/Auckland"
+msgstr "تىنچ ئوكيان/ئوكلاند"
+
+msgid "Pacific/Chatham"
+msgstr "تىنچ ئوكيان/Chatham"
+
+#. comment for time zone Pacific/Chatham
+msgid "Chatham Islands"
+msgstr "Chatham تاقىم ئاراللىرى"
+
+msgid "Pacific/Chuuk"
+msgstr "تىنچ ئوكيان/چۇچۇك"
+
+#. comment for time zone Pacific/Chuuk
+msgid "Chuuk (Truk) and Yap"
+msgstr "چۇك (ترۇك) ۋە يارپ"
+
+msgid "Pacific/Easter"
+msgstr "تىنچ ئوكيان/پاسخا بايرىمى"
+
+#. comment for time zone Pacific/Easter
+msgid "Easter Island & Sala y Gomez"
+msgstr "پاسخا ئارىلى & Sala y Gomez"
+
+msgid "Pacific/Efate"
+msgstr "تىنچ ئوكيان/ئەفراتا"
+
+msgid "Pacific/Enderbury"
+msgstr "تىنچ ئوكيان/Enderbury"
+
+#. comment for time zone Pacific/Enderbury
+msgid "Phoenix Islands"
+msgstr "سۇمۇرغ ئاراللىرى"
+
+msgid "Pacific/Fakaofo"
+msgstr "تىنچ ئوكيان/Fakaofo"
+
+msgid "Pacific/Fiji"
+msgstr "تىنچ ئوكيان/فىجى"
+
+msgid "Pacific/Funafuti"
+msgstr "تىنچ ئوكيان/Funafuti"
+
+msgid "Pacific/Galapagos"
+msgstr "تىنچ ئوكيان/گالپاگوس"
+
+#. comment for time zone Pacific/Galapagos
+msgid "Galapagos Islands"
+msgstr "گالاتاگوس تاقىم ئاراللىرى"
+
+msgid "Pacific/Gambier"
+msgstr "تىنچ ئوكيان/گامبىيە"
+
+#. comment for time zone Pacific/Gambier
+msgid "Gambier Islands"
+msgstr "گامبىيە تاقىم ئاراللىرى"
+
+msgid "Pacific/Guadalcanal"
+msgstr "تىنچ ئوكيان/گۋادالكانال"
+
+msgid "Pacific/Guam"
+msgstr "تىنچ ئوكيان/گۇئام"
+
+msgid "Pacific/Honolulu"
+msgstr "تىنچ ئوكيان/خونلۇلۇ"
+
+#. comment for time zone Pacific/Honolulu
+msgid "Hawaii"
+msgstr "ھاۋاي"
+
+msgid "Pacific/Johnston"
+msgstr "تىنچ ئوكيان/جونستون"
+
+#. comment for time zone Pacific/Johnston
+msgid "Johnston Atoll"
+msgstr "Johnston Atoll"
+
+msgid "Pacific/Kiritimati"
+msgstr "تىنچ ئوكيان/تەيرىمەمەت"
+
+#. comment for time zone Pacific/Kiritimati
+msgid "Line Islands"
+msgstr "لىنىيە ئاراللىرى"
+
+msgid "Pacific/Kosrae"
+msgstr "تىنچ ئوكيان/كوسراې"
+
+#. comment for time zone Pacific/Kosrae
+msgid "Kosrae"
+msgstr "Kosrae"
+
+msgid "Pacific/Kwajalein"
+msgstr "تىنچ ئوكيان/كۋاجالېلىن"
+
+msgid "Pacific/Majuro"
+msgstr "تىنچ ئوكيان/ماجورو"
+
+msgid "Pacific/Marquesas"
+msgstr "تىنچ ئوكيان/ماركۇس"
+
+#. comment for time zone Pacific/Marquesas
+msgid "Marquesas Islands"
+msgstr "ماركساس تاقىم ئاراللىرى"
+
+msgid "Pacific/Midway"
+msgstr "تىنچ ئوكيان/مۇپتىلا"
+
+#. comment for time zone Pacific/Midway
+msgid "Midway Islands"
+msgstr "مۇپتىلا ئاراللىرى"
+
+msgid "Pacific/Nauru"
+msgstr "تىنچ ئوكيان/نارۇ"
+
+msgid "Pacific/Niue"
+msgstr "تىنچ ئوكيان/نىيۇ"
+
+msgid "Pacific/Norfolk"
+msgstr "تىنچ ئوكيان/نورفوك"
+
+msgid "Pacific/Noumea"
+msgstr "تىنچ ئوكيان/نومۇسى"
+
+msgid "Pacific/Pago_Pago"
+msgstr "تىنچ ئوكيان/Pago_Pago"
+
+msgid "Pacific/Palau"
+msgstr "تىنچ ئوكيان/پاۋلا"
+
+msgid "Pacific/Pitcairn"
+msgstr "تىنچ ئوكيان/Pitcairn"
+
+msgid "Pacific/Pohnpei"
+msgstr "تىنچ ئوكيان/Pohnpei"
+
+#. comment for time zone Pacific/Pohnpei
+msgid "Pohnpei (Ponape)"
+msgstr "Pohnpei (Pohnpe)"
+
+msgid "Pacific/Ponape"
+msgstr "تىنچ ئوكيان/Ponape"
+
+msgid "Pacific/Port_Moresby"
+msgstr "تىنچ ئوكيان/Port_Moresby"
+
+msgid "Pacific/Rarotonga"
+msgstr "تىنچ ئوكيان/راروتونگا"
+
+msgid "Pacific/Saipan"
+msgstr "تىنچ ئوكيان/سەيپيەن"
+
+msgid "Pacific/Samoa"
+msgstr "تىنچ ئوكيان/سامارىيە"
+
+msgid "Pacific/Tahiti"
+msgstr "تىنچ ئوكيان/تاھىرجان"
+
+#. comment for time zone Pacific/Tahiti
+msgid "Society Islands"
+msgstr "جەمئىيەت تاقىم ئاراللىرى"
+
+msgid "Pacific/Tarawa"
+msgstr "تىنچ ئوكيان/تاراۋا"
+
+#. comment for time zone Pacific/Tarawa
+msgid "Gilbert Islands"
+msgstr "گىلبېرت تاقىم ئاراللىرى"
+
+msgid "Pacific/Tongatapu"
+msgstr "تىنچ ئوكيان/تونگاپو"
+
+msgid "Pacific/Truk"
+msgstr "تىنچ ئوكيان/ترامپ"
+
+msgid "Pacific/Wake"
+msgstr "تىنچ ئوكيان/ئويغىنىش"
+
+#. comment for time zone Pacific/Wake
+msgid "Wake Island"
+msgstr "ئويغىتىش ئارىلى"
+
+msgid "Pacific/Wallis"
+msgstr "تىنچ ئوكيان/ۋالىس"
+
+msgid "Pacific/Yap"
+msgstr "تىنچ ئوكيان/ياپچان"
+
+msgid "Poland"
+msgstr "پولشا"
+
+msgid "Portugal"
+msgstr "پورتۇگالىيە"
+
+msgid "posixrules"
+msgstr "posixrules"
+
+msgid "PRC"
+msgstr "PRC"
+
+msgid "PST8PDT"
+msgstr "PST8PDT"
+
+msgid "ROC"
+msgstr "ROC"
+
+msgid "ROK"
+msgstr "يىل"
+
+msgid "Singapore"
+msgstr "سىڭگاپور"
+
+msgid "Turkey"
+msgstr "تۈركىيە"
+
+msgid "UCT"
+msgstr "UCT"
+
+msgid "Universal"
+msgstr "ئۇنىۋېرسال"
+
+msgid "US/Alaska"
+msgstr "ئامېرىكا/ئالياسكا"
+
+msgid "US/Aleutian"
+msgstr "ئامېرىكا/Aleutian"
+
+msgid "US/Arizona"
+msgstr "ئامېرىكا/ئارىزونا"
+
+msgid "US/Central"
+msgstr "ئامېرىكا/مەركەز"
+
+msgid "US/Eastern"
+msgstr "ئامېرىكا/شەرق"
+
+msgid "US/East-Indiana"
+msgstr "ئامېرىكا/شەرقىي-ئىندىئانا"
+
+msgid "US/Hawaii"
+msgstr "ئامېرىكا/ھاۋاي"
+
+msgid "US/Indiana-Starke"
+msgstr "ئامېرىكا/ئىندىئانا-Starke"
+
+msgid "US/Michigan"
+msgstr "ئامېرىكا/مىچىگان"
+
+msgid "US/Mountain"
+msgstr "ئامېرىكا/تاغ"
+
+msgid "US/Pacific"
+msgstr "ئامېرىكا/تىنچ ئوكيان"
+
+msgid "US/Samoa"
+msgstr "ئامېرىكا/سامارىيە"
+
+msgid "UTC"
+msgstr "UTC"
+
+msgid "WET"
+msgstr "ھۆللۈك"
+
+msgid "W-SU"
+msgstr "W-SU"
+
+msgid "Zulu"
+msgstr "زۇلۇ تىلى"
