@@ -42,7 +42,7 @@ public:
         {
             return iter->second;
         }
-        return nullptr;
+        return V();
     }
 };
 
