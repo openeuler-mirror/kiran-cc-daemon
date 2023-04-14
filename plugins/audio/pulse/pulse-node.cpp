@@ -130,17 +130,6 @@ uint32_t PulseNode::get_base_volume()
     return uint32_t(PA_VOLUME_NORM);
 }
 
-std::string PulseNode::get_property(const std::string &key)
-{
-    auto iter = this->attrs_.find(key);
-    if (iter != this->attrs_.end())
-    {
-        return iter->second;
-    }
-
-    return std::string("");
-}
-
 void PulseNode::update(const pa_channel_map &channel_map,
                        const pa_cvolume &cvolume,
                        int32_t mute,
