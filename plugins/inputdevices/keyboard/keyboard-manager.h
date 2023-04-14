@@ -98,6 +98,7 @@ private:
     Glib::RefPtr<Gio::Settings> keyboard_settings_;
     std::map<Glib::ustring, Glib::ustring> valid_layouts_;
 
+    bool modifier_lock_enabled_;
     bool repeat_enabled_;
     int32_t repeat_delay_;
     int32_t repeat_interval_;
