@@ -96,7 +96,7 @@ public:
     uint32_t get_base_volume();
 
     // 获取属性
-    std::string get_property(const std::string &key) { return MapHelper::get_value(this->attrs_, key); };
+    std::string get_property(const std::string &key);
 
     sigc::signal<void, PulseNodeField> &signal_node_info_changed() { return this->node_info_changed_; };
 
