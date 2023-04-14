@@ -1,0 +1,2590 @@
+# Chinese translations for tangjie package
+# tangjie 软件包的简体中文翻译.
+# Copyright (C) 2020 THE tangjie'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the tangjie package.
+# tangjie02 <tangjie02@kylinos.com.cn>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tangjie02\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-31 15:34+0800\n"
+"PO-Revision-Date: 2020-07-01 17:54+0800\n"
+"Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Africa/Abidjan"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ཨ་པུའུ་ཏའེ་ཤིང་།"
+
+msgid "Africa/Accra"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཨ་ཁེ་"
+
+msgid "Africa/Addis_Ababa"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་Addis_Ababa"
+
+msgid "Africa/Algiers"
+msgstr "ཧྥེ་གླིང་དང་ཨར་ཅི་རི་ཡ།"
+
+msgid "Africa/Asmara"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཨ་སི་མ་ལ"
+
+msgid "Africa/Asmera"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཨ་སི་མ་ལ"
+
+msgid "Africa/Bamako"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་པ་མ་ཁའོ།"
+
+msgid "Africa/Bangui"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་པ་ཀུའེ།"
+
+msgid "Africa/Banjul"
+msgstr "ཧྥེ་གླིང་དང་པན་ཅིའུ་ཨར།"
+
+msgid "Africa/Bissau"
+msgstr "ཧྥེ་གླིང་དང་པི་སའོ།"
+
+msgid "Africa/Blantyre"
+msgstr "ཧྥེ་གླིང་དང་པུའུ་ལན་ཐི་ལེ་ཡིས་བཤད་རྒྱུར།"
+
+msgid "Africa/Brazzaville"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་པུའུ་ལ་ཀྲ་ཝེར་"
+
+msgid "Africa/Bujumbura"
+msgstr "ཧྥེ་གླིང་དང་པུའུ་ཅུན་པུའུ་ལ་ཡིས་བཤད་རྒྱུར།"
+
+msgid "Africa/Cairo"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ཁའེ་ལོ་"
+
+msgid "Africa/Casablanca"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཁ་སི་པི་ལན་ཁ།"
+
+msgid "Africa/Ceuta"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་Ceuta"
+
+#. comment for time zone Africa/Ceuta
+msgid "Ceuta & Melilla"
+msgstr "ཚའེ་ཐ་དང་མའེ་ལིར་"
+
+msgid "Africa/Conakry"
+msgstr "ཧྥེ་གླིང་དང་ཁ་ན་ཁེ་ལི།"
+
+msgid "Africa/Dakar"
+msgstr "ཧྥེ་གླིང་དང་ཏ་ཁ་ཨར།"
+
+msgid "Africa/Dar_es_Salaam"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་Dar_es_Salaam"
+
+msgid "Africa/Djibouti"
+msgstr "ཧྥེ་གླིང་དང་ཅི་པོའུ་ཐི།"
+
+msgid "Africa/Douala"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཏོ་ལ་ཡ།"
+
+msgid "Africa/El_Aaiun"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་El_Aaiun"
+
+msgid "Africa/Freetown"
+msgstr "ཧྥེ་གླིང་དང་ཧྥུ་རི་གྲོང་རྡལ།"
+
+msgid "Africa/Gaborone"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ཅཱ་པའོ་ལུང་།"
+
+msgid "Africa/Harare"
+msgstr "ཧྥེ་གླིང་དང་ཧ་ལེར།"
+
+msgid "Africa/Johannesburg"
+msgstr "ཧྥེ་གླིང་དང་ཡོ་ཧན་ནེ་སི་པའོ་རུ་"
+
+msgid "Africa/Kampala"
+msgstr "ཧྥེ་གླིང་དང་ཁམ་ཕོ་ལ།"
+
+msgid "Africa/Khartoum"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཁ་ཐའོ་མུའུ།"
+
+msgid "Africa/Kigali"
+msgstr "ཧྥེ་གླིང་དང་ཁི་ཀི་ལི།"
+
+msgid "Africa/Kinshasa"
+msgstr "ཧྥེ་གླིང་དང་ཅིན་ཧྲི་ལྷ་ས།"
+
+#. comment for time zone Africa/Kinshasa
+msgid "west Dem. Rep. of Congo"
+msgstr "ནུབ་ཕྱོགས་ཀྱི་དམངས་གཙོ་ཏང་གི་འཐུས་མི་"
+
+msgid "Africa/Lagos"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ལ་ཀའོ་སི།"
+
+msgid "Africa/Libreville"
+msgstr "ཧྥེ་གླིང་དང་ལི་པུ་ལེ་ཝེར།"
+
+msgid "Africa/Lome"
+msgstr "ཧྥེ་གླིང་དང་ལོ་མ།"
+
+msgid "Africa/Luanda"
+msgstr "ཧྥེ་གླིང་དང་ལུའུ་ཏ།"
+
+msgid "Africa/Lubumbashi"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ལུའུ་པུན་པ་ཧྲི།"
+
+#. comment for time zone Africa/Lubumbashi
+msgid "east Dem. Rep. of Congo"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དམངས་གཙོ་ཏང་གི་འཐུས་མི།"
+
+msgid "Africa/Lusaka"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ལུའུ་ས་ཁ།"
+
+msgid "Africa/Malabo"
+msgstr "ཧྥེ་གླིང་དང་མ་ལ་པོ།"
+
+msgid "Africa/Maputo"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་མཱ་ཕུའུ་ཐའོ།"
+
+msgid "Africa/Maseru"
+msgstr "ཧྥེ་གླིང་དང་མ་སེ་རུའུ།"
+
+msgid "Africa/Mbabane"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་མུའུ་པ་ཧྥན།"
+
+msgid "Africa/Mogadishu"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་མའོ་ཅ་ཏི་ཧྲུའུ།"
+
+msgid "Africa/Monrovia"
+msgstr "ཧྥེ་གླིང་དང་མོང་ཐེ་ལོ་ཝེ་ཡ།"
+
+msgid "Africa/Nairobi"
+msgstr "ཧྥེ་གླིང་དང་ནེ་རོ་པི།"
+
+msgid "Africa/Ndjamena"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ནེ་ཅ་མ་ན་ཡིས་བཤད་རྒྱུར།"
+
+msgid "Africa/Niamey"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ཉི་ཡ་མའེ།"
+
+msgid "Africa/Nouakchott"
+msgstr "ཧྥེ་གླིང་དང་ནོའུ་ཁི་ལན་གྱི་མི།"
+
+msgid "Africa/Ouagadougou"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཨོའུ་ཀྭ་ཏོ་ཀོའུ།"
+
+msgid "Africa/Porto-Novo"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་པོ་ཐའོ་ནོ་ཝོ།"
+
+msgid "Africa/Sao_Tome"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་Sao_Tome"
+
+msgid "Africa/Timbuktu"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཏུང་པུའུ་ཁུའུ་ཐུའུ།"
+
+msgid "Africa/Tripoli"
+msgstr "ཧྥེ་གླིང་དང་ཐི་ལི་ཕུའུ་ལི།"
+
+msgid "Africa/Tunis"
+msgstr "ཨ་ཧྥེ་རི་ཁ་དང་ཐུ་ཉི་སི།"
+
+msgid "Africa/Windhoek"
+msgstr "ཧྥེ་གླིང་དང་ཝུན་ཧོ་ཁེ།"
+
+msgid "Africa/Juba"
+msgstr "ཨ་ཧྥེ་རི་ཁ་གླིང་དང་ཅུའུ་པ་"
+
+msgid "America/Adak"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཏ་ཁེ།"
+
+#. comment for time zone America/Adak
+msgid "Aleutian Islands"
+msgstr "ཨ་ལུའུ་ཐེན་གླིང་ཚོམ།"
+
+msgid "America/Anchorage"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨན་ཧུའེ་ཡི"
+
+#. comment for time zone America/Anchorage
+msgid "Alaska Time"
+msgstr "ཨ་ལ་སི་ཅ་ཀྲོའུ་ཡི"
+
+msgid "America/Anguilla"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨན་ཀོ་ལ་ཡ།"
+
+msgid "America/Antigua"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨན་ཐི་ཀྭ།"
+
+msgid "America/Araguaina"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ལ་ཀྭ་ན་ཡོད།"
+
+#. comment for time zone America/Araguaina
+msgid "Tocantins"
+msgstr "ཁན་ཐིན་སི།"
+
+msgid "America/Argentina/Buenos_Aires"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།/Buenos_Aires"
+
+#. comment for time zone America/Argentina/Buenos_Aires
+msgid "Buenos Aires (BA, CF)"
+msgstr "པུ་ལུན་ནོ་སི་མཁའ་འགྲུལ་ཀུང་སི།(BA, CF)"
+
+msgid "America/Argentina/Catamarca"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།/Catamarca"
+
+#. comment for time zone America/Argentina/Catamarca
+msgid "Catamarca (CT), Chubut (CH)"
+msgstr "Catamarca (CT), Chubut (CH)"
+
+msgid "America/Argentina/ComodRivadavia"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།/ComodRivadavia"
+
+msgid "America/Argentina/Cordoba"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།/Cordoba"
+
+#. comment for time zone America/Argentina/Cordoba
+msgid "most locations (CB, CC, CN, ER, FM, MN, SE, SF)"
+msgstr "ས་ཆ་མང་ཆེ་བ་(CB, CC, CN, ER, FM, MN, SE, SF)"
+
+msgid "America/Argentina/Jujuy"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།/Jujuy"
+
+#. comment for time zone America/Argentina/Jujuy
+msgid "Jujuy (JY)"
+msgstr "ཅུའུ་ཡུས་(JY)"
+
+msgid "America/Argentina/La_Rioja"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།La_Rioja"
+
+#. comment for time zone America/Argentina/La_Rioja
+msgid "La Rioja (LR)"
+msgstr "ལུའེ་ཡུའེ་ཅ་(LR)"
+
+msgid "America/Argentina/Mendoza"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།/Mendoza"
+
+#. comment for time zone America/Argentina/Mendoza
+msgid "Mendoza (MZ)"
+msgstr "མེང་ཏེ་ཧྲ་(MZ)"
+
+msgid "America/Argentina/Rio_Gallegos"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།Rio_Gallegos"
+
+#. comment for time zone America/Argentina/Rio_Gallegos
+msgid "Santa Cruz (SC)"
+msgstr "ཡེ་ཤུའི་འཁྲུངས་སྐར་གྱི་ཁེ་ལུའུ་ཙི་(SC)"
+
+msgid "America/Argentina/Salta"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།ས་ལ་ཐ"
+
+#. comment for time zone America/Argentina/Salta
+msgid "(SA, LP, NQ, RN)"
+msgstr "(SA, LP, NQ, RN)"
+
+msgid "America/Argentina/San_Juan"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།San_Juan"
+
+#. comment for time zone America/Argentina/San_Juan
+msgid "San Juan (SJ)"
+msgstr "སན་ཅོན་(SJ)"
+
+msgid "America/Argentina/San_Luis"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།San_Luis"
+
+#. comment for time zone America/Argentina/San_Luis
+msgid "San Luis (SL)"
+msgstr "སན་ལུའེ་སི་(SL)"
+
+msgid "America/Argentina/Tucuman"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།ཐུའུ་ཁུའུ་མན"
+
+#. comment for time zone America/Argentina/Tucuman
+msgid "Tucuman (TM)"
+msgstr "ཐུའུ་ཁུའུ་མན་(TM)"
+
+msgid "America/Argentina/Ushuaia"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཀེན་ཐིན།ཝུའུ་སི་ཧྭ་ཡ།"
+
+#. comment for time zone America/Argentina/Ushuaia
+msgid "Tierra del Fuego (TF)"
+msgstr "Tierra del Fuego (TF)"
+
+msgid "America/Aruba"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ལུ་པ་ཡ།"
+
+msgid "America/Asuncion"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་མེ་རི་ཁ།"
+
+msgid "America/Atikokan"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཐེ་ཁའོ་ཁན།"
+
+#. comment for time zone America/Atikokan
+msgid "Eastern Standard Time - Atikokan, Ontario and Southampton I, Nunavut"
+msgstr ""
+"ཤར་ཕྱོགས་ཀྱི་ཚད་ལྡན་དུས་ཚོད། ཨ་ཐེ་ཁན་དང་། ཨན་ཏུང་། ནན་ཕུའུ་ཏུན་དང་པོ། "
+"ནུན་ཝུའུ་"
+
+msgid "America/Atka"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ཐེ་ཁ"
+
+msgid "America/Bahia"
+msgstr "ཨ་མེ་རི་ཁ་དང་པ་ཧ་ཡ།"
+
+#. comment for time zone America/Bahia
+msgid "Bahia"
+msgstr "པ་ཧ་ཡ།"
+
+msgid "America/Bahia_Banderas"
+msgstr "ཨ་མེ་རི་ཁ་དང་Bahia_Banderas"
+
+#. comment for time zone America/Bahia_Banderas
+msgid "Mexican Central Time - Bahia de Banderas"
+msgstr "མོ་ཞི་ཁོ་ཡི་ཀྲུང་དབྱང་དུས་ཚོད། པ་ཧ་ཡ་ཏེ་པན་ཏ་ལ་སི།"
+
+msgid "America/Barbados"
+msgstr "ཨ་མེ་རི་ཁ་དང་པ་པ་པ་ཏོ་སི།"
+
+msgid "America/Belem"
+msgstr "ཨ་མེ་རི་ཁ་དང་པེར་ལིན།"
+
+#. comment for time zone America/Belem
+msgid "Amapa, E Para"
+msgstr "ཨ་མ་ཕ་དང་།"
+
+msgid "America/Belize"
+msgstr "ཨ་མེ་རི་ཁ་དང་པི་ལི་ཙི།"
+
+msgid "America/Blanc-Sablon"
+msgstr "ཨ་མེ་རི་ཁ་དང་པུའུ་ལན་ཁེ་·ས་པུན།"
+
+#. comment for time zone America/Blanc-Sablon
+msgid "Atlantic Standard Time - Quebec - Lower North Shore"
+msgstr ""
+"ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོའི་ཚད་ལྡན་དུས་ཚོད། -ཁུའེ་པེ་ཁེ། "
+"བྱང་ངོགས་ཀྱི་སྨད་རྒྱུད།"
+
+msgid "America/Boa_Vista"
+msgstr "ཨ་མེ་རི་ཁ་དང་Boa_Vista"
+
+#. comment for time zone America/Boa_Vista
+msgid "Roraima"
+msgstr "རོ་མ་ཉི་མ།"
+
+msgid "America/Bogota"
+msgstr "ཨ་མེ་རི་ཁ་དང་པོ་ཀའོ་ཐའོ།"
+
+msgid "America/Boise"
+msgstr "ཨ་མེ་རི་ཁ་དང་པོ་དབྱི་སི།"
+
+#. comment for time zone America/Boise
+msgid "Mountain Time - south Idaho & east Oregon"
+msgstr "རི་བོའི་དུས་ཚོད། དབྱི་ཏའོ་ཧོ་ལྷོ་ཕྱོགས་དང་ཤར་གྱི་ཨོ་ལི་ཀུང་སི།"
+
+msgid "America/Buenos_Aires"
+msgstr "ཨ་མེ་རི་ཁ་དང་Buenos_Aires"
+
+msgid "America/Cambridge_Bay"
+msgstr "ཨ་མེ་རི་ཁ་དང་Cambridge_Bay"
+
+#. comment for time zone America/Cambridge_Bay
+msgid "Mountain Time - west Nunavut"
+msgstr "རི་བོའི་དུས་ཚོད། ནུབ་ཕྱོགས་ཀྱི་ནུན་ཝུའུ།"
+
+msgid "America/Campo_Grande"
+msgstr "ཨ་མེ་རི་ཁ་དང་Campo_Grande"
+
+#. comment for time zone America/Campo_Grande
+msgid "Mato Grosso do Sul"
+msgstr "མཱ་ཐའོ་ཀེ་ལོ་སི་ཡིས་སུའུ་ཨར་ལ་བསྒྲུབས།"
+
+msgid "America/Cancun"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁུན་ཁུན།"
+
+#. comment for time zone America/Cancun
+msgid "Central Time - Quintana Roo"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད། - Quintana Roo"
+
+msgid "America/Caracas"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁ་ལ་ཁ་སི།"
+
+msgid "America/Catamarca"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁཱ་ཐ་མཱ་ཁ་"
+
+msgid "America/Cayenne"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁའེ་ཡེན་ནེ།"
+
+msgid "America/Cayman"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁའེ་མན་གཉིས་ཀྱིས་བཤད"
+
+msgid "America/Chicago"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀྲི་ཅ"
+
+#. comment for time zone America/Chicago
+msgid "Central Time"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད།"
+
+msgid "America/Chihuahua"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁྲེ་ཧྭ།"
+
+#. comment for time zone America/Chihuahua
+msgid "Mexican Mountain Time - Chihuahua away from US border"
+msgstr "མོ་ཞི་ཁོ་ཡི་རི་བོའི་དུས་ཚོད། ཨ་མེ་རི་ཁའི་མཐའ་མཚམས་དང་ཁ་བྲལ།"
+
+msgid "America/Coral_Harbour"
+msgstr "ཨ་མེ་རི་ཁ་དང་Coral_Harbour"
+
+msgid "America/Cordoba"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁོའོ་ཏའོ་པའོ་"
+
+msgid "America/Costa_Rica"
+msgstr "ཨ་མེ་རི་ཁ་དང་Costa_Rica"
+
+msgid "America/Cuiaba"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཚུའེ་ཡ་པ་"
+
+#. comment for time zone America/Cuiaba
+msgid "Mato Grosso"
+msgstr "མཱ་ཐའོ་ཀེ་ལོ་སི་ཐོ།"
+
+msgid "America/Curacao"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁུའུ་ལ་ཁའོ།"
+
+msgid "America/Danmarkshavn"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཏན་མའེ་ཁེ་ཧྲི་ཝུན།"
+
+#. comment for time zone America/Danmarkshavn
+msgid "east coast, north of Scoresbysund"
+msgstr "ཤར་གྱི་མཚོ་འགྲམ་དང་། སྐར་གྲངས་པི་སི་ཏུན་གྱི་བྱང་ངོས།"
+
+msgid "America/Dawson"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཏ་ཝོ་སིན།"
+
+#. comment for time zone America/Dawson
+msgid "Pacific Time - north Yukon"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། བྱང་ཕྱོགས་ཀྱི་ཡུས་"
+
+msgid "America/Dawson_Creek"
+msgstr "ཨ་མེ་རི་ཁ་དང་Dawson_Creek"
+
+#. comment for time zone America/Dawson_Creek
+msgid ""
+"Mountain Standard Time - Dawson Creek & Fort Saint John, British Columbia"
+msgstr ""
+"རི་བོའི་ཚད་ལྡན་དུས་ཚོད། "
+"-ཏ་ཝོ་སིན་ཁེ་ལའེ་ཁེ་དང་དབྱིན་ཇིའི་ཀོ་ལུན་པི་ཡའི་སན་ཐེ་ཡུའེ་ཧན"
+
+msgid "America/Denver"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཏན་ཧྥོ།"
+
+#. comment for time zone America/Denver
+msgid "Mountain Time"
+msgstr "རི་ཁུལ་གྱི་དུས་ཚོད།"
+
+msgid "America/Detroit"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཏེ་ཐི"
+
+#. comment for time zone America/Detroit
+msgid "Eastern Time - Michigan - most locations"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། སྨི་ཀིན་ཀྲིག་གི་ས་ཆ་མང་ཆེ་"
+
+msgid "America/Dominica"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཏོ་སྨི་ཉི་ཡ།"
+
+msgid "America/Edmonton"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨའེ་ཏེ་མོན་ཏུན།"
+
+#. comment for time zone America/Edmonton
+msgid "Mountain Time - Alberta, east British Columbia & west Saskatchewan"
+msgstr ""
+"རི་བོའི་དུས་ཚོད། ཨར་པའོ་ཐ། དབྱིན་ཇིའི་ཀོ་ལུན་པི་ཡའི་ཤར་རྒྱུད། "
+"ནུབ་ཀྱི་སཱ་སི་ཁི་ལན་ཁན།"
+
+msgid "America/Eirunepe"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨའེ་རུན་ནེ་ཕེ།"
+
+#. comment for time zone America/Eirunepe
+msgid "W Amazonas"
+msgstr "ཡ་མ་སོན་ཀུང་སི།"
+
+msgid "America/El_Salvador"
+msgstr "ཨ་མེ་རི་ཁ་དང་El_Salvador"
+
+msgid "America/Ensenada"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨེན་སེན་ན་ཏ།"
+
+msgid "America/Fortaleza"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧྥུ་ཐེ་ལ་ཀྲ་གཉིས་ཀྱིས་བཤད"
+
+#. comment for time zone America/Fortaleza
+msgid "NE Brazil (MA, PI, CE, RN, PB)"
+msgstr "NE Brazil (MA, PI, CE, RN, PB)"
+
+msgid "America/Fort_Wayne"
+msgstr "ཨ་མེ་རི་ཁ་དང་Fort_Wayne"
+
+msgid "America/Glace_Bay"
+msgstr "ཨ་མེ་རི་ཁ་དང་Glace_Bay"
+
+#. comment for time zone America/Glace_Bay
+msgid ""
+"Atlantic Time - Nova Scotia - places that did not observe DST 1966-1971"
+msgstr ""
+"ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། ནེའུ་ཙི་ལན་གྱི་དུས་ཚོད། "
+"1966ལོ་ནས་1971ལོའི་བར་DSTལ་ལྟ་ཞིབ་མ་བྱས་པའི་ས་ཆ།"
+
+msgid "America/Godthab"
+msgstr "ཨ་མེ་རི་ཁ་དང་དཀོན་མཆོག་པུའུ།"
+
+#. comment for time zone America/Godthab
+#. comment for time zone America/Santiago
+#. comment for time zone Asia/Almaty
+#. comment for time zone Asia/Ulaanbaatar
+#. comment for time zone Europe/Kiev
+#. comment for time zone Pacific/Auckland
+#. comment for time zone Pacific/Majuro
+msgid "most locations"
+msgstr "ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Goose_Bay"
+msgstr "ཨ་མེ་རི་ཁ་དང་Goose_Bay"
+
+#. comment for time zone America/Goose_Bay
+msgid "Atlantic Time - Labrador - most locations"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། ལ་པ་ཕོ། ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Grand_Turk"
+msgstr "ཨ་མེ་རི་ཁ་དང་Grand_Turk"
+
+msgid "America/Grenada"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀེ་ལུན་ན་ཏ།"
+
+msgid "America/Guadeloupe"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀུའེ་ཏེ་ལུའུ་ཕེ།"
+
+msgid "America/Guatemala"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀེ་ཐ་མཱ་ལ།"
+
+msgid "America/Guayaquil"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀུའེ་ཡ་ཆི་ཨར།"
+
+#. comment for time zone America/Guayaquil
+#. comment for time zone Europe/Lisbon
+#. comment for time zone Europe/Madrid
+msgid "mainland"
+msgstr "སྐམ་ས་ཆེན་པོ།"
+
+msgid "America/Guyana"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀུའེ་ཡ་ན"
+
+msgid "America/Halifax"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧ་ལི་ཧྥ་ཁེ་སི།"
+
+#. comment for time zone America/Halifax
+msgid "Atlantic Time - Nova Scotia (most places), PEI"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། ནོ་ཝེ་སི་ཝེ་ཡ་(ས་ཆ་མང་ཆེ་བ་)། PEI"
+
+msgid "America/Havana"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧ་ཝ་ན"
+
+msgid "America/Hermosillo"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧར་མོ་སི་ལུའོ་ཡིས་བཤད་རྒྱུར།"
+
+#. comment for time zone America/Hermosillo
+msgid "Mountain Standard Time - Sonora"
+msgstr "རི་བོའི་ཚད་ལྡན་དུས་ཚོད། - Sonora"
+
+msgid "America/Indiana/Indianapolis"
+msgstr "ཨ་མེ་རི་ཁ་དང་རྒྱ་གར་དང་ཧིན་རྡུ་ལེ་སི།"
+
+#. comment for time zone America/Indiana/Indianapolis
+msgid "Eastern Time - Indiana - most locations"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། ས་ཆ་མང་ཆེ"
+
+msgid "America/Indiana/Knox"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་མེ་རི་ཁ་དང"
+
+#. comment for time zone America/Indiana/Knox
+msgid "Central Time - Indiana - Starke County"
+msgstr "ཀྲུང་དབྱང་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། སི་ཐ་ཁེ་རྫོང་།"
+
+msgid "America/Indiana/Marengo"
+msgstr "ཨ་མེ་རི་ཁ་དང་རྒྱ་གར་དང་མ་ལུན་ཀོ།"
+
+#. comment for time zone America/Indiana/Marengo
+msgid "Eastern Time - Indiana - Crawford County"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། ཁུ་ལོ་ཧྥུ་ཏེ་རྫོང་།"
+
+msgid "America/Indiana/Petersburg"
+msgstr "ཨ་མེ་རི་ཁ་དང་རྒྱ་གར་དང་པི་ཏེ་པའོ་"
+
+#. comment for time zone America/Indiana/Petersburg
+msgid "Eastern Time - Indiana - Pike County"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། ཕེ་ཁི་རྫོང་།"
+
+msgid "America/Indianapolis"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧིན་རྡུ་ལེ་སི།"
+
+msgid "America/Indiana/Tell_City"
+msgstr "ཨ་མེ་རི་ཁ་དང་། ཨ་མེ་རི་ཁ། ཨ Tell_City་མེ་རི་ཁ"
+
+#. comment for time zone America/Indiana/Tell_City
+msgid "Central Time - Indiana - Perry County"
+msgstr "ཀྲུང་དབྱང་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། ཕེ་ལི་རྫོང་།"
+
+msgid "America/Indiana/Vevay"
+msgstr "ཨ་མེ་རི་ཁ་དང་རྒྱ་གར་གྱི་རྒྱ་གར།Vevay"
+
+#. comment for time zone America/Indiana/Vevay
+msgid "Eastern Time - Indiana - Switzerland County"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། སུའེ་ཙེར་རྫོང"
+
+msgid "America/Indiana/Vincennes"
+msgstr "ཨ་མེ་རི་ཁ་དང་རྒྱ་གར་དང་ཝིན་ཁེན་ནེ་སི།"
+
+#. comment for time zone America/Indiana/Vincennes
+msgid "Eastern Time - Indiana - Daviess, Dubois, Knox & Martin Counties"
+msgstr ""
+"ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། ཏའེ་ཝེ་སི། ཏུའུ་པོ་སི། ནོ་ཁེ་སི། "
+"མ་ཏིང་རྫོང་བཅས་ཡིན།"
+
+msgid "America/Indiana/Winamac"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་མེ་རི་ཁ།/Indiana/Winamac"
+
+#. comment for time zone America/Indiana/Winamac
+msgid "Eastern Time - Indiana - Pulaski County"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཧིན་རྡུ་ཉི་ཞི་ཡ། ཕུའུ་ལ་སི་ཅི་རྫོང"
+
+msgid "America/Inuvik"
+msgstr "ཨ་མེ་རི་ཁ་དང་དབྱིན་ཝེ་ཁེ།"
+
+#. comment for time zone America/Inuvik
+msgid "Mountain Time - west Northwest Territories"
+msgstr "རི་བོའི་དུས་ཚོད། ནུབ་བྱང་ནུབ་བྱང་ས་ཁུལ།"
+
+msgid "America/Iqaluit"
+msgstr "ཨ་མེ་རི་ཁ་དང་དབྱི་ཐ་ལི།"
+
+#. comment for time zone America/Iqaluit
+msgid "Eastern Time - east Nunavut - most locations"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཤར་ཕྱོགས་ཀྱི་ནུའུ་ནུའུ་ཝུའུ་ - ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Jamaica"
+msgstr "ཨ་མེ་རི་ཁ་དང་སོ་ཅ།"
+
+msgid "America/Jujuy"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཅུའུ་ཅིའུ།"
+
+msgid "America/Juneau"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཟླ་དྲུག་པ།"
+
+#. comment for time zone America/Juneau
+msgid "Alaska Time - Alaska panhandle"
+msgstr "ཨ་ལ་སི་ཅ་ཀྲོའུ་ཡི་དུས་ཚོད། ཨ་ལ་སི་ཅ་"
+
+msgid "America/Kentucky/Louisville"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁེན་ཐ་ཅི་ཁི་སི་ཐན། ལུའུ་"
+
+#. comment for time zone America/Kentucky/Louisville
+msgid "Eastern Time - Kentucky - Louisville area"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཁེན་ཐ་ཅི་ཁི་ - Louisville Area"
+
+msgid "America/Kentucky/Monticello"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁེན་ཐ་ཅི་ཁི་སི་ཐན།"
+
+#. comment for time zone America/Kentucky/Monticello
+msgid "Eastern Time - Kentucky - Wayne County"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཁེན་ཐ་ཅི་ཁི། ཝེ་ཨིན་རྫོང་།"
+
+msgid "America/Knox_IN"
+msgstr "ཨ་མེ་རི་ཁ་དང་Knox_IN"
+
+msgid "America/La_Paz"
+msgstr "ཨ་མེ་རི་ཁ་དང་La_Paz"
+
+msgid "America/Lima"
+msgstr "ཨ་མེ་རི་ཁ་དང་ལི་མ།"
+
+msgid "America/Los_Angeles"
+msgstr "ཨ་མེ་རི་ཁ་དང་Los_Angeles"
+
+#. comment for time zone America/Los_Angeles
+msgid "Pacific Time"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོའི"
+
+msgid "America/Louisville"
+msgstr "ཨ་མེ་རི་ཁ་དང་ལུའུ་དབྱི་སི་ཝེ"
+
+msgid "America/Maceio"
+msgstr "ཨ་མེ་རི་ཁ་དང་མའེ་ཞི་ཨོ"
+
+#. comment for time zone America/Maceio
+msgid "Alagoas, Sergipe"
+msgstr "ཨ་ལ་ཀོ་སི། སེ་ཨར་ཅི་ཕེ།"
+
+msgid "America/Managua"
+msgstr "ཨ་མེ་རི་ཁ་དང་མ་ན་ཀྭ།"
+
+msgid "America/Manaus"
+msgstr "ཨ་མེ་རི་ཁ་དང་མཱ་ནུའུ་སི།"
+
+#. comment for time zone America/Manaus
+msgid "E Amazonas"
+msgstr "ད་དུང་ཡ་མ་སོན་"
+
+msgid "America/Marigot"
+msgstr "ཨ་མེ་རི་ཁ་དང་མ་ལེ་ཀའོ་ཐེ།"
+
+msgid "America/Martinique"
+msgstr "ཨ་མེ་རི་ཁ་དང་མ་ཏིང་ནེ"
+
+msgid "America/Matamoros"
+msgstr "ཨ་མེ་རི་ཁ་དང་མཱ་ཐ་མོ་རོ་སི།"
+
+#. comment for time zone America/Matamoros
+msgid ""
+"US Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas near US border"
+msgstr ""
+"ཨ་མེ་རི་ཁའི་ཀྲུང་དབྱང་དུས་ཚོད། "
+"ཨ་མེ་རི་ཁའི་མཐའ་མཚམས་ཀྱི་ཉེ་འདབས་སུ་ཡོད་པའི་ཁའོ་ཧུའུ་ལ་དང་། ཏུའུ་ལན་ཀོ། "
+"ནུའོ་ཝུའོ་ལུན། ཐ་མུའུ་ཕེ་སི་"
+
+msgid "America/Mazatlan"
+msgstr "ཨ་མེ་རི་ཁ་དང་མ་ཀྲ་ཐེ་ལན།"
+
+#. comment for time zone America/Mazatlan
+msgid "Mountain Time - S Baja, Nayarit, Sinaloa"
+msgstr "རི་བོའི་དུས་ཚོད། S Baja, Nayarit, Sinaloa"
+
+msgid "America/Mendoza"
+msgstr "ཨ་མེ་རི་ཁ་དང་མེང་ཏེ་ཧྲ་"
+
+msgid "America/Menominee"
+msgstr "ཨ་མེ་རི་ཁ་དང་མེང་མའེ་དབྱིན།"
+
+#. comment for time zone America/Menominee
+msgid ""
+"Central Time - Michigan - Dickinson, Gogebic, Iron & Menominee Counties"
+msgstr ""
+"ཀྲུང་དབྱང་གི་དུས་ཚོད། སྨི་ཀིན་ཀྲིག་ནས་ཏའེ་ཅིན་སིན་དང་། ཀོ་ཀེ་པི་ཁེ། "
+"ལྕགས་དང་མེང་མའེ་རྫོང་།"
+
+msgid "America/Merida"
+msgstr "ཨ་མེ་རི་ཁ་དང་མེ་ལེ་ཏ།"
+
+#. comment for time zone America/Merida
+msgid "Central Time - Campeche, Yucatan"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད། སྒར་ས། ཡུས་ཁན།"
+
+msgid "America/Mexico_City"
+msgstr "ཨ་མེ་རི་ཁ་དང་Mexico_City"
+
+#. comment for time zone America/Mexico_City
+msgid "Central Time - most locations"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད། ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Miquelon"
+msgstr "ཨ་མེ་རི་ཁ་དང་མའེ་ཁེ་ལུན།"
+
+msgid "America/Moncton"
+msgstr "ཨ་མེ་རི་ཁ་དང་མེང་ཁེ་ཏུན།"
+
+#. comment for time zone America/Moncton
+msgid "Atlantic Time - New Brunswick"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། - New Brunswick"
+
+msgid "America/Monterrey"
+msgstr "ཨ་མེ་རི་ཁ་དང་མོང་ཐེ་ལེ།"
+
+#. comment for time zone America/Monterrey
+msgid ""
+"Mexican Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas away from "
+"US border"
+msgstr ""
+"མོ་ཞི་ཁོ་ཡི་ཀྲུང་དབྱང་དུས་ཚོད། "
+"ཨ་མེ་རི་ཁའི་མཐའ་མཚམས་དང་བར་ཐག་ཤིན་ཏུ་རིང་བའི་མོ་ཞི་ཁོ་ཡི་དུས་ཚོད།"
+
+msgid "America/Montevideo"
+msgstr "ཨ་མེ་རི་ཁ་དང་མོང་ཐེ་ཝེ་ཏུའོ་"
+
+msgid "America/Montreal"
+msgstr "ཨ་མེ་རི་ཁ་དང་མོང་ཐེ"
+
+#. comment for time zone America/Montreal
+msgid "Eastern Time - Quebec - most locations"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཁུའེ་པེ་ཁེ། ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Montserrat"
+msgstr "ཨ་མེ་རི་ཁ་དང་མེང་ཏེ་ལ་ཐེ།"
+
+msgid "America/Nassau"
+msgstr "ཨ་མེ་རི་ཁ་དང་ན་སོ་ཨ་མེ་རི་ཁ།"
+
+msgid "America/New_York"
+msgstr "ཨ་མེ་རི་ཁ་དང་New_York"
+
+#. comment for time zone America/New_York
+msgid "Eastern Time"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད།"
+
+msgid "America/Nipigon"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཉི་ཕི་ཀུང་སི།"
+
+#. comment for time zone America/Nipigon
+msgid ""
+"Eastern Time - Ontario & Quebec - places that did not observe DST 1967-1973"
+msgstr ""
+"ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། "
+"1967ལོ་ནས་1973ལོའི་བར་གྱི་DSTལ་ལྟ་ཞིབ་མ་བྱས་པའི་ཨན་ཏུང་དང་ཁུའེ་པེ་ཁེ།"
+
+msgid "America/Nome"
+msgstr "ཨ་མེ་རི་ཁ་དང་ནོ་མའེ།"
+
+#. comment for time zone America/Nome
+msgid "Alaska Time - west Alaska"
+msgstr "ཨ་ལ་སི་ཅ་ཀྲོའུ་ཡི་དུས་ཚོད།"
+
+msgid "America/Noronha"
+msgstr "ཨ་མེ་རི་ཁ་དང་ནོ་ལུང་ཧ།"
+
+#. comment for time zone America/Noronha
+msgid "Atlantic islands"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོའི་གླིང"
+
+msgid "America/North_Dakota/Center"
+msgstr "ཨ་མེ་རི་ཁ་དང་North_Dakota/ལྟེ་གནས།"
+
+#. comment for time zone America/North_Dakota/Center
+msgid "Central Time - North Dakota - Oliver County"
+msgstr "ཀྲུང་དབྱང་དུས་ཚོད། བྱང་ཁོ་ཏ་ཁའོ་ཏ་ཁའོ་ནས་ཨའོ་ལི་ཧྥུ་རྫོང"
+
+msgid "America/North_Dakota/New_Salem"
+msgstr "ཨ་མེ་རི་ཁ་དང་North_Dakota/New_Salem"
+
+#. comment for time zone America/North_Dakota/New_Salem
+msgid "Central Time - North Dakota - Morton County (except Mandan area)"
+msgstr ""
+"ཀྲུང་དབྱང་གི་དུས་ཚོད། བྱང་ཁོ་ཏ་ཁའོ་ནས་མའོ་ཏུང་རྫོང་(མན་ཏན་ས་ཁུལ་ཕུད། )"
+
+msgid "America/Ojinaga"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨོ་ཅི་ན་ཅ།"
+
+#. comment for time zone America/Ojinaga
+msgid "US Mountain Time - Chihuahua near US border"
+msgstr "ཨ་མེ་རི་ཁའི་རི་བོའི་དུས་ཚོད། ཨ་མེ་རི་ཁའི་མཐའ་མཚམས་ཀྱི་ཉེ་འདབས་"
+
+msgid "America/Panama"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཕ་ན"
+
+msgid "America/Pangnirtung"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཕང་ནའེ་ཏུང་།"
+
+#. comment for time zone America/Pangnirtung
+msgid "Eastern Time - Pangnirtung, Nunavut"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། Pangnirtung, Nunavut"
+
+msgid "America/Paramaribo"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཕ་ལ་མ་ལི་པོ།"
+
+msgid "America/Phoenix"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧྥུང་ཧོང"
+
+#. comment for time zone America/Phoenix
+msgid "Mountain Standard Time - Arizona"
+msgstr "རི་བོའི་ཚད་ལྡན་དུས་ཚོད། ཡ་ལི་ཙི"
+
+msgid "America/Port-au-Prince"
+msgstr "ཨ་མེ་རི་ཁ་དང་གྲུ་ཁའི་གྲུ་ཁ།"
+
+msgid "America/Porto_Acre"
+msgstr "ཨ་མེ་རི་ཁ་དང་Porto_Acre"
+
+msgid "America/Port_of_Spain"
+msgstr "ཨ་མེ་རི་ཁ་དང་Port_of_Spain"
+
+msgid "America/Porto_Velho"
+msgstr "ཨ་མེ་རི་ཁ་དང་Porto_Velho"
+
+#. comment for time zone America/Porto_Velho
+msgid "Rondonia"
+msgstr "རོ་ཏུན་ཉི་ཡ།"
+
+msgid "America/Puerto_Rico"
+msgstr "ཨ་མེ་རི་ཁ་དང་Puerto_Rico"
+
+msgid "America/Rainy_River"
+msgstr "ཨ་མེ་རི་ཁ་དང་Rainy_River"
+
+#. comment for time zone America/Rainy_River
+msgid "Central Time - Rainy River & Fort Frances, Ontario"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད། ཆར་ཆུ། ཨན་ཏུང་གི་ཧྥུ་ལང་སི་པའོ་རུ་ཡོད།"
+
+msgid "America/Rankin_Inlet"
+msgstr "ཨ་མེ་རི་ཁ་དང་Rankin_Inlet"
+
+#. comment for time zone America/Rankin_Inlet
+msgid "Central Time - central Nunavut"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད། ཀྲུང་དབྱང་ནུན་ཝུའུ།"
+
+msgid "America/Recife"
+msgstr "ཨ་མེ་རི་ཁ་དང་རིག་གཞུང་།"
+
+#. comment for time zone America/Recife
+msgid "Pernambuco"
+msgstr "ན་སྨི་པུའུ་ཁོ་ལ་དབང་བ་ཡིན།"
+
+msgid "America/Regina"
+msgstr "ཨ་མེ་རི་ཁ།/Regina"
+
+#. comment for time zone America/Regina
+msgid "Central Standard Time - Saskatchewan - most locations"
+msgstr "ཀྲུང་དབྱང་གི་ཚད་ལྡན་དུས་ཚོད། སཱ་སི་ཁི་ལན་ཁན། ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Resolute"
+msgstr "ཨ་མེ་རི་ཁ་དང་བློ་ཐག་རྦད་བཅད་"
+
+#. comment for time zone America/Resolute
+msgid "Eastern Standard Time - Resolute, Nunavut"
+msgstr "ཤར་ཕྱོགས་ཀྱི་ཚད་ལྡན་དུས་ཚོད། བློ་ཐག་རྦད་ཆོད།"
+
+msgid "America/Rio_Branco"
+msgstr "ཨ་མེ་རི་ཁ་དང་Rio_Branco"
+
+#. comment for time zone America/Rio_Branco
+msgid "Acre"
+msgstr "ས་ཞིང་།"
+
+msgid "America/Rosario"
+msgstr "ཨ་མེ་རི་ཁ་དང་ལོ་སེ་ལི་ཨོ།"
+
+msgid "America/Santa_Isabel"
+msgstr "ཨ་མེ་རི་ཁ་དང་Santa_Isabel"
+
+#. comment for time zone America/Santa_Isabel
+msgid "Mexican Pacific Time - Baja California away from US border"
+msgstr "མོ་ཞི་ཁོ་ཡི་ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། པ་ཅ་ཅ་ཅ་ཀྲོའུ་ཨ"
+
+msgid "America/Santarem"
+msgstr "ཨ་མེ་རི་ཁ་དང་སན་ཐེ་ལུན"
+
+#. comment for time zone America/Santarem
+msgid "W Para"
+msgstr "ཕ་ལ་ཧྥ་རུ།"
+
+msgid "America/Santiago"
+msgstr "ཨ་མེ་རི་ཁ་དང་སི་ཐན་ཡ་ཀོ།"
+
+msgid "America/Santo_Domingo"
+msgstr "ཨ་མེ་རི་ཁ་དང་Santo_Domingo"
+
+msgid "America/Sao_Paulo"
+msgstr "ཨ་མེ་རི་ཁ་དང་Sao_Paulo"
+
+#. comment for time zone America/Sao_Paulo
+msgid "S & SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS)"
+msgstr "S & SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS)"
+
+msgid "America/Scoresbysund"
+msgstr "ཨ་མེ་རི་ཁ།/Scoresbysund"
+
+#. comment for time zone America/Scoresbysund
+msgid "Scoresbysund / Ittoqqortoormiit"
+msgstr "གྲུབ་འབྲས་ཐོབ་པའི་མི་གྲངས་ / Ittoqqortoormiit"
+
+msgid "America/Shiprock"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧྲི་ཕུའུ་ལོ་ཁེ"
+
+#. comment for time zone America/Shiprock
+msgid "Mountain Time - Navajo"
+msgstr "རི་བོའི་དུས་ཚོད། -མཚོ་དམག"
+
+msgid "America/St_Barthelemy"
+msgstr "ཨ་མེ་རི་ཁ་དང་St_Barthelemy"
+
+msgid "America/St_Johns"
+msgstr "ཨ་མེ་རི་ཁ་དང་St_Johns"
+
+#. comment for time zone America/St_Johns
+msgid "Newfoundland Time, including SE Labrador"
+msgstr "SE Labradorཚུད་པའི་ནེའུ་ཙི་ལན་གྱི་དུས་ཚོད།"
+
+msgid "America/St_Kitts"
+msgstr "ཨ་མེ་རི་ཁ་དང་St_Kitts"
+
+msgid "America/St_Lucia"
+msgstr "ཨ་མེ་རི་ཁ་དང་St_Lucia"
+
+msgid "America/St_Thomas"
+msgstr "ཨ་མེ་རི་ཁ་དང་St_Thomas"
+
+msgid "America/St_Vincent"
+msgstr "ཨ་མེ་རི་ཁ་དང་St_Vincent"
+
+msgid "America/Swift_Current"
+msgstr "ཨ་མེ་རི་ཁ་དང་Swift_Current"
+
+#. comment for time zone America/Swift_Current
+msgid "Central Standard Time - Saskatchewan - midwest"
+msgstr "ཀྲུང་དབྱང་གི་ཚད་ལྡན་དུས་ཚོད། སཱ་སི་ཁི་ལན་ཁན། དབུས་རྒྱུད།"
+
+msgid "America/Tegucigalpa"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཐེ་ཀུའུ་ཞི་ཀྭ་ལ་ཕ"
+
+msgid "America/Thule"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཐུའུ་ལུའུ།"
+
+#. comment for time zone America/Thule
+msgid "Thule / Pituffik"
+msgstr "Thule / Pituffik"
+
+msgid "America/Thunder_Bay"
+msgstr "ཨ་མེ་རི་ཁ་དང་Thunder_Bay"
+
+#. comment for time zone America/Thunder_Bay
+msgid "Eastern Time - Thunder Bay, Ontario"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཨན་ཏུང་གི་འབྲུག་སྒྲ་མཚོ་ཁུག"
+
+msgid "America/Tijuana"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཐི་ཅ་ན་ན་ཡོད།"
+
+#. comment for time zone America/Tijuana
+msgid "US Pacific Time - Baja California near US border"
+msgstr "ཨ་མེ་རི་ཁའི་ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། -ཨ་མེ་རི་ཁའི་"
+
+msgid "America/Toronto"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཏུའོ་ལ"
+
+#. comment for time zone America/Toronto
+msgid "Eastern Time - Ontario - most locations"
+msgstr "ཤར་ཕྱོགས་ཀྱི་དུས་ཚོད། ཨན་ཏུང་། ས་ཆ་མང་ཆེ་བ།"
+
+msgid "America/Tortola"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཐོ་ལོ་ལ་ཡིས་བཤད་"
+
+msgid "America/Vancouver"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཝུན་ཁོའུ"
+
+#. comment for time zone America/Vancouver
+msgid "Pacific Time - west British Columbia"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། དབྱིན་ཇིའི་ཀོ"
+
+msgid "America/Virgin"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཝེ་ལེན"
+
+msgid "America/Whitehorse"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཝེ་ཐེ་ཧོ་སི།"
+
+#. comment for time zone America/Whitehorse
+msgid "Pacific Time - south Yukon"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོའི་དུས་ཚོད། - Yukon South Yukon"
+
+msgid "America/Winnipeg"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཝུན་ནེ་ཕེ་ཀི།"
+
+#. comment for time zone America/Winnipeg
+msgid "Central Time - Manitoba & west Ontario"
+msgstr "ཀྲུང་དབྱང་གི་དུས་ཚོད། མན་ནེ་པའོ་དང་ཨན་ཏུང་གི་ནུབ་རྒྱུད།"
+
+msgid "America/Yakutat"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཡ་ཁུའུ་ཐི།"
+
+#. comment for time zone America/Yakutat
+msgid "Alaska Time - Alaska panhandle neck"
+msgstr "ཨ་ལ་སི་ཅ་ཀྲོའུ་ཡི་དུས་ཚོད། ཨ་ལ་སི་ཅ་ཀྲོའུ་"
+
+msgid "America/Yellowknife"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཧོང་ཁེ་ནེ་ཧྥུ།"
+
+msgid "America/Kralendijk"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁེ་ལུན་ཏི་ཅེ་ཁེ།"
+
+msgid "America/Creston"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཁེ་སི་ཏུན།"
+
+msgid "America/Fort_Nelson"
+msgstr "ཨ་མེ་རི་ཁ་དང་Fort_Nelson"
+
+msgid "America/Punta_Arenas"
+msgstr "ཨ་མེ་རི་ཁ་དང་Punta_Arenas"
+
+msgid "America/Lower_Princes"
+msgstr "ཨ་མེ་རི་ཁ་དང་Lower_Princes"
+
+msgid "America/North_Dakota/Beulah"
+msgstr "ཨ་མེ་རི་ཁ་དང་North_Dakota/Beulah"
+
+msgid "America/Sitka"
+msgstr "ཨ་མེ་རི་ཁ་དང་སི་ཐེ་ཁ"
+
+msgid "America/Metlakatla"
+msgstr "ཨ་མེ་རི་ཁ་དང་མའེ་ཐེ་ལ་ཁ་ཐེ་ལ་"
+
+#. comment for time zone America/Yellowknife
+msgid "Mountain Time - central Northwest Territories"
+msgstr "རི་བོའི་དུས་ཚོད། ནུབ་བྱང་ས་ཁུལ་གྱི་དབུས་རྒྱུད།"
+
+msgid "Antarctica/Casey"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཁ་སའེ།"
+
+#. comment for time zone Antarctica/Casey
+msgid "Casey Station, Bailey Peninsula"
+msgstr "པའེ་ལའེ་ཕྱེད་གླིང་གི་ཁ་སའེ་ས་ཚིགས།"
+
+msgid "Antarctica/Davis"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཏའེ་ཝེ་སི།"
+
+#. comment for time zone Antarctica/Davis
+msgid "Davis Station, Vestfold Hills"
+msgstr "ཏའེ་ཝེ་སི་ས་ཚིགས་དང་ཝེ་སི་ཧྥུ་རི་བོ།"
+
+msgid "Antarctica/DumontDUrville"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཏུའུ་མེང་ཏུའུ་ཨར་ཝེ་ཨར།"
+
+#. comment for time zone Antarctica/DumontDUrville
+msgid "Dumont-d'Urville Station, Terre Adelie"
+msgstr "ཏུའུ་མེང་ཐི་ཏེ་ཝུའུ་ཨར་ཝེ་ཨར་ས་ཚིགས་དང་། ཐེ་ལེ་ཨ་ཏི་ལི།"
+
+msgid "Antarctica/Macquarie"
+msgstr "ལྷོ་སྣེ་གླིང་དང་མའེ་ཁེ་ཆི་ལི།"
+
+#. comment for time zone Antarctica/Macquarie
+msgid "Macquarie Island Station, Macquarie Island"
+msgstr "ཨའོ་མོན་ཆི་ཡེ་གླིང་ཕྲན་གྱི་མེ་འཁོར་བབས་ཚུགས།"
+
+msgid "Antarctica/Mawson"
+msgstr "ལྷོ་སྣེ་གླིང་དང་མའོ་སིན།"
+
+#. comment for time zone Antarctica/Mawson
+msgid "Mawson Station, Holme Bay"
+msgstr "ཧོ་མའེ་མཚོ་ཁུག་གི་མའོ་སིན་ས་ཚིགས།"
+
+msgid "Antarctica/McMurdo"
+msgstr "ལྷོ་སྣེ་གླིང་དང་མའེ་མུའུ་ཏུའུ།"
+
+#. comment for time zone Antarctica/McMurdo
+msgid "McMurdo Station, Ross Island"
+msgstr "ལོ་སི་གླིང་ཕྲན་གྱི་མའེ་མུའུ་ཏོ་ས་ཚིགས།"
+
+msgid "Antarctica/Palmer"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཕཱ་འེར་མོ།"
+
+#. comment for time zone Antarctica/Palmer
+msgid "Palmer Station, Anvers Island"
+msgstr "ཨན་ཝེ་སི་གླིང་ཕྲན་གྱི་ཕཱ་འེར་མོ་ས་ཚིགས།"
+
+msgid "Antarctica/Rothera"
+msgstr "ལྷོ་སྣེ་གླིང་དང་རོ་མ་ལ།"
+
+#. comment for time zone Antarctica/Rothera
+msgid "Rothera Station, Adelaide Island"
+msgstr "ཨ་ཏི་ལའེ་ཏི་གླིང་ཕྲན་གྱི་རོ་མ་ས་ཚིགས།"
+
+msgid "Antarctica/South_Pole"
+msgstr "ལྷོ་སྣེ་གླིང་དང་South_Pole"
+
+#. comment for time zone Antarctica/South_Pole
+msgid "Amundsen-Scott Station, South Pole"
+msgstr "ལྷོ་སྣེའི་ཨན་ཏུན་སིན་སི་ཁི་ས་ཚིགས།"
+
+msgid "Antarctica/Syowa"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཞི་ལོ་ཝ་ཡ།"
+
+#. comment for time zone Antarctica/Syowa
+msgid "Syowa Station, E Ongul I"
+msgstr "སི་ལོ་ཝ་ས་ཚིགས་ E Ongul I"
+
+msgid "Antarctica/Vostok"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཝོ་སི་ཐོ་ཁེ།"
+
+msgid "Antarctica/Troll"
+msgstr "ལྷོ་སྣེ་གླིང་དང་ཐེ་ལོ་ཀུང་སི།"
+
+#. comment for time zone Antarctica/Vostok
+msgid "Vostok Station, S Magnetic Pole"
+msgstr "ཝོ་སི་ཐོ་ཁེ་ས་ཚིགས་དང་S ཁབ་ལེན་གྱི་གློག་སྐུད།"
+
+msgid "Arctic/Longyearbyen"
+msgstr "བྱང་སྣེའི་ས་ཁུལ་དང་ལུང་ཡེ་ཨར་པིན།"
+
+msgid "Asia/Aden"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ཏེན།"
+
+msgid "Asia/Almaty"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ལ་མཱ་ཐི།"
+
+msgid "Asia/Amman"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་མན།"
+
+msgid "Asia/Anadyr"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ན་ཏི་"
+
+#. comment for time zone Asia/Anadyr
+msgid "Moscow+08 - Bering Sea"
+msgstr "མོ་སི་ཁོ+08 -པའེ་ལེན་རྒྱ་མཚོ།"
+
+msgid "Asia/Aqtau"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ཁེ་ཐའོ།"
+
+#. comment for time zone Asia/Aqtau
+msgid "Atyrau (Atirau, Gur'yev), Mangghystau (Mankistau)"
+msgstr "ཨ་ཐེ་ལུའུ་(Atirau, Gur'yev), Mangghystau (Mankistau)"
+
+msgid "Asia/Aqtobe"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ཁེ་ཐོ་པེ།"
+
+#. comment for time zone Asia/Aqtobe
+msgid "Aqtobe (Aktobe)"
+msgstr "ཨ་ཁེ་ཐོ་པེ་(Aktobe)"
+
+msgid "Asia/Ashgabat"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ཧྲི་ཅ་པ་ཐེ།"
+
+msgid "Asia/Ashkhabad"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ཧྲི་ཧ་པ་ཏི།"
+
+msgid "Asia/Baghdad"
+msgstr "ཨེ་ཤ་ཡ་དང་པ་ཀི་"
+
+msgid "Asia/Bahrain"
+msgstr "ཨེ་ཤ་ཡ་དང་བྱམས་པ་"
+
+msgid "Asia/Baku"
+msgstr "ཨེ་ཤ་ཡ་དང་པ་ཁུའུ།"
+
+msgid "Asia/Bangkok"
+msgstr "ཨེ་ཤ་ཡ་དང་མན་ཀུའུ།"
+
+msgid "Asia/Beirut"
+msgstr "ཨེ་ཤ་ཡ་དང་པེ་ལུའུ་ཐེ།"
+
+msgid "Asia/Bishkek"
+msgstr "ཨེ་ཤ་ཡ་དང་པི་ཧྲི་ཁེ་ཁེ།"
+
+msgid "Asia/Brunei"
+msgstr "ཨེ་ཤ་ཡ་དང་ཝུན་ལའེ།"
+
+msgid "Asia/Calcutta"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་ལི་ཐ་"
+
+msgid "Asia/Choibalsan"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁྲའོ་པ་ཨར་སན།"
+
+#. comment for time zone Asia/Choibalsan
+msgid "Dornod, Sukhbaatar"
+msgstr "ཏའོ་ནའོ་ཏི། སུའུ་ཧ་པ་ཐ་ཨར།"
+
+msgid "Asia/Chongqing"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁྲུང་ཆིང་།"
+
+#. comment for time zone Asia/Chongqing
+msgid "central China - Sichuan, Yunnan, Guangxi, Shaanxi, Guizhou, etc."
+msgstr ""
+"ཀྲུང་ཧྭ་དབུས་རྒྱུད་ནས་སི་ཁྲོན་དང་། ཡུན་ནན། ཀོང་ཞི། ཧྲའན་ཞི། "
+"ཀུའེ་ཀྲོའུ་སོགས་ཡིན།"
+
+msgid "Asia/Chungking"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁྲུང་ཅིན།"
+
+msgid "Asia/Colombo"
+msgstr "ཨེ་ཤ་ཡ་དང་ཀོ་ལུན་པོ།"
+
+msgid "Asia/Dacca"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏ་ཁ།"
+
+msgid "Asia/Damascus"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏ་མ་སི་ཁི།"
+
+msgid "Asia/Dhaka"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏར་ཁ།"
+
+msgid "Asia/Dili"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏི་ལི།"
+
+msgid "Asia/Dubai"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏུའུ་པའེ།"
+
+msgid "Asia/Dushanbe"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏུའུ་ཧྲན་པེ།"
+
+msgid "Asia/Gaza"
+msgstr "ཨེ་ཤ་ཡ་དང་ཅཱ་ཧྲས་ཁུལ"
+
+msgid "Asia/Harbin"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧར་པིན།"
+
+#. comment for time zone Asia/Harbin
+msgid "Heilongjiang (except Mohe), Jilin"
+msgstr "ཧེ་ལུང་ཅང་(མོ་ཧོ་ཕུད་)དང་ཅི་ལིན།"
+
+msgid "Asia/Ho_Chi_Minh"
+msgstr "ཨེ་ཤ་ཡ་དང་Ho_Chi_Minh"
+
+msgid "Asia/Hong_Kong"
+msgstr "ཨེ་ཤ་ཡ་དང་Hong_Kong"
+
+msgid "Asia/Hovd"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧོ་ཧྥུའུ།"
+
+#. comment for time zone Asia/Hovd
+msgid "Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan"
+msgstr "Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan"
+
+msgid "Asia/Irkutsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨར་ཁུའུ་ཚི་ཁི།"
+
+#. comment for time zone Asia/Irkutsk
+msgid "Moscow+05 - Lake Baikal"
+msgstr "མོ་སི་ཁོ+05-པའེ་ཧུའུ་མཚེའུ།"
+
+msgid "Asia/Istanbul"
+msgstr "ཨེ་ཤ་ཡ་དང་དབྱི་སི་ཐན་"
+
+msgid "Asia/Jakarta"
+msgstr "ཨེ་ཤ་ཡ་དང་ཡ་ཅ་ཏ།"
+
+#. comment for time zone Asia/Jakarta
+msgid "Java & Sumatra"
+msgstr "Java & Sumatra"
+
+msgid "Asia/Jayapura"
+msgstr "ཨེ་ཤ་ཡ་དང་ཅ་ཡ་ཕུའུ་ལ་ཡ།"
+
+#. comment for time zone Asia/Jayapura
+msgid "Irian Jaya & the Moluccas"
+msgstr "དབྱི་ལི་ཨན་ཅ་ཡ་དང་མའོ་ལུའུ་ཅ་སི།"
+
+msgid "Asia/Jerusalem"
+msgstr "ཨེ་ཤ་ཡ་དང་ཡེ་ལུའུ་ས་"
+
+msgid "Asia/Kabul"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་པུའུ་ཨར།"
+
+msgid "Asia/Kamchatka"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་མུའུ་ཆི་ཁ་གཉིས་ཀྱིས་བཤད་རྒྱུར།"
+
+#. comment for time zone Asia/Kamchatka
+msgid "Moscow+08 - Kamchatka"
+msgstr "མོ་སི་ཁོ+08 - Kamchatka"
+
+msgid "Asia/Karachi"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་ལ་ཆི།"
+
+msgid "Asia/Kashgar"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་ཧྲེ།"
+
+#. comment for time zone Asia/Kashgar
+msgid "west Tibet & Xinjiang"
+msgstr "ནུབ་ཕྱོགས་ཀྱི་བོད་ལྗོངས་དང་ཞིན་ཅང་།"
+
+msgid "Asia/Kathmandu"
+msgstr "ཨེ་ཤ་ཡ་དང་ཀ་ཏ་མན་རྡུ།"
+
+msgid "Asia/Katmandu"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་ཏ་མན་རྡུ།"
+
+msgid "Asia/Kolkata"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁོ་ལ་ཁེ་ཐ་"
+
+msgid "Asia/Krasnoyarsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁེ་ལ་སི་ནུའོ་ཡ་སི་ཁི།"
+
+#. comment for time zone Asia/Krasnoyarsk
+msgid "Moscow+04 - Yenisei River"
+msgstr "མོ་སི་ཁོ+04-ཡེན་སའེ་གཙང་པོ།"
+
+msgid "Asia/Kuala_Lumpur"
+msgstr "ཨེ་ཤ་ཡ་དང་Kuala_Lumpur"
+
+#. comment for time zone Asia/Kuala_Lumpur
+msgid "peninsular Malaysia"
+msgstr "ཕྱེད་གླིང་གི་མ་ལེ་ཞི་ཡ།"
+
+msgid "Asia/Kuching"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁུའུ་ཅིན་"
+
+#. comment for time zone Asia/Kuching
+msgid "Sabah & Sarawak"
+msgstr "ས་པ་ཧ་དང་ས་ལ་ཝ་ཁེ།"
+
+msgid "Asia/Kuwait"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁུ་ཝེ་"
+
+msgid "Asia/Macao"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨའོ་མོན།"
+
+msgid "Asia/Macau"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨའོ་མོན།"
+
+msgid "Asia/Magadan"
+msgstr "ཨེ་ཤ་ཡ་དང་མ་ཀེ་ཏན།"
+
+#. comment for time zone Asia/Magadan
+msgid "Moscow+08 - Magadan"
+msgstr "མོ་སི་ཁོ+08 - Magadan"
+
+msgid "Asia/Makassar"
+msgstr "ཨེ་ཤ་ཡ་དང་མཱ་ཁ་ས་ཨར།"
+
+#. comment for time zone Asia/Makassar
+msgid "east & south Borneo, Celebes, Bali, Nusa Tengarra, west Timor"
+msgstr ""
+"ཤར་ཕྱོགས་དང་ཤར་ཕྱོགས་ཀྱི་པའོ་ལོ་དང་། སེ་ལེ་པི་སི། པ་ལི། ནུའུ་ས་ཐན་ཅ་ལ། "
+"ནུབ་ཀྱི་ཏི་ཝུན་"
+
+msgid "Asia/Manila"
+msgstr "ཨེ་ཤ་ཡ་དང་མ་ནེ་ལ།"
+
+msgid "Asia/Muscat"
+msgstr "ཨེ་ཤ་ཡ་དང་མུའུ་སི་ཁི།/Muscat"
+
+msgid "Asia/Nicosia"
+msgstr "ཨེ་ཤ་ཡ་དང་ནེ་ཀོ་ཞི་ཡ།"
+
+msgid "Asia/Novokuznetsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ནོ་ཝོ་ཁི་ཙི་ནའེ་སི་ཁི།"
+
+#. comment for time zone Asia/Novokuznetsk
+msgid "Moscow+03 - Novokuznetsk"
+msgstr "མོ་སི་ཁོ+03- Novokuznetsk"
+
+msgid "Asia/Novosibirsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ཞི་བདེ་རྒྱ་མཚོ་ཆེན་པོའི་ས་ཁུལ"
+
+#. comment for time zone Asia/Novosibirsk
+msgid "Moscow+03 - Novosibirsk"
+msgstr "མོ་སི་ཁོ+03 - ཞི་པོ་ལི་ཡ་གསར་པ།"
+
+msgid "Asia/Omsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨོ་སི་ཁི།"
+
+#. comment for time zone Asia/Omsk
+msgid "Moscow+03 - west Siberia"
+msgstr "མོ་སི་ཁོ+03—ཞི་པོ་ལི་ཡའི་ནུབ་རྒྱུད།"
+
+msgid "Asia/Oral"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་ནང་།"
+
+#. comment for time zone Asia/Oral
+msgid "West Kazakhstan"
+msgstr "ཧ་སག་སི་ཐན་ནུབ་མ།"
+
+msgid "Asia/Phnom_Penh"
+msgstr "ཨེ་ཤ་ཡ་དང་Phnom_Penh"
+
+msgid "Asia/Pontianak"
+msgstr "ཨེ་ཤ་ཡ་དང་ཕེང་ཐེན་ན་ཁེ།"
+
+#. comment for time zone Asia/Pontianak
+msgid "west & central Borneo"
+msgstr "ནུབ་ཕྱོགས་དང་པའོ་ལོ་ཡི་དབུས་རྒྱུད།"
+
+msgid "Asia/Pyongyang"
+msgstr "ཨེ་ཤ་ཡ་དང་ཕིན་དབྱང་།"
+
+msgid "Asia/Qatar"
+msgstr "ཨེ་ཤ་ཡ་དང་ཁ་ཐར།"
+
+msgid "Asia/Qyzylorda"
+msgstr "ཨེ་ཤ་ཡ་དང་ཆི་ཙི་ལོ་ཏ།"
+
+#. comment for time zone Asia/Qyzylorda
+msgid "Qyzylorda (Kyzylorda, Kzyl-Orda)"
+msgstr "Qyzylorda (Kyzylorda, Kzyl-Orda)"
+
+msgid "Asia/Rangoon"
+msgstr "ཨེ་ཤ་ཡ་དང་ཀན་ལུང་།"
+
+msgid "Asia/Riyadh"
+msgstr "ཨེ་ཤ་ཡ་དང་ལི་ཡ་ཏི།"
+
+msgid "Asia/Riyadh87"
+msgstr "ཨེ་ཤ་ཡ་དང་ལི་ཡ་ཏི་87"
+
+msgid "Asia/Riyadh88"
+msgstr "ཨེ་ཤ་ཡ་དང་ལི་ཡ་ཏི་88"
+
+msgid "Asia/Riyadh89"
+msgstr "ཨེ་ཤ་ཡ་དང་ལི་ཡ་ཏི་89"
+
+msgid "Asia/Saigon"
+msgstr "ཨེ་ཤ་ཡ་དང་སའེ་ཀོན།"
+
+msgid "Asia/Sakhalin"
+msgstr "ཨེ་ཤ་ཡ་དང་ས་ཧ་ལིན།"
+
+#. comment for time zone Asia/Sakhalin
+msgid "Moscow+07 - Sakhalin Island"
+msgstr "མོ་སི་ཁོ+07 -ས་ཧ་ལིན་གླིང་ཕྲན་དུ་ཡོད།"
+
+msgid "Asia/Samarkand"
+msgstr "ཨེ་ཤ་ཡ་དང་ཞི་བདེ་རྒྱ་མཚོ་ཆེན་པོའི་"
+
+#. comment for time zone Asia/Samarkand
+msgid "west Uzbekistan"
+msgstr "ཝུའུ་ཙི་པེ་ཁི་སི་ཐན་གྱི་ནུབ་རྒྱུད།"
+
+msgid "Asia/Seoul"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧྲོའུ་ཨར།"
+
+msgid "Asia/Shanghai"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧྲང་ཧའེ།"
+
+#. comment for time zone Asia/Shanghai
+msgid "east China - Beijing, Guangdong, Shanghai, etc."
+msgstr "ཀྲུང་གོའི་ཤར་རྒྱུད་ནས་པེ་ཅིན་དང་། ཀོང་ཏུང་། ཧྲང་ཧའེ་སོགས་ཡོད།"
+
+msgid "Asia/Singapore"
+msgstr "ཨེ་ཤ་ཡ་དང་སིང་ག་ཕོར།"
+
+msgid "Asia/Taipei"
+msgstr "ཨེ་ཤ་ཡ་དང་ཐའེ་པེ།"
+
+msgid "Asia/Tashkent"
+msgstr "ཨེ་ཤ་ཡ་དང་ཐ་ཧྲི་ཀན།"
+
+#. comment for time zone Asia/Tashkent
+msgid "east Uzbekistan"
+msgstr "ཝུའུ་ཙི་པེ་ཁི་སི་ཐན་གྱི་ཤར་རྒྱུད།"
+
+msgid "Asia/Tbilisi"
+msgstr "ཨེ་ཤ་ཡ་དང་ཐི་པི་ལི་ཞི།"
+
+msgid "Asia/Tehran"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧེ་ལན།"
+
+msgid "Asia/Tel_Aviv"
+msgstr "ཨེ་ཤ་ཡ་དང་Tel_Aviv"
+
+msgid "Asia/Thimbu"
+msgstr "ཨེ་ཤ་ཡ་དང་ཐེ་མུའུ་པུའུ།"
+
+msgid "Asia/Thimphu"
+msgstr "ཨེ་ཤ་ཡ་དང་ཐེ་ཧྥེ་ལུའུ།"
+
+msgid "Asia/Tokyo"
+msgstr "ཨེ་ཤ་ཡ་དང་ཏུང་ཅིན།"
+
+msgid "Asia/Ujung_Pandang"
+msgstr "ཨེ་ཤ་ཡ་དང་Ujung_Pandang"
+
+msgid "Asia/Ulaanbaatar"
+msgstr "ཨེ་ཤ་ཡ་དང་ཝུའུ་ལན་པ་ཐ་ཨར།"
+
+msgid "Asia/Ulan_Bator"
+msgstr "ཨེ་ཤ་ཡ་དང་Ulan_Bator"
+
+msgid "Asia/Urumqi"
+msgstr "ཨེ་ཤ་ཡ་དང་ཝུའུ་ལུའུ་མུའུ་ཆི།"
+
+#. comment for time zone Asia/Urumqi
+msgid "most of Tibet & Xinjiang"
+msgstr "བོད་ལྗོངས་ཀྱི་ས་ཁུལ་མང་ཆེ་བ་དང་ཞིན་ཅང་།"
+
+msgid "Asia/Vientiane"
+msgstr "ཨེ་ཤ་ཡ་དང་ཝེ་ཐེ་ཉི་ཡ།"
+
+msgid "Asia/Vladivostok"
+msgstr "ཨེ་ཤ་ཡ་དང་ཝེ་ལ་ཏི་ཝོ་སི་ཐོ་ཁེ།"
+
+#. comment for time zone Asia/Vladivostok
+msgid "Moscow+07 - Amur River"
+msgstr "མོ་སི་ཁོ+07 - ཨ་མོ་ཨར་གཙང་པོ།"
+
+msgid "Asia/Yakutsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ཡ་ཁུའུ་སི་ཁི།"
+
+#. comment for time zone Asia/Yakutsk
+msgid "Moscow+06 - Lena River"
+msgstr "མོ་སི་ཁོ+06-ལའེ་ན་གཙང་པོ།"
+
+msgid "Asia/Yekaterinburg"
+msgstr "ཨེ་ཤ་ཡ་དང་ཡེ་ཁེ་ཐེ་ལིན་པའོ་རུ་ཡོད།"
+
+#. comment for time zone Asia/Yekaterinburg
+msgid "Moscow+02 - Urals"
+msgstr "མོ་སི་ཁོ+02 - Urals"
+
+msgid "Asia/Yerevan"
+msgstr "ཨེ་ཤ་ཡ་དང་ཡེ་ལེ་ཝན།"
+
+msgid "Asia/Famagusta"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧྥ་མ་ཀུའུ་སི་ཐ་ཡིས་བཤད་རྒྱུར"
+
+msgid "Europe/Busingen"
+msgstr "ཡོ་རོབ་གླིང་དང་པུའུ་སི་ལིན་ཀེན།"
+
+msgid "Asia/Qostanay"
+msgstr "ཨེ་ཤ་ཡ་དང་ཆའོ་སི་ཐན་ཡ།"
+
+msgid "Asia/Atyrau"
+msgstr "ཨེ་ཤ་ཡ་དང་ཨ་ཐེ་ལུའུ།"
+
+msgid "Asia/Yangon"
+msgstr "ཨེ་ཤ་ཡ་དང་དབྱང་ཏུང་།"
+
+msgid "Pacific/Bougainville"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་པུའུ་ཅ་ཝེར།"
+
+msgid "Asia/Hebron"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧི་པུའུ་ལང་།"
+
+msgid "Asia/Barnaul"
+msgstr "ཨེ་ཤ་ཡ་དང་པ་ནུའུ་ཨར།"
+
+msgid "Asia/Tomsk"
+msgstr "ཨེ་ཤ་ཡ་དང་ཐང་མུའུ་སི་ཁི།"
+
+msgid "Asia/Chita"
+msgstr "ཨེ་ཤ་ཡ་དང་ཆི་ཐ་ལི།"
+
+msgid "Asia/Khandyga"
+msgstr "ཨེ་ཤ་ཡ་དང་ཧན་ཏི་ཅ།"
+
+msgid "Asia/Ust-Nera"
+msgstr "ཨེ་ཤ་ཡ་དང་UST-Black"
+
+msgid "Asia/Srednekolymsk"
+msgstr "ཨེ་ཤེ་ཡ་དང་ཞི་བདེ་རྒྱ་མཚོ་ཆེ་མོ་ཁུལ་གྱི་ཨེ་ཤེ་ཡ་དང་ཞི"
+
+msgid "Atlantic/Azores"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་ཨ་ཙི་སི།"
+
+#. comment for time zone Atlantic/Azores
+msgid "Azores"
+msgstr "ཨ་ཙི་སི།"
+
+msgid "Atlantic/Bermuda"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་པའེ་མུའུ་ཏ"
+
+msgid "Atlantic/Canary"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་ཁ་ན"
+
+#. comment for time zone Atlantic/Canary
+msgid "Canary Islands"
+msgstr "ཁ་ན་ཏའི་གླིང་ཕྲན་"
+
+msgid "Atlantic/Cape_Verde"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་Cape_Verde"
+
+msgid "Atlantic/Faeroe"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་ཧྥ་རོ་ཨར།"
+
+msgid "Atlantic/Faroe"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་ཧྥ་རོ་"
+
+msgid "Atlantic/Jan_Mayen"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་Jan_Mayen"
+
+msgid "Atlantic/Madeira"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་མའེ་"
+
+#. comment for time zone Atlantic/Madeira
+msgid "Madeira Islands"
+msgstr "མའེ་ཏེ་ལ་གླིང་ཚོམ་"
+
+msgid "Atlantic/Reykjavik"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་རེ་ཅ་ཝེ་ཁེ།"
+
+msgid "Atlantic/South_Georgia"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་South_Georgia"
+
+msgid "Atlantic/Stanley"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་སི་ཐན"
+
+msgid "Atlantic/St_Helena"
+msgstr "ནུབ་ཀྱི་རྒྱ་མཚོ་ཆེན་མོ་དང་St_Helena"
+
+msgid "Australia/ACT"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+msgid "Australia/Adelaide"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+#. comment for time zone Australia/Adelaide
+msgid "South Australia"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་"
+
+msgid "Australia/Brisbane"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+#. comment for time zone Australia/Brisbane
+msgid "Queensland - most locations"
+msgstr "ཁུན་སི་ལན་—ས་ཆ་མང་ཆེ་བ།"
+
+msgid "Australia/Broken_Hill"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་Broken_Hill"
+
+#. comment for time zone Australia/Broken_Hill
+msgid "New South Wales - Yancowinna"
+msgstr "ཞིན་སི་ཝེ་ཨར་ཧྲི་ཝེ་ཨར་ཧྲི་ཝེ་ཨར་ - Yancowinna"
+
+msgid "Australia/Canberra"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+msgid "Australia/Currie"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ཁི་ལི་"
+
+#. comment for time zone Australia/Currie
+msgid "Tasmania - King Island"
+msgstr "ཐ་སི་མན་ཡ་ - King Island"
+
+msgid "Australia/Darwin"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ཏར་ཝུན"
+
+#. comment for time zone Australia/Darwin
+msgid "Northern Territory"
+msgstr "བྱང་ཕྱོགས་ས་ཁུལ།"
+
+msgid "Australia/Eucla"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ཨའེ་ཝུའུ"
+
+#. comment for time zone Australia/Eucla
+msgid "Western Australia - Eucla area"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་ནུབ་མ་ - Eucla Area"
+
+msgid "Australia/Hobart"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ཧོ་པ་ཐེ།"
+
+#. comment for time zone Australia/Hobart
+msgid "Tasmania - most locations"
+msgstr "ཐ་སི་མན་ཡ། ས་ཆ་མང་ཆེ་བ།"
+
+msgid "Australia/LHI"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་LHI"
+
+msgid "Australia/Lindeman"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ལིན་ཏེ་མན་གྱི"
+
+#. comment for time zone Australia/Lindeman
+msgid "Queensland - Holiday Islands"
+msgstr "ཁུའེ་སི་ལན་གྱི་གུང་གསེང་གླིང་ཚོམ།"
+
+msgid "Australia/Lord_Howe"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་Lord_Howe"
+
+#. comment for time zone Australia/Lord_Howe
+msgid "Lord Howe Island"
+msgstr "ཧོ་ཧོ་གླིང་ཕྲན་གྱི་བདག་པོ།"
+
+msgid "Australia/Melbourne"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་མོ་ཨར"
+
+#. comment for time zone Australia/Melbourne
+msgid "Victoria"
+msgstr "བེ་ཏོ་ལི་ཡ།"
+
+msgid "Australia/North"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+msgid "Australia/NSW"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་"
+
+msgid "Australia/Perth"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+#. comment for time zone Australia/Perth
+msgid "Western Australia - most locations"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་ནུབ་མ། ས་ཆ་མང་ཆེ"
+
+msgid "Australia/Queensland"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང"
+
+msgid "Australia/South"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ལྷོ"
+
+msgid "Australia/Sydney"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་"
+
+#. comment for time zone Australia/Sydney
+msgid "New South Wales - most locations"
+msgstr "ཞིན་སི་ཝེ་ཨར་ཧྲི་ཝེ་ཨར་ཧྲི་ཝེ་ཨར་ཧྲི་ཝེ་ཨར་"
+
+msgid "Australia/Tasmania"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ཐ་སི་མན་ཡ།"
+
+msgid "Australia/Victoria"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་"
+
+msgid "Australia/West"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ནུབ"
+
+msgid "Australia/Yancowinna"
+msgstr "ཨོ་སི་ཁྲུ་ལི་ཡ་དང་ཡན་ཁའོ་ཝུན་ནཱ་ཡིས་བཤད་རྒྱུར"
+
+msgid "Brazil/Acre"
+msgstr "པར་ཙིལ་དང་མུའུ།"
+
+msgid "Brazil/DeNoronha"
+msgstr "པར་ཙིལ་དང་ཏེ་ནོ་ལུང་ཧ།"
+
+msgid "Brazil/East"
+msgstr "པར་ཙིལ་དང་ཤར་རྒྱུད།"
+
+msgid "Brazil/West"
+msgstr "པར་ཙིལ་དང་ནུབ་རྒྱུད།"
+
+msgid "Canada/Atlantic"
+msgstr "ཁ་ན་ཏ་དང་ནུབ་ཀྱི་རྒྱ་"
+
+msgid "Canada/Central"
+msgstr "ཁ་ན་ཏ་དང་དབུས་རྒྱུད།"
+
+msgid "Canada/Eastern"
+msgstr "ཁ་ན་ཏ་དང་ཤར་རྒྱུད།"
+
+msgid "Canada/East-Saskatchewan"
+msgstr "ཁ་ན་ཏ་དང་ཤར་ཕྱོགས་ཀྱི་ས་སི་ཁི་ལན་ཁན།"
+
+msgid "Canada/Mountain"
+msgstr "ཁ་ན་ཏ་དང་རི་བོ།"
+
+msgid "Canada/Newfoundland"
+msgstr "ཁ་ན་ཏ་དང་ནེའུ་ཙི་ལན་གྱི་མི།"
+
+msgid "Canada/Pacific"
+msgstr "ཁ་ན་ཏ་དང་ཞི་བདེ་རྒྱ་"
+
+msgid "Canada/Saskatchewan"
+msgstr "ཁ་ན་ཏ་དང་སཱ་སི་ཁི་ལན་ཁན།"
+
+msgid "Canada/Yukon"
+msgstr "ཁ་ན་ཏ་དང་ཡུས་ཁུན།"
+
+msgid "CET"
+msgstr "འདི་ནི་ཧ་ཅང་"
+
+msgid "Chile/Continental"
+msgstr "ཀྲི་ལི་དང་སྐམ་ས་ཆེན་པོ།"
+
+msgid "Chile/EasterIsland"
+msgstr "ཀྲི་ལི་དང་སླར་གསོན་དུས་ཆེན་གྱི་དབྱི་"
+
+msgid "CST6CDT"
+msgstr "CST6CDT"
+
+msgid "Cuba"
+msgstr "གནའ་བོའི་པ་སེ།"
+
+msgid "EET"
+msgstr "ཟ་མ་ཟ་བ།"
+
+msgid "Egypt"
+msgstr "ཨི་འཇིབ།"
+
+msgid "Eire"
+msgstr "ཨའེ་ལི།"
+
+msgid "EST"
+msgstr "ཤར་རྒྱུད།"
+
+msgid "EST5EDT"
+msgstr "EST5EDT"
+
+msgid "Etc/GMT"
+msgstr "etc/GMT"
+
+msgid "Etc/GMT0"
+msgstr "etc/GMT0"
+
+msgid "Etc/GMT-0"
+msgstr "etc/GMT-0"
+
+msgid "Etc/GMT+0"
+msgstr "etc/GMT+0"
+
+msgid "Etc/GMT-1"
+msgstr "etc/GMT-1"
+
+msgid "Etc/GMT+1"
+msgstr "etc/GMT+1"
+
+msgid "Etc/GMT-10"
+msgstr "etc/GMT-10"
+
+msgid "Etc/GMT+10"
+msgstr "etc/GMT+10"
+
+msgid "Etc/GMT-11"
+msgstr "etc/GMT-11"
+
+msgid "Etc/GMT+11"
+msgstr "etc/GMT+11"
+
+msgid "Etc/GMT-12"
+msgstr "etc/GMT-12"
+
+msgid "Etc/GMT+12"
+msgstr "etc/GMT+12"
+
+msgid "Etc/GMT-13"
+msgstr "etc/GMT-13"
+
+msgid "Etc/GMT-14"
+msgstr "etc/GMT-14"
+
+msgid "Etc/GMT-2"
+msgstr "etc/GMT-2"
+
+msgid "Etc/GMT+2"
+msgstr "etc/GMT+2"
+
+msgid "Etc/GMT-3"
+msgstr "etc/GMT-3"
+
+msgid "Etc/GMT+3"
+msgstr "etc/GMT+3"
+
+msgid "Etc/GMT-4"
+msgstr "etc/GMT-4"
+
+msgid "Etc/GMT+4"
+msgstr "etc/GMT+4"
+
+msgid "Etc/GMT-5"
+msgstr "etc/GMT-5"
+
+msgid "Etc/GMT+5"
+msgstr "etc/GMT+5"
+
+msgid "Etc/GMT-6"
+msgstr "etc/GMT-6"
+
+msgid "Etc/GMT+6"
+msgstr "etc/GMT+6"
+
+msgid "Etc/GMT-7"
+msgstr "etc/GMT-7"
+
+msgid "Etc/GMT+7"
+msgstr "etc/GMT+7"
+
+msgid "Etc/GMT-8"
+msgstr "etc/GMT-8"
+
+msgid "Etc/GMT+8"
+msgstr "etc/GMT+8"
+
+msgid "Etc/GMT-9"
+msgstr "etc/GMT-9"
+
+msgid "Etc/GMT+9"
+msgstr "etc/GMT+9"
+
+msgid "Etc/Greenwich"
+msgstr "etc/Greenwich"
+
+msgid "Etc/UCT"
+msgstr "etc/UCT"
+
+msgid "Etc/Universal"
+msgstr "etc/Universal"
+
+msgid "Etc/UTC"
+msgstr "etc/UTC"
+
+msgid "Etc/Zulu"
+msgstr "etc/Zulu"
+
+msgid "Europe/Amsterdam"
+msgstr "ཡོ་རོབ་གླིང་དང་ཨ་མུའུ་སི་ཐེ་ཏན་"
+
+msgid "Europe/Andorra"
+msgstr "ཡོ་རོབ་གླིང་དང་ཨན་ཏུའོ་ལ་ཡ།"
+
+msgid "Europe/Athens"
+msgstr "ཡོ་རོབ་དང་ཡ་ཏེན།"
+
+msgid "Europe/Belfast"
+msgstr "ཡོ་རོབ་དང་པེར་ཧྥེ་སི་ཐན"
+
+msgid "Europe/Belgrade"
+msgstr "ཡོ་རོབ་དང་པེར་ཀེ་ལའེ་ཏི།"
+
+msgid "Europe/Berlin"
+msgstr "ཡོ་རོབ་དང་པོའོ་ལིན།"
+
+msgid "Europe/Bratislava"
+msgstr "ཡོ་རོབ་གླིང་དང་པུའུ་ལ་ཐི་སི་ལ་ཝ་ཡིས་བཤད་རྒྱུར།"
+
+msgid "Europe/Brussels"
+msgstr "ཡོ་རོབ་དང་པུ་རུ་སེར།"
+
+msgid "Europe/Bucharest"
+msgstr "ཡོ་རོབ་གླིང་དང་པུའུ་ཁ་ལེ་སི་ཐན།"
+
+msgid "Europe/Budapest"
+msgstr "ཡོ་རོབ་དང་པུ་ཏ་ཕེ་སི།"
+
+msgid "Europe/Chisinau"
+msgstr "ཡོ་རོབ་གླིང་དང་ཆི་ཞི་ནུའུ།"
+
+msgid "Europe/Copenhagen"
+msgstr "ཡོ་རོབ་དང་ཀོ་པིན་ཧ་ཀེན"
+
+msgid "Europe/Dublin"
+msgstr "ཡོ་རོབ་དང་ཏུའུ་པོ་ལིན།"
+
+msgid "Europe/Gibraltar"
+msgstr "ཡོ་རོབ་གླིང་དང་པི་ལི་ཧྲི།"
+
+msgid "Europe/Guernsey"
+msgstr "ཡོ་རོབ་གླིང་དང་ཀུའེ་ནའེ་སི།"
+
+msgid "Europe/Helsinki"
+msgstr "ཡོ་རོབ་གླིང་དང་ཧེ་ཨར་ཞིན་ཅི།"
+
+msgid "Europe/Isle_of_Man"
+msgstr "ཡོ་རོབ་གླིང་དང་Isle_of_Man"
+
+msgid "Europe/Istanbul"
+msgstr "ཡོ་རོབ་གླིང་དང་དབྱི་སི་ཐན་"
+
+msgid "Europe/Jersey"
+msgstr "ཡོ་རོབ་དང་ཙེ་ཞི་ཀྲོའུ།"
+
+msgid "Europe/Kaliningrad"
+msgstr "ཡོ་རོབ་གླིང་དང་ཁ་ལིན་ཀེ་ལེ།"
+
+#. comment for time zone Europe/Kaliningrad
+msgid "Moscow-01 - Kaliningrad"
+msgstr "མོ་སི་ཁོ་ནས་01ལོའི་བར་ཁ་ལིན་ཀེ་ལེ།"
+
+msgid "Europe/Kiev"
+msgstr "ཡོ་རོབ་དང་ཅི་ཧྥུའུ།"
+
+msgid "Europe/Lisbon"
+msgstr "ཡོ་རོབ་དང་ལི་སི་པང་།"
+
+msgid "Europe/Ljubljana"
+msgstr "ཡོ་རོབ་གླིང་དང་ལུའུ་པུའུ་ལ་ཅ་ན་ཡིས་བཤད་རྒྱུར།"
+
+msgid "Europe/London"
+msgstr "ཡོ་རོབ་དང་ལོན་ཏོན།"
+
+msgid "Europe/Luxembourg"
+msgstr "ཡོ་རོབ་དང་ལུའུ་ཏེན་པའོ་རུ་ཡོད།"
+
+msgid "Europe/Madrid"
+msgstr "ཡོ་རོབ་དང་མ་ཏི་ལི།"
+
+msgid "Europe/Malta"
+msgstr "ཡོ་རོབ་གླིང་དང་མཱ་ཨར་ཐ།"
+
+msgid "Europe/Mariehamn"
+msgstr "ཡོ་རོབ་གླིང་དང་མ་ལེ་ཧན།"
+
+msgid "Europe/Minsk"
+msgstr "ཡོ་རོབ་གླིང་དང་མེན་སི་ཁི།"
+
+msgid "Europe/Monaco"
+msgstr "ཡོ་རོབ་དང་མོ་ན་ཀོ།"
+
+msgid "Europe/Moscow"
+msgstr "ཡོ་རོབ་དང་མོ་སི་ཁོ།"
+
+#. comment for time zone Europe/Moscow
+msgid "Moscow+00 - west Russia"
+msgstr "མོ་སི་ཁོ+00 -ཨུ་རུ་སུའི་ནུབ་རྒྱུད།"
+
+msgid "Europe/Nicosia"
+msgstr "ཡོ་རོབ་གླིང་དང་ནེ་ཀོ་ཞི་ཡ།"
+
+msgid "Europe/Oslo"
+msgstr "ཡོ་རོབ་གླིང་དང་ཨོ་སི་ལོ་"
+
+msgid "Europe/Paris"
+msgstr "ཡོ་རོབ་དང་པ་ལི།"
+
+msgid "Europe/Podgorica"
+msgstr "ཡོ་རོབ་གླིང་དང་ཕོ་ཏོ་ལི་ཁ།"
+
+msgid "Europe/Prague"
+msgstr "ཡོ་རོབ་གླིང་དང་ཕུའུ་ལ་ཀེ།"
+
+msgid "Europe/Riga"
+msgstr "ཡོ་རོབ་གླིང་དང་རུའེ་ཅ།"
+
+msgid "Europe/Rome"
+msgstr "ཡོ་རོབ་དང་རོ་མ།"
+
+msgid "Europe/Samara"
+msgstr "ཡོ་རོབ་གླིང་དང་ས་མ་ལ་ཡ།"
+
+#. comment for time zone Europe/Samara
+msgid "Moscow - Samara, Udmurtia"
+msgstr "མོ་སི་ཁོ། ས་མ་ལ་ཡ། ཝུའུ་ཏུའུ་མུའུ་ཐི་ཡ།"
+
+msgid "Europe/San_Marino"
+msgstr "ཡོ་རོབ་གླིང་དང་San_Marino"
+
+msgid "Europe/Sarajevo"
+msgstr "ཡོ་རོབ་གླིང་དང་ས་ལ་ཅེ་ཧྥུ།"
+
+msgid "Europe/Simferopol"
+msgstr "ཡོ་རོབ་གླིང་དང་ཞི་མེང་ཧྥུ་ལོ་པོ་ཨར།"
+
+#. comment for time zone Europe/Simferopol
+msgid "central Crimea"
+msgstr "ཁི་ལི་སྨི་ཡའི་དབུས་"
+
+msgid "Europe/Skopje"
+msgstr "ཡོ་རོབ་གླིང་དང་སི་ཁར་ཕུའུ་ཅི།"
+
+msgid "Europe/Sofia"
+msgstr "ཡོ་རོབ་གླིང་དང་སའོ་ཧྥེ་ཡ།"
+
+msgid "Europe/Stockholm"
+msgstr "ཡོ་རོབ་དང་སི་ཏེ་ཀོར་མོ"
+
+msgid "Europe/Tallinn"
+msgstr "ཡོ་རོབ་གླིང་དང་ཐ་ལིན་"
+
+msgid "Europe/Tirane"
+msgstr "ཡོ་རོབ་གླིང་དང་ཐི་ལ་ན་ན་"
+
+msgid "Europe/Tiraspol"
+msgstr "ཡོ་རོབ་གླིང་དང་ཐི་ལ་སི་པོ་ཨར།"
+
+msgid "Europe/Uzhgorod"
+msgstr "ཡོ་རོབ་གླིང་དང་ཝུའུ་ཙི་ཀོ་ལོ་ཏི།"
+
+#. comment for time zone Europe/Uzhgorod
+msgid "Ruthenia"
+msgstr "རུའུ་སི་ཉི་ཡ།"
+
+msgid "Europe/Vaduz"
+msgstr "ཡོ་རོབ་གླིང་དང་ཝ་ཏུའུ་ཙི།"
+
+msgid "Europe/Vatican"
+msgstr "ཡོ་རོབ་གླིང་དང་ཧྥན་ཐེན།"
+
+msgid "Europe/Vienna"
+msgstr "ཡོ་རོབ་གླིང་དང་ཝི་ཨེན་ན།"
+
+msgid "Europe/Vilnius"
+msgstr "ཡོ་རོབ་གླིང་དང་ཝེ་ཉི་ཡ་སི།"
+
+msgid "Europe/Volgograd"
+msgstr "ཡོ་རོབ་གླིང་དང་ཝོ་ཨར་ཀི་ཏིས་བཤད་རྒྱུར།"
+
+#. comment for time zone Europe/Volgograd
+msgid "Moscow+00 - Caspian Sea"
+msgstr "མོ་སི་ཁོ+00 - ཁི་སི་ཐན་རྒྱ་མཚོ།"
+
+msgid "Europe/Warsaw"
+msgstr "ཡོ་རོབ་གླིང་དང་ཧྭ་ཧྲ་"
+
+msgid "Europe/Zagreb"
+msgstr "ཡོ་རོབ་གླིང་དང་ཀྲ་ཀེ་ལེ་པུའུ།"
+
+msgid "Europe/Zaporozhye"
+msgstr "ཡོ་རོབ་གླིང་དང་ཀྲ་ཕུའུ་ལོ་ཀྲ་ཡེ།"
+
+#. comment for time zone Europe/Zaporozhye
+msgid "Zaporozh'ye, E Lugansk / Zaporizhia, E Luhansk"
+msgstr "Zaporozh'ye, E Lugansk / Zaporizhia, E Luhansk"
+
+msgid "Europe/Zurich"
+msgstr "ཡོ་རོབ་གླིང་དང་སུའུ་ལི་ཆི།"
+
+msgid "Europe/Kirov"
+msgstr "ཡོ་རོབ་གླིང་དང་ཅི་ལོ་ཧྥུ།"
+
+msgid "Europe/Astrakhan"
+msgstr "ཡོ་རོབ་གླིང་དང་ཨ་སི་ཐེ་ལ་ཁེ་ཧན།"
+
+msgid "Europe/Saratov"
+msgstr "ཡོ་རོབ་གླིང་དང་ས་ལ་ཐོ་ཧྥུ།"
+
+msgid "Europe/Ulyanovsk"
+msgstr "ཡོ་རོབ་གླིང་དང་ཡིའུ་ལི་ཨན་ནོ་ཧྥུ་སི་ཁི།"
+
+msgid "Factory"
+msgstr "བཟོ་གྲྭ།"
+
+msgid "GB"
+msgstr "GB"
+
+msgid "GB-Eire"
+msgstr "GB-Eire"
+
+msgid "GMT"
+msgstr "GMT"
+
+msgid "GMT0"
+msgstr "GMT0"
+
+msgid "GMT-0"
+msgstr "GMT-0"
+
+msgid "GMT+0"
+msgstr "GMT+0"
+
+msgid "Greenwich"
+msgstr "ཀེ་ལིན་ཝེ་ཆི།"
+
+msgid "Hongkong"
+msgstr "ཞང་ཀང་།"
+
+msgid "HST"
+msgstr "HST"
+
+msgid "Iceland"
+msgstr "ཨེ་སི་ལན་ཌི།"
+
+msgid "Indian/Antananarivo"
+msgstr "རྒྱ་གར་དང་ཨན་ཐན་ན་ལི་ཝོ།"
+
+msgid "Indian/Chagos"
+msgstr "རྒྱ་གར་གྱི་སྐད་དང་ཁྲ་ཀོ་སི།"
+
+msgid "Indian/Christmas"
+msgstr "རྒྱ་གར་གྱི་མི་དང་ཡེ་ཤུའི་"
+
+msgid "Indian/Cocos"
+msgstr "རྒྱ་གར་གྱི་སྐད་དང་ཁུ་ཁུ།"
+
+msgid "Indian/Comoro"
+msgstr "རྒྱ་གར་གྱི་སྐད་དང་བློ་མཐུན་མའོ་ཙེ་ཏུང་"
+
+msgid "Indian/Kerguelen"
+msgstr "རྒྱ་གར་གྱི་སྐད་དང་ཁེ་ཀུའེ་ལུན།"
+
+msgid "Indian/Mahe"
+msgstr "རྒྱ་གར་གྱི་སྐད་དང་མ་ཧོ།"
+
+msgid "Indian/Maldives"
+msgstr "རྒྱ་གར་གྱི་མི་དང་མར་ཏི་ཝེ་རྒྱལ་ཁབ།"
+
+msgid "Indian/Mauritius"
+msgstr "རྒྱ་གར་གྱི་མི་དང་མའོ་ལི་སི།"
+
+msgid "Indian/Mayotte"
+msgstr "རྒྱ་གར་གྱི་སྐད་དང་མའེ་ཨའོ་ཐེ།"
+
+msgid "Indian/Reunion"
+msgstr "རྒྱ་གར་གྱི་མི་དང་མཉམ་འཛོམས"
+
+msgid "Iran"
+msgstr "ཨི་རན།"
+
+msgid "iso3166.tab"
+msgstr "iso3166.tab"
+
+msgid "Israel"
+msgstr "ཨི་ཛི་རལ།"
+
+msgid "Jamaica"
+msgstr "ཇེ་མེ་ཁ།"
+
+msgid "Japan"
+msgstr "ཉི་ཧོང་།"
+
+#. comment for time zone Pacific/Kwajalein
+msgid "Kwajalein"
+msgstr "ཁུ་ཝ་ཅ་ལིན།"
+
+msgid "Libya"
+msgstr "ལི་བྷི་ཡ།"
+
+msgid "MET"
+msgstr "དེ་དང་ཆབས་ཅིག"
+
+msgid "Mexico/BajaNorte"
+msgstr "མོ་ཞི་ཁོ་དང་པ་ཅ་ན་ཨར་ཐེ།"
+
+msgid "Mexico/BajaSur"
+msgstr "མོ་ཞི་ཁོ་དང་པ་ཅ་སི་ཨར།"
+
+msgid "Mexico/General"
+msgstr "མོ་ཞི་ཁོ་དང་དམག་དཔོན།"
+
+msgid "Mideast/Riyadh87"
+msgstr "ཤར་ཕྱོགས་དང་ལི་ཡ་ཏི་87"
+
+msgid "Mideast/Riyadh88"
+msgstr "ཤར་ཕྱོགས་དང་ལི་ཡ་ཏི་88"
+
+msgid "Mideast/Riyadh89"
+msgstr "ཤར་ཕྱོགས་དང་ལི་ཡ་ཏི་89"
+
+msgid "MST"
+msgstr "MST"
+
+msgid "MST7MDT"
+msgstr "MST7MDT"
+
+msgid "Navajo"
+msgstr "མཚོ་དམག་གིས་བཤད་རྒྱུར།"
+
+msgid "NZ"
+msgstr "ནེའུ་ཙི་ལན་གྱི་མི།"
+
+msgid "NZ-CHAT"
+msgstr "NZ-CHAT"
+
+msgid "Pacific/Apia"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཨ་ཕ"
+
+msgid "Pacific/Auckland"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཨའོ་ཁི་ལན"
+
+msgid "Pacific/Chatham"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཁྲ་ཐ"
+
+#. comment for time zone Pacific/Chatham
+msgid "Chatham Islands"
+msgstr "ཁྲ་ཐ་མུའུ་གླིང་ཚོམ་"
+
+msgid "Pacific/Chuuk"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཁྲུའུ་ཁི་"
+
+#. comment for time zone Pacific/Chuuk
+msgid "Chuuk (Truk) and Yap"
+msgstr "ཁྲུའུ་ཁི་(Truk)དང་ཡ་ཕུའུ།"
+
+msgid "Pacific/Easter"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང"
+
+#. comment for time zone Pacific/Easter
+msgid "Easter Island & Sala y Gomez"
+msgstr "བསྐྱར་གསོན་དུས་ཆེན་གྱི་གླིང་ཕྲན་དང་ས་ལ་ཡེ་ཀའོ་མའེ་ཚི།"
+
+msgid "Pacific/Efate"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཨེ་ཧྥེ་ཐི།"
+
+msgid "Pacific/Enderbury"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཨེན་ཏེ་པོ་"
+
+#. comment for time zone Pacific/Enderbury
+msgid "Phoenix Islands"
+msgstr "ཧྥུང་ཧོང་གླིང་ཚོམ།"
+
+msgid "Pacific/Fakaofo"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཧྥ་ཁའོ་ཧྥུ།"
+
+msgid "Pacific/Fiji"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཧྥི་"
+
+msgid "Pacific/Funafuti"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཧྥུན་ཧྥུ་ཐི།"
+
+msgid "Pacific/Galapagos"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཅ་ལ་ཕ་རི"
+
+#. comment for time zone Pacific/Galapagos
+msgid "Galapagos Islands"
+msgstr "ཅ་ལ་ཕ་རི་སི་གླིང་ཚོམ་"
+
+msgid "Pacific/Gambier"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཀམ་པི་ཡ"
+
+#. comment for time zone Pacific/Gambier
+msgid "Gambier Islands"
+msgstr "ཀམ་པི་ཡ་གླིང་ཚོམ།"
+
+msgid "Pacific/Guadalcanal"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཀྭ་ཏར་ཁན་ཨར།"
+
+msgid "Pacific/Guam"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཀོང་ཏུང"
+
+msgid "Pacific/Honolulu"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཧའོ་ལུའུ་ལུའུ།"
+
+#. comment for time zone Pacific/Honolulu
+msgid "Hawaii"
+msgstr "ཞ་བེ་ཡེ་ཡ།"
+
+msgid "Pacific/Johnston"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་"
+
+#. comment for time zone Pacific/Johnston
+msgid "Johnston Atoll"
+msgstr "ཡུའེ་ཧན་སི་ཏུན་ཨ་ཐེ་"
+
+msgid "Pacific/Kiritimati"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཁི་ལི་ཐི་མ་ཐི"
+
+#. comment for time zone Pacific/Kiritimati
+msgid "Line Islands"
+msgstr "ལམ་ཐིག་གླིང་ཚོམ།"
+
+msgid "Pacific/Kosrae"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཁའོ་སི་ལའེ"
+
+#. comment for time zone Pacific/Kosrae
+msgid "Kosrae"
+msgstr "ཁུ་སའེ་ལའེ།"
+
+msgid "Pacific/Kwajalein"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཁི་ཝ་ཅ་ལིན།"
+
+msgid "Pacific/Majuro"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་མ་ཅུའུ་"
+
+msgid "Pacific/Marquesas"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་མ་ཁེ་སི།"
+
+#. comment for time zone Pacific/Marquesas
+msgid "Marquesas Islands"
+msgstr "མར་ཁེ་སི་གླིང་ཚོམ་"
+
+msgid "Pacific/Midway"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་"
+
+#. comment for time zone Pacific/Midway
+msgid "Midway Islands"
+msgstr "དབུས་ལམ་གླིང་ཚོམ་གྱི་གླིང་ཕྲན་"
+
+msgid "Pacific/Nauru"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ནུའུ་ལུའུ།"
+
+msgid "Pacific/Niue"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཉིའུ་"
+
+msgid "Pacific/Norfolk"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ནོར་ཧྥོ"
+
+msgid "Pacific/Noumea"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ནོ་མ་ཡ།"
+
+msgid "Pacific/Pago_Pago"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་Pago_Pago"
+
+msgid "Pacific/Palau"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཕཱ་ལུའུ"
+
+msgid "Pacific/Pitcairn"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཕི་ཁེ་ལིན།"
+
+msgid "Pacific/Pohnpei"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཕུའུ་ཧན་ཕེ་ཡ།"
+
+#. comment for time zone Pacific/Pohnpei
+msgid "Pohnpei (Ponape)"
+msgstr "ཕོ་ནེ་ཕེ་(Ponape)"
+
+msgid "Pacific/Ponape"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཕོ་ན་ཕེ།"
+
+msgid "Pacific/Port_Moresby"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་Port_Moresby"
+
+msgid "Pacific/Rarotonga"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ལ་རོ་ཏུན་ཅ།"
+
+msgid "Pacific/Saipan"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་སའེ་ཕན།"
+
+msgid "Pacific/Samoa"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ས་མོ"
+
+msgid "Pacific/Tahiti"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཐ་ཅི་ཐི།"
+
+#. comment for time zone Pacific/Tahiti
+msgid "Society Islands"
+msgstr "སྤྱི་ཚོགས་གླིང་ཚོམ།"
+
+msgid "Pacific/Tarawa"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཐ་ལ"
+
+#. comment for time zone Pacific/Tarawa
+msgid "Gilbert Islands"
+msgstr "ཅི་ཨར་པའོ་ཐི་གླིང་ཚོམ་"
+
+msgid "Pacific/Tongatapu"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཐུང་ཐ་ཕུའུ།"
+
+msgid "Pacific/Truk"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཐེ་ལུའུ"
+
+msgid "Pacific/Wake"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་"
+
+#. comment for time zone Pacific/Wake
+msgid "Wake Island"
+msgstr "ཝུའུ་ཁི་ལན་གླིང་ཕྲན་དུ"
+
+msgid "Pacific/Wallis"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཝོ"
+
+msgid "Pacific/Yap"
+msgstr "ཞི་བདེ་རྒྱ་མཚོ་ཆེན་མོ་དང་ཡ་ཕུའུ"
+
+msgid "Poland"
+msgstr "པོ་ལན་ཌི།"
+
+msgid "Portugal"
+msgstr "པོར་ཇུ་གྷལ།"
+
+msgid "posixrules"
+msgstr "posixrules"
+
+msgid "PRC"
+msgstr "ཀྲུང་གོ་མི་དམངས་བཅིངས་འབྲེལ"
+
+msgid "PST8PDT"
+msgstr "PST8PDT"
+
+msgid "ROC"
+msgstr "ཀྲུང་གོའི་མི་དམངས་དངུལ་ཁང"
+
+msgid "ROK"
+msgstr "ལོ་གཅིག"
+
+msgid "Singapore"
+msgstr "སེང་གྷ་པོར།"
+
+msgid "Turkey"
+msgstr "ཊར་ཀི།"
+
+msgid "UCT"
+msgstr "UCT"
+
+msgid "Universal"
+msgstr "ཡོངས་ཁྱབ་ཀྱི་རང་"
+
+msgid "US/Alaska"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ལ"
+
+msgid "US/Aleutian"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་ལུའུ་ཐེན།"
+
+msgid "US/Arizona"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཡ་ལི"
+
+msgid "US/Central"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཀྲུང་གོ"
+
+msgid "US/Eastern"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཤར་ཕྱོགས"
+
+msgid "US/East-Indiana"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཨ་མེ་རི་ཁ་ཤར་"
+
+msgid "US/Hawaii"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཞ་བེ"
+
+msgid "US/Indiana-Starke"
+msgstr "ཨ་མེ་རི་ཁ་དང་རྒྱ་གར་གྱི་སི་ཐ་ཁེ།"
+
+msgid "US/Michigan"
+msgstr "ཨ་མེ་རི་ཁ་དང་སྨི་ཀིན"
+
+msgid "US/Mountain"
+msgstr "ཨ་མེ་རི་ཁ་དང་རི་བོ།"
+
+msgid "US/Pacific"
+msgstr "ཨ་མེ་རི་ཁ་དང་ཞི་བདེ"
+
+msgid "US/Samoa"
+msgstr "ཨ་མེ་རི་ཁ་དང་ས་མོ་ཡ།"
+
+msgid "UTC"
+msgstr "UTC"
+
+msgid "WET"
+msgstr "བརླན་གཤེར་ཆེ་བ།"
+
+msgid "W-SU"
+msgstr "W-SU"
+
+msgid "Zulu"
+msgstr "ཛུ་ལུ་སྐད།"
