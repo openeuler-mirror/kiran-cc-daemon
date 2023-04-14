@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="@PROJECT_NAME@">
     <schema id="com.kylinsec.kiran.keyboard" path="/com/kylinsec/kiran/keyboard/">
+        <key name="modifier-lock-enabled" type="b">
+            <default>false</default>
+            <description>Whether enable capslock and numlock windows tips.</description>
+        </key>
+
         <key name="repeat-enabled" type="b">
             <default>true</default>
             <description>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</description>

@@ -25,6 +25,7 @@
 namespace Kiran
 {
 #define KEYBOARD_SCHEMA_ID "com.kylinsec.kiran.keyboard"
+#define KEYBOARD_SCHEMA_MODIFIER_LOCK_ENABLED "modifier-lock-enabled"
 #define KEYBOARD_SCHEMA_REPEAT_ENABLED "repeat-enabled"
 #define KEYBOARD_SCHEMA_REPEAT_DELAY "repeat-delay"
 #define KEYBOARD_SCHEMA_REPEAT_INTERVAL "repeat-interval"
@@ -41,6 +42,7 @@ namespace Kiran
 
 KeyboardManager::KeyboardManager() : dbus_connect_id_(0),
                                      object_register_id_(0),
+                                     modifier_lock_enabled_(false),
                                      repeat_enabled_(true),
                                      repeat_delay_(500),
                                      repeat_interval_(30)
@@ -291,7 +293,11 @@ void KeyboardManager::init()
     this->load_from_settings();
     this->load_xkb_rules();
     this->set_all_props();
-    this->modifier_lock_manager_->init();
+
+    if (this->modifier_lock_enabled_)
+    {
+        this->modifier_lock_manager_->init();
+    }
 
     this->keyboard_settings_->signal_changed().connect(sigc::mem_fun(this, &KeyboardManager::settings_changed));
 
@@ -308,6 +314,7 @@ void KeyboardManager::load_from_settings()
 
     if (this->keyboard_settings_)
     {
+        this->modifier_lock_enabled_ = this->keyboard_settings_->get_boolean(KEYBOARD_SCHEMA_MODIFIER_LOCK_ENABLED);
         this->repeat_enabled_ = this->keyboard_settings_->get_boolean(KEYBOARD_SCHEMA_REPEAT_ENABLED);
         this->repeat_delay_ = this->keyboard_settings_->get_int(KEYBOARD_SCHEMA_REPEAT_DELAY);
         this->repeat_interval_ = this->keyboard_settings_->get_int(KEYBOARD_SCHEMA_REPEAT_INTERVAL);
