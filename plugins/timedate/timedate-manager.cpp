@@ -405,7 +405,7 @@ void TimedateManager::init_ntp_units()
     this->ntp_unit_name_.clear();
     for (auto &ntp_unit : ntp_units)
     {
-        if (ntp_unit == ntp_units.front())
+        if (ntp_unit == ntp_units.back())
         {
             this->ntp_unit_name_ = ntp_unit;
             continue;
