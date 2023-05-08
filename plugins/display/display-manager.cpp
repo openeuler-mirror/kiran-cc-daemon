@@ -409,12 +409,13 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
 
     for (const auto &c_monitor : c_monitors)
     {
-        std::string uid = c_monitor.uid();
-        auto monitor = this->get_monitor_by_uid(uid);
+        auto monitor = this->match_best_monitor(c_monitor.uid(), c_monitor.name());
 
         if (!monitor)
         {
-            KLOG_WARNING("Cannot find monitor for %s.", uid.c_str());
+            KLOG_WARNING("cannot find monitor for uid=%s, name=%s.",
+                         c_monitor.uid().c_str(),
+                         c_monitor.name().c_str());
             return false;
         }
 
@@ -797,6 +798,27 @@ std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_name(const std::s
         }
     }
     return nullptr;
+}
+
+std::shared_ptr<DisplayMonitor> DisplayManager::match_best_monitor(const std::string &uid,
+                                                                   const std::string &name)
+{
+    std::shared_ptr<DisplayMonitor> retval;
+    for (const auto &iter : this->monitors_)
+    {
+        if (!retval && iter.second->get_uid() == uid)
+        {
+            retval = iter.second;
+        }
+
+        // 完美匹配则直接退出
+        if (iter.second->get_uid() == uid && iter.second->name_get() == name)
+        {
+            retval = iter.second;
+            break;
+        }
+    }
+    return retval;
 }
 
 std::string DisplayManager::get_monitors_uid()
