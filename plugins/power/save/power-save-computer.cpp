@@ -18,9 +18,7 @@ namespace Kiran
 {
 PowerSaveComputer::PowerSaveComputer()
 {
-    this->power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
-    this->login1_ = PowerWrapperManager::get_instance()->get_default_login1();
-    this->screensaver_ = PowerWrapperManager::get_instance()->get_default_screensaver();
+    this->session_ = PowerWrapperManager::get_instance()->get_default_session();
 }
 
 void PowerSaveComputer::init()
@@ -29,51 +27,21 @@ void PowerSaveComputer::init()
 
 void PowerSaveComputer::suspend()
 {
-    uint32_t throttle = 0;
-
-    auto lockscreen = this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND);
-    // 挂起之前锁定屏幕
-    if (lockscreen)
-    {
-        throttle = this->screensaver_->lock_and_throttle("suspend");
-    }
-
     this->save_changed_.emit(ComputerSaveState::COMPUTER_SAVE_STATE_SLEEP, PowerAction::POWER_ACTION_COMPUTER_SUSPEND);
-    this->login1_->suspend();
+    this->session_->suspend();
     this->save_changed_.emit(ComputerSaveState::COMPUTER_SAVE_STATE_RESUME, PowerAction::POWER_ACTION_COMPUTER_SUSPEND);
-
-    this->screensaver_->poke();
-    if (throttle)
-    {
-        this->screensaver_->remove_throttle(throttle);
-    }
 }
 
 void PowerSaveComputer::hibernate()
 {
-    uint32_t throttle = 0;
-
-    auto lockscreen = this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE);
-    // 休眠之前锁定屏幕
-    if (lockscreen)
-    {
-        throttle = this->screensaver_->lock_and_throttle("hibernate");
-    }
-
     this->save_changed_.emit(ComputerSaveState::COMPUTER_SAVE_STATE_SLEEP, PowerAction::POWER_ACTION_COMPUTER_HIBERNATE);
-    this->login1_->hibernate();
+    this->session_->hibernate();
     this->save_changed_.emit(ComputerSaveState::COMPUTER_SAVE_STATE_RESUME, PowerAction::POWER_ACTION_COMPUTER_HIBERNATE);
-
-    this->screensaver_->poke();
-    if (throttle)
-    {
-        this->screensaver_->remove_throttle(throttle);
-    }
 }
 
 void PowerSaveComputer::shutdown()
 {
-    this->login1_->shutdown();
+    this->session_->shutdown();
 }
 
 }  // namespace Kiran

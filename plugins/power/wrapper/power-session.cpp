@@ -73,6 +73,117 @@ void PowerSession::init()
     this->sm_presence_proxy_->signal_signal().connect(sigc::mem_fun(this, &PowerSession::on_sm_presence_signal));
 }
 
+bool PowerSession::can_suspend()
+{
+    try
+    {
+        auto retval = this->sm_proxy_->call_sync("CanSuspend", Glib::VariantContainerBase());
+        auto v1 = retval.get_child(0);
+        return Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v1).get();
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("Failed to call CanSuspend: %s", e.what().c_str());
+    }
+    catch (const std::exception& e)
+    {
+        KLOG_WARNING("Failed to get the retval of function CanSuspend: %s", e.what());
+    }
+    return false;
+}
+
+void PowerSession::suspend()
+{
+    if (!this->can_suspend())
+    {
+        KLOG_WARNING("The session manager doesn't allow suspend.");
+        return;
+    }
+
+    try
+    {
+        this->sm_proxy_->call_sync("Suspend", Glib::VariantContainerBase());
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("Failed to call Suspend: %s", e.what().c_str());
+    }
+}
+
+bool PowerSession::can_hibernate()
+{
+    try
+    {
+        auto retval = this->sm_proxy_->call_sync("CanHibernate", Glib::VariantContainerBase());
+        auto v1 = retval.get_child(0);
+        return Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v1).get();
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("Failed to call CanHibernate: %s", e.what().c_str());
+    }
+    catch (const std::exception& e)
+    {
+        KLOG_WARNING("Failed to get the retval of function CanHibernate: %s", e.what());
+    }
+    return false;
+}
+
+void PowerSession::hibernate()
+{
+    if (!this->can_hibernate())
+    {
+        KLOG_WARNING("The session manager doesn't allow hibernate.");
+        return;
+    }
+
+    try
+    {
+        this->sm_proxy_->call_sync("Hibernate", Glib::VariantContainerBase());
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("Failed to call Hibernate: %s", e.what().c_str());
+    }
+}
+
+bool PowerSession::can_shutdown()
+{
+    try
+    {
+        auto retval = this->sm_proxy_->call_sync("CanShutdown", Glib::VariantContainerBase());
+        auto v1 = retval.get_child(0);
+        return Glib::VariantBase::cast_dynamic<Glib::Variant<bool>>(v1).get();
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("Failed to call CanShutdown: %s", e.what().c_str());
+    }
+    catch (const std::exception& e)
+    {
+        KLOG_WARNING("Failed to get the retval of function CanShutdown: %s", e.what());
+    }
+    return false;
+}
+
+void PowerSession::shutdown()
+{
+    if (!this->can_shutdown())
+    {
+        KLOG_WARNING("The session manager doesn't allow shutdown.");
+        return;
+    }
+
+    try
+    {
+        this->sm_proxy_->call_sync("Shutdown", Glib::VariantContainerBase());
+    }
+    catch (const Glib::Error& e)
+    {
+        KLOG_WARNING("Failed to call shutdown: %s", e.what().c_str());
+    }
+}
+
 uint32_t PowerSession::get_status()
 {
     KLOG_PROFILE("");

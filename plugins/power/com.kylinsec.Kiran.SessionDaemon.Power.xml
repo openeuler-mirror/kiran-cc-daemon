@@ -81,20 +81,6 @@
             <description>Enable cpu save energy when the ups or battery power is low.</description>
         </method>
 
-        <method name="LockScreenWhenSuspend">
-            <arg type="b" name="enabled" direction="in">
-                <description>Whether lock screen when the computer is suspend.</description>
-            </arg>
-            <description>Lock screen when the computer is suspend.</description>
-        </method>
-
-        <method name="LockScreenWhenHibernate">
-            <arg type="b" name="enabled" direction="in">
-                <description>Whether lock screen when the computer is hibernate.</description>
-            </arg>
-            <description>Lock screen when the computer is hibernate.</description>
-        </method>
-
         <property name="OnBattery" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>Indicates whether the system is running on battery power.</description>
@@ -118,16 +104,6 @@
         <property name="ChargeLowSaverEnabled" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>Whether does the cpu save energy when the ups or battery power is low.</description>
-        </property>
-
-        <property name="ScreenLockedWhenSuspend" type="b" access="read">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <description>Whether lock screen when the computer is suspend.</description>
-        </property>
-
-        <property name="ScreenLockedWhenHibernate" type="b" access="read">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <description>Whether lock screen when the computer is hibernate.</description>
         </property>
 
         <signal name="IdleActionChanged">

@@ -141,10 +141,6 @@ extern "C"
 #define POWER_SCHEMA_ENABLE_CHARGE_LOW_DIMMED "enable-charge-low-dimmed"
 // 电量过低时计算机是否进入节能模式
 #define POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER "enable-charge-low-saver"
-// 待机时是否锁定屏幕
-#define POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND "screen-locked-when-suspend"
-// 休眠时是否锁定屏幕
-#define POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE "screen-locked-when-hibernate"
 // 按下挂起键触发的节能行为
 #define POWER_SCHEMA_BUTTON_SUSPEND_ACTION "button-suspend-action"
 // 按下休眠键触发的节能行为

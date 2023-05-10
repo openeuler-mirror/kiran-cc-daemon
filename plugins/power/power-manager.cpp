@@ -329,18 +329,6 @@ void PowerManager::EnableChargeLowSaver(bool enabled, MethodInvocation& invocati
     invocation.ret();
 }
 
-void PowerManager::LockScreenWhenSuspend(bool enabled, MethodInvocation& invocation)
-{
-    this->ScreenLockedWhenSuspend_set(enabled);
-    invocation.ret();
-}
-
-void PowerManager::LockScreenWhenHibernate(bool enabled, MethodInvocation& invocation)
-{
-    this->ScreenLockedWhenHibernate_set(enabled);
-    invocation.ret();
-}
-
 bool PowerManager::DisplayIdleDimmedEnabled_setHandler(bool value)
 {
     this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED, value);
@@ -356,18 +344,6 @@ bool PowerManager::ChargeLowDimmedEnabled_setHandler(bool value)
 bool PowerManager::ChargeLowSaverEnabled_setHandler(bool value)
 {
     this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER, value);
-    return true;
-}
-
-bool PowerManager::ScreenLockedWhenSuspend_setHandler(bool value)
-{
-    this->power_settings_->set_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND, value);
-    return true;
-}
-
-bool PowerManager::ScreenLockedWhenHibernate_setHandler(bool value)
-{
-    this->power_settings_->set_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE, value);
     return true;
 }
 
@@ -394,16 +370,6 @@ bool PowerManager::ChargeLowDimmedEnabled_get()
 bool PowerManager::ChargeLowSaverEnabled_get()
 {
     return this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER);
-}
-
-bool PowerManager::ScreenLockedWhenSuspend_get()
-{
-    return this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_SUSPEND);
-}
-
-bool PowerManager::ScreenLockedWhenHibernate_get()
-{
-    return this->power_settings_->get_boolean(POWER_SCHEMA_SCREEN_LOCKED_WHEN_HIBERNATE);
 }
 
 void PowerManager::on_battery_changed(bool on_battery)
