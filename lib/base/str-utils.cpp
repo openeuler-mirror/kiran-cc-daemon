@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -92,6 +92,29 @@ std::vector<std::string> StrUtils::split_with_char(const std::string &s, char de
         }
     }
     v.push_back(s.substr(start, s.length() - start));
+    return v;
+}
+
+std::vector<std::string> StrUtils::split_once_with_char(const std::string &s, char delimiter)
+{
+    std::vector<std::string> v;
+    size_t i;
+    for (i = 0; i < s.length(); i++)
+    {
+        if (delimiter == s[i])
+        {
+            v.push_back(s.substr(0, i));
+            break;
+        }
+    }
+    if (s.length() == i)
+    {
+        v.push_back(s);
+    }
+    else
+    {
+        v.push_back(s.substr(i + 1, s.length() - i - 1));
+    }
     return v;
 }
 
