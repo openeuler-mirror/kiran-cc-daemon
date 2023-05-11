@@ -88,18 +88,12 @@ protected:
     virtual void EnableChargeLowDimmed(bool enabled, MethodInvocation &invocation);
     // 电量过低时是否进入节能模式
     virtual void EnableChargeLowSaver(bool enabled, MethodInvocation &invocation);
-    // 待机时是否锁定屏幕
-    virtual void LockScreenWhenSuspend(bool enabled, MethodInvocation &invocation);
-    // 休眠时是否锁定屏幕
-    virtual void LockScreenWhenHibernate(bool enabled, MethodInvocation &invocation);
 
     virtual bool OnBattery_setHandler(bool value) { return true; }
     virtual bool LidIsPresent_setHandler(bool value) { return true; }
     virtual bool DisplayIdleDimmedEnabled_setHandler(bool value);
     virtual bool ChargeLowDimmedEnabled_setHandler(bool value);
     virtual bool ChargeLowSaverEnabled_setHandler(bool value);
-    virtual bool ScreenLockedWhenSuspend_setHandler(bool value);
-    virtual bool ScreenLockedWhenHibernate_setHandler(bool value);
 
     // 系统是否在使用电池供电
     virtual bool OnBattery_get();
@@ -108,8 +102,6 @@ protected:
     virtual bool DisplayIdleDimmedEnabled_get();
     virtual bool ChargeLowDimmedEnabled_get();
     virtual bool ChargeLowSaverEnabled_get();
-    virtual bool ScreenLockedWhenSuspend_get();
-    virtual bool ScreenLockedWhenHibernate_get();
 
 private:
     void init();
