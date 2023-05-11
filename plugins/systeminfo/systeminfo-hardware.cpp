@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -34,7 +34,8 @@ namespace Kiran
 
 #define DISKINFO_CMD "/usr/bin/lsblk"
 
-#define PCIINFO_CMD "/usr/sbin/lspci"
+// 使用相对路径，避免使用绝对路径时因系统版本导致的错误
+#define PCIINFO_CMD "lspci"
 #define PCIINFO_KEY_DELIMITER ':'
 
 SystemInfoHardware::SystemInfoHardware() : mem_size_lshw(0)
@@ -310,7 +311,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         {
             Glib::spawn_sync("",
                              argv,
-                             Glib::SPAWN_DEFAULT,
+                             Glib::SPAWN_SEARCH_PATH,
                              sigc::mem_fun(this, &SystemInfoHardware::set_env),
                              &cmd_output);
         }
@@ -354,7 +355,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         {
             Glib::spawn_sync("",
                              argv,
-                             Glib::SPAWN_DEFAULT,
+                             Glib::SPAWN_SEARCH_PATH,
                              sigc::mem_fun(this, &SystemInfoHardware::set_env),
                              &cmd_output);
         }
@@ -378,7 +379,7 @@ KVList SystemInfoHardware::format_to_kv_list(const std::string& contents)
         auto lines = StrUtils::split_lines(block);
         for (auto& line : lines)
         {
-            auto fields = StrUtils::split_with_char(line, PCIINFO_KEY_DELIMITER);
+            auto fields = StrUtils::split_once_with_char(line, PCIINFO_KEY_DELIMITER);
             if (fields.size() != 2)
             {
                 continue;
