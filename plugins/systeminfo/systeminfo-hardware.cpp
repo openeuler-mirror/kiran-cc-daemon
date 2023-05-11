@@ -34,7 +34,8 @@ namespace Kiran
 
 #define DISKINFO_CMD "/usr/bin/lsblk"
 
-#define PCIINFO_CMD "/usr/sbin/lspci"
+// 使用相对路径，避免使用绝对路径时因系统版本导致的错误
+#define PCIINFO_CMD "lspci"
 #define PCIINFO_KEY_DELIMITER ':'
 
 SystemInfoHardware::SystemInfoHardware() : mem_size_lshw(0)
@@ -310,7 +311,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         {
             Glib::spawn_sync("",
                              argv,
-                             Glib::SPAWN_DEFAULT,
+                             Glib::SPAWN_SEARCH_PATH,
                              sigc::mem_fun(this, &SystemInfoHardware::set_env),
                              &cmd_output);
         }
@@ -354,7 +355,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         {
             Glib::spawn_sync("",
                              argv,
-                             Glib::SPAWN_DEFAULT,
+                             Glib::SPAWN_SEARCH_PATH,
                              sigc::mem_fun(this, &SystemInfoHardware::set_env),
                              &cmd_output);
         }
