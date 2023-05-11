@@ -39,6 +39,16 @@ public:
     // 挂起状态是否禁用
     bool get_suspend_inhibited() { return this->is_suspend_inhibited_; };
 
+    // 挂机
+    bool can_suspend();
+    void suspend();
+    // 休眠
+    bool can_hibernate();
+    void hibernate();
+    // 关机
+    bool can_shutdown();
+    void shutdown();
+
 private:
     // 获取空闲状态
     uint32_t get_status();

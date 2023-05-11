@@ -97,16 +97,6 @@
             <description>Whether does the cpu save energy when the ups or battery power is low.</description>
         </key>
 
-        <key name="screen-locked-when-suspend" type="b">
-            <default>true</default>
-            <description>Whether lock screen when the computer is suspend.</description>
-        </key>
-
-        <key name="screen-locked-when-hibernate" type="b">
-            <default>true</default>
-            <description>Whether lock screen when the computer is hibernate.</description>
-        </key>
-
         <key name="button-suspend-action" enum="com.kylinsec.kiran.power.event-action">
             <default>'suspend'</default>
             <description>The action to take when the system suspend button is pressed.</description>
