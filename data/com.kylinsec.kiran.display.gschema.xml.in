@@ -14,5 +14,10 @@
             <description>Layout of connected monitors in the screen.</description>
         </key>
 
+        <key name="screen-changed-adaptation" type="b">
+            <default>true</default>
+            <description>Set whether to adapt to screen changes </description>
+        </key>
+
     </schema>
 </schemalist>
