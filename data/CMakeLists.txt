@@ -127,6 +127,12 @@ if(build-session-daemon)
 
   # keybindings
   file(GLOB KEYBINDINGS_XML_FILES ${PROJECT_SOURCE_DIR}/data/keybindings/*.xml)
+
+  if(filter-desktop-extend-key)
+    list(REMOVE_ITEM KEYBINDINGS_XML_FILES
+         ${PROJECT_SOURCE_DIR}/data/keybindings/01-desktop-extend-key.xml)
+  endif()
+
   install(
     FILES ${KEYBINDINGS_XML_FILES}
     DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}/keybindings/)
