@@ -18,5 +18,11 @@
             <default>false</default>
             <description>It takes effect immediately when the scaling factor of window is changed.</description>
         </key>
+
+        <key name="screen-changed-adaptation" type="b">
+            <default>true</default>
+            <description>Set whether to adapt to screen changes </description>
+        </key>
+
     </schema>
 </schemalist>
