@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<KeyListEntries schema="org.mate.SettingsDaemon.plugins.media-keys" package="mate-settings-daemon" name="Desktop">
+
+	<KeyListEntry name="panel-kiran-menu" description="Show the panel's main menu of kiran"/>
+
+	<KeyListEntry name="show-desktop" description="Show the desktop"/>
+
+</KeyListEntries>
