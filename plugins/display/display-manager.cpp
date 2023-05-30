@@ -26,6 +26,7 @@ namespace Kiran
 {
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_STYLE "display-style"
+#define SCREEN_CHANGED_ADAPT "screen-changed-adaptation"
 
 #define DISPLAY_CONF_DIR "kylinsec/" PROJECT_NAME "/display"
 #define DISPLAY_FILE_NAME "display.xml"
@@ -859,8 +860,10 @@ void DisplayManager::resources_changed()
     this->load_monitors();
     auto new_monitors_uid = this->get_monitors_uid();
 
+    auto screen_changed_adaptation = this->display_settings_->get_boolean(SCREEN_CHANGED_ADAPT);
+
     // 如果uid不相同，说明设备硬件发生了变化，此时需要重新进行设置
-    if (old_monitors_uid != new_monitors_uid)
+    if (screen_changed_adaptation && old_monitors_uid != new_monitors_uid)
     {
         CCErrorCode error_code = CCErrorCode::SUCCESS;
         if (!this->switch_style_and_save(this->default_style_, error_code))
