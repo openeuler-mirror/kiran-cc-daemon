@@ -112,6 +112,8 @@ private:
     CPUInfo get_cpu_info_by_cmd();
     // 如果命令获取失败，则直接读取配置文件
     CPUInfo read_cpu_info_by_conf();
+    //合并读取信息
+    CPUInfo merge_cpu_infos(const std::vector<CPUInfo> &cpu_infos);
 
     MemInfo get_mem_info();
     void set_env();

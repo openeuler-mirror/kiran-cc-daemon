@@ -39,7 +39,7 @@ struct SystemShortCut
     sigc::connection connection;
 };
 
-class SystemShortCuts
+class SystemShortCuts: public sigc::trackable
 {
 public:
     SystemShortCuts();
