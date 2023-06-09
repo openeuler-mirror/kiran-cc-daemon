@@ -26,6 +26,8 @@ namespace Kiran
 #define CPUINFO_FILE "/proc/cpuinfo"
 #define CPUINFO_KEY_DELIMITER ':'
 #define CPUINFO_KEY_MODEL "model name"
+//龙芯cpuinfo中为大写
+#define CPUINFO_KEY_MODEL_LS "Model Name"
 #define CPUINFO_KEY_PROCESSOR "processor"
 
 #define MEMINFO_FILE "/proc/meminfo"
@@ -83,16 +85,29 @@ HardwareInfo SystemInfoHardware::get_hardware_info()
     return hardware_info;
 }
 
+CPUInfo SystemInfoHardware::merge_cpu_infos(const std::vector<CPUInfo> &cpu_infos)
+{
+    CPUInfo cpu_info;
+    for(auto& iter : cpu_infos)
+    {
+        if(cpu_info.model.empty())
+        {
+            cpu_info.model = iter.model;
+        }
+        if(cpu_info.cores_number == 0)
+        {
+            cpu_info.cores_number = iter.cores_number;
+        }
+    }
+    return cpu_info;
+}
+
 CPUInfo SystemInfoHardware::get_cpu_info()
 {
-    auto cpu_info = this->get_cpu_info_by_cmd();
-
-    if (cpu_info.cores_number == 0)
-    {
-        cpu_info = this->read_cpu_info_by_conf();
-    }
-
-    return cpu_info;
+    std::vector<CPUInfo> cpu_infos;
+    cpu_infos.push_back(this->get_cpu_info_by_cmd());
+    cpu_infos.push_back(this->read_cpu_info_by_conf());
+    return this->merge_cpu_infos(cpu_infos);
 }
 
 CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
@@ -141,7 +156,11 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 {
     CPUInfo cpu_info;
     auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
-
+    //适配龙芯架构
+    if(cpu_info.model.empty())
+    {
+        cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
+    }
     cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
     if (cpu_maps.find(CPUINFO_KEY_PROCESSOR) != cpu_maps.end())
     {
