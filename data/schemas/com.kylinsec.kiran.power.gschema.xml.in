@@ -34,6 +34,11 @@
         <value nick="x11" value="2"/>
     </enum>
 
+    <enum id="com.kylinsec.kiran.power.profile-policy">
+        <value nick="hadess" value="1"/>
+        <value nick="tuned" value="2"/>
+    </enum>
+
     <schema id="com.kylinsec.kiran.power" path="/com/kylinsec/kiran/power/">
 
         <key name="computer-battery-idle-time" type="i">
@@ -135,6 +140,11 @@
         <key name="monitor-backlight-policy" enum="com.kylinsec.kiran.power.backlight-policy">
             <default>'auto'</default>
             <description>Set the policy for obtaining brightness values.</description>
+        </key>
+
+        <key name="profile-policy" enum="com.kylinsec.kiran.power.profile-policy">
+            <default>'hadess'</default>
+            <description>The profiles daemon used by current power plugin.</description>
         </key>
     </schema>
 </schemalist>

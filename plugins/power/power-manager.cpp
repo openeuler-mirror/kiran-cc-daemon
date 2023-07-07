@@ -27,6 +27,7 @@ PowerManager::PowerManager(PowerWrapperManager* wrapper_manager, PowerBacklight*
 {
     this->power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
     this->upower_client_ = this->wrapper_manager_->get_default_upower();
+    this->profiles_ = this->wrapper_manager_->get_default_profiles();
 }
 
 PowerManager::~PowerManager()
@@ -56,6 +57,8 @@ void PowerManager::init()
                                                  sigc::mem_fun(this, &PowerManager::on_bus_acquired),
                                                  sigc::mem_fun(this, &PowerManager::on_name_acquired),
                                                  sigc::mem_fun(this, &PowerManager::on_name_lost));
+
+    this->profiles_->signal_active_profile_changed().connect(sigc::mem_fun(this, &PowerManager::on_active_profile_changed));
 }
 
 void PowerManager::SetIdleAction(gint32 device,
@@ -329,6 +332,12 @@ void PowerManager::EnableChargeLowSaver(bool enabled, MethodInvocation& invocati
     invocation.ret();
 }
 
+void PowerManager::SwitchProfile(gint32 mode, MethodInvocation& invocation)
+{
+    this->ActiveProfile_set(mode);
+    invocation.ret();
+}
+
 bool PowerManager::DisplayIdleDimmedEnabled_setHandler(bool value)
 {
     this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED, value);
@@ -345,6 +354,11 @@ bool PowerManager::ChargeLowSaverEnabled_setHandler(bool value)
 {
     this->power_settings_->set_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER, value);
     return true;
+}
+
+bool PowerManager::ActiveProfile_setHandler(gint32 value)
+{
+    return this->profiles_->switch_profile(value);
 }
 
 bool PowerManager::OnBattery_get()
@@ -370,6 +384,11 @@ bool PowerManager::ChargeLowDimmedEnabled_get()
 bool PowerManager::ChargeLowSaverEnabled_get()
 {
     return this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER);
+}
+
+gint32 PowerManager::ActiveProfile_get()
+{
+    return this->profiles_->get_active_profile();
 }
 
 void PowerManager::on_battery_changed(bool on_battery)
@@ -424,6 +443,11 @@ void PowerManager::on_brightness_changed(std::shared_ptr<PowerBacklightPercentag
     KLOG_PROFILE("brightness_value: %d, type: %d.", brightness_value, backlight_device->get_type());
 
     this->BrightnessChanged_signal.emit(backlight_device->get_type());
+}
+
+void PowerManager::on_active_profile_changed(int32_t profile_mode)
+{
+    this->ActiveProfileChanged_signal.emit(profile_mode);
 }
 
 void PowerManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
