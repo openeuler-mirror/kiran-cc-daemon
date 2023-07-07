@@ -116,6 +116,27 @@ extern "C"
         POWER_MONITOR_BACKLIGHT_POLICY_X11 = 2,
     };
 
+    /* 这里兼容两个后端的原因是power-profiles-daemon更好用，支持holdprofile接口，但支持的架构比较少。
+       如果要支持D2000等系统，要使用tuned作为后端。由于tuned不支持holdprofile，如果电源电量过低时自动切换到saver
+       模式后，如果电量充足了，就没法再切回原来的模式了，因此两者各有优缺点。*/
+    enum PowerProfilePolicy
+    {
+        // 使用power-profiles-daemon作为后端
+        POWER_PROFILE_POLICY_HADESS = 1,
+        // 使用tuned作为后端
+        POWER_PROFILE_POLICY_TUNED = 2,
+    };
+
+    enum PowerProfileMode
+    {
+        // 节能
+        POWER_PROFILE_MODE_SAVER = 0,
+        // 平衡
+        POWER_PROFILE_MODE_BALANCED = 1,
+        // 高性能
+        POWER_PROFILE_MODE_PERFORMANCE = 2,
+    };
+
 #define POWER_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Power"
 #define POWER_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Power"
 
@@ -157,6 +178,8 @@ extern "C"
 #define POWER_SCHEMA_TRAY_ICON_POLICY "tray-icon-policy"
 // 设置获取显示器亮度值的策略，'tool'是直接操作背光设备文件，'x11'是通过xrandr接口调节亮度
 #define POWER_SCHEMA_MONITOR_BACKLIGHT_POLICY "monitor-backlight-policy"
+// 选用的profiles后端
+#define POWER_SCHEMA_PROFILE_POLICY "profile-policy"
 
 #ifdef __cplusplus
 }

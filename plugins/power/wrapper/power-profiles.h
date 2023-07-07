@@ -12,41 +12,34 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
+#pragma once
+
 #include "lib/base/base.h"
 
 namespace Kiran
 {
-#define POWER_PROFILE_SAVER "power-saver"
-#define POWER_PROFILE_BALANCED "balanced"
-#define POWER_PROFILE_PERFORMANCE "performance"
-
 class PowerProfiles
 {
 public:
-    PowerProfiles();
-    virtual ~PowerProfiles(){};
+    // 根据gsettings的设置创建不同的子类
+    static std::shared_ptr<PowerProfiles> create();
 
-    void init();
+    virtual void init() = 0;
 
-    // 设置模式，如果调用了ReleaseProfile，则进行恢复。如果有其他用户进行了手动设置（直接修改ActiveProfile属性），则不再hold当前模式
-    uint32_t hold_profile(const std::string &profile,
-                          const std::string &reason,
-                          const std::string &application_id);
-
+    // 设置模式
+    virtual bool switch_profile(int32_t profile_mode) = 0;
+    /* 临时设置模式，如果调用了ReleaseProfile，则进行恢复。如果调用了switch_profile，则不再hold当前模式
+       如果返回值大于0，则表示一个cookie；如果返回值等于0；则表示无法hold，只能永久生效，功能同switch_profile；
+       如果小于0则表示调用失败。*/
+    virtual uint32_t hold_profile(int32_t profile_mode, const std::string &reason) = 0;
     // 释放hold_profile操作。恢复到之前的模式
-    void release_profile(uint32_t cookie);
+    virtual void release_profile(uint32_t cookie) = 0;
+    // 获取当前模式
+    virtual int32_t get_active_profile() = 0;
 
-    std::string get_active_profile();
+    sigc::signal<void, int32_t> &signal_active_profile_changed() { return this->active_profile_changed_; };
 
-    sigc::signal<void, const Glib::ustring &> &signal_active_profile_changed() { return this->active_profile_changed_; };
-
-private:
-    void on_properties_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties,
-                               const std::vector<Glib::ustring> &invalidated_properties);
-
-private:
-    Glib::RefPtr<Gio::DBus::Proxy> profiles_proxy_;
-
-    sigc::signal<void, const Glib::ustring &> active_profile_changed_;
+protected:
+    sigc::signal<void, int32_t> active_profile_changed_;
 };
 }  // namespace Kiran
