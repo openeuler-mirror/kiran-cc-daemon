@@ -48,6 +48,35 @@
             <description>clear layout option.</description>
         </method>
 
+        <method name="SwitchCapsLockTips">
+            <arg type="b" name="enabled" direction="in">
+                <summary>enable option.</summary>
+            </arg>
+            <description>Switch CapsLock Tips option.</description>
+        </method>
+
+        <method name="SwitchNumLockTips">
+            <arg type="b" name="enabled" direction="in">
+                <summary>enable option.</summary>
+            </arg>
+            <description>Switch NumLock tips option.</description>
+        </method>
+
+        <property name="modifier_lock_enabled" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Whether capslock and numlock is enabled.</description>
+        </property>
+
+        <property name="capslock_tips_enabled" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Whether capslock tips is enabled.</description>
+        </property>
+
+        <property name="numlock_tips_enabled" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>Whether numlock tips is enabled.</description>
+        </property>
+
         <property name="repeat_enabled" type="b" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</description>

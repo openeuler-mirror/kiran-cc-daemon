@@ -306,6 +306,12 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_CLEAR_FAILED:
         error_desc = _("Failed to clear the layout option.");
         break;
+    case CCErrorCode::ERROR_KEYBOARD_SWITCH_CAPSLOCK_TIPS_FAILED:
+        error_desc = _("Failed to switch the capslock tips.");
+        break;
+    case CCErrorCode::ERROR_KEYBOARD_SWITCH_NUMLOCK_TIPS_FAILED:
+        error_desc = _("Failed to switch the numlock tips.");
+        break;
     case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST:
         error_desc = _("The custom shortcut isn't exist.");
         break;
