@@ -88,12 +88,15 @@ protected:
     virtual void EnableChargeLowDimmed(bool enabled, MethodInvocation &invocation);
     // 电量过低时是否进入节能模式
     virtual void EnableChargeLowSaver(bool enabled, MethodInvocation &invocation);
+    // 切换电源模式
+    virtual void SwitchProfile(gint32 mode, MethodInvocation &invocation);
 
     virtual bool OnBattery_setHandler(bool value) { return true; }
     virtual bool LidIsPresent_setHandler(bool value) { return true; }
     virtual bool DisplayIdleDimmedEnabled_setHandler(bool value);
     virtual bool ChargeLowDimmedEnabled_setHandler(bool value);
     virtual bool ChargeLowSaverEnabled_setHandler(bool value);
+    virtual bool ActiveProfile_setHandler(gint32 value);
 
     // 系统是否在使用电池供电
     virtual bool OnBattery_get();
@@ -102,6 +105,7 @@ protected:
     virtual bool DisplayIdleDimmedEnabled_get();
     virtual bool ChargeLowDimmedEnabled_get();
     virtual bool ChargeLowSaverEnabled_get();
+    virtual gint32 ActiveProfile_get();
 
 private:
     void init();
@@ -111,6 +115,7 @@ private:
 
     void on_settings_changed(const Glib::ustring &key);
     void on_brightness_changed(std::shared_ptr<PowerBacklightPercentage> backlight_device, int32_t brightness_value);
+    void on_active_profile_changed(int32_t profile_mode);
 
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
@@ -122,6 +127,7 @@ private:
     PowerWrapperManager *wrapper_manager_;
     PowerBacklight *backlight_;
     std::shared_ptr<PowerUPower> upower_client_;
+    std::shared_ptr<PowerProfiles> profiles_;
 
     Glib::RefPtr<Gio::Settings> power_settings_;
 

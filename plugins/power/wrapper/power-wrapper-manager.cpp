@@ -22,7 +22,7 @@ PowerWrapperManager::PowerWrapperManager()
     this->screensaver_ = std::make_shared<PowerScreenSaver>();
     this->session_ = std::make_shared<PowerSession>();
     this->upower_ = std::make_shared<PowerUPower>();
-    this->profiles_ = std::make_shared<PowerProfiles>();
+    this->profiles_ = PowerProfiles::create();
 }
 
 PowerWrapperManager::~PowerWrapperManager()

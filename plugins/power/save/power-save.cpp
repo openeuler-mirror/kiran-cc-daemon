@@ -162,7 +162,7 @@ void PowerSave::do_cpu_saver()
         return;
     }
 
-    this->cpu_saver_cookie_ = this->profiles_->hold_profile(POWER_PROFILE_SAVER, "battery or ups power low.", "kiran-session-daemon");
+    this->cpu_saver_cookie_ = this->profiles_->hold_profile(PowerProfileMode::POWER_PROFILE_MODE_SAVER, "battery or ups power low.");
     this->cpu_saver_timestamp_ = time(NULL);
 }
 
@@ -207,7 +207,7 @@ void PowerSave::on_monitor_brightness_changed(int32_t brightness_percentage)
     }
 }
 
-void PowerSave::on_active_profile_changed(const Glib::ustring& active_profile)
+void PowerSave::on_active_profile_changed(int32_t profile_mode)
 {
     if (this->cpu_saver_timestamp_ > 0 &&
         this->cpu_saver_timestamp_ + CPU_SAVER_INTERVAL < time(NULL))
