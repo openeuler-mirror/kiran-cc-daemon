@@ -54,7 +54,7 @@ private:
 
     void on_kbd_brightness_changed(int32_t brightness_percentage);
     void on_monitor_brightness_changed(int32_t brightness_percentage);
-    void on_active_profile_changed(const Glib::ustring& active_profile);
+    void on_active_profile_changed(int32_t profile_mode);
 
 private:
     static PowerSave* instance_;

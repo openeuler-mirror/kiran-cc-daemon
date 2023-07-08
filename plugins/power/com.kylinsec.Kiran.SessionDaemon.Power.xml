@@ -81,6 +81,13 @@
             <description>Enable cpu save energy when the ups or battery power is low.</description>
         </method>
 
+        <method name="SwitchProfile">
+            <arg type="i" name="mode" direction="in">
+                <description>The profile mode. Refer to PowerProfileMode in power-i.h</description>
+            </arg>
+            <description>Switch profile mode.</description>
+        </method>
+
         <property name="OnBattery" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>Indicates whether the system is running on battery power.</description>
@@ -106,6 +113,11 @@
             <description>Whether does the cpu save energy when the ups or battery power is low.</description>
         </property>
 
+        <property name="ActiveProfile" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The active profile mode.</description>
+        </property>
+
         <signal name="IdleActionChanged">
             <arg name="device" type="i" />
             <arg name="supply" type="i" />
@@ -117,6 +129,10 @@
 
         <signal name="BrightnessChanged">
             <arg name="device" type="i" />
+        </signal>
+
+        <signal name="ActiveProfileChanged">
+            <arg name="active_profile" type="i" />
         </signal>
 
     </interface>
