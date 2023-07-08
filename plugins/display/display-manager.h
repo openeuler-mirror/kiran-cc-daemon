@@ -108,6 +108,9 @@ private:
     std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
     std::shared_ptr<DisplayMonitor> get_monitor_by_uid(const std::string& uid);
     std::shared_ptr<DisplayMonitor> get_monitor_by_name(const std::string& name);
+    // 优先匹配uid，如果有多个uid匹配，则再匹配name
+    std::shared_ptr<DisplayMonitor> match_best_monitor(const std::string& uid,
+                                                       const std::string& name);
 
     // 将uid进行排序后拼接
     std::string get_monitors_uid();
