@@ -1247,3 +1247,11 @@ msgstr "电源管理"
 #: ../plugins/power/tray/kiran-power-status-icon.desktop.in.h:2
 msgid "Power management daemon"
 msgstr "电源管理后端"
+
+#: ../lib/base/error.cpp:310
+msgid "Failed to switch the capslock tips."
+msgstr "无法切换大小写锁提示。"
+
+#: ../lib/base/error.cpp:313
+msgid "Failed to switch the numlock tips."
+msgstr "无法切换数字锁提示。"
