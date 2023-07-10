@@ -22,7 +22,7 @@
 
 namespace Kiran
 {
-ModifierLockManager::ModifierLockManager()
+ModifierLockManager::ModifierLockManager(KeyboardManager *keyboard_manager) : keyboard_manager_(keyboard_manager)
 {
 }
 
@@ -31,6 +31,18 @@ ModifierLockManager::~ModifierLockManager()
     gdk_window_remove_filter(NULL,
                              &ModifierLockManager::window_event,
                              this);
+}
+
+ModifierLockManager *ModifierLockManager::instance_ = nullptr;
+
+void ModifierLockManager::global_init(KeyboardManager *keyboard_manager)
+{
+    instance_ = new ModifierLockManager(keyboard_manager);
+
+    if (keyboard_manager->is_modifier_lock_enabled())
+    {
+        instance_->init();
+    }
 }
 
 void ModifierLockManager::init()
@@ -113,6 +125,8 @@ void ModifierLockManager::set_lock_action(KeyCode keycode, unsigned int mods)
 
     if (keycode == this->capslock_keycode_)
     {
+        RETURN_IF_FALSE(this->keyboard_manager_->is_capslock_tips_enabled());
+
         bool capslock_enable = !!(this->capslock_mask_ & mods);
         if (capslock_enable)
         {
@@ -125,6 +139,8 @@ void ModifierLockManager::set_lock_action(KeyCode keycode, unsigned int mods)
     }
     else if (keycode == this->numlock_keycode_)
     {
+        RETURN_IF_FALSE(this->keyboard_manager_->is_numlock_tips_enabled());
+
         bool numlock_enable = !!(this->numlock_mask_ & mods);
         if (numlock_enable)
         {

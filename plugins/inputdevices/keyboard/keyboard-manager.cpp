@@ -26,6 +26,8 @@ namespace Kiran
 {
 #define KEYBOARD_SCHEMA_ID "com.kylinsec.kiran.keyboard"
 #define KEYBOARD_SCHEMA_MODIFIER_LOCK_ENABLED "modifier-lock-enabled"
+#define KEYBOARD_SCHEMA_CAPSLOCK_TIPS_ENABLED "capslock-tips-enabled"
+#define KEYBOARD_SCHEMA_NUMLOCK_TIPS_ENABLED "numlock-tips-enabled"
 #define KEYBOARD_SCHEMA_REPEAT_ENABLED "repeat-enabled"
 #define KEYBOARD_SCHEMA_REPEAT_DELAY "repeat-delay"
 #define KEYBOARD_SCHEMA_REPEAT_INTERVAL "repeat-interval"
@@ -43,11 +45,12 @@ namespace Kiran
 KeyboardManager::KeyboardManager() : dbus_connect_id_(0),
                                      object_register_id_(0),
                                      modifier_lock_enabled_(false),
+                                     capslock_tips_enabled_(false),
+                                     numlock_tips_enabled_(false),
                                      repeat_enabled_(true),
                                      repeat_delay_(500),
                                      repeat_interval_(30)
 {
-    this->modifier_lock_manager_ = std::make_shared<ModifierLockManager>();
     this->keyboard_settings_ = Gio::Settings::create(KEYBOARD_SCHEMA_ID);
 }
 
@@ -208,6 +211,26 @@ void KeyboardManager::ClearLayoutOption(MethodInvocation &invocation)
     invocation.ret();
 }
 
+void KeyboardManager::SwitchCapsLockTips(bool enabled, MethodInvocation &invocation)
+{
+    if (!this->capslock_tips_enabled_set(enabled))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_SWITCH_CAPSLOCK_TIPS_FAILED);
+    }
+
+    invocation.ret();
+}
+
+void KeyboardManager::SwitchNumLockTips(bool enabled, MethodInvocation &invocation)
+{
+    if (!this->numlock_tips_enabled_set(enabled))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBOARD_SWITCH_NUMLOCK_TIPS_FAILED);
+    }
+
+    invocation.ret();
+}
+
 #define AUTO_REPEAT_SET_HANDLER(prop, type1, key, type2)                                                           \
     bool KeyboardManager::prop##_setHandler(type1 value)                                                           \
     {                                                                                                              \
@@ -229,6 +252,31 @@ void KeyboardManager::ClearLayoutOption(MethodInvocation &invocation)
 AUTO_REPEAT_SET_HANDLER(repeat_enabled, bool, KEYBOARD_SCHEMA_REPEAT_ENABLED, boolean);
 AUTO_REPEAT_SET_HANDLER(repeat_delay, gint32, KEYBOARD_SCHEMA_REPEAT_DELAY, int);
 AUTO_REPEAT_SET_HANDLER(repeat_interval, gint32, KEYBOARD_SCHEMA_REPEAT_INTERVAL, int);
+
+#define KEYBOARD_PROP_SET_HANDLER(prop, type1, key, type2)                                                           \
+    bool KeyboardManager::prop##_setHandler(type1 value)                                                           \
+    {                                                                                                              \
+        RETURN_VAL_IF_TRUE(value == this->prop##_, false);                                                         \
+        if (this->keyboard_settings_->get_##type2(key) != value)                                                   \
+        {                                                                                                          \
+            auto value_r = Glib::Variant<std::remove_cv<std::remove_reference<type1>::type>::type>::create(value); \
+            if (!this->keyboard_settings_->set_value(key, value_r))                                                \
+            {                                                                                                      \
+                return false;                                                                                      \
+            }                                                                                                      \
+        }                                                                                                          \
+        this->prop##_ = value;                                                                                     \
+        return true;                                                                                               \
+    }
+
+KEYBOARD_PROP_SET_HANDLER(capslock_tips_enabled, bool, KEYBOARD_SCHEMA_CAPSLOCK_TIPS_ENABLED, boolean);
+KEYBOARD_PROP_SET_HANDLER(numlock_tips_enabled, bool, KEYBOARD_SCHEMA_NUMLOCK_TIPS_ENABLED, boolean);
+
+bool KeyboardManager::modifier_lock_enabled_setHandler(bool value)
+{
+    // do nothing
+    return true;
+}
 
 bool KeyboardManager::layouts_setHandler(const std::vector<Glib::ustring> &value)
 {
@@ -294,11 +342,6 @@ void KeyboardManager::init()
     this->load_xkb_rules();
     this->set_all_props();
 
-    if (this->modifier_lock_enabled_)
-    {
-        this->modifier_lock_manager_->init();
-    }
-
     this->keyboard_settings_->signal_changed().connect(sigc::mem_fun(this, &KeyboardManager::settings_changed));
 
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
@@ -315,6 +358,8 @@ void KeyboardManager::load_from_settings()
     if (this->keyboard_settings_)
     {
         this->modifier_lock_enabled_ = this->keyboard_settings_->get_boolean(KEYBOARD_SCHEMA_MODIFIER_LOCK_ENABLED);
+        this->capslock_tips_enabled_ = this->keyboard_settings_->get_boolean(KEYBOARD_SCHEMA_CAPSLOCK_TIPS_ENABLED);
+        this->numlock_tips_enabled_ = this->keyboard_settings_->get_boolean(KEYBOARD_SCHEMA_NUMLOCK_TIPS_ENABLED);
         this->repeat_enabled_ = this->keyboard_settings_->get_boolean(KEYBOARD_SCHEMA_REPEAT_ENABLED);
         this->repeat_delay_ = this->keyboard_settings_->get_int(KEYBOARD_SCHEMA_REPEAT_DELAY);
         this->repeat_interval_ = this->keyboard_settings_->get_int(KEYBOARD_SCHEMA_REPEAT_INTERVAL);
@@ -343,6 +388,12 @@ void KeyboardManager::settings_changed(const Glib::ustring &key)
         break;
     case CONNECT(KEYBOARD_SCHEMA_OPTIONS, _hash):
         this->options_set(this->keyboard_settings_->get_string_array(key));
+        break;
+    case CONNECT(KEYBOARD_SCHEMA_CAPSLOCK_TIPS_ENABLED, _hash):
+        this->capslock_tips_enabled_set(this->keyboard_settings_->get_boolean(key));
+        break;
+    case CONNECT(KEYBOARD_SCHEMA_NUMLOCK_TIPS_ENABLED, _hash):
+        this->numlock_tips_enabled_set(this->keyboard_settings_->get_boolean(key));
         break;
     default:
         break;

@@ -6,6 +6,16 @@
             <description>Whether enable capslock and numlock windows tips.</description>
         </key>
 
+        <key name="capslock-tips-enabled" type="b">
+            <default>false</default>
+            <description>Whether enable capslock tips.</description>
+        </key>
+
+        <key name="numlock-tips-enabled" type="b">
+            <default>false</default>
+            <description>Whether enable numlock tips.</description>
+        </key>
+
         <key name="repeat-enabled" type="b">
             <default>true</default>
             <description>Whether repeat to trigger KeyPress and KeyRelease event when key is pressed.</description>
