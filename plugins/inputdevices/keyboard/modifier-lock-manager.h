@@ -17,6 +17,7 @@
 #include <gdkmm.h>
 //
 #include <X11/Xlib.h>
+#include "plugins/inputdevices/keyboard/keyboard-manager.h"
 #include "plugins/inputdevices/keyboard/modifier-lock-window.h"
 
 namespace Kiran
@@ -24,12 +25,18 @@ namespace Kiran
 class ModifierLockManager
 {
 public:
-    ModifierLockManager();
+    ModifierLockManager(KeyboardManager *keyboard_manager);
     ~ModifierLockManager();
 
-    void init();
+    static ModifierLockManager *get_instance() { return instance_; };
+
+    static void global_init(KeyboardManager *keyboard_manager);
+
+    static void global_deinit() { delete instance_; };
 
 private:
+    void init();
+
     int xkb_init();
 
     void set_lock_action(KeyCode keycode, unsigned int mods);
@@ -37,6 +44,8 @@ private:
     static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
 
 private:
+    static ModifierLockManager *instance_;
+
     int xkb_event_base_;
 
     unsigned int capslock_mask_;
@@ -44,6 +53,7 @@ private:
     KeyCode capslock_keycode_;
     KeyCode numlock_keycode_;
 
+    KeyboardManager *keyboard_manager_;
     ModifierLockWindow lock_window_;
 };
 

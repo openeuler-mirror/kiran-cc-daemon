@@ -17,6 +17,8 @@
 #include <cstdio>
 
 #include <gtk3-log-i.h>
+#include "plugins/inputdevices/keyboard/modifier-lock-manager.h"
+//
 #include "plugins/inputdevices/keyboard/keyboard-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(KeyboardPlugin);
@@ -50,6 +52,7 @@ void KeyboardPlugin::activate()
     }
 
     KeyboardManager::global_init();
+    ModifierLockManager::global_init(KeyboardManager::get_instance());
 }
 
 void KeyboardPlugin::deactivate()
@@ -66,6 +69,7 @@ void KeyboardPlugin::deactivate()
         }
     }
 
+    ModifierLockManager::global_deinit();
     KeyboardManager::global_deinit();
 }
 }  // namespace Kiran

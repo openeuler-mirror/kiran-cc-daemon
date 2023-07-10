@@ -16,8 +16,6 @@
 
 #include <keyboard_dbus_stub.h>
 
-#include "plugins/inputdevices/keyboard/modifier-lock-manager.h"
-//
 #include "plugins/inputdevices/common/device-helper.h"
 
 namespace Kiran
@@ -33,6 +31,10 @@ public:
     static void global_init();
 
     static void global_deinit() { delete instance_; };
+
+    bool is_modifier_lock_enabled() { return this->modifier_lock_enabled_; };
+    bool is_capslock_tips_enabled() { return this->capslock_tips_enabled_; };
+    bool is_numlock_tips_enabled() { return this->numlock_tips_enabled_; };
 
 protected:
     /* 添加键盘布局。键盘布局最多只能设置4个，如果超过4个则返回添加；
@@ -59,12 +61,24 @@ protected:
     // 清理布局选项
     virtual void ClearLayoutOption(MethodInvocation &invocation);
 
+    // 大小写锁提示开关
+    virtual void SwitchCapsLockTips(bool enabled, MethodInvocation &invocation);
+
+    // 数字键盘锁提示开关
+    virtual void SwitchNumLockTips(bool enabled, MethodInvocation &invocation);
+
+    virtual bool modifier_lock_enabled_setHandler(bool value);
+    virtual bool capslock_tips_enabled_setHandler(bool value);
+    virtual bool numlock_tips_enabled_setHandler(bool value);
     virtual bool repeat_enabled_setHandler(bool value);
     virtual bool repeat_delay_setHandler(gint32 value);
     virtual bool repeat_interval_setHandler(gint32 value);
     virtual bool layouts_setHandler(const std::vector<Glib::ustring> &value);
     virtual bool options_setHandler(const std::vector<Glib::ustring> &value);
 
+    virtual bool modifier_lock_enabled_get() { return this->modifier_lock_enabled_; };
+    virtual bool capslock_tips_enabled_get() { return this->capslock_tips_enabled_; };
+    virtual bool numlock_tips_enabled_get() { return this->numlock_tips_enabled_; };
     virtual bool repeat_enabled_get() { return this->repeat_enabled_; };
     virtual gint32 repeat_delay_get() { return this->repeat_delay_; };
     virtual gint32 repeat_interval_get() { return this->repeat_interval_; };
@@ -90,8 +104,6 @@ private:
 private:
     static KeyboardManager *instance_;
 
-    std::shared_ptr<ModifierLockManager> modifier_lock_manager_;
-
     uint32_t dbus_connect_id_;
     uint32_t object_register_id_;
 
@@ -99,6 +111,8 @@ private:
     std::map<Glib::ustring, Glib::ustring> valid_layouts_;
 
     bool modifier_lock_enabled_;
+    bool capslock_tips_enabled_;
+    bool numlock_tips_enabled_;
     bool repeat_enabled_;
     int32_t repeat_delay_;
     int32_t repeat_interval_;
