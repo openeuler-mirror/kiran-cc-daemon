@@ -16,6 +16,7 @@
 
 #include <glib/gi18n.h>
 #include "plugins/power/wrapper/power-upower.h"
+#include "plugins/power/power-utils.h"
 #include "power-i.h"
 
 namespace Kiran
@@ -98,10 +99,40 @@ void PowerTray::update_status_icon()
     }
 
     // 对于电源和UPS设备需要显示电量
-    if (device_for_tray)
+    this->update_status_icon_toolstip(device_for_tray);
+}
+
+void PowerTray::update_status_icon_toolstip(std::shared_ptr<PowerUPowerDevice> device_for_tray)
+{
+    RETURN_IF_FALSE(device_for_tray);
+
+    switch (device_for_tray->get_props().state)
+    {
+    case UP_DEVICE_STATE_CHARGING:
+    {
+        auto time_to_full_text = PowerUtils::get_time_translation(device_for_tray->get_props().time_to_full);
+        auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately {1} until charged"),
+                                        device_for_tray->get_props().percentage,
+                                        time_to_full_text);
+        gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+        break;
+    }
+    case UP_DEVICE_STATE_DISCHARGING:
+    {
+        auto time_to_empty_text = PowerUtils::get_time_translation(device_for_tray->get_props().time_to_empty);
+        auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately provides {1} runtime"),
+                                        device_for_tray->get_props().percentage,
+                                        time_to_empty_text);
+        gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+        break;
+    }
+    case UP_DEVICE_STATE_FULLY_CHARGED:
+    default:
     {
         auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%"), device_for_tray->get_props().percentage);
         gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+    }
+    break;
     }
 }
 

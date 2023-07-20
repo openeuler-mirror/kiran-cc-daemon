@@ -35,6 +35,9 @@ public:
     // 更新托盘图标
     void update_status_icon();
 
+    // 更新托盘图标提示语
+    void update_status_icon_toolstip(std::shared_ptr<PowerUPowerDevice> device_for_tray);
+
 private:
     void init();
 
