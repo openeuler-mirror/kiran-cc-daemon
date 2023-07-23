@@ -505,7 +505,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
     if (join_layouts.length() <= 0)
     {
         join_layouts = DEFAULT_LAYOUT LAYOUT_JOIN_CHAR;
-        join_variants = LAYOUT_JOIN_CHAR;
+        join_variants = std::string(LAYOUT_JOIN_CHAR);
     }
 
     auto cmdline = fmt::format("{0} -layout {1} -variant {2}", SETXKBMAP, join_layouts, join_variants);
