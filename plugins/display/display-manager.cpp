@@ -550,6 +550,14 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
 
 bool DisplayManager::apply(CCErrorCode &error_code)
 {
+    // 如果使用的是nvidia驱动，当没有接入任何显示器时,会将output的分辨率设置为8x8，导致底部面板不可见且后面无法恢复。
+    if (this->get_enabled_monitors().size() == 0)
+    {
+        KLOG_WARNING("Cannot find enabled monitor.");
+        error_code = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
+        return false;
+    }
+
     if (this->dynamic_scaling_window_)
     {
         // 应用缩放因子
