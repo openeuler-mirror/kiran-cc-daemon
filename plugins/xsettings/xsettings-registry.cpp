@@ -209,19 +209,19 @@ bool XSettingsRegistry::init()
 
 bool XSettingsRegistry::update(const std::string &name, int32_t value)
 {
-    auto var = std::make_shared<XSettingsPropertyInt>(name, value);
+    auto var = std::make_shared<XSettingsPropertyInt>(name, value, this->serial_);
     return this->update(var);
 }
 
 bool XSettingsRegistry::update(const std::string &name, const Glib::ustring &value)
 {
-    auto var = std::make_shared<XSettingsPropertyString>(name, value.raw());
+    auto var = std::make_shared<XSettingsPropertyString>(name, value.raw(), this->serial_);
     return this->update(var);
 }
 
 bool XSettingsRegistry::update(const std::string &name, const XSettingsColor &value)
 {
-    auto var = std::make_shared<XSettingsPropertyColor>(name, value);
+    auto var = std::make_shared<XSettingsPropertyColor>(name, value, this->serial_);
     return this->update(var);
 }
 
@@ -282,6 +282,7 @@ bool XSettingsRegistry::notify()
     data.append(std::string("\0\0\0", 3));
     data.append(std::string((char *)&this->serial_, 4));
     data.append(std::string((char *)&nsettings, 4));
+    ++this->serial_;
 
     // 填充body
     for (const auto &iter : this->properties_)
