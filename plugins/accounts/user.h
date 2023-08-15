@@ -208,11 +208,15 @@ private:
     // 模式转为对应的keyfile的group_name
     std::string mode_to_groupname(int32_t mode);
 
-    bool icon_file_changed(const Glib::ustring &value);
     AccountsAccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
     void reset_icon_file();
 
     void move_extra_data(const std::string &old_name, const std::string &new_name);
+
+    void build_freedesktop_user_object_path();
+
+    // 由于切换用户时，登陆器通过org.freedesktop.Accounts接口获取图标，Kiran设置/更新用户图标后需要同步到freedesktop
+    void sync_icon_file_to_freedesktop(const Glib::ustring &icon_file);
 
 private:
 private:
@@ -224,6 +228,7 @@ private:
     uint32_t object_register_id_;
 
     Glib::DBusObjectPathString object_path_;
+    Glib::DBusObjectPathString freedesktop_object_path_;
 
     std::string default_icon_file_;
     std::shared_ptr<Passwd> passwd_;
