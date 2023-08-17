@@ -33,7 +33,12 @@ namespace Kiran
 {
 #define USERDIR "/var/lib/AccountsService/users"
 #define ICONDIR "/var/lib/AccountsService/icons"
-#define ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
+#define KIRAN_ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
+
+#define FREEDESKTOP_ACCOUNTS_DBUS_NAME "org.freedesktop.Accounts"
+#define FREEDESKTOP_ACCOUNTS_OBJECT_PATH "/org/freedesktop/Accounts"
+#define FREEDESKTOP_ACCOUNTS_DBUS_INTERFACE "org.freedesktop.Accounts"
+#define FREEDESKTOP_ACCOUNTS_USER_DBUS_INTERFACE "org.freedesktop.Accounts.User"
 
 User::User(PasswdShadow passwd_shadow) : passwd_shadow_(passwd_shadow),
                                          object_register_id_(0),
@@ -62,7 +67,7 @@ std::shared_ptr<User> User::create_user(PasswdShadow passwd_shadow)
 void User::dbus_register()
 {
     KLOG_PROFILE("Uid: %" PRIu64, this->uid_);
-    this->object_path_ = fmt::format(ACCOUNTS_USER_OBJECT_PATH "/{0}", this->uid_get());
+    this->object_path_ = fmt::format(KIRAN_ACCOUNTS_USER_OBJECT_PATH "/{0}", this->uid_get());
     try
     {
         this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SYSTEM);
@@ -298,6 +303,7 @@ void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
 
 void User::init()
 {
+    this->build_freedesktop_user_object_path();
     this->udpate_nocache_var(this->passwd_shadow_);
     this->user_cache_ = std::make_shared<UserCache>(this->shared_from_this());
     // 由于图标路径是维护在缓存中，所以必须等UserCache对象创建后才能操作
@@ -631,6 +637,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
     } while (0);
 
     this->icon_file_set(filename);
+    this->sync_icon_file_to_freedesktop(filename);
     invocation.ret();
 }
 
@@ -974,12 +981,6 @@ USER_PROP_SET_HANDLER(automatic_login, bool);
 USER_PROP_SET_HANDLER(system_account, bool);
 USER_PROP_SET_HANDLER(password_expiration_policy, const Glib::ustring &);
 
-bool User::icon_file_changed(const Glib::ustring &value)
-{
-    this->icon_file_set(value);
-    return false;
-}
-
 AccountsAccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
 {
     g_return_val_if_fail(passwd, AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD);
@@ -1023,6 +1024,7 @@ void User::reset_icon_file()
         if (icon_file != this->default_icon_file_)
         {
             this->icon_file_set(this->default_icon_file_);
+            this->sync_icon_file_to_freedesktop(this->default_icon_file_);
         }
     }
 }
@@ -1032,6 +1034,69 @@ void User::move_extra_data(const std::string &old_name, const std::string &new_n
     auto old_filename = Glib::build_filename(USERDIR, old_name);
     auto new_filename = Glib::build_filename(USERDIR, new_name);
     g_rename(old_filename.c_str(), new_filename.c_str());
+}
+
+void User::build_freedesktop_user_object_path()
+{
+    this->freedesktop_object_path_ = Glib::DBusObjectPathString();
+
+    Glib::RefPtr<Gio::DBus::Proxy> account_proxy;
+    try
+    {
+        account_proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                              FREEDESKTOP_ACCOUNTS_DBUS_NAME,
+                                                              FREEDESKTOP_ACCOUNTS_OBJECT_PATH,
+                                                              FREEDESKTOP_ACCOUNTS_DBUS_INTERFACE);
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("%s", e.what().c_str());
+        return;
+    }
+
+    auto parameters = g_variant_new("(x)", this->uid_get());
+    Glib::VariantContainerBase base(parameters, false);
+    try
+    {
+        auto retval = account_proxy->call_sync("FindUserById", base);
+        auto v1 = retval.get_child(0);
+        this->freedesktop_object_path_ = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(v1).get().raw();
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("%s", e.what().c_str());
+    }
+}
+
+void User::sync_icon_file_to_freedesktop(const Glib::ustring &icon_file)
+{
+    RETURN_IF_TRUE(this->freedesktop_object_path_.empty());
+
+    Glib::RefPtr<Gio::DBus::Proxy> account_proxy;
+    try
+    {
+        account_proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                              FREEDESKTOP_ACCOUNTS_DBUS_NAME,
+                                                              this->freedesktop_object_path_,
+                                                              FREEDESKTOP_ACCOUNTS_USER_DBUS_INTERFACE);
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("%s", e.what().c_str());
+        return;
+    }
+
+    auto parameters = g_variant_new("(s)", icon_file.c_str());
+    Glib::VariantContainerBase base(parameters, false);
+    Glib::VariantContainerBase retval;
+    try
+    {
+        retval = account_proxy->call_sync("SetIconFile", base);
+    }
+    catch (const Glib::Error &e)
+    {
+        KLOG_WARNING("%s", e.what().c_str());
+    }
 }
 
 }  // namespace Kiran
