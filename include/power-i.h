@@ -67,8 +67,8 @@ extern "C"
 
     enum PowerEvent
     {
-        // 按下关机键
-        POWER_EVENT_PRESSED_POWEROFF = 0,
+        // 释放关机键
+        POWER_EVENT_RELEASE_POWEROFF = 0,
         // 按下睡眠键
         POWER_EVENT_PRESSED_SLEEP,
         // 按下挂起键
