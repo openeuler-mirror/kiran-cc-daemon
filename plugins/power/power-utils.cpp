@@ -77,8 +77,8 @@ std::string PowerUtils::event_enum2str(uint32_t event)
 {
     switch (event)
     {
-    case PowerEvent::POWER_EVENT_PRESSED_POWEROFF:
-        return "power off pressed";
+    case PowerEvent::POWER_EVENT_RELEASE_POWEROFF:
+        return "power off release";
     case PowerEvent::POWER_EVENT_PRESSED_SLEEP:
         return "sleep pressed";
     case PowerEvent::POWER_EVENT_PRESSED_SUSPEND:

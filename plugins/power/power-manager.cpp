@@ -188,7 +188,7 @@ void PowerManager::SetEventAction(gint32 event,
 
     switch (event)
     {
-    case PowerEvent::POWER_EVENT_PRESSED_POWEROFF:
+    case PowerEvent::POWER_EVENT_RELEASE_POWEROFF:
         result = this->power_settings_->set_enum(POWER_SCHEMA_BUTTON_POWER_ACTION, action);
         break;
     case PowerEvent::POWER_EVENT_PRESSED_SLEEP:
@@ -225,7 +225,7 @@ void PowerManager::GetEventAction(gint32 event,
 
     switch (event)
     {
-    case PowerEvent::POWER_EVENT_PRESSED_POWEROFF:
+    case PowerEvent::POWER_EVENT_RELEASE_POWEROFF:
         action = this->power_settings_->get_enum(POWER_SCHEMA_BUTTON_POWER_ACTION);
         break;
     case PowerEvent::POWER_EVENT_PRESSED_SLEEP:
@@ -428,7 +428,7 @@ void PowerManager::on_settings_changed(const Glib::ustring& key)
         this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_PRESSED_HIBERNATE);
         break;
     case CONNECT(POWER_SCHEMA_BUTTON_POWER_ACTION, _hash):
-        this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_PRESSED_POWEROFF);
+        this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_RELEASE_POWEROFF);
         break;
     case CONNECT(POWER_SCHEMA_LID_CLOSED_ACTION, _hash):
         this->EventActionChanged_signal.emit(PowerEvent::POWER_EVENT_LID_CLOSED);
