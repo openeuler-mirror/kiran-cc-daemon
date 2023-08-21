@@ -157,7 +157,7 @@ void PowerEventControl::on_button_changed(PowerEvent evnet)
 
     switch (evnet)
     {
-    case POWER_EVENT_PRESSED_POWEROFF:
+    case POWER_EVENT_RELEASE_POWEROFF:
     {
         action = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_BUTTON_POWER_ACTION));
         PowerSave::get_instance()->do_save(action, error);
