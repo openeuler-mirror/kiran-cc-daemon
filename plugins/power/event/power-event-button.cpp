@@ -48,7 +48,7 @@ void PowerEventButton::init()
     auto login1 = PowerWrapperManager::get_instance()->get_default_login1();
     this->login1_inhibit_fd_ = login1->inhibit("handle-power-key:handle-suspend-key:handle-lid-switch");
 
-    this->register_button(XF86XK_PowerOff, PowerEvent::POWER_EVENT_PRESSED_POWEROFF);
+    this->register_button(XF86XK_PowerOff, PowerEvent::POWER_EVENT_RELEASE_POWEROFF);
     this->register_button(XF86XK_Suspend, PowerEvent::POWER_EVENT_PRESSED_SUSPEND);
     this->register_button(XF86XK_Sleep, PowerEvent::POWER_EVENT_PRESSED_SLEEP);
     this->register_button(XF86XK_Hibernate, PowerEvent::POWER_EVENT_PRESSED_HIBERNATE);
@@ -136,7 +136,14 @@ GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *e
     auto button = (PowerEventButton *)data;
     XEvent *xevent = (XEvent *)gdk_event;
 
-    RETURN_VAL_IF_TRUE(xevent->type != KeyPress, GDK_FILTER_CONTINUE);
+    if (xevent->xkey.keycode == XKeysymToKeycode(button->xdisplay_, XF86XK_PowerOff))
+    {
+        RETURN_VAL_IF_TRUE(xevent->type != KeyRelease, GDK_FILTER_CONTINUE);
+    }
+    else
+    {
+        RETURN_VAL_IF_TRUE(xevent->type != KeyPress, GDK_FILTER_CONTINUE);
+    }
 
     auto keycode = xevent->xkey.keycode;
     auto keycode_str = fmt::format("0x{:x}", keycode);
@@ -148,7 +155,7 @@ GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *e
         return GDK_FILTER_CONTINUE;
     }
 
-    KLOG_DEBUG("Receipt keycode signal: %s.", keycode_str.c_str());
+    KLOG_DEBUG("Receipt keycode signal: %s, event type: %d.", keycode_str.c_str(), xevent->type);
     button->emit_button_signal(iter->second);
 
     return GDK_FILTER_REMOVE;
