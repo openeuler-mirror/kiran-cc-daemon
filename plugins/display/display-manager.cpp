@@ -26,6 +26,8 @@ namespace Kiran
 {
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_STYLE "display-style"
+#define DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW "dynamic-scaling-window"
+#define DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER "max-screen-record-number"
 #define SCREEN_CHANGED_ADAPT "screen-changed-adaptation"
 
 #define DISPLAY_CONF_DIR "kylinsec/" PROJECT_NAME "/display"
@@ -34,10 +36,13 @@ namespace Kiran
 #define MONITOR_JOIN_CHAR ","
 #define XRANDR_CMD "xrandr"
 
+#define DEFAULT_MAX_SCREEN_RECORD_NUMBER 100
+
 DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(xrandr_manager),
                                                                 default_style_(DisplayStyle::DISPLAY_STYLE_EXTEND),
                                                                 window_scaling_factor_(0),
                                                                 dynamic_scaling_window_(false),
+                                                                max_screen_record_number_(DEFAULT_MAX_SCREEN_RECORD_NUMBER),
                                                                 dbus_connect_id_(0),
                                                                 object_register_id_(0)
 {
@@ -276,6 +281,7 @@ void DisplayManager::load_settings()
     this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE));
     this->dynamic_scaling_window_ = this->display_settings_->get_boolean(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW);
     this->window_scaling_factor_ = this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR);
+    this->max_screen_record_number_ = this->display_settings_->get_int(DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER);
 }
 
 void DisplayManager::load_monitors()
@@ -465,6 +471,7 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
 
 void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
 {
+    screen_config.timestamp((uint32_t)time(NULL));
     screen_config.primary(this->primary_);
     screen_config.window_scaling_factor(this->window_scaling_factor_);
 
@@ -523,7 +530,7 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
     auto monitors_uid = this->get_monitors_uid();
     auto &c_screens = this->display_config_->screen();
     bool matched = false;
-    ScreenConfigInfo used_config("", 0);
+    ScreenConfigInfo used_config(0, "", 0);
 
     this->fill_screen_config(used_config);
     for (auto &c_screen : c_screens)
@@ -541,6 +548,23 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
     if (!matched)
     {
         this->display_config_->screen().push_back(used_config);
+    }
+
+    if (c_screens.size() > this->max_screen_record_number_)
+    {
+        auto oldest_screen = c_screens.begin();
+        for (auto iter = c_screens.begin(); iter != c_screens.end(); iter++)
+        {
+            if ((*iter).timestamp() < (*oldest_screen).timestamp())
+            {
+                oldest_screen = iter;
+            }
+        }
+
+        if (oldest_screen != c_screens.end())
+        {
+            c_screens.erase(oldest_screen);
+        }
     }
 
     RETURN_VAL_IF_FALSE(this->save_to_file(error_code), false);
@@ -770,8 +794,8 @@ void DisplayManager::switch_to_auto()
     KLOG_PROFILE("");
 
     CCErrorCode error_code;
+
     RETURN_IF_TRUE(this->switch_to_custom(error_code));
-    RETURN_IF_TRUE(this->switch_to_mirrors(error_code));
     this->switch_to_extend();
 }
 
