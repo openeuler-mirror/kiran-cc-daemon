@@ -38,6 +38,7 @@
 
     <xsd:complexType name="ScreenConfigInfo">
         <xsd:sequence>
+            <xsd:element name="timestamp" type="xsd:unsignedInt" default="0"/>
             <xsd:element name="primary" type="xsd:string" default="" />
             <xsd:element name="window_scaling_factor" type="xsd:int" default="0" />
             <xsd:element name="monitor" type="MonitorConfigInfo" maxOccurs="unbounded" />

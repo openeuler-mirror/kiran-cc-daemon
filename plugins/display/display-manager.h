@@ -145,6 +145,8 @@ private:
     int32_t window_scaling_factor_;
     // 开启动态缩放窗口
     bool dynamic_scaling_window_;
+    // 可存储屏幕个数最大值
+    uint32_t max_screen_record_number_;
 
     std::map<uint32_t, std::shared_ptr<DisplayMonitor>> monitors_;
 
