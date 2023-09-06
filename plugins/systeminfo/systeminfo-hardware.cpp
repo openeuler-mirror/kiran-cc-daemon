@@ -85,16 +85,16 @@ HardwareInfo SystemInfoHardware::get_hardware_info()
     return hardware_info;
 }
 
-CPUInfo SystemInfoHardware::merge_cpu_infos(const std::vector<CPUInfo> &cpu_infos)
+CPUInfo SystemInfoHardware::merge_cpu_infos(const std::vector<CPUInfo>& cpu_infos)
 {
     CPUInfo cpu_info;
-    for(auto& iter : cpu_infos)
+    for (auto& iter : cpu_infos)
     {
-        if(cpu_info.model.empty())
+        if (cpu_info.model.empty())
         {
             cpu_info.model = iter.model;
         }
-        if(cpu_info.cores_number == 0)
+        if (cpu_info.cores_number == 0)
         {
             cpu_info.cores_number = iter.cores_number;
         }
@@ -159,7 +159,7 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 
     cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
     //适配龙芯架构
-    if(cpu_info.model.empty())
+    if (cpu_info.model.empty())
     {
         cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
     }
@@ -360,15 +360,13 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
     RETURN_VAL_IF_TRUE(full_class_ids.size() == 0, KVList());
 
     // 根据full_class_id列表获取设备相关信息
+    std::string full_outputs;
+    for (auto& full_class_id : full_class_ids)
     {
         std::string cmd_output;
         std::vector<std::string> argv{PCIINFO_CMD, "-vmm"};
-
-        for (auto& full_class_id : full_class_ids)
-        {
-            argv.push_back("-d");
-            argv.push_back(fmt::format("::{:04x}", full_class_id));
-        }
+        argv.push_back("-d");
+        argv.push_back(fmt::format("::{:04x}", full_class_id));
 
         KLOG_DEBUG("cmdline: %s.", StrUtils::join(argv, " ").c_str());
         try
@@ -384,8 +382,17 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
             KLOG_WARNING("%s", e.what().c_str());
             return KVList();
         }
-        return this->format_to_kv_list(cmd_output);
+
+        full_outputs.append(cmd_output);
     }
+
+    if (full_outputs.empty())
+    {
+        KLOG_WARNING("Get empty pci info calss id:%d.", major_class_id);
+        return KVList();
+    }
+
+    return this->format_to_kv_list(full_outputs);
 }
 
 KVList SystemInfoHardware::format_to_kv_list(const std::string& contents)
