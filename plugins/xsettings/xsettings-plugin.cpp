@@ -21,9 +21,6 @@
 
 PLUGIN_EXPORT_FUNC_DEF(XSettingsPlugin);
 
-#define MATE_XSETTINGS_SCHEMA_ID "org.mate.SettingsDaemon.plugins.xsettings"
-#define MATE_XSETTINGS_SCHEMA_KEY_ACTIVE "active"
-
 namespace Kiran
 {
 XSettingsPlugin::XSettingsPlugin()
@@ -38,33 +35,12 @@ void XSettingsPlugin::activate()
 {
     KLOG_PROFILE("active xsettings plugin.");
 
-    // kiran和mate的xrandr插件只能运行一个，如果开启了kiran的插件，则将mate的插件停用
-    auto schemas = Gio::Settings::list_schemas();
-    if (std::find(schemas.begin(), schemas.end(), MATE_XSETTINGS_SCHEMA_ID) != schemas.end())
-    {
-        auto mate_xsettings = Gio::Settings::create(MATE_XSETTINGS_SCHEMA_ID);
-        if (mate_xsettings->get_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE))
-        {
-            mate_xsettings->set_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE, false);
-        }
-    }
-
     XSettingsManager::global_init();
 }
 
 void XSettingsPlugin::deactivate()
 {
     KLOG_PROFILE("deactive xsettings plugin.");
-
-    auto schemas = Gio::Settings::list_schemas();
-    if (std::find(schemas.begin(), schemas.end(), MATE_XSETTINGS_SCHEMA_ID) != schemas.end())
-    {
-        auto mate_xsettings = Gio::Settings::create(MATE_XSETTINGS_SCHEMA_ID);
-        if (!mate_xsettings->get_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE))
-        {
-            mate_xsettings->set_boolean(MATE_XSETTINGS_SCHEMA_KEY_ACTIVE, true);
-        }
-    }
 
     XSettingsManager::global_deinit();
 }
