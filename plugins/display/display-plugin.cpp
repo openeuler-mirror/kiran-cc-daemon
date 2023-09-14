@@ -22,9 +22,6 @@
 
 PLUGIN_EXPORT_FUNC_DEF(DisplayPlugin);
 
-#define MATE_XRANDR_SCHEMA_ID "org.mate.SettingsDaemon.plugins.xrandr"
-#define MATE_XRANDR_SCHEMA_KEY_ACTIVE "active"
-
 namespace Kiran
 {
 DisplayPlugin::DisplayPlugin()
@@ -38,16 +35,6 @@ DisplayPlugin::~DisplayPlugin()
 void DisplayPlugin::activate()
 {
     KLOG_PROFILE("active display plugin.");
-    // kiran和mate的插件最好不要同时运行，如果开启了kiran的插件，则将mate的插件停用
-    auto schemas = Gio::Settings::list_schemas();
-    if (std::find(schemas.begin(), schemas.end(), MATE_XRANDR_SCHEMA_ID) != schemas.end())
-    {
-        auto mate_display = Gio::Settings::create(MATE_XRANDR_SCHEMA_ID);
-        if (mate_display->get_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE))
-        {
-            mate_display->set_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE, false);
-        }
-    }
 
     XrandrManager::global_init();
     DisplayManager::global_init(XrandrManager::get_instance());
@@ -56,17 +43,6 @@ void DisplayPlugin::activate()
 void DisplayPlugin::deactivate()
 {
     KLOG_PROFILE("deactive display plugin.");
-
-    // 恢复MATE的插件
-    auto schemas = Gio::Settings::list_schemas();
-    if (std::find(schemas.begin(), schemas.end(), MATE_XRANDR_SCHEMA_ID) != schemas.end())
-    {
-        auto mate_display = Gio::Settings::create(MATE_XRANDR_SCHEMA_ID);
-        if (!mate_display->get_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE))
-        {
-            mate_display->set_boolean(MATE_XRANDR_SCHEMA_KEY_ACTIVE, true);
-        }
-    }
 
     DisplayManager::global_deinit();
     XrandrManager::global_deinit();
