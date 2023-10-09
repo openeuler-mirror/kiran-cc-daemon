@@ -406,16 +406,6 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
                        monitor->name_get().c_str());
         }
 
-        auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
-        if (!mode)
-        {
-            KLOG_WARNING("Cannot match the mode. width: %d, height: %d, refresh: %.2f.",
-                         c_monitor.width(),
-                         c_monitor.height(),
-                         c_monitor.refresh_rate());
-            return false;
-        }
-
         if (!c_monitor.enabled())
         {
             monitor->enabled_set(false);
@@ -427,6 +417,17 @@ bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, 
         }
         else
         {
+            // 只有在显示器开启状态下才能取匹配mode，因为显示器关闭状态下c_monitor里面保持的分辨率都是0x0
+            auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
+            if (!mode)
+            {
+                KLOG_WARNING("Cannot match the mode. width: %d, height: %d, refresh: %.2f.",
+                             c_monitor.width(),
+                             c_monitor.height(),
+                             c_monitor.refresh_rate());
+                return false;
+            }
+
             monitor->enabled_set(true);
             monitor->x_set(c_monitor.x());
             monitor->y_set(c_monitor.y());
