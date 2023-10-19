@@ -66,7 +66,6 @@ std::shared_ptr<User> User::create_user(PasswdShadow passwd_shadow)
 
 void User::dbus_register()
 {
-    KLOG_PROFILE("Uid: %" PRIu64, this->uid_);
     this->object_path_ = fmt::format(KIRAN_ACCOUNTS_USER_OBJECT_PATH "/{0}", this->uid_get());
     try
     {
@@ -74,7 +73,7 @@ void User::dbus_register()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("failed to get system bus: %s.", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("Failed to get system bus: %s.", e.what().c_str());
         return;
     }
 
@@ -83,8 +82,6 @@ void User::dbus_register()
 
 void User::dbus_unregister()
 {
-    KLOG_PROFILE("Uid: %" PRIu64, this->uid_);
-
     if (this->object_register_id_)
     {
         this->unregister_object();
@@ -94,7 +91,6 @@ void User::dbus_unregister()
 
 void User::freeze_notify()
 {
-    KLOG_PROFILE("Uid: %" PRIu64, this->uid_);
     if (this->dbus_connect_)
     {
         this->dbus_connect_->freeze_notify();
@@ -103,37 +99,36 @@ void User::freeze_notify()
 
 void User::thaw_notify()
 {
-    KLOG_PROFILE("Uid: %" PRIu64, this->uid_);
     if (this->dbus_connect_)
     {
         this->dbus_connect_->thaw_notify();
     }
 }
 
-#define SET_STR_VALUE_FROM_KEYFILE(key, fun)           \
-    {                                                  \
-        try                                            \
-        {                                              \
-            auto s = keyfile->get_string("User", key); \
-            this->fun(s);                              \
-        }                                              \
-        catch (const Glib::KeyFileError &e)            \
-        {                                              \
-            KLOG_DEBUG("%s", e.what().c_str());        \
-        }                                              \
+#define SET_STR_VALUE_FROM_KEYFILE(key, fun)                                              \
+    {                                                                                     \
+        try                                                                               \
+        {                                                                                 \
+            auto s = keyfile->get_string("User", key);                                    \
+            this->fun(s);                                                                 \
+        }                                                                                 \
+        catch (const Glib::KeyFileError &e)                                               \
+        {                                                                                 \
+            KLOG_DEBUG_ACCOUNTS("Set str value from keyfile error:%s", e.what().c_str()); \
+        }                                                                                 \
     }
 
-#define SET_BOOL_VALUE_FROM_KEYFILE(key, fun)           \
-    {                                                   \
-        try                                             \
-        {                                               \
-            auto b = keyfile->get_boolean("User", key); \
-            this->fun(b);                               \
-        }                                               \
-        catch (const Glib::KeyFileError &e)             \
-        {                                               \
-            KLOG_DEBUG("%s", e.what().c_str());         \
-        }                                               \
+#define SET_BOOL_VALUE_FROM_KEYFILE(key, fun)                                              \
+    {                                                                                      \
+        try                                                                                \
+        {                                                                                  \
+            auto b = keyfile->get_boolean("User", key);                                    \
+            this->fun(b);                                                                  \
+        }                                                                                  \
+        catch (const Glib::KeyFileError &e)                                                \
+        {                                                                                  \
+            KLOG_DEBUG_ACCOUNTS("Set bool value from keyfile error:%s", e.what().c_str()); \
+        }                                                                                  \
     }
 
 void User::remove_cache_file()
@@ -191,7 +186,6 @@ gint32 User::auth_modes_get()
 #define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
     void User::fun(MethodInvocation &invocation)                                                                \
     {                                                                                                           \
-        KLOG_PROFILE("");                                                                                       \
         std::string action_id = this->get_auth_action(invocation, auth);                                        \
         RETURN_IF_TRUE(action_id.empty());                                                                      \
                                                                                                                 \
@@ -207,7 +201,6 @@ gint32 User::auth_modes_get()
     void User::fun(type1 value,                                                                                        \
                    MethodInvocation &invocation)                                                                       \
     {                                                                                                                  \
-        KLOG_PROFILE("");                                                                                              \
         std::string action_id = this->get_auth_action(invocation, auth);                                               \
         RETURN_IF_TRUE(action_id.empty());                                                                             \
                                                                                                                        \
@@ -224,7 +217,6 @@ gint32 User::auth_modes_get()
                    type2 value2,                                                                                                \
                    MethodInvocation &invocation)                                                                                \
     {                                                                                                                           \
-        KLOG_PROFILE("");                                                                                                       \
         std::string action_id = this->get_auth_action(invocation, auth);                                                        \
         RETURN_IF_TRUE(action_id.empty());                                                                                      \
                                                                                                                                 \
@@ -242,7 +234,6 @@ gint32 User::auth_modes_get()
                    type3 value3,                                                                                                        \
                    MethodInvocation &invocation)                                                                                        \
     {                                                                                                                                   \
-        KLOG_PROFILE("");                                                                                                               \
         std::string action_id = this->get_auth_action(invocation, auth);                                                                \
         RETURN_IF_TRUE(action_id.empty());                                                                                              \
                                                                                                                                         \
@@ -279,8 +270,6 @@ USER_SET_TWO_PROP_AUTH(EnableAuthMode, enable_auth_mode_authorized_cb, AUTH_USER
 
 void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("mdoe: %d.", mode);
-
     auto auth_items = this->get_auth_items(mode);
     Json::Value auth_items_value;
     Json::FastWriter writer;
@@ -296,7 +285,7 @@ void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_ACCOUNTS("User get authitem exception:%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_GET_AUTHITEM_EXCEPTION);
     }
 }
@@ -331,8 +320,8 @@ void User::udpate_nocache_var(PasswdShadow passwd_shadow)
         }
         else
         {
-            KLOG_WARNING("User %s has invalid UTF-8 in GECOS field.  It would be a good thing to check /etc/passwd.",
-                         this->passwd_->pw_name.c_str() ? this->passwd_->pw_name.c_str() : "");
+            KLOG_WARNING_ACCOUNTS("User %s has invalid UTF-8 in GECOS field.  It would be a good thing to check /etc/passwd.",
+                                  this->passwd_->pw_name.c_str() ? this->passwd_->pw_name.c_str() : "");
         }
     }
 
@@ -414,13 +403,12 @@ void User::update_password_expiration_policy(std::shared_ptr<SPwd> spwd)
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_ACCOUNTS("Update password expiration exception:%s.", e.what());
     }
 }
 
 std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
 {
-    KLOG_PROFILE("own action: %s.", own_action.c_str());
     RETURN_VAL_IF_TRUE(own_action == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
 
     std::string action_id;
@@ -444,8 +432,6 @@ std::string User::get_auth_action(MethodInvocation &invocation, const std::strin
 
 void User::change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
 {
-    KLOG_PROFILE("UserName: %s", name.c_str());
-
     if (this->user_name_get() != name)
     {
         auto old_name = this->user_name_get();
@@ -461,7 +447,6 @@ void User::change_user_name_authorized_cb(MethodInvocation invocation, const Gli
 
 void User::change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
 {
-    KLOG_PROFILE("RealName: %s", name.c_str());
     if (this->real_name_get() != name)
     {
         SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-c", name, "--", this->user_name_get().raw());
@@ -475,7 +460,7 @@ void User::change_real_name_authorized_cb(MethodInvocation invocation, const Gli
 #define USER_AUTH_CHECK_CB(fun, prop)                                       \
     void User::fun(MethodInvocation invocation, const Glib::ustring &value) \
     {                                                                       \
-        KLOG_PROFILE(#prop ": %s", value.c_str());                          \
+        KLOG_DEBUG_ACCOUNTS(#prop ": %s", value.c_str());                   \
         if (this->prop##_get() != value)                                    \
         {                                                                   \
             this->prop##_set(value);                                        \
@@ -492,12 +477,9 @@ USER_AUTH_CHECK_CB(change_session_type_authorized_cb, session_type);
 
 void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir)
 {
-    KLOG_PROFILE("HomeDir: %s", home_dir.c_str());
-
     if (this->home_directory_get() != home_dir)
     {
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw())
-
+        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw());
         this->home_directory_set(home_dir);
         this->reset_icon_file();
     }
@@ -506,8 +488,6 @@ void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib
 
 void User::change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell)
 {
-    KLOG_PROFILE("Shell: %s", shell.c_str());
-
     if (this->shell_get() != shell)
     {
         SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->user_name_get().raw());
@@ -529,8 +509,6 @@ void User::become_user(std::shared_ptr<Passwd> passwd)
 
 void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file)
 {
-    KLOG_PROFILE("IconFile: %s", icon_file.c_str());
-
     auto filename = icon_file;
 
     do
@@ -551,20 +529,20 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("%s.", e.what().c_str());
+            KLOG_WARNING_ACCOUNTS("%s.", e.what().c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_1);
         }
 
         if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
         {
-            KLOG_WARNING("File %s is not a regular file.", filename.c_str());
+            KLOG_WARNING_ACCOUNTS("File %s is not a regular file.", filename.c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_FILE_TYPE_NQ_REGULAR);
         }
 
         auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
         if (size > 1048576)
         {
-            KLOG_WARNING("File %s is too large to be used as an icon", filename.c_str());
+            KLOG_WARNING_ACCOUNTS("File %s is too large to be used as an icon", filename.c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_FILE_SIZE_TOO_BIG);
         }
 
@@ -584,7 +562,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("Creating file %s failed: %s", dest_path.c_str(), e.what().c_str());
+            KLOG_WARNING_ACCOUNTS("Creating file %s failed: %s", dest_path.c_str(), e.what().c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_REPLACE_OUTPUT_STREAM);
         }
 
@@ -605,7 +583,7 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("%s", e.what().c_str());
+            KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_SPAWN_READ_FILE_FAILED);
         }
 
@@ -617,12 +595,12 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("%s", e.what().c_str());
+            KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
         }
 
         if (bytes < 0 || (uint64_t)bytes != size)
         {
-            KLOG_WARNING("Failed to Copye file %s to %s", filename.c_str(), dest_path.c_str());
+            KLOG_WARNING_ACCOUNTS("Failed to copy file %s to %s", filename.c_str(), dest_path.c_str());
             DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_COPY_FILE_FAILED);
             IGNORE_EXCEPTION(dest_file->remove());
             return;
@@ -643,8 +621,6 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
 
 void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
 {
-    KLOG_PROFILE("Locked: %d", locked);
-
     if (this->locked_get() != locked)
     {
         SPAWN_DBUS(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->user_name_get().raw());
@@ -661,8 +637,6 @@ void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
 
 void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_t account_type)
 {
-    KLOG_PROFILE("AccountType: %d", account_type);
-
     if (this->account_type_get() != account_type)
     {
         auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
@@ -695,8 +669,6 @@ void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_
 
 void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32_t password_mode)
 {
-    KLOG_PROFILE("PasswordMode: %d", password_mode);
-
     if (this->password_mode_get() != password_mode)
     {
         this->freeze_notify();
@@ -729,8 +701,6 @@ void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32
 
 void User::change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint)
 {
-    KLOG_DEBUG("Password: %s PasswordHint: %s", password.c_str(), password_hint.c_str());
-
     this->freeze_notify();
     SCOPE_EXIT({
         this->thaw_notify();
@@ -755,8 +725,6 @@ void User::change_password_by_passwd_authorized_cb(MethodInvocation invocation,
 
     auto current_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_current_password);
     auto new_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_new_password);
-
-    // KLOG_DEBUG("The currentPassword: %s, newPassword: %s.", current_password.c_str(), new_password.c_str());
 
     if (this->passwd_wrapper_ && this->passwd_wrapper_->get_state() != PasswdState::PASSWD_STATE_NONE)
     {
@@ -789,8 +757,6 @@ USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, password_hint);
 
 void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login)
 {
-    KLOG_PROFILE("AutoLogin: %d", auto_login);
-
     if (this->locked_get())
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED);
@@ -805,8 +771,6 @@ void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool aut
 
 void User::change_password_expiration_policy_cb(MethodInvocation invocation, const Glib::ustring &options)
 {
-    KLOG_DEBUG("options: %s.", options.c_str());
-
     std::vector<std::string> argv{"/usr/bin/chage"};
 
     this->freeze_notify();
@@ -820,7 +784,7 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
     {
         if (!values[key].isInt64())
         {
-            KLOG_WARNING("The type of option %s must be Int64", key.c_str());
+            KLOG_WARNING_ACCOUNTS("The type of option %s must be Int64", key.c_str());
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID);
         }
 
@@ -853,7 +817,7 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
             argv.push_back(fmt::format("{0}", value));
             break;
         default:
-            KLOG_DEBUG("The option %s is ignored.", key.c_str());
+            KLOG_DEBUG_ACCOUNTS("The option %s is ignored.", key.c_str());
             break;
         }
     }
@@ -874,7 +838,6 @@ void User::add_auth_item_authorized_cb(MethodInvocation invocation,
                                        const Glib::ustring &name,
                                        const Glib::ustring &data_id)
 {
-    KLOG_PROFILE("mdoe: %d, name: %s, data_id: %s.", mode, name.c_str(), data_id.c_str());
     auto group_name = this->mode_to_groupname(mode);
 
     if (group_name.length() == 0)
@@ -900,8 +863,6 @@ void User::del_auth_item_authorized_cb(MethodInvocation invocation,
                                        int32_t mode,
                                        const Glib::ustring &name)
 {
-    KLOG_PROFILE("mdoe: %d, name: %s.", mode, name.c_str());
-
     auto group_name = this->mode_to_groupname(mode);
 
     if (group_name.length() == 0)
@@ -920,8 +881,6 @@ void User::del_auth_item_authorized_cb(MethodInvocation invocation,
 
 void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled)
 {
-    KLOG_PROFILE("mode: %d, enabled: %d.", mode, enabled);
-
     if (mode >= AccountsAuthMode::ACCOUNTS_AUTH_MODE_LAST || mode < 0)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_4);
@@ -939,7 +898,7 @@ void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t m
 
     if (!current_mode)
     {
-        KLOG_WARNING("All authorization mode is off, the authorization mode will automatically be set to password authorization mode.");
+        KLOG_WARNING_ACCOUNTS("All authorization mode is off, the authorization mode will automatically be set to password authorization mode.");
     }
 
     this->auth_modes_set(current_mode);
@@ -960,12 +919,11 @@ std::string User::mode_to_groupname(int32_t mode)
     return std::string();
 }
 
-#define USER_PROP_SET_HANDLER(prop, type)                                                      \
-    bool User::prop##_setHandler(type value)                                                   \
-    {                                                                                          \
-        KLOG_DEBUG("Set property %s to value: %s.", #prop, fmt::format("{0}", value).c_str()); \
-        this->prop##_ = value;                                                                 \
-        return true;                                                                           \
+#define USER_PROP_SET_HANDLER(prop, type)    \
+    bool User::prop##_setHandler(type value) \
+    {                                        \
+        this->prop##_ = value;               \
+        return true;                         \
     }
 
 USER_PROP_SET_HANDLER(uid, guint64);
@@ -990,14 +948,14 @@ AccountsAccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd
 
     if (passwd->pw_uid == 0)
     {
-        KLOG_DEBUG("user is root so account type is administrator");
+        KLOG_DEBUG_ACCOUNTS("User is root so account type is administrator");
         return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
     }
 
     grp = getgrnam(ADMIN_GROUP);
     if (grp == NULL)
     {
-        KLOG_DEBUG(ADMIN_GROUP " group not found");
+        KLOG_DEBUG_ACCOUNTS(ADMIN_GROUP " group not found");
         return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
     }
 
@@ -1050,7 +1008,7 @@ void User::build_freedesktop_user_object_path()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
         return;
     }
 
@@ -1064,7 +1022,7 @@ void User::build_freedesktop_user_object_path()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
     }
 }
 
@@ -1082,7 +1040,7 @@ void User::sync_icon_file_to_freedesktop(const Glib::ustring &icon_file)
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
         return;
     }
 
@@ -1095,7 +1053,7 @@ void User::sync_icon_file_to_freedesktop(const Glib::ustring &icon_file)
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
     }
 }
 

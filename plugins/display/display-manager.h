@@ -127,6 +127,8 @@ private:
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
     void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
 
+    Glib::ustring style_enum2str(DisplayStyle style);
+
 private:
     static DisplayManager* instance_;
     XrandrManager* xrandr_manager_;

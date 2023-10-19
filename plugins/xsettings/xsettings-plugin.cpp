@@ -33,14 +33,14 @@ XSettingsPlugin::~XSettingsPlugin()
 
 void XSettingsPlugin::activate()
 {
-    KLOG_PROFILE("active xsettings plugin.");
+    KLOG_DEBUG_XSETTINGS("Active xsettings plugin.");
 
     XSettingsManager::global_init();
 }
 
 void XSettingsPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive xsettings plugin.");
+    KLOG_DEBUG_XSETTINGS("Deactive xsettings plugin.");
 
     XSettingsManager::global_deinit();
 }

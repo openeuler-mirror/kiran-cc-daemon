@@ -87,7 +87,7 @@ std::shared_ptr<ThemeMonitorInfo> ThemeMonitor::get_and_check_parent_monitor(con
     auto monitor = this->get_monitor(parent_file->get_path());
     if (!monitor)
     {
-        KLOG_WARNING("Not found monitor info for: %s.", parent_file->get_path().c_str());
+        KLOG_WARNING_APPEARANCE("Not found monitor info for: %s.", parent_file->get_path().c_str());
         return nullptr;
     }
     return monitor;
@@ -98,7 +98,7 @@ bool ThemeMonitor::add_monitor(const std::string &path, std::shared_ptr<ThemeMon
     auto iter = this->monitors_.emplace(path, monitor);
     if (!iter.second)
     {
-        KLOG_DEBUG("Path already exists: %s.", path.c_str());
+        KLOG_DEBUG_APPEARANCE("Path already exists: %s.", path.c_str());
         return false;
     }
     return true;
@@ -143,7 +143,7 @@ void ThemeMonitor::add_meta_theme_parent_monitor(const std::string &path, int32_
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_APPEARANCE("%s", e.what().c_str());
         return;
     }
 }
@@ -193,7 +193,7 @@ void ThemeMonitor::del_theme_and_notify(const std::string &path, ThemeMonitorEve
     auto monitor = this->get_monitor(path);
     if (!monitor)
     {
-        KLOG_WARNING("Not found monitor info for %s.", path.c_str());
+        KLOG_WARNING_APPEARANCE("Not found monitor info for %s.", path.c_str());
         return;
     }
     this->events_.emit(monitor, type);
@@ -330,7 +330,7 @@ void ThemeMonitor::add_icon_theme_parent_monitor(const std::string &path, int32_
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_APPEARANCE("%s", e.what().c_str());
         return;
     }
 }

@@ -40,8 +40,6 @@ PulseNode::PulseNode(const PulseNodeInfo &node_info) : flags_(AudioNodeState::AU
 
 bool PulseNode::set_mute(bool mute)
 {
-    KLOG_PROFILE("mute: %d.", mute);
-
     RETURN_VAL_IF_TRUE(this->mute_ == mute, true);
 
     this->update_mute(mute);
@@ -50,11 +48,11 @@ bool PulseNode::set_mute(bool mute)
 
 bool PulseNode::set_volume(uint32_t volume)
 {
-    KLOG_PROFILE("volume: %d.", volume);
+    KLOG_DEBUG_AUDIO("Set volume to %d.", volume);
 
     if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE))
     {
-        KLOG_WARNING("The volume isn't writable, flags: %x.", this->flags_);
+        KLOG_WARNING_AUDIO("The volume isn't writable, flags: %x.", this->flags_);
         return false;
     }
 
@@ -70,11 +68,11 @@ bool PulseNode::set_volume(uint32_t volume)
 
 bool PulseNode::set_balance(float balance)
 {
-    KLOG_PROFILE("balance: %f.", balance);
+    KLOG_DEBUG_AUDIO("Set balance to %f.", balance);
 
     if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE))
     {
-        KLOG_WARNING("The balance is unsupported, flags: %x.", this->flags_);
+        KLOG_WARNING_AUDIO("The balance is unsupported, flags: %x.", this->flags_);
         return false;
     }
 
@@ -88,11 +86,9 @@ bool PulseNode::set_balance(float balance)
 
 bool PulseNode::set_fade(float fade)
 {
-    KLOG_PROFILE("fade: %f.", fade);
-
     if (!(this->flags_ & AudioNodeState::AUDIO_NODE_STATE_CAN_FADE))
     {
-        KLOG_WARNING("The fade is unsupported, flags: %x.", this->flags_);
+        KLOG_WARNING_AUDIO("The fade is unsupported, flags: %x.", this->flags_);
         return false;
     }
 
@@ -170,9 +166,7 @@ bool PulseNode::set_cvolume(const pa_cvolume &)
 
 void PulseNode::update_flags()
 {
-    KLOG_PROFILE("");
-
-    KLOG_DEBUG("flags before updated: %x.", this->flags_);
+    KLOG_DEBUG_AUDIO("Flags before updated: %x.", this->flags_);
     if (pa_channel_map_valid(&this->channel_map_))
     {
         if (pa_channel_map_can_balance(&this->channel_map_))
@@ -211,7 +205,7 @@ void PulseNode::update_flags()
         this->set_mute(true);
     }
 
-    KLOG_DEBUG("flags after updated: %x.", this->flags_);
+    KLOG_DEBUG_AUDIO("Flags after updated: %x.", this->flags_);
 }
 
 void PulseNode::update_mute(bool mute)

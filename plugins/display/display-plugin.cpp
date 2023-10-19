@@ -34,7 +34,7 @@ DisplayPlugin::~DisplayPlugin()
 
 void DisplayPlugin::activate()
 {
-    KLOG_PROFILE("active display plugin.");
+    KLOG_DEBUG_DISPLAY("Active display plugin.");
 
     XrandrManager::global_init();
     DisplayManager::global_init(XrandrManager::get_instance());
@@ -42,7 +42,7 @@ void DisplayPlugin::activate()
 
 void DisplayPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive display plugin.");
+    KLOG_DEBUG_DISPLAY("Deactive display plugin.");
 
     DisplayManager::global_deinit();
     XrandrManager::global_deinit();

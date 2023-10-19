@@ -45,8 +45,6 @@ void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
                                           const Glib::ustring &key_combination,
                                           MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     if (name.empty() || action.empty())
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
@@ -87,8 +85,6 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
                                              const Glib::ustring &key_combination,
                                              MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     if (name.empty() || action.empty())
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
@@ -124,7 +120,6 @@ void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
 
 void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
     if (!this->custom_shortcuts_->remove(uid))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
@@ -144,8 +139,6 @@ void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInv
 
 void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     try
     {
         Json::Value values;
@@ -165,15 +158,13 @@ void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvoca
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_KEYBINDING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
     }
 }
 
 void KeybindingManager::ListCustomShortcuts(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     try
     {
         Json::Value root;
@@ -195,7 +186,7 @@ void KeybindingManager::ListCustomShortcuts(MethodInvocation &invocation)
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_KEYBINDING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
     }
 }
@@ -204,8 +195,6 @@ void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
                                              const Glib::ustring &key_combination,
                                              MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_INVALID);
@@ -225,8 +214,6 @@ void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
 
 void KeybindingManager::GetSystemShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     try
     {
         Json::Value values;
@@ -247,15 +234,13 @@ void KeybindingManager::GetSystemShortcut(const Glib::ustring &uid, MethodInvoca
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_KEYBINDING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
     }
 }
 
 void KeybindingManager::ListSystemShortcuts(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     try
     {
         Json::Value root;
@@ -277,15 +262,13 @@ void KeybindingManager::ListSystemShortcuts(MethodInvocation &invocation)
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_KEYBINDING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
     }
 }
 
 void KeybindingManager::ListShortcuts(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     try
     {
         Json::Value root;
@@ -319,14 +302,13 @@ void KeybindingManager::ListShortcuts(MethodInvocation &invocation)
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_KEYBINDING("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
     }
 }
 
 void KeybindingManager::ResetShortcuts(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
     this->system_shortcuts_->reset();
     invocation.ret();
 }
@@ -402,10 +384,9 @@ void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> 
 
 void KeybindingManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_KEYBINDING("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -414,17 +395,17 @@ void KeybindingManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", KEYBINDING_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Register object_path %s fail: %s.", KEYBINDING_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void KeybindingManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_KEYBINDING("Success to register dbus name: %s", name.c_str());
 }
 
 void KeybindingManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("failed to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_KEYBINDING("Failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

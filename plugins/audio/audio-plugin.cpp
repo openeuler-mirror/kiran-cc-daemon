@@ -33,7 +33,7 @@ AudioPlugin::~AudioPlugin()
 
 void AudioPlugin::activate()
 {
-    KLOG_PROFILE("active audio plugin.");
+    KLOG_DEBUG_AUDIO("Active audio plugin.");
 
     PulseBackend::global_init();
     AudioManager::global_init(PulseBackend::get_instance());
@@ -41,7 +41,7 @@ void AudioPlugin::activate()
 
 void AudioPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive audio plugin.");
+    KLOG_DEBUG_AUDIO("Deactive audio plugin.");
 
     AudioManager::global_deinit();
     PulseBackend::global_deinit();

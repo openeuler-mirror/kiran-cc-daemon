@@ -38,36 +38,36 @@ bool PowerBacklightMonitorX11Gamma::set_brightness_value(int32_t brightness_valu
 
     if (!size)
     {
-        KLOG_WARNING("Gamma size is 0.");
+        KLOG_WARNING_POWER("Gamma size is 0.");
         return false;
     }
     else
     {
-        KLOG_DEBUG("The gamma size is %d.", size);
+        // KLOG_DEBUG_POWER("The gamma size is %d.", size);
     }
 
     /*
-	 * The gamma-correction lookup table managed through XRR[GS]etCrtcGamma
-	 * is 2^n in size, where 'n' is the number of significant bits in
-	 * the X Color.  Because an X Color is 16 bits, size cannot be larger
-	 * than 2^16.
-	 */
+     * The gamma-correction lookup table managed through XRR[GS]etCrtcGamma
+     * is 2^n in size, where 'n' is the number of significant bits in
+     * the X Color.  Because an X Color is 16 bits, size cannot be larger
+     * than 2^16.
+     */
     if (size > 65536)
     {
-        KLOG_WARNING("Gamma correction table is impossibly large.");
+        KLOG_WARNING_POWER("Gamma correction table is impossibly large.");
         return false;
     }
 
     auto crtc_gamma = XRRAllocGamma(size);
     if (!crtc_gamma)
     {
-        KLOG_WARNING("Gamma allocation failed.");
+        KLOG_WARNING_POWER("Gamma allocation failed.");
         return false;
     }
 
     SCOPE_EXIT(
         {
-            if (crtc_gamma)
+            if (crtc_gamma != nullptr)
             {
                 XRRFreeGamma(crtc_gamma);
             }
@@ -161,14 +161,14 @@ GammaInfo PowerBacklightMonitorX11Gamma::get_gamma_info()
     auto size = XRRGetCrtcGammaSize(this->xdisplay_, this->crtc_);
     if (!size)
     {
-        KLOG_WARNING("Gamma size is 0.");
+        KLOG_WARNING_POWER("Gamma size is 0.");
         return gamma_info;
     }
 
     auto crtc_gamma = XRRGetCrtcGamma(this->xdisplay_, this->crtc_);
     if (!crtc_gamma)
     {
-        KLOG_WARNING("Failed to get gamma for output(%d).", (int)this->output_);
+        KLOG_WARNING_POWER("Failed to get gamma for output(%d).", (int)this->output_);
         return gamma_info;
     }
 
@@ -226,11 +226,11 @@ GammaInfo PowerBacklightMonitorX11Gamma::get_gamma_info()
 
     XRRFreeGamma(crtc_gamma);
 
-    KLOG_DEBUG("Gamma info: red(%.2f), green(%.2f), blue(%.2f), brightness(%.2f).",
-               gamma_info.red,
-               gamma_info.green,
-               gamma_info.blue,
-               gamma_info.brightness);
+    KLOG_DEBUG_POWER("Gamma info: red(%.2f), green(%.2f), blue(%.2f), brightness(%.2f).",
+                     gamma_info.red,
+                     gamma_info.green,
+                     gamma_info.blue,
+                     gamma_info.brightness);
     return gamma_info;
 }
 

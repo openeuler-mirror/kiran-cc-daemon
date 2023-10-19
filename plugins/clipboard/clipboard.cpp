@@ -85,7 +85,7 @@ bool Clipboard::send_incrementally(XEvent* xev)
 
     if (length <= 0)
     {
-        KLOG_DEBUG("All incrementl data done, target: %lu.", rdata->target);
+        KLOG_DEBUG_CLIPBOARD("All incrementl data done, target: %lu.", rdata->target);
         // All incrementl data done.
         ClipboardUtils::change_window_filter(rdata->requestor,
                                              FILTER_CHANGE_REMOVE,
@@ -111,7 +111,6 @@ void Clipboard::selection_request_clipboard(XEvent* xev)
 
 void Clipboard::selection_request_clipboard_single(XEvent* xev)
 {
-    KLOG_PROFILE("");
     std::shared_ptr<IncrConversion> rdata = std::make_shared<IncrConversion>();
     rdata->requestor = xev->xselectionrequest.requestor;
     rdata->target = xev->xselectionrequest.target;
@@ -134,7 +133,6 @@ void Clipboard::selection_request_clipboard_single(XEvent* xev)
 
 void Clipboard::selection_request_clipboard_multiple(XEvent* xev)
 {
-    KLOG_PROFILE("");
     WindowPropertyGroup prop_group;
     int ret = ClipboardUtils::get_window_property_group(xev->xselectionrequest.display,
                                                         xev->xselectionrequest.requestor,
@@ -165,14 +163,14 @@ void Clipboard::selection_request_clipboard_multiple(XEvent* xev)
 
         this->convert_clipboard_target(rdata);
 
-        KLOG_DEBUG("Multiple target: %lu, property: %lu.", rdata->target, rdata->property);
+        KLOG_DEBUG_CLIPBOARD("Multiple target: %lu, property: %lu.", rdata->target, rdata->property);
     }
 
     int nitems = 0;
     Atom* new_multiple = new Atom[2 * conversions.size()];
     if (new_multiple == nullptr)
     {
-        KLOG_ERROR("Malloc memory failed.");
+        KLOG_ERROR_CLIPBOARD("Malloc memory failed.");
         conversions.clear();
         return;
     }
@@ -205,7 +203,7 @@ void Clipboard::selection_request_clipboard_multiple(XEvent* xev)
 
 void Clipboard::convert_clipboard_target(std::shared_ptr<IncrConversion> rdata)
 {
-    KLOG_PROFILE("Target: %lu.", rdata->target);
+    KLOG_DEBUG_CLIPBOARD("Convert clipboard Target is %lu.", rdata->target);
     if (rdata->target == XA_TARGETS)
     {
         this->convert_type_targets(rdata);
@@ -223,7 +221,7 @@ void Clipboard::convert_type_targets(std::shared_ptr<IncrConversion> rdata)
     Atom* targets = new Atom[n_targets];
     if (targets == nullptr)
     {
-        KLOG_ERROR("Malloc memory failed.");
+        KLOG_ERROR_CLIPBOARD("Malloc memory failed.");
         return;
     }
 
@@ -305,7 +303,7 @@ void Clipboard::collect_incremental(std::shared_ptr<IncrConversion> rdata)
 {
     if (rdata->offset != INCR_OFFSET_NONE)
     {
-        KLOG_DEBUG("target: %lu", rdata->target);
+        KLOG_DEBUG_CLIPBOARD("Collect incremental target is %lu", rdata->target);
         this->conversions_.push_back(rdata);
     }
 }

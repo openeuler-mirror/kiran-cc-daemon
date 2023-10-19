@@ -69,7 +69,6 @@ std::shared_ptr<BluetoothAdapter> BluetoothManager::get_adapter_by_device(const 
 
 void BluetoothManager::GetAdapters(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
     std::vector<Glib::ustring> adapters;
     for (auto &iter : this->adapters_)
     {
@@ -80,7 +79,6 @@ void BluetoothManager::GetAdapters(MethodInvocation &invocation)
 
 void BluetoothManager::GetDevices(const Glib::DBusObjectPathString &adapter_object_path, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("adapter: %s.", adapter_object_path.c_str());
     std::vector<Glib::ustring> devices;
     auto adapter = this->get_adapter(adapter_object_path);
     if (!adapter)
@@ -101,7 +99,7 @@ void BluetoothManager::FeedPinCode(const Glib::DBusObjectPathString &device,
                                    const Glib::ustring &pincode,
                                    MethodInvocation &invocation)
 {
-    KLOG_PROFILE("device: %s, accept: %d, pincode: %s.", device.c_str(), accept, pincode.c_str());
+    KLOG_DEBUG_BLUETOOTH("Feed pin code,device is %s, accept is %d, pincode is %s.", device.c_str(), accept, pincode.c_str());
     this->agent_feeded_.emit(accept, pincode.raw());
     invocation.ret();
 }
@@ -111,7 +109,7 @@ void BluetoothManager::FeedPasskey(const Glib::DBusObjectPathString &device,
                                    guint32 passkey,
                                    MethodInvocation &invocation)
 {
-    KLOG_PROFILE("device: %s, accept: %d passkey: %u.", device.c_str(), accept, passkey);
+    KLOG_DEBUG_BLUETOOTH("Feed pass key,device is %s, accept is %d passkey is %u.", device.c_str(), accept, passkey);
     this->agent_feeded_.emit(accept, fmt::format("{0}", passkey));
     invocation.ret();
 }
@@ -120,15 +118,13 @@ void BluetoothManager::Confirm(const Glib::DBusObjectPathString &device,
                                bool accept,
                                MethodInvocation &invocation)
 {
-    KLOG_PROFILE("device: %s, accept: %d.", device.c_str(), accept);
+    KLOG_DEBUG_BLUETOOTH("Confirm,device is %s, accept is %d.", device.c_str(), accept);
     this->agent_feeded_.emit(accept, std::string());
     invocation.ret();
 }
 
 void BluetoothManager::init()
 {
-    KLOG_PROFILE("");
-
     this->agent_ = std::make_shared<BluetoothAgent>(this);
     this->agent_->init();
 
@@ -147,14 +143,13 @@ void BluetoothManager::init()
 
 void BluetoothManager::on_bluez_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 {
-    KLOG_PROFILE("");
     try
     {
         this->objects_proxy_ = DBus::ObjectManagerProxy::createForBusFinish(result);
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Cannot connect to %s: %s.", BLUEZ_ROOT_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_BLUETOOTH("Cannot connect to %s: %s.", BLUEZ_ROOT_OBJECT_PATH, e.what().c_str());
         return;
     }
 
@@ -167,7 +162,7 @@ void BluetoothManager::on_bluez_ready(Glib::RefPtr<Gio::AsyncResult> &result)
 void BluetoothManager::on_interface_added(Glib::DBusObjectPathString object_path,
                                           std::map<Glib::ustring, std::map<Glib::ustring, Glib::VariantBase>> interfaces)
 {
-    KLOG_PROFILE("object_path: %s.", object_path.c_str());
+    KLOG_DEBUG_BLUETOOTH(" Added interface object_path: %s.", object_path.c_str());
 
     if (interfaces.find(BLUEZ_ADAPTER_INTERFACE_NAME) != interfaces.end())
     {
@@ -183,7 +178,7 @@ void BluetoothManager::on_interface_added(Glib::DBusObjectPathString object_path
 void BluetoothManager::on_interface_removed(Glib::DBusObjectPathString object_path,
                                             std::vector<Glib::ustring> interfaces)
 {
-    KLOG_PROFILE("object_path: %s.", object_path.c_str());
+    KLOG_DEBUG_BLUETOOTH("Removed interface object_path: %s.", object_path.c_str());
     if (std::find(interfaces.begin(), interfaces.end(), BLUEZ_ADAPTER_INTERFACE_NAME) != interfaces.end())
     {
         this->remove_adapter(object_path);
@@ -197,7 +192,7 @@ void BluetoothManager::on_interface_removed(Glib::DBusObjectPathString object_pa
 
 void BluetoothManager::load_objects()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_BLUETOOTH("Load objects");
     auto objects = this->objects_proxy_->GetManagedObjects_sync();
 
     // Add adapters
@@ -221,13 +216,13 @@ void BluetoothManager::load_objects()
 
 void BluetoothManager::add_adapter(const std::string &object_path)
 {
-    KLOG_PROFILE("object_path: %s.", object_path.c_str());
+    KLOG_DEBUG_BLUETOOTH("Add adapter,object_path is %s.", object_path.c_str());
 
     auto adapter = std::make_shared<BluetoothAdapter>(object_path);
     auto iter = this->adapters_.emplace(object_path, adapter);
     if (!iter.second)
     {
-        KLOG_WARNING("Insert adapter %s failed.", object_path.c_str());
+        KLOG_WARNING_BLUETOOTH("Insert adapter %s failed.", object_path.c_str());
         return;
     }
     this->AdapterAdded_signal.emit(object_path);
@@ -238,7 +233,7 @@ void BluetoothManager::remove_adapter(const std::string &object_path)
     auto iter = this->adapters_.find(object_path);
     if (iter == this->adapters_.end())
     {
-        KLOG_WARNING("Not found adapter %s.", object_path.c_str());
+        KLOG_WARNING_BLUETOOTH("Not found adapter %s.", object_path.c_str());
         return;
     }
     this->adapters_.erase(iter);
@@ -252,7 +247,7 @@ void BluetoothManager::add_device(const std::string &object_path)
     auto adapter = this->get_adapter(adapter_object_path);
     if (!adapter)
     {
-        KLOG_WARNING("Not found adapter %s.", adapter_object_path.c_str());
+        KLOG_WARNING_BLUETOOTH("Not found adapter %s.", adapter_object_path.c_str());
     }
     else
     {
@@ -266,7 +261,7 @@ void BluetoothManager::remove_device(const std::string &object_path)
     auto adapter = this->get_adapter_by_device(object_path);
     if (!adapter)
     {
-        KLOG_WARNING("Not found adapter for device %s.", object_path.c_str());
+        KLOG_WARNING_BLUETOOTH("Not found adapter for device %s.", object_path.c_str());
         return;
     }
     adapter->remove_device(object_path);
@@ -275,10 +270,9 @@ void BluetoothManager::remove_device(const std::string &object_path)
 
 void BluetoothManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_BLUETOOTH("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -287,18 +281,18 @@ void BluetoothManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", BLUETOOTH_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_BLUETOOTH("Register object_path %s fail: %s.", BLUETOOTH_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void BluetoothManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_BLUETOOTH("Success to register dbus name: %s", name.c_str());
 }
 
 void BluetoothManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_BLUETOOTH("Failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

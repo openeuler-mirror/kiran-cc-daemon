@@ -61,13 +61,13 @@ void PowerIdleXAlarm::init()
 
     if (!this->xdisplay_)
     {
-        KLOG_WARNING("Not found xdisplay.");
+        KLOG_WARNING_POWER("Not found xdisplay.");
         return;
     }
 
     if (!XSyncQueryExtension(this->xdisplay_, &this->sync_event_base_, &this->sync_error_base_))
     {
-        KLOG_WARNING("No Sync extension.");
+        KLOG_WARNING_POWER("No Sync extension.");
         return;
     }
 
@@ -84,7 +84,7 @@ void PowerIdleXAlarm::init()
 
     if (!this->idle_counter_)
     {
-        KLOG_WARNING("No idle counter.");
+        KLOG_WARNING_POWER("No idle counter.");
         return;
     }
 
@@ -99,7 +99,7 @@ void PowerIdleXAlarm::init()
 
 bool PowerIdleXAlarm::set(XAlarmType type, uint32_t timeout)
 {
-    KLOG_PROFILE("type: %d, timeout: %d.", type, timeout);
+    KLOG_DEBUG_POWER("Set alarm,the alarm type is %d and the timeout is %d.", type, timeout);
     RETURN_VAL_IF_TRUE(type <= 0 || type >= XAlarmType::XALARM_TYPE_LAST || timeout == 0, false);
 
     auto xalarm = this->find_xalarm_by_type(type);
@@ -117,8 +117,7 @@ bool PowerIdleXAlarm::set(XAlarmType type, uint32_t timeout)
 
 bool PowerIdleXAlarm::unset(XAlarmType type)
 {
-    KLOG_PROFILE("type: %d.", type);
-
+    KLOG_DEBUG_POWER("unset alarm type %d.", type);
     auto xalarm = this->find_xalarm_by_type(type);
     RETURN_VAL_IF_FALSE(xalarm, false);
 
@@ -143,7 +142,7 @@ bool PowerIdleXAlarm::add(std::shared_ptr<XAlarmInfo> xalarm)
 
     if (this->find_xalarm_by_type(xalarm->type))
     {
-        KLOG_WARNING("The xalarm type %d is already exists.", xalarm->type);
+        KLOG_WARNING_POWER("The xalarm type %d is already exists.", xalarm->type);
         return false;
     }
     this->xalarms_.push_back(xalarm);
@@ -167,7 +166,7 @@ bool PowerIdleXAlarm::remove(std::shared_ptr<XAlarmInfo> xalarm)
 
 void PowerIdleXAlarm::reset_all_xalarm()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_POWER("Reset all xalarm.");
 
     auto reset_xalarm = this->find_xalarm_by_type(XAlarmType::XALARM_TYPE_RESET);
     RETURN_IF_FALSE(reset_xalarm || reset_xalarm->xalarm_id == None);
@@ -189,9 +188,9 @@ void PowerIdleXAlarm::reset_all_xalarm()
 
 void PowerIdleXAlarm::register_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xalarm, XSyncTestType test_type)
 {
-    KLOG_PROFILE("type: %d, test_type: %d.",
-                 xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST,
-                 test_type);
+    KLOG_DEBUG_POWER("Register xalarm,xalarm type: %d, test_type: %d.",
+                     xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST,
+                     test_type);
 
     RETURN_IF_TRUE(xalarm == nullptr || this->idle_counter_ == None);
 
@@ -224,10 +223,8 @@ void PowerIdleXAlarm::register_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xalar
 
 void PowerIdleXAlarm::unregister_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xalarm)
 {
-    KLOG_PROFILE("type: %d", xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST);
-
     RETURN_IF_TRUE(this->xdisplay_ == NULL || (!xalarm) || xalarm->xalarm_id == None);
-
+    KLOG_DEBUG_POWER("type: %d", xalarm ? xalarm->type : XAlarmType::XALARM_TYPE_LAST);
     XSyncDestroyAlarm(this->xdisplay_, xalarm->xalarm_id);
     xalarm->xalarm_id = None;
     return;
@@ -235,8 +232,6 @@ void PowerIdleXAlarm::unregister_xalarm_by_xsync(std::shared_ptr<XAlarmInfo> xal
 
 std::shared_ptr<XAlarmInfo> PowerIdleXAlarm::find_xalarm_by_type(XAlarmType type)
 {
-    KLOG_PROFILE("type: %d", type);
-
     for (auto &xalarm : this->xalarms_)
     {
         if (xalarm->type == type)
@@ -249,8 +244,6 @@ std::shared_ptr<XAlarmInfo> PowerIdleXAlarm::find_xalarm_by_type(XAlarmType type
 
 std::shared_ptr<XAlarmInfo> PowerIdleXAlarm::find_xalarm_by_id(XSyncAlarm xalarm_id)
 {
-    KLOG_PROFILE("xalarm_id: %d", (int32_t)xalarm_id);
-
     for (auto &xalarm : this->xalarms_)
     {
         if (xalarm->xalarm_id == xalarm_id)
@@ -283,13 +276,13 @@ GdkFilterReturn PowerIdleXAlarm::on_event_filter_cb(GdkXEvent *gdkxevent, GdkEve
     为了让报警器下次能继续工作（报警），这里向X注册一个重置报警器，当设备进入非空闲状态时，会收到重置报警器的Alarm事件。
     当收到重置报警器的Alarm事件时，重新向X注册非重置报警器，让所有非重置报警器的状态变为Active状态，同时取消注册重置报警器。*/
 
-    KLOG_DEBUG("Receive alarm signal. type: %" PRId64 ", timeout: %d, xalarm id: %d, counter value: %" PRId64 ", alarm value: %" PRId64 ", idle counter value: %" PRId64 ".",
-               xalarm->type,
-               self->xsyncvalue_to_int64(xalarm->timeout),
-               (int32_t)xalarm->xalarm_id,
-               self->xsyncvalue_to_int64(alarm_event->counter_value),
-               self->xsyncvalue_to_int64(alarm_event->alarm_value),
-               self->get_xidle_time());
+    KLOG_DEBUG_POWER("Receive alarm signal. the type is %" PRId64 ", timeout is %d, xalarm id is %d, counter value is %" PRId64 ", alarm value is %" PRId64 ", idle counter value is %" PRId64 ".",
+                     xalarm->type,
+                     self->xsyncvalue_to_int64(xalarm->timeout),
+                     (int32_t)xalarm->xalarm_id,
+                     self->xsyncvalue_to_int64(alarm_event->counter_value),
+                     self->xsyncvalue_to_int64(alarm_event->alarm_value),
+                     self->get_xidle_time());
 
     if (xalarm->type != XAlarmType::XALARM_TYPE_RESET)
     {

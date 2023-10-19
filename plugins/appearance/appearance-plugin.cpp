@@ -31,14 +31,14 @@ AppearancePlugin::~AppearancePlugin()
 
 void AppearancePlugin::activate()
 {
-    KLOG_PROFILE("active appearance plugin.");
+    KLOG_DEBUG_APPEARANCE("Active appearance plugin.");
 
     AppearanceManager::global_init();
 }
 
 void AppearancePlugin::deactivate()
 {
-    KLOG_PROFILE("deactive appearance plugin.");
+    KLOG_DEBUG_APPEARANCE("Deactive appearance plugin.");
 
     AppearanceManager::global_deinit();
 }

@@ -33,14 +33,14 @@ MousePlugin::~MousePlugin()
 
 void MousePlugin::activate()
 {
-    KLOG_PROFILE("active mouse plugin.");
+    KLOG_DEBUG_INPUTDEVICES("Active mouse plugin.");
 
     MouseManager::global_init();
 }
 
 void MousePlugin::deactivate()
 {
-    KLOG_PROFILE("deactive mouse plugin.");
+    KLOG_DEBUG_INPUTDEVICES("Deactive mouse plugin.");
 
     MouseManager::global_deinit();
 }

@@ -16,6 +16,7 @@
 #include "plugins/power/backlight/power-backlight-monitor-x11-atom.h"
 #include "plugins/power/backlight/power-backlight-monitor-x11-gamma.h"
 
+
 namespace Kiran
 {
 PowerBacklightMonitorsX11::PowerBacklightMonitorsX11() : event_base_(0),
@@ -60,7 +61,7 @@ void PowerBacklightMonitorsX11::init()
 
 bool PowerBacklightMonitorsX11::init_xrandr()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_POWER("Init xrandr");
 
     if (XRRQueryExtension(this->xdisplay_, &this->event_base_, &this->error_base_))
     {
@@ -69,15 +70,15 @@ bool PowerBacklightMonitorsX11::init_xrandr()
         XRRQueryVersion(this->xdisplay_, &major_version, &minor_version);
         if (major_version < 1 || (major_version == 1 && minor_version < 3))
         {
-            KLOG_WARNING("RANDR extension is too old (must be at least 1.3). current version: %d:%d.",
-                         major_version,
-                         minor_version);
+            KLOG_WARNING_POWER("RANDR extension is too old (must be at least 1.3). current version: %d:%d.",
+                               major_version,
+                               minor_version);
             return false;
         }
     }
     else
     {
-        KLOG_WARNING("RANDR extension is not present");
+        KLOG_WARNING_POWER("RANDR extension is not present");
         return false;
     }
     return true;
@@ -95,7 +96,7 @@ Atom PowerBacklightMonitorsX11::get_backlight_atom()
         backlight_atom = XInternAtom(this->xdisplay_, "BACKLIGHT", True);
         if (backlight_atom == None)
         {
-            KLOG_DEBUG("No outputs have backlight property");
+            KLOG_DEBUG_POWER("No outputs have backlight property");
             return None;
         }
     }
@@ -114,13 +115,13 @@ void PowerBacklightMonitorsX11::load_resource()
         auto output_info = XRRGetOutputInfo(this->xdisplay_, this->resources_, this->resources_->outputs[i]);
         if (!output_info)
         {
-            KLOG_WARNING("Not found output info for %d.", (int)this->resources_->outputs[i]);
+            KLOG_WARNING_POWER("Not found output info for %d.", (int)this->resources_->outputs[i]);
             continue;
         }
 
         if (!output_info->crtc)
         {
-            KLOG_DEBUG("Not found crtc for output %d, ignore it.", (int)this->resources_->outputs[i]);
+            KLOG_DEBUG_POWER("Not found crtc for output %d, ignore it.", (int)this->resources_->outputs[i]);
             continue;
         }
 

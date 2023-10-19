@@ -12,11 +12,11 @@
  * Author:     yangxiaoqing <yangxiaoqing@kylinos.com.cn>
  */
 
-#include "plugins/greeter/greeter-plugin.h"
-#include <cstdio>
-
 #include <gtk3-log-i.h>
+#include <cstdio>
+#include "lib/base/base.h"
 #include "plugins/greeter/greeter-dbus.h"
+#include "plugins/greeter/greeter-plugin.h"
 
 PLUGIN_EXPORT_FUNC_DEF(GreeterPlugin);
 
@@ -32,7 +32,7 @@ GreeterPlugin::~GreeterPlugin()
 
 void GreeterPlugin::activate()
 {
-    KLOG_PROFILE("active greeter settings plugin.");
+    KLOG_DEBUG_GREETER("Active greeter settings plugin.");
 
     // GreeterSettingsWrapper::global_init();
     GreeterDBus::global_init();
@@ -40,7 +40,7 @@ void GreeterPlugin::activate()
 
 void GreeterPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive greeter settings plugin.");
+    KLOG_DEBUG_GREETER("Deactive greeter settings plugin.");
 
     GreeterDBus::global_deinit();
     //GreeterSettingsWrapper::global_deinit();

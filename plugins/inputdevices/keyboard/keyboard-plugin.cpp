@@ -35,7 +35,7 @@ KeyboardPlugin::~KeyboardPlugin()
 
 void KeyboardPlugin::activate()
 {
-    KLOG_PROFILE("active keyboard plugin.");
+    KLOG_DEBUG_INPUTDEVICES("Active keyboard plugin.");
 
     KeyboardManager::global_init();
     ModifierLockManager::global_init(KeyboardManager::get_instance());
@@ -43,9 +43,8 @@ void KeyboardPlugin::activate()
 
 void KeyboardPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive keyboard plugin.");
+    KLOG_DEBUG_INPUTDEVICES("Deactive keyboard plugin.");
 
-    ModifierLockManager::global_deinit();
     KeyboardManager::global_deinit();
 }
 }  // namespace Kiran

@@ -43,7 +43,7 @@ void PowerBacklightKbd::init()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG_POWER("%s", e.what().c_str());
         return;
     }
 
@@ -80,7 +80,7 @@ bool PowerBacklightKbd::set_brightness(int32_t percentage)
         }
     }
     this->brightness_percentage_ = this->brightness_discrete2percent(this->brightness_value_, this->max_brightness_value_);
-    KLOG_DEBUG("current: %d, new: %d.", this->brightness_value_, new_brightness_value);
+    KLOG_DEBUG_POWER("Current brightness is %d,set %d to be new brightness.", this->brightness_value_, new_brightness_value);
 
     return (this->brightness_value_ == new_brightness_value);
 }
@@ -114,11 +114,11 @@ int32_t PowerBacklightKbd::get_brightness_value()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG_POWER("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return -1;
 }
@@ -136,7 +136,7 @@ bool PowerBacklightKbd::set_brightness_value(int32_t value)
     }
     catch (const Glib::Error& e)
     {
-        KLOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG_POWER("%s", e.what().c_str());
         return false;
     }
     return true;
@@ -155,11 +155,11 @@ int32_t PowerBacklightKbd::get_max_brightness_value()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG_POWER("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return -1;
 }
@@ -188,7 +188,7 @@ void PowerBacklightKbd::on_upower_kbd_signal(const Glib::ustring& sender_name,
                                              const Glib::ustring& signal_name,
                                              const Glib::VariantContainerBase& parameters)
 {
-    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_DEBUG_POWER("Recieve the request of %s from %s.", signal_name.c_str(), sender_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {
@@ -204,7 +204,7 @@ void PowerBacklightKbd::on_upower_kbd_signal(const Glib::ustring& sender_name,
         }
         catch (const std::exception& e)
         {
-            KLOG_WARNING("%s.", e.what());
+            KLOG_WARNING_POWER("%s.", e.what());
         }
         break;
     }

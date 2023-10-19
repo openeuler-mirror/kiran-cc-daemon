@@ -52,8 +52,8 @@ void ClipboardUtils::init_atoms(Display *display)
     XA_CLIPBOARD_MANAGER = XInternAtom(display, CLIPBOARD_ATOM_STR_CLIPBOARD_MANAGER, False);
     XA_CLIPBOARD = XInternAtom(display, CLIPBOARD_ATOM_STR_CLIPBOARD, False);
 
-    KLOG_DEBUG("TARGETS: %lu, INCR: %lu, MULTIPLE: %lu, SAVE_TARGETS: %lu.",
-               XA_TARGETS, XA_INCR, XA_MULTIPLE, XA_SAVE_TARGETS);
+    KLOG_DEBUG_CLIPBOARD("Init atoms,TARGETS is %lu, INCR is %lu, MULTIPLE is %lu, SAVE_TARGETS is %lu.",
+                         XA_TARGETS, XA_INCR, XA_MULTIPLE, XA_SAVE_TARGETS);
 }
 
 void ClipboardUtils::init_selection_max_size(Display *display)
@@ -185,8 +185,6 @@ void ClipboardUtils::change_window_filter(Window window,
 
 void ClipboardUtils::response_selection_request(Display *display, XEvent *xev, bool success)
 {
-    KLOG_DEBUG("requestor: %u, success: %d.", xev->xselectionrequest.requestor, success);
-
     XSelectionEvent notify;
 
     notify.type = SelectionNotify;
@@ -228,11 +226,11 @@ bool ClipboardUtils::get_window_property_group(Display *display,
 
     if (result != Success)
     {
-        KLOG_WARNING("Failed window: %lu, property: <%lu, %s>.", window, property, XGetAtomName(display, property));
+        KLOG_WARNING_CLIPBOARD("Failed window: %lu, property: <%lu, %s>.", window, property, XGetAtomName(display, property));
         return false;
     }
 
-    KLOG_DEBUG("Success window: %lu, property: <%lu, %s>.", window, property, XGetAtomName(display, property));
+    KLOG_DEBUG_CLIPBOARD("Success window: %lu, property: <%lu, %s>.", window, property, XGetAtomName(display, property));
     return true;
 }
 

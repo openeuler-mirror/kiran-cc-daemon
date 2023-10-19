@@ -190,16 +190,16 @@ void GreeterManager::on_profile_changed(const Glib::RefPtr<Gio::File> &file,
     if (event_type != Gio::FILE_MONITOR_EVENT_CHANGED)
         return;
 
-    KLOG_DEBUG("file '%s' changed, event 0x%x",
-               file->get_path().c_str(),
-               (int)event_type);
+    KLOG_DEBUG_GREETER("file '%s' changed, event 0x%x",
+                       file->get_path().c_str(),
+                       (int)event_type);
 
     lightdm_settings_ = new Glib::KeyFile();
     greeter_settings_ = new Glib::KeyFile();
 
     if (!load_greeter_settings(&new_data, greeter_settings_))
     {
-        KLOG_ERROR("Failed to reload greeter settings");
+        KLOG_ERROR_GREETER("Failed to reload greeter settings");
         delete lightdm_settings_;
         delete greeter_settings_;
         return;
@@ -207,7 +207,7 @@ void GreeterManager::on_profile_changed(const Glib::RefPtr<Gio::File> &file,
 
     if (!load_lightdm_settings(&new_data, lightdm_settings_))
     {
-        KLOG_ERROR("Failed to reload lightdm settings");
+        KLOG_ERROR_GREETER("Failed to reload lightdm settings");
         delete lightdm_settings_;
         delete greeter_settings_;
         return;
@@ -224,59 +224,58 @@ void GreeterManager::on_profile_changed(const Glib::RefPtr<Gio::File> &file,
 
     if (new_data.autologin_delay != priv->autologin_delay)
     {
-        KLOG_DEBUG("autologin-delay changed from %u to %u", priv->autologin_delay,
-                   new_data.autologin_delay);
+        KLOG_DEBUG_GREETER("Autologin-delay changed from %u to %u", priv->autologin_delay, new_data.autologin_delay);
         priv->autologin_delay = new_data.autologin_delay;
         m_signal_autologin_delay_changed.emit();
     }
 
     if (new_data.autologin_user != priv->autologin_user)
     {
-        KLOG_DEBUG("autologin-user changed from '%s' to '%s'", priv->autologin_user.c_str(),
-                   new_data.autologin_user.c_str());
+        KLOG_DEBUG_GREETER("Autologin-user changed from '%s' to '%s'", priv->autologin_user.c_str(),
+                           new_data.autologin_user.c_str());
         priv->autologin_user = new_data.autologin_user;
         m_signal_autologin_user_changed.emit();
     }
 
     if (new_data.scale_mode != priv->scale_mode)
     {
-        KLOG_DEBUG("scale-mode changed from %d to %d", priv->scale_mode, new_data.scale_mode);
+        KLOG_DEBUG_GREETER("Scale-mode changed from %d to %d", priv->scale_mode, new_data.scale_mode);
         priv->scale_mode = new_data.scale_mode;
         m_signal_scale_mode_changed.emit();
     }
 
     if (new_data.background_file != priv->background_file)
     {
-        KLOG_DEBUG("backgrond-file changed from '%s' to '%s'",
-                   priv->background_file.c_str(),
-                   new_data.background_file.c_str());
+        KLOG_DEBUG_GREETER("Backgrond-file changed from '%s' to '%s'",
+                           priv->background_file.c_str(),
+                           new_data.background_file.c_str());
         priv->background_file = new_data.background_file;
         m_signal_background_file_changed.emit();
     }
 
     if (new_data.enable_manual_login != priv->enable_manual_login)
     {
-        KLOG_DEBUG("enable-manual-login changed from %d to %d",
-                   priv->enable_manual_login,
-                   new_data.enable_manual_login);
+        KLOG_DEBUG_GREETER("Enable-manual-login changed from %d to %d",
+                           priv->enable_manual_login,
+                           new_data.enable_manual_login);
         priv->enable_manual_login = new_data.enable_manual_login;
         m_signal_enable_manual_login_changed.emit();
     }
 
     if (new_data.hide_user_list != priv->hide_user_list)
     {
-        KLOG_DEBUG("hide-user-list changed from %d to %d",
-                   priv->hide_user_list,
-                   new_data.hide_user_list);
+        KLOG_DEBUG_GREETER("Hide-user-list changed from %d to %d",
+                           priv->hide_user_list,
+                           new_data.hide_user_list);
         priv->hide_user_list = new_data.hide_user_list;
         m_signal_hide_user_list_changed.emit();
     }
 
     if (new_data.scale_factor != priv->scale_factor)
     {
-        KLOG_DEBUG("scale-factor changed from %u to %u",
-                   priv->scale_factor,
-                   new_data.scale_factor);
+        KLOG_DEBUG_GREETER("Scale-factor changed from %u to %u",
+                           priv->scale_factor,
+                           new_data.scale_factor);
         priv->scale_factor = new_data.scale_factor;
         m_signal_scale_factor_changed.emit();
     }
@@ -334,7 +333,7 @@ bool GreeterManager::settings_has_key(Glib::KeyFile *settings, const Glib::ustri
     }
     catch (Glib::KeyFileError &e)
     {
-        KLOG_WARNING("key '%s' not found: %s", key.c_str(), e.what().c_str());
+        KLOG_WARNING_GREETER("Key '%s' not found: %s", key.c_str(), e.what().c_str());
         return false;
     }
 
@@ -363,19 +362,19 @@ bool GreeterManager::load()
          */
         if (!load_greeter_settings(priv, greeter_settings))
         {
-            KLOG_ERROR("Failed to load greeter settings");
+            KLOG_ERROR_GREETER("Failed to load greeter settings");
             return false;
         }
 
         if (!load_lightdm_settings(priv, lightdm_settings))
         {
-            KLOG_ERROR("Failed to load lightdm settings");
+            KLOG_ERROR_GREETER("Failed to load lightdm settings");
             return false;
         }
     }
     catch (const Glib::Error &e)
     {
-        KLOG_ERROR("Loading Error: %s", e.what().c_str());
+        KLOG_ERROR_GREETER("Loading Error: %s", e.what().c_str());
         return false;
     }
 
@@ -393,7 +392,7 @@ bool GreeterManager::save()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Failed to save lightdm settings: %s", e.what().c_str());
+        KLOG_WARNING_GREETER("Failed to save lightdm settings: %s", e.what().c_str());
         return false;
     }
 
@@ -410,7 +409,7 @@ bool GreeterManager::save()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_ERROR("Failed to save greeter settings: %s", e.what().c_str());
+        KLOG_ERROR_GREETER("Failed to save greeter settings: %s", e.what().c_str());
         return false;
     }
 
@@ -431,7 +430,7 @@ bool GreeterManager::load_greeter_settings(GreeterData *data, Glib::KeyFile *set
 
         if (!tmp_settings->load_from_file(GREETER_PROFILE_PATH, Glib::KEY_FILE_KEEP_COMMENTS))
         {
-            KLOG_WARNING("Failed to load configuration file '%s'", GREETER_PROFILE_PATH);
+            KLOG_WARNING_GREETER("Failed to load configuration file '%s'", GREETER_PROFILE_PATH);
             success = false;
         }
 
@@ -466,7 +465,7 @@ bool GreeterManager::load_greeter_settings(GreeterData *data, Glib::KeyFile *set
             if (settings_has_key(tmp_settings, GREETER_GROUP_NAME, KEY_BACKGROUND_FILE))
             {
                 auto background_file = tmp_settings->get_string(GREETER_GROUP_NAME, KEY_BACKGROUND_FILE);
-                KLOG_DEBUG("background_file: %s", background_file.c_str());
+                KLOG_DEBUG_GREETER("Background_file: %s", background_file.c_str());
                 data->background_file = background_file;
             }
 
@@ -474,7 +473,7 @@ bool GreeterManager::load_greeter_settings(GreeterData *data, Glib::KeyFile *set
             {
                 auto enable_scaling = tmp_settings->get_string(GREETER_GROUP_NAME,
                                                                KEY_ENABLE_SCALING);
-                KLOG_DEBUG("enable_scaling: %s", enable_scaling.c_str());
+                KLOG_DEBUG_GREETER("Enable_scaling: %s", enable_scaling.c_str());
                 if (enable_scaling == "auto")
                     data->scale_mode = GREETER_SCALING_MODE_AUTO;
                 else if (enable_scaling == "manual")
@@ -483,7 +482,7 @@ bool GreeterManager::load_greeter_settings(GreeterData *data, Glib::KeyFile *set
                     data->scale_mode = GREETER_SCALING_MODE_DISABLE;
                 else
                 {
-                    KLOG_WARNING("Invalid value '%s' for key '%s'", enable_scaling.c_str(), KEY_ENABLE_SCALING);
+                    KLOG_WARNING_GREETER("Invalid value '%s' for key '%s'", enable_scaling.c_str(), KEY_ENABLE_SCALING);
                     data->scale_mode = GREETER_SCALING_MODE_AUTO;
                 }
             }
@@ -502,8 +501,7 @@ bool GreeterManager::load_greeter_settings(GreeterData *data, Glib::KeyFile *set
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Failed to load configuration file '%s': %s",
-                     GREETER_PROFILE_PATH, e.what().c_str());
+        KLOG_WARNING_GREETER("Failed to load configuration file '%s': %s", GREETER_PROFILE_PATH, e.what().c_str());
         success = false;
     }
 
@@ -565,9 +563,9 @@ bool GreeterManager::load_lightdm_settings(GreeterData *data, Glib::KeyFile *set
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Failed to load configuration file '%s': %s",
-                     LIGHTDM_PROFILE_PATH,
-                     e.what().c_str());
+        KLOG_WARNING_GREETER("Failed to load configuration file '%s': %s",
+                             LIGHTDM_PROFILE_PATH,
+                             e.what().c_str());
         success = false;
     }
 

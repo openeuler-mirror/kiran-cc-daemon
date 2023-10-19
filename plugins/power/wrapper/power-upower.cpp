@@ -44,7 +44,7 @@ void PowerUPower::init()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return;
     }
 
@@ -63,7 +63,7 @@ void PowerUPower::init()
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
 
     auto display_device_object_path = this->get_display_device_object_path();
@@ -103,11 +103,11 @@ Glib::DBusObjectPathString PowerUPower::get_display_device_object_path()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return Glib::DBusObjectPathString();
 }
@@ -124,11 +124,11 @@ std::vector<Glib::DBusObjectPathString> PowerUPower::get_devices_object_path()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return std::vector<Glib::DBusObjectPathString>();
 }
@@ -139,7 +139,7 @@ bool PowerUPower::add_upower_device(const Glib::DBusObjectPathString &object_pat
     auto iter = this->devices_.emplace(object_path, device);
     if (!iter.second)
     {
-        KLOG_WARNING("The upwer device %s already exists.", object_path.c_str());
+        KLOG_WARNING_POWER("The upwer device %s already exists.", object_path.c_str());
         return false;
     }
     device->signal_props_changed().connect(sigc::bind(sigc::mem_fun(this, &PowerUPower::on_device_props_changed), object_path));
@@ -151,7 +151,7 @@ bool PowerUPower::del_upower_device(const Glib::DBusObjectPathString &object_pat
     auto iter = this->devices_.find(object_path);
     if (iter == this->devices_.end())
     {
-        KLOG_WARNING("The upower device %s doesn't exist.", object_path.c_str());
+        KLOG_WARNING_POWER("The upower device %s doesn't exist.", object_path.c_str());
         return false;
     }
     this->devices_.erase(iter);
@@ -183,7 +183,7 @@ void PowerUPower::on_properties_changed(const Gio::DBus::Proxy::MapChangedProper
     }
     catch (const std::exception &e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
 
     return;
@@ -193,7 +193,7 @@ void PowerUPower::on_upower_signal(const Glib::ustring &sender_name,
                                    const Glib::ustring &signal_name,
                                    const Glib::VariantContainerBase &parameters)
 {
-    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_DEBUG_POWER("Recieve the request of %s from %s.", signal_name.c_str(), sender_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {

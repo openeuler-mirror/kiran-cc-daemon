@@ -56,7 +56,7 @@ double AudioDevice::base_volume_get()
 
 void AudioDevice::SetActivePort(const Glib::ustring &name, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("port name: %s.", name.c_str());
+    KLOG_DEBUG_AUDIO("Set %s as active port.", name.c_str());
 
     if (!this->device_->set_active_port(name))
     {
@@ -67,8 +67,6 @@ void AudioDevice::SetActivePort(const Glib::ustring &name, MethodInvocation &inv
 
 void AudioDevice::GetPorts(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     Json::Value values;
     Json::FastWriter writer;
 
@@ -86,8 +84,6 @@ void AudioDevice::GetPorts(MethodInvocation &invocation)
 
 void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("volume: %f.", volume);
-
     if (volume < 0 || volume > 1.0 + EPS)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID);
@@ -112,8 +108,6 @@ void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
 
 void AudioDevice::SetBalance(double balance, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("balance: %f.", balance);
-
     if (balance < -1 || balance > 1)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_BALANCE_RANGE_INVLAID);
@@ -128,8 +122,6 @@ void AudioDevice::SetBalance(double balance, MethodInvocation &invocation)
 
 void AudioDevice::SetFade(double fade, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("fade: %f.", fade);
-
     if (fade < -1 || fade > 1)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_FADE_RANGE_INVLAID);
@@ -144,8 +136,6 @@ void AudioDevice::SetFade(double fade, MethodInvocation &invocation)
 
 void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("mute: %d.", mute);
-
     if (!this->device_->set_mute(mute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED);
@@ -168,8 +158,6 @@ void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
 
 void AudioDevice::GetProperty(const Glib::ustring &key, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("key: %s.", key.c_str());
-
     auto value = this->device_->get_property(key);
     invocation.ret(value);
 }
@@ -201,8 +189,7 @@ SET_COMMON_PROPERTY(active_port, const Glib::ustring &)
 
 bool AudioDevice::dbus_register()
 {
-    KLOG_PROFILE("register object path: %s.", this->object_path_.c_str());
-
+    KLOG_DEBUG_AUDIO("register object path: %s.", this->object_path_.c_str());
     RETURN_VAL_IF_FALSE(this->device_, false);
 
     try
@@ -211,7 +198,7 @@ bool AudioDevice::dbus_register()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Failed to get session bus: %s.", e.what().c_str());
+        KLOG_WARNING_AUDIO("Failed to get session bus: %s.", e.what().c_str());
         return false;
     }
 
@@ -221,8 +208,6 @@ bool AudioDevice::dbus_register()
 
 void AudioDevice::dbus_unregister()
 {
-    KLOG_PROFILE("unregister object path: %s.", this->object_path_.c_str());
-
     if (this->object_register_id_)
     {
         this->unregister_object();

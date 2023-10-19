@@ -44,15 +44,13 @@ void TimedateFormat::init()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_TIMEDATE("%s", e.what().c_str());
         return;
     }
 }
 
 int32_t TimedateFormat::get_date_long_format_index()
 {
-    KLOG_PROFILE("");
-
     // 获取不到则使用第一个
     int32_t long_format_index = 0;
     IGNORE_EXCEPTION(long_format_index = this->format_config_.get_integer(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_DATE_LONG_FORMAT_INDEX));
@@ -63,8 +61,6 @@ int32_t TimedateFormat::get_date_long_format_index()
 
 int32_t TimedateFormat::get_date_short_format_index()
 {
-    KLOG_PROFILE("");
-
     int32_t short_format_index = 0;
     IGNORE_EXCEPTION(short_format_index = this->format_config_.get_integer(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_DATE_SHORT_FORMAT_INDEX));
     // 如果索引超出范围，则设置为第一个
@@ -74,8 +70,6 @@ int32_t TimedateFormat::get_date_short_format_index()
 
 TimedateHourFormat TimedateFormat::get_hour_format()
 {
-    KLOG_PROFILE("");
-
     int32_t hour_format = 0;
     IGNORE_EXCEPTION(hour_format = this->format_config_.get_integer(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_HOUR_FORMAT));
     // 如果索引超出范围，则设置为12小时制
@@ -86,7 +80,6 @@ TimedateHourFormat TimedateFormat::get_hour_format()
 
 bool TimedateFormat::get_seconds_showing()
 {
-    KLOG_PROFILE("");
     bool seconds_showing = false;
     IGNORE_EXCEPTION(seconds_showing = this->format_config_.get_boolean(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_SECONDS_SHOWING));
     return seconds_showing;
@@ -94,8 +87,6 @@ bool TimedateFormat::get_seconds_showing()
 
 bool TimedateFormat::set_date_long_format(int32_t index)
 {
-    KLOG_PROFILE("index: %d.", index);
-
     RETURN_VAL_IF_TRUE(index < 0 || index >= (int32_t)this->get_long_formats().size(), false);
     RETURN_VAL_IF_TRUE(index == this->get_date_long_format_index(), true);
 
@@ -106,8 +97,6 @@ bool TimedateFormat::set_date_long_format(int32_t index)
 
 bool TimedateFormat::set_date_short_format(int32_t index)
 {
-    KLOG_PROFILE("index: %d.", index);
-
     RETURN_VAL_IF_TRUE(index < 0 || index >= (int32_t)this->get_short_formats().size(), false);
     RETURN_VAL_IF_TRUE(index == this->get_date_short_format_index(), true);
 
@@ -117,16 +106,12 @@ bool TimedateFormat::set_date_short_format(int32_t index)
 
 bool TimedateFormat::set_hour_format(TimedateHourFormat hour_format)
 {
-    KLOG_PROFILE("hour_format: %d.", hour_format);
-
     this->format_config_.set_integer(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_HOUR_FORMAT, hour_format);
     return this->save_to_config();
 }
 
 bool TimedateFormat::set_seconds_showing(bool seconds_showing)
 {
-    KLOG_PROFILE("seconds_showing: %d.", seconds_showing);
-
     this->format_config_.set_integer(TIMEDATE_FORMAT_GROUP_NAME, TIMEDATE_FORMAT_KEY_SECONDS_SHOWING, seconds_showing);
     return this->save_to_config();
 }
@@ -163,7 +148,7 @@ bool TimedateFormat::save_to_config()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_TIMEDATE("%s", e.what().c_str());
         return false;
     }
     return true;

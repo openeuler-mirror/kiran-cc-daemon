@@ -97,7 +97,7 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s.", e.what());
+        KLOG_WARNING_SYSTEMINFO("%s.", e.what());
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED);
     }
 
@@ -107,7 +107,7 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
 
 void SystemInfoManager::SetHostName(const Glib::ustring& host_name, MethodInvocation& invocation)
 {
-    KLOG_PROFILE("host name: %s", host_name.c_str());
+    KLOG_DEBUG_SYSTEMINFO("Set host name as %s", host_name.c_str());
 
     AuthManager::get_instance()->start_auth_check(AUTH_SET_HOST_NAME,
                                                   true,
@@ -137,7 +137,7 @@ void SystemInfoManager::init()
 
 void SystemInfoManager::change_host_name_cb(MethodInvocation invocation, const std::string& host_name)
 {
-    KLOG_PROFILE("host name: %s", host_name.c_str());
+    KLOG_DEBUG_SYSTEMINFO("Change host name to  %s", host_name.c_str());
 
     if (!this->host_name_set(host_name))
     {
@@ -148,10 +148,9 @@ void SystemInfoManager::change_host_name_cb(MethodInvocation invocation, const s
 
 void SystemInfoManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_SYSTEMINFO("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -160,17 +159,17 @@ void SystemInfoManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", SYSTEMINFO_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_SYSTEMINFO("Register object_path %s fail: %s.", SYSTEMINFO_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void SystemInfoManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_SYSTEMINFO("Success to register dbus name: %s", name.c_str());
 }
 
 void SystemInfoManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_SYSTEMINFO("Failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

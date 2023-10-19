@@ -34,7 +34,7 @@ AccountsPlugin::~AccountsPlugin()
 
 void AccountsPlugin::activate()
 {
-    KLOG_PROFILE("active accounts plugin.");
+    KLOG_DEBUG_ACCOUNTS("Active accounts plugin.");
 
     AccountsWrapper::global_init();
     AccountsManager::global_init(AccountsWrapper::get_instance());
@@ -42,7 +42,7 @@ void AccountsPlugin::activate()
 
 void AccountsPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive accounts plugin.");
+    KLOG_DEBUG_ACCOUNTS("Deactive accounts plugin.");
 
     AccountsManager::global_deinit();
     AccountsWrapper::global_deinit();

@@ -38,7 +38,7 @@ PowerPlugin::~PowerPlugin()
 
 void PowerPlugin::activate()
 {
-    KLOG_PROFILE("active power plugin.");
+    KLOG_DEBUG_POWER("Active power plugin.");
 
     PowerWrapperManager::global_init();
     PowerBacklight::global_init();
@@ -51,7 +51,7 @@ void PowerPlugin::activate()
 
 void PowerPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive power plugin.");
+    KLOG_DEBUG_POWER("Deactive power plugin.");
 
     PowerNotificationManager::global_deinit();
     PowerEventControl::global_deinit();

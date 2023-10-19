@@ -122,7 +122,7 @@ bool UserCache::load_cache_file()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("failed to load file %s: %s.", filename.c_str(), e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("Failed to load file %s: %s.", filename.c_str(), e.what().c_str());
         return false;
     }
     return true;
@@ -130,8 +130,6 @@ bool UserCache::load_cache_file()
 
 bool UserCache::save_cache_file()
 {
-    KLOG_PROFILE("");
-
     auto user = this->user_.lock();
     RETURN_VAL_IF_FALSE(user, false);
 
@@ -142,12 +140,14 @@ bool UserCache::save_cache_file()
     {
         auto filename = Glib::build_filename(USERDIR, user->user_name_get());
         return this->keyfile_->save_to_file(filename);
+        KLOG_DEBUG_ACCOUNTS("Sync cache to file %s", filename.c_str());
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Saving data for user %s failed: %s", user->user_name_get().c_str(), e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("Saving data for user %s failed: %s", user->user_name_get().c_str(), e.what().c_str());
         return false;
     }
+
     return true;
 }
 

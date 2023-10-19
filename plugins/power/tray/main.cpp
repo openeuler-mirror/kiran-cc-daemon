@@ -41,13 +41,13 @@ int main(int argc, char* argv[])
 
         if (app->is_remote())
         {
-            KLOG_WARNING("The program is already running, exiting");
+            KLOG_WARNING_POWER("The program is already running, exiting");
             return EXIT_SUCCESS;
         }
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return EXIT_FAILURE;
     }
 

@@ -49,7 +49,7 @@ std::vector<PasswdShadow> AccountsWrapper::get_passwds_shadows()
         }
         else
         {
-            KLOG_DEBUG("The shadow info isn't found.");
+            KLOG_DEBUG_ACCOUNTS("The shadow info isn't found.");
         }
     }
 
@@ -169,7 +169,7 @@ void AccountsWrapper::reload_passwd()
     auto fp = fopen(PATH_PASSWD, "r");
     if (fp == NULL)
     {
-        KLOG_WARNING("Unable to open %s: %s", PATH_PASSWD, g_strerror(errno));
+        KLOG_WARNING_ACCOUNTS("Unable to open %s: %s", PATH_PASSWD, g_strerror(errno));
         return;
     }
 
@@ -194,7 +194,7 @@ void AccountsWrapper::reload_shadow()
     auto fp = fopen(PATH_SHADOW, "r");
     if (fp == NULL)
     {
-        KLOG_WARNING("Unable to open %s: %s", PATH_SHADOW, g_strerror(errno));
+        KLOG_WARNING_ACCOUNTS("Unable to open %s: %s", PATH_SHADOW, g_strerror(errno));
         return;
     }
 

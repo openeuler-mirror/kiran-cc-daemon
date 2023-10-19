@@ -90,8 +90,6 @@ void AudioStream::SetMute(bool mute, MethodInvocation &invocation)
 
 void AudioStream::GetProperty(const Glib::ustring &key, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("key: %s.", key.c_str());
-
     auto value = this->stream_->get_property(key);
     invocation.ret(value);
 }
@@ -120,8 +118,7 @@ SET_DOUBLE_PROPERTY(volume)
 
 bool AudioStream::dbus_register()
 {
-    KLOG_PROFILE("register object path: %s.", this->object_path_.c_str());
-
+    KLOG_DEBUG_AUDIO("Register object path: %s.", this->object_path_.c_str());
     RETURN_VAL_IF_FALSE(this->stream_, false);
 
     try
@@ -140,8 +137,7 @@ bool AudioStream::dbus_register()
 
 void AudioStream::dbus_unregister()
 {
-    KLOG_PROFILE("unregister object path: %s.", this->object_path_.c_str());
-
+    KLOG_DEBUG_AUDIO("unregister object path: %s.", this->object_path_.c_str());
     if (this->object_register_id_)
     {
         this->unregister_object();

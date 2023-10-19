@@ -56,7 +56,7 @@ void PulseCard::load(const pa_card_info *card_info)
         auto iter = this->card_ports_.emplace(card_port->get_name(), card_port);
         if (!iter.second)
         {
-            KLOG_WARNING("The port %s is already exist.", card_port->get_name().c_str());
+            KLOG_WARNING_AUDIO("The port %s is already exist.", card_port->get_name().c_str());
         }
     }
 
@@ -66,7 +66,7 @@ void PulseCard::load(const pa_card_info *card_info)
         auto iter = this->card_profiles_.emplace(card_profile->get_name(), card_profile);
         if (!iter.second)
         {
-            KLOG_WARNING("The profile %s is already exist.", card_profile->get_name().c_str());
+            KLOG_WARNING_AUDIO("The profile %s is already exist.", card_profile->get_name().c_str());
         }
     }
 

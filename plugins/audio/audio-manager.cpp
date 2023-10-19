@@ -60,12 +60,10 @@ void AudioManager::init()
 
 void AudioManager::GetDefaultSink(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     auto pulse_sink = this->backend_->get_default_sink();
     if (!pulse_sink)
     {
-        KLOG_WARNING("The default sink is not set.");
+        KLOG_WARNING_AUDIO("The default sink is not set.");
         invocation.ret(Glib::ustring());
         return;
     }
@@ -74,7 +72,7 @@ void AudioManager::GetDefaultSink(MethodInvocation &invocation)
         auto audio_sink = this->get_sink(pulse_sink->get_index());
         if (!audio_sink)
         {
-            KLOG_WARNING("The audio sink isn't found. sink index: %d.", pulse_sink->get_index());
+            KLOG_WARNING_AUDIO("The audio sink isn't found, sink index: %d.", pulse_sink->get_index());
             invocation.ret(Glib::ustring());
         }
         else
@@ -86,8 +84,6 @@ void AudioManager::GetDefaultSink(MethodInvocation &invocation)
 
 void AudioManager::SetDefaultSink(guint32 sink_index, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("sink index: %d.", sink_index);
-
     auto audio_sink = this->get_sink(sink_index);
     auto pulse_sink = this->backend_->get_sink(sink_index);
     if (!audio_sink || !pulse_sink)
@@ -100,8 +96,6 @@ void AudioManager::SetDefaultSink(guint32 sink_index, MethodInvocation &invocati
 
 void AudioManager::GetSinks(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     std::vector<Glib::ustring> sinks;
     for (auto iter : this->sinks_)
     {
@@ -112,7 +106,6 @@ void AudioManager::GetSinks(MethodInvocation &invocation)
 
 void AudioManager::GetSink(guint32 index, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("sink index: %d.", index);
     auto sink = this->get_sink(index);
     if (!sink)
     {
@@ -123,12 +116,10 @@ void AudioManager::GetSink(guint32 index, MethodInvocation &invocation)
 
 void AudioManager::GetDefaultSource(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     auto pulse_source = this->backend_->get_default_source();
     if (!pulse_source)
     {
-        KLOG_WARNING("The default source is not set.");
+        KLOG_WARNING_AUDIO("The default source is not set.");
         invocation.ret(Glib::ustring());
         return;
     }
@@ -137,7 +128,7 @@ void AudioManager::GetDefaultSource(MethodInvocation &invocation)
         auto audio_source = this->get_source(pulse_source->get_index());
         if (!audio_source)
         {
-            KLOG_WARNING("The audio source isn't found. source index: %d.", pulse_source->get_index());
+            KLOG_WARNING_AUDIO("The audio source isn't found, source index: %d.", pulse_source->get_index());
             invocation.ret(Glib::ustring());
         }
         else
@@ -149,8 +140,6 @@ void AudioManager::GetDefaultSource(MethodInvocation &invocation)
 
 void AudioManager::SetDefaultSource(guint32 source_index, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("source index: %d.", source_index);
-
     auto audio_source = this->get_source(source_index);
     auto pulse_source = this->backend_->get_source(source_index);
     if (!audio_source || !pulse_source)
@@ -163,8 +152,6 @@ void AudioManager::SetDefaultSource(guint32 source_index, MethodInvocation &invo
 
 void AudioManager::GetSources(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     std::vector<Glib::ustring> sources;
     for (auto iter : this->sources_)
     {
@@ -175,7 +162,6 @@ void AudioManager::GetSources(MethodInvocation &invocation)
 
 void AudioManager::GetSource(guint32 index, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("source index: %d.", index);
     auto source = this->get_source(index);
     if (!source)
     {
@@ -186,8 +172,6 @@ void AudioManager::GetSource(guint32 index, MethodInvocation &invocation)
 
 void AudioManager::GetSinkInputs(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     std::vector<Glib::ustring> sink_inputs;
     for (auto iter : this->sink_inputs_)
     {
@@ -198,7 +182,6 @@ void AudioManager::GetSinkInputs(MethodInvocation &invocation)
 
 void AudioManager::GetSinkInput(guint32 index, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("sink input index: %d.", index);
     auto sink_input = this->get_sink_input(index);
     if (!sink_input)
     {
@@ -209,8 +192,6 @@ void AudioManager::GetSinkInput(guint32 index, MethodInvocation &invocation)
 
 void AudioManager::GetSourceOutputs(MethodInvocation &invocation)
 {
-    KLOG_PROFILE("");
-
     std::vector<Glib::ustring> source_outputs;
     for (auto iter : this->source_outputs_)
     {
@@ -221,7 +202,6 @@ void AudioManager::GetSourceOutputs(MethodInvocation &invocation)
 
 void AudioManager::GetSourceOutput(guint32 index, MethodInvocation &invocation)
 {
-    KLOG_PROFILE("source output index: %d.", index);
     auto source_output = this->get_source_output(index);
     if (!source_output)
     {
@@ -268,7 +248,7 @@ std::shared_ptr<AudioDevice> AudioManager::add_sink(std::shared_ptr<PulseSink> p
         auto iter = this->sinks_.emplace(audio_sink->index_get(), audio_sink);
         if (!iter.second)
         {
-            KLOG_WARNING("The audio sink is already exist. sink index: %d.", audio_sink->index_get());
+            KLOG_WARNING_AUDIO("The audio sink is already exist, sink index: %d.", audio_sink->index_get());
             return nullptr;
         }
         this->SinkAdded_signal.emit(audio_sink->index_get());
@@ -276,7 +256,7 @@ std::shared_ptr<AudioDevice> AudioManager::add_sink(std::shared_ptr<PulseSink> p
     }
     else
     {
-        KLOG_WARNING("Init sink failed. index: %d.", pulse_sink->get_index());
+        KLOG_WARNING_AUDIO("Init sink failed, sink index: %d.", pulse_sink->get_index());
         return nullptr;
     }
     return nullptr;
@@ -292,7 +272,7 @@ std::shared_ptr<AudioDevice> AudioManager::add_source(std::shared_ptr<PulseSourc
         auto iter = this->sources_.emplace(audio_source->index_get(), audio_source);
         if (!iter.second)
         {
-            KLOG_WARNING("The audio source is already exist. source index: %d.", audio_source->index_get());
+            KLOG_WARNING_AUDIO("The audio source is already exist, source index: %d.", audio_source->index_get());
             return nullptr;
         }
         this->SourceAdded_signal.emit(audio_source->index_get());
@@ -300,7 +280,7 @@ std::shared_ptr<AudioDevice> AudioManager::add_source(std::shared_ptr<PulseSourc
     }
     else
     {
-        KLOG_WARNING("Init source failed. index: %d.", pulse_source->get_index());
+        KLOG_WARNING_AUDIO("Init source failed, source index: %d.", pulse_source->get_index());
         return nullptr;
     }
     return nullptr;
@@ -316,7 +296,7 @@ std::shared_ptr<AudioStream> AudioManager::add_sink_input(std::shared_ptr<PulseS
         auto iter = this->sink_inputs_.emplace(audio_sink_input->index_get(), audio_sink_input);
         if (!iter.second)
         {
-            KLOG_WARNING("The audio sink input is already exist. sink input index: %d.", audio_sink_input->index_get());
+            KLOG_WARNING_AUDIO("The audio sink input is already exist, sink input index: %d.", audio_sink_input->index_get());
             return nullptr;
         }
         this->SinkInputAdded_signal.emit(audio_sink_input->index_get());
@@ -324,7 +304,7 @@ std::shared_ptr<AudioStream> AudioManager::add_sink_input(std::shared_ptr<PulseS
     }
     else
     {
-        KLOG_WARNING("Init sink input failed. index: %d.", pulse_sink_input->get_index());
+        KLOG_WARNING_AUDIO("Init sink input failed, sink input index: %d.", pulse_sink_input->get_index());
         return nullptr;
     }
     return nullptr;
@@ -340,7 +320,7 @@ std::shared_ptr<AudioStream> AudioManager::add_source_output(std::shared_ptr<Pul
         auto iter = this->source_outputs_.emplace(audio_source_output->index_get(), audio_source_output);
         if (!iter.second)
         {
-            KLOG_WARNING("The audio source output is already exist. source output index: %d.", audio_source_output->index_get());
+            KLOG_WARNING_AUDIO("The audio source output is already exist, source output index: %d.", audio_source_output->index_get());
             return nullptr;
         }
         this->SourceOutputAdded_signal.emit(audio_source_output->index_get());
@@ -348,7 +328,7 @@ std::shared_ptr<AudioStream> AudioManager::add_source_output(std::shared_ptr<Pul
     }
     else
     {
-        KLOG_WARNING("Init source output failed. index: %d.", pulse_source_output->get_index());
+        KLOG_WARNING_AUDIO("Init source output failed, source output index: %d.", pulse_source_output->get_index());
         return nullptr;
     }
     return nullptr;
@@ -356,8 +336,6 @@ std::shared_ptr<AudioStream> AudioManager::add_source_output(std::shared_ptr<Pul
 
 void AudioManager::del_components()
 {
-    KLOG_PROFILE("");
-
     for (auto iter : this->sinks_)
     {
         this->SinkDelete_signal.emit(iter.second->index_get());
@@ -385,8 +363,6 @@ void AudioManager::del_components()
 
 void AudioManager::on_state_changed_cb(AudioState state)
 {
-    KLOG_PROFILE("state: %d.", state);
-
     switch (state)
     {
     case AudioState::AUDIO_STATE_READY:
@@ -441,7 +417,7 @@ void AudioManager::on_sink_event_cb(PulseSinkEvent event, std::shared_ptr<PulseS
         RETURN_IF_FALSE(pulse_sink);
         if (!this->sinks_.erase(pulse_sink->get_index()))
         {
-            KLOG_WARNING("Not found audio sink: %d.", pulse_sink->get_index());
+            KLOG_WARNING_AUDIO("Not found audio sink: %d.", pulse_sink->get_index());
         }
         else
         {
@@ -468,7 +444,7 @@ void AudioManager::on_sink_input_event_cb(PulseSinkInputEvent event, std::shared
         RETURN_IF_FALSE(pulse_sink_input);
         if (!this->sink_inputs_.erase(pulse_sink_input->get_index()))
         {
-            KLOG_WARNING("Not found audio sink input: %d.", pulse_sink_input->get_index());
+            KLOG_WARNING_AUDIO("Not found audio sink input: %d.", pulse_sink_input->get_index());
         }
         else
         {
@@ -497,7 +473,7 @@ void AudioManager::on_source_event_cb(PulseSourceEvent event, std::shared_ptr<Pu
         RETURN_IF_FALSE(pulse_source);
         if (!this->sources_.erase(pulse_source->get_index()))
         {
-            KLOG_WARNING("Not found audio source: %d.", pulse_source->get_index());
+            KLOG_WARNING_AUDIO("Not found audio source: %d.", pulse_source->get_index());
         }
         else
         {
@@ -524,7 +500,7 @@ void AudioManager::on_source_output_event_cb(PulseSourceOutputEvent event, std::
         RETURN_IF_FALSE(pulse_source_output);
         if (!this->source_outputs_.erase(pulse_source_output->get_index()))
         {
-            KLOG_WARNING("Not found audio source output: %d.", pulse_source_output->get_index());
+            KLOG_WARNING_AUDIO("Not found audio source output: %d.", pulse_source_output->get_index());
         }
         else
         {
@@ -542,10 +518,9 @@ void AudioManager::on_source_output_event_cb(PulseSourceOutputEvent event, std::
 
 void AudioManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_AUDIO("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -554,18 +529,18 @@ void AudioManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &co
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", AUDIO_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_AUDIO("Register object_path %s fail: %s.", AUDIO_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void AudioManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_AUDIO("Success to register dbus name: %s", name.c_str());
 }
 
 void AudioManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_AUDIO("Failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

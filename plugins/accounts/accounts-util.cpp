@@ -77,13 +77,13 @@ bool AccountsUtil::get_caller_pid(Glib::RefPtr<Gio::DBus::MethodInvocation> invo
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("failed to call GetConnectionUnixProcessID: %s", e.what().c_str());
+            KLOG_WARNING_ACCOUNTS("Failed to call GetConnectionUnixProcessID: %s", e.what().c_str());
             return false;
         }
     }
     else
     {
-        KLOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
+        KLOG_WARNING_ACCOUNTS("Failed to create dbus proxy for org.freedesktop.DBus");
         return false;
     }
 
@@ -109,13 +109,13 @@ bool AccountsUtil::get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invo
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("failed to call GetConnectionUnixUser: %s", e.what().c_str());
+            KLOG_WARNING_ACCOUNTS("Failed to call GetConnectionUnixUser: %s", e.what().c_str());
             return false;
         }
     }
     else
     {
-        KLOG_WARNING("failed to create dbus proxy for org.freedesktop.DBus");
+        KLOG_WARNING_ACCOUNTS("Failed to create dbus proxy for org.freedesktop.DBus");
         return false;
     }
 
@@ -141,7 +141,7 @@ void AccountsUtil::get_caller_loginuid(const Glib::RefPtr<Gio::DBus::MethodInvoc
         }
         catch (const Glib::FileError &e)
         {
-            KLOG_DEBUG("%s", e.what().c_str());
+            KLOG_DEBUG_ACCOUNTS("%s", e.what().c_str());
             loginuid = fmt::format("{0}", uid);
         }
     }
@@ -156,7 +156,7 @@ void AccountsUtil::setup_loginuid(const std::string &id)
     auto fd = open("/proc/self/loginuid", O_WRONLY);
     if (write(fd, id.c_str(), id.length()) != (int)id.length())
     {
-        KLOG_WARNING("Failed to write loginuid '%s'\n", id.c_str());
+        KLOG_WARNING_ACCOUNTS("Failed to write loginuid '%s'\n", id.c_str());
     }
     close(fd);
 }
@@ -165,8 +165,6 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
                                         const std::vector<std::string> argv,
                                         std::string &error)
 {
-    KLOG_DEBUG("command: %s.", StrUtils::join(argv, " ").c_str());
-
     std::string loginuid;
     std::string standard_error;
     int status;
@@ -187,10 +185,11 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
     }
     catch (const Glib::SpawnError &e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("%s.", e.what().c_str());
         error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED;
     }
-    KLOG_DEBUG("status: %d.", status);
+
+    KLOG_INFO_ACCOUNTS("The result of command %s is %d.", StrUtils::join(argv, " ").c_str(), status);
 
     if (error_code == CCErrorCode::SUCCESS)
     {
@@ -221,7 +220,7 @@ bool AccountsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_cod
         auto result = g_spawn_check_exit_status(exit_status, &g_error);
         if (!result)
         {
-            KLOG_WARNING("%s.", g_error->message);
+            KLOG_WARNING_ACCOUNTS("%s.", g_error->message);
             error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS;
         }
         return result;

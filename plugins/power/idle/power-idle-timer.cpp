@@ -43,8 +43,7 @@ void PowerIdleTimer::init()
 
 bool PowerIdleTimer::set_idle_timeout(PowerIdleMode mode, uint32_t timeout)
 {
-    KLOG_PROFILE("mode: %d, timeout: %d.", mode, timeout);
-
+    KLOG_DEBUG_POWER("Set idle timeout to %d for mode %s.", timeout, this->idle_mode_enum2str(mode).c_str());
     switch (mode)
     {
     case PowerIdleMode::POWER_IDLE_MODE_DIM:
@@ -57,6 +56,30 @@ bool PowerIdleTimer::set_idle_timeout(PowerIdleMode mode, uint32_t timeout)
         break;
     }
     return false;
+}
+
+std::string PowerIdleTimer::idle_mode_enum2str(PowerIdleMode mode)
+{
+    std::string mode_info;
+    switch (mode)
+    {
+    case PowerIdleMode::POWER_IDLE_MODE_NORMAL:
+        mode_info = "normal";
+        break;
+    case PowerIdleMode::POWER_IDLE_MODE_DIM:
+        mode_info = "dim";
+        break;
+    case PowerIdleMode::POWER_IDLE_MODE_BLANK:
+        mode_info = "blank";
+        break;
+    case PowerIdleMode::POWER_IDLE_MODE_SLEEP:
+        mode_info = "sleep";
+        break;
+    default:
+        mode_info = "";
+        break;
+    }
+    return mode_info;
 }
 
 bool PowerIdleTimer::set_dim_timeout(uint32_t timeout)
@@ -101,8 +124,7 @@ void PowerIdleTimer::update_mode()
     auto is_idle = this->session_->get_idle();
     auto idle_inhibit = this->session_->get_idle_inhibited();
 
-    KLOG_DEBUG("is_idle: %d idle_inhibit: %d.", is_idle, idle_inhibit);
-
+    KLOG_DEBUG_POWER("is_idle: %d idle_inhibit: %d.", is_idle, idle_inhibit);
     // 如果为未空闲状态，或者禁止空闲时操作，则不进行节能处理
     if (!is_idle || idle_inhibit)
     {
@@ -165,12 +187,10 @@ void PowerIdleTimer::remove_sleep_timeout()
 
 bool PowerIdleTimer::on_blank_timeout_cb()
 {
-    KLOG_PROFILE("");
-
     // 如果已经进入计算机节能模式，则不再发送显示设备节能信号
     if (this->mode_ >= PowerIdleMode::POWER_IDLE_MODE_BLANK)
     {
-        KLOG_DEBUG("Ignore blank timeout, mode: %d.", this->mode_);
+        KLOG_DEBUG_POWER("Ignore blank timeout, mode is %d.", this->mode_);
         return false;
     }
 
@@ -180,34 +200,28 @@ bool PowerIdleTimer::on_blank_timeout_cb()
 
 bool PowerIdleTimer::on_sleep_timeout_cb()
 {
-    KLOG_PROFILE("");
-
     this->switch_mode(PowerIdleMode::POWER_IDLE_MODE_SLEEP);
     return false;
 }
 
 void PowerIdleTimer::on_session_idle_status_changed(bool is_idle)
 {
-    KLOG_PROFILE("is_idle: %d.", is_idle);
+    KLOG_DEBUG_POWER("On session idle status changed");
     this->update_mode();
 }
 
 void PowerIdleTimer::on_inhibitor_changed()
 {
-    KLOG_PROFILE("");
     this->update_mode();
 }
 
 void PowerIdleTimer::on_alarm_triggered(std::shared_ptr<XAlarmInfo> xalarm)
 {
-    KLOG_PROFILE("");
     this->is_xidle_ = true;
 }
 
 void PowerIdleTimer::on_alarm_reset()
 {
-    KLOG_PROFILE("");
-
     this->is_xidle_ = false;
 }
 

@@ -201,8 +201,6 @@ void XSettingsManager::init()
 
 void XSettingsManager::load_from_settings()
 {
-    KLOG_PROFILE("");
-
     for (const auto &key : this->xsettings_settings_->list_keys())
     {
         // 这里不做通知，等初始化完后统一通知
@@ -214,17 +212,17 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 {
     if (is_notify)
     {
-        KLOG_DEBUG("key: %s.", key.c_str());
+        KLOG_DEBUG_XSETTINGS("The %s settings changed.", key.c_str());
     }
 
     auto iter = this->schema2registry_.find(key);
 
-#define SET_CASE(prop, type)                                     \
-    case CONNECT(prop, _hash):                                   \
-    {                                                            \
-        auto value = this->xsettings_settings_->get_##type(key); \
-        this->registry_.update(iter->second, value);             \
-        break;                                                   \
+#define SET_CASE(prop, type)                                       \
+    case CONNECT(prop, _hash):                                     \
+    {                                                              \
+        auto value = this -> xsettings_settings_->get_##type(key); \
+        this->registry_.update(iter->second, value);               \
+        break;                                                     \
     }
 
     switch (shash(key.c_str()))
@@ -276,7 +274,7 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
         break;
 
     default:
-        KLOG_WARNING("Unknown key: %s.", key.c_str());
+        KLOG_WARNING_XSETTINGS("Unknown key: %s.", key.c_str());
         break;
     }
 #undef SET_CASET
@@ -304,8 +302,6 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 
 void XSettingsManager::scale_settings()
 {
-    KLOG_PROFILE("");
-
     auto scale = this->get_window_scale();
     auto dpi = XSettingsUtils::get_dpi_from_x_server();
     int32_t unscaled_dpi = int32_t(dpi * 1024);
@@ -323,7 +319,7 @@ void XSettingsManager::scale_settings()
 
 void XSettingsManager::scale_change_workarounds(int32_t scale)
 {
-    KLOG_PROFILE("window_scale: %d, scale: %d", this->window_scale_, scale);
+    KLOG_DEBUG_XSETTINGS("Window_scale: %d, scale: %d", this->window_scale_, scale);
 
     std::string error;
     bool is_init = (!this->window_scale_);
@@ -341,9 +337,8 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
         {
             if (!XSettingsUtils::update_user_env_variable("QT_AUTO_SCREEN_SCALE_FACTOR", "0", error))
             {
-                KLOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
+                KLOG_WARNING_XSETTINGS("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
             }
-
 
             /* FIXME: 由于QT_SCALE_FACTOR将会放大窗口以及pt大小字体，而缩放将会更改Xft.dpi属性，该属性也会导致qt pt字体大小放大，字体将会放大过多。
             目前暂时解决方案：缩放两倍时固定Qt字体DPI 96，由QT_SCALE_FACTOR环境变量对窗口以及字体进行放大.
@@ -351,11 +346,11 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
             */
             if (!XSettingsUtils::update_user_env_variable("QT_SCALE_FACTOR", scale == 2 ? "2" : "1", error))
             {
-                KLOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
+                KLOG_WARNING_XSETTINGS("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
             }
-            else if ( scale==2 && !XSettingsUtils::update_user_env_variable("QT_FONT_DPI","96",error) )
+            else if (scale == 2 && !XSettingsUtils::update_user_env_variable("QT_FONT_DPI", "96", error))
             {
-                KLOG_WARNING("There was a problem when setting QT_FONT_DPI=96: %s", error.c_str());
+                KLOG_WARNING_XSETTINGS("There was a problem when setting QT_FONT_DPI=96: %s", error.c_str());
             }
         }
     }
@@ -376,7 +371,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
             }
             catch (const Glib::Error &e)
             {
-                KLOG_WARNING("There was a problem restarting marco: %s", e.what().c_str());
+                KLOG_WARNING_XSETTINGS("There was a problem restarting marco: %s", e.what().c_str());
             }
         }
         // 重启面板
@@ -387,7 +382,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
         }
         catch (const Glib::Error &e)
         {
-            KLOG_WARNING("There was a problem restarting mate-panel: %s", e.what().c_str());
+            KLOG_WARNING_XSETTINGS("There was a problem restarting mate-panel: %s", e.what().c_str());
         }
 
         // 重置桌面图标大小
@@ -406,8 +401,6 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
 
 void XSettingsManager::on_screen_changed()
 {
-    KLOG_PROFILE("");
-
     auto scale = this->get_window_scale();
     if (scale != this->window_scale_)
     {
@@ -417,7 +410,6 @@ void XSettingsManager::on_screen_changed()
 
 bool XSettingsManager::delayed_toggle_bg_draw(bool value)
 {
-    KLOG_DEBUG("show-desktop-icons: %d.", value);
     if (this->background_settings_)
     {
         this->background_settings_->set_boolean(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, value);
@@ -520,10 +512,9 @@ void XSettingsManager::set_registry_var(std::shared_ptr<XSettingsPropertyBase> v
 
 void XSettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_XSETTINGS("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -532,18 +523,18 @@ void XSettingsManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", XSETTINGS_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_XSETTINGS("Register object_path %s fail: %s.", XSETTINGS_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void XSettingsManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_XSETTINGS("Success to register dbus name: %s", name.c_str());
 }
 
 void XSettingsManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_XSETTINGS("Failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

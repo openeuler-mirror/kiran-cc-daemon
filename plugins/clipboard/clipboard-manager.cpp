@@ -55,8 +55,6 @@ ClipboardManager::event_filter(GdkXEvent *xevent,
 
 void ClipboardManager::init()
 {
-    KLOG_PROFILE("");
-
     this->display_ = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
 
     ClipboardUtils::init_atoms(this->display_);
@@ -64,7 +62,7 @@ void ClipboardManager::init()
 
     if (XGetSelectionOwner(this->display_, XA_CLIPBOARD_MANAGER))
     {
-        KLOG_WARNING("Clipboard manager is already running.");
+        KLOG_WARNING_CLIPBOARD("Clipboard manager is already running.");
         return;
     }
 
@@ -100,14 +98,14 @@ void ClipboardManager::init()
     }
     else
     {
-        KLOG_WARNING("Clipboard manager lost selection owner.");
+        KLOG_WARNING_CLIPBOARD("Clipboard manager lost selection owner.");
         ClipboardUtils::change_window_filter(this->window_,
                                              FILTER_CHANGE_REMOVE,
                                              (GdkFilterFunc)ClipboardManager::event_filter,
                                              this);
     }
 
-    KLOG_DEBUG("SelectionMaxSize: %lu, window: %lu.", SELECTION_MAX_SIZE, window_);
+    KLOG_DEBUG_CLIPBOARD("Init SelectionMaxSize is %lu, window is %lu.", SELECTION_MAX_SIZE, window_);
 
     return;
 }
@@ -153,7 +151,7 @@ bool ClipboardManager::process_event(XEvent *xev)
     {
         if (xev->xdestroywindow.window == this->requestor_)
         {
-            KLOG_DEBUG("DestroyNotify window: %lu.", xev->xdestroywindow.window);
+            KLOG_DEBUG_CLIPBOARD("DestroyNotify window: %lu.", xev->xdestroywindow.window);
             this->clear_requestor();
         }
     }
@@ -164,14 +162,14 @@ bool ClipboardManager::process_event(XEvent *xev)
 
         if (xev->xselectionclear.selection == XA_CLIPBOARD_MANAGER)
         {
-            KLOG_DEBUG("SelectionClear XA_CLIPBOARD_MANAGER");
+            KLOG_DEBUG_CLIPBOARD("SelectionClear XA_CLIPBOARD_MANAGER");
             this->clear_clipboard_owner();
             return true;
         }
 
         if (xev->xselectionclear.selection == XA_CLIPBOARD)
         {
-            KLOG_DEBUG("SelectionClear XA_CLIPBOARD");
+            KLOG_DEBUG_CLIPBOARD("SelectionClear XA_CLIPBOARD");
             this->clear_requestor();
             return true;
         }
@@ -183,14 +181,14 @@ bool ClipboardManager::process_event(XEvent *xev)
 
         if (xev->xselectionrequest.selection == XA_CLIPBOARD_MANAGER)
         {
-            KLOG_DEBUG("SelectionRequest XA_CLIPBOARD_MANAGER");
+            KLOG_DEBUG_CLIPBOARD("SelectionRequest XA_CLIPBOARD_MANAGER");
             this->selection_request_clipboard_manager(xev);
             return true;
         }
 
         if (xev->xselectionrequest.selection == XA_CLIPBOARD)
         {
-            KLOG_DEBUG("SelectionRequest XA_CLIPBOARD");
+            KLOG_DEBUG_CLIPBOARD("SelectionRequest XA_CLIPBOARD");
             this->clipboard_.selection_request_clipboard(xev);
             return true;
         }
@@ -202,7 +200,7 @@ bool ClipboardManager::process_event(XEvent *xev)
 
         if (xev->xselection.selection == XA_CLIPBOARD)
         {
-            KLOG_DEBUG("SelectionNotify XA_CLIPBOARD");
+            KLOG_DEBUG_CLIPBOARD("SelectionNotify XA_CLIPBOARD");
             this->selection_notify(xev);
             return true;
         }
@@ -231,7 +229,7 @@ bool ClipboardManager::process_event(XEvent *xev)
 
 void ClipboardManager::send_client_message()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_CLIPBOARD("Send client message.");
 
     XClientMessageEvent xev;
     xev.type = ClientMessage;
@@ -287,12 +285,10 @@ void ClipboardManager::selection_request_clipboard_manager(XEvent *xev)
 
 void ClipboardManager::selection_request_save_targets(XEvent *xev)
 {
-    KLOG_PROFILE("");
-
     if (this->requestor_ != None || !(this->clipboard_data_.is_contents_empty()))
     {
         // We're in the middle of a conversion request, or own the CLIPBOARD already
-        KLOG_DEBUG("requestor:%ld.", this->requestor_);
+        KLOG_DEBUG_CLIPBOARD("The requestor is %ld.", this->requestor_);
         ClipboardUtils::response_selection_request(this->display_, xev, false);
         return;
     }
@@ -310,7 +306,7 @@ void ClipboardManager::selection_request_save_targets(XEvent *xev)
 
     if (gdk_x11_display_error_trap_pop(gdkdisplay) != Success)
     {
-        KLOG_ERROR("Save targets failed, requestor: %lu.", xev->xselectionrequest.requestor);
+        KLOG_ERROR_CLIPBOARD("Save targets failed, requestor is %lu.", xev->xselectionrequest.requestor);
         return;
     }
 
@@ -335,11 +331,11 @@ void ClipboardManager::selection_request_save_targets(XEvent *xev)
         XConvertSelection(this->display_, XA_CLIPBOARD,
                           XA_TARGETS, XA_TARGETS,
                           this->window_, this->time_);
-        KLOG_DEBUG("XConvertSelection XA_TARGETS.");
+        KLOG_DEBUG_CLIPBOARD("XConvertSelection XA_TARGETS.");
     }
     else
     {
-        KLOG_DEBUG("Multiple nitems:%lu.", prop_group.nitems);
+        KLOG_DEBUG_CLIPBOARD("Multiple nitems is %lu.", prop_group.nitems);
         save_targets((Atom *)prop_group.data, prop_group.nitems);
     }
 }
@@ -351,7 +347,7 @@ void ClipboardManager::save_targets(Atom *targets, unsigned long nitems)
     Atom *multiple = new Atom[2 * nitems];
     if (multiple == nullptr)
     {
-        KLOG_ERROR("Malloc memory failed.");
+        KLOG_ERROR_CLIPBOARD("Malloc memory failed.");
         return;
     }
 
@@ -364,7 +360,7 @@ void ClipboardManager::save_targets(Atom *targets, unsigned long nitems)
 
             multiple[nout++] = targets[i];
             multiple[nout++] = targets[i];
-            KLOG_DEBUG("Num: %lu, target: %lu.", i, targets[i]);
+            KLOG_DEBUG_CLIPBOARD("Num: %lu, target: %lu.", i, targets[i]);
         }
     }
 
@@ -396,7 +392,7 @@ void ClipboardManager::selection_notify(XEvent *xev)
 
         RETURN_IF_FALSE(ret);
 
-        KLOG_DEBUG("Multiple nitems: %lu.", prop_group.nitems);
+        KLOG_DEBUG_CLIPBOARD("Multiple nitems is %lu.", prop_group.nitems);
         this->save_targets((Atom *)prop_group.data, prop_group.nitems);
     }
     else if (xev->xselection.property == XA_MULTIPLE)
@@ -405,7 +401,7 @@ void ClipboardManager::selection_notify(XEvent *xev)
     }
     else if (xev->xselection.property == None)
     {
-        KLOG_DEBUG("Property none.");
+        KLOG_DEBUG_CLIPBOARD("Property none.");
         this->response_manager_save_targets(false);
         this->clear_requestor();
     }
@@ -413,7 +409,7 @@ void ClipboardManager::selection_notify(XEvent *xev)
 
 void ClipboardManager::save_multiple_property(XEvent *xev)
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_CLIPBOARD("Save multiple property.");
     this->clipboard_data_.save_targets_data(this->display_, this->window_);
 
     this->time_ = xev->xselection.time;
@@ -433,7 +429,7 @@ void ClipboardManager::save_multiple_property(XEvent *xev)
     bool find_incr = this->clipboard_data_.is_exist_type(XA_INCR);
     if (!find_incr)
     {
-        KLOG_DEBUG("All transfers done.");
+        KLOG_DEBUG_CLIPBOARD("All transfers done.");
         this->response_manager_save_targets(true);
         ClipboardUtils::change_window_filter(this->requestor_,
                                              FILTER_CHANGE_REMOVE,
@@ -445,7 +441,6 @@ void ClipboardManager::save_multiple_property(XEvent *xev)
 
 void ClipboardManager::response_manager_save_targets(bool success)
 {
-    KLOG_PROFILE("");
     XSelectionEvent notify;
 
     notify.type = SelectionNotify;
@@ -495,7 +490,7 @@ bool ClipboardManager::receive_incrementally(XEvent *xev)
         bool find_incr = this->clipboard_data_.is_exist_type(XA_INCR);
         if (!find_incr)
         {
-            KLOG_DEBUG("All incremental transfers done.");
+            KLOG_DEBUG_CLIPBOARD("All incremental transfers done.");
 
             this->response_manager_save_targets(true);
             this->requestor_ = None;

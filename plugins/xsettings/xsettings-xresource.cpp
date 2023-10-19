@@ -53,7 +53,7 @@ void XSettingsXResource::update_properties()
     auto p_porps = XResourceManagerString(dpy);
     std::string props = POINTER_TO_STRING(p_porps);
 
-    KLOG_DEBUG("Old Xresource: %s", props.c_str());
+    KLOG_DEBUG_XSETTINGS("The Old Xresource is %s", props.c_str());
     auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_gtk_cursor_theme_size()));
 
     auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_xft_dpi() / 1024.0));
@@ -69,7 +69,7 @@ void XSettingsXResource::update_properties()
     this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->get_gtk_cursor_theme_name());
     this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
 
-    KLOG_DEBUG("New Xresource: %s", props.c_str());
+    KLOG_DEBUG_XSETTINGS("The New Xresource is %s", props.c_str());
 
     XChangeProperty(dpy,
                     RootWindow(dpy, 0),

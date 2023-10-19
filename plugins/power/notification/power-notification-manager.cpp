@@ -61,7 +61,7 @@ bool PowerNotificationManager::message_notify(const std::string &title,
     // 关闭之前的通知
     if (!notify_notification_close(this->device_notification_, &error))
     {
-        KLOG_DEBUG("%s", error->message);
+        KLOG_DEBUG_POWER("%s", error->message);
         g_error_free(error);
         error = NULL;
     }
@@ -72,7 +72,7 @@ bool PowerNotificationManager::message_notify(const std::string &title,
     notify_notification_set_urgency(this->device_notification_, urgency);
     if (!notify_notification_show(this->device_notification_, &error))
     {
-        KLOG_WARNING("%s", error->message);
+        KLOG_WARNING_POWER("%s", error->message);
         g_error_free(error);
         return false;
     }

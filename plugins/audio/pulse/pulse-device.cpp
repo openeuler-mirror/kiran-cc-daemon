@@ -32,7 +32,7 @@ PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sink_info) : PulseNodeInfo(
         auto iter = this->ports.emplace(port->get_name(), port);
         if (!iter.second)
         {
-            KLOG_WARNING("The port %s already exist.", port->get_name().c_str());
+            KLOG_WARNING_AUDIO("The port %s already exist.", port->get_name().c_str());
         }
     }
 
@@ -57,7 +57,7 @@ PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *source_info) : PulseNodeI
         auto iter = this->ports.emplace(port->get_name(), port);
         if (!iter.second)
         {
-            KLOG_WARNING("The port %s already exist.", port->get_name().c_str());
+            KLOG_WARNING_AUDIO("The port %s already exist.", port->get_name().c_str());
         }
     }
 

@@ -91,8 +91,6 @@ std::string AppearanceFont::get_font(AppearanceFontType type)
 
 bool AppearanceFont::set_font(AppearanceFontType type, const std::string& font)
 {
-    KLOG_PROFILE("type: %d.", type);
-
     switch (type)
     {
     case APPEARANCE_FONT_TYPE_APPLICATION:

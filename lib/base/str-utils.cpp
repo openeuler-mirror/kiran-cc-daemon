@@ -146,7 +146,6 @@ std::string StrUtils::json2str(const Json::Value &json)
 
 Json::Value StrUtils::str2json(const std::string &str)
 {
-    KLOG_DEBUG("json str: %s.", str.c_str());
     Json::Value result;
     Json::CharReaderBuilder rbuilder;
     std::unique_ptr<Json::CharReader> reader(rbuilder.newCharReader());

@@ -67,7 +67,6 @@ void MouseManager::Reset(MethodInvocation &invocation)
 #define PROP_SET_HANDLER(prop, type, key, type2)                                    \
     bool MouseManager::prop##_setHandler(type value)                                \
     {                                                                               \
-        KLOG_PROFILE("value: %s.", fmt::format("{0}", value).c_str());              \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                          \
         if (g_settings_get_##type2(this->mouse_settings_->gobj(), key) != value)    \
         {                                                                           \
@@ -88,11 +87,9 @@ PROP_SET_HANDLER(natural_scroll, bool, MOUSE_SCHEMA_NATURAL_SCROLL, boolean);
 
 void MouseManager::init()
 {
-    KLOG_PROFILE("");
-
     if (!XInputHelper::supports_xinput_devices())
     {
-        KLOG_WARNING("XInput is not supported, not applying any settings.");
+        KLOG_WARNING_INPUTDEVICES("XInput is not supported, not applying any settings.");
         return;
     }
 
@@ -110,7 +107,7 @@ void MouseManager::init()
 
 void MouseManager::load_from_settings()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_INPUTDEVICES("Load from settings.");
 
     if (this->mouse_settings_)
     {
@@ -123,7 +120,7 @@ void MouseManager::load_from_settings()
 
 void MouseManager::settings_changed(const Glib::ustring &key)
 {
-    KLOG_PROFILE("key: %s.", key.c_str());
+    KLOG_DEBUG_INPUTDEVICES("The %s settings changed.", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -154,8 +151,6 @@ void MouseManager::set_all_props_to_devices()
 
 void MouseManager::set_left_handed_to_devices()
 {
-    KLOG_PROFILE("");
-
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
             !device_helper->is_touchpad())
@@ -167,8 +162,6 @@ void MouseManager::set_left_handed_to_devices()
 
 void MouseManager::set_motion_acceleration_to_devices()
 {
-    KLOG_PROFILE("");
-
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
             !device_helper->is_touchpad())
@@ -180,8 +173,6 @@ void MouseManager::set_motion_acceleration_to_devices()
 
 void MouseManager::set_middle_emulation_enabled_to_devices()
 {
-    KLOG_PROFILE("");
-
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
             !device_helper->is_touchpad())
@@ -193,8 +184,6 @@ void MouseManager::set_middle_emulation_enabled_to_devices()
 
 void MouseManager::set_natural_scroll_to_devices()
 {
-    KLOG_PROFILE("");
-
     XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
         if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
             !device_helper->is_touchpad())
@@ -206,8 +195,6 @@ void MouseManager::set_natural_scroll_to_devices()
 
 void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelper>)> callback)
 {
-    KLOG_PROFILE("");
-
     int32_t n_devices = 0;
     auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices);
 
@@ -216,7 +203,7 @@ void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelpe
         if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||
             strcmp(devices_info[i].name, "Virtual core keyboard") == 0)
         {
-            KLOG_DEBUG("ignore device: %s.", devices_info[i].name);
+            KLOG_DEBUG_INPUTDEVICES("Ignore device: %s.", devices_info[i].name);
             continue;
         }
         auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);
@@ -234,10 +221,9 @@ void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelpe
 
 void MouseManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_INPUTDEVICES("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -246,17 +232,17 @@ void MouseManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &co
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", MOUSE_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_INPUTDEVICES("Register object_path %s fail: %s.", MOUSE_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void MouseManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_INPUTDEVICES("Success to register dbus name: %s", name.c_str());
 }
 
 void MouseManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_INPUTDEVICES("Failed to register dbus name: %s", name.c_str());
 }
 }  // namespace Kiran

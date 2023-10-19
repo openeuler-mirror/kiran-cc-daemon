@@ -62,8 +62,6 @@ void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Set theme which type is (%d) to %s", type, theme_name.c_str());
-
     ThemeKey key = std::make_pair(type, theme_name);
     CCErrorCode error_code = CCErrorCode::SUCCESS;
     if (!this->appearance_theme_.set_theme(key, error_code))
@@ -103,8 +101,6 @@ void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
 
 void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Set font which type is (%d) to %s", type, font.c_str());
-
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_2);
@@ -119,8 +115,6 @@ void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodIn
 
 void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Set desktop background to %s", desktop_background.c_str());
-
     if (desktop_background != this->desktop_background_get() &&
         !this->desktop_background_set(desktop_background))
     {
@@ -131,8 +125,6 @@ void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_backgr
 
 void AppearanceManager::SetLockScreenBackground(const Glib::ustring& lock_screen_background, MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Set lock screen background to %s", lock_screen_background.c_str());
-
     if (lock_screen_background != this->lock_screen_background_get() &&
         !this->lock_screen_background_set(lock_screen_background))
     {
@@ -231,21 +223,17 @@ void AppearanceManager::auto_switch_for_window_theme()
 
 void AppearanceManager::on_theme_changed_cb(ThemeKey theme_key)
 {
-    KLOG_PROFILE("type: %d, theme name: %s.", theme_key.first, theme_key.second.c_str());
-
     this->ThemeChanged_signal.emit(theme_key.first, theme_key.second);
 }
 
 void AppearanceManager::on_font_chnaged_cb(AppearanceFontType type, const std::string& font)
 {
-    KLOG_PROFILE("type: %d, font: %s.", int32_t(type), font.c_str());
-
     this->FontChanged_signal.emit(int32_t(type), font);
 }
 
 void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)
 {
-    KLOG_PROFILE("key: %s", key.c_str());
+    KLOG_DEBUG_APPEARANCE("The %s setting changed", key.c_str());
 
     switch (shash(key.c_str()))
     {
@@ -275,10 +263,9 @@ void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)
 
 void AppearanceManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_APPEARANCE("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -287,17 +274,17 @@ void AppearanceManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("Register object_path %s fail: %s.", APPEARANCE_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_APPEARANCE("Register object_path %s fail: %s.", APPEARANCE_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void AppearanceManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_DEBUG("Success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_APPEARANCE("Success to register dbus name: %s", name.c_str());
 }
 
 void AppearanceManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_WARNING("Failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_APPEARANCE("Failed to register dbus name: %s", name.c_str());
 }
 }  // namespace  Kiran

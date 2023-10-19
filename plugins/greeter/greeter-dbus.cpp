@@ -33,8 +33,6 @@ namespace Kiran
     void GreeterDBus::fun(type1 value,                                                                                        \
                           MethodInvocation &invocation)                                                                       \
     {                                                                                                                         \
-        KLOG_PROFILE("");                                                                                                     \
-                                                                                                                              \
         AuthManager::get_instance()->start_auth_check(AUTH_SET_LOGIN_OPTION,                                                  \
                                                       TRUE,                                                                   \
                                                       invocation.getMessage(),                                                \
@@ -46,8 +44,6 @@ namespace Kiran
 #define GREETERSETTINGSDBUS_SET_TWO_PROP_AUTH(fun, callback, auth, type1, type2)                                                       \
     void GreeterDBus::fun(type1 value1, type2 value2, MethodInvocation &invocation)                                                    \
     {                                                                                                                                  \
-        KLOG_PROFILE("");                                                                                                              \
-                                                                                                                                       \
         AuthManager::get_instance()->start_auth_check(AUTH_SET_LOGIN_OPTION,                                                           \
                                                       TRUE,                                                                            \
                                                       invocation.getMessage(),                                                         \
@@ -63,12 +59,11 @@ GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetHideUserList, change_hide_user_list_aut
 GREETERSETTINGSDBUS_SET_ONE_PROP_AUTH(SetAllowManualLogin, change_allow_manual_login_authorized_cb, AUTH_SET_LOGIN_OPTION, bool)
 GREETERSETTINGSDBUS_SET_TWO_PROP_AUTH(SetScaleMode, change_scale_mode_authorized_cb, AUTH_SET_LOGIN_OPTION, uint16_t, uint16_t)
 
-#define USER_PROP_SET_HANDLER(prop, type)                              \
-    bool GreeterDBus::prop##_setHandler(type value)                    \
-    {                                                                  \
-        KLOG_PROFILE("value: %s.", fmt::format("{0}", value).c_str()); \
-        this->prop##_ = value;                                         \
-        return true;                                                   \
+#define USER_PROP_SET_HANDLER(prop, type)           \
+    bool GreeterDBus::prop##_setHandler(type value) \
+    {                                               \
+        this->prop##_ = value;                      \
+        return true;                                \
     }
 
 USER_PROP_SET_HANDLER(background, const Glib::ustring &)
@@ -114,8 +109,6 @@ void GreeterDBus::global_init()
 
 void GreeterDBus::init()
 {
-    KLOG_PROFILE("");
-
     /*Connect to the system bus and acquire our name*/
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
                                                  GREETER_DBUS_NAME,
@@ -136,8 +129,6 @@ void GreeterDBus::init()
 
 void GreeterDBus::change_background_file_authorized_cb(MethodInvocation invocation, Glib::ustring file_path)
 {
-    KLOG_PROFILE("file_path: %s", file_path.c_str());
-
     if (this->background_get() != file_path)
     {
         m_prefs->set_background_file(file_path);
@@ -153,13 +144,12 @@ void GreeterDBus::change_background_file_authorized_cb(MethodInvocation invocati
 
 void GreeterDBus::change_auto_login_user_authorized_cb(MethodInvocation invocation, Glib::ustring user_name)
 {
-    KLOG_PROFILE("autologin_user: %s", user_name.c_str());
-
     if (this->autologin_user_get() != user_name)
     {
         m_prefs->set_autologin_user(user_name);
         if (!m_prefs->save())
         {
+            KLOG_DEBUG_GREETER("Fail to change auto login user authorized");
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_2);
         }
 
@@ -171,7 +161,7 @@ void GreeterDBus::change_auto_login_user_authorized_cb(MethodInvocation invocati
 
 void GreeterDBus::change_auto_login_timeout_authorized_cb(MethodInvocation invocation, guint64 seconds)
 {
-    KLOG_PROFILE("seconds: %d", seconds);
+    KLOG_DEBUG_GREETER("Change the autologin delay time to %d seconds", seconds);
     if (this->autologin_timeout_get() != seconds)
     {
         m_prefs->set_autologin_delay(seconds);
@@ -188,7 +178,6 @@ void GreeterDBus::change_auto_login_timeout_authorized_cb(MethodInvocation invoc
 
 void GreeterDBus::change_hide_user_list_authorized_cb(MethodInvocation invocation, bool hide)
 {
-    KLOG_PROFILE("hide: %d", hide);
     if (this->hide_user_list_get() != hide)
     {
         m_prefs->set_hide_user_list(hide);
@@ -205,12 +194,12 @@ void GreeterDBus::change_hide_user_list_authorized_cb(MethodInvocation invocatio
 
 void GreeterDBus::change_allow_manual_login_authorized_cb(MethodInvocation invocation, bool allow)
 {
-    KLOG_PROFILE("allow: %d", allow);
     if (this->allow_manual_login_get() != allow)
     {
         m_prefs->set_enable_manual_login(allow);
         if (!m_prefs->save())
         {
+            KLOG_DEBUG_GREETER("Fail to change allow manual login authorized");
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_5);
         }
 
@@ -222,8 +211,6 @@ void GreeterDBus::change_allow_manual_login_authorized_cb(MethodInvocation invoc
 
 void GreeterDBus::change_scale_mode_authorized_cb(MethodInvocation invocation, guint16 mode, guint16 factor)
 {
-    KLOG_PROFILE("mode: %d factor: %d", mode, factor);
-
     if (mode < GREETER_SCALING_MODE_AUTO || mode > GREETER_SCALING_MODE_LAST)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SCALE_MODE_INVALIDE);
@@ -233,6 +220,7 @@ void GreeterDBus::change_scale_mode_authorized_cb(MethodInvocation invocation, g
     m_prefs->set_scale_factor(factor);
     if (!m_prefs->save())
     {
+        KLOG_DEBUG_GREETER("Fail to change scale mode authorized");
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GREETER_SYNC_TO_FILE_FAILED_6);
     }
 
@@ -244,7 +232,7 @@ void GreeterDBus::change_scale_mode_authorized_cb(MethodInvocation invocation, g
 
 bool GreeterDBus::reload_greeter_settings()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_GREETER("Reload greeter settings.");
 
     m_prefs->load();
     this->background_set(m_prefs->get_background_file());
@@ -262,7 +250,7 @@ void GreeterDBus::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &con
 {
     if (!connect)
     {
-        KLOG_WARNING("failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_GREETER("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -271,18 +259,18 @@ void GreeterDBus::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &con
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("register object_path %s fail: %s.", GREETER_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_GREETER("Register object_path %s fail: %s.", GREETER_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void GreeterDBus::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_DEBUG("success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_GREETER("Success to register dbus name: %s", name.c_str());
 }
 
 void GreeterDBus::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
 {
-    KLOG_WARNING("failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_GREETER("Failed to register dbus name: %s", name.c_str());
 }
 
 void GreeterDBus::on_autologin_delay_changed()
@@ -325,7 +313,7 @@ Glib::ustring GreeterDBus::uid_to_name(uid_t uid)
     struct passwd *pw_ptr;
     if ((pw_ptr = getpwuid(uid)) == NULL)
     {
-        KLOG_WARNING("failed to find user name by uid: %d", uid);
+        KLOG_WARNING_GREETER("Failed to find user name by uid %d", uid);
         return Glib::ustring();
     }
 

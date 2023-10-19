@@ -44,8 +44,6 @@ void PowerTray::global_init()
 
 void PowerTray::init()
 {
-    KLOG_PROFILE("");
-
     this->upower_client_->init();
 
     this->update_status_icon();
@@ -58,7 +56,6 @@ void PowerTray::init()
 
 void PowerTray::update_status_icon()
 {
-    KLOG_PROFILE("");
     std::string icon_name;
     // 托盘图标显示只考虑电源、电池和UPS供电的情况。
     auto icon_policy = PowerTrayIconPolicy(this->upower_settings_->get_enum(POWER_SCHEMA_TRAY_ICON_POLICY));
@@ -84,7 +81,7 @@ void PowerTray::update_status_icon()
         break;
     }
 
-    KLOG_DEBUG("icon name: %s.", icon_name.c_str());
+    KLOG_DEBUG_POWER("icon name: %s.", icon_name.c_str());
 
     if (icon_name.empty())
     {
@@ -175,18 +172,18 @@ Glib::RefPtr<Gdk::Pixbuf> PowerTray::get_pixbuf_by_icon_name(const std::string& 
 
     if (theme_name.empty())
     {
-        KLOG_WARNING("Not found theme name.");
+        KLOG_WARNING_POWER("Not found theme name.");
         return Glib::RefPtr<Gdk::Pixbuf>();
     }
 
     auto provider = Gtk::CssProvider::get_named(theme_name, std::string());
     if (!provider)
     {
-        KLOG_WARNING("Not found provider for %s.", theme_name.c_str());
+        KLOG_WARNING_POWER("Not found provider for %s.", theme_name.c_str());
         return Glib::RefPtr<Gdk::Pixbuf>();
     }
 
-    KLOG_DEBUG("Theme name: %s.", theme_name.c_str());
+    KLOG_DEBUG_POWER("Theme name: %s.", theme_name.c_str());
 
     auto style_context = Gtk::StyleContext::create();
     style_context->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);

@@ -52,7 +52,7 @@ void CustomShortCuts::init()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("failed to load %s: %s.", this->conf_file_path_.c_str(), e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Failed to load %s: %s.", this->conf_file_path_.c_str(), e.what().c_str());
     };
 
     auto display = Gdk::Display::get_default();
@@ -71,7 +71,7 @@ void CustomShortCuts::init()
             {
                 shortcut->key_combination = SHORTCUT_KEYCOMB_DISABLE;
                 this->change_and_save(shortcut);
-                KLOG_WARNING("Disable custom shortcut %s.", shortcut->name.c_str());
+                KLOG_WARNING_KEYBINDING("Disable custom shortcut %s.", shortcut->name.c_str());
             }
         }
     }
@@ -79,17 +79,17 @@ void CustomShortCuts::init()
 
 bool CustomShortCuts::add(std::shared_ptr<CustomShortCut> shortcut)
 {
-    KLOG_PROFILE("Name: %s action: %s keycomb: %s.",
-                 shortcut->name.c_str(),
-                 shortcut->action.c_str(),
-                 shortcut->key_combination.c_str());
+    KLOG_DEBUG_KEYBINDING("Add custom shortcut key,Name: %s action: %s keycomb: %s.",
+                          shortcut->name.c_str(),
+                          shortcut->action.c_str(),
+                          shortcut->key_combination.c_str());
 
     RETURN_VAL_IF_FALSE(this->check_valid(shortcut), false);
 
     auto uid = this->gen_uid();
     if (uid.length() == 0)
     {
-        KLOG_WARNING("Cannot generate unique ID for custom shortcut.");
+        KLOG_WARNING_KEYBINDING("Cannot generate unique ID for custom shortcut.");
         return false;
     }
 
@@ -102,16 +102,16 @@ bool CustomShortCuts::add(std::shared_ptr<CustomShortCut> shortcut)
 
 bool CustomShortCuts::modify(std::shared_ptr<CustomShortCut> shortcut)
 {
-    KLOG_PROFILE("Name: %s action: %s keycomb: %s.",
-                 shortcut->name.c_str(),
-                 shortcut->action.c_str(),
-                 shortcut->key_combination.c_str());
+    KLOG_DEBUG_KEYBINDING("Modify custom shortcut key,Name is %s,action is %s,keycomb is %s.",
+                          shortcut->name.c_str(),
+                          shortcut->action.c_str(),
+                          shortcut->key_combination.c_str());
 
     RETURN_VAL_IF_FALSE(this->check_valid(shortcut), false);
 
     if (!this->keyfile_.has_group(shortcut->uid))
     {
-        KLOG_WARNING("The shortcut %s is not exists.", shortcut->uid.c_str());
+        KLOG_WARNING_KEYBINDING("The shortcut %s is not exists.", shortcut->uid.c_str());
         return false;
     }
 
@@ -129,12 +129,12 @@ bool CustomShortCuts::modify(std::shared_ptr<CustomShortCut> shortcut)
 
 bool CustomShortCuts::remove(const std::string &uid)
 {
-    KLOG_PROFILE("Uid: %s.", uid.c_str());
+    KLOG_DEBUG_KEYBINDING("Remove custom shortcut key by Uid: %s.", uid.c_str());
 
     auto shortcut = this->get(uid);
     if (!shortcut)
     {
-        KLOG_WARNING("The keycomb %s is not exists.", uid.c_str());
+        KLOG_WARNING_KEYBINDING("The keycomb %s is not exists.", uid.c_str());
         return false;
     }
 
@@ -145,7 +145,6 @@ bool CustomShortCuts::remove(const std::string &uid)
 
 std::shared_ptr<CustomShortCut> CustomShortCuts::get(const std::string &uid)
 {
-    KLOG_PROFILE("Id: %s.", uid.c_str());
     if (!this->keyfile_.has_group(uid))
     {
         return nullptr;
@@ -160,7 +159,7 @@ std::shared_ptr<CustomShortCut> CustomShortCuts::get(const std::string &uid)
 
 std::shared_ptr<CustomShortCut> CustomShortCuts::get_by_keycomb(const std::string &keycomb)
 {
-    KLOG_PROFILE("Keycomb: %s", keycomb.c_str());
+    KLOG_DEBUG_KEYBINDING("Get custom shortcut key by Keycomb: %s", keycomb.c_str());
 
     // 禁用快捷键不进行搜索
     RETURN_VAL_IF_TRUE(keycomb == SHORTCUT_KEYCOMB_DISABLE, nullptr);
@@ -178,7 +177,6 @@ std::shared_ptr<CustomShortCut> CustomShortCuts::get_by_keycomb(const std::strin
 
 std::map<std::string, std::shared_ptr<CustomShortCut>> CustomShortCuts::get()
 {
-    KLOG_PROFILE("");
     std::map<std::string, std::shared_ptr<CustomShortCut>> shortcuts;
     for (const auto &group : this->keyfile_.get_groups())
     {
@@ -263,13 +261,13 @@ bool CustomShortCuts::check_valid(std::shared_ptr<CustomShortCut> shortcut)
     if (shortcut->name.length() == 0 ||
         shortcut->action.length() == 0)
     {
-        KLOG_WARNING("The name or action is null string");
+        KLOG_WARNING_KEYBINDING("The name or action is null string");
         return false;
     }
 
     if (ShortCutHelper::get_keystate(shortcut->key_combination) == INVALID_KEYSTATE)
     {
-        KLOG_WARNING("The format of the key_combination '%s' is invalid.", shortcut->key_combination.c_str());
+        KLOG_WARNING_KEYBINDING("The format of the key_combination '%s' is invalid.", shortcut->key_combination.c_str());
         return false;
     }
     return true;
@@ -304,8 +302,7 @@ bool CustomShortCuts::save_to_file()
 
 bool CustomShortCuts::grab_keycomb_change(const std::string &key_comb, bool is_grab)
 {
-    KLOG_PROFILE("key_comb: %s is_grab: %d.", key_comb.c_str(), is_grab);
-
+    KLOG_DEBUG_KEYBINDING("The grab status of key_comb %s changed,and current grab status is %d.", key_comb.c_str(), is_grab);
     auto key_state = ShortCutHelper::get_keystate(key_comb);
     RETURN_VAL_IF_FALSE(key_state != INVALID_KEYSTATE, false);
     return this->grab_keystate_change(key_state, is_grab);
@@ -313,8 +310,7 @@ bool CustomShortCuts::grab_keycomb_change(const std::string &key_comb, bool is_g
 
 bool CustomShortCuts::grab_keystate_change(const KeyState &keystate, bool is_grab)
 {
-    KLOG_PROFILE("symbol: %0x mods: %0x", keystate.key_symbol, keystate.mods);
-
+    KLOG_DEBUG_KEYBINDING("The grab status of keystate changed and current grab status is %d,the symbol is %0x mods is %0x.", is_grab, keystate.key_symbol, keystate.mods);
     RETURN_VAL_IF_TRUE(keystate == NULL_KEYSTATE, true);
     RETURN_VAL_IF_FALSE(keystate != INVALID_KEYSTATE, false);
 
@@ -367,7 +363,7 @@ bool CustomShortCuts::grab_keystate_change(const KeyState &keystate, bool is_gra
         }
         if (gdk_x11_display_error_trap_pop(display))
         {
-            KLOG_WARNING("Grab failed for some keys, another application may already have access the them.");
+            KLOG_WARNING_KEYBINDING("Grab failed for some keys, another application may already have access the them.");
             return false;
         }
     }
@@ -389,10 +385,10 @@ GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *ev
 
         auto key_state = ShortCutHelper::get_keystate(key_combination);
         auto event_key_state = ShortCutHelper::get_keystate(xevent);
-        KLOG_DEBUG("key_comb: %s key_state: %0x %0x event_key_state: %0x %0x %0x.",
-                   key_combination.c_str(),
-                   key_state.key_symbol, key_state.mods,
-                   event_key_state.key_symbol, event_key_state.mods, event_key_state.mods & manager->used_mods_);
+        KLOG_DEBUG_KEYBINDING("Key_comb: %s key_state: %0x %0x event_key_state: %0x %0x %0x.",
+                              key_combination.c_str(),
+                              key_state.key_symbol, key_state.mods,
+                              event_key_state.key_symbol, event_key_state.mods, event_key_state.mods & manager->used_mods_);
         if (key_state.key_symbol == event_key_state.key_symbol &&
             key_state.mods == (event_key_state.mods & manager->used_mods_))
         {
@@ -403,7 +399,7 @@ GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *ev
             }
             catch (const Glib::Error &e)
             {
-                KLOG_WARNING("failed to parse %s: %s.", action.c_str(), e.what().c_str());
+                KLOG_WARNING_KEYBINDING("Failed to parse %s: %s.", action.c_str(), e.what().c_str());
                 return GDK_FILTER_CONTINUE;
             }
 
@@ -413,7 +409,7 @@ GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *ev
             }
             catch (const Glib::Error &e)
             {
-                KLOG_WARNING("failed to exec %s: %s.", action.c_str(), e.what().c_str());
+                KLOG_WARNING_KEYBINDING("Failed to exec %s: %s.", action.c_str(), e.what().c_str());
             }
 
             return GDK_FILTER_REMOVE;
