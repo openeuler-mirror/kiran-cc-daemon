@@ -477,7 +477,8 @@ USER_AUTH_CHECK_CB(change_session_type_authorized_cb, session_type);
 
 void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir)
 {
-    if (this->home_directory_get() != home_dir)
+    // home_directory_get()或者home_dir可能以/结尾，也可能不以/结尾，因此这里统一去掉以/结尾后再进行比较
+    if (Glib::path_get_dirname(this->home_directory_get() + "/") != Glib::path_get_dirname(home_dir + "/"))
     {
         SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw());
         this->home_directory_set(home_dir);
