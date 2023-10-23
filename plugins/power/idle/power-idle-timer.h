@@ -74,6 +74,8 @@ private:
     void on_alarm_triggered(std::shared_ptr<XAlarmInfo> xalarm);
     void on_alarm_reset();
 
+    std::string idle_mode_enum2str(PowerIdleMode mode);
+
 private:
     PowerIdleMode mode_;
     sigc::signal<void, PowerIdleMode> mode_changed_;

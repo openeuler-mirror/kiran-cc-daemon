@@ -71,7 +71,7 @@ int32_t PowerBacklightHelper::get_brightness_value()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_POWER("%s.", e.what().c_str());
     }
     return -1;
 }
@@ -88,7 +88,7 @@ int32_t PowerBacklightHelper::get_brightness_max_value()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_POWER("%s.", e.what().c_str());
     }
     return -1;
 }
@@ -146,7 +146,7 @@ std::string PowerBacklightHelper::get_backlight_filepath()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_POWER("%s.", e.what().c_str());
         return std::string();
     }
     return std::string();

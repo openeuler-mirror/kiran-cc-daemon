@@ -91,11 +91,9 @@ std::string ISOTranslation::get_locale_string(const std::string &str, const std:
 std::string ISOTranslation::get_locale_string(const std::string &str)
 {
     auto str_639 = dgettext(ISO_639, str.c_str());
-    // KLOG_DEBUG("str: %s value: %s.", str.c_str(), POINTER_TO_STRING(str_639).c_str());
     RETURN_VAL_IF_TRUE(str_639 && str_639 != str, std::string(str_639));
 
     auto str_3166 = dgettext(ISO_3166, str.c_str());
-    // KLOG_DEBUG("str: %s value: %s.", str.c_str(), POINTER_TO_STRING(str_3166).c_str());
     RETURN_VAL_IF_TRUE(str_3166 && str_3166 != str, std::string(str_3166));
 
     return str;
@@ -113,12 +111,12 @@ void ISOTranslation::init()
 
     if (!load_iso_file(ISO_3166, {"alpha_2_code"}, this->countrys_, err))
     {
-        KLOG_WARNING("failed to load %s: %s.", ISO_3166, err.c_str());
+        KLOG_WARNING("Failed to load %s: %s.", ISO_3166, err.c_str());
     }
 
     if (!load_iso_file(ISO_639, {"iso_639_2B_code", "iso_639_2T_code"}, this->languages_, err))
     {
-        KLOG_WARNING("failed to load %s: %s.", ISO_639, err.c_str());
+        KLOG_WARNING("Failed to load %s: %s.", ISO_639, err.c_str());
     }
 }
 
@@ -127,8 +125,6 @@ bool ISOTranslation::load_iso_file(const std::string &iso_basename,
                                    std::map<std::string, std::string> &result,
                                    std::string &err)
 {
-    KLOG_PROFILE("basename: %s.", iso_basename.c_str());
-
     try
     {
         xmlpp::DomParser parser;

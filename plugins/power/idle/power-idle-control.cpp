@@ -80,7 +80,7 @@ void PowerIdleControl::switch_to_normal()
     // 正常状态下退出显示器的节能模式
     if (!PowerSave::get_instance()->do_save(PowerAction::POWER_ACTION_DISPLAY_ON, error))
     {
-        KLOG_WARNING("%s", error.c_str());
+        KLOG_WARNING_POWER("%s", error.c_str());
     }
 
     // 之前如果设置过变暗操作，则进行恢复
@@ -107,7 +107,7 @@ void PowerIdleControl::switch_to_blank()
 
     if (!PowerSave::get_instance()->do_save(this->display_idle_action_, error))
     {
-        KLOG_WARNING("%s", error.c_str());
+        KLOG_WARNING_POWER("%s", error.c_str());
     }
 }
 
@@ -117,7 +117,7 @@ void PowerIdleControl::switch_to_sleep()
 
     if (!PowerSave::get_instance()->do_save(this->computer_idle_action_, error))
     {
-        KLOG_WARNING("%s", error.c_str());
+        KLOG_WARNING_POWER("%s", error.c_str());
     }
 }
 
@@ -146,10 +146,6 @@ void PowerIdleControl::on_settings_changed(const Glib::ustring& key)
 
 void PowerIdleControl::on_idle_mode_changed(PowerIdleMode mode)
 {
-    KLOG_PROFILE("mode: %d", mode);
-
-    std::string error;
-
     switch (mode)
     {
     case PowerIdleMode::POWER_IDLE_MODE_NORMAL:

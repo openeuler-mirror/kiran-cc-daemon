@@ -29,7 +29,6 @@ SystemShortCuts::SystemShortCuts()
 
 void SystemShortCuts::init()
 {
-    KLOG_PROFILE("");
     this->load_system_shortcuts(this->shortcuts_);
 
     EWMH::get_instance()->signal_wm_window_change().connect(sigc::mem_fun(this, &SystemShortCuts::wm_window_changed));
@@ -38,12 +37,12 @@ void SystemShortCuts::init()
 bool SystemShortCuts::modify(const std::string &uid,
                              const std::string &key_combination)
 {
-    KLOG_PROFILE("Uid: %s keycomb: %s.", uid.c_str(), key_combination.c_str());
+    KLOG_DEBUG_KEYBINDING("Modify system shortcut key by Uid: %s keycomb: %s.", uid.c_str(), key_combination.c_str());
 
     auto shortcut = this->get(uid);
     if (!shortcut)
     {
-        KLOG_WARNING("The shortcut %s is not exists.", uid.c_str());
+        KLOG_WARNING_KEYBINDING("The shortcut %s is not exists.", uid.c_str());
         return false;
     }
 
@@ -67,8 +66,6 @@ std::shared_ptr<SystemShortCut> SystemShortCuts::get(const std::string &uid)
 
 std::shared_ptr<SystemShortCut> SystemShortCuts::get_by_keycomb(const std::string &keycomb)
 {
-    KLOG_PROFILE("Keycomb: %s", keycomb.c_str());
-
     // 禁用快捷键不进行搜索
     RETURN_VAL_IF_TRUE(keycomb == SHORTCUT_KEYCOMB_DISABLE, nullptr);
 
@@ -121,14 +118,12 @@ void SystemShortCuts::reset()
 
 void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_ptr<SystemShortCut>> &shortcuts)
 {
-    KLOG_PROFILE("");
-
     KeyListEntriesParser parser(KCC_KEYBINDINGS_DIR);
     std::vector<KeyListEntries> keys;
     std::string err;
     if (!parser.parse(keys, err))
     {
-        KLOG_WARNING("failed to parse %s: %s.", KCC_KEYBINDINGS_DIR, err.c_str());
+        KLOG_WARNING_KEYBINDING("Failed to parse %s: %s.", KCC_KEYBINDINGS_DIR, err.c_str());
         return;
     }
 
@@ -141,21 +136,21 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
         if (keylist_entries.wm_name.length() > 0 &&
             std::find(wm_keybindings.begin(), wm_keybindings.end(), keylist_entries.wm_name) == wm_keybindings.end())
         {
-            KLOG_DEBUG("Cannot match current window manager: %s.", keylist_entries.wm_name.c_str());
+            KLOG_DEBUG_KEYBINDING("Cannot match current window manager: %s.", keylist_entries.wm_name.c_str());
             continue;
         }
 
         // 过滤掉没有翻译文件的配置
         if (package.empty())
         {
-            KLOG_WARNING("Filter the keylist entries which name is %s, because the translation file not be found.", keylist_entries.name.c_str());
+            KLOG_WARNING_KEYBINDING("Filter the keylist entries which name is %s, because the translation file not be found.", keylist_entries.name.c_str());
             continue;
         }
 
         auto schemas = Gio::Settings::list_schemas();
         if (std::find(schemas.begin(), schemas.end(), keylist_entries.schema) == schemas.end())
         {
-            KLOG_WARNING("The schema id '%s' isn't exist", keylist_entries.schema.c_str());
+            KLOG_WARNING_KEYBINDING("The schema id '%s' isn't exist", keylist_entries.schema.c_str());
             continue;
         }
         auto system_settings = Gio::Settings::create(keylist_entries.schema);
@@ -168,10 +163,10 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
             // 配置文件支持条件语句对快捷键进行过滤
             if (!this->should_show_key(keylist_entry))
             {
-                KLOG_DEBUG("The system shortcut should not show. type: %s, name: %s, description: %s.",
-                           keylist_entries.name.c_str(),
-                           keylist_entry.name.c_str(),
-                           keylist_entry.description.c_str());
+                KLOG_DEBUG_KEYBINDING("The system shortcut should not show. type: %s, name: %s, description: %s.",
+                                      keylist_entries.name.c_str(),
+                                      keylist_entry.name.c_str(),
+                                      keylist_entry.description.c_str());
                 continue;
             }
 
@@ -193,7 +188,7 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
                 }
                 catch (const std::exception &e)
                 {
-                    KLOG_WARNING("%s", e.what());
+                    KLOG_WARNING_KEYBINDING("%s", e.what());
                 }
             }
 
@@ -201,10 +196,10 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
                 shortcut->name.length() == 0 ||
                 ShortCutHelper::get_keystate(shortcut->key_combination) == INVALID_KEYSTATE)
             {
-                KLOG_WARNING("The system shortcut is invalid. kind: %s name: %s keycomb: %s.",
-                             shortcut->kind.c_str(),
-                             shortcut->name.c_str(),
-                             shortcut->key_combination.c_str());
+                KLOG_WARNING_KEYBINDING("The system shortcut is invalid. kind: %s name: %s keycomb: %s.",
+                                        shortcut->kind.c_str(),
+                                        shortcut->name.c_str(),
+                                        shortcut->key_combination.c_str());
                 continue;
             }
 
@@ -214,10 +209,10 @@ void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_pt
             auto iter = shortcuts.emplace(shortcut->uid, shortcut);
             if (!iter.second)
             {
-                KLOG_WARNING("Exists the same system shortcut, uid: %s schema: %s key: %s.",
-                             shortcut->uid.c_str(),
-                             keylist_entries.schema.c_str(),
-                             keylist_entry.name.c_str());
+                KLOG_WARNING_KEYBINDING("Exists the same system shortcut, uid: %s schema: %s key: %s.",
+                                        shortcut->uid.c_str(),
+                                        keylist_entries.schema.c_str(),
+                                        keylist_entry.name.c_str());
                 continue;
             }
             shortcut->connection = system_settings->signal_changed(keylist_entry.name).connect(sigc::bind(sigc::mem_fun(this, &SystemShortCuts::settings_changed), shortcut->uid));

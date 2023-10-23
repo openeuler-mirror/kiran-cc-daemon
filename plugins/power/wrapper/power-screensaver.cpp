@@ -38,14 +38,13 @@ void PowerScreenSaver::init()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return;
     }
 }
 
 bool PowerScreenSaver::lock()
 {
-    KLOG_PROFILE("");
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
 
     // Lock函数无返回，因此这里使用异步调用后再循环检查屏幕保护程序是否已经启动
@@ -55,7 +54,7 @@ bool PowerScreenSaver::lock()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
 
@@ -68,13 +67,13 @@ bool PowerScreenSaver::lock()
             is_running = true;
             break;
         }
-        KLOG_DEBUG("timeout waiting for screensaver");
+        KLOG_DEBUG_POWER("Timeout waiting for screensaver");
         g_usleep(1000 * 100);
     }
 
     if (!is_running)
     {
-        KLOG_WARNING("Failed to lock screen.");
+        KLOG_WARNING_POWER("Failed to lock screen.");
         return false;
     }
 
@@ -83,7 +82,6 @@ bool PowerScreenSaver::lock()
 
 uint32_t PowerScreenSaver::add_throttle(const std::string& reason)
 {
-    KLOG_PROFILE("reason: %s.", reason.c_str());
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, 0);
 
     auto parameters = g_variant_new("(ss)", "Power screensaver", reason.c_str());
@@ -96,7 +94,7 @@ uint32_t PowerScreenSaver::add_throttle(const std::string& reason)
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return 0;
     }
 
@@ -104,19 +102,19 @@ uint32_t PowerScreenSaver::add_throttle(const std::string& reason)
     {
         auto v1 = retval.get_child(0);
         auto cookie = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(v1).get();
-        KLOG_DEBUG("cookie: %u.", cookie);
+        KLOG_DEBUG_POWER("The Cookie is %u.", cookie);
         return cookie;
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return 0;
 }
 
 uint32_t PowerScreenSaver::lock_and_throttle(const std::string& reason)
 {
-    KLOG_PROFILE("reason: %s.", reason.c_str());
+    KLOG_DEBUG_POWER("Lock and throttle");
 
     RETURN_VAL_IF_FALSE(this->lock(), 0);
     return this->add_throttle(reason);
@@ -124,7 +122,7 @@ uint32_t PowerScreenSaver::lock_and_throttle(const std::string& reason)
 
 bool PowerScreenSaver::remove_throttle(uint32_t cookie)
 {
-    KLOG_PROFILE("cookie: %u", cookie);
+    KLOG_DEBUG_POWER("Remove throttle");
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
 
     auto parameters = g_variant_new("(u)", cookie);
@@ -136,7 +134,7 @@ bool PowerScreenSaver::remove_throttle(uint32_t cookie)
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
 
@@ -145,7 +143,6 @@ bool PowerScreenSaver::remove_throttle(uint32_t cookie)
 
 bool PowerScreenSaver::poke()
 {
-    KLOG_PROFILE("");
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
 
     try
@@ -154,7 +151,7 @@ bool PowerScreenSaver::poke()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
 
@@ -163,7 +160,6 @@ bool PowerScreenSaver::poke()
 
 bool PowerScreenSaver::check_running()
 {
-    KLOG_PROFILE("");
     Glib::VariantContainerBase retval;
 
     RETURN_VAL_IF_FALSE(this->screensaver_proxy_, false);
@@ -174,7 +170,7 @@ bool PowerScreenSaver::check_running()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
 
@@ -186,7 +182,7 @@ bool PowerScreenSaver::check_running()
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return false;
 }

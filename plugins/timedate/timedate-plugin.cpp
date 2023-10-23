@@ -34,14 +34,14 @@ TimedatePlugin::~TimedatePlugin()
 
 void TimedatePlugin::activate()
 {
-    KLOG_PROFILE("active timedate plugin.");
+    KLOG_DEBUG_TIMEDATE("Active timedate plugin.");
 
     TimedateManager::global_init();
 }
 
 void TimedatePlugin::deactivate()
 {
-    KLOG_PROFILE("deactive timedate plugin.");
+    KLOG_DEBUG_TIMEDATE("Deactive timedate plugin.");
 
     TimedateManager::global_deinit();
 }

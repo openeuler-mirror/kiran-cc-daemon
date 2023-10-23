@@ -51,7 +51,7 @@ void AppearanceBackground::init()
 
 void AppearanceBackground::set_background(const std::string &path)
 {
-    KLOG_DEBUG("Set background path to %s", path.c_str());
+    KLOG_DEBUG_APPEARANCE("Set the path of %s as background picture", path.c_str());
 
     RETURN_IF_TRUE(this->desktop_background_ == path);
     this->desktop_background_ = path;
@@ -67,9 +67,9 @@ void AppearanceBackground::delay_draw_background()
     if (!this->delay_hander_)
     {
         auto idle = Glib::MainContext::get_default()->signal_idle();
-        this->delay_hander_ = idle.connect([this]() -> bool {
+        this->delay_hander_ = idle.connect([this]() -> bool{
             this->draw_background();
-            return false;
+            return false; 
         });
     }
 }
@@ -167,8 +167,6 @@ bool AppearanceBackground::can_draw_background()
 
 Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface(Glib::RefPtr<Gdk::Screen> screen)
 {
-    KLOG_PROFILE("");
-
     RETURN_VAL_IF_FALSE(screen, Cairo::RefPtr<Cairo::XlibSurface>());
 
     auto window = screen->get_root_window();
@@ -192,7 +190,7 @@ Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface_by_size(G
                                                                                int32_t width,
                                                                                int32_t height)
 {
-    KLOG_PROFILE("width: %d, height: %d", width, height);
+    KLOG_DEBUG_APPEARANCE("Create surface which size is %dx%d", width, height);
 
     /* 这里会通过display来创建pixmap对象，pixmap对象会存放到根窗口的"_XROOTPMAP_ID"和"ESETROOT_PMAP_ID"属性当中。
     其他应用程序也可能会设置根窗口的这个属性，在设置之前会通过XKillClient(display,source)函数释放调之前设置的
@@ -207,7 +205,7 @@ Cairo::RefPtr<Cairo::XlibSurface> AppearanceBackground::create_surface_by_size(G
 
     if (dummy_display == NULL)
     {
-        KLOG_WARNING("Failed to open display '%s'", display_name.c_str());
+        KLOG_WARNING_APPEARANCE("Failed to open display '%s'", display_name.c_str());
         return Cairo::RefPtr<Cairo::XlibSurface>();
     }
 
@@ -281,7 +279,7 @@ Glib::RefPtr<Gdk::Pixbuf> AppearanceBackground::get_pixbuf_by_file(const std::st
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_APPEARANCE("%s", e.what().c_str());
         return Glib::RefPtr<Gdk::Pixbuf>();
     }
 
@@ -459,7 +457,7 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
     if (!XInternAtoms(xdisplay, (char **)atom_names, G_N_ELEMENTS(atom_names), False, atoms) ||
         atoms[0] == None || atoms[1] == None)
     {
-        KLOG_WARNING("Could not create atoms needed to set root pixmap id/properties.\n");
+        KLOG_WARNING_APPEARANCE("Could not create atoms needed to set root pixmap id/properties.\n");
         return;
     }
 
@@ -507,8 +505,6 @@ void AppearanceBackground::on_appearance_settings_changed(const Glib::ustring &k
 
 void AppearanceBackground::on_screen_size_changed()
 {
-    KLOG_DEBUG("Receive screen changed signal.");
-
     this->delay_draw_background();
 }
 }  // namespace Kiran

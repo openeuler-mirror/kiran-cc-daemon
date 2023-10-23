@@ -81,7 +81,7 @@ void PasswdWrapper::exec(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("Failed to run passwd: %s.", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("Failed to run passwd: %s.", e.what().c_str());
         this->end_passwd(false);
         return;
     }
@@ -114,20 +114,20 @@ bool PasswdWrapper::init_iochannel(Glib::RefPtr<Glib::IOChannel> io_channel)
         std::string null_encoding;
         if (io_channel->set_encoding(null_encoding) != Glib::IO_STATUS_NORMAL)
         {
-            KLOG_WARNING("Failed to set encoding for iochannel.");
+            KLOG_WARNING_ACCOUNTS("Failed to set encoding for iochannel.");
             return false;
         }
 
         if (io_channel->set_flags(Glib::IO_FLAG_NONBLOCK) != Glib::IO_STATUS_NORMAL)
         {
-            KLOG_WARNING("Failed to set noblock flags for iochannel.");
+            KLOG_WARNING_ACCOUNTS("Failed to set noblock flags for iochannel.");
             return false;
         }
         io_channel->set_buffered(false);
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("%s.", e.what().c_str());
         return false;
     }
     return true;
@@ -159,18 +159,18 @@ bool PasswdWrapper::on_passwd_output(Glib::IOCondition io_condition, Glib::RefPt
     {
         if (io_channel->read(passwd_tips_part, 512) != Glib::IO_STATUS_NORMAL)
         {
-            KLOG_WARNING("Failed to read data from IO channel.");
+            KLOG_WARNING_ACCOUNTS("Failed to read data from IO channel.");
             return true;
         }
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("IO Channel read error: %s.", e.what().c_str());
+        KLOG_WARNING_ACCOUNTS("IO Channel read error: %s.", e.what().c_str());
         return true;
     }
 
     this->unhandled_passwd_tips_ += passwd_tips_part;
-    KLOG_DEBUG("Read string from passwd command: %s.", passwd_tips_part.c_str());
+    KLOG_DEBUG_ACCOUNTS("Read string from passwd command: %s.", passwd_tips_part.c_str());
 
     // 如果处理已经结束，则只读取缓存数据
     RETURN_VAL_IF_TRUE(this->state_ == PasswdState::PASSWD_STATE_END, true);
@@ -227,7 +227,7 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
     bool retval = false;
     auto lowercase_passwd_tips = StrUtils::tolower(line);
 
-    KLOG_DEBUG("Process string: %s.", line.c_str());
+    KLOG_DEBUG_ACCOUNTS("Process string content is: %s.", line.c_str());
 
     switch (this->state_)
     {
@@ -327,13 +327,13 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
 
 void PasswdWrapper::on_child_watch(GPid pid, int child_status)
 {
-    KLOG_DEBUG("Process passwd(%d) exit, exit status: %d.", (int32_t)pid, child_status);
+    KLOG_DEBUG_ACCOUNTS("Process passwd(%d) exit, exit status is %d.", (int32_t)pid, child_status);
 
     g_autoptr(GError) g_error = NULL;
     auto result = g_spawn_check_exit_status(child_status, &g_error);
     if (!result)
     {
-        KLOG_WARNING("%s.", g_error->message);
+        KLOG_WARNING_ACCOUNTS("%s.", g_error->message);
         if (this->error_message_.empty())
         {
             this->error_message_ = CC_ERROR2STR(CCErrorCode::ERROR_FAILED);
@@ -358,7 +358,7 @@ std::string PasswdWrapper::translation_passwd_tips(const std::string &passwd_tip
         trim_passwd_tips = trim_passwd_tips.substr(strlen("passwd: "));
     }
 
-    KLOG_DEBUG("trim passwd: %s.", trim_passwd_tips.c_str());
+    KLOG_DEBUG_ACCOUNTS("Trim passwd: %s.", trim_passwd_tips.c_str());
 
     bool translation_success = true;
     auto trim_passwd_tips_vec = StrUtils::split_with_char(trim_passwd_tips, '-');
@@ -404,7 +404,7 @@ std::string PasswdWrapper::translation_passwd_tips(const std::string &passwd_tip
 
 std::string PasswdWrapper::translation_with_gettext(const std::string &message_id)
 {
-    KLOG_DEBUG("translation message '%s' with gettext.", message_id.c_str());
+    KLOG_DEBUG_ACCOUNTS("Translation message '%s' with gettext.", message_id.c_str());
 
 #define TRANS_WITH_DOMAIN(domainname, text)                                     \
     do                                                                          \
@@ -425,7 +425,7 @@ std::string PasswdWrapper::translation_with_gettext(const std::string &message_i
 
 void PasswdWrapper::end_passwd(bool is_success)
 {
-    KLOG_DEBUG("The command of passwd execution completed.");
+    KLOG_DEBUG_ACCOUNTS("The command of passwd execution completed.");
 
     if (!is_success)
     {
@@ -454,7 +454,7 @@ void PasswdWrapper::end_passwd(bool is_success)
 
 bool PasswdWrapper::on_passwd_timeout()
 {
-    KLOG_WARNING("Passwd run timeout.");
+    KLOG_WARNING_ACCOUNTS("Passwd run timeout.");
 
     /* 在收到passwd的错误消息后，大概会等1-2秒进程才会退出，如果此时超时定时器被触发，
     应该要判断一下是否是已经处理结束，如果是的话，使用之前的错误消息*/

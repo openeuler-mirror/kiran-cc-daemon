@@ -26,7 +26,6 @@ KeyListEntriesParser::KeyListEntriesParser(const std::string &key_entry_dir) : k
 
 bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string &err)
 {
-    KLOG_PROFILE("%s.", this->key_entry_dir_.c_str());
     try
     {
         Glib::Dir dir(this->key_entry_dir_);
@@ -42,7 +41,7 @@ bool KeyListEntriesParser::parse(std::vector<KeyListEntries> &keys, std::string 
                 KeyListEntries keylist_entries;
                 if (!this->process_keylist_entries(root_node, keylist_entries, err))
                 {
-                    KLOG_WARNING("Failed to paerse %s: %s. ignore it.", file_path.c_str(), err.c_str());
+                    KLOG_WARNING_KEYBINDING("Failed to paerse %s: %s. ignore it.", file_path.c_str(), err.c_str());
                     continue;
                 }
                 keys.push_back(std::move(keylist_entries));
@@ -63,7 +62,7 @@ bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyL
 
     if (!element)
     {
-        err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str());
+        err = fmt::format("The type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str());
         return false;
     }
 
@@ -103,7 +102,7 @@ bool KeyListEntriesParser::process_keylist_entries(const xmlpp::Node *node, KeyL
             // no deal
             break;
         default:
-            KLOG_DEBUG("ignore node: %s.", child->get_name().c_str());
+            KLOG_DEBUG_KEYBINDING("Ignore node: %s.", child->get_name().c_str());
             break;
         }
     }
@@ -116,7 +115,7 @@ bool KeyListEntriesParser::process_keylist_entry(const xmlpp::Node *node, KeyLis
 
     if (!element)
     {
-        err = fmt::format("the type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str());
+        err = fmt::format("The type of the node '{0}' isn't xmlpp::Element.", node->get_name().c_str());
         return false;
     }
 

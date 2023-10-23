@@ -30,14 +30,14 @@ ClipboardPlugin::~ClipboardPlugin()
 
 void ClipboardPlugin::activate()
 {
-    KLOG_PROFILE("active clipboard plugin.");
+    KLOG_DEBUG_CLIPBOARD("Active clipboard plugin.");
 
     ClipboardManager::global_init();
 }
 
 void ClipboardPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive clipboard plugin.");
+    KLOG_DEBUG_CLIPBOARD("Deactive clipboard plugin.");
 
     ClipboardManager::global_deinit();
 }

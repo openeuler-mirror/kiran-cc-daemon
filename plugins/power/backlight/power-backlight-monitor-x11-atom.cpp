@@ -39,7 +39,7 @@ bool PowerBacklightMonitorX11Atom::set_brightness_value(int32_t brightness_value
     gdk_display_flush(this->display_);
     if (gdk_x11_display_error_trap_pop(this->display_))
     {
-        KLOG_WARNING("Failed to XRRChangeOutputProperty for brightness %i", brightness_value);
+        KLOG_WARNING_POWER("Failed to XRRChangeOutputProperty for brightness %i", brightness_value);
         return false;
     }
     return true;
@@ -70,7 +70,7 @@ int32_t PowerBacklightMonitorX11Atom::get_brightness_value()
                              &bytes_after,
                              ((unsigned char **)&prop)) != Success)
     {
-        KLOG_WARNING("Failed to get brightness property for output %d.", (int32_t)this->output_);
+        KLOG_WARNING_POWER("Failed to get brightness property for output %d.", (int32_t)this->output_);
         return -1;
     }
 
@@ -82,7 +82,7 @@ int32_t PowerBacklightMonitorX11Atom::get_brightness_value()
     }
     else
     {
-        KLOG_WARNING("The data of the brightness proerty is incorrect.");
+        KLOG_WARNING_POWER("The data of the brightness proerty is incorrect.");
     }
 
     XFree(prop);
@@ -105,13 +105,13 @@ bool PowerBacklightMonitorX11Atom::get_brightness_range(int32_t &min, int32_t &m
     info = XRRQueryOutputProperty(this->xdisplay_, this->output_, this->backlight_atom_);
     if (info == NULL)
     {
-        KLOG_WARNING("Could not get output property for %d.", (int32_t)this->output_);
+        KLOG_WARNING_POWER("Could not get output property for %d.", (int32_t)this->output_);
         return false;
     }
 
     if (!info->range || info->num_values != 2)
     {
-        KLOG_WARNING("The values isn't a range");
+        KLOG_WARNING_POWER("The values isn't a range");
         return false;
     }
     min = info->values[0];

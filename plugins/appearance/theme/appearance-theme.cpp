@@ -130,8 +130,6 @@ bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
 
 std::string AppearanceTheme::get_theme(AppearanceThemeType type)
 {
-    KLOG_PROFILE("type: %d.", type);
-
     switch (type)
     {
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
@@ -183,7 +181,6 @@ bool AppearanceTheme::del_theme(ThemeUniqueKey unique_key)
             return true;
         }
     }
-    // KLOG_DEBUG("Not found the theme %s.", key.second);
     return false;
 }
 

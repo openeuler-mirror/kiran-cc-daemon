@@ -30,14 +30,14 @@ NetworkPlugin::~NetworkPlugin()
 
 void NetworkPlugin::activate()
 {
-    KLOG_PROFILE("active network plugin.");
+    KLOG_DEBUG_NETWORK("Active network plugin.");
 
     NetworkProxyManager::global_init();
 }
 
 void NetworkPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive network plugin.");
+    KLOG_DEBUG_NETWORK("Deactive network plugin.");
     NetworkProxyManager::global_deinit();
 }
 }  // namespace Kiran

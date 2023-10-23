@@ -33,14 +33,14 @@ SystemInfoPlugin::~SystemInfoPlugin()
 
 void SystemInfoPlugin::activate()
 {
-    KLOG_PROFILE("active systeminfo plugin.");
+    KLOG_DEBUG_SYSTEMINFO("Active systeminfo plugin.");
 
     SystemInfoManager::global_init();
 }
 
 void SystemInfoPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive systeminfo plugin.");
+    KLOG_DEBUG_SYSTEMINFO("Deactive systeminfo plugin.");
 
     SystemInfoManager::global_deinit();
 }

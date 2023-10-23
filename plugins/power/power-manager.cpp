@@ -67,11 +67,11 @@ void PowerManager::SetIdleAction(gint32 device,
                                  gint32 action,
                                  MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Set idle action for device %s which supply=%s, idle timeout=%d, action=%s.",
-               PowerUtils::device_enum2str(device).c_str(),
-               PowerUtils::supply_enum2str(supply).c_str(),
-               idle_timeout,
-               PowerUtils::action_enum2str(action).c_str());
+    KLOG_DEBUG_POWER("Set idle action for device %s which supply=%s, idle timeout=%d, action=%s.",
+                     PowerUtils::device_enum2str(device).c_str(),
+                     PowerUtils::supply_enum2str(supply).c_str(),
+                     idle_timeout,
+                     PowerUtils::action_enum2str(action).c_str());
 
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
@@ -176,10 +176,6 @@ void PowerManager::SetEventAction(gint32 event,
                                   gint32 action,
                                   MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Trigger action %s when event %d happend.",
-               PowerUtils::action_enum2str(action).c_str(),
-               PowerUtils::event_enum2str(event).c_str());
-
     if (action < 0 || action >= PowerAction::POWER_ACTION_LAST)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_2);
@@ -252,9 +248,9 @@ void PowerManager::SetBrightness(gint32 device,
                                  gint32 brightness_percentage,
                                  MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Set brightness percentage of device %s to %d.",
-               PowerUtils::device_enum2str(device).c_str(),
-               brightness_percentage);
+    KLOG_DEBUG_POWER("Set brightness percentage of device %s to %d.",
+                     PowerUtils::device_enum2str(device).c_str(),
+                     brightness_percentage);
 
     bool result = false;
 
@@ -289,8 +285,7 @@ void PowerManager::SetBrightness(gint32 device,
 void PowerManager::GetBrightness(gint32 device,
                                  MethodInvocation& invocation)
 {
-    KLOG_DEBUG("Get brightness percentage of device %s.", PowerUtils::device_enum2str(device).c_str());
-
+    KLOG_DEBUG_POWER("Get brightness percentage of device %s.", PowerUtils::device_enum2str(device).c_str());
     int32_t brightness_percentage = -1;
 
     switch (device)
@@ -440,7 +435,7 @@ void PowerManager::on_settings_changed(const Glib::ustring& key)
 
 void PowerManager::on_brightness_changed(std::shared_ptr<PowerBacklightPercentage> backlight_device, int32_t brightness_value)
 {
-    KLOG_PROFILE("brightness_value: %d, type: %d.", brightness_value, backlight_device->get_type());
+    KLOG_DEBUG_POWER("Changed brightness to %d, type is %d.", brightness_value, backlight_device->get_type());
 
     this->BrightnessChanged_signal.emit(backlight_device->get_type());
 }
@@ -452,10 +447,9 @@ void PowerManager::on_active_profile_changed(int32_t profile_mode)
 
 void PowerManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_PROFILE("name: %s", name.c_str());
     if (!connect)
     {
-        KLOG_WARNING("Failed to connect dbus. name: %s", name.c_str());
+        KLOG_WARNING_POWER("Failed to connect dbus with %s", name.c_str());
         return;
     }
     try
@@ -464,18 +458,18 @@ void PowerManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& co
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("Register object_path %s fail: %s.", POWER_OBJECT_PATH, e.what().c_str());
+        KLOG_WARNING_POWER("Register object_path %s fail: %s.", POWER_OBJECT_PATH, e.what().c_str());
     }
 }
 
 void PowerManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_DEBUG("Success to register dbus name: %s", name.c_str());
+    KLOG_DEBUG_POWER("Success to register dbus name: %s", name.c_str());
 }
 
 void PowerManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
 {
-    KLOG_WARNING("Failed to register dbus name: %s", name.c_str());
+    KLOG_WARNING_POWER("Failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

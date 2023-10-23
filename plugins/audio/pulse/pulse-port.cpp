@@ -38,10 +38,10 @@ PulsePort::PulsePort(const std::string &name,
                                           priority_(priority),
                                           available_(available)
 {
-    KLOG_DEBUG("name: %s, description: %s,  priority: %d, available: %d.",
-               name.c_str(),
-               description.c_str(),
-               priority,
-               available);
+    KLOG_DEBUG_AUDIO("The name is %s, it's description is about %s, it's priority is %d and it's available is %d.",
+                     name.c_str(),
+                     description.c_str(),
+                     priority,
+                     available);
 }
 }  // namespace Kiran

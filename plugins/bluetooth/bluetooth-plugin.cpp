@@ -15,6 +15,7 @@
 #include "plugins/bluetooth/bluetooth-plugin.h"
 
 #include <gtk3-log-i.h>
+#include "lib/base/base.h"
 #include "plugins/bluetooth/bluetooth-manager.h"
 
 PLUGIN_EXPORT_FUNC_DEF(BluetoothPlugin);
@@ -31,13 +32,13 @@ BluetoothPlugin::~BluetoothPlugin()
 
 void BluetoothPlugin::activate()
 {
-    KLOG_PROFILE("active bluetooth plugin.");
+    KLOG_DEBUG_BLUETOOTH("Active bluetooth plugin.");
     BluetoothManager::global_init();
 }
 
 void BluetoothPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive bluetooth plugin.");
+    KLOG_DEBUG_BLUETOOTH("Deactive bluetooth plugin.");
     BluetoothManager::global_deinit();
 }
 }  // namespace Kiran

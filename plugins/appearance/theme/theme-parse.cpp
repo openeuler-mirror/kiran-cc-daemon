@@ -83,7 +83,7 @@ std::shared_ptr<ThemeBase> ThemeParse::parse_meta()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_DEBUG("%s", e.what().c_str());
+        KLOG_DEBUG_APPEARANCE("%s", e.what().c_str());
         return nullptr;
     }
 

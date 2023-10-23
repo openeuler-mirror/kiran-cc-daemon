@@ -274,9 +274,9 @@ ModeInfoVec XrandrManager::get_modes(std::shared_ptr<OutputInfo> output)
         }
         else
         {
-            KLOG_WARNING("failed to get mode %u for output %s.",
-                         mode_id,
-                         output->name.c_str());
+            KLOG_WARNING_DISPLAY("Failed to get mode %u for output %s.",
+                                 mode_id,
+                                 output->name.c_str());
         }
     }
     return modes;
@@ -296,10 +296,10 @@ ModeInfoVec XrandrManager::get_prefer_modes(std::shared_ptr<OutputInfo> output)
         }
         else
         {
-            KLOG_WARNING("failed to get mode <%d,%u> for output %s.",
-                         i,
-                         output->modes[i],
-                         output->name.c_str());
+            KLOG_WARNING_DISPLAY("Failed to get mode <%d,%u> for output %s.",
+                                 i,
+                                 output->modes[i],
+                                 output->name.c_str());
         }
     }
     return modes;
@@ -336,12 +336,12 @@ std::string XrandrManager::gen_uid(std::shared_ptr<OutputInfo> output_info)
 
 void XrandrManager::init()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_DISPLAY("Init XrandrManager.");
 
     std::string err;
     if (!this->init_xrandr(err))
     {
-        KLOG_WARNING("xrandr: %s.", err.c_str());
+        KLOG_WARNING_DISPLAY("Xrandr: %s.", err.c_str());
         return;
     }
 
@@ -357,7 +357,7 @@ void XrandrManager::init()
 
 bool XrandrManager::init_xrandr(std::string& err)
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_DISPLAY("Init xrandr.");
     if (XRRQueryExtension(this->xdisplay_, &this->event_base_, &this->error_base_))
     {
         int major_version = 0;
@@ -381,7 +381,7 @@ bool XrandrManager::init_xrandr(std::string& err)
 
 void XrandrManager::load_xrandr(bool polling)
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_DISPLAY("Load xrandr.");
 
     this->clear_xrandr();
 
@@ -396,7 +396,7 @@ void XrandrManager::load_xrandr(bool polling)
 
     if (!this->resources_)
     {
-        KLOG_WARNING("cannot get screen resources for %0x.", this->xroot_window_);
+        KLOG_WARNING_DISPLAY("Cannot get screen resources for %0x.", this->xroot_window_);
         return;
     }
 
@@ -407,11 +407,11 @@ void XrandrManager::load_xrandr(bool polling)
                           &this->screen_info_.max_width,
                           &this->screen_info_.max_height);
 
-    KLOG_DEBUG("screen info: min_width: %d, min_height: %d, max_width: %d, max_height: %d.",
-               this->screen_info_.min_width,
-               this->screen_info_.min_height,
-               this->screen_info_.max_width,
-               this->screen_info_.max_height);
+    KLOG_DEBUG_DISPLAY("Screen info: min_width: %d, min_height: %d, max_width: %d, max_height: %d.",
+                       this->screen_info_.min_width,
+                       this->screen_info_.min_height,
+                       this->screen_info_.max_width,
+                       this->screen_info_.max_height);
 
     this->primary_ = XRRGetOutputPrimary(this->xdisplay_, this->xroot_window_);
 
@@ -422,7 +422,7 @@ void XrandrManager::load_xrandr(bool polling)
 
 void XrandrManager::load_outputs()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_DISPLAY("Load outputs");
 
     for (int32_t i = 0; i < this->resources_->noutput; ++i)
     {
@@ -434,24 +434,24 @@ void XrandrManager::load_outputs()
             this->outputs_.emplace(this->resources_->outputs[i], output);
             XRRFreeOutputInfo(output_info);
 
-            KLOG_DEBUG("output(%u) name: %s, connection: %u, crtc: %u, timestamp: %u, npreferred: %d, edid length: %d.",
-                       (uint32_t)output->id,
-                       output->name.c_str(),
-                       output->connection,
-                       (uint32_t)output->crtc,
-                       (uint32_t)output->timestamp,
-                       output->npreferred,
-                       edid.length());
+            KLOG_DEBUG_DISPLAY("Output(%u) name: %s, connection: %u, crtc: %u, timestamp: %u, npreferred: %d, edid length: %d.",
+                               (uint32_t)output->id,
+                               output->name.c_str(),
+                               output->connection,
+                               (uint32_t)output->crtc,
+                               (uint32_t)output->timestamp,
+                               output->npreferred,
+                               edid.length());
         }
         else
         {
-            KLOG_WARNING("cannot get output info for %0x.", this->resources_->outputs[i]);
+            KLOG_WARNING_DISPLAY("Cannot get output info for %0x.", this->resources_->outputs[i]);
         }
     }
 }
 void XrandrManager::load_crtcs()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_DISPLAY("Load crtcs.");
 
     for (int32_t i = 0; i < this->resources_->ncrtc; ++i)
     {
@@ -462,38 +462,38 @@ void XrandrManager::load_crtcs()
             this->crtcs_.emplace(this->resources_->crtcs[i], crtc);
             XRRFreeCrtcInfo(crtc_info);
 
-            KLOG_DEBUG("crtc(%u) x: %d, y: %d, width: %u, height: %u, mode: %u, rotation: %0x, rotations: %0x",
-                       crtc->id,
-                       crtc->x,
-                       crtc->y,
-                       crtc->width,
-                       crtc->height,
-                       (uint32_t)crtc->mode,
-                       crtc->rotation,
-                       crtc->rotations);
+            KLOG_DEBUG_DISPLAY("Crtc(%u) x: %d, y: %d, width: %u, height: %u, mode: %u, rotation: %0x, rotations: %0x",
+                               crtc->id,
+                               crtc->x,
+                               crtc->y,
+                               crtc->width,
+                               crtc->height,
+                               (uint32_t)crtc->mode,
+                               crtc->rotation,
+                               crtc->rotations);
         }
         else
         {
-            KLOG_WARNING("cannot get crtc info for %0x.", this->resources_->crtcs[i]);
+            KLOG_WARNING_DISPLAY("Cannot get crtc info for %0x.", this->resources_->crtcs[i]);
         }
     }
 }
 
 void XrandrManager::load_mods()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_DISPLAY("Load mods.");
 
     for (int32_t i = 0; i < this->resources_->nmode; ++i)
     {
         auto mode = std::make_shared<ModeInfo>(&this->resources_->modes[i]);
         this->modes_.emplace(mode->id, mode);
 
-        KLOG_DEBUG("mode(%u) width: %u, height: %u refresh_rate: %f name: %s.",
-                   mode->id,
-                   mode->width,
-                   mode->height,
-                   mode->refresh_rate,
-                   mode->name.c_str());
+        KLOG_DEBUG_DISPLAY("Mode(%u) width: %u, height: %u refresh_rate: %f name: %s.",
+                           mode->id,
+                           mode->width,
+                           mode->height,
+                           mode->refresh_rate,
+                           mode->name.c_str());
     }
 }
 
@@ -598,7 +598,7 @@ std::string XrandrManager::get_connector_type(RROutput output_id)
                                     &bytes_after,
                                     &prop);
 
-    KLOG_DEBUG("ret: %u atom: %u type: %u format: %u prop: %p ntimes: %u.", ret, this->connector_type_atom_, actual_type, actual_format, prop, nitems);
+    KLOG_DEBUG_DISPLAY("Ret: %u atom: %u type: %u format: %u prop: %p ntimes: %u.", ret, this->connector_type_atom_, actual_type, actual_format, prop, nitems);
     if (ret == Success &&
         actual_type == XA_ATOM &&
         actual_format == 32 &&
@@ -628,7 +628,7 @@ GdkFilterReturn XrandrManager::window_event(GdkXEvent* gdk_event, GdkEvent* even
     XrandrManager* xrandr_manager = (XrandrManager*)data;
     if (xrandr_manager != XrandrManager::get_instance())
     {
-        KLOG_WARNING("the previous XrandrManager was not removed.");
+        KLOG_WARNING_DISPLAY("The previous XrandrManager was not removed.");
         return GDK_FILTER_REMOVE;
     }
 

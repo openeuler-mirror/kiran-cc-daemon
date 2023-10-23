@@ -70,7 +70,7 @@ std::shared_ptr<FileCacheInfo> BackgroundCache::get_file_cache_info(const std::s
 
     if (file_absolute_path.length() == 0)
     {
-        KLOG_WARNING("The file path '%s' is invalid.", file_path.c_str());
+        KLOG_WARNING_APPEARANCE("The file path '%s' is invalid.", file_path.c_str());
         return nullptr;
     }
 
@@ -99,7 +99,7 @@ std::shared_ptr<FileCacheInfo> BackgroundCache::lookup_file_cache_info(const std
 
 bool BackgroundCache::on_cache_clear_timeout()
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG_APPEARANCE("Cache clear timeout.");
 
     auto now = time(NULL);
     for (auto iter = this->files_cache_.begin(); iter != this->files_cache_.end();)
@@ -126,7 +126,7 @@ void BackgroundCache::on_background_file_changed(const Glib::RefPtr<Gio::File> &
     // 这里不应该出现查找不到的情况
     if (!file_cache_info)
     {
-        KLOG_WARNING("Not found file cache info for %s", file_path.c_str());
+        KLOG_WARNING_APPEARANCE("Not found file cache info for %s", file_path.c_str());
         return;
     }
 

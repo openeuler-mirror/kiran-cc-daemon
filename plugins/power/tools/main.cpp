@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     }
     catch (const Glib::Exception& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return EXIT_FAILURE;
     }
 

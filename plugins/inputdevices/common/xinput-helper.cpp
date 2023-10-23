@@ -32,8 +32,6 @@ bool XInputHelper::supports_xinput_devices()
 
 void XInputHelper::foreach_device(std::function<void(std::shared_ptr<DeviceHelper>)> callback)
 {
-    KLOG_PROFILE("");
-
     int32_t n_devices = 0;
     auto devices_info = XListInputDevices(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()), &n_devices);
 
@@ -42,7 +40,7 @@ void XInputHelper::foreach_device(std::function<void(std::shared_ptr<DeviceHelpe
         if (strcmp(devices_info[i].name, "Virtual core pointer") == 0 ||
             strcmp(devices_info[i].name, "Virtual core keyboard") == 0)
         {
-            KLOG_DEBUG("ignore device: %s.", devices_info[i].name);
+            KLOG_DEBUG_INPUTDEVICES("Ignore device: %s.", devices_info[i].name);
             continue;
         }
         auto device_helper = std::make_shared<DeviceHelper>(&devices_info[i]);

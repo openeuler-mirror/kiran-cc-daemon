@@ -87,7 +87,6 @@ ClipboardData::get_target_data_by_target(Atom target)
 
 void ClipboardData::save_targets_data(Display *display, Window window)
 {
-    KLOG_PROFILE("");
     std::vector<Atom> targets = this->get_targets();
     for (auto iter : targets)
     {
@@ -130,15 +129,15 @@ void ClipboardData::save_target_data(Display *display, Window window, Atom targe
         tdata->data = new unsigned char[length + 1];
         if (tdata->data == nullptr)
         {
-            KLOG_ERROR("malloc memory size: %lu failed", length);
+            KLOG_ERROR_CLIPBOARD("Malloc memory size: %lu failed", length);
             return;
         }
 
         tdata->length = length;
         memcpy(tdata->data, prop_group.data, tdata->length);
 
-        KLOG_DEBUG("Target: %lu, format: %d, length: %lu.",
-                   tdata->target, tdata->format, tdata->length);
+        KLOG_DEBUG_CLIPBOARD("Target is %lu, format is %d and the length is %lu.",
+                             tdata->target, tdata->format, tdata->length);
     }
 }
 
@@ -146,7 +145,6 @@ void ClipboardData::save_incremental_target_data(std::shared_ptr<TargetData> tda
                                                  const WindowPropertyGroup &prop_group)
 {
     unsigned long length = prop_group.nitems * ClipboardUtils::bytes_per_item(prop_group.format);
-    KLOG_DEBUG("Data->length: %lu, length: %lu.", tdata->length, length);
 
     if (length == 0)
     {
@@ -160,7 +158,7 @@ void ClipboardData::save_incremental_target_data(std::shared_ptr<TargetData> tda
             tdata->data = new unsigned char[length + 1];
             if (tdata->data == nullptr)
             {
-                KLOG_ERROR("Malloc memory size: %lu failed.", length);
+                KLOG_ERROR_CLIPBOARD("Malloc memory size: %lu failed.", length);
                 return;
             }
 
@@ -172,7 +170,7 @@ void ClipboardData::save_incremental_target_data(std::shared_ptr<TargetData> tda
             unsigned char *tmp_data = new unsigned char[tdata->length + length + 1];
             if (tmp_data == nullptr)
             {
-                KLOG_ERROR("Malloc memory size: %lu failed.", tdata->length + length);
+                KLOG_ERROR_CLIPBOARD("Malloc memory size: %lu failed.", tdata->length + length);
                 return;
             }
 

@@ -50,7 +50,6 @@ void PowerSave::global_init(PowerWrapperManager* wrapper_manager, PowerBacklight
 bool PowerSave::do_save(PowerAction action, std::string& error)
 {
     KLOG_DEBUG("Do power save action '%s'.", PowerUtils::action_enum2str(action).c_str());
-
     switch (action)
     {
     case PowerAction::POWER_ACTION_DISPLAY_ON:

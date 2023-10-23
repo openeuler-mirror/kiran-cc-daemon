@@ -32,7 +32,7 @@ PulseContext::PulseContext() : main_loop_(NULL),
     this->main_loop_ = pa_glib_mainloop_new(g_main_context_get_thread_default());
     if (!this->main_loop_)
     {
-        KLOG_WARNING("Failed to create PulseAudio main loop");
+        KLOG_WARNING_AUDIO("Failed to create PulseAudio main loop");
     }
 }
 
@@ -56,7 +56,7 @@ PulseContext::~PulseContext()
 
 bool PulseContext::connect(bool wait_for_daemon)
 {
-    KLOG_DEBUG("Wait for deamon: %d.", wait_for_daemon);
+    KLOG_DEBUG_AUDIO("Wait for deamon: %d.", wait_for_daemon);
 
     RETURN_VAL_IF_FALSE(this->main_loop_ != NULL, false);
 
@@ -67,7 +67,7 @@ bool PulseContext::connect(bool wait_for_daemon)
     this->context_ = pa_context_new_with_proplist(mainloop, NULL, this->props_);
     if (!this->context_)
     {
-        KLOG_WARNING("Failed to create PulseAudio context");
+        KLOG_WARNING_AUDIO("Failed to create PulseAudio context");
         return false;
     }
 
@@ -82,7 +82,7 @@ bool PulseContext::connect(bool wait_for_daemon)
     }
     else
     {
-        KLOG_WARNING("Failed to connect pulseaudio service.");
+        KLOG_WARNING_AUDIO("Failed to connect pulseaudio service.");
         // on_pulse_state_cb回调函数可能已经进行了释放操作，所以这里需要进一步判断
         if (this->context_)
         {
@@ -143,8 +143,6 @@ bool PulseContext::load_card_info(uint32_t index)
 
 bool PulseContext::load_card_info_by_name(const std::string &name)
 {
-    KLOG_DEBUG("Load card info: %s.", name.c_str());
-
     RETURN_VAL_IF_FALSE(!name.empty(), false);
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -181,8 +179,6 @@ bool PulseContext::load_sink_info(uint32_t index)
 
 bool PulseContext::load_sink_info_by_name(const std::string &name)
 {
-    KLOG_PROFILE("load sink info by name: %s.", name.c_str());
-
     RETURN_VAL_IF_FALSE(!name.empty(), false);
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -246,8 +242,6 @@ bool PulseContext::load_source_info(uint32_t index)
 
 bool PulseContext::load_source_info_by_name(const std::string &name)
 {
-    KLOG_PROFILE("load source info by name: %d.", name.c_str());
-
     RETURN_VAL_IF_FALSE(!name.empty(), false);
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_LOADING ||
@@ -287,8 +281,6 @@ bool PulseContext::load_source_output_info(uint32_t index)
 
 bool PulseContext::set_default_sink(const std::string &name)
 {
-    KLOG_PROFILE("sink name: %s.", name.c_str());
-
     RETURN_VAL_IF_FALSE(!name.empty(), false);
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
@@ -298,8 +290,6 @@ bool PulseContext::set_default_sink(const std::string &name)
 
 bool PulseContext::set_default_source(const std::string &name)
 {
-    KLOG_PROFILE("source name: %s.", name.c_str());
-
     RETURN_VAL_IF_FALSE(!name.empty(), false);
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
@@ -345,7 +335,7 @@ bool PulseContext::set_sink_active_port(uint32_t index, const std::string &port_
 
 bool PulseContext::set_sink_input_mute(uint32_t index, int32_t mute)
 {
-    KLOG_PROFILE("sink index: %d, mute: %d.", index, mute);
+    KLOG_DEBUG_AUDIO("Set sink input mute by index: %d, mute: %d.", index, mute);
 
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
@@ -355,7 +345,7 @@ bool PulseContext::set_sink_input_mute(uint32_t index, int32_t mute)
 
 bool PulseContext::set_sink_input_volume(uint32_t index, const pa_cvolume *volume)
 {
-    KLOG_PROFILE("sink index: %d.", index);
+    KLOG_DEBUG_AUDIO("Set sink volume by index: %d.", index);
 
     RETURN_VAL_IF_FALSE(volume != NULL, false);
     RETURN_VAL_IF_FALSE(this->connection_state_ == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
@@ -466,15 +456,13 @@ void PulseContext::set_connection_state(PulseConnectionState new_state)
 
 bool PulseContext::load_lists()
 {
-    KLOG_PROFILE("");
-
     GSList *ops = NULL;
     pa_operation *op = NULL;
 
     // 之前的加载请求还未完成，不允许重复加载
     if (this->request_count_ > 0)
     {
-        KLOG_WARNING("The previous request hasn't finished. The remaing request count: %d.", this->request_count_);
+        KLOG_WARNING_AUDIO("The previous request hasn't finished. The remaing request count: %d.", this->request_count_);
         return false;
     }
 
@@ -513,7 +501,7 @@ bool PulseContext::load_lists()
         //     ++this->request_count_;
         // }
 
-        KLOG_DEBUG("Request count: %d.", this->request_count_);
+        KLOG_DEBUG_AUDIO("Request count: %d.", this->request_count_);
 
         g_slist_foreach(ops, (GFunc)pa_operation_unref, NULL);
         g_slist_free(ops);
@@ -530,7 +518,7 @@ bool PulseContext::process_pulse_operation(pa_operation *op)
 {
     if (!op)
     {
-        KLOG_WARNING("PulseAudio operation failed: %s", pa_strerror(pa_context_errno(this->context_)));
+        KLOG_WARNING_AUDIO("PulseAudio operation failed: %s", pa_strerror(pa_context_errno(this->context_)));
         return false;
     }
     pa_operation_unref(op);
@@ -539,12 +527,12 @@ bool PulseContext::process_pulse_operation(pa_operation *op)
 
 bool PulseContext::load_list_finished()
 {
-    KLOG_PROFILE("Request count: %d.", this->request_count_);
+    KLOG_DEBUG_AUDIO("Request count: %d.", this->request_count_);
 
     // 如果小于等于0说明代码逻辑存在错误
     if (this->request_count_ <= 0)
     {
-        KLOG_WARNING("The request count is invalid. The request count: %d.", this->request_count_);
+        KLOG_WARNING_AUDIO("The request count is invalid. The request count: %d.", this->request_count_);
         this->request_count_ = 0;
         return false;
     }
@@ -569,13 +557,11 @@ void PulseContext::on_pulse_state_cb(pa_context *context, void *userdata)
     PulseContext *self = (PulseContext *)(userdata);
     auto state = pa_context_get_state(self->context_);
 
-    KLOG_DEBUG("Pulse state change, state: %d.", state);
-
     if (state == PA_CONTEXT_READY)
     {
         if (self->connection_state_ == PULSE_CONNECTION_LOADING || self->connection_state_ == PULSE_CONNECTION_CONNECTED)
         {
-            KLOG_WARNING("The connection state is mismatch with real state.");
+            KLOG_WARNING_AUDIO("The connection state is mismatch with real state.");
             return;
         }
 
@@ -583,7 +569,7 @@ void PulseContext::on_pulse_state_cb(pa_context *context, void *userdata)
         pa_context_set_subscribe_callback(self->context_, &PulseContext::on_pulse_subscribe_cb, self);
         // pa_ext_stream_restore_set_subscribe_cb(self->context, pulse_restore_subscribe_cb, self);
         // auto op = pa_ext_stream_restore_subscribe(self->context, TRUE, NULL, NULL);
-
+        KLOG_DEBUG_AUDIO("Pulse state change, state: %d.", state);
         /* Keep going if this operation fails */
         // process_pulse_operation(connection, op);
 
@@ -674,10 +660,10 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context,
 {
     PulseContext *self = (PulseContext *)(userdata);
 
-    KLOG_DEBUG("Receive subscribe event. facility: %s, type: %s, idx: %d.",
-               event2facility(event_type).c_str(),
-               event2type(event_type).c_str(),
-               idx);
+    KLOG_DEBUG_AUDIO("Receive subscribe event. the facility is %s, type is %s, idx is %d.",
+                     event2facility(event_type).c_str(),
+                     event2type(event_type).c_str(),
+                     idx);
 
     auto type = (event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK);
 
@@ -758,7 +744,6 @@ void PulseContext::on_pulse_server_info_cb(pa_context *context, const pa_server_
 #define ON_PULSE_INFO_CB(info)                                                                                   \
     void PulseContext::on_pulse_##info##_cb(pa_context *context, const pa_##info *info, int eol, void *userdata) \
     {                                                                                                            \
-        KLOG_PROFILE("eol: %d.", eol);                                                                           \
         PulseContext *self = (PulseContext *)(userdata);                                                         \
         RETURN_IF_FALSE(self != NULL && self->context_ == context);                                              \
                                                                                                                  \

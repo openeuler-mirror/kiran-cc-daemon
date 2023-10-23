@@ -54,7 +54,7 @@ bool XSettingsPropertyInt::operator==(const XSettingsPropertyBase &rval) const
 {
     if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_INT)
     {
-        KLOG_WARNING("Unsupported.");
+        KLOG_WARNING_XSETTINGS("Unsupported.");
         return false;
     }
     return this->operator==(dynamic_cast<const XSettingsPropertyInt &>(rval));
@@ -84,7 +84,7 @@ bool XSettingsPropertyString::operator==(const XSettingsPropertyBase &rval) cons
 {
     if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_STRING)
     {
-        KLOG_WARNING("Unsupported.");
+        KLOG_WARNING_XSETTINGS("Unsupported.");
         return false;
     }
     return this->operator==(dynamic_cast<const XSettingsPropertyString &>(rval));
@@ -118,7 +118,7 @@ bool XSettingsPropertyColor::operator==(const XSettingsPropertyBase &rval) const
 {
     if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR)
     {
-        KLOG_WARNING("Unsupported.");
+        KLOG_WARNING_XSETTINGS("Unsupported.");
         return false;
     }
     return this->operator==(dynamic_cast<const XSettingsPropertyColor &>(rval));
@@ -163,7 +163,7 @@ bool XSettingsRegistry::init()
     // 检查是否有其他xsettings插件已经在运行
     if (XGetSelectionOwner(this->xdisplay_, this->selection_atom_) != None)
     {
-        KLOG_WARNING("You can only run one xsettings manager at a time.");
+        KLOG_WARNING_XSETTINGS("You can only run one xsettings manager at a time.");
         return false;
     }
 
@@ -227,8 +227,6 @@ bool XSettingsRegistry::update(const std::string &name, const XSettingsColor &va
 
 bool XSettingsRegistry::update(std::shared_ptr<XSettingsPropertyBase> var)
 {
-    KLOG_PROFILE("name: %s.", var->get_name().c_str());
-
     RETURN_VAL_IF_TRUE(var == nullptr, true);
     auto old_var = this->get_property(var->get_name());
     if (old_var != nullptr && *old_var == *var)
@@ -270,7 +268,7 @@ XSettingsPropertyBaseVec XSettingsRegistry::get_properties()
 
 bool XSettingsRegistry::notify()
 {
-    KLOG_DEBUG("Notify properties changed to other client.");
+    KLOG_DEBUG_XSETTINGS("Notify changed properties to other client.");
 
     std::string data;
 

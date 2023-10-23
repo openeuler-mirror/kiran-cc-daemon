@@ -145,7 +145,7 @@ bool PowerEventControl::do_charge_critical_action(PowerAction action)
     std::string error;
     if (!PowerSave::get_instance()->do_save(action, error))
     {
-        KLOG_WARNING("%s", error.c_str());
+        KLOG_WARNING_POWER("%s", error.c_str());
     }
     return false;
 }
@@ -233,7 +233,7 @@ void PowerEventControl::on_button_changed(PowerEvent evnet)
 
     if (error.length() > 0)
     {
-        KLOG_WARNING("%s", error.c_str());
+        KLOG_WARNING_POWER("%s", error.c_str());
     }
 }
 

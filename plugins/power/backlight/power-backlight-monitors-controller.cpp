@@ -116,25 +116,25 @@ bool PowerBacklightMonitorsController::set_brightness_percentage(std::shared_ptr
     RETURN_VAL_IF_TRUE(brightness_max == brightness_min, false);
 
     auto brightness_set_value = this->brightness_percent2discrete(percentage, (brightness_max - brightness_min) + 1);
-    KLOG_DEBUG("min value: %d, max value: %d, current value: %d, set value: %d, set value percent: %d",
-               brightness_min,
-               brightness_max,
-               brightness_current_value,
-               brightness_set_value,
-               percentage);
+    KLOG_DEBUG_POWER("Brightness,min value: %d, max value: %d, current value: %d, set value: %d, set value percent: %d",
+                     brightness_min,
+                     brightness_max,
+                     brightness_current_value,
+                     brightness_set_value,
+                     percentage);
 
     brightness_set_value = std::max(brightness_set_value, brightness_min);
     brightness_set_value = std::min(brightness_set_value, brightness_max);
 
     if (brightness_current_value == brightness_set_value)
     {
-        KLOG_DEBUG("The set brightness value is equal to current value.");
+        KLOG_DEBUG_POWER("The set brightness value is equal to current value.");
         return true;
     }
 
     // 一些背光控制器的亮度增加和减少是按照一定倍数进行的，例如macbook pro是每次增加5%的亮度值
     auto step = this->get_brightness_step(std::abs(brightness_set_value - brightness_current_value));
-    KLOG_DEBUG("Using step of %d", step);
+    KLOG_DEBUG_POWER("Using step of %d", step);
 
     if (brightness_current_value < brightness_set_value)
     {
@@ -177,14 +177,14 @@ int32_t PowerBacklightMonitorsController::get_brightness_percentage(std::shared_
     RETURN_VAL_IF_FALSE(absolute_monitor->get_brightness_range(brightness_min, brightness_max), -1);
     RETURN_VAL_IF_TRUE(brightness_min >= brightness_max, -1);
 
-    KLOG_DEBUG("output brightness info: value %d, min %d, max %d",
-               brightness_value,
-               brightness_min,
-               brightness_max);
+    KLOG_DEBUG_POWER("Output brightness info: value %d, min %d, max %d",
+                     brightness_value,
+                     brightness_min,
+                     brightness_max);
 
     int32_t brightness_level = brightness_max - brightness_min + 1;
     auto percentage = this->brightness_discrete2percent(brightness_value, brightness_level);
-    KLOG_DEBUG("percentage %i", percentage);
+    KLOG_DEBUG_POWER("Brightness discrete to percent %i", percentage);
     return percentage;
 }
 

@@ -35,7 +35,7 @@ void PowerLogin1::init()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return;
     }
 }
@@ -55,24 +55,22 @@ int32_t PowerLogin1::inhibit(const std::string& what)
         auto v1 = retval.get_child(0);
         auto fd_index = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(v1).get();
         auto fd = out_fd_list->get(fd_index);
-        KLOG_DEBUG("Inhibit file descriptor[index: %d]: %d.", fd_index, fd);
+        KLOG_DEBUG_POWER("Inhibit file descriptor[index: %d]: %d.", fd_index, fd);
         return fd;
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return -1;
 }
 
 bool PowerLogin1::suspend()
 {
-    KLOG_PROFILE("");
-
     RETURN_VAL_IF_FALSE(this->login1_proxy_, false);
 
     auto g_parameters = g_variant_new("(b)", FALSE);
@@ -84,7 +82,7 @@ bool PowerLogin1::suspend()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
     return true;
@@ -92,8 +90,6 @@ bool PowerLogin1::suspend()
 
 bool PowerLogin1::hibernate()
 {
-    KLOG_PROFILE("");
-
     RETURN_VAL_IF_FALSE(this->login1_proxy_, false);
 
     auto g_parameters = g_variant_new("(b)", FALSE);
@@ -105,7 +101,7 @@ bool PowerLogin1::hibernate()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
     return true;
@@ -113,8 +109,6 @@ bool PowerLogin1::hibernate()
 
 bool PowerLogin1::shutdown()
 {
-    KLOG_PROFILE("");
-
     RETURN_VAL_IF_FALSE(this->login1_proxy_, false);
 
     auto g_parameters = g_variant_new("(b)", FALSE);
@@ -126,7 +120,7 @@ bool PowerLogin1::shutdown()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return false;
     }
     return true;

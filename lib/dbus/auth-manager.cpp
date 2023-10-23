@@ -22,7 +22,6 @@ namespace Kiran
 AuthManager *AuthManager::instance_ = nullptr;
 void AuthManager::global_init()
 {
-    KLOG_PROFILE("instance: %p", instance_);
     RETURN_IF_TRUE(instance_);
     instance_ = new AuthManager();
     instance_->init();
@@ -45,7 +44,6 @@ void AuthManager::init()
 
 void AuthManager::start_auth_check(const std::string &action, bool user_interaction, const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, AuthCheckHandler handler)
 {
-    KLOG_PROFILE("");
     std::shared_ptr<AuthCheck> auth_check = std::make_shared<AuthCheck>(invocation);
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
 
@@ -58,7 +56,7 @@ void AuthManager::start_auth_check(const std::string &action, bool user_interact
     GVariantBuilder builder1;
     GVariantBuilder builder2;
 
-    KLOG_DEBUG("action: %s user_interaction: %d sender: %s. cancel_string: %s",
+    KLOG_DEBUG("Start authorization check,and action is: %s ,user_interaction: %d, sender is %s. cancel_string: %s",
                action.c_str(),
                user_interaction,
                invocation->get_sender().c_str(),
@@ -80,7 +78,7 @@ void AuthManager::start_auth_check(const std::string &action, bool user_interact
 
 bool AuthManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
 {
-    KLOG_PROFILE("");
+    KLOG_DEBUG("Authentication timeout ,cancel process authentication.");
     auth_check->cancellable->cancel();
 
     Glib::VariantContainerBase base(g_variant_new("(s)", auth_check->cancel_string.c_str()), false);
@@ -92,7 +90,7 @@ bool AuthManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
     catch (Glib::Error &e)
     {
         Gio::DBus::ErrorUtils::strip_remote_error(e);
-        KLOG_WARNING("Failed to cancel authorization check: %s", e.what().c_str());
+        KLOG_WARNING("Failed to cancel authorization check: %s.", e.what().c_str());
     }
 
     // auth_check->cancel_connection.disconnect();
@@ -102,7 +100,6 @@ bool AuthManager::cancel_auth_check(std::shared_ptr<AuthCheck> auth_check)
 
 void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::shared_ptr<AuthCheck> auth_check)
 {
-    KLOG_PROFILE("");
     bool authorized = true;
     bool challenge = false;
     auth_check->cancel_connection.disconnect();
@@ -121,22 +118,22 @@ void AuthManager::finish_auth_check(Glib::RefPtr<Gio::AsyncResult> &res, std::sh
         }
         else
         {
-            KLOG_DEBUG("the result is empty.");
+            KLOG_DEBUG("The result of polkit proxy call finish is empty.");
         }
     }
     catch (Glib::Error &e)
     {
         Gio::DBus::ErrorUtils::strip_remote_error(e);
-        KLOG_WARNING("Failed to check authorization: %s", e.what().c_str());
+        KLOG_WARNING("Failed to check authorization: %s.", e.what().c_str());
         authorized = false;
     }
     catch (std::exception &e)
     {
-        KLOG_WARNING("Failed to check authorization: %s", e.what());
+        KLOG_WARNING("Failed to check authorization: %s.", e.what());
         authorized = false;
     }
 
-    KLOG_DEBUG("authorized: %d challenge: %d.", authorized, challenge);
+    KLOG_DEBUG("After authorized check,the result of authorized is: %d and challenge is: %d.", authorized, challenge);
 
     if (authorized)
     {

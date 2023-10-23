@@ -74,8 +74,6 @@ void SystemInfoHardware::init_meminfo_with_lshw()
 
 HardwareInfo SystemInfoHardware::get_hardware_info()
 {
-    KLOG_PROFILE("");
-
     HardwareInfo hardware_info;
     hardware_info.cpu_info = this->get_cpu_info();
     hardware_info.mem_info = this->get_mem_info();
@@ -126,7 +124,7 @@ CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
         return CPUInfo();
     }
 
@@ -179,16 +177,16 @@ MemInfo SystemInfoHardware::get_mem_info()
     if (mem_info.total_size == 0)
     {
         mem_info.total_size = this->get_memory_size_with_lshw();
-        KLOG_DEBUG("Get total size with lshw:%ld.", mem_info.total_size);
+        KLOG_DEBUG_SYSTEMINFO("Get total size with lshw:%ld.", mem_info.total_size);
     }
 
     if (mem_info.total_size == 0)
     {
         mem_info.total_size = mem_info.available_size;
-        KLOG_DEBUG("Get total size with libgtop:%ld.", mem_info.total_size);
+        KLOG_DEBUG_SYSTEMINFO("Get total size with libgtop:%ld.", mem_info.total_size);
     }
 
-    KLOG_DEBUG("Use total size:%ld, available size:%ld.", mem_info.total_size, mem_info.available_size);
+    KLOG_DEBUG_SYSTEMINFO("Use total size is %ld, available size is %ld.", mem_info.total_size, mem_info.available_size);
 
     return mem_info;
 }
@@ -209,15 +207,13 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 
     if (fs.fail())
     {
-        KLOG_WARNING("Failed to open file %s.", path.c_str());
+        KLOG_WARNING_SYSTEMINFO("Failed to open file %s.", path.c_str());
         return std::map<std::string, std::string>();
     }
 
     while (!fs.eof())
     {
         fs.getline(buffer, BUFSIZ);
-
-        // KLOG_DEBUG("buffer: %s.", buffer);
 
         RETURN_VAL_IF_TRUE(fs.fail(), result);
 
@@ -251,7 +247,7 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
         return disks_info;
     }
 
@@ -286,8 +282,6 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
 
 EthInfoVec SystemInfoHardware::get_eths_info()
 {
-    KLOG_PROFILE("");
-
     EthInfoVec eths_info;
     auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_NETWORK);
 
@@ -303,8 +297,6 @@ EthInfoVec SystemInfoHardware::get_eths_info()
 
 GraphicInfoVec SystemInfoHardware::get_graphics_info()
 {
-    KLOG_PROFILE("");
-
     GraphicInfoVec graphics_info;
     auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_DISPLAY);
 
@@ -336,7 +328,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         }
         catch (const Glib::Error& e)
         {
-            KLOG_WARNING("%s", e.what().c_str());
+            KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
             return KVList();
         }
 
@@ -367,7 +359,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         argv.push_back("-d");
         argv.push_back(fmt::format("::{:04x}", full_class_id));
 
-        KLOG_DEBUG("cmdline: %s.", StrUtils::join(argv, " ").c_str());
+        KLOG_DEBUG_SYSTEMINFO("Cmdline: %s.", StrUtils::join(argv, " ").c_str());
         try
         {
             Glib::spawn_sync("",
@@ -378,7 +370,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         }
         catch (const Glib::Error& e)
         {
-            KLOG_WARNING("%s", e.what().c_str());
+            KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
             return KVList();
         }
 
@@ -387,7 +379,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
 
     if (full_outputs.empty())
     {
-        KLOG_WARNING("Get empty pci info calss id:%d.", major_class_id);
+        KLOG_WARNING_SYSTEMINFO("Get empty pci info calss id:%d.", major_class_id);
         return KVList();
     }
 
@@ -426,7 +418,7 @@ void SystemInfoHardware::on_child_watch(GPid pid, int child_status)
     {
         if (WEXITSTATUS(child_status) >= 255)
         {
-            KLOG_WARNING("Child exited unexpectedly");
+            KLOG_WARNING_SYSTEMINFO("Child exited unexpectedly");
         }
         else
         {
@@ -435,7 +427,7 @@ void SystemInfoHardware::on_child_watch(GPid pid, int child_status)
     }
     else
     {
-        KLOG_WARNING("Child exited error");
+        KLOG_WARNING_SYSTEMINFO("Child exited error");
     }
 
     this->watch_child_connection_.disconnect();
@@ -463,7 +455,7 @@ bool SystemInfoHardware::on_lshw_output(Glib::IOCondition io_condition, Glib::Re
         auto retval = io_channel->read_to_end(channel_info);
         if (retval != Glib::IO_STATUS_NORMAL)
         {
-            KLOG_WARNING("Failed to read data from IO channel. retval: %d.", retval);
+            KLOG_WARNING_SYSTEMINFO("Failed to read data from IO channel. retval: %d.", retval);
         }
         else
         {
@@ -472,7 +464,7 @@ bool SystemInfoHardware::on_lshw_output(Glib::IOCondition io_condition, Glib::Re
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("IO Channel read error: %s.", e.what().c_str());
+        KLOG_WARNING_SYSTEMINFO("IO Channel read error: %s.", e.what().c_str());
     }
 
     return true;
@@ -485,7 +477,7 @@ void SystemInfoHardware::parse_lshw_memory_info()
 
     if (!reader.parse(this->hardware_info_lshw.c_str(), root))
     {
-        KLOG_WARNING("Failed to parse lshw info size:%d.", this->hardware_info_lshw.size());
+        KLOG_WARNING_SYSTEMINFO("Failed to parse lshw info size:%d.", this->hardware_info_lshw.size());
         return;
     }
 
@@ -504,7 +496,7 @@ void SystemInfoHardware::parse_lshw_memory_info()
                 if (class_val == "memory" && (desc_val == "System memory" || desc_val == "System Memory"))
                 {
                     this->mem_size_lshw = children["children"][j]["size"].asInt64();
-                    KLOG_DEBUG("Find System memory size:%ld", this->mem_size_lshw);
+                    KLOG_DEBUG_SYSTEMINFO("Find System memory size:%ld", this->mem_size_lshw);
                     break;
                 }
             }
@@ -512,7 +504,7 @@ void SystemInfoHardware::parse_lshw_memory_info()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_SYSTEMINFO("%s.", e.what().c_str());
     }
 
     return;
@@ -543,7 +535,7 @@ int64_t SystemInfoHardware::get_memory_size_with_dmi()
     dmi = g_udev_client_query_by_sysfs_path(client, "/sys/devices/virtual/dmi/id");
     if (!dmi)
     {
-        KLOG_WARNING("Get dmi failed.");
+        KLOG_WARNING_SYSTEMINFO("Get dmi failed.");
         return 0;
     }
 

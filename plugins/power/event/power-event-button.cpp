@@ -70,18 +70,18 @@ bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
     auto keycode = XKeysymToKeycode(this->xdisplay_, keysym);
     if (keycode == 0)
     {
-        KLOG_WARNING("Could not map keysym 0x%x to keycode", keysym);
+        KLOG_WARNING_POWER("Could not map keysym 0x%x to keycode", keysym);
         return false;
     }
 
-    KLOG_DEBUG("keysym: 0x%08x, keycode: 0x%08x.", keysym, keycode);
+    KLOG_DEBUG_POWER("Keysym: 0x%08x, keycode: 0x%08x.", keysym, keycode);
 
     auto keycode_str = fmt::format("0x{:x}", keycode);
 
     auto iter = this->buttons_.emplace(keycode_str, type);
     if (!iter.second)
     {
-        KLOG_WARNING("Already exists keycode: %s.", keycode_str.c_str());
+        KLOG_WARNING_POWER("Already exists keycode: %s.", keycode_str.c_str());
         return false;
     }
 
@@ -96,7 +96,7 @@ bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
                         GrabModeAsync);
     if (ret == BadAccess)
     {
-        KLOG_WARNING("Failed to grab keycode: %d", (int32_t)keycode);
+        KLOG_WARNING_POWER("Failed to grab keycode: %d", (int32_t)keycode);
         return false;
     }
 
@@ -111,7 +111,7 @@ void PowerEventButton::emit_button_signal(PowerEvent type)
     unsigned long elapsed_msec;
     if (this->button_signal_timer_.elapsed(elapsed_msec) < POWER_BUTTON_DUPLICATE_TIMEOUT)
     {
-        KLOG_DEBUG("ignoring duplicate button %s", PowerUtils::event_enum2str(type).c_str());
+        KLOG_DEBUG_POWER("Ignoring duplicate button %s", type);
         return;
     }
 
@@ -151,11 +151,11 @@ GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *e
     auto iter = button->buttons_.find(keycode_str);
     if (iter == button->buttons_.end())
     {
-        KLOG_DEBUG("Keycode %d not found.", keycode);
+        KLOG_DEBUG_POWER("Keycode %d not found.", keycode);
         return GDK_FILTER_CONTINUE;
     }
 
-    KLOG_DEBUG("Receipt keycode signal: %s, event type: %d.", keycode_str.c_str(), xevent->type);
+    KLOG_DEBUG_POWER("Receipt keycode signal: %s, event type: %d.", keycode_str.c_str(), xevent->type);
     button->emit_button_signal(iter->second);
 
     return GDK_FILTER_REMOVE;

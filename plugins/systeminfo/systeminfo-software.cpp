@@ -31,8 +31,6 @@ SystemInfoSoftware::SystemInfoSoftware()
 
 SoftwareInfo SystemInfoSoftware::get_software_info()
 {
-    KLOG_PROFILE("");
-
     SoftwareInfo software_info;
     this->read_kernel_info(software_info);
     this->read_product_info(software_info);
@@ -41,7 +39,7 @@ SoftwareInfo SystemInfoSoftware::get_software_info()
 
 bool SystemInfoSoftware::set_host_name(const std::string &host_name)
 {
-    KLOG_PROFILE("host name: %s.", host_name.c_str());
+    KLOG_DEBUG_SYSTEMINFO("Set host name as %s.", host_name.c_str());
 
     std::vector<std::string> argv{SET_HOSTNAME_CMD, "set-hostname", host_name};
 
@@ -56,7 +54,7 @@ bool SystemInfoSoftware::set_host_name(const std::string &host_name)
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
         return false;
     }
 
@@ -70,7 +68,7 @@ bool SystemInfoSoftware::read_kernel_info(SoftwareInfo &software_info)
     auto retval = uname(&uts_name);
     if (retval < 0)
     {
-        KLOG_WARNING("call uname() failed: %s.", strerror(errno));
+        KLOG_WARNING_SYSTEMINFO("Call uname() failed: %s.", strerror(errno));
         return false;
     }
 
@@ -98,7 +96,7 @@ void SystemInfoSoftware::read_product_info(SoftwareInfo &software_info)
     }                                                                    \
     catch (const Glib::Error &e)                                         \
     {                                                                    \
-        KLOG_WARNING("%s", e.what().c_str());                            \
+        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());                 \
     }
 
     GET_RELEASE_INFO("lsb_release -i -s", software_info.product_name)

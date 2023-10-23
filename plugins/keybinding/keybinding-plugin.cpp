@@ -33,14 +33,14 @@ KeybindingPlugin::~KeybindingPlugin()
 
 void KeybindingPlugin::activate()
 {
-    KLOG_PROFILE("active keybinding plugin.");
+    KLOG_DEBUG_KEYBINDING("Active keybinding plugin.");
 
     KeybindingManager::global_init();
 }
 
 void KeybindingPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive keybinding plugin.");
+    KLOG_DEBUG_KEYBINDING("Deactive keybinding plugin.");
 
     KeybindingManager::global_deinit();
 }

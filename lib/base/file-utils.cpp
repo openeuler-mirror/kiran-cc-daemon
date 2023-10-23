@@ -79,8 +79,6 @@ Glib::RefPtr<Gio::FileMonitor> FileUtils::make_monitor_directory(const std::stri
 
 bool FileUtils::write_contents(const std::string &path, const std::string &contents)
 {
-    KLOG_PROFILE("path: %s", path.c_str());
-
     int fp = -1;
 
     SCOPE_EXIT({

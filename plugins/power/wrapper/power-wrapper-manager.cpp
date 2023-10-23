@@ -38,8 +38,6 @@ void PowerWrapperManager::global_init()
 
 void PowerWrapperManager::init()
 {
-    KLOG_PROFILE("");
-
     this->login1_->init();
     this->screensaver_->init();
     this->session_->init();

@@ -50,8 +50,6 @@ void EWMH::global_deinit()
 
 std::vector<std::string> EWMH::get_wm_keybindings()
 {
-    KLOG_PROFILE("");
-
     auto keybindings_atom = gdk_x11_get_xatom_by_name(MATE_WM_KEYBINDINGS);
     auto keybindings = this->get_wm_property(keybindings_atom);
     std::vector<std::string> result;
@@ -75,7 +73,6 @@ std::vector<std::string> EWMH::get_wm_keybindings()
 
 std::string EWMH::get_wm_property(Atom atom)
 {
-    KLOG_PROFILE("");
     RETURN_VAL_IF_TRUE(this->wm_window_ == None, std::string());
 
     std::string retval;

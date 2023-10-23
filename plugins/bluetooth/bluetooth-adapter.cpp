@@ -27,7 +27,7 @@ bool BluetoothAdapter::add_device(std::shared_ptr<BluetoothDevice> device)
     auto iter = this->devices_.emplace(device->get_object_path(), device);
     if (!iter.second)
     {
-        KLOG_WARNING("The device %s already exist.", device->get_object_path().c_str());
+        KLOG_WARNING_BLUETOOTH("The device %s already exist.", device->get_object_path().c_str());
     }
     return iter.second;
 }

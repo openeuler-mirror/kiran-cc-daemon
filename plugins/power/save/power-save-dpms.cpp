@@ -38,7 +38,7 @@ void PowerSaveDpms::init()
     RETURN_IF_TRUE(this->xdisplay_ == NULL);
 
     this->capable_ = DPMSCapable(this->xdisplay_);
-    KLOG_DEBUG("capable: %d.", this->capable_);
+    KLOG_DEBUG_POWER("Dpms useablity for client,capable: %d.", this->capable_);
 
     // 由于dpms协议未提供power levels变化的信号，因此这里采用定时检测的方式判断power levels是否变化
     auto timeout = Glib::MainContext::get_default()->signal_timeout();
@@ -57,14 +57,14 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
 
     if (!DPMSInfo(this->xdisplay_, &current_state, &current_enabled))
     {
-        KLOG_WARNING("Couldn't get DPMS info");
+        KLOG_WARNING_POWER("Couldn't get DPMS info");
         return false;
     }
 
     // dpms功能未开启
     if (!current_enabled)
     {
-        KLOG_WARNING("DPMS not enabled");
+        KLOG_WARNING_POWER("DPMS not enabled");
         return false;
     }
 
@@ -76,7 +76,7 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
 
         if (!DPMSForceLevel(this->xdisplay_, state))
         {
-            KLOG_WARNING("Couldn't change DPMS mode");
+            KLOG_WARNING_POWER("Couldn't change DPMS mode");
             return false;
         }
         XSync(this->xdisplay_, FALSE);

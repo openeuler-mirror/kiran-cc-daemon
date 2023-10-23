@@ -61,7 +61,7 @@ void PowerSession::init()
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return;
     }
 
@@ -186,7 +186,6 @@ void PowerSession::shutdown()
 
 uint32_t PowerSession::get_status()
 {
-    KLOG_PROFILE("");
     RETURN_VAL_IF_FALSE(this->sm_presence_proxy_, 0);
 
     try
@@ -199,7 +198,7 @@ uint32_t PowerSession::get_status()
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
 
     return 0;
@@ -207,7 +206,6 @@ uint32_t PowerSession::get_status()
 
 bool PowerSession::get_inhibited(uint32_t flag)
 {
-    KLOG_PROFILE("flag: %u", flag);
     RETURN_VAL_IF_FALSE(this->sm_proxy_, false);
 
     auto parameters = g_variant_new("(u)", flag);
@@ -222,11 +220,11 @@ bool PowerSession::get_inhibited(uint32_t flag)
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
     }
     return false;
 }
@@ -235,7 +233,7 @@ void PowerSession::on_sm_signal(const Glib::ustring& sender_name,
                                 const Glib::ustring& signal_name,
                                 const Glib::VariantContainerBase& parameters)
 {
-    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_DEBUG_POWER("Recieve the request of %s from %s.", signal_name.c_str(), sender_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {
@@ -250,8 +248,6 @@ void PowerSession::on_sm_signal(const Glib::ustring& sender_name,
 
 void PowerSession::on_sm_inhibitor_changed_cb(const Glib::VariantContainerBase& parameters)
 {
-    KLOG_PROFILE("");
-
     auto is_idle_inhibited = this->get_inhibited(GSM_INHIBITOR_FLAG_IDLE);
     auto is_suspend_inhibited = this->get_inhibited(GSM_INHIBITOR_FLAG_SUSPEND);
 
@@ -268,7 +264,7 @@ void PowerSession::on_sm_presence_signal(const Glib::ustring& sender_name,
                                          const Glib::ustring& signal_name,
                                          const Glib::VariantContainerBase& parameters)
 {
-    KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    KLOG_DEBUG_POWER("Recieve the request of %s from %s.", signal_name.c_str(), sender_name.c_str());
 
     switch (shash(signal_name.c_str()))
     {
@@ -283,14 +279,12 @@ void PowerSession::on_sm_presence_signal(const Glib::ustring& sender_name,
 
 void PowerSession::on_sm_presence_status_changed_cb(const Glib::VariantContainerBase& parameters)
 {
-    KLOG_PROFILE("");
-
     try
     {
         Glib::VariantBase v1;
         parameters.get_child(v1, 0);
         auto status = Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(v1).get();
-        KLOG_DEBUG("status: %u", status);
+        KLOG_DEBUG_POWER("Sm presence status is changed to %u", status);
 
         bool is_idle = (status == GSM_PRESENCE_STATUS_IDLE);
 
@@ -302,7 +296,7 @@ void PowerSession::on_sm_presence_status_changed_cb(const Glib::VariantContainer
     }
     catch (const std::exception& e)
     {
-        KLOG_WARNING("%s", e.what());
+        KLOG_WARNING_POWER("%s", e.what());
         return;
     }
 }

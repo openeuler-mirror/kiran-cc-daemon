@@ -45,7 +45,7 @@ bool PowerBacklightMonitorsTool::support_backlight()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_POWER("%s.", e.what().c_str());
     }
     return false;
 }
@@ -69,7 +69,7 @@ std::string PowerBacklightMonitorsTool::get_backlight_dir()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING("%s.", e.what().c_str());
+        KLOG_WARNING_POWER("%s.", e.what().c_str());
     }
     return std::string();
 }

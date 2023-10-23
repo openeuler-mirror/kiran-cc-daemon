@@ -53,8 +53,6 @@ namespace Kiran
 
 PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_path) : object_path_(object_path)
 {
-    KLOG_DEBUG("object path: %s", object_path.c_str());
-
     try
     {
         this->upower_device_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
@@ -64,7 +62,7 @@ PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_pa
     }
     catch (const Glib::Error& e)
     {
-        KLOG_WARNING("%s", e.what().c_str());
+        KLOG_WARNING_POWER("%s", e.what().c_str());
         return;
     }
 
@@ -74,7 +72,7 @@ PowerUPowerDevice::PowerUPowerDevice(const Glib::DBusObjectPathString& object_pa
 
 PowerUPowerDevice::~PowerUPowerDevice()
 {
-    KLOG_DEBUG("The device %s is destroyed.", this->object_path_.c_str());
+    KLOG_DEBUG_POWER("The device %s is destroyed.", this->object_path_.c_str());
 }
 
 std::string PowerUPowerDevice::get_type_translation(uint32_t number)
@@ -115,7 +113,7 @@ std::string PowerUPowerDevice::get_type_translation(uint32_t number)
     case UP_DEVICE_KIND_COMPUTER:
         return POINTER_TO_STRING(ngettext("Computer", "Computers", number));
     default:
-        KLOG_WARNING("Unknown type: %d", this->props_.type);
+        KLOG_WARNING_POWER("Unknown type: %d", this->props_.type);
         return POINTER_TO_STRING(ngettext("Unknown", "Unknown", number));
     }
     return std::string();
@@ -152,7 +150,7 @@ void PowerUPowerDevice::load_device_props()
     this->props_.warning_level = this->get_property_uint(UPOWER_DEVICE_DBUS_PROP_WARNING_LEVEL);
     this->props_.battery_level = this->get_property_uint(UPOWER_DEVICE_DBUS_PROP_BATTERY_LEVEL);
     this->props_.icon_name = this->get_property_string(UPOWER_DEVICE_DBUS_PROP_ICON_NAME);
-    KLOG_DEBUG("icon name: %s.", this->props_.icon_name.c_str());
+    KLOG_DEBUG_POWER("This props icon name: %s.", this->props_.icon_name.c_str());
 }
 
 #define GET_PROPERTY_FUNC(type, rettype)                                                    \
@@ -169,7 +167,7 @@ void PowerUPowerDevice::load_device_props()
         }                                                                                   \
         catch (const std::exception& e)                                                     \
         {                                                                                   \
-            KLOG_WARNING("%s", e.what());                                                   \
+            KLOG_WARNING_POWER("%s", e.what());                                             \
         }                                                                                   \
         return rettype();                                                                   \
     }

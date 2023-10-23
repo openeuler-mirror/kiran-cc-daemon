@@ -33,14 +33,14 @@ TouchPadPlugin::~TouchPadPlugin()
 
 void TouchPadPlugin::activate()
 {
-    KLOG_PROFILE("active touchpad plugin.");
+    KLOG_DEBUG_INPUTDEVICES("Active touchpad plugin.");
 
     TouchPadManager::global_init();
 }
 
 void TouchPadPlugin::deactivate()
 {
-    KLOG_PROFILE("deactive touchpad plugin.");
+    KLOG_DEBUG_INPUTDEVICES("Deactive touchpad plugin.");
 
     TouchPadManager::global_deinit();
 }

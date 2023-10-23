@@ -91,7 +91,8 @@ KeyState ShortCutHelper::get_keystate(const std::string &key_comb)
             auto keyval = gdk_keyval_from_name(key_comb.substr(cur_pos).c_str());
             RETURN_VAL_IF_TRUE(keyval == GDK_KEY_VoidSymbol, INVALID_KEYSTATE);
             key_state.key_symbol = gdk_keyval_to_lower(keyval);
-            key_state.keycodes = ShortCutHelper::get_keycode(key_state.key_symbol, [](int group, int level) -> bool { return level == 0; });
+            key_state.keycodes = ShortCutHelper::get_keycode(key_state.key_symbol, [](int group, int level) -> bool
+                                                             { return level == 0; });
             break;
         }
     }
@@ -120,7 +121,7 @@ KeyState ShortCutHelper::get_keystate(XEvent *event)
 
         gdk_keyval_convert_case(keyval, &lower, &upper);
         key_state.key_symbol = lower;
-        KLOG_DEBUG("state: %0x consumed: %0x.", event->xkey.state, consumed);
+        KLOG_DEBUG_KEYBINDING("The keystate is %0x and consumed is %0x.", event->xkey.state, consumed);
         key_state.mods = event->xkey.state & ~consumed & GDK_MODIFIER_MASK;
         return key_state;
     }
@@ -139,7 +140,7 @@ std::vector<uint32_t> ShortCutHelper::get_keycode(uint32_t key_symbol, KeyCodeFi
     {
         for (int32_t i = 0; i < n_keys; ++i)
         {
-            // KLOG_DEBUG("%d keysym: %0x level: %d grouop: %d keycode: %0x.", i, key_symbol, keys[i].level, keys[i].group, keys[i].keycode);
+            KLOG_DEBUG_KEYBINDING("%d keysym: %0x level: %d grouop: %d keycode: %0x.", i, key_symbol, keys[i].level, keys[i].group, keys[i].keycode);
             if (filter(keys[i].group, keys[i].level))
             {
                 result.push_back(keys[i].keycode);

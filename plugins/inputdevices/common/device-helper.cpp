@@ -26,7 +26,7 @@ DeviceHelper::DeviceHelper(XDeviceInfo *device_info) : device_info_(device_info)
         this->device_ = XOpenDevice(GDK_DISPLAY_XDISPLAY(display), device_info->id);
         if ((gdk_x11_display_error_trap_pop(display) != 0) || (this->device_ == NULL))
         {
-            KLOG_WARNING("failed to open device: %s.", device_info->name);
+            KLOG_WARNING_INPUTDEVICES("Failed to open device: %s.", device_info->name);
         }
     }
 }
@@ -51,10 +51,6 @@ Atom DeviceHelper::get_atom(const std::string &property_name)
 
 bool DeviceHelper::has_property(const std::string &property_name)
 {
-    KLOG_PROFILE("device_name: %s property_name: %s.",
-                 this->get_device_name().c_str(),
-                 property_name.c_str());
-
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
     Atom actual_type;
@@ -92,8 +88,6 @@ bool DeviceHelper::has_property(const std::string &property_name)
 
 bool DeviceHelper::is_touchpad()
 {
-    KLOG_PROFILE("device_name: %s.", this->get_device_name().c_str());
-
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
     auto display = gdk_display_get_default();
@@ -113,18 +107,15 @@ bool DeviceHelper::is_touchpad()
 
 void DeviceHelper::set_property(const std::string &property_name, const std::vector<bool> &property_value)
 {
-    KLOG_PROFILE("device_name: %s property_name: %s property_value: %s.",
-                 this->device_info_->name,
-                 property_name.c_str(),
-                 StrUtils::join(property_value, ",").c_str());
-
     RETURN_IF_TRUE(this->device_ == NULL);
 
     unsigned long nitems, bytes_after;
     unsigned char *data;
     int actual_format;
     Atom actual_type;
-
+    KLOG_DEBUG_INPUTDEVICES("device_name: %s property_name: %s.",
+                            this->get_device_name().c_str(),
+                            property_name.c_str());
     auto property = this->get_atom(property_name);
     RETURN_IF_TRUE(property == None);
 
@@ -147,10 +138,10 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
     {
         if (property_value.size() > nitems)
         {
-            KLOG_WARNING("ignore the remaining %d value. the number of property set: %d, the number of real device property: %d.",
-                         property_value.size() - nitems,
-                         property_value.size(),
-                         nitems);
+            KLOG_WARNING_INPUTDEVICES("Ignore the remaining %d value. the number of property set: %d, the number of real device property: %d.",
+                                      property_value.size() - nitems,
+                                      property_value.size(),
+                                      nitems);
         }
         uint32_t num = std::min(uint32_t(nitems), uint32_t(property_value.size()));
         for (uint32_t i = 0; i < num; ++i)
@@ -174,13 +165,12 @@ void DeviceHelper::set_property(const std::string &property_name, const std::vec
 
     if (gdk_x11_display_error_trap_pop(display))
     {
-        KLOG_WARNING("failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
+        KLOG_WARNING_INPUTDEVICES("Failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
     }
 }
 
 void DeviceHelper::set_property(const std::string &property_name, float property_value)
 {
-    KLOG_PROFILE("property_name: %s property_value: %f.", property_name.c_str(), property_value);
     RETURN_IF_TRUE(this->device_ == NULL);
 
     unsigned long nitems, bytes_after;
@@ -190,7 +180,7 @@ void DeviceHelper::set_property(const std::string &property_name, float property
 
     auto property = this->get_atom(property_name);
     RETURN_IF_TRUE(property == None);
-
+    KLOG_DEBUG_INPUTDEVICES("property_name: %s property_value: %f.", property_name.c_str(), property_value);
     auto float_type = this->get_atom("FLOAT");
     RETURN_IF_TRUE(float_type == None);
 
@@ -229,7 +219,7 @@ void DeviceHelper::set_property(const std::string &property_name, float property
 
     if (gdk_x11_display_error_trap_pop(display))
     {
-        KLOG_WARNING("failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
+        KLOG_WARNING_INPUTDEVICES("Failed to set property '%s' for device '%s'.", property_name.c_str(), this->device_info_->name);
     }
 }
 
