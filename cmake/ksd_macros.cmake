@@ -1,4 +1,3 @@
-
 macro(list_join)
   foreach(elem IN LISTS ${ARGV0})
     string(APPEND ${ARGV2} ${ARGV1} ${elem})

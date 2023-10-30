@@ -7,7 +7,8 @@ file(GLOB_RECURSE POWER_TRAY_CPP_FILES ./*.cpp)
 
 add_executable(
   ${TARGET_NAME}
-  ${POWER_TRAY_H_FILES} ${POWER_TRAY_CPP_FILES}
+  ${POWER_TRAY_H_FILES}
+  ${POWER_TRAY_CPP_FILES}
   ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower.cpp
   ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower-device.cpp
   ${PROJECT_SOURCE_DIR}/plugins/power/power-utils.cpp)
