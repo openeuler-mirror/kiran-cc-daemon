@@ -241,7 +241,7 @@ AUTO_REPEAT_SET_HANDLER(repeat_enabled, bool, KEYBOARD_SCHEMA_REPEAT_ENABLED, bo
 AUTO_REPEAT_SET_HANDLER(repeat_delay, gint32, KEYBOARD_SCHEMA_REPEAT_DELAY, int);
 AUTO_REPEAT_SET_HANDLER(repeat_interval, gint32, KEYBOARD_SCHEMA_REPEAT_INTERVAL, int);
 
-#define KEYBOARD_PROP_SET_HANDLER(prop, type1, key, type2)                                                           \
+#define KEYBOARD_PROP_SET_HANDLER(prop, type1, key, type2)                                                         \
     bool KeyboardManager::prop##_setHandler(type1 value)                                                           \
     {                                                                                                              \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                                                         \

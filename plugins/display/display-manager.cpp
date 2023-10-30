@@ -749,7 +749,8 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
         auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool
                                    {
                                        auto modes = monitor->get_modes_by_size(mode->width, mode->height);
-                                       return (modes.size() == 0); });
+                                       return (modes.size() == 0);
+                                   });
 
         result.erase(iter, result.end());
     }

@@ -151,46 +151,50 @@ void MouseManager::set_all_props_to_devices()
 
 void MouseManager::set_left_handed_to_devices()
 {
-    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
-        if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
-            !device_helper->is_touchpad())
-        {
-            device_helper->set_property(MOUSE_PROP_LEFT_HANDED, std::vector<bool>{this->left_handed_});
-        }
-    });
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper)
+                                 {
+                                     if (device_helper->has_property(MOUSE_PROP_LEFT_HANDED) &&
+                                         !device_helper->is_touchpad())
+                                     {
+                                         device_helper->set_property(MOUSE_PROP_LEFT_HANDED, std::vector<bool>{this->left_handed_});
+                                     }
+                                 });
 }
 
 void MouseManager::set_motion_acceleration_to_devices()
 {
-    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
-        if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
-            !device_helper->is_touchpad())
-        {
-            device_helper->set_property(MOUSE_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
-        }
-    });
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper)
+                                 {
+                                     if (device_helper->has_property(MOUSE_PROP_ACCEL_SPEED) &&
+                                         !device_helper->is_touchpad())
+                                     {
+                                         device_helper->set_property(MOUSE_PROP_ACCEL_SPEED, (float)this->motion_acceleration_);
+                                     }
+                                 });
 }
 
 void MouseManager::set_middle_emulation_enabled_to_devices()
 {
-    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
-        if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
-            !device_helper->is_touchpad())
-        {
-            device_helper->set_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED, std::vector<bool>{this->middle_emulation_enabled_});
-        }
-    });
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper)
+                                 {
+                                     if (device_helper->has_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED) &&
+                                         !device_helper->is_touchpad())
+                                     {
+                                         device_helper->set_property(MOUSE_PROP_MIDDLE_EMULATION_ENABLED, std::vector<bool>{this->middle_emulation_enabled_});
+                                     }
+                                 });
 }
 
 void MouseManager::set_natural_scroll_to_devices()
 {
-    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
-        if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
-            !device_helper->is_touchpad())
-        {
-            device_helper->set_property(MOUSE_PROP_NATURAL_SCROLL, std::vector<bool>{this->natural_scroll_});
-        }
-    });
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper)
+                                 {
+                                     if (device_helper->has_property(MOUSE_PROP_NATURAL_SCROLL) &&
+                                         !device_helper->is_touchpad())
+                                     {
+                                         device_helper->set_property(MOUSE_PROP_NATURAL_SCROLL, std::vector<bool>{this->natural_scroll_});
+                                     }
+                                 });
 }
 
 void MouseManager::foreach_device(std::function<void(std::shared_ptr<DeviceHelper>)> callback)

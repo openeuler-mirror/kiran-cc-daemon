@@ -15,8 +15,8 @@
 #include "plugins/power/tray/power-tray.h"
 
 #include <glib/gi18n.h>
-#include "plugins/power/wrapper/power-upower.h"
 #include "plugins/power/power-utils.h"
+#include "plugins/power/wrapper/power-upower.h"
 #include "power-i.h"
 
 namespace Kiran

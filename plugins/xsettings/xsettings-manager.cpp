@@ -217,12 +217,12 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
 
     auto iter = this->schema2registry_.find(key);
 
-#define SET_CASE(prop, type)                                       \
-    case CONNECT(prop, _hash):                                     \
-    {                                                              \
-        auto value = this -> xsettings_settings_->get_##type(key); \
-        this->registry_.update(iter->second, value);               \
-        break;                                                     \
+#define SET_CASE(prop, type)                                     \
+    case CONNECT(prop, _hash):                                   \
+    {                                                            \
+        auto value = this->xsettings_settings_->get_##type(key); \
+        this->registry_.update(iter->second, value);             \
+        break;                                                   \
     }
 
     switch (shash(key.c_str()))

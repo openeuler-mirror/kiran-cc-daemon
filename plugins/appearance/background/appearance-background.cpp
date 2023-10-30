@@ -67,10 +67,11 @@ void AppearanceBackground::delay_draw_background()
     if (!this->delay_hander_)
     {
         auto idle = Glib::MainContext::get_default()->signal_idle();
-        this->delay_hander_ = idle.connect([this]() -> bool{
-            this->draw_background();
-            return false; 
-        });
+        this->delay_hander_ = idle.connect([this]() -> bool
+                                           {
+                                               this->draw_background();
+                                               return false;
+                                           });
     }
 }
 
