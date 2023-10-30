@@ -9,7 +9,7 @@ if(build-session-daemon)
 
   # gresource
   set(KSD_GRESOURCE_NAME ksd-gresource)
-  
+
   add_custom_target(
     ${KSD_GRESOURCE_NAME} ALL
     ${GLIB_COMPILE_RESOURCE}
