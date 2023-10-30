@@ -16,7 +16,6 @@
 #include "plugins/power/backlight/power-backlight-monitor-x11-atom.h"
 #include "plugins/power/backlight/power-backlight-monitor-x11-gamma.h"
 
-
 namespace Kiran
 {
 PowerBacklightMonitorsX11::PowerBacklightMonitorsX11() : event_base_(0),

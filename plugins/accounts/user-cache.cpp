@@ -100,10 +100,11 @@ bool UserCache::set_value(const std::string &group_name, const std::string &key,
 
 bool UserCache::remove_key(const std::string &group_name, const std::string &key)
 {
-    IGNORE_EXCEPTION({
-        this->keyfile_->remove_key(group_name, key);
-        return this->save_cache_file();
-    });
+    IGNORE_EXCEPTION(
+        {
+            this->keyfile_->remove_key(group_name, key);
+            return this->save_cache_file();
+        });
     return true;
 }
 

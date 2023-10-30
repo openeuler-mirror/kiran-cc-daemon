@@ -25,8 +25,8 @@
 #include <glib-unix.h>
 #include <glib/gi18n.h>
 
-#include "config.h"
 #include "common.h"
+#include "config.h"
 #include "lib/base/base.h"
 #include "lib/dbus/auth-manager.h"
 #include "lib/iso/iso-translation.h"
@@ -63,10 +63,11 @@ int main(int argc, char* argv[])
     version_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
     version_entry.set_description(N_("Output version infomation and exit"));
 
-    group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
-        g_print("kiran-cc-daemon: 2.0\n");
-        return true;
-    });
+    group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool
+                    {
+                        g_print("kiran-cc-daemon: 2.0\n");
+                        return true;
+                    });
 
     group.set_translation_domain(GETTEXT_PACKAGE);
     context.set_main_group(group);
