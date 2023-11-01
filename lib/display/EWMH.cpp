@@ -82,7 +82,10 @@ std::string EWMH::get_wm_property(Atom atom)
     gulong bytes_after;
     gchar* val = NULL;
 
-    SCOPE_EXIT({if (val) XFree(val); });
+    SCOPE_EXIT(
+        {
+            if (val) XFree(val);
+        });
 
     auto utf8_string = gdk_x11_get_xatom_by_name("UTF8_STRING");
     auto display = gdk_display_get_default();
@@ -141,7 +144,10 @@ void EWMH::update_wm_window()
     gulong nitems;
     gulong bytes_after;
 
-    SCOPE_EXIT({if (xwindow) XFree(xwindow); });
+    SCOPE_EXIT(
+        {
+            if (xwindow) XFree(xwindow);
+        });
 
     this->wm_window_ = None;
 

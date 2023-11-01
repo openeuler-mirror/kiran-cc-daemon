@@ -81,12 +81,13 @@ bool FileUtils::write_contents(const std::string &path, const std::string &conte
 {
     int fp = -1;
 
-    SCOPE_EXIT({
-        if (fp > 0)
+    SCOPE_EXIT(
         {
-            close(fp);
-        }
-    });
+            if (fp > 0)
+            {
+                close(fp);
+            }
+        });
 
     fp = open(path.c_str(), O_WRONLY);
 

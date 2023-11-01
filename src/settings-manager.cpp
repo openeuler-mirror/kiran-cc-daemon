@@ -14,13 +14,12 @@
 
 #include "src/settings-manager.h"
 
-#include "config.h"
 #include "common.h"
+#include "config.h"
 #include "lib/base/base.h"
 
 namespace Kiran
 {
-
 #define PLUGIN_CONFIG_NAME "plugin_options"
 
 SettingsManager::SettingsManager() : dbus_connect_id_(0),

@@ -12,11 +12,11 @@
  * Author:     yangxiaoqing <yangxiaoqing@kylinos.com.cn>
  */
 
+#include "plugins/greeter/greeter-plugin.h"
 #include <gtk3-log-i.h>
 #include <cstdio>
 #include "lib/base/base.h"
 #include "plugins/greeter/greeter-dbus.h"
-#include "plugins/greeter/greeter-plugin.h"
 
 PLUGIN_EXPORT_FUNC_DEF(GreeterPlugin);
 
