@@ -19,5 +19,10 @@
             <description>Set whether to adapt to screen changes </description>
         </key>
 
+        <key name="max-screen-record-number" type="i">
+            <default>100</default>
+            <description>Set max screen record number while save config.</description>
+        </key>
+
     </schema>
 </schemalist>

@@ -145,6 +145,8 @@ private:
     std::string primary_;
     // 窗口缩放率
     int32_t window_scaling_factor_;
+    // 可存储屏幕个数最大值
+    uint32_t max_screen_record_number_;
 
     std::map<uint32_t, std::shared_ptr<DisplayMonitor>> monitors_;
 
