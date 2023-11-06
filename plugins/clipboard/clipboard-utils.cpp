@@ -109,7 +109,7 @@ timestamp_predicate(Display *display,
                     XEvent *xevent,
                     XPointer arg)
 {
-    TimeStampInfo *info = (TimeStampInfo *)arg;
+    TimeStampInfo *info = reinterpret_cast<TimeStampInfo *>(arg);
 
     if (xevent->type == PropertyNotify &&
         xevent->xproperty.window == info->window &&

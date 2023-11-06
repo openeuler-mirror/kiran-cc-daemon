@@ -79,7 +79,7 @@ Glib::RefPtr<Gio::FileMonitor> FileUtils::make_monitor_directory(const std::stri
 
 bool FileUtils::write_contents(const std::string &path, const std::string &contents)
 {
-    int fp = -1;
+    int fp = open(path.c_str(), O_WRONLY);
 
     SCOPE_EXIT(
         {
@@ -88,8 +88,6 @@ bool FileUtils::write_contents(const std::string &path, const std::string &conte
                 close(fp);
             }
         });
-
-    fp = open(path.c_str(), O_WRONLY);
 
     if (fp < 0)
     {
