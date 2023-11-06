@@ -154,7 +154,7 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 {
     CPUInfo cpu_info;
     auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
-    //适配龙芯架构
+    // 适配龙芯架构
     if (cpu_info.model.empty())
     {
         cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
@@ -232,7 +232,7 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 
 DiskInfoVec SystemInfoHardware::get_disks_info()
 {
-    // 老版本lsblk不支持-J选项，所以这里不使用json格式
+    //  老版本lsblk不支持-J选项，所以这里不使用json格式
     DiskInfoVec disks_info;
     std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 

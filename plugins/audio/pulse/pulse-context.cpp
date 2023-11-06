@@ -554,7 +554,7 @@ bool PulseContext::load_list_finished()
 
 void PulseContext::on_pulse_state_cb(pa_context *context, void *userdata)
 {
-    PulseContext *self = (PulseContext *)(userdata);
+    PulseContext *self = static_cast<PulseContext *>(userdata);
     auto state = pa_context_get_state(self->context_);
 
     if (state == PA_CONTEXT_READY)
@@ -658,7 +658,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context,
                                          uint32_t idx,
                                          void *userdata)
 {
-    PulseContext *self = (PulseContext *)(userdata);
+    PulseContext *self = static_cast<PulseContext *>(userdata);
 
     KLOG_DEBUG_AUDIO("Receive subscribe event. the facility is %s, type is %s, idx is %d.",
                      event2facility(event_type).c_str(),
@@ -729,7 +729,7 @@ void PulseContext::on_pulse_subscribe_cb(pa_context *context,
 
 void PulseContext::on_pulse_server_info_cb(pa_context *context, const pa_server_info *server_info, void *userdata)
 {
-    PulseContext *self = (PulseContext *)(userdata);
+    PulseContext *self = static_cast<PulseContext *>(userdata);
     RETURN_IF_FALSE(self != NULL && self->context_ == context);
 
     self->server_info_changed_.emit(server_info);
