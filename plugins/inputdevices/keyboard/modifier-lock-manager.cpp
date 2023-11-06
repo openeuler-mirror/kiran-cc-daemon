@@ -104,12 +104,12 @@ int ModifierLockManager::xkb_init()
 
 GdkFilterReturn ModifierLockManager::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    XEvent *xev = (XEvent *)gdk_event;
-    ModifierLockManager *manager = (ModifierLockManager *)data;
+    XEvent *xev = static_cast<XEvent *>(gdk_event);
+    ModifierLockManager *manager = static_cast<ModifierLockManager *>(data);
 
     if (xev->type == manager->xkb_event_base_)
     {
-        XkbEvent *xkbev = (XkbEvent *)xev;
+        XkbEvent *xkbev = reinterpret_cast<XkbEvent *>(xev);
         if ((xkbev->any.xkb_type == XkbStateNotify) && (xkbev->state.changed & XkbModifierLockMask))
         {
             manager->set_lock_action(xkbev->state.keycode, xkbev->state.locked_mods);

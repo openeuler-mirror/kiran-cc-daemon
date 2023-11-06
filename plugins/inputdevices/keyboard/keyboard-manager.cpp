@@ -479,7 +479,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
         }
     }
 
-    if (join_layouts.length() <= 0)
+    if (join_layouts.length() == 0)
     {
         join_layouts = DEFAULT_LAYOUT LAYOUT_JOIN_CHAR;
         join_variants = std::string(LAYOUT_JOIN_CHAR);
@@ -523,7 +523,7 @@ bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
         join_options += fmt::format(" -option {0}", *iter);
     }
 
-    RETURN_VAL_IF_TRUE(join_options.length() <= 0, true);
+    RETURN_VAL_IF_TRUE(join_options.length() == 0, true);
 
     auto cmdline = fmt::format("{0} {1}", SETXKBMAP, join_options);
     try

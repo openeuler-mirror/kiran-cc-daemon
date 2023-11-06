@@ -82,11 +82,6 @@ std::string EWMH::get_wm_property(Atom atom)
     gulong bytes_after;
     gchar* val = NULL;
 
-    SCOPE_EXIT(
-        {
-            if (val) XFree(val);
-        });
-
     auto utf8_string = gdk_x11_get_xatom_by_name("UTF8_STRING");
     auto display = gdk_display_get_default();
 
@@ -104,6 +99,11 @@ std::string EWMH::get_wm_property(Atom atom)
                                      &nitems,
                                      &bytes_after,
                                      (guchar**)&val);
+
+    SCOPE_EXIT(
+        {
+            if (val) XFree(val);
+        });
 
     if (!gdk_x11_display_error_trap_pop(display) &&
         result == Success &&
@@ -144,11 +144,6 @@ void EWMH::update_wm_window()
     gulong nitems;
     gulong bytes_after;
 
-    SCOPE_EXIT(
-        {
-            if (xwindow) XFree(xwindow);
-        });
-
     this->wm_window_ = None;
 
     auto display = gdk_display_get_default();
@@ -165,6 +160,11 @@ void EWMH::update_wm_window()
                        &bytes_after,
                        (guchar**)&xwindow);
 
+    SCOPE_EXIT(
+        {
+            if (xwindow) XFree(xwindow);
+        });
+
     RETURN_IF_TRUE(type != XA_WINDOW);
 
     gdk_x11_display_error_trap_push(display);
@@ -179,9 +179,9 @@ void EWMH::update_wm_window()
 
 GdkFilterReturn EWMH::window_event(GdkXEvent* gdk_event, GdkEvent* event, gpointer data)
 {
-    EWMH* manager = (EWMH*)data;
+    EWMH* manager = static_cast<EWMH*>(data);
     g_return_val_if_fail(EWMH::get_instance() == manager, GDK_FILTER_REMOVE);
-    XEvent* xevent = (XEvent*)gdk_event;
+    XEvent* xevent = static_cast<XEvent*>(gdk_event);
 
     if ((xevent->type == DestroyNotify &&
          manager->wm_window_ != None &&

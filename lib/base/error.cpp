@@ -23,8 +23,8 @@ CCError::CCError()
 {
 }
 
-// sonarqube off
-
+// sonarqube block off
+// 为switch case 简单条件匹配，只是case条件分支过多，暂时关闭扫描。
 std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_code)
 {
     std::string error_desc;
@@ -442,6 +442,6 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     return error_desc;
 }
 
-// sonarqube on
+// sonarqube block on
 
 }  // namespace Kiran

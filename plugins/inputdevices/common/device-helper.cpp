@@ -201,14 +201,16 @@ void DeviceHelper::set_property(const std::string &property_name, float property
 
     if (rc == Success && actual_type == float_type && actual_format == 32 && nitems > 0)
     {
-        *(float *)data = property_value;
+        unsigned char datacopy[sizeof(float)];
+        std::memcpy(datacopy, &property_value, sizeof(float));
+        //*reinterpret_cast<float *>(data) = property_value;
         XChangeDeviceProperty(GDK_DISPLAY_XDISPLAY(display),
                               this->device_,
                               property,
                               float_type,
                               32,
                               PropModeReplace,
-                              data,
+                              datacopy,
                               nitems);
     }
 
