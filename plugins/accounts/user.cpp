@@ -411,7 +411,6 @@ std::string User::get_auth_action(MethodInvocation &invocation, const std::strin
 {
     RETURN_VAL_IF_TRUE(own_action == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
 
-    std::string action_id;
     int32_t uid;
 
     if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))

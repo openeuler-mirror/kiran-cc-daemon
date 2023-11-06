@@ -77,7 +77,7 @@ void XSettingsXResource::update_properties()
                     XA_STRING,
                     8,
                     PropModeReplace,
-                    (unsigned char *)props.c_str(),
+                    const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(props.c_str())),
                     props.length());
 
     XCloseDisplay(dpy);

@@ -65,8 +65,8 @@ GreeterManager::~GreeterManager()
     if (lightdm_settings != nullptr)
         delete lightdm_settings;
 
-    if (lightdm_settings != nullptr)
-        delete lightdm_settings;
+    if (greeter_settings != nullptr)
+        delete greeter_settings;
 
     delete priv;
 }

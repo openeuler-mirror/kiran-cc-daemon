@@ -154,7 +154,7 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 {
     CPUInfo cpu_info;
     auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
-    //适配龙芯架构
+    // 适配龙芯架构
     if (cpu_info.model.empty())
     {
         cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
@@ -232,7 +232,7 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 
 DiskInfoVec SystemInfoHardware::get_disks_info()
 {
-    // 老版本lsblk不支持-J选项，所以这里不使用json格式
+    //  老版本lsblk不支持-J选项，所以这里不使用json格式
     DiskInfoVec disks_info;
     std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
@@ -261,8 +261,12 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
         char model[BUFSIZ] = {0};
         char vendor[BUFSIZ] = {0};
 
+        std::string formatstr = "NAME=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\" TYPE=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\" SIZE=\"%" + PRId64 +
+                                "\" MODEL=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\" VENDOR=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\"";
+
         // model和vendor只要有一个不为空则认为合法，所以只要能读到4个变量即可
-        if (sscanf(line.c_str(), "NAME=\"%[^\"]\" TYPE=\"%[^\"]\" SIZE=\"%" PRId64 "\" MODEL=\"%[^\"]\" VENDOR=\"%[^\"]\"",
+        //"NAME=\"%[^\"]\" TYPE=\"%[^\"]\" SIZE=\"%" PRId64 "\" MODEL=\"%[^\"]\" VENDOR=\"%[^\"]\""
+        if (sscanf(line.c_str(), formatstr.c_str(),
                    name, type, &size, model, vendor) >= 4)
         {
             if (std::string(type) == "disk")
@@ -312,7 +316,7 @@ GraphicInfoVec SystemInfoHardware::get_graphics_info()
 
 KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_class_id)
 {
-    std::vector<int32_t> full_class_ids;
+    std::vector<unsigned int> full_class_ids;
 
     // 获取主类ID为major_class_id的full_class_id列表，例如major_class_id为02，full_class_id列表为[0201, 0202]
     {
@@ -337,7 +341,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         {
             char placehold1[10];
             int32_t full_class_id;
-            if (sscanf(line.c_str(), "%s %x:", placehold1, &full_class_id) == 2)
+            if (sscanf(line.c_str(), "%9s %x:", placehold1, &full_class_id) == 2)
             {
                 if ((full_class_id >> 8) == major_class_id)
                 {

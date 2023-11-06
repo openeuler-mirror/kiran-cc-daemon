@@ -133,8 +133,8 @@ void PowerEventButton::on_lid_is_closed_change(bool lid_is_closed)
 
 GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    auto button = (PowerEventButton *)data;
-    XEvent *xevent = (XEvent *)gdk_event;
+    auto button = static_cast<PowerEventButton *>(data);
+    XEvent *xevent = static_cast<XEvent *>(gdk_event);
 
     if (xevent->xkey.keycode == XKeysymToKeycode(button->xdisplay_, XF86XK_PowerOff))
     {
