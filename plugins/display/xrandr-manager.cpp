@@ -565,7 +565,7 @@ std::string XrandrManager::get_property_string(RROutput output_id, const std::st
         actual_format == 8 &&
         prop)
     {
-        result = std::string((char*)prop, nitems);
+        result = std::string(reinterpret_cast<char*>(prop), nitems);
     }
 
     if (ret == Success && prop)
@@ -605,7 +605,7 @@ std::string XrandrManager::get_connector_type(RROutput output_id)
         nitems == 1 &&
         prop)
     {
-        auto value = *((Atom*)prop);
+        auto value = *(reinterpret_cast<Atom*>(prop));
         connector_type_str = XGetAtomName(this->xdisplay_, value);
     }
 
@@ -625,14 +625,14 @@ std::string XrandrManager::get_connector_type(RROutput output_id)
 
 GdkFilterReturn XrandrManager::window_event(GdkXEvent* gdk_event, GdkEvent* event, gpointer data)
 {
-    XrandrManager* xrandr_manager = (XrandrManager*)data;
+    XrandrManager* xrandr_manager = static_cast<XrandrManager*>(data);
     if (xrandr_manager != XrandrManager::get_instance())
     {
         KLOG_WARNING_DISPLAY("The previous XrandrManager was not removed.");
         return GDK_FILTER_REMOVE;
     }
 
-    XEvent* xevent = (XEvent*)gdk_event;
+    XEvent* xevent = static_cast<XEvent*>(gdk_event);
 
     RETURN_VAL_IF_FALSE(xrandr_manager, GDK_FILTER_CONTINUE);
     RETURN_VAL_IF_FALSE(xevent, GDK_FILTER_CONTINUE);

@@ -43,7 +43,6 @@ bool SystemInfoSoftware::set_host_name(const std::string &host_name)
 
     std::vector<std::string> argv{SET_HOSTNAME_CMD, "set-hostname", host_name};
 
-    std::string cmd_output;
     try
     {
         Glib::spawn_sync("",

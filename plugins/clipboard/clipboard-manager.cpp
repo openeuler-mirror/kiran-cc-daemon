@@ -43,7 +43,7 @@ ClipboardManager::event_filter(GdkXEvent *xevent,
                                GdkEvent *event,
                                ClipboardManager *manager)
 {
-    if (manager->process_event((XEvent *)xevent))
+    if (manager->process_event(static_cast<XEvent *>(xevent)))
     {
         return GDK_FILTER_REMOVE;
     }
@@ -273,7 +273,7 @@ void ClipboardManager::selection_request_clipboard_manager(XEvent *xev)
                         xev->xselectionrequest.requestor,
                         xev->xselectionrequest.property,
                         XA_ATOM, 32, PropModeReplace,
-                        (unsigned char *)targets, 3);
+                        reinterpret_cast<unsigned char *>(targets), 3);
 
         ClipboardUtils::response_selection_request(this->display_, xev, true);
     }
@@ -336,7 +336,7 @@ void ClipboardManager::selection_request_save_targets(XEvent *xev)
     else
     {
         KLOG_DEBUG_CLIPBOARD("Multiple nitems is %lu.", prop_group.nitems);
-        save_targets((Atom *)prop_group.data, prop_group.nitems);
+        save_targets(reinterpret_cast<Atom *>(prop_group.data), prop_group.nitems);
     }
 }
 
@@ -369,7 +369,7 @@ void ClipboardManager::save_targets(Atom *targets, unsigned long nitems)
         XChangeProperty(this->display_, this->window_,
                         XA_MULTIPLE, XA_ATOM_PAIR,
                         32, PropModeReplace,
-                        (unsigned char *)multiple, nout);
+                        reinterpret_cast<unsigned char *>(multiple), nout);
 
         XConvertSelection(this->display_, XA_CLIPBOARD,
                           XA_MULTIPLE, XA_MULTIPLE,
@@ -393,7 +393,7 @@ void ClipboardManager::selection_notify(XEvent *xev)
         RETURN_IF_FALSE(ret);
 
         KLOG_DEBUG_CLIPBOARD("Multiple nitems is %lu.", prop_group.nitems);
-        this->save_targets((Atom *)prop_group.data, prop_group.nitems);
+        this->save_targets(reinterpret_cast<Atom *>(prop_group.data), prop_group.nitems);
     }
     else if (xev->xselection.property == XA_MULTIPLE)
     {

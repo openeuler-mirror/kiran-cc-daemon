@@ -35,7 +35,7 @@ void FontconfigMonitor::add_files_monitors(FcStrList *files)
 {
     const char *str;
 
-    while ((str = (const char *)FcStrListNext(files)))
+    while ((str = reinterpret_cast<const char *>(FcStrListNext(files))))
     {
         auto monitor = FileUtils::make_monitor(str, sigc::mem_fun(this, &FontconfigMonitor::file_changed));
         this->files_monitors_.push_back(monitor);

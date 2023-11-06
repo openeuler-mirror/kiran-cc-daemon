@@ -94,7 +94,6 @@ std::shared_ptr<ModeInfo> DisplayMonitor::get_best_mode()
 std::string DisplayMonitor::generate_cmdline(bool priamry)
 {
     std::string result;
-    std::string tmp;
 
     if (!this->monitor_info_.enabled)
     {

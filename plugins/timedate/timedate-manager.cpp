@@ -664,7 +664,7 @@ bool TimedateManager::call_systemd_noresult(const std::string &method_name, cons
 
 void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_data)
 {
-    auto hwclock_call = (HWClockCall *)user_data;
+    auto hwclock_call = static_cast<HWClockCall *>(user_data);
     GError *error = NULL;
 
     Glib::spawn_close_pid(pid);

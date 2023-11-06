@@ -71,8 +71,6 @@ bool PluginHelper::load_plugin_module(CCErrorCode &error_code)
     auto path = Glib::Module::build_path(KCC_PLUGIN_DIR, this->plugin_info_.id);
     g_return_val_if_fail(path.length() > 0, false);
 
-    std::shared_ptr<Plugin> plugin2;
-
     this->module_ = std::make_shared<Glib::Module>(path);
 
     if (this->module_ && (*this->module_))

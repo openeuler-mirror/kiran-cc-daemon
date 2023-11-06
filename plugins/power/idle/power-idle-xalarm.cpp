@@ -261,14 +261,14 @@ int64_t PowerIdleXAlarm::xsyncvalue_to_int64(XSyncValue value)
 
 GdkFilterReturn PowerIdleXAlarm::on_event_filter_cb(GdkXEvent *gdkxevent, GdkEvent *event, gpointer data)
 {
-    XEvent *xevent = (XEvent *)gdkxevent;
-    PowerIdleXAlarm *self = (PowerIdleXAlarm *)data;
+    XEvent *xevent = static_cast<XEvent *>(gdkxevent);
+    PowerIdleXAlarm *self = static_cast<PowerIdleXAlarm *>(data);
     XSyncValue add;
     int overflow = 0;
 
     RETURN_VAL_IF_TRUE(xevent->type != self->sync_event_base_ + XSyncAlarmNotify, GDK_FILTER_CONTINUE);
 
-    auto alarm_event = (XSyncAlarmNotifyEvent *)xevent;
+    auto alarm_event = reinterpret_cast<XSyncAlarmNotifyEvent *>(xevent);
     auto xalarm = self->find_xalarm_by_id(alarm_event->alarm);
     RETURN_VAL_IF_FALSE(xalarm, GDK_FILTER_CONTINUE);
 

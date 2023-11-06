@@ -372,10 +372,10 @@ bool CustomShortCuts::grab_keystate_change(const KeyState &keystate, bool is_gra
 
 GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    XEvent *xevent = (XEvent *)gdk_event;
+    XEvent *xevent = static_cast<XEvent *>(gdk_event);
     RETURN_VAL_IF_TRUE(xevent->type != KeyPress, GDK_FILTER_CONTINUE);
 
-    CustomShortCuts *manager = (CustomShortCuts *)data;
+    CustomShortCuts *manager = static_cast<CustomShortCuts *>(data);
 
     for (const auto &group : manager->keyfile_.get_groups())
     {

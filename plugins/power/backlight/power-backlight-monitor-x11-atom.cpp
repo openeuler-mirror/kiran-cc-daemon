@@ -92,7 +92,7 @@ int32_t PowerBacklightMonitorX11Atom::get_brightness_value()
 
 bool PowerBacklightMonitorX11Atom::get_brightness_range(int32_t &min, int32_t &max)
 {
-    XRRPropertyInfo *info = NULL;
+    XRRPropertyInfo *info = XRRQueryOutputProperty(this->xdisplay_, this->output_, this->backlight_atom_);
 
     SCOPE_EXIT(
         {
@@ -102,7 +102,6 @@ bool PowerBacklightMonitorX11Atom::get_brightness_range(int32_t &min, int32_t &m
             }
         });
 
-    info = XRRQueryOutputProperty(this->xdisplay_, this->output_, this->backlight_atom_);
     if (info == NULL)
     {
         KLOG_WARNING_POWER("Could not get output property for %d.", (int32_t)this->output_);
