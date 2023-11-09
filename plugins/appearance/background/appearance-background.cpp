@@ -125,7 +125,7 @@ bool AppearanceBackground::can_draw_background()
 
     RETURN_VAL_IF_TRUE(data == NULL, true);
 
-    auto caja_window = *(Window *)data;
+    auto caja_window = *reinterpret_cast<Window *>(data);
     XFree(data);
 
     RETURN_VAL_IF_TRUE(type != XA_WINDOW || format != 32, true);
@@ -156,8 +156,8 @@ bool AppearanceBackground::can_draw_background()
     if (nitems == 20 &&
         after == 0 &&
         format == 8 &&
-        !strcmp((char *)data, "desktop_window") &&
-        !strcmp((char *)data + strlen((char *)data) + 1, "Caja"))
+        !strcmp(reinterpret_cast<char *>(data), "desktop_window") &&
+        !strcmp(reinterpret_cast<char *>(data) + strlen(reinterpret_cast<char *>(data)) + 1, "Caja"))
     {
         result = false;
     }
@@ -394,7 +394,7 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
     unsigned char *data_root, *data_esetroot;
 
     // 删除旧的背景图片
-    if (XInternAtoms(xdisplay, (char **)atom_names, G_N_ELEMENTS(atom_names), True, atoms) &&
+    if (XInternAtoms(xdisplay, const_cast<char **>(atom_names), G_N_ELEMENTS(atom_names), True, atoms) &&
         atoms[0] != None &&
         atoms[1] != None)
     {
@@ -429,8 +429,8 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
             if (data_esetroot != NULL && result == Success &&
                 type == XA_PIXMAP && format == 32 && nitems == 1)
             {
-                Pixmap xrootpmap = *((Pixmap *)data_root);
-                Pixmap esetrootpmap = *((Pixmap *)data_esetroot);
+                Pixmap xrootpmap = *(reinterpret_cast<Pixmap *>(data_root));
+                Pixmap esetrootpmap = *(reinterpret_cast<Pixmap *>(data_esetroot));
 
                 gdk_x11_display_error_trap_push(display->gobj());
                 if (xrootpmap && xrootpmap == esetrootpmap)
@@ -455,7 +455,7 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
     }
 
     // 设置新的背景图片
-    if (!XInternAtoms(xdisplay, (char **)atom_names, G_N_ELEMENTS(atom_names), False, atoms) ||
+    if (!XInternAtoms(xdisplay, const_cast<char **>(atom_names), G_N_ELEMENTS(atom_names), False, atoms) ||
         atoms[0] == None || atoms[1] == None)
     {
         KLOG_WARNING_APPEARANCE("Could not create atoms needed to set root pixmap id/properties.\n");
