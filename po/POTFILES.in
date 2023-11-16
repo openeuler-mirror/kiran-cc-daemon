@@ -3,6 +3,7 @@
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.display.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in
+[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.media-keys.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in

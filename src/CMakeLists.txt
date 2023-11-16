@@ -62,7 +62,8 @@ if(build-session-daemon)
             lib-base
             lib-dbus
             lib-iso
-            lib-display)
+            lib-display
+            lib-osdwindow)
 
   add_dependencies(${TARGET_SESSION_DAEMON} TARGET_CC_DAEMON)
 

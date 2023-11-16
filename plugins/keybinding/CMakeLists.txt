@@ -18,11 +18,18 @@ add_library(${TARGET_NAME} SHARED ${KEYBINDING_H_FILES} ${KEYBINDING_CPP_FILES}
 set_common_shared_linker_flags()
 
 target_include_directories(
-  ${TARGET_NAME} PUBLIC ${PROJECT_BINARY_DIR}/generated ${GDKMM3_INCLUDE_DIRS}
-                        ${LIBXML2_INCLUDE_DIRS})
+  ${TARGET_NAME} PUBLIC ${PROJECT_BINARY_DIR}/generated ${GTKMM3_INCLUDE_DIRS}
+                        ${LIBXML2_INCLUDE_DIRS} ${LIBWNCK_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_NAME} PRIVATE ${KSD_LINKER_FLAGS} ${GDKMM3_LIBRARIES}
-                         ${LIBXML2_LIBRARIES} lib-base lib-display)
+  ${TARGET_NAME}
+  PRIVATE ${KSD_LINKER_FLAGS}
+          ${GTKMM3_LIBRARIES}
+          ${LIBXML2_LIBRARIES}
+          ${LIBWNCK_LIBRARIES}
+          lib-base
+          lib-display
+          lib-osdwindow
+          inputdevices-common)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/session)

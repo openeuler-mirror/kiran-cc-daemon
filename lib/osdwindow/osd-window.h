@@ -11,22 +11,26 @@
  * 
  * Author:     meizhigang <meizhigang@kylinsec.com.cn>
  */
+
+#pragma once
 #include <gtkmm.h>
+//
+
 namespace Kiran
 {
-class ModifierLockWindow : public Gtk::Window
+class OSDWindow : public Gtk::Window
 {
 public:
-    ModifierLockWindow();
-    ~ModifierLockWindow();
+    OSDWindow(Gtk::WindowType window_type = Gtk::WINDOW_POPUP);
+    ~OSDWindow();
 
-    void show_capslock_on();
+    static OSDWindow* get_instance() { return instance_; };
 
-    void show_capslock_off();
+    static void global_init();
 
-    void show_numlock_on();
+    static void global_deinit();
 
-    void show_numlock_off();
+    void dialog_show(std::string icon);
 
 private:
     void init();
@@ -35,7 +39,7 @@ private:
 
     void on_real_hide();
 
-    bool on_real_draw(const Cairo::RefPtr<Cairo::Context>& rc);
+    bool on_real_draw(const Cairo::RefPtr<Cairo::Context>& cr);
 
     bool on_hide_timeout();
 
@@ -44,8 +48,11 @@ private:
     void remove_hide_timeout();
 
 private:
-    std::string image_file_;
+    static OSDWindow* instance_;
+
+    Glib::ustring image_file_;
 
     sigc::connection hide_timeout_id_;
 };
-}  // namespace Kiran
+
+}  // namespace  Kiran

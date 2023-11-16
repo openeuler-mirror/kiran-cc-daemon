@@ -76,8 +76,6 @@ public:
 private:
     // 初始化需要使用的修饰符
     void init_modifiers();
-    // 获取NumLock修饰键，NumLock修饰键可能对应Mod1-Mod5中的其中一个。
-    uint32_t get_numlock_modifier();
     // 生成自定义快捷键唯一ID
     std::string gen_uid();
     // 校验自定义快捷键是否合法
@@ -88,7 +86,6 @@ private:
     bool save_to_file();
     // 抓取组合按键或者取消抓取组合按键
     bool grab_keycomb_change(const std::string &key_comb, bool is_grab);
-    bool grab_keystate_change(const KeyState &keystate, bool is_grab);
 
     static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
 
