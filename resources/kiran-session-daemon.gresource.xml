@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<gresources>
-  <gresource prefix="/com/kylinsec/Kiran/SessionDaemon/">
-    <file alias="image/capslock-on">images/capslock-on.png</file>
-    <file alias="image/capslock-off">images/capslock-off.png</file>
-    <file alias="image/numlock-on">images/numlock-on.png</file>
-    <file alias="image/numlock-off">images/numlock-off.png</file>
-  </gresource>
-</gresources>

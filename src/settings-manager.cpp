@@ -139,12 +139,6 @@ void SettingsManager::init()
         return;
     }
 
-#ifdef KCC_SESSION_TYPE
-    // load resources
-    auto resource = Gio::Resource::create_from_file(KCC_INSTALL_DATADIR CC_DAEMON_GRESOURCE_FILE);
-    resource->register_global();
-#endif
-
     // load  plugins
     auto plugin_config_path = Glib::build_filename(KCC_PLUGIN_DIR, PLUGIN_CONFIG_NAME);
     this->load_plugins(plugin_config_path);

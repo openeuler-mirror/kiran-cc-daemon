@@ -195,52 +195,9 @@ void CustomShortCuts::init_modifiers()
     this->used_mods_ = GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_MOD2_MASK | GDK_MOD3_MASK | GDK_MOD4_MASK |
                        GDK_MOD5_MASK | GDK_SUPER_MASK | GDK_META_MASK;
 
-    auto numlock_modifier = this->get_numlock_modifier();
+    auto numlock_modifier = ShortCutHelper::get_numlock_modifier();
     this->ignored_mods_ |= numlock_modifier;
     this->used_mods_ &= ~numlock_modifier;
-}
-
-uint32_t CustomShortCuts::get_numlock_modifier()
-{
-    uint32_t mask = 0;
-    /*
-    获取每个修饰键绑定的keycode列表，一共8个真实修饰键。
-    xmodmap->max_keypermod：每个修饰键最多对应的keycode数
-    xmodmap->modifiermap：修饰键与keycode对于关系，数组的[i*xmodmap->max_keypermod, i*xmodmap->max_keypermod+xmodmap->max_keypermod)位置的值为第i个修饰键对应的keycode
-    */
-    auto xmodmap = XGetModifierMapping(gdk_x11_get_default_xdisplay());
-    auto map_size = 8 * xmodmap->max_keypermod;
-
-    // NumLock修饰键为Mod1-Mod5修饰键中的一个，其定义为：如果一个keycode与XK_Num_Lock存在映射关系且与Mod1-Mod5修饰键中任意一个有映射，则这个keycode为NumLock修饰键
-    // 下面遍历Mod1-Mod5修饰键
-    for (int32_t i = 3 * xmodmap->max_keypermod; i < map_size; ++i)
-    {
-        int keycode = xmodmap->modifiermap[i];
-        GdkKeymapKey *keys = NULL;
-        guint *keyvals = NULL;
-        int n_entries = 0;
-
-        gdk_keymap_get_entries_for_keycode(Gdk::Display::get_default()->get_keymap(),
-                                           keycode,
-                                           &keys,
-                                           &keyvals,
-                                           &n_entries);
-
-        for (int j = 0; j < n_entries; ++j)
-        {
-            if (keyvals[j] == GDK_KEY_Num_Lock)
-            {
-                mask |= (1 << (i / xmodmap->max_keypermod));
-                break;
-            }
-        }
-
-        g_free(keyvals);
-        g_free(keys);
-    }
-
-    XFreeModifiermap(xmodmap);
-    return mask;
 }
 
 std::string CustomShortCuts::gen_uid()
@@ -305,70 +262,8 @@ bool CustomShortCuts::grab_keycomb_change(const std::string &key_comb, bool is_g
     KLOG_DEBUG_KEYBINDING("The grab status of key_comb %s changed,and current grab status is %d.", key_comb.c_str(), is_grab);
     auto key_state = ShortCutHelper::get_keystate(key_comb);
     RETURN_VAL_IF_FALSE(key_state != INVALID_KEYSTATE, false);
-    return this->grab_keystate_change(key_state, is_grab);
-}
-
-bool CustomShortCuts::grab_keystate_change(const KeyState &keystate, bool is_grab)
-{
-    KLOG_DEBUG_KEYBINDING("The grab status of keystate changed and current grab status is %d,the symbol is %0x mods is %0x.", is_grab, keystate.key_symbol, keystate.mods);
-    RETURN_VAL_IF_TRUE(keystate == NULL_KEYSTATE, true);
-    RETURN_VAL_IF_FALSE(keystate != INVALID_KEYSTATE, false);
-
-    std::vector<int32_t> mask_bits;
-    uint32_t mask = this->ignored_mods_ & ~(keystate.mods) & GDK_MODIFIER_MASK;
-
-    for (int32_t i = 0; mask; ++i, mask >>= 1)
-    {
-        if (mask & 0x1)
-        {
-            mask_bits.push_back(i);
-        }
-    }
-
-    int32_t mask_state_num = (1 << mask_bits.size());
-
-    for (int32_t i = 0; i < mask_state_num; ++i)
-    {
-        int32_t ignored_state_comb = 0;
-        for (int32_t j = 0; j < (int32_t)mask_bits.size(); ++j)
-        {
-            if (i & (1 << j))
-            {
-                ignored_state_comb |= (1 << mask_bits[j]);
-            }
-        }
-
-        auto display = gdk_display_get_default();
-        gdk_x11_display_error_trap_push(display);
-
-        for (auto &keycode : keystate.keycodes)
-        {
-            if (is_grab)
-            {
-                XGrabKey(GDK_DISPLAY_XDISPLAY(display),
-                         keycode,
-                         ignored_state_comb | keystate.mods,
-                         GDK_WINDOW_XID(this->root_window_->gobj()),
-                         True,
-                         GrabModeAsync,
-                         GrabModeAsync);
-            }
-            else
-            {
-                XUngrabKey(GDK_DISPLAY_XDISPLAY(display),
-                           keycode,
-                           ignored_state_comb | keystate.mods,
-                           GDK_WINDOW_XID(this->root_window_->gobj()));
-            }
-        }
-        if (gdk_x11_display_error_trap_pop(display))
-        {
-            KLOG_WARNING_KEYBINDING("Grab failed for some keys, another application may already have access the them.");
-            return false;
-        }
-    }
-    return true;
-}
+    return ShortCutHelper::grab_keystate_change(this->root_window_, this->ignored_mods_, key_state, is_grab);
+} 
 
 GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {

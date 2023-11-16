@@ -37,6 +37,7 @@ target_link_libraries(
           ${GTKMM3_LIBRARIES}
           inputdevices-common
           lib-base
-          lib-iso)
+          lib-iso
+          lib-osdwindow)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/session)

@@ -63,6 +63,15 @@ public:
     static KeyState get_keystate(const std::string &key_comb);
     static KeyState get_keystate(XEvent *event);
     static std::vector<uint32_t> get_keycode(uint32_t key_symbol, KeyCodeFilter filter);
+
+    static uint32_t get_numlock_modifier();
+
+    static bool grab_keystate_change(Glib::RefPtr<Gdk::Window> root_window,
+                                     uint32_t ignored_mods,
+                                     const KeyState &keystate,
+                                     bool is_grab);
+
+    static bool key_uses_keycode(const KeyState &key_state, uint32_t keycode);
 };
 
 }  // namespace  Kiran

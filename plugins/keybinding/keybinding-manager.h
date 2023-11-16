@@ -34,6 +34,8 @@ public:
 
     static void global_deinit() { delete instance_; };
 
+    std::shared_ptr<SystemShortCuts> get_system_shortcuts() { return this->system_shortcuts_; };
+
 protected:
     // 添加自定义快捷键
     virtual void AddCustomShortcut(const Glib::ustring &name,

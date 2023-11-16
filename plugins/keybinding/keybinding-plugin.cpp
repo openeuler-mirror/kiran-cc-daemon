@@ -17,6 +17,7 @@
 #include <gtk3-log-i.h>
 #include "plugins/keybinding/custom-shortcut.h"
 #include "plugins/keybinding/keybinding-manager.h"
+#include "plugins/keybinding/media-keys-manager.h"
 #include "plugins/keybinding/system-shortcut.h"
 
 PLUGIN_EXPORT_FUNC_DEF(KeybindingPlugin);
@@ -36,12 +37,14 @@ void KeybindingPlugin::activate()
     KLOG_DEBUG_KEYBINDING("Active keybinding plugin.");
 
     KeybindingManager::global_init();
+    MediaKeysManager::global_init(KeybindingManager::get_instance());
 }
 
 void KeybindingPlugin::deactivate()
 {
     KLOG_DEBUG_KEYBINDING("Deactive keybinding plugin.");
 
+    MediaKeysManager::global_deinit();
     KeybindingManager::global_deinit();
 }
 }  // namespace Kiran
