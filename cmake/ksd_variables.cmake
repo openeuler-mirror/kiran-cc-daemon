@@ -59,10 +59,6 @@ set(enable-plugin-clipboard
     "false"
     CACHE STRING "Enable plugin clipboard")
 
-set(filter-desktop-extend-key
-    "true"
-    CACHE STRING "Filter desktop extend key")
-
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   set(OS_MACOSX 1)

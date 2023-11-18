@@ -19,6 +19,7 @@
 #include <libnotify/notify.h>
 
 #include "lib/display/EWMH.h"
+#include "lib/osdwindow/osd-window.h"
 #include "src/session-guarder.h"
 #endif
 
@@ -102,6 +103,7 @@ int main(int argc, char* argv[])
 #if defined KCC_SESSION_TYPE
     Kiran::SessionGuarder::global_init();
     Kiran::SessionGuarder::get_instance()->signal_session_end().connect(&on_session_end);
+    Kiran::OSDWindow::global_init();
 #endif
 
 #if defined KCC_SYSTEM_TYPE
@@ -111,6 +113,7 @@ int main(int argc, char* argv[])
 #endif
 
 #ifdef KCC_SESSION_TYPE
+    Kiran::OSDWindow::global_deinit();
     Kiran::SessionGuarder::global_deinit();
 #endif
 
