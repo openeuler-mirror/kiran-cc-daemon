@@ -744,7 +744,7 @@ void PulseContext::on_pulse_server_info_cb(pa_context *context, const pa_server_
 #define ON_PULSE_INFO_CB(info)                                                                                   \
     void PulseContext::on_pulse_##info##_cb(pa_context *context, const pa_##info *info, int eol, void *userdata) \
     {                                                                                                            \
-        PulseContext *self = (PulseContext *)(userdata);                                                         \
+        PulseContext *self = static_cast<PulseContext *>(userdata);                                              \
         RETURN_IF_FALSE(self != NULL && self->context_ == context);                                              \
                                                                                                                  \
         if (eol)                                                                                                 \

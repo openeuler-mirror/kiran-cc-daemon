@@ -389,7 +389,6 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
 
     Atom type;
     int format;
-    int result;
     unsigned long nitems, after;
     unsigned char *data_root, *data_esetroot;
 
@@ -398,17 +397,17 @@ void AppearanceBackground::set_root_pixmap_id(Glib::RefPtr<Gdk::Screen> screen, 
         atoms[0] != None &&
         atoms[1] != None)
     {
-        result = XGetWindowProperty(xdisplay,
-                                    xroot, atoms[0],
-                                    0L,
-                                    1L,
-                                    False,
-                                    AnyPropertyType,
-                                    &type,
-                                    &format,
-                                    &nitems,
-                                    &after,
-                                    &data_root);
+        int result = XGetWindowProperty(xdisplay,
+                                        xroot, atoms[0],
+                                        0L,
+                                        1L,
+                                        False,
+                                        AnyPropertyType,
+                                        &type,
+                                        &format,
+                                        &nitems,
+                                        &after,
+                                        &data_root);
 
         if (data_root != NULL && result == Success &&
             type == XA_PIXMAP && format == 32 && nitems == 1)

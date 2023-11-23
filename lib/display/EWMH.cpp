@@ -181,7 +181,7 @@ GdkFilterReturn EWMH::window_event(GdkXEvent* gdk_event, GdkEvent* event, gpoint
 {
     EWMH* manager = static_cast<EWMH*>(data);
     g_return_val_if_fail(EWMH::get_instance() == manager, GDK_FILTER_REMOVE);
-    XEvent* xevent = (XEvent*)gdk_event;
+    XEvent* xevent = static_cast<XEvent*>(gdk_event);
 
     if ((xevent->type == DestroyNotify &&
          manager->wm_window_ != None &&

@@ -121,10 +121,10 @@ std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
                                                        uint32_t group)
 {
     int32_t ngroups = 0;
-    auto res = getgrouplist(user.c_str(), group, NULL, &ngroups);
+    getgrouplist(user.c_str(), group, NULL, &ngroups);
 
     auto groups = g_new(gid_t, ngroups);
-    res = getgrouplist(user.c_str(), group, groups, &ngroups);
+    auto res = getgrouplist(user.c_str(), group, groups, &ngroups);
 
     return std::vector<uint32_t>(groups, groups + res);
 }

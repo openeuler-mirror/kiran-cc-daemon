@@ -321,7 +321,6 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
 {
     KLOG_DEBUG_XSETTINGS("Window_scale: %d, scale: %d", this->window_scale_, scale);
 
-    std::string error;
     bool is_init = (!this->window_scale_);
 
     RETURN_IF_TRUE(this->window_scale_ == scale);
@@ -335,6 +334,7 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
         // 如果开启QT缩放同步，则将缩放值同步到QT缩放相关的环境变量
         if (this->get_window_scaling_factor_qt_sync())
         {
+            std::string error;
             if (!XSettingsUtils::update_user_env_variable("QT_AUTO_SCREEN_SCALE_FACTOR", "0", error))
             {
                 KLOG_WARNING_XSETTINGS("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());

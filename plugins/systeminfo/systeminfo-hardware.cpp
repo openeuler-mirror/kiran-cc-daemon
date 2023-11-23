@@ -111,11 +111,11 @@ CPUInfo SystemInfoHardware::get_cpu_info()
 CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
 {
     // 低版本不支持-J选项
-    std::vector<std::string> argv{CPUINFO_CMD};
 
     std::string cmd_output;
     try
     {
+        std::vector<std::string> argv{CPUINFO_CMD};
         Glib::spawn_sync("",
                          argv,
                          Glib::SPAWN_DEFAULT,
@@ -234,11 +234,11 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
 {
     //  老版本lsblk不支持-J选项，所以这里不使用json格式
     DiskInfoVec disks_info;
-    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
     std::string cmd_output;
     try
     {
+        std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
         Glib::spawn_sync("",
                          argv,
                          Glib::SPAWN_DEFAULT,
@@ -321,9 +321,9 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
     // 获取主类ID为major_class_id的full_class_id列表，例如major_class_id为02，full_class_id列表为[0201, 0202]
     {
         std::string cmd_output;
-        std::vector<std::string> argv{PCIINFO_CMD, "-n"};
         try
         {
+            std::vector<std::string> argv{PCIINFO_CMD, "-n"};
             Glib::spawn_sync("",
                              argv,
                              Glib::SPAWN_SEARCH_PATH,

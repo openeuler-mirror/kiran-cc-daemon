@@ -140,8 +140,8 @@ bool UserCache::save_cache_file()
     try
     {
         auto filename = Glib::build_filename(USERDIR, user->user_name_get());
-        return this->keyfile_->save_to_file(filename);
         KLOG_DEBUG_ACCOUNTS("Sync cache to file %s", filename.c_str());
+        return this->keyfile_->save_to_file(filename);
     }
     catch (const Glib::Error &e)
     {

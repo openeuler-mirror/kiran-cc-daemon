@@ -58,6 +58,7 @@ bool Clipboard::send_incrementally(XEvent* xev)
     }
 
     RETURN_VAL_IF_TRUE(rdata == nullptr, false);
+    RETURN_VAL_IF_TRUE(rdata->data == nullptr, false);
 
     int bytes_per_item = ClipboardUtils::bytes_per_item(rdata->data->format);
     if (bytes_per_item == 0)
@@ -83,7 +84,7 @@ bool Clipboard::send_incrementally(XEvent* xev)
                     rdata->data->format, PropModeAppend,
                     data, nitems);
 
-    if (length <= 0)
+    if (length == 0)
     {
         KLOG_DEBUG_CLIPBOARD("All incrementl data done, target: %lu.", rdata->target);
         // All incrementl data done.

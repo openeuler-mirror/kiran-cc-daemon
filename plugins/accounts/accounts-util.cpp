@@ -168,13 +168,13 @@ bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvo
     std::string loginuid;
     std::string standard_error;
     int status;
-    std::string working_directory;
     CCErrorCode error_code = CCErrorCode::SUCCESS;
 
     AccountsUtil::get_caller_loginuid(invocation, loginuid);
 
     try
     {
+        std::string working_directory;
         Glib::spawn_sync(working_directory,
                          argv,
                          Glib::SPAWN_DEFAULT,

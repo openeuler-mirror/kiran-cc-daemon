@@ -696,7 +696,6 @@ void TimedateManager::start_hwclock_call(bool hctosys,
                                          AuthManager::AuthCheckHandler handler)
 {
     std::vector<std::string> argv;
-    std::vector<std::string> envp;
     Glib::Pid pid;
     struct stat st;
 
@@ -733,6 +732,7 @@ void TimedateManager::start_hwclock_call(bool hctosys,
 
     try
     {
+        std::vector<std::string> envp;
         Glib::spawn_async(std::string(),
                           argv,
                           envp,
@@ -833,12 +833,12 @@ void TimedateManager::update_kernel_utc_offset(void)
 {
     struct timezone tz;
     struct timeval tv;
-    struct tm *tm;
 
     bool updated = false;
 
     do
     {
+        struct tm *tm;
         if (gettimeofday(&tv, &tz))
         {
             break;

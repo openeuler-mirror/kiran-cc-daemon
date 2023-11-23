@@ -51,7 +51,6 @@ void PasswdWrapper::exec(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
     int standard_output = 0;
     int standard_error = 0;
     std::vector<Glib::ustring> argv{"/usr/bin/passwd"};
-    std::vector<Glib::ustring> envp;
 
     this->current_password_ = current_password;
     this->new_password_ = new_password;
@@ -65,6 +64,7 @@ void PasswdWrapper::exec(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
 
     try
     {
+        std::vector<Glib::ustring> envp;
         Glib::spawn_async_with_pipes(Glib::ustring(),
                                      argv,
                                      envp,
