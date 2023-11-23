@@ -63,12 +63,13 @@ void MediaKeysAction::init_touchpad()
         KLOG_WARNING_KEYBINDING("XInput is not supported, not applying any settings.");
     }
 
-    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
-        if (device_helper->is_touchpad())
-        {
-            this->has_touchpad_ = true;
-        }
-    });
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper)
+                                 {
+                                     if (device_helper->is_touchpad())
+                                     {
+                                         this->has_touchpad_ = true;
+                                     }
+                                 });
 }
 
 bool MediaKeysAction::do_action(XEvent *xev, std::string name)

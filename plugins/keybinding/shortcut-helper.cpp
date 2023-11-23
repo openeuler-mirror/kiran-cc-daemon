@@ -104,7 +104,8 @@ KeyState ShortCutHelper::get_keystate(const std::string &key_comb_org)
             auto keyval = gdk_keyval_from_name(key_comb.substr(cur_pos).c_str());
             RETURN_VAL_IF_TRUE(keyval == GDK_KEY_VoidSymbol, INVALID_KEYSTATE);
             key_state.key_symbol = gdk_keyval_to_lower(keyval);
-            key_state.keycodes = ShortCutHelper::get_keycode(key_state.key_symbol, [](int group, int level) -> bool { return level == 0; });
+            key_state.keycodes = ShortCutHelper::get_keycode(key_state.key_symbol, [](int group, int level) -> bool
+                                                             { return level == 0; });
             break;
         }
     }

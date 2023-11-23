@@ -263,7 +263,7 @@ bool CustomShortCuts::grab_keycomb_change(const std::string &key_comb, bool is_g
     auto key_state = ShortCutHelper::get_keystate(key_comb);
     RETURN_VAL_IF_FALSE(key_state != INVALID_KEYSTATE, false);
     return ShortCutHelper::grab_keystate_change(this->root_window_, this->ignored_mods_, key_state, is_grab);
-} 
+}
 
 GdkFilterReturn CustomShortCuts::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
