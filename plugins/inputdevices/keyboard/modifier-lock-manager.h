@@ -18,7 +18,6 @@
 //
 #include <X11/Xlib.h>
 #include "plugins/inputdevices/keyboard/keyboard-manager.h"
-#include "plugins/inputdevices/keyboard/modifier-lock-window.h"
 
 namespace Kiran
 {
@@ -54,7 +53,6 @@ private:
     KeyCode numlock_keycode_;
 
     KeyboardManager *keyboard_manager_;
-    ModifierLockWindow lock_window_;
 };
 
 }  // namespace Kiran

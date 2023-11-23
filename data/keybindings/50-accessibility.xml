@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<KeyListEntries schema="org.mate.SettingsDaemon.plugins.media-keys" group="system" name="Accessibility">
+<KeyListEntries schema="com.kylinsec.kiran.media-keys" package="kiran-cc-daemon" name="Accessibility">
 
 	<KeyListEntry name="magnifier" description="Toggle magnifier"></KeyListEntry>
+
 	<KeyListEntry name="screenreader" description="Toggle screen reader"></KeyListEntry>
+
 	<KeyListEntry name="on-screen-keyboard" description="Toggle on-screen keyboard"></KeyListEntry>
 
+	<KeyListEntry name="touchpad" description="Toggle touchpad"/>
+
+	<KeyListEntry name="touchpad-on" description="Enable touchpad"/>
+
+	<KeyListEntry name="touchpad-off" description="Disable touchpad"/>
 </KeyListEntries>

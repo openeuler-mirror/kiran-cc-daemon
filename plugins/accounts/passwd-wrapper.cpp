@@ -316,6 +316,7 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
             this->additional_error_message_.clear();
             retval = true;
         }
+        break;
     }
     default:
         retval = true;

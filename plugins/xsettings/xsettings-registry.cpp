@@ -294,7 +294,7 @@ bool XSettingsRegistry::notify()
                     this->xsettings_atom_,
                     8,
                     PropModeReplace,
-                    (unsigned char *)data.c_str(),
+                    const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(data.c_str())),
                     data.length());
 
     auto changed_properties = std::move(this->changed_properties_);
@@ -306,7 +306,7 @@ bool XSettingsRegistry::notify()
 char XSettingsRegistry::byte_order()
 {
     uint32_t myint = 0x01020304;
-    return (*(char *)&myint == 1) ? MSBFirst : LSBFirst;
+    return (*reinterpret_cast<char *>(&myint) == 1) ? MSBFirst : LSBFirst;
 }
 
 }  // namespace Kiran

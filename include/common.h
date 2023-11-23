@@ -25,7 +25,6 @@ extern "C"
 #elif KCC_SESSION_TYPE
 #define CC_DAEMON_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon"
 #define CC_DAEMON_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon"
-#define CC_DAEMON_GRESOURCE_FILE "/kiran-session-daemon.gresource"
 #else
 #define CC_DAEMON_DBUS_NAME "com.kylinsec.Kiran.CCDaemon"
 #define CC_DAEMON_OBJECT_PATH "/com/kylinsec/Kiran/CCDaemon"

@@ -26,7 +26,6 @@ namespace Kiran
    台式机的显示器不一定带有背光控制器，因此可能无法通过该模块的接口调节亮度，
    台式机的显示器一般可以直接通过显示器周边的按钮调节亮度 */
 
-
 class PowerBacklightMonitorsController : public PowerBacklightPercentage
 {
 public:

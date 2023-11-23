@@ -2,17 +2,17 @@
 <schemalist gettext-domain="@PROJECT_NAME@">
     <schema id="com.kylinsec.kiran.keyboard" path="/com/kylinsec/kiran/keyboard/">
         <key name="modifier-lock-enabled" type="b">
-            <default>false</default>
+            <default>true</default>
             <description>Whether enable capslock and numlock windows tips.</description>
         </key>
 
         <key name="capslock-tips-enabled" type="b">
-            <default>false</default>
+            <default>true</default>
             <description>Whether enable capslock tips.</description>
         </key>
 
         <key name="numlock-tips-enabled" type="b">
-            <default>false</default>
+            <default>true</default>
             <description>Whether enable numlock tips.</description>
         </key>
 

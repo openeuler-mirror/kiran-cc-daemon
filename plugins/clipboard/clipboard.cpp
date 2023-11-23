@@ -147,7 +147,7 @@ void Clipboard::selection_request_clipboard_multiple(XEvent* xev)
         return;
     }
 
-    Atom* multiple = (Atom*)prop_group.data;
+    Atom* multiple = reinterpret_cast<Atom*>(prop_group.data);
 
     std::vector<std::shared_ptr<IncrConversion>> conversions;
 
@@ -185,7 +185,7 @@ void Clipboard::selection_request_clipboard_multiple(XEvent* xev)
                     xev->xselectionrequest.requestor,
                     xev->xselectionrequest.property,
                     XA_ATOM_PAIR, 32, PropModeReplace,
-                    (unsigned char*)new_multiple, nitems);
+                    reinterpret_cast<unsigned char*>(new_multiple), nitems);
 
     ClipboardUtils::response_selection_request(this->display_, xev, true);
 
@@ -237,7 +237,7 @@ void Clipboard::convert_type_targets(std::shared_ptr<IncrConversion> rdata)
     XChangeProperty(this->display_, rdata->requestor,
                     rdata->property, XA_ATOM,
                     32, PropModeReplace,
-                    (unsigned char*)targets, n_targets);
+                    reinterpret_cast<unsigned char*>(targets), n_targets);
 
     delete[] targets;
 }

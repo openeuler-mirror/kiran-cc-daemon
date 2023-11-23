@@ -20,8 +20,15 @@
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 
+#include "lib/osdwindow/osd-window.h"
+
 namespace Kiran
 {
+#define IMAGE_CAPSLOCK_ENABLED "osd-capslock-enabled"
+#define IMAGE_CAPSLOCK_DISABLED "osd-capslock-disabled"
+#define IMAGE_NUMLOCK_ENABLED "osd-numlock-enabled"
+#define IMAGE_NUMLOCK_DISABLED "osd-numlock-disabled"
+
 ModifierLockManager::ModifierLockManager(KeyboardManager *keyboard_manager) : keyboard_manager_(keyboard_manager)
 {
 }
@@ -104,12 +111,12 @@ int ModifierLockManager::xkb_init()
 
 GdkFilterReturn ModifierLockManager::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    XEvent *xev = (XEvent *)gdk_event;
-    ModifierLockManager *manager = (ModifierLockManager *)data;
+    XEvent *xev = static_cast<XEvent *>(gdk_event);
+    ModifierLockManager *manager = static_cast<ModifierLockManager *>(data);
 
     if (xev->type == manager->xkb_event_base_)
     {
-        XkbEvent *xkbev = (XkbEvent *)xev;
+        XkbEvent *xkbev = reinterpret_cast<XkbEvent *>(xev);
         if ((xkbev->any.xkb_type == XkbStateNotify) && (xkbev->state.changed & XkbModifierLockMask))
         {
             manager->set_lock_action(xkbev->state.keycode, xkbev->state.locked_mods);
@@ -130,11 +137,11 @@ void ModifierLockManager::set_lock_action(KeyCode keycode, unsigned int mods)
         bool capslock_enable = !!(this->capslock_mask_ & mods);
         if (capslock_enable)
         {
-            this->lock_window_.show_capslock_on();
+            OSDWindow::get_instance()->dialog_show(IMAGE_CAPSLOCK_ENABLED);
         }
         else
         {
-            this->lock_window_.show_capslock_off();
+            OSDWindow::get_instance()->dialog_show(IMAGE_CAPSLOCK_DISABLED);
         }
     }
     else if (keycode == this->numlock_keycode_)
@@ -144,11 +151,11 @@ void ModifierLockManager::set_lock_action(KeyCode keycode, unsigned int mods)
         bool numlock_enable = !!(this->numlock_mask_ & mods);
         if (numlock_enable)
         {
-            this->lock_window_.show_numlock_on();
+            OSDWindow::get_instance()->dialog_show(IMAGE_NUMLOCK_ENABLED);
         }
         else
         {
-            this->lock_window_.show_numlock_off();
+            OSDWindow::get_instance()->dialog_show(IMAGE_NUMLOCK_DISABLED);
         }
     }
     else

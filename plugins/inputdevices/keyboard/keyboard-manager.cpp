@@ -241,7 +241,7 @@ AUTO_REPEAT_SET_HANDLER(repeat_enabled, bool, KEYBOARD_SCHEMA_REPEAT_ENABLED, bo
 AUTO_REPEAT_SET_HANDLER(repeat_delay, gint32, KEYBOARD_SCHEMA_REPEAT_DELAY, int);
 AUTO_REPEAT_SET_HANDLER(repeat_interval, gint32, KEYBOARD_SCHEMA_REPEAT_INTERVAL, int);
 
-#define KEYBOARD_PROP_SET_HANDLER(prop, type1, key, type2)                                                           \
+#define KEYBOARD_PROP_SET_HANDLER(prop, type1, key, type2)                                                         \
     bool KeyboardManager::prop##_setHandler(type1 value)                                                           \
     {                                                                                                              \
         RETURN_VAL_IF_TRUE(value == this->prop##_, false);                                                         \
@@ -479,7 +479,7 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
         }
     }
 
-    if (join_layouts.length() <= 0)
+    if (join_layouts.length() == 0)
     {
         join_layouts = DEFAULT_LAYOUT LAYOUT_JOIN_CHAR;
         join_variants = std::string(LAYOUT_JOIN_CHAR);
@@ -523,7 +523,7 @@ bool KeyboardManager::set_options(const std::vector<Glib::ustring> &options)
         join_options += fmt::format(" -option {0}", *iter);
     }
 
-    RETURN_VAL_IF_TRUE(join_options.length() <= 0, true);
+    RETURN_VAL_IF_TRUE(join_options.length() == 0, true);
 
     auto cmdline = fmt::format("{0} {1}", SETXKBMAP, join_options);
     try

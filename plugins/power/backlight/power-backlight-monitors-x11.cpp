@@ -16,7 +16,6 @@
 #include "plugins/power/backlight/power-backlight-monitor-x11-atom.h"
 #include "plugins/power/backlight/power-backlight-monitor-x11-gamma.h"
 
-
 namespace Kiran
 {
 PowerBacklightMonitorsX11::PowerBacklightMonitorsX11() : event_base_(0),
@@ -148,9 +147,9 @@ void PowerBacklightMonitorsX11::clear_resource()
 
 GdkFilterReturn PowerBacklightMonitorsX11::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
 {
-    PowerBacklightMonitorsX11 *backlight = (PowerBacklightMonitorsX11 *)data;
+    PowerBacklightMonitorsX11 *backlight = static_cast<PowerBacklightMonitorsX11 *>(data);
 
-    XEvent *xevent = (XEvent *)gdk_event;
+    XEvent *xevent = static_cast<XEvent *>(gdk_event);
     RETURN_VAL_IF_FALSE(backlight, GDK_FILTER_CONTINUE);
     RETURN_VAL_IF_FALSE(xevent, GDK_FILTER_CONTINUE);
 

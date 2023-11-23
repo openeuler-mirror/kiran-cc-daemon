@@ -14,13 +14,12 @@
 
 #include "src/settings-manager.h"
 
-#include "config.h"
 #include "common.h"
+#include "config.h"
 #include "lib/base/base.h"
 
 namespace Kiran
 {
-
 #define PLUGIN_CONFIG_NAME "plugin_options"
 
 SettingsManager::SettingsManager() : dbus_connect_id_(0),
@@ -139,12 +138,6 @@ void SettingsManager::init()
         KLOG_WARNING("Kiran-session-daemon is not able to initialize the plugins.");
         return;
     }
-
-#ifdef KCC_SESSION_TYPE
-    // load resources
-    auto resource = Gio::Resource::create_from_file(KCC_INSTALL_DATADIR CC_DAEMON_GRESOURCE_FILE);
-    resource->register_global();
-#endif
 
     // load  plugins
     auto plugin_config_path = Glib::build_filename(KCC_PLUGIN_DIR, PLUGIN_CONFIG_NAME);

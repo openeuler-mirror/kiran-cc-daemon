@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<KeyListEntries schema="org.mate.SettingsDaemon.plugins.media-keys" package="mate-settings-daemon" name="System">
+<KeyListEntries schema="com.kylinsec.kiran.media-keys" package="kiran-cc-daemon" name="System">
 
 	<KeyListEntry name="help" description="Launch help browser"/>
 
@@ -10,6 +10,14 @@
 	<KeyListEntry name="www" description="Launch web browser"/>
 
 	<KeyListEntry name="screensaver" description="Lock screen"/>
+
+	<KeyListEntry name="show-desktop" description="Show desktop"/>
+
+	<KeyListEntry name="panel-kiran-menu" description="Show the panel's main menu of kiran"/>
+
+	<KeyListEntry name="logout" description="Log out"/>
+
+	<KeyListEntry name="power" description="Shut down"/>
 
 	<KeyListEntry name="home" description="Home folder"/>
 

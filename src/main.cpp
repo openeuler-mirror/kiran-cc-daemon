@@ -19,14 +19,15 @@
 #include <libnotify/notify.h>
 
 #include "lib/display/EWMH.h"
+#include "lib/osdwindow/osd-window.h"
 #include "src/session-guarder.h"
 #endif
 
 #include <glib-unix.h>
 #include <glib/gi18n.h>
 
-#include "config.h"
 #include "common.h"
+#include "config.h"
 #include "lib/base/base.h"
 #include "lib/dbus/auth-manager.h"
 #include "lib/iso/iso-translation.h"
@@ -63,10 +64,11 @@ int main(int argc, char* argv[])
     version_entry.set_flags(Glib::OptionEntry::FLAG_NO_ARG);
     version_entry.set_description(N_("Output version infomation and exit"));
 
-    group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool {
-        g_print("kiran-cc-daemon: 2.0\n");
-        return true;
-    });
+    group.add_entry(version_entry, [](const Glib::ustring& option_name, const Glib::ustring& value, bool has_value) -> bool
+                    {
+                        g_print("kiran-cc-daemon: 2.0\n");
+                        return true;
+                    });
 
     group.set_translation_domain(GETTEXT_PACKAGE);
     context.set_main_group(group);
@@ -101,6 +103,7 @@ int main(int argc, char* argv[])
 #if defined KCC_SESSION_TYPE
     Kiran::SessionGuarder::global_init();
     Kiran::SessionGuarder::get_instance()->signal_session_end().connect(&on_session_end);
+    Kiran::OSDWindow::global_init();
 #endif
 
 #if defined KCC_SYSTEM_TYPE
@@ -110,6 +113,7 @@ int main(int argc, char* argv[])
 #endif
 
 #ifdef KCC_SESSION_TYPE
+    Kiran::OSDWindow::global_deinit();
     Kiran::SessionGuarder::global_deinit();
 #endif
 
