@@ -156,12 +156,13 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
 {
     CPUInfo cpu_info;
     auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
+    cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
     //适配龙芯架构
     if (cpu_info.model.empty())
     {
         cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
     }
-    cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
+
     if (cpu_maps.find(CPUINFO_KEY_PROCESSOR) != cpu_maps.end())
     {
         cpu_info.cores_number = strtol(cpu_maps[CPUINFO_KEY_PROCESSOR].c_str(), NULL, 0) + 1;
