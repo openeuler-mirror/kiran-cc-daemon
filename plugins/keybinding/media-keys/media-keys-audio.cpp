@@ -170,7 +170,7 @@ void MediaKeysAudio::do_sound_action(VolumeType type)
     double volume = volume_last;
 
     uint32_t volume_step = this->settings_->get_int(MEDIAKEYS_SCHEMA_VOLUME_STEP);
-    if (volume_step <= 0 || volume_step > 100)
+    if (volume_step == 0 || volume_step > 100)
     {
         volume_step = VOLUME_STEP_DEFAULT;
     }
