@@ -341,7 +341,7 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         for (auto& line : lines)
         {
             char placehold1[10];
-            int32_t full_class_id;
+            unsigned int full_class_id;
             if (sscanf(line.c_str(), "%9s %x:", placehold1, &full_class_id) == 2)
             {
                 if ((full_class_id >> 8) == major_class_id)
