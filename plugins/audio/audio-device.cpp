@@ -76,6 +76,7 @@ void AudioDevice::GetPorts(MethodInvocation &invocation)
         values[i]["name"] = ports[i]->get_name();
         values[i]["description"] = ports[i]->get_description();
         values[i]["priority"] = ports[i]->get_priority();
+        values[i]["available"] = ports[i]->get_available();
     }
 
     auto result = writer.write(values);

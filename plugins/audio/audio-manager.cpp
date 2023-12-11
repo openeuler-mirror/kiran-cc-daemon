@@ -210,6 +210,25 @@ void AudioManager::GetSourceOutput(guint32 index, MethodInvocation &invocation)
     invocation.ret(source_output->get_object_path());
 }
 
+void AudioManager::GetCards(MethodInvocation &invocation)
+{
+    Json::Value values;
+    Json::FastWriter writer;
+
+    uint32_t i = 0;
+    for (auto pulse_card : this->backend_->get_cards())
+    {
+        values[i]["index"] = pulse_card->get_index();
+        values[i]["name"] = pulse_card->get_name();
+
+        i++;
+    }
+
+    auto result = writer.write(values);
+
+    invocation.ret(result);
+}
+
 guint32 AudioManager::state_get()
 {
     return this->backend_->get_state();
