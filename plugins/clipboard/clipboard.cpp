@@ -57,8 +57,8 @@ bool Clipboard::send_incrementally(XEvent* xev)
         }
     }
 
-    RETURN_VAL_IF_TRUE(rdata == nullptr, false);
-    RETURN_VAL_IF_TRUE(rdata->data == nullptr, false);
+    RETURN_VAL_IF_TRUE(!rdata, false);
+    RETURN_VAL_IF_TRUE(!rdata->data, false);
 
     int bytes_per_item = ClipboardUtils::bytes_per_item(rdata->data->format);
     if (bytes_per_item == 0)

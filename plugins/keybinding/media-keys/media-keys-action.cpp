@@ -216,7 +216,7 @@ void MediaKeysAction::do_shutdown()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -230,7 +230,7 @@ void MediaKeysAction::do_logout()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -257,7 +257,7 @@ void MediaKeysAction::do_screensaver()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -304,7 +304,6 @@ void MediaKeysAction::do_eject()
         if (score < SCORE_HAS_MEDIA)
         {
             fav_drive = drive;
-            score = SCORE_HAS_MEDIA;
             break;
         }
     }
@@ -331,7 +330,7 @@ void MediaKeysAction::do_home()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -358,7 +357,7 @@ void MediaKeysAction::do_search()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -372,7 +371,7 @@ void MediaKeysAction::do_control_center()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -386,7 +385,7 @@ void MediaKeysAction::do_calculator()
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Exec command:%s fail: %s.", cmdline.c_str(), e.what().c_str());
     }
 }
 
@@ -434,7 +433,7 @@ void MediaKeysAction::do_appinfo_for_uri(const Glib::ustring &uri)
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Launch for uri:%s fail: %s.", uri, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Launch for uri:%s fail: %s.", uri.c_str(), e.what().c_str());
     }
 }
 
@@ -448,7 +447,7 @@ void MediaKeysAction::do_screen_toggle(const Glib::ustring &key)
     }
     catch (const Glib::Error &e)
     {
-        KLOG_WARNING_KEYBINDING("Do screen toggle for key:%s fail: %s.", key, e.what().c_str());
+        KLOG_WARNING_KEYBINDING("Do screen toggle for key:%s fail: %s.", key.c_str(), e.what().c_str());
     }
 }
 
