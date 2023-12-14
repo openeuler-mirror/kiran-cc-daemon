@@ -26,7 +26,7 @@
             <description>Name of gtk theme to use.</description>
         </key>
         <key name="net-icon-theme-name" type="s">
-            <default>'Kiran'</default>
+            <default>'Spring'</default>
             <description>Name of icon theme to use for icons.</description>
         </key>
         <key name="net-enable-event-sounds" type="b">
