@@ -61,6 +61,10 @@
             <default>-1</default>
             <description>Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not modify it manually.</description>
         </key>
+        <key name="font-dpi" type="d">
+            <default>96.00</default>
+            <description>The resolution used for converting font sizes to pixel sizes, in dots per inch.</description>
+        </key>
         <key name="gtk-cursor-theme-name" type="s">
             <default>'Kiran'</default>
             <description>Name of the cursor theme.</description>

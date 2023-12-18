@@ -274,6 +274,7 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC, _hash):
     case CONNECT(XSETTINGS_SCHEMA_XFT_DPI, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_FONT_DPI, _hash):
         break;
 
     default:
@@ -286,6 +287,7 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
     {
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_FONT_DPI, _hash):
         this->scale_settings();
         break;
     case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
@@ -304,14 +306,24 @@ void XSettingsManager::settings_changed(const Glib::ustring &key, bool is_notify
     }
 }
 
+double XSettingsManager::get_optimize_dpi()
+{
+    double dpi = get_font_dpi();
+    if (dpi < EPS)
+    {
+        dpi = XSettingsUtils::get_dpi_from_x_server();
+    }
+    return dpi;
+}
+
 void XSettingsManager::scale_settings()
 {
     KLOG_PROFILE("");
 
     auto scale = this->get_window_scale();
-    auto dpi = XSettingsUtils::get_dpi_from_x_server();
+    auto dpi = this->get_optimize_dpi();
     int32_t unscaled_dpi = int32_t(dpi * 1024);
-    int32_t scaled_dpi = int32_t(CLAMP(dpi * scale, DPI_LOW_REASONABLE_VALUE, DPI_HIGH_REASONABLE_VALUE) * 1024);
+    int32_t scaled_dpi = int32_t(XSettingsUtils::format_scale_dpi(scale, dpi) * 1024);
     auto scaled_cursor_size = this->get_gtk_cursor_theme_size() * scale;
 
     this->registry_.update(XSETTINGS_REGISTRY_PROP_GDK_WINDOW_SCALING_FACTOR, scale);
@@ -336,23 +348,29 @@ void XSettingsManager::scale_change_workarounds(int32_t scale)
     /* 第一次初始化时缩放率是没有变化的，所以不应该重启底部面板、文件管理器和窗口管理器，
     这样会导致进入会话时出现屏幕刷新的视觉效果，而且底部面板和文件管理器崩溃的概率较大*/
 
-    if (is_init)
+    // 如果开启QT缩放同步，则将缩放值同步到QT缩放相关的环境变量
+    if (this->get_window_scaling_factor_qt_sync())
     {
-        // 如果开启QT缩放同步，则将缩放值同步到QT缩放相关的环境变量
-        if (this->get_window_scaling_factor_qt_sync())
+        if (!XSettingsUtils::update_user_env_variable("QT_AUTO_SCREEN_SCALE_FACTOR", "0", error))
         {
-            if (!XSettingsUtils::update_user_env_variable("QT_AUTO_SCREEN_SCALE_FACTOR", "0", error))
-            {
-                KLOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
-            }
+            KLOG_WARNING("There was a problem when setting QT_AUTO_SCREEN_SCALE_FACTOR=0: %s", error.c_str());
+        }
 
-            if (!XSettingsUtils::update_user_env_variable("QT_SCALE_FACTOR", scale == 2 ? "2" : "1", error))
-            {
-                KLOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
-            }
+        /* FIXME: 由于QT_SCALE_FACTOR将会放大窗口以及pt大小字体，而缩放将会更改Xft.dpi属性，该属性也会导致qt pt字体大小放大，字体将会放大过多。
+            目前暂时解决方案：缩放两倍时固定Qt字体DPI 96，由QT_SCALE_FACTOR环境变量对窗口以及字体进行放大.
+            后续应弃用QT_SCALE_FACTOR方案
+            */
+        if (!XSettingsUtils::update_user_env_variable("QT_SCALE_FACTOR", scale == 2 ? "2" : "1", error))
+        {
+            KLOG_WARNING("There was a problem when setting QT_SCALE_FACTOR=%d: %s", scale, error.c_str());
+        }
+        else if (scale == 2 && !XSettingsUtils::update_user_env_variable("QT_FONT_DPI", "96", error))
+        {
+            KLOG_WARNING("There was a problem when setting QT_FONT_DPI=96: %s", error.c_str());
         }
     }
-    else
+
+    if (!is_init)
     {
         // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
         // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
