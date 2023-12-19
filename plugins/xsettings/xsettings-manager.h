@@ -53,6 +53,7 @@ public:
     std::string get_xft_hint_style() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_XFT_HINT_STYLE); }
     std::string get_xft_rgba() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_XFT_RGBA); }
     int32_t get_xft_dpi() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_DPI); }
+    double get_font_dpi() { return this->xsettings_settings_->get_double(XSETTINGS_SCHEMA_FONT_DPI); }
     std::string get_gtk_cursor_theme_name() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME); }
     int32_t get_gtk_cursor_theme_size() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE); }
     int32_t get_window_scaling_factor() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR); }
@@ -63,6 +64,7 @@ private:
 
     void load_from_settings();
     void settings_changed(const Glib::ustring &key, bool is_notify);
+    double get_optimize_dpi();
     void scale_settings();
     void scale_change_workarounds(int32_t scale);
     void on_screen_changed();

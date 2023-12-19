@@ -30,6 +30,8 @@ public:
                                          const std::string &value,
                                          std::string &error);
 
+    static double format_scale_dpi(int32_t scale, double dpi);
+
 private:
     static double dpi_from_pixels_and_mm(int pixels, int mm);
 };
