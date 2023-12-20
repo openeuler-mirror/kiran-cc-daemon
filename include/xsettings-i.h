@@ -41,6 +41,7 @@ extern "C"
 #define XSETTINGS_SCHEMA_XFT_HINT_STYLE "xft-hint-style"
 #define XSETTINGS_SCHEMA_XFT_RGBA "xft-rgba"
 #define XSETTINGS_SCHEMA_XFT_DPI "xft-dpi"
+#define XSETTINGS_SCHEMA_FONT_DPI "font-dpi"
 
 #define XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME "gtk-cursor-theme-name"
 #define XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE "gtk-cursor-theme-size"
