@@ -120,6 +120,7 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
     case CONNECT(XSETTINGS_SCHEMA_XFT_HINTING, _hash):
     case CONNECT(XSETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
     case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_XFT_DPI, _hash):
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
         this->update_properties();
