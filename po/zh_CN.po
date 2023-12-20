@@ -314,6 +314,11 @@ msgid ""
 "applications."
 msgstr "此设置确定MATE是否控制QT应用程序的比例因子。"
 
+#: ../data/com.kylinsec.kiran.xsettings.gschema.xml.in.h:41
+msgid ""
+"The resolution used for converting font sizes to pixel sizes, in dots per inch."
+msgstr "用于将字体大小转换为像素大小的分辨率，单位为每英寸点数。"
+
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in.h:1
 msgid "Change your own user data"
 msgstr "更改本用户数据"

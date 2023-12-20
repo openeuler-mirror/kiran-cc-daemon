@@ -142,4 +142,9 @@ double XSettingsUtils::dpi_from_pixels_and_mm(int pixels, int mm)
 
     return dpi;
 }
+
+double XSettingsUtils::format_scale_dpi(int scale, double dpi)
+{
+    return double(CLAMP(dpi * scale, DPI_LOW_REASONABLE_VALUE, DPI_HIGH_REASONABLE_VALUE));
+}
 }  // namespace  Kiran
