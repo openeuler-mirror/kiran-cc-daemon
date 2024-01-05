@@ -134,6 +134,7 @@ KeyState ShortCutHelper::get_keystate(XEvent *event)
 
         gdk_keyval_convert_case(keyval, &lower, &upper);
         key_state.key_symbol = lower;
+        consumed = (GdkModifierType)(consumed & (~GDK_SHIFT_MASK));
         KLOG_DEBUG_KEYBINDING("The keystate is %0x and consumed is %0x.", event->xkey.state, consumed);
         key_state.mods = event->xkey.state & ~consumed & GDK_MODIFIER_MASK;
         return key_state;
@@ -213,7 +214,7 @@ bool ShortCutHelper::grab_keystate_change(Glib::RefPtr<Gdk::Window> root_window,
                                           const KeyState &keystate,
                                           bool is_grab)
 {
-    KLOG_PROFILE("symbol: %0x mods: %0x", keystate.key_symbol, keystate.mods);
+    KLOG_DEBUG_KEYBINDING("Grab key symbol: %0x mods: %0x", keystate.key_symbol, keystate.mods);
 
     RETURN_VAL_IF_TRUE(keystate == NULL_KEYSTATE, true);
     RETURN_VAL_IF_FALSE(keystate != INVALID_KEYSTATE, false);
