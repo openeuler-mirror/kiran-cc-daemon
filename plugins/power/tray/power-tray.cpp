@@ -91,9 +91,9 @@ void PowerTray::update_status_icon()
     }
     else
     {
-        // this->icon_pixbuf_ = this->get_pixbuf_by_icon_name(icon_name);
-        // gtk_status_icon_set_from_pixbuf(this->status_icon_, this->icon_pixbuf_->gobj());
-        gtk_status_icon_set_from_icon_name(this->status_icon_, icon_name.c_str());
+        this->icon_pixbuf_ = this->get_pixbuf_by_icon_name(icon_name);
+        gtk_status_icon_set_from_pixbuf(this->status_icon_, this->icon_pixbuf_->gobj());
+        // gtk_status_icon_set_from_icon_name(this->status_icon_, icon_name.c_str());
         gtk_status_icon_set_visible(this->status_icon_, true);
     }
 
@@ -138,8 +138,12 @@ std::shared_ptr<PowerUPowerDevice> PowerTray::get_device_for_tray(const std::vec
 Glib::RefPtr<Gdk::Pixbuf> PowerTray::get_pixbuf_by_icon_name(const std::string& icon_name)
 {
     auto theme_name = Gtk::Settings::get_default()->property_gtk_theme_name().get_value();
-    bool was_symbolic = false;
+    bool was_symbolic = true;
     Gdk::RGBA fg_color;
+    Gdk::RGBA success_color;
+    Gdk::RGBA warning_color;
+    Gdk::RGBA error_color;
+   
 
     if (theme_name.empty())
     {
@@ -158,9 +162,15 @@ Glib::RefPtr<Gdk::Pixbuf> PowerTray::get_pixbuf_by_icon_name(const std::string& 
 
     auto style_context = Gtk::StyleContext::create();
     style_context->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+    style_context->lookup_color("theme_fg_color", fg_color);
+    style_context->lookup_color("success_color", success_color);
+    style_context->lookup_color("warning_color", warning_color);
+    style_context->lookup_color("error_color", error_color);
+
     auto scale = Gdk::Window::get_default_root_window()->get_scale_factor();
     auto icon_info = Gtk::IconTheme::get_default()->lookup_icon(icon_name, 16, scale);
-    return icon_info.load_symbolic(style_context, was_symbolic);
+
+    return icon_info.load_symbolic(fg_color, success_color, warning_color, error_color, was_symbolic);
 }
 
 std::string PowerTray::get_device_icon_name(std::shared_ptr<PowerUPowerDevice> upower_device)
