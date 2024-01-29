@@ -26,7 +26,6 @@ namespace Kiran
 #define NULL_KEYSTATE KeyState()
 #define SHORTCUT_KIND_CUSTOM "Custom"
 #define SHORTCUT_KEYCOMB_DISABLE "disabled"
-#define KEYBINDING_CONF_DIR "kylinsec/kiran/session-daemon/keybinding"
 
 struct KeyState
 {

@@ -74,10 +74,7 @@ void MediaKeysManager::init_grab_keys()
 
     for (auto &shortcut : system_shortcuts)
     {
-        if (shortcut.second->settings->property_schema_id() != MEDIAKEYS_SCHEMA_ID)
-        {
-            continue;
-        }
+        CONTINUE_IF_FALSE(this->is_media_keys_shortcut(shortcut.second))
 
         KeyState key_state = ShortCutHelper::get_keystate(shortcut.second->key_combination);
 
@@ -110,6 +107,23 @@ void MediaKeysManager::init_grab_keys()
         KLOG_DEBUG_KEYBINDING("Grab key state comb:%s, symbol:%u, mods:0x%0x.",
                               mediakeys_shortcut->key_combination.c_str(),
                               key_state.key_symbol, key_state.mods);
+    }
+}
+
+bool MediaKeysManager::is_media_keys_shortcut(std::shared_ptr<SystemShortCut> system_shortcut)
+{
+    if (!system_shortcut->settings)
+    {
+        return false;
+    }
+
+    if (system_shortcut->settings->property_schema_id() == MEDIAKEYS_SCHEMA_ID)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
@@ -184,6 +198,8 @@ GdkFilterReturn MediaKeysManager::window_event(GdkXEvent *gdk_event, GdkEvent *e
 
 void MediaKeysManager::system_shortcut_added(std::shared_ptr<SystemShortCut> system_shortcut)
 {
+    RETURN_IF_FALSE(this->is_media_keys_shortcut(system_shortcut));
+
     auto iter = this->shortcuts_.find(system_shortcut->uid);
     if (iter != this->shortcuts_.end())
     {
@@ -220,6 +236,8 @@ void MediaKeysManager::system_shortcut_added(std::shared_ptr<SystemShortCut> sys
 
 void MediaKeysManager::system_shortcut_deleted(std::shared_ptr<SystemShortCut> system_shortcut)
 {
+    RETURN_IF_FALSE(this->is_media_keys_shortcut(system_shortcut));
+
     auto iter = this->shortcuts_.find(system_shortcut->uid);
     if (iter == this->shortcuts_.end())
     {
@@ -246,6 +264,8 @@ void MediaKeysManager::system_shortcut_deleted(std::shared_ptr<SystemShortCut> s
 
 void MediaKeysManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> system_shortcut)
 {
+    RETURN_IF_FALSE(this->is_media_keys_shortcut(system_shortcut));
+
     auto iter = this->shortcuts_.find(system_shortcut->uid);
     if (iter == this->shortcuts_.end())
     {
