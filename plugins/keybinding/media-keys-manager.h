@@ -51,6 +51,8 @@ private:
 
     void init_grab_keys();
 
+    bool is_media_keys_shortcut(std::shared_ptr<SystemShortCut> system_shortcut);
+
     bool is_valid_key_event(XEvent *xev);
 
     void system_shortcut_added(std::shared_ptr<SystemShortCut> system_shortcut);
