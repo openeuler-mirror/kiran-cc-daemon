@@ -16,11 +16,13 @@
 
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
+#include "config.h"
 
 #include "plugins/keybinding/shortcut-helper.h"
 
 namespace Kiran
 {
+#define KEYBINDING_CONF_DIR "kylinsec/" PROJECT_NAME "/keybinding"
 #define CUSTOM_SHORTCUT_FILE "custom_shortcut.ini"
 #define CUSTOM_KEYFILE_NAME "name"
 #define CUSTOM_KEYFILE_ACTION "action"
@@ -298,6 +300,18 @@ void CustomShortCuts::change_and_save(std::shared_ptr<CustomShortCut> shortcut, 
 
 bool CustomShortCuts::save_to_file()
 {
+    // 文件不存在则先尝试创建对应的目录
+    if (!Glib::file_test(this->conf_file_path_, Glib::FILE_TEST_EXISTS))
+    {
+        auto dirname = Glib::path_get_dirname(this->conf_file_path_);
+        if (g_mkdir_with_parents(dirname.c_str(),
+                                 0775) != 0)
+        {
+            KLOG_WARNING("Failed to create directory %s.", dirname.c_str());
+            return false;
+        }
+    }
+
     this->keyfile_.save_to_file(this->conf_file_path_);
     return false;
 }
