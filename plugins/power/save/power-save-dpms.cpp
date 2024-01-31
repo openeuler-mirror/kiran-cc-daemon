@@ -61,11 +61,12 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
         return false;
     }
 
-    // dpms功能未开启
+    // dpms功能未开启，执行开启操作
     if (!current_enabled)
     {
-        KLOG_WARNING("DPMS not enabled");
-        return false;
+        KLOG_WARNING("DPMS default is not enabled then enable it");
+        // DPMSEnable返回值只有成功，这里不需要处理失败操作
+        DPMSEnable(this->xdisplay_);
     }
 
     auto current_level = this->get_level();
@@ -74,7 +75,11 @@ bool PowerSaveDpms::set_level(PowerDpmsLevel level)
     {
         state = this->level_enum2card(level);
 
-        if (!DPMSForceLevel(this->xdisplay_, state))
+        // 这里添加延迟，为了避免息屏后按键触发其它事件导致的亮屏
+        g_usleep(1000 * 100);
+
+        // DPMSForceLevel返回值只有为1表示成功
+        if (1 != DPMSForceLevel(this->xdisplay_, state))
         {
             KLOG_WARNING("Couldn't change DPMS mode");
             return false;
