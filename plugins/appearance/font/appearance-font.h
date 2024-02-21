@@ -29,6 +29,7 @@ public:
 
     std::string get_font(AppearanceFontType type);
     bool set_font(AppearanceFontType type, const std::string& font);
+    bool reset_font(AppearanceFontType type);
 
     // 字体变化信号
     sigc::signal<void, AppearanceFontType, const std::string&> signal_font_changed() { return this->font_changed_; };

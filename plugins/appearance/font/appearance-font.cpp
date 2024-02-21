@@ -129,6 +129,46 @@ bool AppearanceFont::set_font(AppearanceFontType type, const std::string& font)
     return true;
 }
 
+bool AppearanceFont::reset_font(AppearanceFontType type)
+{
+    switch (type)
+    {
+    case APPEARANCE_FONT_TYPE_APPLICATION:
+    {
+        RETURN_VAL_IF_FALSE(this->xsettings_settings_, false);
+        this->xsettings_settings_->reset(XSETTINGS_SCHEMA_GTK_FONT_NAME);
+        break;
+    }
+    case APPEARANCE_FONT_TYPE_DOCUMENT:
+    {
+        RETURN_VAL_IF_FALSE(this->interface_settings_, false);
+        this->interface_settings_->reset(INTERFACE_KEY_DOCUMENT_FONT_NAME);
+        break;
+    }
+    case APPEARANCE_FONT_TYPE_DESKTOP:
+    {
+        RETURN_VAL_IF_FALSE(this->caja_settings_, false);
+        this->caja_settings_->reset(CAJA_SCHEMA_KEY_FONT);
+        break;
+    }
+    case APPEARANCE_FONT_TYPE_WINDOW_TITLE:
+    {
+        RETURN_VAL_IF_FALSE(this->marco_settings_, false);
+        this->marco_settings_->reset(MARCO_SCHAME_KEY_TITLEBAR_FONT);
+        break;
+    }
+    case APPEARANCE_FONT_TYPE_MONOSPACE:
+    {
+        RETURN_VAL_IF_FALSE(this->interface_settings_, false);
+        this->interface_settings_->reset(INTERFACE_KEY_MONOSPACE_FONT_NAME);
+        break;
+    }
+    default:
+        return false;
+    }
+    return true;
+}
+
 void AppearanceFont::on_font_changed_cb(const Glib::ustring& key)
 {
     switch (shash(key.c_str()))
