@@ -113,6 +113,20 @@ void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodIn
     invocation.ret();
 }
 
+void AppearanceManager::ResetFont(gint32 type, MethodInvocation& invocation)
+{
+    if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_3);
+    }
+
+    if (!this->appearance_font_.reset_font(AppearanceFontType(type)))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_RESET_FONT_FAILED);
+    }
+    invocation.ret();
+}
+
 void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation)
 {
     if (desktop_background != this->desktop_background_get() &&

@@ -58,6 +58,13 @@
             <description>Set the font for the type.</description>
         </method>
 
+        <method name="ResetFont">
+            <arg type="i" name="type" direction="in">
+                <summary>The font type that contains application font, document font, desktop font and monospace font, etc.</summary>
+            </arg>
+            <description>Reset the font for the type.</description>
+        </method>
+
         <method name="SetDesktopBackground">
             <arg type="s" name="desktop_background" direction="in">
                 <summary>File path of desktop background.</summary>

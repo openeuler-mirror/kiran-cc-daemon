@@ -48,6 +48,8 @@ protected:
     virtual void GetFont(gint32 type, MethodInvocation& invocation);
     // 设置类型为type的字体
     virtual void SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation);
+    // 重置默认字体
+    virtual void ResetFont(gint32 type, MethodInvocation& invocation);
     // 设置桌面背景
     virtual void SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation);
     // 设置锁屏背景

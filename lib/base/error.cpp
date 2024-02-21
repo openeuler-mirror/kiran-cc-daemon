@@ -239,6 +239,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
         break;
     case CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_1:
     case CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_2:
+    case CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_3:
         error_desc = _("Invalid font type.");
         break;
     case CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_UNSUPPORTED:
@@ -402,6 +403,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED:
     case CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED:
     case CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR:
+    case CCErrorCode::ERROR_APPEARANCE_RESET_FONT_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED:
     case CCErrorCode::ERROR_SYSTEMINFO_JSON_ASSIGN_FAILED:
