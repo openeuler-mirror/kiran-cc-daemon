@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -120,10 +120,15 @@ KeyState ShortCutHelper::get_keystate(XEvent *event)
 
     auto group = XkbGroupForCoreState(event->xkey.state);
 
+    /** NOTE:
+     * 不让shift修复符参与转换，避免使用shift+其他按键经过转换导致匹配问题。
+     * 例如shift+5,若shift参与转换,keysym则会由'5'转换为'percent'
+     */
+    GdkModifierType no_shift_state = (GdkModifierType)(event->xkey.state & ~GDK_SHIFT_MASK);
     /* Check if we find a keysym that matches our current state */
     if (gdk_keymap_translate_keyboard_state(gdk_keymap_get_for_display(gdk_display_get_default()),
                                             event->xkey.keycode,
-                                            GdkModifierType(event->xkey.state),
+                                            no_shift_state,
                                             group,
                                             &keyval,
                                             NULL,
@@ -134,8 +139,11 @@ KeyState ShortCutHelper::get_keystate(XEvent *event)
 
         gdk_keyval_convert_case(keyval, &lower, &upper);
         key_state.key_symbol = lower;
+        /* 确保consumed不存在shift掩码，避免shift无法进入key_state.mods */
         consumed = (GdkModifierType)(consumed & (~GDK_SHIFT_MASK));
         KLOG_DEBUG_KEYBINDING("The keystate is %0x and consumed is %0x.", event->xkey.state, consumed);
+
+        /* 原始修饰符去掉已消耗的修饰符,存入mods,作为后续参与快捷键匹配的修饰符 */
         key_state.mods = event->xkey.state & ~consumed & GDK_MODIFIER_MASK;
         return key_state;
     }
@@ -147,6 +155,7 @@ std::vector<uint32_t> ShortCutHelper::get_keycode(uint32_t key_symbol, KeyCodeFi
     std::vector<uint32_t> result;
     GdkKeymapKey *keys;
     int32_t n_keys;
+
     if (gdk_keymap_get_entries_for_keyval(Gdk::Display::get_default()->get_keymap(),
                                           key_symbol,
                                           &keys,
@@ -161,6 +170,7 @@ std::vector<uint32_t> ShortCutHelper::get_keycode(uint32_t key_symbol, KeyCodeFi
             }
         }
     }
+
     auto iter = std::unique(result.begin(), result.end());
     result.erase(iter, result.end());
     return result;
