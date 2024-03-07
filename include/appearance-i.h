@@ -24,7 +24,7 @@ extern "C"
 #define APPEARANCE_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Appearance"
 
 // 默认浅色主题
-#define APPEARANCE_DEFAULT_LIGHT_GTK_THEME "Kiran"
+#define APPEARANCE_DEFAULT_LIGHT_GTK_THEME "Kiran-white"
 // 默认深色主题
 #define APPEARANCE_DEFAULT_DARK_GTK_THEME "Kiran-dark"
 
