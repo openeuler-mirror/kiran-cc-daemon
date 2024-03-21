@@ -111,7 +111,7 @@ void PowerEventButton::emit_button_signal(PowerEvent type)
     unsigned long elapsed_msec;
     if (this->button_signal_timer_.elapsed(elapsed_msec) < POWER_BUTTON_DUPLICATE_TIMEOUT)
     {
-        KLOG_DEBUG("ignoring duplicate button %s", type);
+        KLOG_DEBUG("ignoring duplicate button %d", type);
         return;
     }
 
