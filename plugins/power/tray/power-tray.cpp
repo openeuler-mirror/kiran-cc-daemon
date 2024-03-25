@@ -172,7 +172,6 @@ Glib::RefPtr<Gdk::Pixbuf> PowerTray::get_pixbuf_by_icon_name(const std::string& 
     Gdk::RGBA success_color;
     Gdk::RGBA warning_color;
     Gdk::RGBA error_color;
-   
 
     if (theme_name.empty())
     {
