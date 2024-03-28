@@ -78,6 +78,7 @@ void AudioDevice::GetPorts(MethodInvocation &invocation)
         values[i]["name"] = ports[i]->get_name();
         values[i]["description"] = ports[i]->get_description();
         values[i]["priority"] = ports[i]->get_priority();
+        values[i]["available"] = ports[i]->get_available();
     }
 
     auto result = writer.write(values);
@@ -151,18 +152,6 @@ void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED);
     }
 
-    // 如果设置了静音，则将音量也设置为0
-    if (mute)
-    {
-        auto volume_absolute = AudioUtils::volume_range2absolute(0,
-                                                                 this->device_->get_min_volume(),
-                                                                 this->device_->get_max_volume());
-
-        if (!this->device_->set_volume(volume_absolute))
-        {
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_VOLUME_FAILED);
-        }
-    }
     invocation.ret();
 }
 

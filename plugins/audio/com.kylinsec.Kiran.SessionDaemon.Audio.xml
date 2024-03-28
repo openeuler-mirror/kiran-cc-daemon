@@ -99,6 +99,13 @@
             <description>Get the object path of the source output by index .</description>
         </method>
 
+        <method name="GetCards">
+            <arg type="s" name="cards" direction="out">
+                <summary>A json string which describe all cards info associated with the sink or source device.</summary>
+            </arg>
+            <description>Get all cards info associated with the device.</description>
+        </method>
+
         <signal name="DefaultSinkChange">
             <arg type="u" name="index">
                 <description>If the index is equal to PA_INVALID_INDEX, then the default sink is not set.</description>
