@@ -66,6 +66,8 @@ protected:
     virtual void GetSourceOutputs(MethodInvocation &invocation);
     // 根据index获取source output，souce output一般由应用程序创建，source output会连接一个source，通过source output可以控制应用程序的输入音量
     virtual void GetSourceOutput(guint32 index, MethodInvocation &invocation);
+    // 获取所有声卡设备
+    virtual void GetCards(MethodInvocation &invacation);
 
     virtual bool state_setHandler(guint32 value) { return true; };
     virtual guint32 state_get();
