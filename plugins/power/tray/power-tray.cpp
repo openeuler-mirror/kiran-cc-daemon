@@ -15,8 +15,8 @@
 #include "plugins/power/tray/power-tray.h"
 
 #include <glib/gi18n.h>
-#include "plugins/power/wrapper/power-upower.h"
 #include "plugins/power/power-utils.h"
+#include "plugins/power/wrapper/power-upower.h"
 #include "power-i.h"
 
 namespace Kiran
@@ -110,30 +110,41 @@ void PowerTray::update_status_icon_toolstip(std::shared_ptr<PowerUPowerDevice> d
     {
     case UP_DEVICE_STATE_CHARGING:
     {
-        auto time_to_full_text = PowerUtils::get_time_translation(device_for_tray->get_props().time_to_full);
-        auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately {1} until charged"),
-                                        device_for_tray->get_props().percentage,
-                                        time_to_full_text);
-        gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+        auto time_to_full = device_for_tray->get_props().time_to_full;
+        if (time_to_full > 0)
+        {
+            auto time_to_full_text = PowerUtils::get_time_translation(time_to_full);
+            auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately {1} until charged"),
+                                            device_for_tray->get_props().percentage,
+                                            time_to_full_text);
+            gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+
+            return;
+        }
         break;
     }
     case UP_DEVICE_STATE_DISCHARGING:
     {
-        auto time_to_empty_text = PowerUtils::get_time_translation(device_for_tray->get_props().time_to_empty);
-        auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately provides {1} runtime"),
-                                        device_for_tray->get_props().percentage,
-                                        time_to_empty_text);
-        gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+        auto time_to_empty = device_for_tray->get_props().time_to_empty;
+        if (time_to_empty > 0)
+        {
+            auto time_to_empty_text = PowerUtils::get_time_translation(time_to_empty);
+            auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately provides {1} runtime"),
+                                            device_for_tray->get_props().percentage,
+                                            time_to_empty_text);
+            gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+
+            return;
+        }
         break;
     }
     case UP_DEVICE_STATE_FULLY_CHARGED:
     default:
-    {
-        auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%"), device_for_tray->get_props().percentage);
-        gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
+        break;
     }
-    break;
-    }
+
+    auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%"), device_for_tray->get_props().percentage);
+    gtk_status_icon_set_tooltip_text(this->status_icon_, tooltip_text.c_str());
 }
 
 void PowerTray::delay_update_status_icon()
