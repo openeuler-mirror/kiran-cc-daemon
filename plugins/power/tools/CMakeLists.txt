@@ -5,8 +5,11 @@ set(TARGET_NAME kiran-power-backlight-helper)
 file(GLOB_RECURSE POWER_BACKLIGHT_HELPER_H_FILES ./*.h)
 file(GLOB_RECURSE POWER_BACKLIGHT_HELPER_CPP_FILES ./*.cpp)
 
-add_executable(${TARGET_NAME} ${POWER_BACKLIGHT_HELPER_H_FILES}
-                              ${POWER_BACKLIGHT_HELPER_CPP_FILES})
+add_executable(
+  ${TARGET_NAME}
+  ${POWER_BACKLIGHT_HELPER_H_FILES} ${POWER_BACKLIGHT_HELPER_CPP_FILES}
+  ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower.cpp
+  ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower-device.cpp)
 
 target_link_libraries(${TARGET_NAME} PRIVATE lib-base)
 
