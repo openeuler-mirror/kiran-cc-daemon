@@ -43,6 +43,7 @@ const std::vector<std::string> PowerBacklightHelper::backlight_search_subdirs_ =
 PowerBacklightHelper::PowerBacklightHelper() : brightness_value_(-1)
 {
     this->backlight_dir_ = this->get_backlight_filepath();
+    this->upower_client_ = std::make_shared<PowerUPower>();
 }
 
 PowerBacklightHelper::~PowerBacklightHelper()
@@ -57,6 +58,27 @@ void PowerBacklightHelper::init()
         this->brightness_monitor_ = FileUtils::make_monitor_file(filename, sigc::mem_fun(this, &PowerBacklightHelper::on_brightness_changed), Gio::FILE_MONITOR_NONE);
         this->brightness_value_ = this->get_brightness_value();
     }
+
+    this->upower_client_->init();
+}
+bool PowerBacklightHelper::support_backlight()
+{
+    std::vector<uint32_t> device_types = {UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS};
+
+    for (auto device_type : device_types)
+    {
+        for (auto upower_device : this->upower_client_->get_devices())
+        {
+            auto& device_props = upower_device->get_props();
+            if (device_props.type == device_type &&
+                device_props.is_present)
+            {
+                return (this->brightness_value_ >= 0);
+            }
+        }
+    }
+
+    return false;
 }
 
 int32_t PowerBacklightHelper::get_brightness_value()
