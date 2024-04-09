@@ -15,6 +15,7 @@
 #pragma once
 
 #include "lib/base/base.h"
+#include "plugins/power/wrapper/power-upower.h"
 
 namespace Kiran
 {
@@ -27,7 +28,7 @@ public:
     void init();
 
     // 是否支持亮度设置
-    bool support_backlight() { return (this->brightness_value_ >= 0); };
+    bool support_backlight();
     std::string get_backlight_dir() { return this->backlight_dir_; };
 
     // 获取亮度值
@@ -55,5 +56,7 @@ private:
     int32_t brightness_value_;
     // 亮度变化信号
     sigc::signal<void, int32_t> brightness_changed_;
+
+    std::shared_ptr<PowerUPower> upower_client_;
 };
 }  // namespace Kiran
