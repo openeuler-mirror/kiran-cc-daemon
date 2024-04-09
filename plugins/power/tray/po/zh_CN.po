@@ -17,6 +17,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../power-tray.cpp:103
+#: ../power-tray.cpp:132
 msgid "Remaining electricty: {0:.1f}%"
 msgstr "剩余电量：{0:.1f}%"
+
+#: ../power-tray.cpp:114
+msgid "Remaining electricty: {0:.1f}%, approximately {1} until charged"
+msgstr "剩余电量：{0:.1f}%，离充满大约{1}"
+
+#: ../power-tray.cpp:123
+msgid "Remaining electricty: {0:.1f}%, approximately provides {1} runtime"
+msgstr "剩余电量：{0:.1f}%，大约可使用{1}"
+
+#: ../plugins/power/power-utils.cpp:26
+msgid "Less than 1 minute"
+msgstr "小于1分钟"
+
+#: ../plugins/power/power-utils.cpp:30
+msgid "{0} minute"
+msgid_plural "{0} minutes"
+msgstr[0] "{0}分钟"
+
+#: ../plugins/power/power-utils.cpp:38
+msgid "{0} hour"
+msgid_plural "{0} hours"
+msgstr[0] "{0}小时"
+
+#: ../plugins/power/power-utils.cpp:44
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "小时"
+
+#: ../plugins/power/power-utils.cpp:46
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "分钟"
