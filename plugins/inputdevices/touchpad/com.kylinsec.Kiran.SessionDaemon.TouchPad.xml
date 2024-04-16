@@ -36,6 +36,21 @@
             Click methods are usually only available on clickpads.</description>
         </property>
 
+        <property name="disable_while_typing_support" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The support of disable while typing.</description>>
+        </property>
+
+        <property name="tap_to_click_support" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The support of tap to click.</description>
+        </property>
+
+        <property name="click_method_support" type="b" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
+            <description>The support of click method.</description>
+        </property>
+
         <property name="scroll_method" type="i" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
             <description>Enables a scroll method. Permitted methods are twofinger, edge and button.</description>
