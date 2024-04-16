@@ -41,6 +41,8 @@ public:
     bool has_property(const std::string &property_name);
     // 判断设备是否为触摸板
     bool is_touchpad();
+    // 判断设备是否为psmouse
+    bool is_psmouse();
     // 设置属性值
     void set_property(const std::string &property_name, const std::vector<bool> &property_value);
     void set_property(const std::string &property_name, float property_value);

@@ -90,6 +90,11 @@ bool DeviceHelper::is_touchpad()
 {
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
+    if (this->is_psmouse())
+    {
+        return true;
+    }
+
     auto display = gdk_display_get_default();
 
     if (this->device_info_->type != XInternAtom(GDK_DISPLAY_XDISPLAY(display), XI_TOUCHPAD, True))
@@ -98,6 +103,25 @@ bool DeviceHelper::is_touchpad()
     }
 
     if (this->has_property("libinput Tapping Enabled") || this->has_property("Synaptics Off"))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool DeviceHelper::is_psmouse()
+{
+    RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
+
+    auto display = gdk_display_get_default();
+
+    if (this->device_info_->type != XInternAtom(GDK_DISPLAY_XDISPLAY(display), XI_MOUSE, True))
+    {
+        return false;
+    }
+
+    if (std::string::npos != this->get_device_name().find("PS/2"))
     {
         return true;
     }
