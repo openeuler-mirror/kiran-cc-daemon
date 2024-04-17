@@ -45,6 +45,9 @@ protected:
     virtual bool natural_scroll_setHandler(bool value);
     virtual bool touchpad_enabled_setHandler(bool value);
     virtual bool motion_acceleration_setHandler(double value);
+    virtual bool disable_while_typing_support_setHandler(bool value) { return true; };
+    virtual bool tap_to_click_support_setHandler(bool value) { return true; };
+    virtual bool click_method_support_setHandler(bool value) { return true; };
 
     // 是否存在触摸板设备
     virtual bool has_touchpad_get() { return this->has_touchpad_; };
@@ -68,6 +71,10 @@ protected:
     virtual bool touchpad_enabled_get() { return this->touchpad_enabled_; };
     // 移动加速，范围为[-1,1]
     virtual double motion_acceleration_get() { return this->motion_acceleration_; };
+
+    virtual bool disable_while_typing_support_get() { return this->disable_while_typing_support_; };
+    virtual bool tap_to_click_support_get() { return this->tap_to_click_support_; };
+    virtual bool click_method_support_get() { return this->click_method_support_; };
 
 private:
     void init();
@@ -106,5 +113,9 @@ private:
     bool natural_scroll_;
     bool touchpad_enabled_;
     double motion_acceleration_;
+
+    bool disable_while_typing_support_;
+    bool tap_to_click_support_;
+    bool click_method_support_;
 };
 }  // namespace Kiran

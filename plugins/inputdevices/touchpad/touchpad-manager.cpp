@@ -51,7 +51,10 @@ TouchPadManager::TouchPadManager() : dbus_connect_id_(0),
                                      scroll_method_(0),
                                      natural_scroll_(false),
                                      touchpad_enabled_(true),
-                                     motion_acceleration_(0)
+                                     motion_acceleration_(0),
+                                     disable_while_typing_support_(false),
+                                     tap_to_click_support_(false),
+                                     click_method_support_(false)
 {
     this->touchpad_settings_ = Gio::Settings::create(TOUCHPAD_SCHEMA_ID);
 }
@@ -123,6 +126,30 @@ void TouchPadManager::init()
         if (device_helper->is_touchpad())
         {
             this->has_touchpad_ = true;
+        }
+    });
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_DISABLE_WHILE_TYPING) &&
+            device_helper->is_touchpad())
+        {
+            this->disable_while_typing_support_ = true;
+        }
+    });
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_TAPPING_ENABLED) &&
+            device_helper->is_touchpad())
+        {
+            this->tap_to_click_support_ = true;
+        }
+    });
+
+    XInputHelper::foreach_device([this](std::shared_ptr<DeviceHelper> device_helper) {
+        if (device_helper->has_property(TOUCHPAD_PROP_CLICK_METHOD) &&
+            device_helper->is_touchpad())
+        {
+            this->click_method_support_ = true;
         }
     });
 
