@@ -19,6 +19,7 @@
 namespace Kiran
 {
 #define POWER_BUTTON_DUPLICATE_TIMEOUT 0.125f
+#define POWER_BUTTON_POWEROFF_TIMEOUT_MILLISECONDS 125
 
 PowerEventButton::PowerEventButton() : login1_inhibit_fd_(-1)
 {
@@ -39,6 +40,11 @@ PowerEventButton::~PowerEventButton()
     if (this->login1_inhibit_fd_ > 0)
     {
         close(this->login1_inhibit_fd_);
+    }
+
+    if (this->poweroff_timeout_id_)
+    {
+        this->poweroff_timeout_id_.disconnect();
     }
 }
 
@@ -106,8 +112,40 @@ bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
     return true;
 }
 
+bool PowerEventButton::on_poweroff_timeout()
+{
+    this->button_changed_.emit(POWER_EVENT_RELEASE_POWEROFF);
+    return false;
+}
+
+void PowerEventButton::add_poweroff_timeout()
+{
+    if (!this->poweroff_timeout_id_)
+    {
+        this->poweroff_timeout_id_ = Glib::signal_timeout().connect(
+            sigc::mem_fun(this, &PowerEventButton::on_poweroff_timeout),
+            POWER_BUTTON_POWEROFF_TIMEOUT_MILLISECONDS);
+    }
+}
+
+void PowerEventButton::remove_poweroff_timeout()
+{
+    if (this->poweroff_timeout_id_)
+    {
+        this->poweroff_timeout_id_.disconnect();
+    }
+}
+
 void PowerEventButton::emit_button_signal(PowerEvent type)
 {
+    // 仅电源按键事件延迟处理，避免单次点击电源按钮短时间触发多次按键事件，导致息屏又立即唤醒
+    if (type == POWER_EVENT_RELEASE_POWEROFF)
+    {
+        this->remove_poweroff_timeout();
+        this->add_poweroff_timeout();
+        return;
+    }
+
     unsigned long elapsed_msec;
     if (this->button_signal_timer_.elapsed(elapsed_msec) < POWER_BUTTON_DUPLICATE_TIMEOUT)
     {
