@@ -41,6 +41,12 @@ private:
     // 发送按键信号，如果跟上一次发送的按键信号相同且时间间隔较短，则忽略该次按键信号的发送
     void emit_button_signal(PowerEvent type);
 
+    bool on_poweroff_timeout();
+
+    void add_poweroff_timeout();
+
+    void remove_poweroff_timeout();
+
     void on_lid_is_closed_change(bool lid_is_closed);
     static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
 
@@ -58,6 +64,8 @@ private:
 
     std::map<std::string, PowerEvent> buttons_;
     Glib::Timer button_signal_timer_;
+
+    sigc::connection poweroff_timeout_id_;
 
     sigc::signal<void, PowerEvent> button_changed_;
 };
