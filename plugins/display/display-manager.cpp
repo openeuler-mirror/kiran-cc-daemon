@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -746,8 +746,7 @@ ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monit
         auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool
                                    {
                                        auto modes = monitor->get_modes_by_size(mode->width, mode->height);
-                                       return (modes.size() == 0);
-                                   });
+                                       return (modes.size() == 0); });
 
         result.erase(iter, result.end());
     }
@@ -866,6 +865,17 @@ std::string DisplayManager::get_monitors_uid()
     return StrUtils::join(result, MONITOR_JOIN_CHAR);
 }
 
+std::string DisplayManager::get_output_names()
+{
+    std::vector<std::string> result;
+    for (const auto &iter : this->monitors_)
+    {
+        result.push_back(iter.second->name_get());
+    }
+    std::sort(result.begin(), result.end(), std::less<std::string>());
+    return StrUtils::join(result, MONITOR_JOIN_CHAR);
+}
+
 std::string DisplayManager::get_c_monitors_uid(const ScreenConfigInfo::MonitorSequence &monitors)
 {
     std::vector<std::string> result;
@@ -912,13 +922,23 @@ void DisplayManager::resources_changed()
     KLOG_PROFILE("");
 
     auto old_monitors_uid = this->get_monitors_uid();
+    auto old_output_names = this->get_output_names();
     this->load_monitors();
     auto new_monitors_uid = this->get_monitors_uid();
+    auto new_output_names = this->get_output_names();
 
     auto screen_changed_adaptation = this->display_settings_->get_boolean(SCREEN_CHANGED_ADAPT);
 
-    // 如果uid不相同，说明设备硬件发生了变化，此时需要重新进行设置
-    if (screen_changed_adaptation && old_monitors_uid != new_monitors_uid)
+    KLOG_INFO("check display resource changed, the old monitor uid and output names is %s/%s, "
+              "the new monitor uid and names is %s/%s",
+              old_monitors_uid.c_str(),
+              old_output_names.c_str(),
+              new_monitors_uid.c_str(),
+              new_output_names.c_str());
+
+    /* 如果uid不相同且连接的接口不一样，说明设备硬件发生了变化，此时需要重新进行设置。这里不能只判断uid是否变化，因为有可能出现 */
+    if (screen_changed_adaptation &&
+        (old_monitors_uid != new_monitors_uid || old_output_names != new_output_names))
     {
         CCErrorCode error_code = CCErrorCode::SUCCESS;
         if (!this->switch_style_and_save(this->default_style_, error_code))
