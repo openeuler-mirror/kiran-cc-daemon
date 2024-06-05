@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -93,7 +93,17 @@ void PowerIdleControl::switch_to_normal()
 
     // 切换到键盘上一次处于正常模式下的亮度值，以确保从节能模式恢复到正常模式后亮度值也能恢复到之前的值
     this->backlight_kbd_->set_brightness(this->kbd_normal_brightness_);
-    this->backlight_monitor_->set_brightness(this->monitor_normal_brightness_);
+
+    // 缓存normal状态的亮度值应做检查，需保证不为非法值
+    // 避免从背光设备中获取的正常亮度异常，后续切回Normal亮度设置异常
+    if( this->monitor_normal_brightness_ == -1 )
+    {
+        KLOG_WARNING("idle model switch to normal ,monitor_normal_brightness is -1");
+    }
+    else
+    {
+        this->backlight_monitor_->set_brightness(this->monitor_normal_brightness_);
+    }
 }
 
 void PowerIdleControl::switch_to_dim()
@@ -199,7 +209,9 @@ void PowerIdleControl::on_kbd_brightness_changed(int32_t brightness_percentage)
 
 void PowerIdleControl::on_monitor_brightness_changed(int32_t brightness_percentage)
 {
-    if (this->idle_timer_.get_idle_mode() == PowerIdleMode::POWER_IDLE_MODE_NORMAL)
+    // Normal状态，亮度为合法值则缓存为显示器正常亮度值
+    if ( this->idle_timer_.get_idle_mode() == PowerIdleMode::POWER_IDLE_MODE_NORMAL
+         && brightness_percentage != -1)
     {
         this->monitor_normal_brightness_ = brightness_percentage;
     }
