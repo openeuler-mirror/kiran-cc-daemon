@@ -26,7 +26,7 @@ namespace Kiran
 #define CPUINFO_FILE "/proc/cpuinfo"
 #define CPUINFO_KEY_DELIMITER ':'
 #define CPUINFO_KEY_MODEL "model name"
-//龙芯cpuinfo中为大写
+// 龙芯cpuinfo中为大写
 #define CPUINFO_KEY_MODEL_LS "Model Name"
 #define CPUINFO_KEY_PROCESSOR "processor"
 
@@ -340,9 +340,9 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
         auto lines = StrUtils::split_lines(cmd_output);
         for (auto& line : lines)
         {
-            char placehold1[10];
+            char placehold1[50];
             unsigned int full_class_id;
-            if (sscanf(line.c_str(), "%9s %x:", placehold1, &full_class_id) == 2)
+            if (sscanf(line.c_str(), "%49s %x:", placehold1, &full_class_id) == 2)
             {
                 if ((full_class_id >> 8) == major_class_id)
                 {
