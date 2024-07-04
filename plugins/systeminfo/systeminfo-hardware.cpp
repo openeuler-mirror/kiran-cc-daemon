@@ -26,7 +26,7 @@ namespace Kiran
 #define CPUINFO_FILE "/proc/cpuinfo"
 #define CPUINFO_KEY_DELIMITER ':'
 #define CPUINFO_KEY_MODEL "model name"
-//龙芯cpuinfo中为大写
+// 龙芯cpuinfo中为大写
 #define CPUINFO_KEY_MODEL_LS "Model Name"
 #define CPUINFO_KEY_PROCESSOR "processor"
 
@@ -158,7 +158,7 @@ CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
     auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
 
     cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
-    //适配龙芯架构
+    // 适配龙芯架构
     if (cpu_info.model.empty())
     {
         cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
@@ -358,6 +358,10 @@ KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_clas
 
     // 如果为空则不执行下面的命令，否则会取到所有的PCI设备(没有了-d选项的限制)
     RETURN_VAL_IF_TRUE(full_class_ids.size() == 0, KVList());
+
+    // 对full_class_ids去重
+    std::sort(full_class_ids.begin(), full_class_ids.end());
+    full_class_ids.erase(std::unique(full_class_ids.begin(), full_class_ids.end()), full_class_ids.end());
 
     // 根据full_class_id列表获取设备相关信息
     std::string full_outputs;
