@@ -48,6 +48,6 @@ public:
 
 private:
     bool read_kernel_info(SoftwareInfo &software_info);
-    bool read_product_info(SoftwareInfo &software_info);
+    void read_product_info(SoftwareInfo &software_info);
 };
 }  // namespace Kiran
