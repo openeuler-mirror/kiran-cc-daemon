@@ -207,9 +207,9 @@ void MediaKeysAction::do_touchpad_osd(bool state)
 
 void MediaKeysAction::do_shutdown()
 {
+    std::string cmdline = "kiran-session-quit --power-off";
     try
     {
-        std::string cmdline = "kiran-session-quit --power-off";
         Glib::spawn_command_line_async(cmdline);
     }
     catch (const Glib::Error &e)
@@ -220,9 +220,9 @@ void MediaKeysAction::do_shutdown()
 
 void MediaKeysAction::do_logout()
 {
+    std::string cmdline = "kiran-session-quit --logout";
     try
     {
-        std::string cmdline = "kiran-session-quit --logout";
         Glib::spawn_command_line_async(cmdline);
     }
     catch (const Glib::Error &e)

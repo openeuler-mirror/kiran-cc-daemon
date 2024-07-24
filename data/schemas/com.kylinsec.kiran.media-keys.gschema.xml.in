@@ -57,7 +57,7 @@
       <description>Binding to mute/unmute the microphone.</description>
     </key>
     <key name="power" type="s">
-      <default>''</default>
+      <default>'&lt;Control&gt;&lt;Alt&gt;Delete'</default>
       <summary>Shut down</summary>
       <description>Binding to shut down.</description>
     </key>
