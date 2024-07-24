@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     meizhigang <meizhigang@kylinsec.com.cn>
  */
 #include "plugins/keybinding/media-keys/media-keys-action.h"
@@ -41,6 +41,16 @@ namespace Kiran
 #define IMAGE_TOUCHPAD_DISABLED "osd-touchpad-disabled"
 #define IMAGE_MEDIA_EJECT "osd-media-eject"
 
+static bool programExists(const std::string &programName)
+{
+    std::string command = "which " + programName;
+    int ret = std::system(command.c_str());
+
+    // If the command was found, std::system returns the exit status of the command.
+    // In this case, 'which' returns 0 if the program exists, non-zero otherwise.
+    return ret == 0;
+}
+
 MediaKeysAction::MediaKeysAction() : has_touchpad_(false)
 {
     this->audio_ = std::make_shared<MediaKeysAudio>();
@@ -68,8 +78,7 @@ void MediaKeysAction::init_touchpad()
                                      if (device_helper->is_touchpad())
                                      {
                                          this->has_touchpad_ = true;
-                                     }
-                                 });
+                                     } });
 }
 
 bool MediaKeysAction::do_action(XEvent *xev, std::string name)
@@ -208,10 +217,9 @@ void MediaKeysAction::do_touchpad_osd(bool state)
 
 void MediaKeysAction::do_shutdown()
 {
-    std::string cmdline = std::string("mate-session-save --shutdown-dialog");
-
     try
     {
+        std::string cmdline = "kiran-session-quit --power-off";
         Glib::spawn_command_line_async(cmdline);
     }
     catch (const Glib::Error &e)
@@ -222,10 +230,9 @@ void MediaKeysAction::do_shutdown()
 
 void MediaKeysAction::do_logout()
 {
-    std::string cmdline = std::string("mate-session-save --logout-dialog");
-
     try
     {
+        std::string cmdline = "kiran-session-quit --logout";
         Glib::spawn_command_line_async(cmdline);
     }
     catch (const Glib::Error &e)
