@@ -371,7 +371,10 @@ bool AppearanceBackground::set_surface_as_root(Glib::RefPtr<Gdk::Screen> screen,
     XClearWindow(xdisplay, xroot);
 
     XFlush(xdisplay);
+
     XUngrabServer(xdisplay);
+    //立即同步UnGrab请求支XServer
+    XFlush(xdisplay);
 
     return true;
 }
