@@ -19,6 +19,7 @@
 #include <gudev/gudev.h>
 #include <cinttypes>
 #include <fstream>
+#include <regex>
 
 namespace Kiran
 {
@@ -233,13 +234,13 @@ std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std
 
 DiskInfoVec SystemInfoHardware::get_disks_info()
 {
-    //  老版本lsblk不支持-J选项，所以这里不使用json格式
+    // 老版本lsblk不支持-J选项，所以这里不使用json格式
     DiskInfoVec disks_info;
+    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
 
     std::string cmd_output;
     try
     {
-        std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
         Glib::spawn_sync("",
                          argv,
                          Glib::SPAWN_DEFAULT,
@@ -256,29 +257,51 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
 
     for (auto& line : lines)
     {
-        char name[BUFSIZ] = {0};
-        char type[BUFSIZ] = {0};
-        int64_t size = 0;
-        char model[BUFSIZ] = {0};
-        char vendor[BUFSIZ] = {0};
-
-        std::string formatstr = "NAME=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\" TYPE=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\" SIZE=\"%" + PRId64 +
-                                "\" MODEL=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\" VENDOR=\"%" + std::to_string(BUFSIZ - 1) + "[^\"]\"";
-
-        // model和vendor只要有一个不为空则认为合法，所以只要能读到4个变量即可
-        //"NAME=\"%[^\"]\" TYPE=\"%[^\"]\" SIZE=\"%" PRId64 "\" MODEL=\"%[^\"]\" VENDOR=\"%[^\"]\""
-        if (sscanf(line.c_str(), formatstr.c_str(),
-                   name, type, &size, model, vendor) >= 4)
+        std::regex pattern(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")");
+        std::smatch matches;
+        if (std::regex_search(line, matches, pattern))
         {
-            if (std::string(type) == "disk")
+            if (matches[2].str() != "disk")
             {
-                DiskInfo disk_info;
-                disk_info.name = name;
-                disk_info.size = size;
-                disk_info.model = StrUtils::trim(model);
-                disk_info.vendor = StrUtils::trim(vendor);
-                disks_info.push_back(disk_info);
+                continue;
             }
+
+            int matched_count = 0;
+            for (size_t i = 1; i < matches.size(); ++i)
+            {
+                if (matches[i].str().size() > 0)
+                {
+                    matched_count++;
+                }
+            }
+            // model和vendor只要有一个不为空则认为合法，所以只要能读到4个变量即可
+            if (matched_count < 4)
+            {
+                continue;
+            }
+            DiskInfo disk_info;
+            if (matches[1].str().size() > 0)
+            {
+                disk_info.name = matches[1].str();
+            }
+            if (matches[3].str().size() > 0)
+            {
+                disk_info.size = std::stoll(matches[3].str());
+            }
+            if (matches[4].str().size() > 0)
+            {
+                disk_info.model = matches[4].str();
+            }
+            else
+            {
+                disk_info.model = disk_info.name;
+            }
+            if (matches[5].str().size() > 0)
+            {
+                disk_info.vendor = matches[5].str();
+            }
+
+            disks_info.push_back(disk_info);
         }
     }
 
