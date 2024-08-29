@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -405,7 +405,7 @@ void TimedateManager::init_ntp_units()
     this->ntp_unit_name_.clear();
     for (auto &ntp_unit : ntp_units)
     {
-        if (ntp_unit == ntp_units.back())
+        if (ntp_unit == ntp_units.front())
         {
             this->ntp_unit_name_ = ntp_unit;
             continue;
@@ -441,15 +441,25 @@ std::vector<std::string> TimedateManager::get_ntp_units()
 
     for (auto iter = this->ntp_units_paths_.begin(); iter != this->ntp_units_paths_.end(); ++iter)
     {
-        auto &unit_dir = *iter;
         try
         {
+            auto &unit_dir = *iter;
             Glib::Dir dir(unit_dir);
+            std::vector<std::string> paths;
 
             for (auto dir_iter = dir.begin(); dir_iter != dir.end(); ++dir_iter)
             {
                 auto entry = *dir_iter;
                 auto path = fmt::format("{0}/{1}", unit_dir, entry);
+                paths.push_back(path);
+            }
+
+            // 排序确定加载优先级，字母序越大的优先使用
+            std::sort(paths.begin(), paths.end(), std::greater<std::string>());
+
+            for (auto iter = paths.begin(); iter != paths.end(); ++iter)
+            {
+                auto path = *iter;
                 std::string contents;
 
                 try
@@ -479,8 +489,15 @@ std::vector<std::string> TimedateManager::get_ntp_units()
                         continue;
                     }
 
-                    KLOG_DEBUG("Insert ntp unit: %s %s.", line.c_str(), entry.c_str());
-                    ntp_units.push_back(line);
+                    if (std::find(ntp_units.begin(), ntp_units.end(), line) == ntp_units.end())
+                    {
+                        KLOG_DEBUG("Insert ntp unit: %s %s.", line.c_str(), path.c_str());
+                        ntp_units.push_back(line);
+                    }
+                    else
+                    {
+                        KLOG_DEBUG("Ignore duplication ntp unit: %s %s.", line.c_str(), path.c_str());
+                    }
                 }
             }
         }
@@ -490,9 +507,6 @@ std::vector<std::string> TimedateManager::get_ntp_units()
         }
     }
 
-    // Remove duplicates.
-    auto iter = std::unique(ntp_units.begin(), ntp_units.end());
-    ntp_units.erase(iter, ntp_units.end());
     return ntp_units;
 }
 
@@ -909,7 +923,7 @@ bool TimedateManager::check_timezone_name(const std::string &name)
     }
 
     /* Check if the correspoding file exists in the zoneinfo directory, it
-	   doesn't have to be listed in zone.tab */
+           doesn't have to be listed in zone.tab */
     auto link = fmt::format("{0}{1}", ZONEINFO_PATH, name);
     struct stat st;
     if (stat(link.c_str(), &st) || !(st.st_mode & S_IFREG))
