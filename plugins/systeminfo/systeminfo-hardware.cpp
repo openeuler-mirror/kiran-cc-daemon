@@ -14,9 +14,9 @@
 
 #include "plugins/systeminfo/systeminfo-hardware.h"
 
+#include <glib.h>
 #include <cinttypes>
 #include <fstream>
-#include <regex>
 
 namespace Kiran
 {
@@ -198,56 +198,43 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
     }
 
     auto lines = StrUtils::split_lines(cmd_output);
+    GRegex* pattern = g_regex_new(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")", G_REGEX_MULTILINE, (GRegexMatchFlags)0, NULL);
 
     for (auto& line : lines)
     {
-        std::regex pattern(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")");
-        std::smatch matches;
-        if (std::regex_search(line, matches, pattern))
+        GMatchInfo* match_info;
+        if (g_regex_match(pattern, line.c_str(), (GRegexMatchFlags)0, &match_info))
         {
-            if (matches[2].str() != "disk")
+            const gchar* name = g_match_info_fetch(match_info, 1);
+            const gchar* type = g_match_info_fetch(match_info, 2);
+            const gchar* size = g_match_info_fetch(match_info, 3);
+            const gchar* model = g_match_info_fetch(match_info, 4);
+            const gchar* vendor = g_match_info_fetch(match_info, 5);
+
+            if (strcmp(type, "disk") == 0 &&
+                (name && strlen(name) > 0) &&
+                (size && strlen(size) > 0) &&
+                ((model && strlen(model) > 0) || (vendor && strlen(vendor) > 0)))
             {
-                continue;
+                DiskInfo disk_info;
+                disk_info.name = name;
+                disk_info.size = atoll(size);
+                disk_info.model = (strlen(model) ? model : name);
+                disk_info.vendor = (strlen(vendor) ? vendor : name);
+                disks_info.push_back(disk_info);
             }
 
-            int matched_count = 0;
-            for (size_t i = 1; i < matches.size(); ++i)
-            {
-                if (matches[i].str().size() > 0)
-                {
-                    matched_count++;
-                }
-            }
-            // model和vendor只要有一个不为空则认为合法，所以只要能读到4个变量即可
-            if (matched_count < 4)
-            {
-                continue;
-            }
-            DiskInfo disk_info;
-            if (matches[1].str().size() > 0)
-            {
-                disk_info.name = matches[1].str();
-            }
-            if (matches[3].str().size() > 0)
-            {
-                disk_info.size = std::stoll(matches[3].str());
-            }
-            if (matches[4].str().size() > 0)
-            {
-                disk_info.model = matches[4].str();
-            }
-            else
-            {
-                disk_info.model = disk_info.name;
-            }
-            if (matches[5].str().size() > 0)
-            {
-                disk_info.vendor = matches[5].str();
-            }
+            if (name) g_free((gchar*)name);
+            if (type) g_free((gchar*)type);
+            if (size) g_free((gchar*)size);
+            if (model) g_free((gchar*)model);
+            if (vendor) g_free((gchar*)vendor);
 
-            disks_info.push_back(disk_info);
+            g_match_info_free(match_info);
         }
     }
+
+    g_regex_unref(pattern);
 
     return disks_info;
 }
