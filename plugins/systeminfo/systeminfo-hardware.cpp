@@ -15,7 +15,7 @@
 #include "plugins/systeminfo/systeminfo-hardware.h"
 
 #include <gio/gunixinputstream.h>
-#include <glib.h>
+#include <glibmm/regex.h>
 #include <glibtop/mem.h>
 #include <gudev/gudev.h>
 #include <cinttypes>
@@ -253,44 +253,33 @@ DiskInfoVec SystemInfoHardware::get_disks_info()
         return disks_info;
     }
 
-    auto lines = StrUtils::split_lines(cmd_output);
-    GRegex* pattern = g_regex_new(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")", G_REGEX_MULTILINE, (GRegexMatchFlags)0, NULL);
-
-    for (auto& line : lines)
+    auto lines = Glib::Regex::split_simple("\n", cmd_output);
+    Glib::RefPtr<Glib::Regex> regex = Glib::Regex::create(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")");
+    for (const auto& line : lines)
     {
-        GMatchInfo* match_info;
-        if (g_regex_match(pattern, line.c_str(), (GRegexMatchFlags)0, &match_info))
+        Glib::MatchInfo match_info;
+        if (regex->match(line, match_info))
         {
-            const gchar* name = g_match_info_fetch(match_info, 1);
-            const gchar* type = g_match_info_fetch(match_info, 2);
-            const gchar* size = g_match_info_fetch(match_info, 3);
-            const gchar* model = g_match_info_fetch(match_info, 4);
-            const gchar* vendor = g_match_info_fetch(match_info, 5);
+            std::string name = match_info.fetch(1);
+            std::string type = match_info.fetch(2);
+            std::string size = match_info.fetch(3);
+            std::string model = match_info.fetch(4);
+            std::string vendor = match_info.fetch(5);
 
-            if (strcmp(type, "disk") == 0 &&
-                (name && strlen(name) > 0) &&
-                (size && strlen(size) > 0) &&
-                ((model && strlen(model) > 0) || (vendor && strlen(vendor) > 0)))
+            if (type == "disk" &&
+                !name.empty() &&
+                !size.empty() &&
+                (!model.empty() || !vendor.empty()))
             {
                 DiskInfo disk_info;
                 disk_info.name = name;
-                disk_info.size = atoll(size);
-                disk_info.model = (strlen(model) ? model : name);
-                disk_info.vendor = (strlen(vendor) ? vendor : name);
+                disk_info.size = atoll(size.c_str());
+                disk_info.model = !model.empty() ? model : name;
+                disk_info.vendor = !vendor.empty() ? vendor : name;
                 disks_info.push_back(disk_info);
             }
-
-            if (name) g_free((gchar*)name);
-            if (type) g_free((gchar*)type);
-            if (size) g_free((gchar*)size);
-            if (model) g_free((gchar*)model);
-            if (vendor) g_free((gchar*)vendor);
-
-            g_match_info_free(match_info);
         }
     }
-
-    g_regex_unref(pattern);
 
     return disks_info;
 }
