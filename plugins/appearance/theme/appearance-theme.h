@@ -74,6 +74,7 @@ private:
     void on_xsettings_settings_changed(const Glib::ustring& key);
     void on_monitor_event_changed(std::shared_ptr<ThemeMonitorInfo> monitor_info, ThemeMonitorEventType event_type);
 
+    void try_sync_gnome_color_schema();
 private:
     static AppearanceTheme* instance_;
 
@@ -89,5 +90,6 @@ private:
     Glib::RefPtr<Gio::Settings> xsettings_settings_;
     Glib::RefPtr<Gio::Settings> marco_settings_;
     Glib::RefPtr<Gio::Settings> mouse_settings_;
+    Glib::RefPtr<Gio::Settings> gnome_desktop_settigns_;
 };
 }  // namespace Kiran
