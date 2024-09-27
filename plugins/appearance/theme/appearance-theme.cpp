@@ -24,6 +24,16 @@
 #define MOUSE_SCHEMA_KEY_CURSOR_THEME "cursor-theme"
 #define MOUSE_SCHEMA_KEY_CURSOR_SIZE "cursor-size"
 
+#define GNOME_DESKTOP_SCHEMA_ID "org.gnome.desktop.interface"
+#define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "color-scheme"
+enum GnomeDesktopColorScheme
+{
+    GNOME_COLOR_SCHEME_DEFAULT,
+    GNOME_COLOR_SCHEME_PREFER_DARK,
+    GNOME_COLOR_SCHEME_PREFER_LIGHT,
+    GNOME_COLOR_SCHEME_LAST
+};
+
 namespace Kiran
 {
 AppearanceTheme::AppearanceTheme()
@@ -40,6 +50,11 @@ AppearanceTheme::AppearanceTheme()
     {
         this->mouse_settings_ = Gio::Settings::create(MOUSE_SCHEMA_ID);
     }
+
+    if (std::find(schemas.begin(), schemas.end(), GNOME_DESKTOP_SCHEMA_ID) != schemas.end())
+    {
+        this->gnome_desktop_settigns_ = Gio::Settings::create(GNOME_DESKTOP_SCHEMA_ID);
+    }
 }
 
 void AppearanceTheme::init()
@@ -55,10 +70,12 @@ void AppearanceTheme::init()
             // KLOG_DEBUG("path: %s type: %d", theme->path.c_str(), theme->type);
             this->add_theme(theme);
         }
-    }
+    } 
 
     this->xsettings_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceTheme::on_xsettings_settings_changed));
     this->theme_monitor_.signal_monitor_event().connect(sigc::mem_fun(this, &AppearanceTheme::on_monitor_event_changed));
+
+    this->try_sync_gnome_color_schema();
 }
 
 ThemeInfoVec AppearanceTheme::get_themes_by_type(AppearanceThemeType type)
@@ -112,6 +129,7 @@ bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
         this->set_gtk_theme(theme->name);
+        this->try_sync_gnome_color_schema();
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
         this->set_metacity_theme(theme->name);
@@ -293,4 +311,25 @@ void AppearanceTheme::on_monitor_event_changed(std::shared_ptr<ThemeMonitorInfo>
         this->themes_changed_.emit(key, ThemeEventType::THEME_EVENT_TYPE_CHG);
     }
 }
+
+void AppearanceTheme::try_sync_gnome_color_schema()
+{
+    if (!this->gnome_desktop_settigns_)
+    {
+        return;
+    }
+
+    auto theme_name = this->get_theme(APPEARANCE_THEME_TYPE_GTK);
+    if (theme_name == APPEARANCE_DEFAULT_DARK_GTK_THEME)
+    {
+        this->gnome_desktop_settigns_->set_enum(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA,
+                                                GNOME_COLOR_SCHEME_PREFER_DARK);
+    }
+    else
+    {
+        this->gnome_desktop_settigns_->set_enum(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA,
+                                                GNOME_COLOR_SCHEME_PREFER_LIGHT);
+    }
+}
+
 }  // namespace Kiran
