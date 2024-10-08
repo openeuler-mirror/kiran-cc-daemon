@@ -53,7 +53,13 @@ AppearanceTheme::AppearanceTheme()
 
     if (std::find(schemas.begin(), schemas.end(), GNOME_DESKTOP_SCHEMA_ID) != schemas.end())
     {
-        this->gnome_desktop_settigns_ = Gio::Settings::create(GNOME_DESKTOP_SCHEMA_ID);
+        auto temp_settings = Gio::Settings::create(GNOME_DESKTOP_SCHEMA_ID);
+        auto keys = temp_settings->list_keys();
+        if ( std::find(keys.begin(), keys.end(), GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA) != keys.end() )
+        {
+            // 确保 org.gnome.desktop.interface color-scheme 完全存在才使用
+            this->gnome_desktop_settigns_ = temp_settings;
+        }
     }
 }
 
