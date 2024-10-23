@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -289,20 +289,19 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
         break;
     case PASSWD_STATE_RETYPE:
         if (StrUtils::contains_oneof_substrs(lowercase_passwd_tips, std::vector<std::string>{
-                                                                        "successfully",
-                                                                        "failure",
-                                                                    }))
+                                                                        "successfully"}))
         {
-            if (lowercase_passwd_tips.find("successfully") != std::string::npos)
-            {
-                // 密码设置成功
-                this->end_passwd(true);
-            }
-            else
-            {
-                this->additional_error_message_ = this->translation_passwd_tips(line);
-                this->state_ = PASSWD_STATE_ERROR;
-            }
+            // 密码设置成功
+            this->end_passwd(true);
+            retval = true;
+        }
+        else if (StrUtils::contains_oneof_substrs(lowercase_passwd_tips,
+                                                  std::vector<std::string>{"failure"}) ||
+                 StrUtils::contains_allof_substrs(lowercase_passwd_tips, 
+                                                 std::vector<std::string>{"password", "already", "used"}))
+        {
+            this->additional_error_message_ = this->translation_passwd_tips(line);
+            this->state_ = PASSWD_STATE_ERROR;
             retval = true;
         }
         break;
