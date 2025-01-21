@@ -240,7 +240,8 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
             retval = true;
         }
         // 填写当前密码，root用户下不会出现这一步
-        else if (StrUtils::endswith(lowercase_passwd_tips, "current password: "))
+        else if (StrUtils::endswith(lowercase_passwd_tips, "current password: ") ||
+                 StrUtils::endswith(lowercase_passwd_tips, "(current) unix password: "))
         {
             this->state_ = PASSWD_STATE_AUTH;
             this->in_io_channel_->write(this->current_password_ + "\n");
@@ -297,8 +298,8 @@ bool PasswdWrapper::process_passwd_output_line(const std::string &line)
         }
         else if (StrUtils::contains_oneof_substrs(lowercase_passwd_tips,
                                                   std::vector<std::string>{"failure"}) ||
-                 StrUtils::contains_allof_substrs(lowercase_passwd_tips, 
-                                                 std::vector<std::string>{"password", "already", "used"}))
+                 StrUtils::contains_allof_substrs(lowercase_passwd_tips,
+                                                  std::vector<std::string>{"password", "already", "used"}))
         {
             this->additional_error_message_ = this->translation_passwd_tips(line);
             this->state_ = PASSWD_STATE_ERROR;
