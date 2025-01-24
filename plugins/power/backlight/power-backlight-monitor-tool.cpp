@@ -1,84 +1,83 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-monitor-tool.h"
-
+#include "power-backlight-monitor-tool.h"
+#include <QProcess>
 #include "config.h"
 
 namespace Kiran
 {
-#define POWER_BACKLIGHT_HELPER KCC_INSTALL_BINDIR "/kiran-power-backlight-helper"
+#define POWER_BACKLIGHT_HELPER KCD_INSTALL_BINDIR "/kiran-power-backlight-helper"
 PowerBacklightMonitorTool::PowerBacklightMonitorTool()
 {
 }
 
-bool PowerBacklightMonitorTool::set_brightness_value(int32_t brightness_value)
+bool PowerBacklightMonitorTool::setBrightnessValue(int32_t brightness_value)
 {
-    try
+    QProcess process;
+    QStringList arguments{POWER_BACKLIGHT_HELPER, "--set-brightness-value", QString::number(brightness_value)};
+    process.start("pkexec", arguments);
+    process.waitForFinished();
+
+    if (process.exitCode() != 0)
     {
-        int32_t exit_status = 0;
-        auto cmdline = fmt::format("pkexec {0} --set-brightness-value {1}", POWER_BACKLIGHT_HELPER, brightness_value);
-        Glib::spawn_command_line_sync(cmdline, nullptr, nullptr, &exit_status);
-        KLOG_INFO_POWER("Run command: %s, exit code: %d.", cmdline.c_str(), exit_status);
-        RETURN_VAL_IF_TRUE(exit_status != 0, false);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
+        auto command = QString("pkexec %1").arg(arguments.join(' '));
+        KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
         return false;
     }
     return true;
 }
 
-int32_t PowerBacklightMonitorTool::get_brightness_value()
+int32_t PowerBacklightMonitorTool::getBrightnessValue()
 {
-    try
+    QProcess process;
+    process.start(POWER_BACKLIGHT_HELPER, QStringList{"--get-brightness-value"});
+    process.waitForFinished();
+
+    if (process.exitCode() != 0)
     {
-        std::string standard_output;
-        int32_t exit_status = 0;
-        auto cmdline = fmt::format("{0} --get-brightness-value", POWER_BACKLIGHT_HELPER);
-        Glib::spawn_command_line_sync(cmdline, &standard_output, nullptr, &exit_status);
-        KLOG_INFO_POWER("Run command: %s, exit code: %d.", cmdline.c_str(), exit_status);
-        RETURN_VAL_IF_TRUE(exit_status != 0, -1);
-        return std::strtol(standard_output.c_str(), nullptr, 0);
+        auto command = QString("%1 --get-brightness-value").arg(POWER_BACKLIGHT_HELPER);
+        KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
+        return -1;
     }
-    catch (const Glib::Error &e)
+    else
     {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
+        auto output = process.readAllStandardOutput();
+        return output.toInt();
     }
-    return -1;
 }
 
-bool PowerBacklightMonitorTool::get_brightness_range(int32_t &min, int32_t &max)
+bool PowerBacklightMonitorTool::getBrightnessRange(int32_t &min, int32_t &max)
 {
     min = 0;
     max = 0;
-    try
+
+    QProcess process;
+    process.start(POWER_BACKLIGHT_HELPER, QStringList{"--get-max-brightness-value"});
+    process.waitForFinished();
+
+    if (process.exitCode() != 0)
     {
-        std::string standard_output;
-        int32_t exit_status = 0;
-        auto cmdline = fmt::format("{0} --get-max-brightness-value", POWER_BACKLIGHT_HELPER);
-        Glib::spawn_command_line_sync(cmdline, &standard_output, nullptr, &exit_status);
-        KLOG_INFO_POWER("Run command: %s, exit code: %d.", cmdline.c_str(), exit_status);
-        RETURN_VAL_IF_TRUE(exit_status != 0, false);
-        max = std::strtol(standard_output.c_str(), nullptr, 0);
-        KLOG_INFO_POWER("the birghtness range is %d to %d.", min, max);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
+        auto command = QString("%1 --get-max-brightness-value").arg(POWER_BACKLIGHT_HELPER);
+        KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
         return false;
+    }
+    else
+    {
+        auto output = process.readAllStandardOutput();
+        max = output.toInt();
+        KLOG_INFO(power) << "The birghtness range is" << min << "to" << max;
     }
 
     return true;

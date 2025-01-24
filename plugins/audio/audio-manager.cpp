@@ -1,479 +1,520 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/audio-manager.h"
+#include "audio-manager.h"
+#include <QDBusConnection>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include "audio-device.h"
 #include "audio-i.h"
-#include "plugins/audio/audio-device.h"
-#include "plugins/audio/audio-stream.h"
+#include "audio-stream.h"
+#include "audioadaptor.h"
+#include "lib/base/base.h"
+#include "pulse/pulse-backend.h"
+#include "pulse/pulse-card.h"
+#include "pulse/pulse-sink-input.h"
+#include "pulse/pulse-sink.h"
+#include "pulse/pulse-source-output.h"
+#include "pulse/pulse-source.h"
 
 namespace Kiran
 {
-AudioManager::AudioManager(PulseBackend *backend) : backend_(backend),
-                                                    dbus_connect_id_(0),
-                                                    object_register_id_(0)
+AudioManager::AudioManager(PulseBackend *backend) : m_backend(backend)
 {
+    m_adaptor = new AudioAdaptor(this);
 }
 
 AudioManager::~AudioManager()
 {
-    if (this->dbus_connect_id_)
-    {
-        Gio::DBus::unown_name(this->dbus_connect_id_);
-    }
 }
 
-AudioManager *AudioManager::instance_ = nullptr;
-void AudioManager::global_init(PulseBackend *backend)
+AudioManager *AudioManager::m_instance = nullptr;
+void AudioManager::globalInit(PulseBackend *backend)
 {
-    instance_ = new AudioManager(backend);
-    instance_->init();
+    m_instance = new AudioManager(backend);
+    m_instance->init();
 }
 
 void AudioManager::init()
 {
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                 AUDIO_DBUS_NAME,
-                                                 sigc::mem_fun(this, &AudioManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &AudioManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &AudioManager::on_name_lost));
+    connect(m_backend, &PulseBackend::stateChanged, this, &AudioManager::processStateChanged);
+    connect(m_backend, &PulseBackend::defaultSinkChanged, this, &AudioManager::processDefaultSinkChanged);
+    connect(m_backend, &PulseBackend::defaultSourceChanged, this, &AudioManager::processDefaultSourceChanged);
+    connect(m_backend, &PulseBackend::sinkEvent, this, &AudioManager::processSinkEvent);
+    connect(m_backend, &PulseBackend::sinkInputEvent, this, &AudioManager::processSinkInputEvent);
+    connect(m_backend, &PulseBackend::sourceEvent, this, &AudioManager::processSourceEvent);
+    connect(m_backend, &PulseBackend::sourceOutputEvent, this, &AudioManager::processSourceOutputEvent);
 
-    this->backend_->signal_state_changed().connect(sigc::mem_fun(this, &AudioManager::on_state_changed_cb));
-    this->backend_->signal_default_sink_changed().connect(sigc::mem_fun(this, &AudioManager::on_default_sink_changed_cb));
-    this->backend_->signal_default_source_changed().connect(sigc::mem_fun(this, &AudioManager::on_default_source_changed_cb));
+    auto sessionConnection = QDBusConnection::sessionBus();
+    if (!sessionConnection.registerService(AUDIO_DBUS_NAME))
+    {
+        KLOG_WARNING(audio) << "Failed to register dbus name: " << AUDIO_DBUS_NAME;
+        return;
+    }
 
-    this->backend_->signal_sink_event().connect(sigc::mem_fun(this, &AudioManager::on_sink_event_cb));
-    this->backend_->signal_sink_input_event().connect(sigc::mem_fun(this, &AudioManager::on_sink_input_event_cb));
-    this->backend_->signal_source_event().connect(sigc::mem_fun(this, &AudioManager::on_source_event_cb));
-    this->backend_->signal_source_output_event().connect(sigc::mem_fun(this, &AudioManager::on_source_output_event_cb));
+    if (!sessionConnection.registerObject(AUDIO_OBJECT_PATH, AUDIO_DBUS_INTERFACE_NAME, this))
+    {
+        KLOG_ERROR(audio) << "Can't register object:" << sessionConnection.lastError();
+        return;
+    }
 }
 
-void AudioManager::GetDefaultSink(MethodInvocation &invocation)
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                          \
+    QVariantMap changedProperties;                                            \
+    changedProperties.insert(QStringLiteral(#property), get##propertyHump()); \
+                                                                              \
+    QDBusMessage signalMessage = QDBusMessage::createSignal(                  \
+        AUDIO_OBJECT_PATH,                                                    \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                    \
+        QStringLiteral("PropertiesChanged"));                                 \
+                                                                              \
+    signalMessage.setArguments({                                              \
+        AUDIO_DBUS_INTERFACE_NAME,                                            \
+        changedProperties,                                                    \
+        QStringList(),                                                        \
+    });                                                                       \
+    QDBusConnection::sessionBus().send(signalMessage);
+
+uint AudioManager::getState() const
 {
-    auto pulse_sink = this->backend_->get_default_sink();
-    if (!pulse_sink)
+    return m_backend->getState();
+}
+
+QString AudioManager::GetCards()
+{
+    QJsonArray jsonCards;
+
+    for (auto card : m_backend->getCards())
     {
-        KLOG_WARNING_AUDIO("The default sink is not set.");
-        invocation.ret(Glib::ustring());
-        return;
+        QJsonObject jsonCard;
+        jsonCard["index"] = int(card->getIndex());
+        jsonCard["name"] = card->getName();
+        jsonCards.append(jsonCard);
+    }
+    return QString(QJsonDocument(jsonCards).toJson(QJsonDocument::Compact));
+}
+
+QString AudioManager::GetDefaultSink()
+{
+    auto pulseSink = m_backend->getDefaultSink();
+    if (!pulseSink)
+    {
+        KLOG_WARNING(audio) << "The default sink is not set.";
+        return QString();
     }
     else
     {
-        auto audio_sink = this->get_sink(pulse_sink->get_index());
-        if (!audio_sink)
+        auto audioSink = getSink(pulseSink->getIndex());
+        if (!audioSink)
         {
-            KLOG_WARNING_AUDIO("The audio sink isn't found, sink index: %d.", pulse_sink->get_index());
-            invocation.ret(Glib::ustring());
+            KLOG_WARNING(audio) << "The audio sink isn't found, sink index" << pulseSink->getIndex();
+            return QString();
         }
         else
         {
-            invocation.ret(audio_sink->get_object_path());
+            return audioSink->getObjectPath();
         }
     }
 }
 
-void AudioManager::SetDefaultSink(guint32 sink_index, MethodInvocation &invocation)
+QString AudioManager::GetDefaultSource()
 {
-    auto audio_sink = this->get_sink(sink_index);
-    auto pulse_sink = this->backend_->get_sink(sink_index);
-    if (!audio_sink || !pulse_sink)
+    auto pulseSource = m_backend->getDefaultSource();
+    if (!pulseSource)
+    {
+        KLOG_WARNING(audio) << "The default source is not set.";
+        return QString();
+    }
+    else
+    {
+        auto audioSource = getSource(pulseSource->getIndex());
+        if (!audioSource)
+        {
+            KLOG_WARNING(audio) << "The audio source isn't found, source index" << pulseSource->getIndex();
+            return QString();
+        }
+        else
+        {
+            return audioSource->getObjectPath();
+        }
+    }
+}
+
+QString AudioManager::GetSink(uint index)
+{
+    auto sink = getSink(index);
+    if (!sink)
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_AUDIO_SINK_NOT_FOUND);
+    }
+    return sink->getObjectPath();
+}
+
+QString AudioManager::GetSinkInput(uint index)
+{
+    auto sinkInput = getSinkInput(index);
+    if (!sinkInput)
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_AUDIO_SINK_INPUT_NOT_FOUND);
+    }
+    return sinkInput->getObjectPath();
+}
+
+QStringList AudioManager::GetSinkInputs()
+{
+    QStringList sinkInputs;
+    for (auto sinkInput : m_sinkInputs)
+    {
+        sinkInputs.push_back(sinkInput->getObjectPath());
+    }
+    return sinkInputs;
+}
+
+QStringList AudioManager::GetSinks()
+{
+    QStringList sinks;
+    for (auto sink : m_sinks)
+    {
+        sinks.push_back(sink->getObjectPath());
+    }
+    return sinks;
+}
+
+QString AudioManager::GetSource(uint index)
+{
+    auto source = getSource(index);
+    if (!source)
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_AUDIO_SOURCE_NOT_FOUND);
+    }
+    return source->getObjectPath();
+}
+
+QString AudioManager::GetSourceOutput(uint index)
+{
+    auto sourceOutput = getSourceOutput(index);
+    if (!sourceOutput)
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_AUDIO_SOURCE_OUTPUT_NOT_FOUND);
+    }
+    return sourceOutput->getObjectPath();
+}
+
+QStringList AudioManager::GetSourceOutputs()
+{
+    QStringList sourceOutputs;
+    for (auto sourceOutput : m_sourceOutputs)
+    {
+        sourceOutputs.push_back(sourceOutput->getObjectPath());
+    }
+    return sourceOutputs;
+}
+
+QStringList AudioManager::GetSources()
+{
+    QStringList sources;
+    for (auto source : m_sources)
+    {
+        sources.push_back(source->getObjectPath());
+    }
+    return sources;
+}
+
+void AudioManager::SetDefaultSink(uint sinkIndex)
+{
+    auto audioSink = getSink(sinkIndex);
+    auto pulseSink = m_backend->getSink(sinkIndex);
+    if (!audioSink || !pulseSink)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEFAULT_SINK_NOT_FOUND);
     }
-    this->backend_->set_default_sink(pulse_sink);
-    invocation.ret();
+    m_backend->setDefaultSink(pulseSink);
 }
 
-void AudioManager::GetSinks(MethodInvocation &invocation)
+void AudioManager::SetDefaultSource(uint sourceIndex)
 {
-    std::vector<Glib::ustring> sinks;
-    for (auto iter : this->sinks_)
-    {
-        sinks.push_back(iter.second->get_object_path());
-    }
-    invocation.ret(sinks);
-}
-
-void AudioManager::GetSink(guint32 index, MethodInvocation &invocation)
-{
-    auto sink = this->get_sink(index);
-    if (!sink)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_SINK_NOT_FOUND);
-    }
-    invocation.ret(sink->get_object_path());
-}
-
-void AudioManager::GetDefaultSource(MethodInvocation &invocation)
-{
-    auto pulse_source = this->backend_->get_default_source();
-    if (!pulse_source)
-    {
-        KLOG_WARNING_AUDIO("The default source is not set.");
-        invocation.ret(Glib::ustring());
-        return;
-    }
-    else
-    {
-        auto audio_source = this->get_source(pulse_source->get_index());
-        if (!audio_source)
-        {
-            KLOG_WARNING_AUDIO("The audio source isn't found, source index: %d.", pulse_source->get_index());
-            invocation.ret(Glib::ustring());
-        }
-        else
-        {
-            invocation.ret(audio_source->get_object_path());
-        }
-    }
-}
-
-void AudioManager::SetDefaultSource(guint32 source_index, MethodInvocation &invocation)
-{
-    auto audio_source = this->get_source(source_index);
-    auto pulse_source = this->backend_->get_source(source_index);
-    if (!audio_source || !pulse_source)
+    auto audioSource = getSource(sourceIndex);
+    auto pulseSource = m_backend->getSource(sourceIndex);
+    if (!audioSource || !pulseSource)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEFAULT_SOURCE_NOT_FOUND);
     }
-    this->backend_->set_default_source(pulse_source);
-    invocation.ret();
+    m_backend->setDefaultSource(pulseSource);
 }
 
-void AudioManager::GetSources(MethodInvocation &invocation)
+void AudioManager::addComponents()
 {
-    std::vector<Glib::ustring> sources;
-    for (auto iter : this->sources_)
+    for (auto pulseSink : m_backend->getSinks())
     {
-        sources.push_back(iter.second->get_object_path());
-    }
-    invocation.ret(sources);
-}
-
-void AudioManager::GetSource(guint32 index, MethodInvocation &invocation)
-{
-    auto source = this->get_source(index);
-    if (!source)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_SOURCE_NOT_FOUND);
-    }
-    invocation.ret(source->get_object_path());
-}
-
-void AudioManager::GetSinkInputs(MethodInvocation &invocation)
-{
-    std::vector<Glib::ustring> sink_inputs;
-    for (auto iter : this->sink_inputs_)
-    {
-        sink_inputs.push_back(iter.second->get_object_path());
-    }
-    invocation.ret(sink_inputs);
-}
-
-void AudioManager::GetSinkInput(guint32 index, MethodInvocation &invocation)
-{
-    auto sink_input = this->get_sink_input(index);
-    if (!sink_input)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_SINK_INPUT_NOT_FOUND);
-    }
-    invocation.ret(sink_input->get_object_path());
-}
-
-void AudioManager::GetSourceOutputs(MethodInvocation &invocation)
-{
-    std::vector<Glib::ustring> source_outputs;
-    for (auto iter : this->source_outputs_)
-    {
-        source_outputs.push_back(iter.second->get_object_path());
-    }
-    invocation.ret(source_outputs);
-}
-
-void AudioManager::GetSourceOutput(guint32 index, MethodInvocation &invocation)
-{
-    auto source_output = this->get_source_output(index);
-    if (!source_output)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_SOURCE_OUTPUT_NOT_FOUND);
-    }
-    invocation.ret(source_output->get_object_path());
-}
-
-void AudioManager::GetCards(MethodInvocation &invocation)
-{
-    Json::Value values;
-    Json::FastWriter writer;
-
-    uint32_t i = 0;
-    for (auto pulse_card : this->backend_->get_cards())
-    {
-        values[i]["index"] = pulse_card->get_index();
-        values[i]["name"] = pulse_card->get_name();
-
-        i++;
+        addSink(pulseSink);
     }
 
-    auto result = writer.write(values);
-
-    invocation.ret(result);
-}
-
-guint32 AudioManager::state_get()
-{
-    return this->backend_->get_state();
-}
-
-void AudioManager::add_components()
-{
-    for (auto pulse_sink : this->backend_->get_sinks())
+    for (auto pulseSource : m_backend->getSources())
     {
-        this->add_sink(pulse_sink);
+        addSource(pulseSource);
     }
 
-    for (auto pulse_source : this->backend_->get_sources())
+    for (auto pulseSinkInput : m_backend->getSinkInputs())
     {
-        this->add_source(pulse_source);
+        addSinkInput(pulseSinkInput);
     }
 
-    for (auto pulse_sink_input : this->backend_->get_sink_inputs())
+    for (auto pulseSourceOutput : m_backend->getSourceOutputs())
     {
-        this->add_sink_input(pulse_sink_input);
-    }
-
-    for (auto pulse_source_output : this->backend_->get_source_outputs())
-    {
-        this->add_source_output(pulse_source_output);
+        addSourceOutput(pulseSourceOutput);
     }
 }
 
-std::shared_ptr<AudioDevice> AudioManager::add_sink(std::shared_ptr<PulseSink> pulse_sink)
+QSharedPointer<AudioDevice> AudioManager::addSink(QSharedPointer<PulseSink> pulseSink)
 {
-    RETURN_VAL_IF_FALSE(pulse_sink, nullptr);
+    RETURN_VAL_IF_FALSE(pulseSink, nullptr);
 
-    auto audio_sink = std::make_shared<AudioDevice>(pulse_sink);
-    if (audio_sink->init(AUDIO_SINK_OBJECT_PATH))
+    auto audioSink = QSharedPointer<AudioDevice>::create(pulseSink);
+    auto sinkIndex = audioSink->getIndex();
+    if (audioSink->init(AUDIO_SINK_OBJECT_PATH))
     {
-        auto iter = this->sinks_.emplace(audio_sink->index_get(), audio_sink);
-        if (!iter.second)
+        if (m_sinks.contains(sinkIndex))
         {
-            KLOG_WARNING_AUDIO("The audio sink is already exist, sink index: %d.", audio_sink->index_get());
+            KLOG_WARNING(audio) << "The audio sink is already exist, sink index" << sinkIndex;
             return nullptr;
         }
-        this->SinkAdded_signal.emit(audio_sink->index_get());
-        return audio_sink;
+        else
+        {
+            m_sinks.insert(sinkIndex, audioSink);
+        }
+        Q_EMIT SinkAdded(sinkIndex);
+        return audioSink;
     }
     else
     {
-        KLOG_WARNING_AUDIO("Init sink failed, sink index: %d.", pulse_sink->get_index());
+        KLOG_WARNING(audio) << "Init sink failed, sink index" << sinkIndex;
         return nullptr;
     }
     return nullptr;
 }
 
-std::shared_ptr<AudioDevice> AudioManager::add_source(std::shared_ptr<PulseSource> pulse_source)
+QSharedPointer<AudioDevice> AudioManager::addSource(QSharedPointer<PulseSource> pulseSource)
 {
-    RETURN_VAL_IF_FALSE(pulse_source, nullptr);
+    RETURN_VAL_IF_FALSE(pulseSource, nullptr);
 
-    auto audio_source = std::make_shared<AudioDevice>(pulse_source);
-    if (audio_source->init(AUDIO_SOURCE_OBJECT_PATH))
+    auto audioSource = QSharedPointer<AudioDevice>::create(pulseSource);
+    auto sourceIndex = audioSource->getIndex();
+
+    if (audioSource->init(AUDIO_SOURCE_OBJECT_PATH))
     {
-        auto iter = this->sources_.emplace(audio_source->index_get(), audio_source);
-        if (!iter.second)
+        if (m_sources.contains(sourceIndex))
         {
-            KLOG_WARNING_AUDIO("The audio source is already exist, source index: %d.", audio_source->index_get());
+            KLOG_WARNING(audio) << "The audio source is already exist, source index" << sourceIndex;
             return nullptr;
         }
-        this->SourceAdded_signal.emit(audio_source->index_get());
-        return audio_source;
+        else
+        {
+            m_sources.insert(sourceIndex, audioSource);
+        }
+        Q_EMIT SourceAdded(sourceIndex);
+        return audioSource;
     }
     else
     {
-        KLOG_WARNING_AUDIO("Init source failed, source index: %d.", pulse_source->get_index());
+        KLOG_WARNING(audio) << "Init source failed, source index" << sourceIndex;
         return nullptr;
     }
     return nullptr;
 }
 
-std::shared_ptr<AudioStream> AudioManager::add_sink_input(std::shared_ptr<PulseSinkInput> pulse_sink_input)
+QSharedPointer<AudioStream> AudioManager::addSinkInput(QSharedPointer<PulseSinkInput> pulseSinkInput)
 {
-    RETURN_VAL_IF_FALSE(pulse_sink_input, nullptr);
+    RETURN_VAL_IF_FALSE(pulseSinkInput, nullptr);
 
-    auto audio_sink_input = std::make_shared<AudioStream>(pulse_sink_input);
-    if (audio_sink_input->init(AUDIO_SINK_INPUT_OBJECT_PATH))
+    auto audioSinkInput = QSharedPointer<AudioStream>::create(pulseSinkInput);
+    auto sinkInputIndex = audioSinkInput->getIndex();
+    if (audioSinkInput->init(AUDIO_SINK_INPUT_OBJECT_PATH))
     {
-        auto iter = this->sink_inputs_.emplace(audio_sink_input->index_get(), audio_sink_input);
-        if (!iter.second)
+        if (m_sinkInputs.contains(sinkInputIndex))
         {
-            KLOG_WARNING_AUDIO("The audio sink input is already exist, sink input index: %d.", audio_sink_input->index_get());
+            KLOG_WARNING(audio) << "The audio sink input is already exist, sink input index" << sinkInputIndex;
             return nullptr;
         }
-        this->SinkInputAdded_signal.emit(audio_sink_input->index_get());
-        return audio_sink_input;
+        else
+        {
+            m_sinkInputs.insert(sinkInputIndex, audioSinkInput);
+        }
+        Q_EMIT SinkInputAdded(sinkInputIndex);
+        return audioSinkInput;
     }
     else
     {
-        KLOG_WARNING_AUDIO("Init sink input failed, sink input index: %d.", pulse_sink_input->get_index());
+        KLOG_WARNING(audio) << "Init sink input failed, sink input index" << sinkInputIndex;
         return nullptr;
     }
     return nullptr;
 }
 
-std::shared_ptr<AudioStream> AudioManager::add_source_output(std::shared_ptr<PulseSourceOutput> pulse_source_output)
+QSharedPointer<AudioStream> AudioManager::addSourceOutput(QSharedPointer<PulseSourceOutput> pulseSourceOutput)
 {
-    RETURN_VAL_IF_FALSE(pulse_source_output, nullptr);
+    RETURN_VAL_IF_FALSE(pulseSourceOutput, nullptr);
 
-    auto audio_source_output = std::make_shared<AudioStream>(pulse_source_output);
-    if (audio_source_output->init(AUDIO_SOURCE_OUTPUT_OBJECT_PATH))
+    auto audioSourceOutput = QSharedPointer<AudioStream>::create(pulseSourceOutput);
+    auto sourceOutputIndex = audioSourceOutput->getIndex();
+    if (audioSourceOutput->init(AUDIO_SOURCE_OUTPUT_OBJECT_PATH))
     {
-        auto iter = this->source_outputs_.emplace(audio_source_output->index_get(), audio_source_output);
-        if (!iter.second)
+        if (m_sourceOutputs.contains(sourceOutputIndex))
         {
-            KLOG_WARNING_AUDIO("The audio source output is already exist, source output index: %d.", audio_source_output->index_get());
+            KLOG_WARNING(audio) << "The audio source output is already exist, source output index" << sourceOutputIndex;
             return nullptr;
         }
-        this->SourceOutputAdded_signal.emit(audio_source_output->index_get());
-        return audio_source_output;
+        else
+        {
+            m_sourceOutputs.insert(sourceOutputIndex, audioSourceOutput);
+        }
+        Q_EMIT SourceOutputAdded(sourceOutputIndex);
+        return audioSourceOutput;
     }
     else
     {
-        KLOG_WARNING_AUDIO("Init source output failed, source output index: %d.", pulse_source_output->get_index());
+        KLOG_WARNING(audio) << "Init source output failed, source output index" << sourceOutputIndex;
         return nullptr;
     }
     return nullptr;
 }
 
-void AudioManager::del_components()
+void AudioManager::delComponents()
 {
-    for (auto iter : this->sinks_)
+    for (auto sink : m_sinks)
     {
-        this->SinkDelete_signal.emit(iter.second->index_get());
+        Q_EMIT SinkDelete(sink->getIndex());
     }
-    this->sinks_.clear();
+    m_sinks.clear();
 
-    for (auto iter : this->sources_)
+    for (auto source : m_sources)
     {
-        this->SourceDelete_signal.emit(iter.second->index_get());
+        Q_EMIT SourceDelete(source->getIndex());
     }
-    this->sources_.clear();
+    m_sources.clear();
 
-    for (auto iter : this->sink_inputs_)
+    for (auto sinkInput : m_sinkInputs)
     {
-        this->SinkInputDelete_signal.emit(iter.second->index_get());
+        Q_EMIT SinkInputDelete(sinkInput->getIndex());
     }
-    this->sink_inputs_.clear();
+    m_sinkInputs.clear();
 
-    for (auto iter : this->source_outputs_)
+    for (auto sourceOutput : m_sourceOutputs)
     {
-        this->SourceOutputDelete_signal.emit(iter.second->index_get());
+        Q_EMIT SourceOutputDelete(sourceOutput->getIndex());
     }
-    this->source_outputs_.clear();
+    m_sourceOutputs.clear();
 }
 
-void AudioManager::on_state_changed_cb(AudioState state)
+void AudioManager::processStateChanged(AudioState state)
 {
     switch (state)
     {
     case AudioState::AUDIO_STATE_READY:
-        this->add_components();
+        addComponents();
         break;
     case AudioState::AUDIO_STATE_CONNECTING:
     case AudioState::AUDIO_STATE_FAILED:
-        this->del_components();
+        delComponents();
         break;
     default:
         break;
     }
-    this->state_set(state);
+
+    SEND_PROPERTY_NOTIFY(state, State)
 }
 
-void AudioManager::on_default_sink_changed_cb(std::shared_ptr<PulseSink> pulse_sink)
+void AudioManager::processDefaultSinkChanged(QSharedPointer<PulseSink> pulseSink)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
+    RETURN_IF_TRUE(m_backend->getState() != AudioState::AUDIO_STATE_READY);
 
-    if (pulse_sink)
+    if (pulseSink)
     {
-        this->DefaultSinkChange_signal.emit(pulse_sink->get_index());
+        Q_EMIT DefaultSinkChange(pulseSink->getIndex());
     }
     else
     {
-        this->DefaultSinkChange_signal.emit(PA_INVALID_INDEX);
+        Q_EMIT DefaultSinkChange(PA_INVALID_INDEX);
     }
 }
 
-void AudioManager::on_default_source_changed_cb(std::shared_ptr<PulseSource> pulse_source)
+void AudioManager::processDefaultSourceChanged(QSharedPointer<PulseSource> pulseSource)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
+    RETURN_IF_TRUE(m_backend->getState() != AudioState::AUDIO_STATE_READY);
 
-    if (pulse_source)
+    if (pulseSource)
     {
-        this->DefaultSourceChange_signal.emit(pulse_source->get_index());
+        Q_EMIT DefaultSourceChange(pulseSource->getIndex());
     }
     else
     {
-        this->DefaultSourceChange_signal.emit(PA_INVALID_INDEX);
+        Q_EMIT DefaultSourceChange(PA_INVALID_INDEX);
     }
 }
 
-void AudioManager::on_sink_event_cb(PulseSinkEvent event, std::shared_ptr<PulseSink> pulse_sink)
+void AudioManager::processSinkEvent(PulseSinkEvent event, QSharedPointer<PulseSink> pulseSink)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
+    RETURN_IF_TRUE(m_backend->getState() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
     case PulseSinkEvent::PULSE_SINK_EVENT_DELETED:
     {
-        RETURN_IF_FALSE(pulse_sink);
-        if (!this->sinks_.erase(pulse_sink->get_index()))
+        RETURN_IF_FALSE(pulseSink);
+        auto pulseSinkIndex = pulseSink->getIndex();
+        if (m_sinks.remove(pulseSinkIndex) == 0)
         {
-            KLOG_WARNING_AUDIO("Not found audio sink: %d.", pulse_sink->get_index());
+            KLOG_WARNING(audio) << "Not found audio sink" << pulseSinkIndex;
         }
         else
         {
-            this->SinkDelete_signal.emit(pulse_sink->get_index());
+            Q_EMIT SinkDelete(pulseSinkIndex);
         }
         break;
     }
     case PulseSinkEvent::PULSE_SINK_EVENT_ADDED:
-        this->add_sink(pulse_sink);
+        addSink(pulseSink);
         break;
     default:
         break;
     }
 }
 
-void AudioManager::on_sink_input_event_cb(PulseSinkInputEvent event, std::shared_ptr<PulseSinkInput> pulse_sink_input)
+void AudioManager::processSinkInputEvent(PulseSinkInputEvent event, QSharedPointer<PulseSinkInput> pulseSinkInput)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
+    RETURN_IF_TRUE(m_backend->getState() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
     case PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_DELETED:
     {
-        RETURN_IF_FALSE(pulse_sink_input);
-        if (!this->sink_inputs_.erase(pulse_sink_input->get_index()))
+        RETURN_IF_FALSE(pulseSinkInput);
+
+        auto sinkInputIndex = pulseSinkInput->getIndex();
+        if (0 == m_sinkInputs.remove(sinkInputIndex))
         {
-            KLOG_WARNING_AUDIO("Not found audio sink input: %d.", pulse_sink_input->get_index());
+            KLOG_WARNING(audio) << "Not found audio sink input" << sinkInputIndex;
         }
         else
         {
-            this->SinkInputDelete_signal.emit(pulse_sink_input->get_index());
+            Q_EMIT SinkInputDelete(sinkInputIndex);
         }
         break;
     }
     case PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_ADDED:
     {
-        this->add_sink_input(pulse_sink_input);
+        addSinkInput(pulseSinkInput);
         break;
     }
     default:
@@ -481,85 +522,60 @@ void AudioManager::on_sink_input_event_cb(PulseSinkInputEvent event, std::shared
     }
 }
 
-void AudioManager::on_source_event_cb(PulseSourceEvent event, std::shared_ptr<PulseSource> pulse_source)
+void AudioManager::processSourceEvent(PulseSourceEvent event, QSharedPointer<PulseSource> pulseSource)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
+    RETURN_IF_TRUE(m_backend->getState() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
     case PulseSourceEvent::PULSE_SOURCE_EVENT_DELETED:
     {
-        RETURN_IF_FALSE(pulse_source);
-        if (!this->sources_.erase(pulse_source->get_index()))
+        RETURN_IF_FALSE(pulseSource);
+        auto sourceIndex = pulseSource->getIndex();
+        if (0 == m_sources.remove(sourceIndex))
         {
-            KLOG_WARNING_AUDIO("Not found audio source: %d.", pulse_source->get_index());
+            KLOG_WARNING(audio) << "Not found audio source" << sourceIndex;
         }
         else
         {
-            this->SourceDelete_signal.emit(pulse_source->get_index());
+            Q_EMIT SourceDelete(sourceIndex);
         }
         break;
     }
     case PulseSourceEvent::PULSE_SOURCE_EVENT_ADDED:
-        this->add_source(pulse_source);
+        addSource(pulseSource);
         break;
     default:
         break;
     }
 }
 
-void AudioManager::on_source_output_event_cb(PulseSourceOutputEvent event, std::shared_ptr<PulseSourceOutput> pulse_source_output)
+void AudioManager::processSourceOutputEvent(PulseSourceOutputEvent event, QSharedPointer<PulseSourceOutput> pulseSourceOutput)
 {
-    RETURN_IF_TRUE(this->backend_->get_state() != AudioState::AUDIO_STATE_READY);
+    RETURN_IF_TRUE(m_backend->getState() != AudioState::AUDIO_STATE_READY);
 
     switch (event)
     {
     case PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_DELETED:
     {
-        RETURN_IF_FALSE(pulse_source_output);
-        if (!this->source_outputs_.erase(pulse_source_output->get_index()))
+        RETURN_IF_FALSE(pulseSourceOutput);
+        auto sourceOutputIndex = pulseSourceOutput->getIndex();
+        if (0 == m_sourceOutputs.remove(sourceOutputIndex))
         {
-            KLOG_WARNING_AUDIO("Not found audio source output: %d.", pulse_source_output->get_index());
+            KLOG_WARNING(audio) << "Not found audio source output" << sourceOutputIndex;
         }
         else
         {
-            this->SourceOutputDelete_signal.emit(pulse_source_output->get_index());
+            Q_EMIT SourceOutputDelete(sourceOutputIndex);
         }
         break;
     }
     case PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_ADDED:
-        this->add_source_output(pulse_source_output);
+        addSourceOutput(pulseSourceOutput);
         break;
     default:
         break;
     }
-}
-
-void AudioManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    if (!connect)
-    {
-        KLOG_WARNING_AUDIO("Failed to connect dbus with %s", name.c_str());
-        return;
-    }
-    try
-    {
-        this->object_register_id_ = this->register_object(connect, AUDIO_OBJECT_PATH);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_AUDIO("Register object_path %s fail: %s.", AUDIO_OBJECT_PATH, e.what().c_str());
-    }
-}
-
-void AudioManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    KLOG_DEBUG_AUDIO("Success to register dbus name: %s", name.c_str());
-}
-
-void AudioManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    KLOG_WARNING_AUDIO("Failed to register dbus name: %s", name.c_str());
 }
 
 }  // namespace Kiran

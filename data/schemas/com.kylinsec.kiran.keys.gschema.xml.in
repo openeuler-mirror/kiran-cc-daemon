@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="@PROJECT_NAME@">
+  <schema id="com.kylinsec.kiran.keys" path="/com/kylinsec/kiran/keys/">
+    <key name="volume-step" type="i">
+      <default>6</default>
+      <summary>Volume step</summary>
+      <description>Volume step as percentage of volume.</description>
+    </key>
+    <key name="touchpad" type="s">
+      <default>'XF86TouchpadToggle'</default>
+      <summary>Toggle touchpad</summary>
+      <description>Binding to enable or disable the touchpad.</description>
+    </key>
+    <key name="touchpad-on" type="s">
+      <default>'XF86TouchpadOn'</default>
+      <summary>Enable touchpad</summary>
+      <description>Binding to enable the touchpad.</description>
+    </key>
+    <key name="touchpad-off" type="s">
+      <default>'XF86TouchpadOff'</default>
+      <summary>Disable touchpad</summary>
+      <description>Binding to disable the touchpad.</description>
+    </key>
+    <key name="power" type="s">
+      <default>'&lt;Control&gt;&lt;Alt&gt;Delete'</default>
+      <summary>Shut down</summary>
+      <description>Binding to shut down.</description>
+    </key>
+    <key name="logout" type="s">
+      <default>''</default>
+      <summary>Log out</summary>
+      <description>Binding to log out.</description>
+    </key>
+    <key name="home" type="s">
+      <default>'&lt;Super&gt;E'</default>
+      <summary>Home folder</summary>
+      <description>Binding to open the Home folder.</description>
+    </key>
+    <key name="email" type="s">
+      <default>''</default>
+      <summary>Launch email client</summary>
+      <description>Binding to launch the email client.</description>
+    </key>
+    <key name="screensaver" type="s">
+      <default>'&lt;Super&gt;L'</default>
+      <summary>Lock screen</summary>
+      <description>Binding to lock the screen.</description>
+    </key>
+    <key name="show-desktop" type="s">
+      <default>'&lt;Super&gt;D'</default>
+      <summary>Show desktop</summary>
+      <description>Binding to show the desktop.</description>
+    </key>
+    <key name="start-menu" type="s">
+      <default>'&lt;Super&gt;'</default>
+      <summary>Show the panel's main menu of kiran</summary>
+      <description>Binding to the panel's main menu of kiran.</description>
+    </key>
+    <key name="help" type="s">
+      <default>''</default>
+      <summary>Launch help browser</summary>
+      <description>Binding to launch the help browser.</description>
+    </key>
+  </schema>
+</schemalist>

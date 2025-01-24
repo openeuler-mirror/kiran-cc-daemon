@@ -1,361 +1,767 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/accounts/user.h"
-
-#include <fmt/format.h>
-#include <gio/gunixinputstream.h>
-#include <glib/gstdio.h>
+#include "user.h"
+#include <crypt.h>
 #include <grp.h>
-#include <json/json.h>
-
-#include <cinttypes>
-
+#include <sys/types.h>
+#include <QDBusConnection>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSettings>
+#include "accounts-manager.h"
+#include "accounts-util.h"
+#include "config-accounts.h"
 #include "lib/base/base.h"
 #include "lib/base/crypto-helper.h"
-#include "lib/dbus/dbus.h"
-#include "plugins/accounts/accounts-manager.h"
-#include "plugins/accounts/accounts-util.h"
-#include "plugins/accounts/user-classify.h"
+#include "lib/base/polkit-proxy.h"
+#include "useradaptor.h"
 
 namespace Kiran
 {
-#define USERDIR "/var/lib/AccountsService/users"
-#define ICONDIR "/var/lib/AccountsService/icons"
-#define KIRAN_ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
-
 #define FREEDESKTOP_ACCOUNTS_DBUS_NAME "org.freedesktop.Accounts"
 #define FREEDESKTOP_ACCOUNTS_OBJECT_PATH "/org/freedesktop/Accounts"
 #define FREEDESKTOP_ACCOUNTS_DBUS_INTERFACE "org.freedesktop.Accounts"
 #define FREEDESKTOP_ACCOUNTS_USER_DBUS_INTERFACE "org.freedesktop.Accounts.User"
 
-User::User(PasswdShadow passwd_shadow) : passwd_shadow_(passwd_shadow),
-                                         object_register_id_(0),
-                                         locked_(false),
-                                         password_mode_(0),
-                                         automatic_login_(0),
-                                         system_account_(false)
+#define KEYFILE_USER_GROUP_NAME "User"
+#define KEYFILE_USER_GROUP_KEY_LANGUAGE "Language"
+#define KEYFILE_USER_GROUP_KEY_XSESSION "XSession"
+#define KEYFILE_USER_GROUP_KEY_SESSION "Session"
+#define KEYFILE_USER_GROUP_KEY_SESSION_TYPE "SessionType"
+#define KEYFILE_USER_GROUP_KEY_EMAIL "Email"
+#define KEYFILE_USER_GROUP_KEY_PASSWORD_HINT "PasswordHint"
+#define KEYFILE_USER_GROUP_KEY_ICON "Icon"
+
+#define KIRAN_ACCOUNTS_USER_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Accounts/User"
+#define KIRAN_ACCOUNTS_USER_INTERFACE "com.kylinsec.Kiran.SystemDaemon.Accounts.User"
+
+User::User(PasswdShadow passwdShadow) : m_passwdShadow(passwdShadow),
+                                        m_locked(false),
+                                        m_passwordMode(0),
+                                        m_automaticLogin(0),
+                                        m_systemAccount(false),
+                                        m_settings(nullptr)
 
 {
-    this->uid_ = this->passwd_shadow_.first->pw_uid;
-    this->gid_ = this->passwd_shadow_.first->pw_gid;
+    m_uid = m_passwdShadow.first->uid;
+    m_gid = m_passwdShadow.first->gid;
+    m_objectPath = QString("%1/%2").arg(KIRAN_ACCOUNTS_USER_OBJECT_PATH).arg(m_uid);
+
+    m_userAdaptor = new UserAdaptor(this);
 }
 
 User::~User()
 {
-    this->dbus_unregister();
+    dbusUnregister();
 }
 
-std::shared_ptr<User> User::create_user(PasswdShadow passwd_shadow)
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetAccountType,
+                      setAccountTypeAuthenticated,
+                      getAuthAction(message(), AUTH_USER_ADMIN),
+                      int)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetAutomaticLogin,
+                      setAutomaticLoginAuthenticated,
+                      getAuthAction(message(), AUTH_USER_ADMIN),
+                      bool)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetEmail,
+                      setEmailAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetHomeDirectory,
+                      setHomeDirectoryAuthenticated,
+                      getAuthAction(message(), AUTH_USER_ADMIN),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetIconFile,
+                      setIconFileAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetLanguage,
+                      setLanguageAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetLocked,
+                      setLockedAuthenticated,
+                      getAuthAction(message(), AUTH_USER_ADMIN),
+                      bool)
+
+CHECK_AUTH_WITH_2ARGS(User,
+                      SetPassword,
+                      setPasswordAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_PASSWORD),
+                      const QString &,
+                      const QString &)
+
+CHECK_AUTH_WITH_2ARGS(User,
+                      SetPasswordByPasswd,
+                      setPasswordByPasswdAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_PASSWORD),
+                      const QString &,
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetPasswordExpirationPolicy,
+                      setPasswordExpirationPolicyAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetPasswordHint,
+                      setPasswordHintAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetPasswordMode,
+                      setPasswordModeAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      int32_t)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetRealName,
+                      setRealNameAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetSession,
+                      setSessionAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetSessionType,
+                      setSessionTypeAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetShell,
+                      setShellAuthenticated,
+                      getAuthAction(message(), AUTH_USER_ADMIN),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetUserName,
+                      setUserNameAuthenticated,
+                      getAuthAction(message(), AUTH_USER_ADMIN),
+                      const QString &)
+
+CHECK_AUTH_WITH_1ARGS(User,
+                      SetXSession,
+                      setXSessionAuthenticated,
+                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      const QString &)
+
+void User::setAccountTypeAuthenticated(const QDBusMessage &message, int accountType)
 {
-    auto user = std::make_shared<User>(passwd_shadow);
+    if (getAccountType() == accountType)
+    {
+        QDBusConnection::systemBus().send(message.createReply());
+        return;
+    }
+
+    auto group = AccountsWrapper::getInstance()->getGroupByName(ADMIN_GROUP);
+    if (!group)
+    {
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_GROUP_NOT_FOUND);
+    }
+    auto adminGID = group->gid;
+
+    auto groupsID = AccountsWrapper::getInstance()->getUserGroups(getUserName(), getGID());
+
+    // 如果是管理员用户，把wheel组添加到最后，否则删除掉wheel group组
+    groupsID.removeOne(adminGID);
+    if (accountType == int32_t(AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR))
+    {
+        groupsID.push_back(adminGID);
+    }
+
+    // 拼接数字，用逗号分割
+    QString groupsIDArg;
+    for (int32_t i = 0; i < groupsID.size(); ++i)
+    {
+        groupsIDArg.append(QString("%1").arg(groupsID[i]));
+        if (i + 1 < groupsID.size())
+        {
+            groupsIDArg.append(",");
+        }
+    }
+
+    auto arguments = QStringList{"-G", groupsIDArg, "--", getUserName()};
+    SPAWN_WITH_DBUS_MESSAGE(message, QString("/usr/sbin/usermod"), arguments);
+    setAccountType(accountType);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setAutomaticLoginAuthenticated(const QDBusMessage &message, bool enabled)
+{
+    if (getLocked())
+    {
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED);
+    }
+    if (enabled != getAutomaticLogin())
+    {
+        auto userName = enabled ? getUserName() : QString();
+        AccountsManager::getInstance()->setAutomaticLoginUser(userName);
+    }
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setEmailAuthenticated(const QDBusMessage &message, const QString &email)
+{
+    setEmail(email);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setHomeDirectoryAuthenticated(const QDBusMessage &message, const QString &homeDirectory)
+{
+    // getHomeDirectory()或者homeDirectory可能以/结尾，也可能不以/结尾，因此这里统一去掉以/结尾后再进行比较
+    if (QDir(getHomeDirectory()).absolutePath() != QDir(homeDirectory).absolutePath())
+    {
+        SPAWN_WITH_DBUS_MESSAGE(message,
+                                QString("/usr/sbin/usermod"),
+                                QStringList({"-m", "-d", homeDirectory, "--", getUserName()}));
+        setHomeDirectory(homeDirectory);
+        resetIconFile();
+    }
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setIconFileAuthenticated(const QDBusMessage &message, const QString &filepath)
+{
+    auto destFilePath = QString("%1/%2").arg(ICONDIR).arg(getUserName());
+    // 实际访问的图标位置
+    auto iconAccessFilePath = filepath;
+
+    if (filepath.isEmpty() || QFile::exists(filepath))
+    {
+        QFile::remove(destFilePath);
+    }
+
+    /* 将图标文件拷贝一份到系统路径中(destFilePath)，如果原始路径(filepath)的文件对所有用户都有可读权限，
+       则图标位置还是从原始路径获取，否则将图标位置改为系统路径。*/
+    if (QFile::exists(filepath))
+    {
+        QFile::copy(filepath, destFilePath);
+
+        QFileInfo fileInfo(filepath);
+        if (!fileInfo.permission(QFile::ReadOther))
+        {
+            iconAccessFilePath = destFilePath;
+        }
+    }
+
+    setIconFile(iconAccessFilePath);
+    syncIconFileToFreedesktop(iconAccessFilePath);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setLanguageAuthenticated(const QDBusMessage &message, const QString &language)
+{
+    setLanguage(language);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setLockedAuthenticated(const QDBusMessage &message, bool locked)
+{
+    if (getLocked() != locked)
+    {
+        SPAWN_WITH_DBUS_MESSAGE(message,
+                                QString("/usr/sbin/usermod"),
+                                QStringList({locked ? "-L" : "-U", "--", getUserName()}));
+        setLocked(locked);
+        if (getAutomaticLogin() && locked)
+        {
+            AccountsManager::getInstance()->setAutomaticLoginUser(QString());
+            setAutomaticLogin(false);
+        }
+    }
+}
+void User::setPasswordAuthenticated(const QDBusMessage &message, const QString &password, const QString &hint)
+{
+    SPAWN_WITH_DBUS_MESSAGE(message,
+                            QString("/usr/sbin/usermod"),
+                            QStringList({"-p", password, "--", getUserName()}));
+
+    setPasswordMode(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
+    setLocked(false);
+    setPasswordHint(hint);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setPasswordByPasswdAuthenticated(const QDBusMessage &message,
+                                            const QString &encryptedCurrentPassword,
+                                            const QString &encryptedNewPassword)
+{
+    auto rsaPrivateKey = AccountsManager::getInstance()->getRsaPrivateKey();
+    auto currentPassword = CryptoHelper::rsaDecrypt(rsaPrivateKey, encryptedCurrentPassword);
+    auto newPassword = CryptoHelper::rsaDecrypt(rsaPrivateKey, encryptedNewPassword);
+
+    if (!encryptedCurrentPassword.isEmpty() && currentPassword.isEmpty())
+    {
+        KLOG_WARNING(accounts) << "Current password decrypt failed.";
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
+    }
+
+    if (!encryptedNewPassword.isEmpty() && newPassword.isEmpty())
+    {
+        KLOG_WARNING(accounts) << "new password decrypt failed.";
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
+    }
+
+    /* 如果修改的当前用户密码，SetPasswordByPasswd函数不会要求鉴权，所以需要判断当前密码是否合法
+       为了安全性考虑，如果getCallerUID函数调用失败，则也需要判断当前密码是否合法。*/
+    uint32_t callerUID = 0;
+    if ((!AccountsUtil::getCallerUID(message, callerUID) || callerUID == getUID()) &&
+        !checkPassword(currentPassword))
+    {
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USRE_CURRENT_PASSWORD_DISMATCH);
+    }
+
+    if (m_passwdProcess &&
+        m_passwdProcess->getState() != PasswdState::PASSWD_STATE_NONE)
+    {
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_MODIFYING_PASSWORD);
+    }
+    else
+    {
+        m_passwdProcess = QSharedPointer<PasswdProcess>::create(sharedFromThis());
+    }
+
+    connect(m_passwdProcess.data(), &PasswdProcess::finished,
+            this, std::bind(&User::processPasswdChanged, this, std::placeholders::_1, message));
+    m_passwdProcess->setDBusCaller(callerUID);
+    m_passwdProcess->changePassword(getUserName(), currentPassword, newPassword);
+}
+
+void User::setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message, const QString &options)
+{
+    QString program("/usr/bin/chage");
+    QStringList arguments;
+
+    // freeze_notify();
+    // SCOPE_EXIT({
+    //     thaw_notify();
+    // });
+
+    QJsonParseError jsonError;
+    auto jsonDoc = QJsonDocument::fromJson(options.toUtf8(), &jsonError);
+
+    if (jsonDoc.isNull())
+    {
+        KLOG_WARNING(accounts) << "Parser standard output failed: " << jsonError.errorString();
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
+    }
+
+    auto jsonRoot = jsonDoc.object();
+
+    for (auto key : jsonRoot.keys())
+    {
+        auto value = jsonRoot[key].toString();
+
+        switch (shash(key.toUtf8().data()))
+        {
+        case CONNECT(ACCOUNTS_PEP_EXPIRATION_TIME, _hash):
+            arguments.push_back("-E");
+            arguments.push_back(value);
+            break;
+        case CONNECT(ACCOUNTS_PEP_LAST_CHANGED_TIME, _hash):
+            arguments.push_back("-d");
+            arguments.push_back(value);
+            break;
+        case CONNECT(ACCOUNTS_PEP_MIN_DAYS, _hash):
+            arguments.push_back("-m");
+            arguments.push_back(value);
+            break;
+        case CONNECT(ACCOUNTS_PEP_MAX_DAYS, _hash):
+            arguments.push_back("-M");
+            arguments.push_back(value);
+            break;
+        case CONNECT(ACCOUNTS_PEP_DAYS_TO_WARN, _hash):
+            arguments.push_back("-W");
+            arguments.push_back(value);
+            break;
+        case CONNECT(ACCOUNTS_PEP_INACTIVE_DAYS, _hash):
+            arguments.push_back("-I");
+            arguments.push_back(value);
+            break;
+        default:
+            KLOG_INFO(accounts) << "The option " << key << "is ignored.";
+            break;
+        }
+    }
+
+    // 没有设置任何参数，返回错误
+    if (arguments.size() <= 1)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY);
+    }
+    arguments.push_back(getUserName());
+    SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setPasswordHintAuthenticated(const QDBusMessage &message, const QString &hint)
+{
+    setPasswordHint(hint);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setPasswordModeAuthenticated(const QDBusMessage &message, int mode)
+{
+    if (getPasswordMode() == mode)
+    {
+        QDBusConnection::systemBus().send(message.createReply());
+        return;
+    }
+
+    // freeze_notify();
+    // SCOPE_EXIT({
+    //     thaw_notify();
+    // });
+
+    if (mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN) ||
+        mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE))
+    {
+        SPAWN_WITH_DBUS_MESSAGE(message,
+                                QString("/usr/bin/passwd"),
+                                QStringList({"-d", "--", getUserName()}));
+
+        if (mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN))
+        {
+            SPAWN_WITH_DBUS_MESSAGE(message,
+                                    QString("/usr/bin/chage"),
+                                    QStringList({"-d", "0", "--", getUserName()}));
+        }
+
+        setPasswordHint(QString());
+    }
+    else if (getLocked())
+    {
+        SPAWN_WITH_DBUS_MESSAGE(message,
+                                QString("/usr/sbin/usermod"),
+                                QStringList({"-U", "--", getUserName()}));
+    }
+    setLocked(false);
+    setPasswordMode(mode);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setRealNameAuthenticated(const QDBusMessage &message, const QString &name)
+{
+    if (getRealName() == name)
+    {
+        QDBusConnection::systemBus().send(message.createReply());
+        return;
+    }
+
+    SPAWN_WITH_DBUS_MESSAGE(message,
+                            QString("/usr/sbin/usermod"),
+                            QStringList({"-c", name, "--", getUserName()}));
+
+    setRealName(name);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setSessionAuthenticated(const QDBusMessage &message, const QString &session)
+{
+    setSession(session);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setSessionTypeAuthenticated(const QDBusMessage &message, const QString &sessionType)
+{
+    setSessionType(sessionType);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setShellAuthenticated(const QDBusMessage &message, const QString &shell)
+{
+    if (getShell() != shell)
+    {
+        SPAWN_WITH_DBUS_MESSAGE(message,
+                                QString("/usr/sbin/usermod"),
+                                QStringList({"-s", shell, "--", getUserName()}));
+        setShell(shell);
+    }
+
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setUserNameAuthenticated(const QDBusMessage &message, const QString &name)
+{
+    if (getUserName() == name)
+    {
+        QDBusConnection::systemBus().send(message.createReply());
+        return;
+    }
+
+    auto oldName = getUserName();
+    SPAWN_WITH_DBUS_MESSAGE(message,
+                            QString("/usr/sbin/usermod"),
+                            QStringList({"-l", name, "--", getUserName()}));
+
+    SetUserName(name);
+
+    auto oldFilePath = QString("%1/%2").arg(USERDIR).arg(oldName);
+    auto newFilePath = QString("%1/%2").arg(USERDIR).arg(name);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void User::setXSessionAuthenticated(const QDBusMessage &message, const QString &xsession)
+{
+    setXSession(xsession);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+QString User::getAuthAction(const QDBusMessage &message, const QString &ownAction)
+{
+    RETURN_VAL_IF_TRUE(ownAction == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
+
+    uint32_t uid = 0;
+    if (AccountsUtil::getCallerUID(message, uid) && getUID() == (uid_t)uid)
+    {
+        return ownAction;
+    }
+    else
+    {
+        return AUTH_USER_ADMIN;
+    }
+}
+
+void User::processPasswdChanged(const QString &errorDesc, const QDBusMessage &message)
+{
+    QDBusMessage reply;
+    if (!errorDesc.isEmpty())
+    {
+        reply = message.createErrorReply(QDBusError::Failed, errorDesc);
+    }
+    else
+    {
+        setPasswordMode(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
+        setLocked(false);
+        reply = message.createReply();
+    }
+    QDBusConnection::systemBus().send(reply);
+}
+
+QSharedPointer<User> User::createUser(PasswdShadow passwdShadow)
+{
+    auto user = QSharedPointer<User>::create(passwdShadow);
     user->init();
     return user;
 }
 
-void User::dbus_register()
+void User::dbusRegister()
 {
-    this->object_path_ = fmt::format(KIRAN_ACCOUNTS_USER_OBJECT_PATH "/{0}", this->uid_get());
-    try
+    auto systemConnection = QDBusConnection::systemBus();
+    if (!systemConnection.registerObject(m_objectPath, KIRAN_ACCOUNTS_USER_INTERFACE, this))
     {
-        this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SYSTEM);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_ACCOUNTS("Failed to get system bus: %s.", e.what().c_str());
+        KLOG_ERROR(accounts) << "Can't register object:" << systemConnection.lastError();
         return;
     }
-
-    this->object_register_id_ = this->register_object(this->dbus_connect_, this->object_path_.c_str());
 }
 
-void User::dbus_unregister()
+void User::dbusUnregister()
 {
-    if (this->object_register_id_)
-    {
-        this->unregister_object();
-        this->object_register_id_ = 0;
-    }
+    auto systemConnection = QDBusConnection::systemBus();
+    systemConnection.unregisterObject(m_objectPath);
 }
 
-void User::freeze_notify()
+QDBusObjectPath User::getObjectPath()
 {
-    if (this->dbus_connect_)
-    {
-        this->dbus_connect_->freeze_notify();
-    }
+    return QDBusObjectPath(m_objectPath);
 }
 
-void User::thaw_notify()
+void User::updateFromPasswdShadow(PasswdShadow passwd_shadow)
 {
-    if (this->dbus_connect_)
-    {
-        this->dbus_connect_->thaw_notify();
-    }
+    udpateNocacheVar(passwd_shadow);
+    resetIconFile();
 }
 
-#define SET_STR_VALUE_FROM_KEYFILE(key, fun)                                              \
-    {                                                                                     \
-        try                                                                               \
-        {                                                                                 \
-            auto s = keyfile->get_string("User", key);                                    \
-            this->fun(s);                                                                 \
-        }                                                                                 \
-        catch (const Glib::KeyFileError &e)                                               \
-        {                                                                                 \
-            KLOG_DEBUG_ACCOUNTS("Set str value from keyfile error:%s", e.what().c_str()); \
-        }                                                                                 \
+void User::removeCacheFile()
+{
+    auto userFilePath = QString("%1/%2").arg(USERDIR).arg(getUserName());
+    QFile::remove(userFilePath);
+
+    auto iconFilePath = QString("%1/%2").arg(ICONDIR).arg(getUserName());
+    QFile::remove(iconFilePath);
+}
+
+#define GET_SETTINGS_PROPERTY(property)                                          \
+    QString User::get##property()                                                \
+    {                                                                            \
+        auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(#property); \
+        return m_settings->value(key).toString();                                \
     }
 
-#define SET_BOOL_VALUE_FROM_KEYFILE(key, fun)                                              \
-    {                                                                                      \
-        try                                                                                \
-        {                                                                                  \
-            auto b = keyfile->get_boolean("User", key);                                    \
-            this->fun(b);                                                                  \
-        }                                                                                  \
-        catch (const Glib::KeyFileError &e)                                                \
-        {                                                                                  \
-            KLOG_DEBUG_ACCOUNTS("Set bool value from keyfile error:%s", e.what().c_str()); \
-        }                                                                                  \
-    }
+GET_SETTINGS_PROPERTY(Email)
+GET_SETTINGS_PROPERTY(Language)
+GET_SETTINGS_PROPERTY(PasswordHint)
+GET_SETTINGS_PROPERTY(Session)
+GET_SETTINGS_PROPERTY(SessionType)
+GET_SETTINGS_PROPERTY(XSession)
 
-void User::remove_cache_file()
+QString User::getIconFile()
 {
-    auto user_filename = Glib::build_filename(USERDIR, this->user_name_get());
-    g_remove(user_filename.c_str());
+    auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(KEYFILE_USER_GROUP_KEY_ICON);
+    auto iconFilePath = m_settings->value(key).toString();
 
-    auto icon_filename = Glib::build_filename(ICONDIR, this->user_name_get());
-    g_remove(icon_filename.c_str());
-}
-
-bool User::match_auth_data(int32_t mode, const std::string &data_id)
-{
-    auto auth_items = this->get_auth_items(mode);
-    for (auto auth_item : auth_items)
-    {
-        RETURN_VAL_IF_TRUE(auth_item.second == data_id, true);
-    }
-    return false;
-}
-
-void User::update_from_passwd_shadow(PasswdShadow passwd_shadow)
-{
-    this->udpate_nocache_var(passwd_shadow);
-    this->reset_icon_file();
-}
-
-Glib::ustring User::icon_file_get()
-{
-    auto cache_filename = this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_ICON);
-    std::string filename = cache_filename;
-    if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
+    if (!QFileInfo(iconFilePath).exists())
     {
         // 使用默认目录的图标
-        filename = Glib::build_filename(ICONDIR, this->user_name_get());
-        if (!g_file_test(filename.c_str(), G_FILE_TEST_EXISTS))
+        iconFilePath = QString("%1/%2").arg(ICONDIR).arg(getUserName());
+        if (!QFileInfo(iconFilePath).exists())
         {
             // 使用用户主目录的图标
-            auto home_dir = this->home_directory_get();
-            filename = Glib::build_filename(home_dir, ".face");
+            iconFilePath = QString("%1/.face").arg(getHomeDirectory());
         }
     }
-
-    return filename;
+    return iconFilePath;
 }
 
-gint32 User::auth_modes_get()
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                                \
+    QVariantMap changedProperties;                                                  \
+    changedProperties.insert(QStringLiteral(#property), this->get##propertyHump()); \
+                                                                                    \
+    QDBusMessage message = QDBusMessage::createSignal(                              \
+        this->m_objectPath,                                                         \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                          \
+        QStringLiteral("PropertiesChanged"));                                       \
+                                                                                    \
+    message.setArguments({                                                          \
+        QStringLiteral(KIRAN_ACCOUNTS_USER_INTERFACE),                              \
+        changedProperties,                                                          \
+        QStringList(),                                                              \
+    });                                                                             \
+                                                                                    \
+    QDBusConnection::systemBus().send(message);
+
+#define SET_MEMBER_PROPERTY(propertyType, property, propertyHump, member) \
+    void User::set##propertyHump(propertyType propertyValue)              \
+    {                                                                     \
+        RETURN_IF_TRUE(propertyValue == this->get##propertyHump());       \
+        this->member = propertyValue;                                     \
+        SEND_PROPERTY_NOTIFY(property, propertyHump)                      \
+    }
+
+#define SET_SETTINGS_PROPERTY(propertyType, property, propertyHump)                  \
+    void User::set##propertyHump(propertyType propertyValue)                         \
+    {                                                                                \
+        RETURN_IF_TRUE(propertyValue == this->get##propertyHump());                  \
+        auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(#propertyHump); \
+        this->m_settings->setValue(key, propertyValue);                              \
+        SEND_PROPERTY_NOTIFY(property, propertyHump)                                 \
+    }
+
+SET_MEMBER_PROPERTY(int, account_type, AccountType, m_accountType)
+SET_MEMBER_PROPERTY(bool, automatic_login, AutomaticLogin, m_automaticLogin)
+SET_SETTINGS_PROPERTY(const QString &, email, Email)
+SET_MEMBER_PROPERTY(qulonglong, gid, GID, m_gid)
+SET_MEMBER_PROPERTY(const QString &, home_directory, HomeDirectory, m_homeDirectory)
+SET_SETTINGS_PROPERTY(const QString &, language, Language)
+SET_MEMBER_PROPERTY(bool, locked, Locked, m_locked)
+SET_MEMBER_PROPERTY(const QString &, password_expiration_policy, PasswordExpirationPolicy, m_passwordExpirationPolicy)
+SET_SETTINGS_PROPERTY(const QString &, password_hint, PasswordHint)
+SET_MEMBER_PROPERTY(int, password_mode, PasswordMode, m_passwordMode)
+SET_MEMBER_PROPERTY(const QString &, real_name, RealName, m_realName)
+SET_SETTINGS_PROPERTY(const QString &, session, Session)
+SET_SETTINGS_PROPERTY(const QString &, session_type, SessionType)
+SET_MEMBER_PROPERTY(const QString &, shell, Shell, m_shell)
+SET_MEMBER_PROPERTY(bool, system_account, SystemAccount, m_systemAccount)
+SET_MEMBER_PROPERTY(qulonglong, uid, UID, m_uid)
+SET_MEMBER_PROPERTY(const QString &, user_name, UserName, m_userName)
+SET_SETTINGS_PROPERTY(const QString &, x_session, XSession)
+
+void User::setIconFile(const QString &iconFile)
 {
-    auto auth_modes = this->user_cache_->get_int(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_AUTH_MODES);
-    // 如果没有设置验证方式，默认使用密码验证
-    RETURN_VAL_IF_TRUE(auth_modes == AccountsAuthMode::ACCOUNTS_AUTH_MODE_NONE, AccountsAuthMode::ACCOUNTS_AUTH_MODE_PASSWORD);
-    return auth_modes;
-}
-
-#define USER_SET_ZERO_PROP_AUTH(fun, callback, auth)                                                            \
-    void User::fun(MethodInvocation &invocation)                                                                \
-    {                                                                                                           \
-        std::string action_id = this->get_auth_action(invocation, auth);                                        \
-        RETURN_IF_TRUE(action_id.empty());                                                                      \
-                                                                                                                \
-        AuthManager::get_instance()->start_auth_check(action_id,                                                \
-                                                      TRUE,                                                     \
-                                                      invocation.getMessage(),                                  \
-                                                      std::bind(&User::callback, this, std::placeholders::_1)); \
-                                                                                                                \
-        return;                                                                                                 \
-    }
-
-#define USER_SET_ONE_PROP_AUTH(fun, callback, auth, type1)                                                             \
-    void User::fun(type1 value,                                                                                        \
-                   MethodInvocation &invocation)                                                                       \
-    {                                                                                                                  \
-        std::string action_id = this->get_auth_action(invocation, auth);                                               \
-        RETURN_IF_TRUE(action_id.empty());                                                                             \
-                                                                                                                       \
-        AuthManager::get_instance()->start_auth_check(action_id,                                                       \
-                                                      TRUE,                                                            \
-                                                      invocation.getMessage(),                                         \
-                                                      std::bind(&User::callback, this, std::placeholders::_1, value)); \
-                                                                                                                       \
-        return;                                                                                                        \
-    }
-
-#define USER_SET_TWO_PROP_AUTH(fun, callback, auth, type1, type2)                                                               \
-    void User::fun(type1 value1,                                                                                                \
-                   type2 value2,                                                                                                \
-                   MethodInvocation &invocation)                                                                                \
-    {                                                                                                                           \
-        std::string action_id = this->get_auth_action(invocation, auth);                                                        \
-        RETURN_IF_TRUE(action_id.empty());                                                                                      \
-                                                                                                                                \
-        AuthManager::get_instance()->start_auth_check(action_id,                                                                \
-                                                      TRUE,                                                                     \
-                                                      invocation.getMessage(),                                                  \
-                                                      std::bind(&User::callback, this, std::placeholders::_1, value1, value2)); \
-                                                                                                                                \
-        return;                                                                                                                 \
-    }
-
-#define USER_SET_THREE_PROP_AUTH(fun, callback, auth, type1, type2, type3)                                                              \
-    void User::fun(type1 value1,                                                                                                        \
-                   type2 value2,                                                                                                        \
-                   type3 value3,                                                                                                        \
-                   MethodInvocation &invocation)                                                                                        \
-    {                                                                                                                                   \
-        std::string action_id = this->get_auth_action(invocation, auth);                                                                \
-        RETURN_IF_TRUE(action_id.empty());                                                                                              \
-                                                                                                                                        \
-        AuthManager::get_instance()->start_auth_check(action_id,                                                                        \
-                                                      TRUE,                                                                             \
-                                                      invocation.getMessage(),                                                          \
-                                                      std::bind(&User::callback, this, std::placeholders::_1, value1, value2, value3)); \
-                                                                                                                                        \
-        return;                                                                                                                         \
-    }
-
-USER_SET_ONE_PROP_AUTH(SetUserName, change_user_name_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetRealName, change_real_name_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetEmail, change_email_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetLanguage, change_language_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetXSession, change_x_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetSession, change_session_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetSessionType, change_session_type_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetHomeDirectory, change_home_dir_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetShell, change_shell_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetIconFile, change_icon_file_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetLocked, change_locked_authorized_cb, AUTH_USER_ADMIN, bool);
-USER_SET_ONE_PROP_AUTH(SetAccountType, change_account_type_authorized_cb, AUTH_USER_ADMIN, int32_t);
-USER_SET_ONE_PROP_AUTH(SetPasswordMode, change_password_mode_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
-USER_SET_TWO_PROP_AUTH(SetPassword, change_password_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
-USER_SET_TWO_PROP_AUTH(SetPasswordByPasswd, change_password_by_passwd_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetPasswordHint, change_password_hint_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_ONE_PROP_AUTH(SetAutomaticLogin, change_auto_login_authorized_cb, AUTH_USER_ADMIN, bool);
-USER_SET_ONE_PROP_AUTH(SetPasswordExpirationPolicy, change_password_expiration_policy_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
-USER_SET_THREE_PROP_AUTH(AddAuthItem, add_auth_item_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, const Glib::ustring &, const Glib::ustring &);
-USER_SET_TWO_PROP_AUTH(DelAuthItem, del_auth_item_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t, const Glib::ustring &);
-// USER_SET_ONE_PROP_AUTH(GetAuthItems, get_auth_items_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
-USER_SET_TWO_PROP_AUTH(EnableAuthMode, enable_auth_mode_authorized_cb, AUTH_USER_ADMIN, int32_t, bool);
-
-void User::GetAuthItems(gint32 mode, MethodInvocation &invocation)
-{
-    auto auth_items = this->get_auth_items(mode);
-    Json::Value auth_items_value;
-    Json::FastWriter writer;
-    try
-    {
-        for (uint32_t i = 0; i < auth_items.size(); ++i)
-        {
-            auth_items_value[i]["name"] = auth_items[i].first;
-            auth_items_value[i]["data_id"] = auth_items[i].second;
-        }
-        auto result = writer.write(auth_items_value);
-        invocation.ret(result);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_ACCOUNTS("User get authitem exception:%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_GET_AUTHITEM_EXCEPTION);
-    }
+    RETURN_IF_TRUE(iconFile == getIconFile());
+    auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(KEYFILE_USER_GROUP_KEY_ICON);
+    m_settings->setValue(key, iconFile);
+    SEND_PROPERTY_NOTIFY(icon_file, IconFile)
 }
 
 void User::init()
 {
-    this->build_freedesktop_user_object_path();
-    this->udpate_nocache_var(this->passwd_shadow_);
-    this->user_cache_ = std::make_shared<UserCache>(this->shared_from_this());
+    buildFreedesktopUserObjectPath();
+    udpateNocacheVar(m_passwdShadow);
+    initSettings();
     // 由于图标路径是维护在缓存中，所以必须等UserCache对象创建后才能操作
-    this->reset_icon_file();
+    resetIconFile();
 }
 
-void User::udpate_nocache_var(PasswdShadow passwd_shadow)
+void User::buildFreedesktopUserObjectPath()
 {
-    Glib::ustring real_name;
+    auto sendMessage = QDBusMessage::createMethodCall(FREEDESKTOP_ACCOUNTS_DBUS_NAME,
+                                                      FREEDESKTOP_ACCOUNTS_OBJECT_PATH,
+                                                      FREEDESKTOP_ACCOUNTS_DBUS_INTERFACE,
+                                                      "FindUserById");
 
-    // 暂时冻结通知，等更新完数据后再发送通知，避免dbus属性重复发送变化的信号
-    this->freeze_notify();
-    SCOPE_EXIT({
-        this->thaw_notify();
-    });
+    sendMessage << qlonglong(getUID());
 
-    this->passwd_ = passwd_shadow.first;
-    this->spwd_ = passwd_shadow.second;
-
-    if (!this->passwd_->pw_gecos.empty())
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        if (Glib::ustring(this->passwd_->pw_gecos).validate())
-        {
-            real_name = this->passwd_->pw_gecos;
-        }
-        else
-        {
-            KLOG_WARNING_ACCOUNTS("User %s has invalid UTF-8 in GECOS field.  It would be a good thing to check /etc/passwd.",
-                                  this->passwd_->pw_name.c_str() ? this->passwd_->pw_name.c_str() : "");
-        }
+        KLOG_WARNING(accounts) << "Call FindUserById failed:" << replyMessage.errorMessage();
+        return;
     }
 
-    this->real_name_set(real_name);
-    this->uid_set(this->passwd_->pw_uid);
-    this->gid_set(this->passwd_->pw_gid);
+    m_freedesktopObjectPath = replyMessage.arguments().takeFirst().value<QDBusObjectPath>().path();
+}
 
-    auto account_type = this->account_type_from_pwent(this->passwd_);
-    this->account_type_set(int32_t(account_type));
+void User::udpateNocacheVar(PasswdShadow passwd_shadow)
+{
+    QString realName;
 
-    this->user_name_set(this->passwd_->pw_name);
-    this->home_directory_set(this->passwd_->pw_dir);
-    this->shell_set(this->passwd_->pw_shell);
+    m_passwd = passwd_shadow.first;
+    m_spwd = passwd_shadow.second;
 
-    std::shared_ptr<std::string> passwd;
-    bool locked = false;
+    setRealName(m_passwd->gecos);
+    setUID(m_passwd->uid);
+    setGID(m_passwd->gid);
 
-    if (this->spwd_)
-        passwd = this->spwd_->sp_pwdp;
+    auto accountType = accountTtypeFromPwent(m_passwd);
+    setAccountType(int(accountType));
 
-    if (passwd && passwd->length() > 0 && passwd->at(0) == '!')
-    {
-        locked = true;
-    }
-    else
-    {
-        locked = false;
-    }
+    setUserName(m_passwd->name);
+    setHomeDirectory(m_passwd->dir);
+    setShell(m_passwd->shell);
 
-    this->locked_set(locked);
+    QString hashedPassphrase = getHashedPassphrase();
+    bool locked = (hashedPassphrase.length() > 0 && hashedPassphrase.at(0) == '!');
+    setLocked(locked);
 
     AccountsPasswordMode mode;
 
-    if (!passwd || !passwd->empty())
+    if (!hashedPassphrase.isEmpty())
     {
         mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR;
     }
@@ -364,604 +770,69 @@ void User::udpate_nocache_var(PasswdShadow passwd_shadow)
         mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE;
     }
 
-    if (this->spwd_ && this->spwd_->sp_lstchg == 0)
+    if (m_spwd && m_spwd->lstchg == 0)
     {
         mode = AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN;
     }
 
-    this->password_mode_set(int32_t(mode));
+    setPasswordMode(int(mode));
 
-    auto is_system_account = !UserClassify::is_human(this->passwd_->pw_uid, this->passwd_->pw_name, this->passwd_->pw_shell);
-    this->system_account_set(is_system_account);
-    this->update_password_expiration_policy(this->spwd_);
+    auto isSystemAccount = !UserClassify::isHuman(m_passwd->uid,
+                                                  m_passwd->name,
+                                                  m_passwd->shell);
+    setSystemAccount(isSystemAccount);
+    updatePasswordExpirationPolicy(m_spwd);
 }
 
-VPSS User::get_auth_items(int32_t mode)
+void User::initSettings()
 {
-    auto group_name = this->mode_to_groupname(mode);
-    RETURN_VAL_IF_TRUE(group_name.empty(), VPSS());
-    return this->user_cache_->get_group_kv(group_name);
-}
-
-void User::update_password_expiration_policy(std::shared_ptr<SPwd> spwd)
-{
-    Json::Value values;
-    Json::StreamWriterBuilder wbuilder;
-    wbuilder["indentation"] = "";
-
-    try
+    // 非root的系统用户不缓存数据
+    if (getSystemAccount() && getUID() != 0)
     {
-        values[ACCOUNTS_PEP_EXPIRATION_TIME] = Json::Int64(spwd->sp_expire);
-        values[ACCOUNTS_PEP_LAST_CHANGED_TIME] = Json::Int64(spwd->sp_lstchg);
-        values[ACCOUNTS_PEP_MIN_DAYS] = Json::Int64(spwd->sp_min);
-        values[ACCOUNTS_PEP_MAX_DAYS] = Json::Int64(spwd->sp_max);
-        values[ACCOUNTS_PEP_DAYS_TO_WARN] = Json::Int64(spwd->sp_warn);
-        values[ACCOUNTS_PEP_INACTIVE_DAYS] = Json::Int64(spwd->sp_inact);
-
-        auto password_expiration_policy = Json::writeString(wbuilder, values);
-        this->password_expiration_policy_set(password_expiration_policy);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_ACCOUNTS("Update password expiration exception:%s.", e.what());
-    }
-}
-
-std::string User::get_auth_action(MethodInvocation &invocation, const std::string &own_action)
-{
-    RETURN_VAL_IF_TRUE(own_action == AUTH_USER_ADMIN, AUTH_USER_ADMIN);
-
-    int32_t uid;
-
-    if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
-    {
-        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_1);
-        return std::string();
-    }
-
-    if (this->uid_get() == (uid_t)uid)
-    {
-        return own_action;
+        m_settings = new QSettings(this);
     }
     else
     {
-        return AUTH_USER_ADMIN;
+        auto fileName = QString("%1/%2").arg(USERDIR, getUserName());
+        m_settings = new QSettings(fileName, QSettings::IniFormat, this);
     }
 }
 
-void User::change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
+void User::updatePasswordExpirationPolicy(QSharedPointer<SPwd> spwd)
 {
-    if (this->user_name_get() != name)
-    {
-        auto old_name = this->user_name_get();
+    QJsonDocument jsonDoc;
+    auto jsonObj = QJsonObject{
+        {ACCOUNTS_PEP_EXPIRATION_TIME, qlonglong(spwd->expire)},
+        {ACCOUNTS_PEP_LAST_CHANGED_TIME, qlonglong(spwd->lstchg)},
+        {ACCOUNTS_PEP_MIN_DAYS, qlonglong(spwd->min)},
+        {ACCOUNTS_PEP_MAX_DAYS, qlonglong(spwd->max)},
+        {ACCOUNTS_PEP_DAYS_TO_WARN, qlonglong(spwd->warn)},
+        {ACCOUNTS_PEP_INACTIVE_DAYS, qlonglong(spwd->inact)},
+    };
 
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-l", name, "--", this->user_name_get().raw());
-
-        this->user_name_set(name);
-        this->move_extra_data(old_name, name);
-    }
-
-    invocation.ret();
+    setPasswordExpirationPolicy(jsonDoc.toJson());
 }
 
-void User::change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name)
+AccountsAccountType User::accountTtypeFromPwent(QSharedPointer<Passwd> passwd)
 {
-    if (this->real_name_get() != name)
+    RETURN_VAL_IF_FALSE(passwd, AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD);
+
+    if (passwd->uid == 0)
     {
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-c", name, "--", this->user_name_get().raw());
-
-        this->real_name_set(name);
-    }
-
-    invocation.ret();
-}
-
-#define USER_AUTH_CHECK_CB(fun, prop)                                       \
-    void User::fun(MethodInvocation invocation, const Glib::ustring &value) \
-    {                                                                       \
-        KLOG_DEBUG_ACCOUNTS(#prop ": %s", value.c_str());                   \
-        if (this->prop##_get() != value)                                    \
-        {                                                                   \
-            this->prop##_set(value);                                        \
-        }                                                                   \
-                                                                            \
-        invocation.ret();                                                   \
-    }
-
-USER_AUTH_CHECK_CB(change_email_authorized_cb, email);
-USER_AUTH_CHECK_CB(change_language_authorized_cb, language);
-USER_AUTH_CHECK_CB(change_x_session_authorized_cb, x_session);
-USER_AUTH_CHECK_CB(change_session_authorized_cb, session);
-USER_AUTH_CHECK_CB(change_session_type_authorized_cb, session_type);
-
-void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir)
-{
-    // home_directory_get()或者home_dir可能以/结尾，也可能不以/结尾，因此这里统一去掉以/结尾后再进行比较
-    if (Glib::path_get_dirname(this->home_directory_get() + "/") != Glib::path_get_dirname(home_dir + "/"))
-    {
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw());
-        this->home_directory_set(home_dir);
-        this->reset_icon_file();
-    }
-    invocation.ret();
-}
-
-void User::change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell)
-{
-    if (this->shell_get() != shell)
-    {
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-s", shell, "--", this->user_name_get().raw());
-        this->shell_set(shell);
-    }
-    invocation.ret();
-}
-
-void User::become_user(std::shared_ptr<Passwd> passwd)
-{
-    if (!passwd ||
-        initgroups(passwd->pw_name.c_str(), passwd->pw_gid) ||
-        setgid(passwd->pw_gid) != 0 ||
-        setuid(passwd->pw_uid) != 0)
-    {
-        exit(1);
-    }
-}
-
-void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file)
-{
-    auto filename = icon_file;
-
-    do
-    {
-        if (icon_file.empty())
-        {
-            auto path = Glib::build_filename(ICONDIR, this->user_name_get());
-            g_remove(path.c_str());
-            break;
-        }
-
-        auto file = Gio::File::create_for_path(icon_file);
-        filename = file->get_path();
-        Glib::RefPtr<Gio::FileInfo> file_info;
-        try
-        {
-            file_info = file->query_info(G_FILE_ATTRIBUTE_UNIX_MODE "," G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_SIZE);
-        }
-        catch (const Glib::Error &e)
-        {
-            KLOG_WARNING_ACCOUNTS("%s.", e.what().c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_1);
-        }
-
-        if (file_info->get_file_type() != Gio::FileType::FILE_TYPE_REGULAR)
-        {
-            KLOG_WARNING_ACCOUNTS("File %s is not a regular file.", filename.c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_FILE_TYPE_NQ_REGULAR);
-        }
-
-        auto size = file_info->get_attribute_uint64(G_FILE_ATTRIBUTE_STANDARD_SIZE);
-        if (size > 1048576)
-        {
-            KLOG_WARNING_ACCOUNTS("File %s is too large to be used as an icon", filename.c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_FILE_SIZE_TOO_BIG);
-        }
-
-        // copy file to directory ICONDIR
-        int32_t uid;
-        if (!AccountsUtil::get_caller_uid(invocation.getMessage(), uid))
-        {
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_UNKNOWN_CALLER_UID_2);
-        }
-
-        auto dest_path = Glib::build_filename(ICONDIR, this->user_name_get());
-        auto dest_file = Gio::File::create_for_path(dest_path);
-        Glib::RefPtr<Gio::FileOutputStream> output;
-        try
-        {
-            output = dest_file->replace();
-        }
-        catch (const Glib::Error &e)
-        {
-            KLOG_WARNING_ACCOUNTS("Creating file %s failed: %s", dest_path.c_str(), e.what().c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_REPLACE_OUTPUT_STREAM);
-        }
-
-        std::vector<std::string> argv = {"/bin/cat", filename.raw()};
-        auto pwent = AccountsWrapper::get_instance()->get_passwd_by_uid(uid);
-
-        int32_t std_out;
-        try
-        {
-            Glib::spawn_async_with_pipes(std::string(),
-                                         argv,
-                                         Glib::SPAWN_DEFAULT,
-                                         sigc::bind(sigc::mem_fun(this, &User::become_user), pwent),
-                                         nullptr,
-                                         nullptr,
-                                         &std_out,
-                                         nullptr);
-        }
-        catch (const Glib::Error &e)
-        {
-            KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_SPAWN_READ_FILE_FAILED);
-        }
-
-        auto input = Glib::wrap(g_unix_input_stream_new(std_out, false));
-        gssize bytes = 0;
-        try
-        {
-            bytes = output->splice(input, Gio::OUTPUT_STREAM_SPLICE_CLOSE_TARGET);
-        }
-        catch (const Glib::Error &e)
-        {
-            KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
-        }
-
-        if (bytes < 0 || (uint64_t)bytes != size)
-        {
-            KLOG_WARNING_ACCOUNTS("Failed to copy file %s to %s", filename.c_str(), dest_path.c_str());
-            DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_COPY_FILE_FAILED);
-            IGNORE_EXCEPTION(dest_file->remove());
-            return;
-        }
-
-        auto mode = file_info->get_attribute_uint32(G_FILE_ATTRIBUTE_UNIX_MODE);
-        if ((mode & S_IROTH) == 0)
-        {
-            filename = dest_path;
-        }
-
-    } while (0);
-
-    this->icon_file_set(filename);
-    this->sync_icon_file_to_freedesktop(filename);
-    invocation.ret();
-}
-
-void User::change_locked_authorized_cb(MethodInvocation invocation, bool locked)
-{
-    if (this->locked_get() != locked)
-    {
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", locked ? "-L" : "-U", "--", this->user_name_get().raw());
-        this->locked_set(locked);
-        if (this->automatic_login_get() && locked)
-        {
-            CCErrorCode error_code = CCErrorCode::SUCCESS;
-            AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), false, error_code);
-            this->automatic_login_set(false);
-        }
-    }
-    invocation.ret();
-}
-
-void User::change_account_type_authorized_cb(MethodInvocation invocation, int32_t account_type)
-{
-    if (this->account_type_get() != account_type)
-    {
-        auto grp = AccountsWrapper::get_instance()->get_group_by_name(ADMIN_GROUP);
-        if (!grp)
-        {
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_GROUP_NOT_FOUND);
-        }
-        auto admin_gid = grp->gr_gid;
-
-        auto groups = AccountsWrapper::get_instance()->get_user_groups(this->user_name_get(), this->gid_get());
-        std::string groups_join;
-        for (auto i = 0; i < (int)groups.size(); ++i)
-        {
-            if (groups[i] != admin_gid)
-            {
-                groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), groups[i]);
-            }
-        }
-
-        if (account_type == int32_t(AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR))
-        {
-            groups_join += fmt::format("{0}{1}", groups_join.empty() ? std::string() : std::string(","), admin_gid);
-        }
-
-        SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-G", groups_join, "--", this->user_name_get().raw());
-        this->account_type_set(account_type);
-    }
-    invocation.ret();
-}
-
-void User::change_password_mode_authorized_cb(MethodInvocation invocation, int32_t password_mode)
-{
-    if (this->password_mode_get() != password_mode)
-    {
-        this->freeze_notify();
-        SCOPE_EXIT({
-            this->thaw_notify();
-        });
-
-        if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN) ||
-            password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE))
-        {
-            SPAWN_DBUS(invocation, "/usr/bin/passwd", "-d", "--", this->user_name_get().raw());
-
-            if (password_mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN))
-            {
-                SPAWN_DBUS(invocation, "/usr/bin/chage", "-d", "0", "--", this->user_name_get().raw());
-            }
-
-            this->password_hint_set(std::string());
-        }
-        else if (this->locked_get())
-        {
-            SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-U", "--", this->user_name_get().raw());
-        }
-        this->locked_set(false);
-        this->password_mode_set(password_mode);
-    }
-
-    invocation.ret();
-}
-
-void User::change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint)
-{
-    this->freeze_notify();
-    SCOPE_EXIT({
-        this->thaw_notify();
-    });
-
-    SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-p", password.raw(), "--", this->user_name_get().raw());
-
-    this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
-    this->locked_set(false);
-    this->password_hint_set(password_hint);
-    invocation.ret();
-}
-
-void User::change_password_by_passwd_authorized_cb(MethodInvocation invocation,
-                                                   const Glib::ustring &encrypted_current_password,
-                                                   const Glib::ustring &encrypted_new_password)
-{
-    this->freeze_notify();
-    SCOPE_EXIT({
-        this->thaw_notify();
-    });
-
-    auto current_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_current_password);
-    auto new_password = CryptoHelper::rsa_decrypt(AccountsManager::get_instance()->get_rsa_private_key(), encrypted_new_password);
-
-    if (this->passwd_wrapper_ && this->passwd_wrapper_->get_state() != PasswdState::PASSWD_STATE_NONE)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_MODIFYING_PASSWORD);
-    }
-    else
-    {
-        this->passwd_wrapper_ = std::make_shared<PasswdWrapper>(this->shared_from_this());
-    }
-
-    this->passwd_wrapper_->signal_exec_finished().connect(sigc::bind(sigc::mem_fun(this, &User::on_exec_passwd_finished), invocation));
-    this->passwd_wrapper_->exec(invocation.getMessage(), current_password, new_password);
-}
-
-void User::on_exec_passwd_finished(const std::string &error_desc, MethodInvocation invocation)
-{
-    if (!error_desc.empty())
-    {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, error_desc));
-    }
-    else
-    {
-        this->password_mode_set(int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_REGULAR));
-        this->locked_set(false);
-        invocation.ret();
-    }
-}
-
-USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, password_hint);
-
-void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login)
-{
-    if (this->locked_get())
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED);
-    }
-    CCErrorCode error_code;
-    if (!AccountsManager::get_instance()->set_automatic_login(this->shared_from_this(), auto_login, error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
-    invocation.ret();
-}
-
-void User::change_password_expiration_policy_cb(MethodInvocation invocation, const Glib::ustring &options)
-{
-    std::vector<std::string> argv{"/usr/bin/chage"};
-
-    this->freeze_notify();
-    SCOPE_EXIT({
-        this->thaw_notify();
-    });
-
-    auto values = StrUtils::str2json(options);
-
-    for (auto key : values.getMemberNames())
-    {
-        if (!values[key].isInt64())
-        {
-            KLOG_WARNING_ACCOUNTS("The type of option %s must be Int64", key.c_str());
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_INVALID);
-        }
-
-        auto value = values[key].asInt64();
-
-        switch (shash(key.c_str()))
-        {
-        case CONNECT(ACCOUNTS_PEP_EXPIRATION_TIME, _hash):
-            argv.push_back("-E");
-            argv.push_back(fmt::format("{0}", value));
-            break;
-        case CONNECT(ACCOUNTS_PEP_LAST_CHANGED_TIME, _hash):
-            argv.push_back("-d");
-            argv.push_back(fmt::format("{0}", value));
-            break;
-        case CONNECT(ACCOUNTS_PEP_MIN_DAYS, _hash):
-            argv.push_back("-m");
-            argv.push_back(fmt::format("{0}", value));
-            break;
-        case CONNECT(ACCOUNTS_PEP_MAX_DAYS, _hash):
-            argv.push_back("-M");
-            argv.push_back(fmt::format("{0}", value));
-            break;
-        case CONNECT(ACCOUNTS_PEP_DAYS_TO_WARN, _hash):
-            argv.push_back("-W");
-            argv.push_back(fmt::format("{0}", value));
-            break;
-        case CONNECT(ACCOUNTS_PEP_INACTIVE_DAYS, _hash):
-            argv.push_back("-I");
-            argv.push_back(fmt::format("{0}", value));
-            break;
-        default:
-            KLOG_DEBUG_ACCOUNTS("The option %s is ignored.", key.c_str());
-            break;
-        }
-    }
-
-    // 没有设置任何参数，返回错误
-    if (argv.size() <= 1)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY);
-    }
-    argv.push_back(this->user_name_get());
-    SPAWN_DBUS_WITH_ARGS(invocation, argv);
-
-    invocation.ret();
-}
-
-void User::add_auth_item_authorized_cb(MethodInvocation invocation,
-                                       int32_t mode,
-                                       const Glib::ustring &name,
-                                       const Glib::ustring &data_id)
-{
-    auto group_name = this->mode_to_groupname(mode);
-
-    if (group_name.length() == 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_2);
-    }
-
-    if (this->user_cache_->get_string(group_name, name).length() != 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTHMODE_NAME_ALREADY_EXIST);
-    }
-
-    if (!this->user_cache_->set_value(group_name, name, data_id))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_SAVE_DATA_FAILED);
-    }
-
-    invocation.ret();
-    this->AuthItemChanged_signal.emit(mode);
-}
-
-void User::del_auth_item_authorized_cb(MethodInvocation invocation,
-                                       int32_t mode,
-                                       const Glib::ustring &name)
-{
-    auto group_name = this->mode_to_groupname(mode);
-
-    if (group_name.length() == 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_3);
-    }
-
-    if (!this->user_cache_->remove_key(group_name, name))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTH_DEL_DATA_FAILED);
-    }
-
-    invocation.ret();
-    this->AuthItemChanged_signal.emit(mode);
-}
-
-void User::enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled)
-{
-    if (mode >= AccountsAuthMode::ACCOUNTS_AUTH_MODE_LAST || mode < 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_4);
-    }
-
-    auto current_mode = this->auth_modes_get();
-    if (enabled)
-    {
-        current_mode = current_mode | mode;
-    }
-    else
-    {
-        current_mode = current_mode & (~mode);
-    }
-
-    if (!current_mode)
-    {
-        KLOG_WARNING_ACCOUNTS("All authorization mode is off, the authorization mode will automatically be set to password authorization mode.");
-    }
-
-    this->auth_modes_set(current_mode);
-    invocation.ret();
-}
-
-std::string User::mode_to_groupname(int32_t mode)
-{
-    switch (mode)
-    {
-    case AccountsAuthMode::ACCOUNTS_AUTH_MODE_FINGERPRINT:
-        return KEYFILE_FINGERPRINT_GROUP_NAME;
-    case AccountsAuthMode::ACCOUNTS_AUTH_MODE_FACE:
-        return KEYFILE_FACE_GROUP_NAME;
-    default:
-        break;
-    }
-    return std::string();
-}
-
-#define USER_PROP_SET_HANDLER(prop, type)    \
-    bool User::prop##_setHandler(type value) \
-    {                                        \
-        this->prop##_ = value;               \
-        return true;                         \
-    }
-
-USER_PROP_SET_HANDLER(uid, guint64);
-USER_PROP_SET_HANDLER(gid, guint64);
-USER_PROP_SET_HANDLER(user_name, const Glib::ustring &);
-USER_PROP_SET_HANDLER(real_name, const Glib::ustring &);
-USER_PROP_SET_HANDLER(account_type, gint32);
-USER_PROP_SET_HANDLER(home_directory, const Glib::ustring &);
-USER_PROP_SET_HANDLER(shell, const Glib::ustring &);
-USER_PROP_SET_HANDLER(locked, bool);
-USER_PROP_SET_HANDLER(password_mode, gint32);
-USER_PROP_SET_HANDLER(automatic_login, bool);
-USER_PROP_SET_HANDLER(system_account, bool);
-USER_PROP_SET_HANDLER(password_expiration_policy, const Glib::ustring &);
-
-AccountsAccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd)
-{
-    g_return_val_if_fail(passwd, AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD);
-
-    struct group *grp;
-    gint i;
-
-    if (passwd->pw_uid == 0)
-    {
-        KLOG_DEBUG_ACCOUNTS("User is root so account type is administrator");
+        KLOG_DEBUG(accounts) << "User is root so account type is administrator";
         return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
     }
 
-    grp = getgrnam(ADMIN_GROUP);
+    auto grp = getgrnam(ADMIN_GROUP);
     if (grp == NULL)
     {
-        KLOG_DEBUG_ACCOUNTS(ADMIN_GROUP " group not found");
+        KLOG_INFO(accounts) << ADMIN_GROUP << "group not found";
         return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
     }
 
-    for (i = 0; grp->gr_mem[i] != NULL; i++)
+    for (int i = 0; grp->gr_mem[i] != NULL; i++)
     {
-        if (g_strcmp0(grp->gr_mem[i], passwd->pw_name.c_str()) == 0)
+        if (QString(grp->gr_mem[i]) == passwd->name)
         {
             return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_ADMINISTRATOR;
         }
@@ -970,91 +841,61 @@ AccountsAccountType User::account_type_from_pwent(std::shared_ptr<Passwd> passwd
     return AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD;
 }
 
-void User::reset_icon_file()
+void User::resetIconFile()
 {
-    auto icon_file = this->icon_file_get();
-    auto home_dir = this->home_directory_get();
+    auto iconFile = getIconFile();
+    auto homeDir = getHomeDirectory();
 
     // 如果用户主目录发生变化，且用户使用的是之前的用户主目录的图标，则重新更新路径。
-    if (!icon_file.empty() && icon_file == this->default_icon_file_)
+    if (!iconFile.isEmpty() && iconFile == defaultIconFile)
     {
-        this->default_icon_file_ = Glib::build_filename(home_dir, ".face");
-        if (icon_file != this->default_icon_file_)
+        defaultIconFile = QString("%1/%2").arg(homeDir).arg(".face");
+        if (iconFile != defaultIconFile)
         {
-            this->icon_file_set(this->default_icon_file_);
-            this->sync_icon_file_to_freedesktop(this->default_icon_file_);
+            setIconFile(defaultIconFile);
+            syncIconFileToFreedesktop(defaultIconFile);
         }
     }
 }
 
-void User::move_extra_data(const std::string &old_name, const std::string &new_name)
+void User::syncIconFileToFreedesktop(const QString &iconFile)
 {
-    auto old_filename = Glib::build_filename(USERDIR, old_name);
-    auto new_filename = Glib::build_filename(USERDIR, new_name);
-    g_rename(old_filename.c_str(), new_filename.c_str());
-}
+    RETURN_IF_TRUE(m_freedesktopObjectPath.isEmpty());
 
-void User::build_freedesktop_user_object_path()
-{
-    this->freedesktop_object_path_ = Glib::DBusObjectPathString();
+    auto sendMessage = QDBusMessage::createMethodCall(FREEDESKTOP_ACCOUNTS_DBUS_NAME,
+                                                      m_freedesktopObjectPath,
+                                                      FREEDESKTOP_ACCOUNTS_USER_DBUS_INTERFACE,
+                                                      "SetIconFile");
 
-    Glib::RefPtr<Gio::DBus::Proxy> account_proxy;
-    try
+    sendMessage << iconFile;
+
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        account_proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                              FREEDESKTOP_ACCOUNTS_DBUS_NAME,
-                                                              FREEDESKTOP_ACCOUNTS_OBJECT_PATH,
-                                                              FREEDESKTOP_ACCOUNTS_DBUS_INTERFACE);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
+        KLOG_WARNING(accounts) << "Call SetIconFile failed:" << replyMessage.errorMessage();
         return;
-    }
-
-    auto parameters = g_variant_new("(x)", this->uid_get());
-    Glib::VariantContainerBase base(parameters, false);
-    try
-    {
-        auto retval = account_proxy->call_sync("FindUserById", base);
-        auto v1 = retval.get_child(0);
-        this->freedesktop_object_path_ = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(v1).get().raw();
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
     }
 }
 
-void User::sync_icon_file_to_freedesktop(const Glib::ustring &icon_file)
+QString User::getHashedPassphrase()
 {
-    RETURN_IF_TRUE(this->freedesktop_object_path_.empty());
+    if (m_spwd)
+    {
+        return m_spwd->pwdp;
+    }
+    else
+    {
+        // 兼容旧的方式，以前的版本密码是放在/etc/passwd中
+        return m_passwd->passwd;
+    }
+}
 
-    Glib::RefPtr<Gio::DBus::Proxy> account_proxy;
-    try
-    {
-        account_proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                              FREEDESKTOP_ACCOUNTS_DBUS_NAME,
-                                                              this->freedesktop_object_path_,
-                                                              FREEDESKTOP_ACCOUNTS_USER_DBUS_INTERFACE);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
-        return;
-    }
-
-    auto parameters = g_variant_new("(s)", icon_file.c_str());
-    Glib::VariantContainerBase base(parameters, false);
-    Glib::VariantContainerBase retval;
-    try
-    {
-        retval = account_proxy->call_sync("SetIconFile", base);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_ACCOUNTS("%s", e.what().c_str());
-    }
+bool User::checkPassword(const QString &password)
+{
+    auto hashedPassphrase = getHashedPassphrase();
+    auto encryptedHashedPassphrase = crypt(password.toUtf8().data(),
+                                           hashedPassphrase.toUtf8().data());
+    return hashedPassphrase == encryptedHashedPassphrase;
 }
 
 }  // namespace Kiran

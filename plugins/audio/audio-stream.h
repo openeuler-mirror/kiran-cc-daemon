@@ -1,71 +1,76 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include "lib/base/base.h"
+#include <QDBusContext>
+#include <QSharedPointer>
 
-#include <audio_stream_dbus_stub.h>
-#include "plugins/audio/pulse/pulse-stream.h"
+class StreamAdaptor;
 
 namespace Kiran
 {
-class AudioStream : public SessionDaemon::Audio::StreamStub
+class PulseStream;
+
+class AudioStream : public QObject,
+                    protected QDBusContext
 {
+    Q_OBJECT
+
+    Q_PROPERTY(uint index READ getIndex)
+    Q_PROPERTY(bool mute READ getMute WRITE setMute)
+    Q_PROPERTY(QString name READ getName)
+    Q_PROPERTY(uint state READ getState)
+    Q_PROPERTY(double volume READ getVolume WRITE setVolume)
+
 public:
-    AudioStream(std::shared_ptr<PulseStream> stream);
+    AudioStream(QSharedPointer<PulseStream> stream);
     virtual ~AudioStream();
 
-    bool init(const std::string &object_path_prefix);
+    bool init(const QString &objectPathPrefix);
 
-    std::string get_object_path() { return this->object_path_; };
+    QString getObjectPath() { return m_objectPath; };
 
-    virtual guint32 index_get() { return this->stream_->get_index(); };
-    virtual Glib::ustring name_get() { return this->stream_->get_name(); };
-    virtual bool mute_get() { return this->mute_; }
-    virtual double volume_get() { return this->volume_; };
-    virtual guint32 state_get() { return this->stream_->get_flags(); };
+public:
+    uint getIndex() const;
+    bool getMute() const { return m_mute; };
+    QString getName() const;
+    uint getState() const;
+    double getVolume() const { return m_volume; };
 
-protected:
-    // 设置音量
-    virtual void SetVolume(double volume, MethodInvocation &invocation);
-    // 设置静音
-    virtual void SetMute(bool mute, MethodInvocation &invocation);
+    void setMute(bool mute);
+    void setVolume(double volume);
+
+public Q_SLOTS:
     // 获取属性
-    virtual void GetProperty(const Glib::ustring &key, MethodInvocation &invocation);
-
-    // 如果属性只对外部可读，则直接返回true
-    virtual bool index_setHandler(guint32 value) { return true; };
-    virtual bool name_setHandler(const Glib::ustring &value) { return true; };
-    virtual bool mute_setHandler(bool value);
-    virtual bool volume_setHandler(double value);
-    virtual bool state_setHandler(guint32 value) { return true; };
+    QString GetProperty(const QString &key);
+    // 设置静音
+    void SetMute(bool mute);
+    // 设置音量
+    void SetVolume(double volume);
 
 private:
-    bool dbus_register();
-    void dbus_unregister();
+    bool dbusRegister();
+    void dbusUnregister();
 
-    void on_node_info_changed_cb(PulseNodeField field);
+    void processNodeInfoChanged(int32_t field);
 
 private:
-    std::shared_ptr<PulseStream> stream_;
-
-    Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
-    uint32_t object_register_id_;
-    Glib::DBusObjectPathString object_path_;
-
-    bool mute_;
-    double volume_;
+    StreamAdaptor *m_adaptor;
+    QSharedPointer<PulseStream> m_stream;
+    QString m_objectPath;
+    bool m_mute;
+    double m_volume;
 };
 }  // namespace Kiran

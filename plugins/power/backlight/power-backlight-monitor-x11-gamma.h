@@ -1,25 +1,25 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include <gdkmm.h>
-//
-#include <X11/extensions/Xrandr.h>
-#include <gdk/gdkx.h>
+#include "power-backlight-interface.h"
 
-#include "plugins/power/backlight/power-backlight-interface.h"
+typedef struct xcb_connection_t xcb_connection_t;
+typedef uint32_t xcb_atom_t;
+typedef uint32_t xcb_randr_output_t;
+typedef uint32_t xcb_randr_crtc_t;
 
 namespace Kiran
 {
@@ -36,25 +36,24 @@ struct GammaInfo
 class PowerBacklightMonitorX11Gamma : public PowerBacklightAbsolute
 {
 public:
-    PowerBacklightMonitorX11Gamma(RROutput output, RRCrtc crtc);
-    virtual ~PowerBacklightMonitorX11Gamma(){};
+    PowerBacklightMonitorX11Gamma(xcb_randr_output_t output, xcb_randr_crtc_t crtc);
+    virtual ~PowerBacklightMonitorX11Gamma();
 
     // 设置亮度值
-    virtual bool set_brightness_value(int32_t brightness_value) override;
+    virtual bool setBrightnessValue(int32_t brightnessValue) override;
     // 获取亮度值
-    virtual int32_t get_brightness_value() override;
+    virtual int32_t getBrightnessValue() override;
     // 获取亮度最大最小值
-    virtual bool get_brightness_range(int32_t &min, int32_t &max) override;
+    virtual bool getBrightnessRange(int32_t &min, int32_t &max) override;
 
 private:
-    int find_last_non_clamped(unsigned short array[], int size);
-    GammaInfo get_gamma_info();
+    int findLastNonClamped(unsigned short array[], int size);
+    GammaInfo getGammaInfo();
 
 private:
-    GdkDisplay *display_;
-    Display *xdisplay_;
-    RROutput output_;
-    RRCrtc crtc_;
+    xcb_connection_t *m_xcbConnection;
+    xcb_randr_output_t m_output;
+    xcb_randr_crtc_t m_crtc;
 };
 
 }  // namespace Kiran

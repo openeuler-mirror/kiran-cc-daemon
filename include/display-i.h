@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -34,6 +34,12 @@ extern "C"
 #define DISPLAY_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
 #define DISPLAY_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display"
 #define DISPLAY_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Display"
+
+#define DISPLAY_MONITOR_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Display/Monitor"
+#define DISPLAY_MONITOR_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Display.Monitor"
+
+#define DISPLAY_ROTATION_ALL_MASK 0xf
+#define DISPLAY_REFLECT_ALL_MASK 0x30
 
     // 显示模式，只有在下列情况会使用显示模式进行设置：
     // 1. 程序第一次启动

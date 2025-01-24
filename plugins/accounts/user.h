@@ -1,257 +1,222 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include <user_dbus_stub.h>
-
+#include <QDBusContext>
+#include <QDBusObjectPath>
+#include <QEnableSharedFromThis>
+#include <QSharedPointer>
 #include "accounts-i.h"
-#include "plugins/accounts/accounts-wrapper.h"
-#include "plugins/accounts/passwd-wrapper.h"
-#include "plugins/accounts/user-cache.h"
+#include "accounts-wrapper.h"
+#include "passwd-process.h"
+
+class UserAdaptor;
+class QSettings;
 
 namespace Kiran
 {
-class User : public SystemDaemon::Accounts::UserStub, public std::enable_shared_from_this<User>
+class User : public QObject,
+             public QEnableSharedFromThis<User>,
+             protected QDBusContext
 {
+    Q_OBJECT
+
 public:
     User() = delete;
-    User(PasswdShadow passwd_shadow);
+    User(PasswdShadow passwdShadow);
     virtual ~User();
 
-    static std::shared_ptr<User> create_user(PasswdShadow passwd_shadow);
+    static QSharedPointer<User> createUser(PasswdShadow passwdShadow);
 
-    void dbus_register();
-    void dbus_unregister();
+    void dbusRegister();
+    void dbusUnregister();
+    QDBusObjectPath getObjectPath();
 
-    Glib::DBusObjectPathString get_object_path() { return this->object_path_; }
-
-    void freeze_notify();
-    void thaw_notify();
-
-    void update_from_passwd_shadow(PasswdShadow passwd_shadow);
+    void updateFromPasswdShadow(PasswdShadow passwd_shadow);
     // 移除缓存文件
-    void remove_cache_file();
-    // 判断认证数据是否存在
-    bool match_auth_data(int32_t mode, const std::string &data_id);
+    void removeCacheFile();
+
+public:  // PROPERTIES
+    Q_PROPERTY(int account_type READ getAccountType WRITE setAccountType)
+    Q_PROPERTY(bool automatic_login READ getAutomaticLogin WRITE setAutomaticLogin)
+    Q_PROPERTY(QString email READ getEmail WRITE setEmail)
+    Q_PROPERTY(qulonglong gid READ getGID WRITE setGID)
+    Q_PROPERTY(QString home_directory READ getHomeDirectory WRITE setHomeDirectory)
+    Q_PROPERTY(QString icon_file READ getIconFile WRITE setIconFile)
+    Q_PROPERTY(QString language READ getLanguage WRITE setLanguage)
+    Q_PROPERTY(bool locked READ getLocked WRITE setLocked)
+    Q_PROPERTY(QString password_expiration_policy READ getPasswordExpirationPolicy WRITE setPasswordExpirationPolicy)
+    Q_PROPERTY(QString password_hint READ getPasswordHint WRITE setPasswordHint)
+    Q_PROPERTY(int password_mode READ getPasswordMode WRITE setPasswordMode)
+    Q_PROPERTY(QString real_name READ getRealName WRITE setRealName)
+    Q_PROPERTY(QString session READ getSession WRITE setSession)
+    Q_PROPERTY(QString session_type READ getSessionType WRITE setSessionType)
+    Q_PROPERTY(QString shell READ getShell WRITE setShell)
+    Q_PROPERTY(bool system_account READ getSystemAccount WRITE setSystemAccount)
+    Q_PROPERTY(qulonglong uid READ getUID WRITE setUID)
+    Q_PROPERTY(QString user_name READ getUserName WRITE setUserName)
+    Q_PROPERTY(QString x_session READ getXSession WRITE setXSession)
 
 public:
-    virtual guint64 uid_get() { return this->uid_; };
-    virtual guint64 gid_get() { return this->gid_; };
-    virtual Glib::ustring user_name_get() { return this->user_name_; };
-    virtual Glib::ustring real_name_get() { return this->real_name_; };
-    // 参考AccountsAccountType
-    virtual gint32 account_type_get() { return this->account_type_; };
-    virtual Glib::ustring home_directory_get() { return this->home_directory_; };
-    virtual Glib::ustring shell_get() { return this->shell_; };
-    virtual Glib::ustring email_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_EMAIL); };
-    virtual Glib::ustring language_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_LANGUAGE); };
-    virtual Glib::ustring session_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION); };
-    virtual Glib::ustring session_type_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION_TYPE); };
-    virtual Glib::ustring x_session_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_XSESSION); };
-    virtual Glib::ustring icon_file_get();
-    virtual bool locked_get() { return this->locked_; };
-    virtual gint32 password_mode_get() { return this->password_mode_; };
-    virtual Glib::ustring password_hint_get() { return this->user_cache_->get_string(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_PASSWORD_HINT); };
-    virtual bool automatic_login_get() { return this->automatic_login_; };
-    virtual bool system_account_get() { return this->system_account_; };
-    virtual gint32 auth_modes_get();
-    virtual Glib::ustring password_expiration_policy_get() { return this->password_expiration_policy_; }
+    int getAccountType() { return this->m_accountType; };
+    bool getAutomaticLogin() { return this->m_automaticLogin; };
+    QString getEmail();
+    qulonglong getGID() { return this->m_gid; };
+    QString getHomeDirectory() { return this->m_homeDirectory; };
+    QString getIconFile();
+    QString getLanguage();
+    bool getLocked() { return this->m_locked; };
+    QString getPasswordExpirationPolicy() { return this->m_passwordExpirationPolicy; }
+    QString getPasswordHint();
+    int getPasswordMode() { return this->m_passwordMode; };
+    QString getRealName() { return this->m_realName; };
+    QString getSession();
+    QString getSessionType();
+    QString getShell() { return this->m_shell; };
+    bool getSystemAccount() { return this->m_systemAccount; };
+    qulonglong getUID() { return this->m_uid; };
+    QString getUserName() { return this->m_userName; };
+    QString getXSession();
 
-protected:
-    // 设置用户名
-    virtual void SetUserName(const Glib::ustring &name, MethodInvocation &invocation);
-    //设置用户真实姓名
-    virtual void SetRealName(const Glib::ustring &name, MethodInvocation &invocation);
-    // 设置用户邮箱
-    virtual void SetEmail(const Glib::ustring &email, MethodInvocation &invocation);
-    // 设置用户使用语言
-    virtual void SetLanguage(const Glib::ustring &language, MethodInvocation &invocation);
-    // 设置桌面会话(mate, gnome, etc..)
-    virtual void SetXSession(const Glib::ustring &x_session, MethodInvocation &invocation);
-    virtual void SetSession(const Glib::ustring &session, MethodInvocation &invocation);
-    virtual void SetSessionType(const Glib::ustring &session_type, MethodInvocation &invocation);
-    // 设置用户主目录
-    virtual void SetHomeDirectory(const Glib::ustring &homedir, MethodInvocation &invocation);
-    // 设置用户登陆shell
-    virtual void SetShell(const Glib::ustring &shell, MethodInvocation &invocation);
-    // 设置用户头像文件路径
-    virtual void SetIconFile(const Glib::ustring &filename, MethodInvocation &invocation);
-    // 是否锁定用户
-    virtual void SetLocked(bool locked, MethodInvocation &invocation);
+    void setAccountType(int accountType);
+    void setAutomaticLogin(bool automaticLogin);
+    void setEmail(const QString &email);
+    void setGID(qulonglong gid);
+    void setHomeDirectory(const QString &homeDirectory);
+    void setIconFile(const QString &icon);
+    void setLanguage(const QString &language);
+    void setLocked(bool locked);
+    void setPasswordExpirationPolicy(const QString &passwordExpirationPolicy);
+    void setPasswordHint(const QString &passwordHint);
+    void setPasswordMode(int passwordMode);
+    void setRealName(const QString &realName);
+    void setSession(const QString &session);
+    void setSessionType(const QString &sessionType);
+    void setShell(const QString &shell);
+    void setSystemAccount(bool systemAccount);
+    void setUID(qulonglong uid);
+    void setUserName(const QString &userName);
+    void setXSession(const QString &xsession);
+
+public Q_SLOTS:  // METHODS
     // 设置用户类型，分为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
-    virtual void SetAccountType(gint32 accountType, MethodInvocation &invocation);
-    // 设置密码模式，同时会对用户解除锁定
-    virtual void SetPasswordMode(gint32 mode, MethodInvocation &invocation);
-    // 设置用户密码，同时会对用户解除锁定，密码为加密密码
-    virtual void SetPassword(const Glib::ustring &password, const Glib::ustring &hint, MethodInvocation &invocation);
-    // 通过passwd命令设置用户密码
-    virtual void SetPasswordByPasswd(const Glib::ustring &encrypted_current_password,
-                                     const Glib::ustring &encrypted_new_password,
-                                     MethodInvocation &invocation);
-    // 设置用户密码提示
-    virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);
+    void SetAccountType(int account_type);
     // 设置用户是否自动登陆
-    virtual void SetAutomaticLogin(bool enabled, MethodInvocation &invocation);
+    void SetAutomaticLogin(bool enabled);
+    // 设置用户邮箱
+    void SetEmail(const QString &email);
+    // 设置用户主目录
+    void SetHomeDirectory(const QString &homedir);
+    // 设置用户头像文件路径
+    void SetIconFile(const QString &filepath);
+    // 设置用户使用语言
+    void SetLanguage(const QString &language);
+    // 是否锁定用户
+    void SetLocked(bool locked);
+    // 设置用户密码，同时会对用户解除锁定，密码为加密密码
+    void SetPassword(const QString &password, const QString &hint);
+    // 通过passwd命令设置用户密码
+    void SetPasswordByPasswd(const QString &encryptedCurrentPassword, const QString &encryptedNewPassword);
     // 设置用户密码过期信息
-    virtual void SetPasswordExpirationPolicy(const Glib::ustring &options, MethodInvocation &invocation);
-    /**
-     * @brief 添加/录入认证数据
-     * @param {mode} 参考AccountsPasswordMode定义
-     * @param {name} 认证数据的名字 ，例如指纹1、指纹2
-     * @param {data_id} 认证数据的唯一标识
-     * @return 如果名字已经存在或者mode不支持，则返回错误
-     */
-    virtual void AddAuthItem(gint32 mode, const Glib::ustring &name, const Glib::ustring &data_id, MethodInvocation &invocation);
-    // 删除认证项
-    virtual void DelAuthItem(gint32 mode, const Glib::ustring &name, MethodInvocation &invocation);
-    // 获取认证项，获取操作不需要加权限控制，否则登陆锁屏界面无法取到指纹数据做验证
-    virtual void GetAuthItems(gint32 mode, MethodInvocation &invocation);
-    // 开启或关闭认证，如果未开启认证，就算录入了数据也不会使用
-    virtual void EnableAuthMode(gint32 mode, bool enabled, MethodInvocation &invocation);
+    void SetPasswordExpirationPolicy(const QString &options);
+    // 设置用户密码提示
+    void SetPasswordHint(const QString &hint);
+    // 设置密码模式，同时会对用户解除锁定
+    void SetPasswordMode(int mode);
+    // 设置用户真实姓名
+    void SetRealName(const QString &name);
+    void SetSession(const QString &session);
+    void SetSessionType(const QString &session_type);
+    // 设置用户登陆shell
+    void SetShell(const QString &shell);
+    // 设置用户名
+    void SetUserName(const QString &name);
+    // 设置桌面会话(mate, gnome, etc..)
+    void SetXSession(const QString &x_session);
 
-    virtual bool uid_setHandler(guint64 value);
-    virtual bool gid_setHandler(guint64 value);
-    virtual bool user_name_setHandler(const Glib::ustring &value);
-    virtual bool real_name_setHandler(const Glib::ustring &value);
-    virtual bool account_type_setHandler(gint32 value);
-    virtual bool home_directory_setHandler(const Glib::ustring &value);
-    virtual bool shell_setHandler(const Glib::ustring &value);
-    virtual bool email_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_EMAIL, value);
-    }
-    virtual bool language_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_LANGUAGE, value);
-    };
-    virtual bool session_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION, value);
-    };
-    virtual bool session_type_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_SESSION_TYPE, value);
-    };
-    virtual bool x_session_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_XSESSION, value);
-    };
-    virtual bool icon_file_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_ICON, value);
-    };
-    virtual bool password_hint_setHandler(const Glib::ustring &value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_PASSWORD_HINT, value);
-    }
+private:
+    void setAccountTypeAuthenticated(const QDBusMessage &message, int accountType);
+    void setAutomaticLoginAuthenticated(const QDBusMessage &message, bool enabled);
+    void setEmailAuthenticated(const QDBusMessage &message, const QString &email);
+    void setHomeDirectoryAuthenticated(const QDBusMessage &message, const QString &homedir);
+    void setIconFileAuthenticated(const QDBusMessage &message, const QString &filepath);
+    void setLanguageAuthenticated(const QDBusMessage &message, const QString &language);
+    void setLockedAuthenticated(const QDBusMessage &message, bool locked);
+    void setPasswordAuthenticated(const QDBusMessage &message, const QString &password, const QString &hint);
+    void setPasswordByPasswdAuthenticated(const QDBusMessage &message,
+                                          const QString &encryptedCurrentPassword, const QString &encryptedNewPassword);
+    void setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message, const QString &options);
+    void setPasswordHintAuthenticated(const QDBusMessage &message, const QString &hint);
+    void setPasswordModeAuthenticated(const QDBusMessage &message, int mode);
+    void setRealNameAuthenticated(const QDBusMessage &message, const QString &name);
+    void setSessionAuthenticated(const QDBusMessage &message, const QString &session);
+    void setSessionTypeAuthenticated(const QDBusMessage &message, const QString &sessionType);
+    void setShellAuthenticated(const QDBusMessage &message, const QString &shell);
+    void setUserNameAuthenticated(const QDBusMessage &message, const QString &name);
+    void setXSessionAuthenticated(const QDBusMessage &message, const QString &xsession);
 
-    virtual bool locked_setHandler(bool value);
-    virtual bool password_mode_setHandler(gint32 value);
-    virtual bool automatic_login_setHandler(bool value);
-    virtual bool system_account_setHandler(bool value);
-    virtual bool auth_modes_setHandler(gint32 value)
-    {
-        return this->user_cache_->set_value(KEYFILE_USER_GROUP_NAME, KEYFILE_USER_GROUP_KEY_AUTH_MODES, value);
-    }
-    virtual bool password_expiration_policy_setHandler(const Glib::ustring &value);
+private:
+    QString getAuthAction(const QDBusMessage &message, const QString &ownAction);
+    // 密码变更后需要更新相关属性
+    void processPasswdChanged(const QString &errorDesc, const QDBusMessage &message);
 
 private:
     void init();
-
+    void buildFreedesktopUserObjectPath();
     // 这里只更新与缓存数据无关的变量
-    void udpate_nocache_var(PasswdShadow passwd_shadow);
-    // 获取指定认证模式的认证项
-    VPSS get_auth_items(int32_t mode);
-
+    void udpateNocacheVar(PasswdShadow passwd_shadow);
+    void initSettings();
     // 根据shadow信息更新密码过期策略
-    void update_password_expiration_policy(std::shared_ptr<SPwd> spwd);
-
-    std::string get_auth_action(MethodInvocation &invocation, const std::string &own_action);
-    void change_user_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
-    void change_real_name_authorized_cb(MethodInvocation invocation, const Glib::ustring &name);
-    void change_email_authorized_cb(MethodInvocation invocation, const Glib::ustring &email);
-    void change_language_authorized_cb(MethodInvocation invocation, const Glib::ustring &language);
-    void change_x_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &x_session);
-    void change_session_authorized_cb(MethodInvocation invocation, const Glib::ustring &session);
-    void change_session_type_authorized_cb(MethodInvocation invocation, const Glib::ustring &session_type);
-    void change_home_dir_authorized_cb(MethodInvocation invocation, const Glib::ustring &home_dir);
-    void change_shell_authorized_cb(MethodInvocation invocation, const Glib::ustring &shell);
-    void change_icon_file_authorized_cb(MethodInvocation invocation, const Glib::ustring &icon_file);
-    void change_locked_authorized_cb(MethodInvocation invocation, bool locked);
-    void change_account_type_authorized_cb(MethodInvocation invocation, int32_t account_type);
-    void change_password_mode_authorized_cb(MethodInvocation invocation, int32_t password_mode);
-    void change_password_authorized_cb(MethodInvocation invocation, const Glib::ustring &password, const Glib::ustring &password_hint);
-    void change_password_by_passwd_authorized_cb(MethodInvocation invocation,
-                                                 const Glib::ustring &current_password,
-                                                 const Glib::ustring &new_password);
-    void on_exec_passwd_finished(const std::string &error_desc, MethodInvocation invocation);
-    void change_password_hint_authorized_cb(MethodInvocation invocation, const Glib::ustring &password_hint);
-    void change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login);
-    void change_password_expiration_policy_cb(MethodInvocation invocation, const Glib::ustring &options);
-    void become_user(std::shared_ptr<Passwd> passwd);
-    void add_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name, const Glib::ustring &data_id);
-    void del_auth_item_authorized_cb(MethodInvocation invocation, int32_t mode, const Glib::ustring &name);
-    // void get_auth_items_authorized_cb(MethodInvocation invocation, int32_t mode);
-    void enable_auth_mode_authorized_cb(MethodInvocation invocation, int32_t mode, bool enabled);
-    // 模式转为对应的keyfile的group_name
-    std::string mode_to_groupname(int32_t mode);
-
-    AccountsAccountType account_type_from_pwent(std::shared_ptr<Passwd> passwd);
-    void reset_icon_file();
-
-    void move_extra_data(const std::string &old_name, const std::string &new_name);
-
-    void build_freedesktop_user_object_path();
-
+    void updatePasswordExpirationPolicy(QSharedPointer<SPwd> spwd);
+    AccountsAccountType accountTtypeFromPwent(QSharedPointer<Passwd> passwd);
+    void resetIconFile();
     // 由于切换用户时，登陆器通过org.freedesktop.Accounts接口获取图标，Kiran设置/更新用户图标后需要同步到freedesktop
-    void sync_icon_file_to_freedesktop(const Glib::ustring &icon_file);
+    void syncIconFileToFreedesktop(const QString &iconFile);
+    // 获取当前用户的加密密码
+    QString getHashedPassphrase();
+    // 判断用户密码是否合法
+    bool checkPassword(const QString &password);
 
 private:
-private:
-    Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
-
+    QString m_objectPath;
+    UserAdaptor *m_userAdaptor;
     // 绑定的passwd和shadow文件
-    PasswdShadow passwd_shadow_;
+    PasswdShadow m_passwdShadow;
+    // 用户在accountsservice服务中的ObjectPath地址
+    QString m_freedesktopObjectPath;
 
-    uint32_t object_register_id_;
+    QString defaultIconFile;
+    QSharedPointer<Passwd> m_passwd;
+    QSharedPointer<SPwd> m_spwd;
 
-    Glib::DBusObjectPathString object_path_;
-    Glib::DBusObjectPathString freedesktop_object_path_;
-
-    std::string default_icon_file_;
-    std::shared_ptr<Passwd> passwd_;
-    std::shared_ptr<SPwd> spwd_;
-
-    uint64_t uid_;
-    uint64_t gid_;
-    Glib::ustring user_name_;
-    Glib::ustring real_name_;
-    int32_t account_type_;
-    Glib::ustring home_directory_;
-    Glib::ustring shell_;
-    bool locked_;
-    int32_t password_mode_;
-    bool automatic_login_;
-    bool system_account_;
-    Glib::ustring password_expiration_policy_;
-
-    std::shared_ptr<PasswdWrapper> passwd_wrapper_;
-
+    int m_accountType;
+    bool m_automaticLogin;
+    QString m_homeDirectory;
+    qulonglong m_gid;
+    bool m_locked;
+    QString m_passwordExpirationPolicy;
+    int m_passwordMode;
+    QString m_realName;
+    QString m_shell;
+    bool m_systemAccount;
+    qulonglong m_uid;
+    QString m_userName;
     // 用户缓存数据管理
-    std::shared_ptr<UserCache> user_cache_;
+    QSettings *m_settings;
+    QSharedPointer<PasswdProcess> m_passwdProcess;
 };
 
-using UserVec = std::vector<std::shared_ptr<User>>;
+using UserVec = QVector<QSharedPointer<User>>;
 }  // namespace Kiran

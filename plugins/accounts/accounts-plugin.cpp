@@ -1,51 +1,41 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2024 ~ 2025 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/accounts/accounts-plugin.h"
-
-#include <cstdio>
-
-#include <gtk3-log-i.h>
-#include "plugins/accounts/accounts-manager.h"
-#include "plugins/accounts/accounts-wrapper.h"
-
-PLUGIN_EXPORT_FUNC_DEF(AccountsPlugin);
+#include "accounts-plugin.h"
+#include <QCoreApplication>
+#include <QTranslator>
+#include "accounts-manager.h"
+#include "accounts-wrapper.h"
+#include "config.h"
+#include "lib/base/misc-utils.h"
 
 namespace Kiran
 {
-AccountsPlugin::AccountsPlugin()
-{
-}
-
-AccountsPlugin::~AccountsPlugin()
-{
-}
-
 void AccountsPlugin::activate()
 {
-    KLOG_DEBUG_ACCOUNTS("Active accounts plugin.");
+    m_translator = MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("accounts"));
 
-    AccountsWrapper::global_init();
-    AccountsManager::global_init(AccountsWrapper::get_instance());
+    AccountsWrapper::globalInit();
+    AccountsManager::globalInit(AccountsWrapper::getInstance());
 }
 
 void AccountsPlugin::deactivate()
 {
-    KLOG_DEBUG_ACCOUNTS("Deactive accounts plugin.");
+    AccountsManager::globalDeinit();
+    AccountsWrapper::globalDeinit();
 
-    AccountsManager::global_deinit();
-    AccountsWrapper::global_deinit();
+    MiscUtils::removeTranslator(m_translator);
 }
 
 }  // namespace Kiran

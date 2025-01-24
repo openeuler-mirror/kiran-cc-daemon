@@ -1,76 +1,72 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include "lib/base/base.h"
+#include <QObject>
+
+class QDBusMessage;
 
 namespace Kiran
 {
 // 对SessionManager的dbus接口的封装
-class PowerSession
+class PowerSession : public QObject
 {
+    Q_OBJECT
+
 public:
     PowerSession();
     virtual ~PowerSession(){};
 
     void init();
 
-    // 空闲状态发生变化
-    sigc::signal<void, bool>& signal_idle_status_changed() { return this->idle_status_changed_; };
-    // 禁用状态发生变化
-    sigc::signal<void>& signal_inhibitor_changed() { return this->inhibitor_changed_; };
-
     // 获取空闲状态
-    bool get_idle() { return this->is_idle_; };
+    bool getIdle() { return m_isIdle; };
     // 空闲状态是否禁用
-    bool get_idle_inhibited() { return this->is_idle_inhibited_; };
+    bool getIdleInhibited() { return isIdleInhibited; };
     // 挂起状态是否禁用
-    bool get_suspend_inhibited() { return this->is_suspend_inhibited_; };
+    bool getSuspendInhibited() { return isSuspendInhibited; };
 
     // 挂机
-    bool can_suspend();
+    bool canSuspend();
     void suspend();
     // 休眠
-    bool can_hibernate();
+    bool canHibernate();
     void hibernate();
     // 关机
-    bool can_shutdown();
+    bool canShutdown();
     void shutdown();
+
+Q_SIGNALS:
+    // 空闲状态发生变化
+    void idleStatusChanged(bool);
+    // 禁用状态发生变化
+    void inhibitorChanged();
 
 private:
     // 获取空闲状态
-    uint32_t get_status();
+    uint32_t getStatus();
     // 判断logout, switch-user, suspend和idle的禁用状态
-    bool get_inhibited(uint32_t flag);
+    bool getInhibited(uint32_t flag);
 
-    void on_sm_signal(const Glib::ustring& sender_name, const Glib::ustring& signal_name, const Glib::VariantContainerBase& parameters);
-    void on_sm_inhibitor_changed_cb(const Glib::VariantContainerBase& parameters);
-
-    void on_sm_presence_signal(const Glib::ustring& sender_name, const Glib::ustring& signal_name, const Glib::VariantContainerBase& parameters);
-    void on_sm_presence_status_changed_cb(const Glib::VariantContainerBase& parameters);
+private Q_SLOTS:
+    void processInhibitorChanged(const QDBusMessage& message);
+    void processPresenceStatusChanged(const QDBusMessage& message);
 
 private:
-    // 会话管理代理类(session manager proxy)
-    Glib::RefPtr<Gio::DBus::Proxy> sm_proxy_;
-    Glib::RefPtr<Gio::DBus::Proxy> sm_presence_proxy_;
-
-    sigc::signal<void, bool> idle_status_changed_;
-    sigc::signal<void> inhibitor_changed_;
-
-    bool is_idle_;
-    bool is_idle_inhibited_;
-    bool is_suspend_inhibited_;
+    bool m_isIdle;
+    bool isIdleInhibited;
+    bool isSuspendInhibited;
 };
 }  // namespace Kiran

@@ -1,93 +1,102 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include "lib/base/base.h"
+#include <QDBusContext>
+#include <QSharedPointer>
 
-#include <audio_device_dbus_stub.h>
-#include "plugins/audio/pulse/pulse-device.h"
+class DeviceAdaptor;
 
 namespace Kiran
 {
-class AudioDevice : public SessionDaemon::Audio::DeviceStub
+class PulseDevice;
+
+class AudioDevice : public QObject,
+                    protected QDBusContext
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QString active_port READ getActivePort WRITE setActivePort)
+    Q_PROPERTY(double balance READ getBalance WRITE setBalance)
+    Q_PROPERTY(double base_volume READ getBaseVolume)
+    Q_PROPERTY(uint card_index READ getCardIndex)
+    Q_PROPERTY(double fade READ getFade WRITE setFade)
+    Q_PROPERTY(uint index READ getIndex)
+    Q_PROPERTY(bool mute READ getMute WRITE setMute)
+    Q_PROPERTY(QString name READ getName)
+    Q_PROPERTY(uint state READ getState)
+    Q_PROPERTY(double volume READ getVolume WRITE setVolume)
+
 public:
-    AudioDevice(std::shared_ptr<PulseDevice> device);
+    AudioDevice(QSharedPointer<PulseDevice> device);
     virtual ~AudioDevice();
 
-    bool init(const std::string &object_path_prefix);
+    bool init(const QString &objectPathPrefix);
 
-    std::string get_object_path() { return this->object_path_; };
+    QString getObjectPath() { return m_objectPath; };
 
-    virtual guint32 index_get() { return this->device_->get_index(); };
-    virtual Glib::ustring name_get() { return this->device_->get_name(); };
-    virtual bool mute_get() { return this->mute_; };
-    virtual double volume_get() { return this->volume_; }
-    virtual double balance_get() { return this->balance_; }
-    virtual double fade_get() { return this->fade_; }
-    virtual double base_volume_get();
-    virtual guint32 card_index_get() { return this->device_->get_card_index(); };
-    virtual Glib::ustring active_port_get() { return this->active_port_; };
-    virtual guint32 state_get() { return this->device_->get_flags(); };
+public:
+    QString getActivePort() const { return m_activePort; };
+    double getBalance() const { return m_balance; };
+    double getBaseVolume() const;
+    uint getCardIndex() const;
+    double getFade() const { return m_fade; };
+    uint getIndex() const;
+    bool getMute() const { return m_mute; };
+    QString getName() const;
+    uint getState() const;
+    double getVolume() const { return m_volume; };
 
-protected:
-    // 设置正在使用的端口
-    virtual void SetActivePort(const Glib::ustring &name, MethodInvocation &invocation);
+    void setActivePort(const QString &activePort);
+    void setBalance(double balance);
+    void setFade(double fade);
+    void setMute(bool mute);
+    void setVolume(double volume);
+
+public Q_SLOTS:
     // 获取所有绑定端口
-    virtual void GetPorts(MethodInvocation &invocation);
-    // 设置音量
-    virtual void SetVolume(double volume, MethodInvocation &invocation);
-    // 设置左声道和右声道的平衡
-    virtual void SetBalance(double balance, MethodInvocation &invocation);
-    // 设置远声道和近声道的平衡
-    virtual void SetFade(double fade, MethodInvocation &invocation);
-    // 设置静音
-    virtual void SetMute(bool mute, MethodInvocation &invocation);
+    QString
+    GetPorts();
     // 获取属性
-    virtual void GetProperty(const Glib::ustring &key, MethodInvocation &invocation);
-
-    virtual bool index_setHandler(guint32 value) { return true; };
-    virtual bool name_setHandler(const Glib::ustring &value) { return true; };
-    virtual bool mute_setHandler(bool value);
-    virtual bool volume_setHandler(double value);
-    virtual bool balance_setHandler(double value);
-    virtual bool fade_setHandler(double value);
-    virtual bool base_volume_setHandler(double value) { return true; };
-    virtual bool card_index_setHandler(guint32 value) { return true; };
-    virtual bool active_port_setHandler(const Glib::ustring &value);
-    virtual bool state_setHandler(guint32 value) { return true; }
-
-private:
-    bool dbus_register();
-    void dbus_unregister();
-
-    void on_node_info_changed_cb(PulseNodeField field);
-    void on_active_port_changed_cb(const std::string &active_port_name);
+    QString GetProperty(const QString &key);
+    // 设置正在使用的端口
+    void SetActivePort(const QString &name);
+    // 设置左声道和右声道的平衡
+    void SetBalance(double balance);
+    // 设置远声道和近声道的平衡
+    void SetFade(double fade);
+    // 设置静音
+    void SetMute(bool mute);
+    // 设置音量
+    void SetVolume(double volume);
 
 private:
-    std::shared_ptr<PulseDevice> device_;
+    bool dbusRegister();
+    void dbusUnregister();
 
-    Glib::RefPtr<Gio::DBus::Connection> dbus_connect_;
-    uint32_t object_register_id_;
-    Glib::DBusObjectPathString object_path_;
+    void processNodeInfoChanged(int32_t field);
 
-    bool mute_;
-    double volume_;
-    double balance_;
-    double fade_;
-    std::string active_port_;
+private:
+    DeviceAdaptor *m_adaptor;
+    QSharedPointer<PulseDevice> m_device;
+    QString m_objectPath;
+    bool m_mute;
+    double m_volume;
+    double m_balance;
+    double m_fade;
+    QString m_activePort;
 };
 
 }  // namespace Kiran

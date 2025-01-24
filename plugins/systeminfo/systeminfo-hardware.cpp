@@ -12,14 +12,18 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/systeminfo/systeminfo-hardware.h"
+#include "systeminfo-hardware.h"
 
-#include <gio/gunixinputstream.h>
-#include <glibmm/regex.h>
 #include <glibtop/mem.h>
 #include <gudev/gudev.h>
-#include <cinttypes>
-#include <fstream>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
@@ -41,489 +45,341 @@ namespace Kiran
 #define PCIINFO_CMD "lspci"
 #define PCIINFO_KEY_DELIMITER ':'
 
-SystemInfoHardware::SystemInfoHardware() : mem_size_lshw(0)
+SystemInfoHardware::SystemInfoHardware(QObject* parent) : QObject(parent),
+                                                          m_memSizeLshw(0)
 {
-    init_meminfo_with_lshw();
+    m_lshwProcess = new QProcess(this);
+
+    initMeminfoWithLshw();
 }
 
-void SystemInfoHardware::init_meminfo_with_lshw()
+void SystemInfoHardware::initMeminfoWithLshw()
 {
     // 使用工具lshw获取硬件信息返回结果可能耗时1s左右，为避免用户读取数据延迟在初始化过程中调用一次即可
-    std::string action = std::string("/usr/sbin/lshw -json");
-    std::vector<std::string> argv = Glib::shell_parse_argv(action);
-    std::vector<Glib::ustring> envp;
-    int standard_output = 0;
-
-    Glib::spawn_async_with_pipes(Glib::ustring(),
-                                 argv,
-                                 envp,
-                                 Glib::SPAWN_DO_NOT_REAP_CHILD,
-                                 Glib::SlotSpawnChildSetup(),
-                                 &this->child_pid_,
-                                 nullptr,
-                                 &standard_output,
-                                 nullptr);
-
-    this->out_io_channel_ = Glib::IOChannel::create_from_fd(standard_output);
-
-    this->out_io_source_ = this->out_io_channel_->create_watch(Glib::IOCondition::IO_IN | Glib::IOCondition::IO_PRI);
-    this->out_io_connection_ = this->out_io_source_->connect(sigc::bind(sigc::mem_fun(this, &SystemInfoHardware::on_lshw_output), this->out_io_channel_));
-    this->out_io_source_->attach(Glib::MainContext::get_default());
-
-    this->watch_child_connection_ = Glib::signal_child_watch().connect(sigc::mem_fun(this, &SystemInfoHardware::on_child_watch), this->child_pid_);
+    connect(m_lshwProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(processLshwStandardOutput()));
+    connect(m_lshwProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processLshwFinished(int, QProcess::ExitStatus)));
+    m_lshwProcess->start("/usr/sbin/lshw", QStringList({"-json"}));
 }
 
-HardwareInfo SystemInfoHardware::get_hardware_info()
+HardwareInfo SystemInfoHardware::getHardwareInfo()
 {
-    HardwareInfo hardware_info;
-    hardware_info.cpu_info = this->get_cpu_info();
-    hardware_info.mem_info = this->get_mem_info();
-    hardware_info.disks_info = this->get_disks_info();
-    hardware_info.eths_info = this->get_eths_info();
-    hardware_info.graphics_info = this->get_graphics_info();
-    return hardware_info;
+    HardwareInfo hardwareInfo;
+    hardwareInfo.cpuInfo = getCpuInfo();
+    hardwareInfo.memInfo = getMemInfo();
+    hardwareInfo.disksInfo = getDisksInfo();
+    hardwareInfo.ethsInfo = getEthsInfo();
+    hardwareInfo.graphicsInfo = getGraphicsInfo();
+    return hardwareInfo;
 }
 
-CPUInfo SystemInfoHardware::merge_cpu_infos(const std::vector<CPUInfo>& cpu_infos)
+CPUInfo SystemInfoHardware::mergeCpuInfos(const QVector<CPUInfo>& cpuInfos)
 {
-    CPUInfo cpu_info;
-    for (auto& iter : cpu_infos)
+    CPUInfo cpuInfo;
+    for (auto& iter : cpuInfos)
     {
-        if (cpu_info.model.empty())
+        if (cpuInfo.model.isEmpty())
         {
-            cpu_info.model = iter.model;
+            cpuInfo.model = iter.model;
         }
-        if (cpu_info.cores_number == 0)
+        if (cpuInfo.coresNumber == 0)
         {
-            cpu_info.cores_number = iter.cores_number;
+            cpuInfo.coresNumber = iter.coresNumber;
         }
     }
-    return cpu_info;
+    return cpuInfo;
 }
 
-CPUInfo SystemInfoHardware::get_cpu_info()
+CPUInfo SystemInfoHardware::getCpuInfo()
 {
-    std::vector<CPUInfo> cpu_infos;
-    cpu_infos.push_back(this->get_cpu_info_by_cmd());
-    cpu_infos.push_back(this->read_cpu_info_by_conf());
-    return this->merge_cpu_infos(cpu_infos);
+    QVector<CPUInfo> cpuInfos;
+    cpuInfos.push_back(getCpuInfoByCmd());
+    cpuInfos.push_back(readCpuInfoByConf());
+    return mergeCpuInfos(cpuInfos);
 }
 
-CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
+CPUInfo SystemInfoHardware::getCpuInfoByCmd()
 {
     // 低版本不支持-J选项
 
-    std::string cmd_output;
-    try
-    {
-        std::vector<std::string> argv{CPUINFO_CMD};
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                         &cmd_output);
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
-        return CPUInfo();
-    }
+    QProcess process;
+    process.setEnvironment(QStringList{"LANG=en_US.UTF-8"});
+    process.start(CPUINFO_CMD, QStringList());
+    process.waitForFinished();
+    auto cmdOutput = process.readAllStandardOutput();
 
-    auto kv_list = this->format_to_kv_list(cmd_output);
-    RETURN_VAL_IF_TRUE(kv_list.size() == 0, CPUInfo());
+    auto kvList = formatToKVList(cmdOutput);
+    RETURN_VAL_IF_TRUE(kvList.size() == 0, CPUInfo());
 
-    CPUInfo cpu_info;
-    for (auto& iter : kv_list[0])
+    CPUInfo cpuInfo;
+    for (auto& key : kvList[0])
     {
-        switch (shash(iter.first.c_str()))
+        auto value = kvList[0][key];
+        switch (shash(key.toLatin1().data()))
         {
         case "CPU(s)"_hash:
-            cpu_info.cores_number = strtol(iter.second.c_str(), NULL, 0);
+            cpuInfo.coresNumber = value.toInt();
             break;
         case "Model name"_hash:
-            cpu_info.model = iter.second;
+            cpuInfo.model = value;
             break;
         default:
             break;
         }
     }
 
-    return cpu_info;
+    return cpuInfo;
 }
 
-CPUInfo SystemInfoHardware::read_cpu_info_by_conf()
+CPUInfo SystemInfoHardware::readCpuInfoByConf()
 {
-    CPUInfo cpu_info;
-    auto cpu_maps = this->parse_info_file(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
-    cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL];
+    CPUInfo cpuInfo;
+    auto cpuMaps = parseInfoFile(CPUINFO_FILE, CPUINFO_KEY_DELIMITER);
+    cpuInfo.model = cpuMaps[CPUINFO_KEY_MODEL];
     // 适配龙芯架构
-    if (cpu_info.model.empty())
+    if (cpuInfo.model.isEmpty())
     {
-        cpu_info.model = cpu_maps[CPUINFO_KEY_MODEL_LS];
+        cpuInfo.model = cpuMaps[CPUINFO_KEY_MODEL_LS];
     }
 
-    if (cpu_maps.find(CPUINFO_KEY_PROCESSOR) != cpu_maps.end())
+    if (cpuMaps.find(CPUINFO_KEY_PROCESSOR) != cpuMaps.end())
     {
-        cpu_info.cores_number = strtol(cpu_maps[CPUINFO_KEY_PROCESSOR].c_str(), NULL, 0) + 1;
+        cpuInfo.coresNumber = cpuMaps[CPUINFO_KEY_PROCESSOR].toInt() + 1;
     }
-    return cpu_info;
+    return cpuInfo;
 }
 
-MemInfo SystemInfoHardware::get_mem_info()
+MemInfo SystemInfoHardware::getMemInfo()
 {
-    MemInfo mem_info;
+    MemInfo memInfo;
 
-    mem_info.total_size = this->get_memory_size_with_dmi();
-    mem_info.available_size = this->get_memory_size_with_libgtop();
+    memInfo.totalSize = getMemorySizeWithDmi();
+    memInfo.availableSize = getMemorySizeWithLibgtop();
 
-    if (mem_info.total_size == 0)
+    if (memInfo.totalSize == 0)
     {
-        mem_info.total_size = this->get_memory_size_with_lshw();
-        KLOG_DEBUG_SYSTEMINFO("Get total size with lshw:%ld.", mem_info.total_size);
+        memInfo.totalSize = getMemorySizeWithLshw();
+        KLOG_DEBUG(systeminfo) << "Get total size with lshw" << memInfo.totalSize;
     }
 
-    if (mem_info.total_size == 0)
+    if (memInfo.totalSize == 0)
     {
-        mem_info.total_size = mem_info.available_size;
-        KLOG_DEBUG_SYSTEMINFO("Get total size with libgtop:%ld.", mem_info.total_size);
+        memInfo.totalSize = memInfo.availableSize;
+        KLOG_DEBUG(systeminfo) << "Get total size with libgtop" << memInfo.totalSize;
     }
 
-    KLOG_DEBUG_SYSTEMINFO("Use total size is %ld, available size is %ld.", mem_info.total_size, mem_info.available_size);
-
-    return mem_info;
+    KLOG_INFO(systeminfo) << "Use total size is" << memInfo.totalSize << ", available size is " << memInfo.availableSize;
+    return memInfo;
 }
 
-void SystemInfoHardware::set_env()
+QMap<QString, QString> SystemInfoHardware::parseInfoFile(const QString& path, char delimiter)
 {
-    Glib::setenv("LANG", "en_US.UTF-8", true);
-}
+    QMap<QString, QString> result;
+    QFile file(path);
 
-std::map<std::string, std::string> SystemInfoHardware::parse_info_file(const std::string& path, char delimiter)
-{
-    std::map<std::string, std::string> result;
-    std::fstream fs(path.c_str(), std::fstream::in);
-    // meminfo和cpuinfo文件中的内容是动态生成的，因此不能通过获取文件大小的方式来分配缓存
-    char buffer[BUFSIZ];
-
-    SCOPE_EXIT({ fs.close(); });
-
-    if (fs.fail())
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        KLOG_WARNING_SYSTEMINFO("Failed to open file %s.", path.c_str());
-        return std::map<std::string, std::string>();
+        KLOG_WARNING(systeminfo) << "Failed to open file" << path;
+        return result;
     }
 
-    while (!fs.eof())
+    auto contents = file.readAll();
+    auto lines = contents.split('\n');
+    for (auto& line : lines)
     {
-        fs.getline(buffer, BUFSIZ);
-
-        RETURN_VAL_IF_TRUE(fs.fail(), result);
-
-        auto fields = StrUtils::split_with_char(std::string(buffer), delimiter);
-
-        if (fields.size() != 2)
-        {
-            continue;
-        }
-
-        result[StrUtils::trim(fields[0])] = StrUtils::trim(fields[1]);
+        auto key = QString(line).section(delimiter, 0, 0).trimmed();
+        auto value = QString(line).section(delimiter, 1).trimmed();
+        CONTINUE_IF_TRUE(value.isEmpty());
+        result[key] = value;
     }
+
+    file.close();
 
     return result;
 }
 
-DiskInfoVec SystemInfoHardware::get_disks_info()
+DiskInfoVec SystemInfoHardware::getDisksInfo()
 {
     // 老版本lsblk不支持-J选项，所以这里不使用json格式
-    DiskInfoVec disks_info;
-    std::vector<std::string> argv{DISKINFO_CMD, "-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"};
+    DiskInfoVec disksInfo;
+    QProcess process;
+    process.setEnvironment(QStringList{"LANG=en_US.UTF-8"});
+    process.setProgram(DISKINFO_CMD);
+    process.setArguments(QStringList{"-d", "-b", "-P", "-o", "NAME,TYPE,SIZE,MODEL,VENDOR"});
+    process.start();
+    process.waitForFinished();
+    auto cmdOutput = process.readAllStandardOutput();
+    auto lines = cmdOutput.split('\n');
+    QRegularExpression re(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")");
 
-    std::string cmd_output;
-    try
-    {
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                         &cmd_output);
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
-        return disks_info;
-    }
-
-    auto lines = Glib::Regex::split_simple("\n", cmd_output);
-    Glib::RefPtr<Glib::Regex> regex = Glib::Regex::create(R"(NAME=\"([^\"]*)\" TYPE=\"([^\"]*)\" SIZE=\"(\d+)\" MODEL=\"([^\"]*)\" VENDOR=\"([^\"]*)\")");
     for (const auto& line : lines)
     {
-        Glib::MatchInfo match_info;
-        if (regex->match(line, match_info))
+        auto match = re.match(line);
+        if (match.hasMatch())
         {
-            std::string name = match_info.fetch(1);
-            std::string type = match_info.fetch(2);
-            std::string size = match_info.fetch(3);
-            std::string model = match_info.fetch(4);
-            std::string vendor = match_info.fetch(5);
+            auto name = match.captured(1);
+            auto type = match.captured(2);
+            auto size = match.captured(3);
+            auto model = match.captured(4);
+            auto vendor = match.captured(5);
 
             if (type == "disk" &&
-                !name.empty() &&
-                !size.empty() &&
-                (!model.empty() || !vendor.empty()))
+                !name.isEmpty() &&
+                !size.isEmpty() &&
+                (!model.isEmpty() || !vendor.isEmpty()))
             {
-                DiskInfo disk_info;
-                disk_info.name = name;
-                disk_info.size = atoll(size.c_str());
-                disk_info.model = !model.empty() ? model : name;
-                disk_info.vendor = !vendor.empty() ? vendor : name;
-                disks_info.push_back(disk_info);
+                DiskInfo diskInfo;
+                diskInfo.name = name;
+                diskInfo.size = size.toLongLong();
+                diskInfo.model = !model.isEmpty() ? model : name;
+                diskInfo.vendor = !vendor.isEmpty() ? vendor : name;
+                disksInfo.push_back(diskInfo);
             }
         }
     }
 
-    return disks_info;
+    return disksInfo;
 }
 
-EthInfoVec SystemInfoHardware::get_eths_info()
+EthInfoVec SystemInfoHardware::getEthsInfo()
 {
-    EthInfoVec eths_info;
-    auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_NETWORK);
+    EthInfoVec ethsInfo;
+    auto pcisInfo = getPcisByMajorClassID(PCIMajorClassID::PCI_MAJOR_CLASS_ID_NETWORK);
 
-    for (auto& pci_info : pcis_info)
+    for (auto& pciInfo : pcisInfo)
     {
-        EthInfo eth_info;
-        eth_info.model = pci_info["Device"];
-        eth_info.vendor = pci_info["Vendor"];
-        eths_info.push_back(std::move(eth_info));
+        EthInfo ethInfo;
+        ethInfo.model = pciInfo["Device"];
+        ethInfo.vendor = pciInfo["Vendor"];
+        ethsInfo.push_back(std::move(ethInfo));
     }
-    return eths_info;
+    return ethsInfo;
 }
 
-GraphicInfoVec SystemInfoHardware::get_graphics_info()
+GraphicInfoVec SystemInfoHardware::getGraphicsInfo()
 {
-    GraphicInfoVec graphics_info;
-    auto pcis_info = this->get_pcis_by_major_class_id(PCIMajorClassID::PCI_MAJOR_CLASS_ID_DISPLAY);
+    GraphicInfoVec graphicsInfo;
+    auto pcisInfo = getPcisByMajorClassID(PCIMajorClassID::PCI_MAJOR_CLASS_ID_DISPLAY);
 
-    for (auto& pci_info : pcis_info)
+    for (auto& pciInfo : pcisInfo)
     {
-        GraphicInfo graphic_info;
-        graphic_info.model = pci_info["Device"];
-        graphic_info.vendor = pci_info["Vendor"];
-        graphics_info.push_back(std::move(graphic_info));
+        GraphicInfo graphicInfo;
+        graphicInfo.model = pciInfo["Device"];
+        graphicInfo.vendor = pciInfo["Vendor"];
+        graphicsInfo.push_back(std::move(graphicInfo));
     }
-    return graphics_info;
+    return graphicsInfo;
 }
 
-KVList SystemInfoHardware::get_pcis_by_major_class_id(PCIMajorClassID major_class_id)
+KVList SystemInfoHardware::getPcisByMajorClassID(PCIMajorClassID majorClassID)
 {
-    std::vector<unsigned int> full_class_ids;
+    QVector<uint32_t> fullClassIds;
 
-    // 获取主类ID为major_class_id的full_class_id列表，例如major_class_id为02，full_class_id列表为[0201, 0202]
+    // 获取主类ID为majorClassID的fullClassIds列表，例如majorClassID为02，fullClassIds列表为[0201, 0202]
     {
-        std::string cmd_output;
-        try
-        {
-            std::vector<std::string> argv{PCIINFO_CMD, "-n"};
-            Glib::spawn_sync("",
-                             argv,
-                             Glib::SPAWN_SEARCH_PATH,
-                             sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                             &cmd_output);
-        }
-        catch (const Glib::Error& e)
-        {
-            KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
-            return KVList();
-        }
+        QProcess process;
+        process.setEnvironment(QStringList{"LANG=en_US.UTF-8"});
+        process.start(PCIINFO_CMD, QStringList{"-n"});
+        process.waitForFinished();
 
-        auto lines = StrUtils::split_lines(cmd_output);
+        auto cmdOutput = process.readAllStandardOutput();
+        auto lines = cmdOutput.split('\n');
+
         for (auto& line : lines)
         {
+            auto lineStr = QString(line);
             char placehold1[50];
-            unsigned int full_class_id;
-            if (sscanf(line.c_str(), "%49s %x:", placehold1, &full_class_id) == 2)
+            uint32_t fullClassID;
+            if (sscanf(lineStr.toLatin1().data(), "%49s %x:", placehold1, &fullClassID) == 2)
             {
-                if ((full_class_id >> 8) == major_class_id)
+                if ((fullClassID >> 8) == majorClassID)
                 {
-                    full_class_ids.push_back(full_class_id);
+                    fullClassIds.push_back(fullClassID);
                 }
             }
         }
     }
 
     // 如果为空则不执行下面的命令，否则会取到所有的PCI设备(没有了-d选项的限制)
-    RETURN_VAL_IF_TRUE(full_class_ids.size() == 0, KVList());
+    RETURN_VAL_IF_TRUE(fullClassIds.size() == 0, KVList());
 
-    // 对full_class_ids去重
-    std::sort(full_class_ids.begin(), full_class_ids.end());
-    full_class_ids.erase(std::unique(full_class_ids.begin(), full_class_ids.end()), full_class_ids.end());
+    // 对fullClassIds去重
+    std::sort(fullClassIds.begin(), fullClassIds.end());
+    fullClassIds.erase(std::unique(fullClassIds.begin(), fullClassIds.end()), fullClassIds.end());
 
-    // 根据full_class_id列表获取设备相关信息
-    std::string full_outputs;
-    for (auto& full_class_id : full_class_ids)
+    // 根据fullClassIds列表获取设备相关信息
+    QString fullOutputs;
+    for (auto& fullClassID : fullClassIds)
     {
-        std::string cmd_output;
-        std::vector<std::string> argv{PCIINFO_CMD, "-vmm"};
-        argv.push_back("-d");
-        argv.push_back(fmt::format("::{:04x}", full_class_id));
+        auto fullClassIDHex = QString::number(fullClassID, 16);
+        fullClassIDHex = fullClassIDHex.rightJustified(4, '0');
 
-        KLOG_DEBUG_SYSTEMINFO("Cmdline: %s.", StrUtils::join(argv, " ").c_str());
-        try
-        {
-            Glib::spawn_sync("",
-                             argv,
-                             Glib::SPAWN_SEARCH_PATH,
-                             sigc::mem_fun(this, &SystemInfoHardware::set_env),
-                             &cmd_output);
-        }
-        catch (const Glib::Error& e)
-        {
-            KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
-            return KVList();
-        }
+        KLOG_INFO(systeminfo) << "Execute command: " << QString("lspci -vmm -d ::%1").arg(fullClassIDHex);
 
-        full_outputs.append(cmd_output);
+        QProcess process;
+        process.setEnvironment(QStringList{"LANG=en_US.UTF-8"});
+        process.start(PCIINFO_CMD, QStringList{"-vmm", "-d", QString("::%1").arg(fullClassIDHex)});
+        process.waitForFinished();
+        auto cmdOutput = process.readAllStandardOutput();
+        fullOutputs.append(cmdOutput);
     }
 
-    if (full_outputs.empty())
+    if (fullOutputs.isEmpty())
     {
-        KLOG_WARNING_SYSTEMINFO("Get empty pci info calss id:%d.", major_class_id);
+        KLOG_WARNING(systeminfo) << "Get empty pci info calss id" << majorClassID;
         return KVList();
     }
 
-    return this->format_to_kv_list(full_outputs);
+    return formatToKVList(fullOutputs);
 }
 
-KVList SystemInfoHardware::format_to_kv_list(const std::string& contents)
+KVList SystemInfoHardware::formatToKVList(const QString& contents)
 {
-    KVList pcis_info;
-    auto regex = Glib::Regex::create("\n\n");
-    std::vector<Glib::ustring> blocks = regex->split(contents, Glib::REGEX_MATCH_NEWLINE_ANY);
+    auto blocks = contents.split(QRegExp("\n\n"), Qt::SkipEmptyParts);
+    KVList pcisInfo;
     for (auto& block : blocks)
     {
-        std::map<std::string, std::string> pci_info;
-        auto lines = StrUtils::split_lines(block);
+        QMap<QString, QString> pciInfo;
+        auto lines = block.split('\n');
         for (auto& line : lines)
         {
-            auto fields = StrUtils::split_once_with_char(line, PCIINFO_KEY_DELIMITER);
-            if (fields.size() != 2)
-            {
-                continue;
-            }
-            pci_info[StrUtils::trim(fields[0])] = StrUtils::trim(fields[1]);
+            auto field1 = line.section(PCIINFO_KEY_DELIMITER, 0, 0).trimmed();
+            auto field2 = line.section(PCIINFO_KEY_DELIMITER, 1).trimmed();
+            CONTINUE_IF_TRUE(field2.isEmpty());
+            pciInfo[field1] = field2;
         }
-        if (pci_info.size() > 0)
+        if (pciInfo.size() > 0)
         {
-            pcis_info.push_back(std::move(pci_info));
+            pcisInfo.push_back(std::move(pciInfo));
         }
     }
-    return pcis_info;
+    return pcisInfo;
 }
 
-void SystemInfoHardware::on_child_watch(GPid pid, int child_status)
+void SystemInfoHardware::parseLshwMemoryInfo()
 {
-    if (WIFEXITED(child_status))
+    auto jsonRoot = QJsonDocument::fromJson(m_hardwareInfoLshw.toLatin1());
+    auto jsonRootObject = jsonRoot.object();
+    auto jsonChildren = jsonRootObject["children"].toArray();
+
+    for (const auto& jsonChild : jsonChildren)
     {
-        if (WEXITSTATUS(child_status) >= 255)
+        auto classVal = jsonChild.toObject()["class"].toString();
+        auto descVal = jsonChild.toObject()["description"].toString();
+        if (classVal == "memory" && (descVal == "System memory" || descVal == "System Memory"))
         {
-            KLOG_WARNING_SYSTEMINFO("Child exited unexpectedly");
-        }
-        else
-        {
-            this->parse_lshw_memory_info();
+            m_memSizeLshw = jsonChild.toObject()["size"].toString().toLongLong();
+            KLOG_INFO(systeminfo) << "Find System memory size" << m_memSizeLshw;
+            break;
         }
     }
-    else
-    {
-        KLOG_WARNING_SYSTEMINFO("Child exited error");
-    }
-
-    this->watch_child_connection_.disconnect();
-
-    if (this->out_io_source_)
-    {
-        this->out_io_source_->destroy();
-    }
-
-    if (this->child_pid_)
-    {
-        Glib::spawn_close_pid(this->child_pid_);
-        this->child_pid_ = 0;
-    }
-
-    this->out_io_connection_.disconnect();
-    this->out_io_channel_.reset();
 }
 
-bool SystemInfoHardware::on_lshw_output(Glib::IOCondition io_condition, Glib::RefPtr<Glib::IOChannel> io_channel)
+int64_t SystemInfoHardware::getMemorySizeWithLshw()
 {
-    try
-    {
-        Glib::ustring channel_info;
-        auto retval = io_channel->read_to_end(channel_info);
-        if (retval != Glib::IO_STATUS_NORMAL)
-        {
-            KLOG_WARNING_SYSTEMINFO("Failed to read data from IO channel. retval: %d.", retval);
-        }
-        else
-        {
-            this->hardware_info_lshw.append(channel_info);
-        }
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_SYSTEMINFO("IO Channel read error: %s.", e.what().c_str());
-    }
-
-    return true;
+    return m_memSizeLshw;
 }
 
-void SystemInfoHardware::parse_lshw_memory_info()
-{
-    Json::Reader reader;
-    Json::Value root;
-
-    if (!reader.parse(this->hardware_info_lshw.c_str(), root))
-    {
-        KLOG_WARNING_SYSTEMINFO("Failed to parse lshw info size:%d.", this->hardware_info_lshw.size());
-        return;
-    }
-
-    try
-    {
-        std::string class_val;
-        std::string desc_val;
-
-        for (unsigned int i = 0; i < root["children"].size(); i++)
-        {
-            Json::Value children = root["children"][i];
-            for (unsigned int j = 0; j < children["children"].size(); j++)
-            {
-                class_val = children["children"][j]["class"].asString();
-                desc_val = children["children"][j]["description"].asString();
-                if (class_val == "memory" && (desc_val == "System memory" || desc_val == "System Memory"))
-                {
-                    this->mem_size_lshw = children["children"][j]["size"].asInt64();
-                    KLOG_DEBUG_SYSTEMINFO("Find System memory size:%ld", this->mem_size_lshw);
-                    break;
-                }
-            }
-        }
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_SYSTEMINFO("%s.", e.what().c_str());
-    }
-
-    return;
-}
-
-int64_t SystemInfoHardware::get_memory_size_with_lshw()
-{
-    return this->mem_size_lshw;
-}
-
-int64_t SystemInfoHardware::get_memory_size_with_libgtop()
+int64_t SystemInfoHardware::getMemorySizeWithLibgtop()
 {
     glibtop_mem mem;
     glibtop_get_mem(&mem);
@@ -531,30 +387,46 @@ int64_t SystemInfoHardware::get_memory_size_with_libgtop()
     return mem.total;
 }
 
-int64_t SystemInfoHardware::get_memory_size_with_dmi()
+int64_t SystemInfoHardware::getMemorySizeWithDmi()
 {
     g_autoptr(GUdevClient) client = NULL;
     g_autoptr(GUdevDevice) dmi = NULL;
     const gchar* const subsystems[] = {"dmi", NULL};
-    uint64_t ram_total = 0;
-    uint64_t num_ram = 0;
+    uint64_t ramTotal = 0;
+    uint64_t numRam = 0;
 
     client = g_udev_client_new(subsystems);
     dmi = g_udev_client_query_by_sysfs_path(client, "/sys/devices/virtual/dmi/id");
     if (!dmi)
     {
-        KLOG_WARNING_SYSTEMINFO("Get dmi failed.");
+        KLOG_WARNING(systeminfo) << "Get dmi failed.";
         return 0;
     }
 
-    num_ram = g_udev_device_get_property_as_uint64(dmi, "MEMORY_ARRAY_NUM_DEVICES");
-    for (uint64_t i = 0; i < num_ram; i++)
+    numRam = g_udev_device_get_property_as_uint64(dmi, "MEMORY_ARRAY_NUM_DEVICES");
+    for (uint64_t i = 0; i < numRam; i++)
     {
-        std::string prop = fmt::format("MEMORY_DEVICE_{0}_SIZE", i);
-        ram_total += g_udev_device_get_property_as_uint64(dmi, prop.c_str());
+        QString prop = QString("MEMORY_DEVICE_%1_SIZE").arg(i);
+        ramTotal += g_udev_device_get_property_as_uint64(dmi, prop.toLatin1().data());
     }
 
-    return ram_total;
+    return ramTotal;
+}
+
+void SystemInfoHardware::processLshwStandardOutput()
+{
+    m_hardwareInfoLshw.append(m_lshwProcess->readAllStandardOutput());
+}
+
+void SystemInfoHardware::processLshwFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    if (exitStatus != QProcess::NormalExit)
+    {
+        KLOG_WARNING(systeminfo) << "lshw process exit with abnormal status, exit code:" << exitCode;
+        return;
+    }
+
+    parseLshwMemoryInfo();
 }
 
 }  // namespace Kiran

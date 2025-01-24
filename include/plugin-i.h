@@ -12,34 +12,22 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include <giomm.h>
+#pragma once
+
+#include <QtPlugin>
 
 namespace Kiran
 {
-class Plugin
+#define IPLUGIN_IID "com.kylinsec.Kiran.CCDaemon.Plugin"
+
+class IPlugin
 {
 public:
+    virtual ~IPlugin(){};
+
     virtual void activate() = 0;
     virtual void deactivate() = 0;
 };
-
-using NewPluginFun = void *(*)(void);
-using DelPluginFun = void (*)(void *);
-
 }  // namespace Kiran
 
-#if defined(WIN32) || defined(_WIN64)
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define DLLEXPORT
-#endif
-
-#define PLUGIN_EXPORT_FUNC_DEF(plugin_name)               \
-    extern "C" DLLEXPORT void *new_plugin()               \
-    {                                                     \
-        return new Kiran::plugin_name();                  \
-    }                                                     \
-    extern "C" DLLEXPORT void delete_plugin(void *plugin) \
-    {                                                     \
-        delete (Kiran::plugin_name *)plugin;              \
-    }
+Q_DECLARE_INTERFACE(Kiran::IPlugin, IPLUGIN_IID)

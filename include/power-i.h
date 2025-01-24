@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -67,7 +67,7 @@ extern "C"
 
     enum PowerEvent
     {
-        // 按下关机键 该参数将在后续的版本中废弃
+        // 按下关机键
         POWER_EVENT_PRESSED_POWEROFF = 0,
         // 释放关机键
         POWER_EVENT_RELEASE_POWEROFF = 0,
@@ -93,7 +93,7 @@ extern "C"
         POWER_EVENT_PRESSED_KBD_BRIGHT_TOGGLE,
         // 按下锁屏键
         POWER_EVENT_PRESSED_LOCK,
-        // 按下电源信息显示键
+        // 按下电源信息显示键（不使用）
         POWER_EVENT_PRESSED_BATTERY,
         // 电池电量不足时（upower的state字段变为charge-action)
         POWER_EVENT_BATTERY_CHARGE_ACTION,
@@ -141,6 +141,7 @@ extern "C"
 
 #define POWER_DBUS_NAME "com.kylinsec.Kiran.SessionDaemon.Power"
 #define POWER_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Power"
+#define POWER_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Power"
 
 #define POWER_SCHEMA_ID "com.kylinsec.kiran.power"
 

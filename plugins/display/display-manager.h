@@ -14,148 +14,161 @@
 
 #pragma once
 
-#include <display_dbus_stub.h>
-
+#include <kscreen/types.h>
+#include <QDBusContext>
+#include <QMap>
+#include <QSharedPointer>
 #include "display-i.h"
-#include "plugins/display/display-monitor.h"
-#include "plugins/display/display.hxx"
-#include "plugins/display/xrandr-manager.h"
+#include "display.hxx"
+#include "error-i.h"
+
+class DisplayAdaptor;
+class QGSettings;
+class QPluginLoader;
+
+namespace KScreen
+{
+class Config;
+class ConfigMonitor;
+}  // namespace KScreen
 
 namespace Kiran
 {
-class DisplayManager : public SessionDaemon::DisplayStub
+
+class DisplayMonitor;
+
+class DisplayManager : public QObject,
+                       protected QDBusContext
 {
+    Q_OBJECT
+
+    Q_PROPERTY(uint default_style READ getDefaultStyle WRITE setDefaultStyle)
+    Q_PROPERTY(QString primary READ getPrimary WRITE setPrimary)
+    Q_PROPERTY(int window_scaling_factor READ getWindowScalingFactor WRITE setWindowScalingFactor)
+
 public:
-    DisplayManager(XrandrManager* xrandr_manager);
+    DisplayManager();
     virtual ~DisplayManager();
 
-    static DisplayManager* get_instance() { return instance_; };
+    static DisplayManager* getInstance() { return m_instance; };
 
-    static void global_init(XrandrManager* xrandr_manager);
+    static void globalInit();
 
-    static void global_deinit() { delete instance_; };
+    static void globalDeinit() { delete m_instance; };
 
     // 目前所有monitor都是已连接的,未连接的暂时未创建DisplayMonitor
-    DisplayMonitorVec get_connected_monitors();
+    QList<QSharedPointer<DisplayMonitor>> getConnectedMonitors();
     // 获取开启的显示器
-    DisplayMonitorVec get_enabled_monitors();
+    QList<QSharedPointer<DisplayMonitor>> getEnabledMonitors();
 
-protected:
-    // 获取所有monitor的object path
-    virtual void ListMonitors(MethodInvocation& invocation);
-    // 切换显示模式
-    virtual void SwitchStyle(guint32 style, MethodInvocation& invocation);
-    // 设置默认显示模式，默认显示模式会在程序第一次启动或者有连接的显示设备删除和添加时进行启用。
-    virtual void SetDefaultStyle(guint32 style, MethodInvocation& invocation);
+public:
+    uint getDefaultStyle() const;
+    QString getPrimary() const;
+    int getWindowScalingFactor() const;
+
+    void setDefaultStyle(uint style);
+    void setPrimary(const QString& name);
+    void setWindowScalingFactor(int window_scaling_factor);
+
+public Q_SLOTS:
     // 应用之前通过dbus调用做的修改
-    virtual void ApplyChanges(MethodInvocation& invocation);
+    void ApplyChanges();
+    // 获取所有monitor的object path
+    QStringList ListMonitors();
     // 恢复之前通过dbus调用做的修改
-    virtual void RestoreChanges(MethodInvocation& invocation);
-    // 设置主显示器
-    virtual void SetPrimary(const Glib::ustring& name, MethodInvocation& invocation);
+    void RestoreChanges();
     // 将之前的修改保存到文件，保存之后无法再恢复到之前的修改状态
-    virtual void Save(MethodInvocation& invocation);
+    void Save();
+    // 设置默认显示模式，默认显示模式会在程序第一次启动或者有连接的显示设备删除和添加时进行启用。
+    void SetDefaultStyle(uint style);
+    // 设置主显示器
+    void SetPrimary(const QString& name);
     // 设置窗口缩放因子
-    virtual void SetWindowScalingFactor(gint32 window_scaling_factor, MethodInvocation& invocation);
-
-    virtual bool default_style_setHandler(guint32 value);
-    virtual bool primary_setHandler(const Glib::ustring& value);
-    virtual bool window_scaling_factor_setHandler(gint32 value);
-
-    virtual guint32 default_style_get() { return uint32_t(this->default_style_); };
-    virtual Glib::ustring primary_get() { return this->primary_; };
-    virtual gint32 window_scaling_factor_get() { return this->window_scaling_factor_; };
+    void SetWindowScalingFactor(int window_scaling_factor);
+    // 切换显示模式
+    void SwitchStyle(uint style);
+Q_SIGNALS:  // SIGNALS
+    void MonitorsChanged(bool placeholder);
 
 private:
+    // 初始化前准备
+    void preInit();
     void init();
     // 加载settings内容
-    void load_settings();
+    void loadSettings();
     // 每个已连接的output对应一个monitor对象
-    void load_monitors();
+    void loadMonitors();
     // 加载配置文件
-    void load_config();
+    void loadConfig();
 
-    // 应用配置到monitors_中，这里先要根据monitor_ids进行匹配找到对应的ScreenConfigInfo，然后再调用apply_screen_config。
-    bool apply_config(CCErrorCode& error_code);
+    // 应用配置到m_monitors中，这里先要根据monitorIDs进行匹配找到对应的ScreenConfigInfo，然后再调用applyScreenConfig。
+    bool applyConfig(CCErrorCode& errorCode);
     // 应用配置到monitors_中
-    bool apply_screen_config(const ScreenConfigInfo& screen_config, CCErrorCode& error_code);
+    bool applyScreenConfig(const ScreenConfigInfo& screenConfig, CCErrorCode& errorCode);
     // 从monitors_提取参数填充配置
-    void fill_screen_config(ScreenConfigInfo& screen_config);
-
+    void fillScreenConfig(ScreenConfigInfo& screenConfig);
     // 保存配置
-    bool save_config(CCErrorCode& error_code);
-
-    // 让monitors_中的参数实际生效，执行xrandr命令
-    bool apply(CCErrorCode& error_code);
+    bool saveConfig(CCErrorCode& errorCode);
+    // 让m_monitors中的参数实际生效，通过libkscreen接口实现
+    bool apply(CCErrorCode& errorCode);
 
     // 切换显示模式
-    bool switch_style(DisplayStyle style, CCErrorCode& error_code);
+    bool switchStyle(DisplayStyle style, CCErrorCode& errorCode);
     // 切换并保存显示模式
-    bool switch_style_and_save(DisplayStyle style, CCErrorCode& error_code);
+    bool switchStyleAndSave(DisplayStyle style, CCErrorCode& errorCode);
     // 切换到镜像模式
-    bool switch_to_mirrors(CCErrorCode& error_code);
-    // 获取在所有monitor中都可用的mode列表
-    ModeInfoVec monitors_common_modes(const DisplayMonitorVec& monitors);
+    bool switchToMirrors(CCErrorCode& errorCode);
     // 切换到扩展模式
-    void switch_to_extend();
+    void switchToExtend();
     // 切换到自定义模式
-    bool switch_to_custom(CCErrorCode& error_code);
+    bool switchToCustom(CCErrorCode& errorCode);
     // 切换到自动模式
-    void switch_to_auto();
+    void switchToAuto();
 
     // 获取monitor
-    std::shared_ptr<DisplayMonitor> get_monitor(uint32_t id);
-    std::shared_ptr<DisplayMonitor> get_monitor_by_uid(const std::string& uid);
-    std::shared_ptr<DisplayMonitor> get_monitor_by_name(const std::string& name);
+    // QSharedPointer<DisplayMonitor> get_monitor(uint32_t id);
+    // QSharedPointer<DisplayMonitor> get_monitor_by_uid(const QString& uid);
+    QSharedPointer<DisplayMonitor> getMonitorByName(const QString& name);
     // 优先匹配uid，如果有多个uid匹配，则再匹配name
-    std::shared_ptr<DisplayMonitor> match_best_monitor(const std::string& uid,
-                                                       const std::string& name);
+    QSharedPointer<DisplayMonitor> matchBestMonitor(const QString& uid, const QString& name);
 
     // 将uid进行排序后拼接
-    std::string get_monitors_uid();
-    // 将output name进行排序后拼接
-    std::string get_output_names();
-    std::string get_c_monitors_uid(const ScreenConfigInfo::MonitorSequence& monitors);
+    QString getMonitorsUID();
+    // 将monitor name进行排序后拼接
+    QString getMonitorNames();
+    QString getCMonitorsUID(const ScreenConfigInfo::MonitorSequence& monitors);
 
     // 保存配置到文件
-    bool save_to_file(CCErrorCode& error_code);
+    bool saveToFile(CCErrorCode& errorCode);
 
-    // 处理xrandr变化的信号
-    void resources_changed();
+    void processConfigureChanged();
+    void processSettingsChanged(const QString& key);
 
-    void display_settings_changed(const Glib::ustring& key);
-
-    void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
-    void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
-    void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
-
-    Glib::ustring style_enum2str(DisplayStyle style);
+    QString styleEnum2str(DisplayStyle style);
 
 private:
-    static DisplayManager* instance_;
-    XrandrManager* xrandr_manager_;
-
+    static DisplayManager* m_instance;
+    DisplayAdaptor* m_displayAdaptor;
     // 显示配置文件路径
-    std::string config_file_path_;
+    QString m_configFilePath;
     // 显示配置内容
-    std::unique_ptr<DisplayConfigInfo> display_config_;
+    std::unique_ptr<DisplayConfigInfo> m_displayConfig;
 
-    Glib::RefPtr<Gio::Settings> display_settings_;
-    Glib::RefPtr<Gio::Settings> xsettings_settings_;
-    DisplayStyle default_style_;
+    KScreen::ConfigPtr m_currentConfig;
+    KScreen::ConfigMonitor* m_configMonitor;
+
+    QGSettings* m_displaySettings;
+    QGSettings* m_xsettingsSettings;
+    DisplayStyle m_defaultStyle;
     // 主显示器名字
-    std::string primary_;
+    QString m_primary;
     // 窗口缩放率
-    int32_t window_scaling_factor_;
+    int32_t m_windowScalingFactor;
     // 开启动态缩放窗口
-    bool dynamic_scaling_window_;
+    bool m_dynamicScalingWindow;
     // 可存储屏幕个数最大值
-    uint32_t max_screen_record_number_;
+    uint32_t m_maxScreenRecordNumber;
 
-    std::map<uint32_t, std::shared_ptr<DisplayMonitor>> monitors_;
-
-    // dbus
-    uint32_t dbus_connect_id_;
-    uint32_t object_register_id_;
+    QMap<uint32_t, QSharedPointer<DisplayMonitor>> m_monitors;
 };
 }  // namespace Kiran

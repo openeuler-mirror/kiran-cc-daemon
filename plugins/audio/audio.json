@@ -1,0 +1,5 @@
+{
+    "id": "audio",
+    "description": "used for audio settings",
+    "enabled": true
+}

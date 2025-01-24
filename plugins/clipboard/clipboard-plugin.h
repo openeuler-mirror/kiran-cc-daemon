@@ -1,15 +1,15 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2024 ~ 2025 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
- * Author:     meizhigang <meizhigang@kylinos.com.cn>
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
+ * Author:     tangjie02 <tangjie02@kylinsec.com.cn>
  */
 
 #pragma once
@@ -18,14 +18,15 @@
 
 namespace Kiran
 {
-class ClipboardPlugin : public Plugin
+class ClipboardPlugin : public QObject, public IPlugin
 {
+    Q_OBJECT
+
+    Q_PLUGIN_METADATA(IID IPLUGIN_IID FILE "clipboard.json")
+    Q_INTERFACES(Kiran::IPlugin)
+
 public:
-    ClipboardPlugin();
-    virtual ~ClipboardPlugin();
-
     virtual void activate();
-
     virtual void deactivate();
 };
 }  // namespace Kiran

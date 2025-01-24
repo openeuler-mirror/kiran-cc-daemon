@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include <set>
-#include <string>
+#include <QSet>
+#include <QString>
 
 namespace Kiran
 {
@@ -25,14 +25,12 @@ public:
     UserClassify(){};
     virtual ~UserClassify(){};
 
-    static bool is_human(uint32_t uid,
-                         const std::string &username,
-                         const std::string &shell);
+    static bool isHuman(uint32_t uid, const QString &userName, const QString &shell);
 
 private:
-    static bool is_invalid_shell(const std::string &shell);
+    static bool isInvalidShell(const QString &shell);
 
 private:
-    static const std::set<std::string> default_excludes_;
+    static const QSet<QString> m_defaultExcludes;
 };
 }  // namespace Kiran

@@ -22,4 +22,4 @@ target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_BINARY_DIR}/generated
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${JSONCPP_LIBRARIES} lib-base)
 
-install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/session)
+install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

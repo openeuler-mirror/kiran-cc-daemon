@@ -14,8 +14,7 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string>
+#include <QString>
 
 namespace Kiran
 {
@@ -27,33 +26,11 @@ public:
     CryptoHelper();
     virtual ~CryptoHelper();
 
-    // md5
-    static std::string md5(const std::string &message);
-    static std::string md5_file(const std::string &filename);
-
-    // base64加密和解密
-    static std::string base64_encrypt(const std::string &message);
-    static std::string base64_decrypt(const std::string &message);
-
     // 生成rsa公钥和私钥对
-    static void generate_rsa_key(uint32_t key_length,
-                                 std::string &private_key,
-                                 std::string &public_key);
+    static void generateRSAKey(uint32_t keyLength, QString &privateKey, QString &publicKey);
 
     // rsa加密和解密
-    static std::string rsa_encrypt(const std::string &public_key, const std::string &message);
-    static std::string rsa_decrypt(const std::string &private_key, const std::string &ciphertext);
-
-    // rsa签名
-    static bool rsa_sign_file(const std::string &private_filename,
-                              const std::string &message_filename,
-                              const std::string &signature_filename);
-    static bool rsa_verify_file(const std::string &public_filename,
-                                const std::string &message_filename,
-                                const std::string &signature_filename);
-
-    // des加密和解密
-    static std::string des_encrypt(const std::string &message, const std::string &key = DEFAULT_DES_KEY);
-    static std::string des_decrypt(const std::string &message, const std::string &key = DEFAULT_DES_KEY);
+    static QString rsaEncrypt(const QString &publicKey, const QString &message);
+    static QString rsaDecrypt(const QString &privateKey, const QString &ciphertext);
 };
 }  // namespace Kiran

@@ -1,285 +1,334 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/keybinding/system-shortcut.h"
-
-#include <config.h>
-#include <glib/gi18n.h>
-
-#include "lib/display/EWMH.h"
+#include "system-shortcut.h"
+#include <kglobalaccel_component_interface.h>
+#include <kglobalaccel_interface.h>
+#include <libintl.h>
+#include <KGlobalAccel>
+#include <QCryptographicHash>
+#include <QGSettings>
+#include <QGuiApplication>
+#include <functional>
+#include "config.h"
+#include "keybinding-utils.h"
+#include "keylist-entries-parser.h"
+#include "lib/base/base.h"
+#include "lib/xcb/EWMH.h"
 
 namespace Kiran
 {
-#define KCC_KEYBINDINGS_DIR KCC_INSTALL_DATADIR "/keybindings"
+#define KCC_KEYBINDINGS_DIR KCD_INSTALL_DATADIR "/keybindings"
 
-SystemShortCuts::SystemShortCuts()
+SystemShortcuts::SystemShortcuts()
 {
-}
-
-void SystemShortCuts::init()
-{
-    this->load_system_shortcuts(this->shortcuts_);
-
-    EWMH::get_instance()->signal_wm_window_change().connect(sigc::mem_fun(this, &SystemShortCuts::wm_window_changed));
-}
-
-bool SystemShortCuts::modify(const std::string &uid,
-                             const std::string &key_combination)
-{
-    KLOG_DEBUG_KEYBINDING("Modify system shortcut key by Uid: %s keycomb: %s.", uid.c_str(), key_combination.c_str());
-
-    auto shortcut = this->get(uid);
-    if (!shortcut)
+    m_globalAccelInterface = new KGlobalAccelInterface(QStringLiteral("org.kde.kglobalaccel"),
+                                                       QStringLiteral("/kglobalaccel"),
+                                                       QDBusConnection::sessionBus(),
+                                                       this);
+    if (!m_globalAccelInterface->isValid())
     {
-        KLOG_WARNING_KEYBINDING("The shortcut %s is not exists.", uid.c_str());
+        KLOG_WARNING(keybinding) << "Failed to communicate with global shortcuts daemon";
+    }
+
+    qDBusRegisterMetaType<KGlobalShortcutInfo>();
+    qDBusRegisterMetaType<QList<KGlobalShortcutInfo>>();
+}
+
+void SystemShortcuts::init()
+{
+    initKSystemShortcuts();
+    initMarcoSystemShortcuts();
+}
+
+bool SystemShortcuts::modify(const QString &uid, const QString &keyCombination)
+{
+    auto shortcutMix = m_shortcutMixs.value(uid);
+    if (!shortcutMix)
+    {
+        KLOG_WARNING(keybinding) << "The shortcut" << uid << "is not exists";
         return false;
     }
 
-    RETURN_VAL_IF_TRUE(shortcut->key_combination == key_combination, true);
+    switch (shortcutMix->desktopType)
+    {
+    case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
+    {
+        if (shortcutMix->mate.keyCombination != keyCombination)
+        {
+            shortcutMix->mate.keyCombination = keyCombination;
+            shortcutMix->mate.gsettings->set(shortcutMix->mate.settingsKey, keyCombination);
+            Q_EMIT shortcutChanged(mix2common(shortcutMix));
+        }
+        break;
+    }
+    case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
+    {
+        if (keys2Str(shortcutMix->kde.keys) != keyCombination)
+        {
+            shortcutMix->kde.keys = (QList<QKeySequence>() << keyCombination);
+            auto actionID = buildActionId(shortcutMix->kde);
+            m_globalAccelInterface->setForeignShortcutKeys(actionID, shortcutMix->kde.keys);
+            Q_EMIT shortcutChanged(mix2common(shortcutMix));
+        }
+        break;
+    }
+    default:
+        KLOG_WARNING(keybinding) << "Unknown desktop type" << shortcutMix->desktopType;
+        return false;
+    }
 
-    shortcut->key_combination = key_combination;
-    shortcut->settings->set_string(shortcut->settings_key, shortcut->key_combination);
-    this->shortcut_changed_.emit(shortcut);
     return true;
 }
 
-std::shared_ptr<SystemShortCut> SystemShortCuts::get(const std::string &uid)
+QSharedPointer<SystemShortcut> SystemShortcuts::get(const QString &uid)
 {
-    auto iter = this->shortcuts_.find(uid);
-    if (iter != this->shortcuts_.end())
-    {
-        return iter->second;
-    }
-    return nullptr;
+    auto shortcutMix = m_shortcutMixs.value(uid);
+    return mix2common(shortcutMix);
 }
 
-std::shared_ptr<SystemShortCut> SystemShortCuts::get_by_keycomb(const std::string &keycomb)
+QSharedPointer<SystemShortcut> SystemShortcuts::getByKeycomb(const QString &keycomb)
 {
-    // 禁用快捷键不进行搜索
-    RETURN_VAL_IF_TRUE(keycomb == SHORTCUT_KEYCOMB_DISABLE, nullptr);
+    RETURN_VAL_IF_FALSE(KeybindingUtils::isValidKeySequence(keycomb), nullptr);
 
-    for (auto &iter : this->shortcuts_)
+    for (const auto &shortcutMix : m_shortcutMixs)
     {
-        if (iter.second->key_combination == keycomb)
+        auto shortcut = mix2common(shortcutMix);
+        if (shortcut->keyCombination == keycomb)
         {
-            return iter.second;
+            return shortcut;
         }
     }
     return nullptr;
 }
 
-void SystemShortCuts::reset()
+QList<QSharedPointer<SystemShortcut>> SystemShortcuts::get()
 {
-    // 这里为了避免快捷键出现冲突的情况，首先讲所有快捷键设置为空，然后再设置为默认值
+    QList<QSharedPointer<SystemShortcut>> shortcuts;
 
-    // 断开所有信号连接
-    for (auto &iter : this->shortcuts_)
+    for (const auto &shortcutMix : m_shortcutMixs)
     {
-        iter.second->connection.disconnect();
+        auto shortcut = mix2common(shortcutMix);
+        if (shortcut)
+        {
+            shortcuts.push_back(shortcut);
+        }
     }
 
-    // 将所有需要重置的快捷键设置为空
-    for (auto &iter : this->shortcuts_)
-    {
-        auto shortcut = iter.second;
-        CONTINUE_IF_TRUE(shortcut->key_combination == shortcut->default_key_combination);
-        iter.second->settings->set_string(iter.second->settings_key, Glib::ustring());
-    }
+    return shortcuts;
+}
 
+void SystemShortcuts::reset()
+{
     // 将所有需要重置的快捷键设置为默认值
-    for (auto &iter : this->shortcuts_)
+    for (auto &shortcutMix : m_shortcutMixs)
     {
-        auto shortcut = iter.second;
-        CONTINUE_IF_TRUE(shortcut->key_combination == shortcut->default_key_combination);
+        switch (shortcutMix->desktopType)
+        {
+        case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
+        {
+            auto gsettings = shortcutMix->mate.gsettings;
+            gsettings->reset(shortcutMix->mate.settingsKey);
 
-        shortcut->key_combination = shortcut->default_key_combination;
-        shortcut->settings->set_string(shortcut->settings_key, shortcut->key_combination);
-        this->shortcut_changed_.emit(shortcut);
-    }
-
-    // 重新监听所有信号
-    for (auto &iter : this->shortcuts_)
-    {
-        auto shortcut = iter.second;
-        shortcut->connection = shortcut->settings->signal_changed(shortcut->settings_key).connect(sigc::bind(sigc::mem_fun(this, &SystemShortCuts::settings_changed), shortcut->uid));
+            auto newKeyCombination = gsettings->get(shortcutMix->mate.settingsKey).toString();
+            if (newKeyCombination != shortcutMix->mate.keyCombination)
+            {
+                shortcutMix->mate.keyCombination = newKeyCombination;
+                Q_EMIT shortcutChanged(mix2common(shortcutMix));
+            }
+            break;
+        }
+        case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
+        {
+            auto actionID = buildActionId(shortcutMix->kde);
+            if (shortcutMix->kde.defaultKeys != shortcutMix->kde.keys)
+            {
+                m_globalAccelInterface->setForeignShortcutKeys(actionID, shortcutMix->kde.defaultKeys);
+                shortcutMix->kde.keys = shortcutMix->kde.defaultKeys;
+                Q_EMIT shortcutChanged(mix2common(shortcutMix));
+            }
+            break;
+        }
+        default:
+            KLOG_WARNING(keybinding) << "Unknown desktop type" << shortcutMix->desktopType;
+        }
     }
 }
 
-void SystemShortCuts::load_system_shortcuts(std::map<std::string, std::shared_ptr<SystemShortCut>> &shortcuts)
+void SystemShortcuts::initKSystemShortcuts()
 {
-    KeyListEntriesParser parser(KCC_KEYBINDINGS_DIR);
-    std::vector<KeyListEntries> keys;
-    std::string err;
-    if (!parser.parse(keys, err))
+    if (!m_globalAccelInterface->isValid())
     {
-        KLOG_WARNING_KEYBINDING("Failed to parse %s: %s.", KCC_KEYBINDINGS_DIR, err.c_str());
         return;
     }
 
-    auto wm_keybindings = EWMH::get_instance()->get_wm_keybindings();
+    QList<KGlobalShortcutInfo> globalShortcutInfos;
 
-    for (auto &keylist_entries : keys)
+    auto componentPathsReply = m_globalAccelInterface->allComponents();
+    componentPathsReply.waitForFinished();
+    if (componentPathsReply.isError())
     {
-        auto &package = keylist_entries.package;
+        KLOG_WARNING(keybinding) << "Failed to get all components:" << componentPathsReply.error();
+        return;
+    }
 
-        if (keylist_entries.wm_name.length() > 0 &&
-            std::find(wm_keybindings.begin(), wm_keybindings.end(), keylist_entries.wm_name) == wm_keybindings.end())
+    auto componentPaths = componentPathsReply.value();
+    for (const auto &componentPath : componentPaths)
+    {
+        const QString path = componentPath.path();
+        KGlobalAccelComponentInterface component(m_globalAccelInterface->service(), path, m_globalAccelInterface->connection());
+
+        auto componentShortcutInfosReply = component.allShortcutInfos();
+        componentShortcutInfosReply.waitForFinished();
+        if (componentShortcutInfosReply.isError())
         {
-            KLOG_DEBUG_KEYBINDING("Cannot match current window manager: %s.", keylist_entries.wm_name.c_str());
+            KLOG_WARNING(keybinding) << "Failed to get all shortcuts for" << path << ":" << componentShortcutInfosReply.error();
+            continue;
+        }
+
+        auto componentShortcutInfos = componentShortcutInfosReply.value();
+        globalShortcutInfos.append(componentShortcutInfos);
+    }
+
+    for (const auto &globalShortcutInfo : globalShortcutInfos)
+    {
+        auto shortcutMix = QSharedPointer<SystemShortcutMix>::create();
+
+        auto data = QString("%1:%2").arg(globalShortcutInfo.componentUniqueName()).arg(globalShortcutInfo.uniqueName());
+        shortcutMix->uid = QCryptographicHash::hash(data.toUtf8(), QCryptographicHash::Algorithm::Md5).toHex();
+        shortcutMix->desktopType = SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE;
+        shortcutMix->kde.componentUniqueName = globalShortcutInfo.componentUniqueName();
+        shortcutMix->kde.componentFriendlyName = globalShortcutInfo.componentFriendlyName();
+        shortcutMix->kde.uniqueName = globalShortcutInfo.uniqueName();
+        shortcutMix->kde.friendlyName = globalShortcutInfo.friendlyName();
+        shortcutMix->kde.keys = globalShortcutInfo.keys();
+        shortcutMix->kde.defaultKeys = globalShortcutInfo.defaultKeys();
+        m_shortcutMixs.insert(shortcutMix->uid, shortcutMix);
+    }
+}
+
+void SystemShortcuts::initMarcoSystemShortcuts()
+{
+    RETURN_IF_TRUE(qGuiApp->platformName() != QLatin1String("xcb"))
+
+    KeyListEntriesParser parser(KCC_KEYBINDINGS_DIR);
+    QVector<KeyListEntries> keys;
+    QString error;
+    if (!parser.parse(keys, error))
+    {
+        KLOG_WARNING(keybinding) << "Failed to parse" << KCC_KEYBINDINGS_DIR << ", error is" << error;
+        return;
+    }
+
+    auto wmKeybindings = EWMH::getDefault()->getWmKeybindings();
+
+    for (auto &keylistEntries : keys)
+    {
+        auto &package = keylistEntries.package;
+
+        if (keylistEntries.wmName.length() > 0 && !wmKeybindings.contains(keylistEntries.wmName))
+        {
+            KLOG_INFO(keybinding) << keylistEntries.wmName << "is not current window manager, ignore it's keybindings";
             continue;
         }
 
         // 过滤掉没有翻译文件的配置
-        if (package.empty())
+        if (package.isEmpty())
         {
-            KLOG_WARNING_KEYBINDING("Filter the keylist entries which name is %s, because the translation file not be found.", keylist_entries.name.c_str());
+            KLOG_WARNING(keybinding) << "Filter the keylist entries which name is" << keylistEntries.name << ", because the translation file not be found.";
             continue;
         }
 
-        auto schemas = Gio::Settings::list_schemas();
-        if (std::find(schemas.begin(), schemas.end(), keylist_entries.schema) == schemas.end())
+        if (!QGSettings::isSchemaInstalled(keylistEntries.schema.toUtf8()))
         {
-            KLOG_WARNING_KEYBINDING("The schema id '%s' isn't exist", keylist_entries.schema.c_str());
+            KLOG_WARNING(keybinding) << "The schema id" << keylistEntries.schema << "isn't exist";
             continue;
         }
-        auto system_settings = Gio::Settings::create(keylist_entries.schema);
 
-        bindtextdomain(package.c_str(), KCC_LOCALEDIR);
-        bind_textdomain_codeset(package.c_str(), "UTF-8");
+        auto systemSettings = m_gsettingsSet.value(keylistEntries.schema.toUtf8());
+        if (!systemSettings)
+        {
+            systemSettings = new QGSettings(keylistEntries.schema.toUtf8(), "", this);
+            m_gsettingsSet.insert(keylistEntries.schema.toUtf8(), systemSettings);
+        }
 
-        for (auto &keylist_entry : keylist_entries.entries_)
+        bindtextdomain(package.toUtf8().data(), KCC_LOCALEDIR);
+        bind_textdomain_codeset(package.toUtf8().data(), "UTF-8");
+
+        for (auto &keylistEntry : keylistEntries.entries)
         {
             // 配置文件支持条件语句对快捷键进行过滤
-            if (!this->should_show_key(keylist_entry))
+            if (!shouldShowKey(keylistEntry))
             {
-                KLOG_DEBUG_KEYBINDING("The system shortcut should not show. type: %s, name: %s, description: %s.",
-                                      keylist_entries.name.c_str(),
-                                      keylist_entry.name.c_str(),
-                                      keylist_entry.description.c_str());
+                KLOG_INFO(keybinding) << "The system shortcut should not show. type is" << keylistEntries.name
+                                      << ", name is" << keylistEntry.name
+                                      << ", description is" << keylistEntry.description;
+
                 continue;
             }
 
-            auto shortcut = std::make_shared<SystemShortCut>();
-            Glib::VariantBase default_value;
+            auto shortcutMix = QSharedPointer<SystemShortcutMix>::create();
+            shortcutMix->desktopType = SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE;
 
-            shortcut->kind = dgettext(package.c_str(), keylist_entries.name.c_str());
-            shortcut->name = dgettext(package.c_str(), keylist_entry.description.c_str());
-            shortcut->settings = system_settings;
-            shortcut->settings_key = keylist_entry.name;
-            shortcut->key_combination = system_settings->get_string(keylist_entry.name);
-            // 快捷键默认值
-            system_settings->get_default_value(keylist_entry.name, default_value);
-            if (default_value.gobj())
-            {
-                try
-                {
-                    shortcut->default_key_combination = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(default_value).get().raw();
-                }
-                catch (const std::exception &e)
-                {
-                    KLOG_WARNING_KEYBINDING("%s", e.what());
-                }
-            }
+            shortcutMix->mate.kind = dgettext(package.toUtf8().data(), keylistEntries.name.toUtf8().data());
+            shortcutMix->mate.name = dgettext(package.toUtf8().data(), keylistEntry.description.toUtf8().data());
+            shortcutMix->mate.gsettings = systemSettings;
+            shortcutMix->mate.settingsKey = keylistEntry.name;
+            shortcutMix->mate.keyCombination = systemSettings->get(keylistEntry.name).toString();
 
-            if (shortcut->kind.length() == 0 ||
-                shortcut->name.length() == 0 ||
-                ShortCutHelper::get_keystate(shortcut->key_combination) == INVALID_KEYSTATE)
+            if (shortcutMix->mate.kind.length() == 0 ||
+                shortcutMix->mate.name.length() == 0 ||
+                !KeybindingUtils::isValidKeySequence(shortcutMix->mate.keyCombination))
             {
-                KLOG_WARNING_KEYBINDING("The system shortcut is invalid. kind: %s name: %s keycomb: %s.",
-                                        shortcut->kind.c_str(),
-                                        shortcut->name.c_str(),
-                                        shortcut->key_combination.c_str());
+                KLOG_WARNING(keybinding) << "The system shortcut is invalid. kind is" << shortcutMix->mate.kind
+                                         << ", name is" << shortcutMix->mate.name
+                                         << ", keycomb is" << shortcutMix->mate.keyCombination;
                 continue;
             }
 
-            shortcut->uid = Glib::Checksum::compute_checksum(Glib::Checksum::CHECKSUM_MD5,
-                                                             keylist_entries.schema + "+" + keylist_entry.name);
+            auto uidData = QString("%1:%2").arg(keylistEntries.schema, keylistEntry.name);
+            shortcutMix->uid = QCryptographicHash::hash(uidData.toUtf8(), QCryptographicHash::Md5).toHex();
 
-            auto iter = shortcuts.emplace(shortcut->uid, shortcut);
-            if (!iter.second)
+            auto iter = m_shortcutMixs.insert(shortcutMix->uid, shortcutMix);
+            if (m_shortcutMixs.contains(shortcutMix->uid))
             {
-                KLOG_WARNING_KEYBINDING("Exists the same system shortcut, uid: %s schema: %s key: %s.",
-                                        shortcut->uid.c_str(),
-                                        keylist_entries.schema.c_str(),
-                                        keylist_entry.name.c_str());
+                KLOG_WARNING(keybinding) << "Exists the same system shortcut. uid is" << shortcutMix->uid
+                                         << "schema is" << keylistEntries.schema
+                                         << "key is" << keylistEntry.name;
                 continue;
             }
-            shortcut->connection = system_settings->signal_changed(keylist_entry.name).connect(sigc::bind(sigc::mem_fun(this, &SystemShortCuts::settings_changed), shortcut->uid));
         }
+    }
+
+    for (auto iter = m_gsettingsSet.begin(); iter != m_gsettingsSet.end(); ++iter)
+    {
+        connect(iter.value(), &QGSettings::changed,
+                std::bind(&SystemShortcuts::processSettingsChanged, this, std::placeholders::_1, iter.key()));
     }
 }
 
-void SystemShortCuts::wm_window_changed()
-{
-    auto old_shortcuts = std::move(this->shortcuts_);
-    this->load_system_shortcuts(this->shortcuts_);
-
-    // 查找新增和修改的快捷键
-    for (auto &shortcut : this->shortcuts_)
-    {
-        auto iter = old_shortcuts.find(shortcut.first);
-        if (iter == old_shortcuts.end())
-        {
-            this->shortcut_added_.emit(shortcut.second);
-        }
-        else if (iter->second->kind != shortcut.second->kind ||
-                 iter->second->name != shortcut.second->name ||
-                 iter->second->key_combination != shortcut.second->key_combination)
-        {
-            this->shortcut_changed_.emit(shortcut.second);
-        }
-    }
-
-    // 查找删除的快捷键
-    for (auto &shortcut : old_shortcuts)
-    {
-        auto iter = this->shortcuts_.find(shortcut.first);
-        if (iter == this->shortcuts_.end())
-        {
-            this->shortcut_deleted_.emit(shortcut.second);
-        }
-    }
-}
-
-void SystemShortCuts::settings_changed(const Glib::ustring &key, std::string shortcut_uid)
-{
-    auto shortcut = this->get(shortcut_uid);
-    RETURN_IF_FALSE(shortcut);
-
-    if (shortcut)
-    {
-        auto value = shortcut->settings->get_string(key);
-        if (shortcut->key_combination != value &&
-            ShortCutHelper::get_keystate(value) != INVALID_KEYSTATE)
-        {
-            shortcut->key_combination = value;
-            this->shortcut_changed_.emit(shortcut);
-        }
-    }
-}
-
-bool SystemShortCuts::should_show_key(const KeyListEntry &entry)
+bool SystemShortcuts::shouldShowKey(const KeyListEntry &entry)
 {
     RETURN_VAL_IF_TRUE(entry.comparison.length() == 0, true);
     RETURN_VAL_IF_TRUE(entry.key.length() == 0, false);
     RETURN_VAL_IF_TRUE(entry.schema.length() == 0, false);
 
-    auto settings = Gio::Settings::create(entry.schema);
-    auto valuel = settings->get_int(entry.key);
-    auto valuer = std::stoll(entry.value);
+    QGSettings gsettings(entry.schema.toUtf8());
+    auto valuel = gsettings.get(entry.key).toInt();
+    auto valuer = entry.value.toLongLong();
 
-    switch (shash(entry.comparison.c_str()))
+    switch (shash(entry.comparison.toUtf8().data()))
     {
     case "gt"_hash:
         return valuel > valuer;
@@ -293,4 +342,64 @@ bool SystemShortCuts::should_show_key(const KeyListEntry &entry)
 
     return false;
 }
+
+QSharedPointer<SystemShortcut> SystemShortcuts::mix2common(QSharedPointer<SystemShortcutMix> shortcutMix)
+{
+    RETURN_VAL_IF_FALSE(shortcutMix, nullptr);
+
+    switch (shortcutMix->desktopType)
+    {
+    case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
+        return QSharedPointer<SystemShortcut>(new SystemShortcut{.uid = shortcutMix->uid,
+                                                                 .kind = shortcutMix->mate.kind,
+                                                                 .name = shortcutMix->mate.name,
+                                                                 .keyCombination = shortcutMix->mate.keyCombination});
+    case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
+    {
+        auto keyCombination = keys2Str(shortcutMix->kde.keys);
+        return QSharedPointer<SystemShortcut>(new SystemShortcut{.uid = shortcutMix->uid,
+                                                                 .kind = shortcutMix->kde.componentFriendlyName,
+                                                                 .name = shortcutMix->kde.friendlyName,
+                                                                 .keyCombination = keyCombination});
+    }
+    default:
+        KLOG_WARNING(keybinding) << "Unknown desktop type" << shortcutMix->desktopType;
+        break;
+    }
+    return nullptr;
+}
+
+QString SystemShortcuts::keys2Str(const QList<QKeySequence> &keys)
+{
+    return keys.size() == 0 ? QString() : keys.at(0).toString();
+}
+
+QStringList SystemShortcuts::buildActionId(const SystemShortcutKDE &systemShortcutKDE)
+{
+    QStringList actionId{"", "", "", ""};
+    actionId[KGlobalAccel::ComponentUnique] = systemShortcutKDE.componentUniqueName;
+    actionId[KGlobalAccel::ComponentFriendly] = systemShortcutKDE.componentFriendlyName;
+    actionId[KGlobalAccel::ActionUnique] = systemShortcutKDE.uniqueName;
+    actionId[KGlobalAccel::ActionFriendly] = systemShortcutKDE.friendlyName;
+    return actionId;
+}
+
+void SystemShortcuts::processSettingsChanged(const QString &key, const QString &schemaID)
+{
+    auto uidData = QString("%1:%2").arg(schemaID, key);
+    auto uid = QCryptographicHash::hash(uidData.toUtf8(), QCryptographicHash::Md5).toHex();
+    auto shortcut = m_shortcutMixs.value(key);
+    RETURN_IF_FALSE(shortcut);
+
+    if (shortcut)
+    {
+        auto value = shortcut->mate.gsettings->get(key).toString();
+        if (shortcut->mate.keyCombination != value && KeybindingUtils::isValidKeySequence(value))
+        {
+            shortcut->mate.keyCombination = value;
+            Q_EMIT shortcutChanged(mix2common(shortcut));
+        }
+    }
+}
+
 }  // namespace Kiran

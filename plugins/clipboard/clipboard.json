@@ -1,0 +1,5 @@
+{
+    "id": "clipboard",
+    "description": "used for clipboard manager",
+    "enabled": true
+}

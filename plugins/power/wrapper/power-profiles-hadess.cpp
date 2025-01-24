@@ -1,18 +1,25 @@
 /**
- * Copyright (c) 2023 ~ 2024 KylinSec Co., Ltd. 
+ * Copyright (c) 2023 ~ 2024 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/wrapper/power-profiles-hadess.h"
+#include "power-profiles-hadess.h"
+#include <QDBusArgument>
+#include <QDBusConnection>
+#include <QDBusInterface>
+#include <QDBusMessage>
+#include <QDBusVariant>
+#include <QVariantMap>
+#include "lib/base/base.h"
 #include "power-i.h"
 
 namespace Kiran
@@ -28,129 +35,96 @@ namespace Kiran
 
 PowerProfilesHadess::PowerProfilesHadess()
 {
-    try
-    {
-        this->profiles_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                                      PROFILES_HADESS_DBUS_NAME,
-                                                                      PROFILES_HADESS_DBUS_OBJECT_PATH,
-                                                                      PROFILES_HADESS_DBUS_INTERFACE);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("Failed to create bus sync: %s", e.what().c_str());
-        return;
-    }
 }
 
 void PowerProfilesHadess::init()
 {
-    this->profiles_proxy_->signal_properties_changed().connect(sigc::mem_fun(this, &PowerProfilesHadess::on_properties_changed));
+    // TODO:测试第三个参数是否正确？应该是org.freedesktop.DBus.Properties?
+    QDBusConnection::systemBus().connect(PROFILES_HADESS_DBUS_NAME,
+                                         PROFILES_HADESS_DBUS_OBJECT_PATH,
+                                         PROFILES_HADESS_DBUS_INTERFACE,
+                                         "PropertiesChanged",
+                                         this,
+                                         SLOT(processPropertiesChanged(const QDBusMessage &)));
 }
 
-bool PowerProfilesHadess::switch_profile(int32_t profile_mode)
+bool PowerProfilesHadess::switchProfile(int32_t profileMode)
 {
-    RETURN_VAL_IF_FALSE(this->profiles_proxy_, false);
+    auto profileModeStr = porfileModeEnum2Str(profileMode);
+    auto sendMessage = QDBusMessage::createMethodCall(PROFILES_HADESS_DBUS_NAME,
+                                                      PROFILES_HADESS_DBUS_OBJECT_PATH,
+                                                      "org.freedesktop.DBus.Properties",
+                                                      "Set");
 
-    auto profile_mode_str = this->porfile_mode_enum2str(profile_mode);
-    KLOG_DEBUG("Switch power active profile to %s.", profile_mode_str.c_str());
+    // TODO:测试第三个参数是否生效
+    sendMessage << QString(PROFILES_HADESS_DBUS_INTERFACE)
+                << QString(PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE)
+                << QVariant::fromValue(QDBusVariant(profileModeStr));
 
-    try
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        std::vector<Glib::VariantBase> params_base;
-        params_base.push_back(Glib::Variant<Glib::ustring>::create(PROFILES_HADESS_DBUS_INTERFACE));
-        params_base.push_back(Glib::Variant<Glib::ustring>::create(PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE));
-        params_base.push_back(Glib::Variant<Glib::VariantBase>::create(Glib::Variant<Glib::ustring>::create((profile_mode_str))));
-        Glib::VariantContainerBase params = Glib::VariantContainerBase::create_tuple(params_base);
-        this->profiles_proxy_->call_sync("org.freedesktop.DBus.Properties.Set", params);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("Failed to set property %s to %s: %s",
-                     PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE,
-                     profile_mode_str.c_str(),
-                     e.what().c_str());
+        KLOG_INFO(power) << "Call set ActiveProfile property return error:" << replyMessage.errorMessage();
         return false;
     }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING("Failed to set property %s to %s: %s",
-                     PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE,
-                     profile_mode_str.c_str(),
-                     e.what());
-        return false;
-    }
+
+    KLOG_INFO(power) << "Switch power active profile to" << profileModeStr;
     return true;
 }
 
-uint32_t PowerProfilesHadess::hold_profile(int32_t profile_mode, const std::string &reason)
+uint32_t PowerProfilesHadess::holdProfile(int32_t profileMode, const QString &reason)
 {
-    RETURN_VAL_IF_FALSE(this->profiles_proxy_, -1);
+    auto profileModeStr = porfileModeEnum2Str(profileMode);
+    auto sendMessage = QDBusMessage::createMethodCall(PROFILES_HADESS_DBUS_NAME,
+                                                      PROFILES_HADESS_DBUS_OBJECT_PATH,
+                                                      PROFILES_HADESS_DBUS_INTERFACE,
+                                                      "HoldProfile");
 
-    auto profile_mode_str = this->porfile_mode_enum2str(profile_mode);
-    KLOG_DEBUG("Hold power active profile to %s.", profile_mode_str.c_str());
+    sendMessage << profileModeStr << reason << "kiran-session-daemon";
 
-    try
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        auto parameters = g_variant_new("(sss)", profile_mode_str.c_str(), reason.c_str(), "kiran-session-daemon");
-        Glib::VariantContainerBase base(parameters, false);
-        auto retval = this->profiles_proxy_->call_sync("HoldProfile", base);
-        auto v1 = retval.get_child(0);
-        return Glib::VariantBase::cast_dynamic<Glib::Variant<uint32_t>>(v1).get();
+        KLOG_INFO(power) << "Call HoldProfile return error:" << replyMessage.errorMessage();
+        return false;
     }
-    catch (const Glib::Error &e)
+    else
     {
-        KLOG_WARNING("Failed to call HoldProfile: %s", e.what().c_str());
-        return -1;
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING("Failed to call HoldProfile: %s", e.what());
-        return -1;
-    }
-    return 0;
-}
-
-void PowerProfilesHadess::release_profile(uint32_t cookie)
-{
-    Glib::VariantContainerBase retval;
-
-    RETURN_IF_FALSE(this->profiles_proxy_);
-
-    auto parameters = g_variant_new("(u)", cookie);
-    Glib::VariantContainerBase base(parameters, false);
-
-    try
-    {
-        this->profiles_proxy_->call_sync("ReleaseProfile", base);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("Failed to call ReleaseProfile: %s", e.what().c_str());
+        KLOG_INFO(power) << "Hold power active profile to" << profileModeStr;
+        return replyMessage.arguments().takeFirst().value<uint32_t>();
     }
 }
 
-int32_t PowerProfilesHadess::get_active_profile()
+void PowerProfilesHadess::releaseProfile(uint32_t cookie)
 {
-    RETURN_VAL_IF_FALSE(this->profiles_proxy_, POWER_PROFILE_MODE_PERFORMANCE);
+    auto sendMessage = QDBusMessage::createMethodCall(PROFILES_HADESS_DBUS_NAME,
+                                                      PROFILES_HADESS_DBUS_OBJECT_PATH,
+                                                      PROFILES_HADESS_DBUS_INTERFACE,
+                                                      "ReleaseProfile");
 
-    try
+    sendMessage << cookie;
+
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        Glib::VariantBase value;
-        this->profiles_proxy_->get_cached_property(value, PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE);
-        auto profile_mode_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(value).get();
-        return this->porfile_mode_str2enum(profile_mode_str);
+        KLOG_INFO(power) << "Call ReleaseProfile return error:" << replyMessage.errorMessage();
     }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING("Failed to get property %s: %s", PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE, e.what());
-    }
-    // 默认返回高性能模式
-    return POWER_PROFILE_MODE_PERFORMANCE;
 }
 
-std::string PowerProfilesHadess::porfile_mode_enum2str(int32_t profile_mode)
+int32_t PowerProfilesHadess::getActiveProfile()
 {
-    switch (profile_mode)
+    QDBusInterface interface(PROFILES_HADESS_DBUS_NAME,
+                             PROFILES_HADESS_DBUS_OBJECT_PATH,
+                             PROFILES_HADESS_DBUS_INTERFACE,
+                             QDBusConnection::systemBus());
+
+    auto profileModeStr = interface.property(PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE).toString();
+    return porfileModeStr2Enum(profileModeStr);
+}
+
+QString PowerProfilesHadess::porfileModeEnum2Str(int32_t profileMode)
+{
+    switch (profileMode)
     {
     case PowerProfileMode::POWER_PROFILE_MODE_SAVER:
         return PROFILES_HADESS_MODE_SAVER;
@@ -160,15 +134,15 @@ std::string PowerProfilesHadess::porfile_mode_enum2str(int32_t profile_mode)
         return PROFILES_HADESS_MODE_PERFORMANCE;
     default:
     {
-        KLOG_WARNING("Unknown profile mode %d, so return performance as current profile mode.", profile_mode);
+        KLOG_WARNING(power) << "Unknown profile mode" << profileMode << ", so return performance as current profile mode.";
         return PROFILES_HADESS_MODE_PERFORMANCE;
     }
     }
 }
 
-int32_t PowerProfilesHadess::porfile_mode_str2enum(const std::string &profile_mode_str)
+int32_t PowerProfilesHadess::porfileModeStr2Enum(const QString &profileModeStr)
 {
-    switch (shash(profile_mode_str.c_str()))
+    switch (shash(profileModeStr.toLatin1().data()))
     {
     case CONNECT(PROFILES_HADESS_MODE_SAVER, _hash):
         return PowerProfileMode::POWER_PROFILE_MODE_SAVER;
@@ -179,39 +153,23 @@ int32_t PowerProfilesHadess::porfile_mode_str2enum(const std::string &profile_mo
 
     default:
     {
-        KLOG_WARNING("Unknown profile mode %s, so return performance as current profile mode.", profile_mode_str.c_str());
+        KLOG_WARNING(power) << "Unknown profile mode" << profileModeStr << ", so return performance as current profile mode.";
         return PowerProfileMode::POWER_PROFILE_MODE_PERFORMANCE;
     }
     }
 }
 
-void PowerProfilesHadess::on_properties_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties,
-                                                const std::vector<Glib::ustring> &invalidated_properties)
+void PowerProfilesHadess::processPropertiesChanged(const QDBusMessage &message)
 {
-    try
-    {
-        for (auto &iter : changed_properties)
-        {
-            switch (shash(iter.first.c_str()))
-            {
-            case CONNECT(PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE, _hash):
-            {
-                auto profile_mode_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(iter.second).get();
-                auto profile_mode = this->porfile_mode_str2enum(profile_mode_str);
-                this->active_profile_changed_.emit(profile_mode);
-                break;
-            }
-            default:
-                break;
-            }
-        }
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING("%s", e.what());
-    }
+    QList<QVariant> args = message.arguments();
+    RETURN_IF_TRUE(args.count() != 3);
 
-    return;
+    QVariantMap changedProperties = qdbus_cast<QVariantMap>(args.at(1).value<QDBusArgument>());
+    auto iter = changedProperties.find(PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE);
+    RETURN_IF_TRUE(iter == changedProperties.end());
+    auto profileModeStr = iter.value().toString();
+    auto profileMode = porfileModeStr2Enum(profileModeStr);
+    Q_EMIT activeProfileChanged(profileMode);
 }
 
 }  // namespace Kiran

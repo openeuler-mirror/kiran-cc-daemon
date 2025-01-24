@@ -1,66 +1,64 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include <gdkmm.h>
-//
-#include <X11/extensions/Xrandr.h>
-#include <gdk/gdkx.h>
+#include <QSocketNotifier>
+#include "power-backlight-interface.h"
 
-#include "plugins/power/backlight/power-backlight-interface.h"
+typedef uint32_t xcb_atom_t;
 
 namespace Kiran
 {
+class XcbConnection;
 class PowerBacklightMonitorsX11 : public PowerBacklightMonitors
 {
+    Q_OBJECT
+
 public:
     PowerBacklightMonitorsX11();
     virtual ~PowerBacklightMonitorsX11();
 
     virtual void init();
     // 获取所有显示器亮度设置对象
-    virtual PowerBacklightAbsoluteVec get_monitors() { return this->backlight_monitors_; }
-    virtual sigc::signal<void> signal_monitor_changed() { return this->monitor_changed_; };
-    virtual sigc::signal<void> signal_brightness_changed() { return this->brightness_changed_; }
+    virtual PowerBacklightAbsoluteList getMonitors() { return m_backlightMonitors; }
 
 private:
-    bool init_xrandr();
-    Atom get_backlight_atom();
+    bool initXrandr();
+    xcb_atom_t getBacklightAtom();
 
     // 是否支持设置亮度
-    bool support_backlight_extension() { return this->extension_supported_; };
+    bool supportBacklightExtension() { return m_extensionSupported; };
 
-    void load_resource();
-    void clear_resource();
+    void loadResource();
 
-    static GdkFilterReturn window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
+    void handleXcbEvent();
+
+private Q_SLOTS:
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    void
+    processXcbSocketActivated(QSocketDescriptor socket, QSocketNotifier::Type activationEvent);
+#else
+    void
+    processXcbSocketActivated(int socket);
+#endif
 
 private:
-    GdkDisplay *display_;
-    Display *xdisplay_;
-    GdkWindow *root_window_;
-    Window xroot_window_;
-
-    int32_t event_base_;
-    int32_t error_base_;
-    bool extension_supported_;
-
-    Atom backlight_atom_;
-    XRRScreenResources *resources_;
-
-    PowerBacklightAbsoluteVec backlight_monitors_;
-
-    sigc::signal<void> monitor_changed_;
-    sigc::signal<void> brightness_changed_;
+    XcbConnection *m_xcbConnection;
+    QSocketNotifier *m_xcbSocketNotifier;
+    int32_t m_eventBase;
+    int32_t m_errorBase;
+    bool m_extensionSupported;
+    xcb_atom_t m_backlightAtom;
+    PowerBacklightAbsoluteList m_backlightMonitors;
 };
 }  // namespace Kiran

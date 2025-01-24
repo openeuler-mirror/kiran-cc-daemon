@@ -1,49 +1,49 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight.h"
-
-#include "plugins/power/backlight/power-backlight-kbd.h"
-#include "plugins/power/backlight/power-backlight-monitors-controller.h"
+#include "power-backlight.h"
+#include "power-backlight-interface.h"
+#include "power-backlight-kbd.h"
+#include "power-backlight-monitors-controller.h"
 
 namespace Kiran
 {
 PowerBacklight::PowerBacklight()
 {
-    this->backlight_monitor_ = std::make_shared<PowerBacklightMonitorsController>();
-    this->backlight_kbd_ = std::make_shared<PowerBacklightKbd>();
+    m_backlightMonitor = new PowerBacklightMonitorsController(this);
+    m_backlightKbd = new PowerBacklightKbd(this);
 }
 
 PowerBacklight::~PowerBacklight()
 {
 }
 
-PowerBacklight* PowerBacklight::instance_ = nullptr;
-void PowerBacklight::global_init()
+PowerBacklight* PowerBacklight::m_instance = nullptr;
+void PowerBacklight::globalInit()
 {
-    instance_ = new PowerBacklight();
-    instance_->init();
+    m_instance = new PowerBacklight();
+    m_instance->init();
 }
 
-std::shared_ptr<PowerBacklightPercentage> PowerBacklight::get_backlight_device(PowerDeviceType device)
+PowerBacklightPercentage* PowerBacklight::getBacklightDevice(PowerDeviceType device)
 {
     switch (device)
     {
     case PowerDeviceType::POWER_DEVICE_TYPE_MONITOR:
-        return this->backlight_monitor_;
+        return m_backlightMonitor;
     case PowerDeviceType::POWER_DEVICE_TYPE_KBD:
-        return this->backlight_kbd_;
+        return m_backlightKbd;
     default:
         break;
     }
@@ -52,21 +52,21 @@ std::shared_ptr<PowerBacklightPercentage> PowerBacklight::get_backlight_device(P
 
 void PowerBacklight::init()
 {
-    this->backlight_monitor_->init();
-    this->backlight_kbd_->init();
+    m_backlightMonitor->init();
+    m_backlightKbd->init();
 
-    this->backlight_monitor_->signal_brightness_changed().connect(
-        sigc::bind(sigc::mem_fun(this, &PowerBacklight::on_backlight_brightness_changed),
-                   this->backlight_monitor_));
+    connect(m_backlightMonitor,
+            &PowerBacklightPercentage::brightnessChanged,
+            std::bind(&PowerBacklight::processBacklightBrightnessChanged, this, std::placeholders::_1, m_backlightMonitor));
 
-    this->backlight_kbd_->signal_brightness_changed().connect(
-        sigc::bind(sigc::mem_fun(this, &PowerBacklight::on_backlight_brightness_changed),
-                   this->backlight_kbd_));
+    connect(m_backlightKbd,
+            &PowerBacklightPercentage::brightnessChanged,
+            std::bind(&PowerBacklight::processBacklightBrightnessChanged, this, std::placeholders::_1, m_backlightKbd));
 }
 
-void PowerBacklight::on_backlight_brightness_changed(int32_t brightness_percentage, std::shared_ptr<PowerBacklightPercentage> backlight)
+void PowerBacklight::processBacklightBrightnessChanged(int32_t brightnessPercentage, PowerBacklightPercentage* backlight)
 {
-    this->brightness_changed_.emit(backlight, brightness_percentage);
+    Q_EMIT brightnessChanged(backlight, brightnessPercentage);
 }
 
 }  // namespace Kiran

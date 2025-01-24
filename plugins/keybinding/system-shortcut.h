@@ -1,86 +1,137 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include "lib/base/base.h"
-#include "plugins/keybinding/keylist-entries-parser.h"
-#include "plugins/keybinding/shortcut-helper.h"
+#include <QKeySequence>
+#include <QList>
+#include <QMap>
+#include <QObject>
+
+class KGlobalAccelInterface;
+class KGlobalShortcutInfo;
+class QGSettings;
 
 namespace Kiran
 {
-struct SystemShortCut
+class KeyListEntry;
+
+struct SystemShortcut
 {
-    std::string uid;
+    QString uid;
     // 分类名
-    std::string kind;
+    QString kind;
     // 快捷键名称
-    std::string name;
+    QString name;
     // 快捷键
-    std::string key_combination;
-    // 快捷键默认值
-    std::string default_key_combination;
-    // 读写快捷键的gsettings
-    Glib::RefPtr<Gio::Settings> settings;
-    // 快捷键在gsettings中的key
-    std::string settings_key;
-    // 感知gsettings变化的信号连接
-    sigc::connection connection;
+    QString keyCombination;
 };
 
-class SystemShortCuts : public sigc::trackable
+// 为了兼容kde和mate，这里将相关快捷键结构整合到一起
+enum SystemShortcutDesktopType
 {
+    SYSTEM_SHORTCUT_DESKTOP_TYPE_UNKNOWN = 0,
+    SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE,
+    SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE,
+};
+
+struct SystemShortcutMate
+{
+    SystemShortcutMate() : gsettings(nullptr){};
+    // 分类名
+    QString kind;
+    // 快捷键名称
+    QString name;
+    // 快捷键
+    QString keyCombination;
+    // 读写快捷键的gsettings
+    QGSettings *gsettings;
+    // 快捷键在gsettings中的key
+    QString settingsKey;
+};
+
+struct SystemShortcutKDE
+{
+    // 分类名
+    QString componentUniqueName;
+    // 翻译的分类名
+    QString componentFriendlyName;
+    // 快捷键名称
+    QString uniqueName;
+    // 翻译的快捷键名称
+    QString friendlyName;
+    // 快捷键
+    QList<QKeySequence> keys;
+    // 默认快捷键
+    QList<QKeySequence> defaultKeys;
+};
+
+struct SystemShortcutMix
+{
+    SystemShortcutMix() : desktopType(SYSTEM_SHORTCUT_DESKTOP_TYPE_UNKNOWN){};
+    virtual ~SystemShortcutMix(){};
+    QString uid;
+    SystemShortcutDesktopType desktopType;
+    // 这里偷懒没有用union，因为非POD类型需要自己定义构造和析够。反正也不会有太多内存开销，后续完全迁移到kf5后可以去掉对mate的兼容
+    SystemShortcutMate mate;
+    SystemShortcutKDE kde;
+};
+
+class SystemShortcuts : public QObject
+{
+    Q_OBJECT
+
 public:
-    SystemShortCuts();
-    virtual ~SystemShortCuts(){};
+    SystemShortcuts();
+    virtual ~SystemShortcuts(){};
 
     // 初始化
     void init();
 
     // 修改系统快捷键
-    bool modify(const std::string &uid, const std::string &key_combination);
+    bool modify(const QString &uid, const QString &keyCombination);
     // 获取系统快捷键
-    std::shared_ptr<SystemShortCut> get(const std::string &uid);
+    QSharedPointer<SystemShortcut> get(const QString &uid);
     // 通过keycomb搜索快捷键，如果存在多个快捷键有相同的keycomb，则返回第一个找到的快捷键
-    std::shared_ptr<SystemShortCut> get_by_keycomb(const std::string &keycomb);
-    const std::map<std::string, std::shared_ptr<SystemShortCut>> &get() const { return this->shortcuts_; }
+    QSharedPointer<SystemShortcut> getByKeycomb(const QString &keycomb);
+    QList<QSharedPointer<SystemShortcut>> get();
     // 重置系统快捷键
     void reset();
 
+Q_SIGNALS:
     // 新增系统快捷键
-    sigc::signal<void, std::shared_ptr<SystemShortCut>> signal_shortcut_added() const { return this->shortcut_added_; }
+    void shortcutAdded(QSharedPointer<SystemShortcut> shortcut);
     // 删除系统快捷键
-    sigc::signal<void, std::shared_ptr<SystemShortCut>> signal_shortcut_deleted() const { return this->shortcut_deleted_; }
+    void shortcutDeleted(QSharedPointer<SystemShortcut> shortcut);
     // 系统快捷键修改
-    sigc::signal<void, std::shared_ptr<SystemShortCut>> signal_shortcut_changed() const { return this->shortcut_changed_; }
+    void shortcutChanged(QSharedPointer<SystemShortcut> shortcut);
 
 private:
-    // 根据配置文件加载系统快捷键
-    void load_system_shortcuts(std::map<std::string, std::shared_ptr<SystemShortCut>> &shortcuts);
-
-    void wm_window_changed();
-
-    void settings_changed(const Glib::ustring &key, std::string shortcut_uid);
-
-    bool should_show_key(const KeyListEntry &entry);
+    // 通过kglobalaccel获取系统快捷键
+    void initKSystemShortcuts();
+    // 根据配置文件加载系统快捷键，主要是兼容旧的方式（marco系统快捷键）
+    void initMarcoSystemShortcuts();
+    bool shouldShowKey(const KeyListEntry &entry);
+    QSharedPointer<SystemShortcut> mix2common(QSharedPointer<SystemShortcutMix> systemShortCutMix);
+    QString keys2Str(const QList<QKeySequence> &keys);
+    QStringList buildActionId(const SystemShortcutKDE &systemshortKDE);
+    void processSettingsChanged(const QString &key, const QString &schemaID);
 
 private:
-    sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_added_;
-    sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_deleted_;
-    sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_changed_;
-
-    std::map<std::string, std::shared_ptr<SystemShortCut>> shortcuts_;
+    KGlobalAccelInterface *m_globalAccelInterface;
+    QMap<QString, QSharedPointer<SystemShortcutMix>> m_shortcutMixs;
+    QMap<QString, QGSettings *> m_gsettingsSet;
 };
 
 }  // namespace Kiran

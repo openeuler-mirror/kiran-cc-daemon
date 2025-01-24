@@ -5,271 +5,159 @@
 
         <method name="Enable">
             <arg type="b" name="enabled" direction="in">
-                <doc:doc>
-                    <doc:summary>The show of the monitor is opened or closed.</doc:summary>
-                </doc:doc>
+                <summary>The show of the monitor is opened or closed.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Open or close the monitor.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Open or close the monitor.</description>
         </method>
 
         <method name="ListModes">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ListDisplayModesStu"/>
             <arg type="a(uuud)" name="modes" direction="out">
-                <doc:doc>
-                    <doc:summary>The list of modes that element contains id, width, height and refresh_rate.</doc:summary>
-                </doc:doc>
+                <summary>The list of modes that element contains id, width, height and refresh_rate.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Get the list of modes supported by this monitor.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Get the list of modes supported by this monitor.</description>
         </method>
 
         <method name="ListPreferredModes">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ListDisplayModesStu"/>
             <arg type="a(uuud)" name="preferred_modes" direction="out">
-                <doc:doc>
-                    <doc:summary>The list of preferred modes that element contains id, width, height and refresh_rate.</doc:summary>
-                </doc:doc>
+                <summary>The list of preferred modes that element contains id, width, height and refresh_rate.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Get the list of preferred modes by the monitor.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Get the list of preferred modes by the monitor.</description>
         </method>
 
         <method name="GetCurrentMode">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="DisplayModesStu"/>
             <arg type="(uuud)" name="mode" direction="out">
-                <doc:doc>
-                    <doc:summary>The current used mode that element contains id, width, height and refresh_rate.</doc:summary>
-                </doc:doc>
+                <summary>The current used mode that element contains id, width, height and refresh_rate.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Get the current used mode.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Get the current used mode.</description>
         </method>
 
         <method name="SetMode">
             <arg type="u" name="width" direction="in">
-                <doc:doc>
-                    <doc:summary>The resolution in x-direction.</doc:summary>
-                </doc:doc>
+                <summary>The resolution in x-direction.</summary>
             </arg>
             <arg type="u" name="height" direction="in">
-                <doc:doc>
-                    <doc:summary>The resolution in y-direction.</doc:summary>
-                </doc:doc>
+                <summary>The resolution in y-direction.</summary>
             </arg>
             <arg type="d" name="refresh_rate" direction="in">
-                <doc:doc>
-                    <doc:summary>The refresh rate.</doc:summary>
-                </doc:doc>
+                <summary>The refresh rate.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set mode.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set mode.</description>
         </method>
 
         <method name="SetModeById">
             <arg type="u" name="id" direction="in">
-                <doc:doc>
-                    <doc:summary>The mode id.</doc:summary>
-                </doc:doc>
+                <summary>The mode id.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set mode by id in property modes.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set mode by id in property modes.</description>
         </method>
 
         <method name="SetModeBySize">
             <arg type="u" name="width" direction="in">
-                <doc:doc>
-                    <doc:summary>The resolution in x-direction.</doc:summary>
-                </doc:doc>
+                <summary>The resolution in x-direction.</summary>
             </arg>
             <arg type="u" name="height" direction="in">
-                <doc:doc>
-                    <doc:summary>The resolution in y-direction.</doc:summary>
-                </doc:doc>
+                <summary>The resolution in y-direction.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set mode by size.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set mode by size.</description>
         </method>
 
         <method name="SetPosition">
             <arg type="i" name="x" direction="in">
-                <doc:doc>
-                    <doc:summary>The x-direction position.</doc:summary>
-                </doc:doc>
+                <summary>The x-direction position.</summary>
             </arg>
             <arg type="i" name="y" direction="in">
-                <doc:doc>
-                    <doc:summary>The y-direction position.</doc:summary>
-                </doc:doc>
+                <summary>The y-direction position.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set the position within the screen region..</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set the position within the screen region..</description>
         </method>
 
         <method name="SetRotation">
             <arg type="q" name="rotation" direction="in">
-                <doc:doc>
-                    <doc:summary>The rotation in property rotations.</doc:summary>
-                </doc:doc>
+                <summary>The rotation in property rotations.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set the rotation by value in property rotations.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set the rotation by value in property rotations.</description>
         </method>
 
         <method name="SetReflect">
             <arg type="q" name="reflect" direction="in">
-                <doc:doc>
-                    <doc:summary>The reflect in property reflects.</doc:summary>
-                </doc:doc>
+                <summary>The reflect in property reflects.</summary>
             </arg>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Set the reflection by value in property reflects.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Set the reflection by value in property reflects.</description>
         </method>
 
         <property name="id" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Indicates the Output id associate with this monitor.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Indicates the Output id associate with this monitor.</description>
         </property>
 
         <property name="name" type="s" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Indicates the Output name associate with this monitor.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Indicates the Output name associate with this monitor.</description>
         </property>
 
         <property name="connected" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Indecates whether the hardware was able to detect a monitor device connected to this output.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Indecates whether the hardware was able to detect a monitor device connected to this output.</description>
         </property>
 
         <property name="enabled" type="b" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>The show of the monitor is opened or closed.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>The show of the monitor is opened or closed.</description>
         </property>
 
         <property name="x" type="i" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Indicates the position of this CRTC within the screen region.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Indicates the position of this CRTC within the screen region.</description>
         </property>
 
         <property name="y" type="i" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Indicates the position of this CRTC within the screen region.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>Indicates the position of this CRTC within the screen region.</description>
         </property>
 
         <property name="rotation" type="q" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>The current rotation. Rotation can be one of 'normal', 'left', 'right' or 'inverted'. 
-                    This causes the output contents to be rotated in the specified direction.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>
+                The current rotation. Rotation can be one of 'normal', 'left', 'right' or 'inverted'. 
+                This causes the output contents to be rotated in the specified direction.
+            </description>
         </property>
 
         <property name="reflect" type="q" access="read">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>The current reflection. Reflection can be one of 'normal' 'x', 'y' or 'xy'. This causes the output contents to be reflected across the specified axes.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>            
+            <description>The current reflection. Reflection can be one of 'normal' 'x', 'y' or 'xy'. This causes the output contents to be reflected across the specified axes.</description>
         </property>
 
         <property name="rotations" type="aq" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Contains the set of rotations supported by the CRTC.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <annotation name="org.qtproject.QtDBus.QtTypeName" value="quint16List"/>            
+            <description>Contains the set of rotations supported by the CRTC.</description>
         </property>
 
         <property name="reflects" type="aq" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>Contains the set of reflections supported by the CRTC.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <annotation name="org.qtproject.QtDBus.QtTypeName" value="quint16List"/>
+            <description>Contains the set of reflections supported by the CRTC.</description>
         </property>
 
         <property name="current_mode" type="u" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>The current used mode.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>The current used mode.</description>
         </property>
 
         <property name="modes" type="au" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>All avaliable modes which element contains width, height and refresh rate. For exapmle: [(1920,1080, 60.0),(1680, 1050, 59.95)].</doc:para>
-                </doc:description>
-            </doc:doc>
+            <annotation name="org.qtproject.QtDBus.QtTypeName" value="quint32List"/>
+            <description>All avaliable modes which element contains width, height and refresh rate. For exapmle: [(1920,1080, 60.0),(1680, 1050, 59.95)].</description>
         </property>
 
         <property name="npreferred" type="i" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true"/>
-            <doc:doc>
-                <doc:description>
-                    <doc:para>The first npreferred modes in modes are preferred by the monitor in some way; for fixed-pixed devices,
-                    this would generally indicate which modes match the resolution of the output device.</doc:para>
-                </doc:description>
-            </doc:doc>
+            <description>The first npreferred modes in modes are preferred by the monitor in some way; for fixed-pixed devices,
+            this would generally indicate which modes match the resolution of the output device.</description>
         </property>
 
     </interface>

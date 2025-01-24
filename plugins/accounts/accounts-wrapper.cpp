@@ -1,22 +1,27 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/accounts/accounts-wrapper.h"
-
+#include "accounts-wrapper.h"
+#include <grp.h>
+#include <pwd.h>
+#include <shadow.h>
+#include <string.h>
+#include <QFileSystemWatcher>
+#include <QTimer>
 #include <utility>
-
-#include "plugins/accounts/accounts-util.h"
+#include "accounts-util.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {
@@ -24,157 +29,179 @@ namespace Kiran
 #define PATH_SHADOW "/etc/shadow"
 #define PATH_GROUP "/etc/group"
 
+Passwd::Passwd(struct passwd *passwd) : uid(0),
+                                        gid(0)
+{
+    RETURN_IF_FALSE(passwd != NULL);
+
+    name = passwd->pw_name;
+    this->passwd = passwd->pw_passwd;
+    uid = passwd->pw_uid;
+    gid = passwd->pw_gid;
+    gecos = passwd->pw_gecos;
+    dir = passwd->pw_dir;
+    shell = passwd->pw_shell;
+}
+
+SPwd::SPwd(struct spwd *sp)
+{
+    RETURN_IF_FALSE(sp != NULL);
+
+    namp = sp->sp_namp;
+    pwdp = sp->sp_pwdp;
+    lstchg = sp->sp_lstchg;
+    min = sp->sp_min;
+    max = sp->sp_max;
+    warn = sp->sp_warn;
+    inact = sp->sp_inact;
+    expire = sp->sp_expire;
+    flag = sp->sp_flag;
+}
+
+Group::Group(struct group *grp)
+{
+    RETURN_IF_FALSE(grp != NULL);
+
+    name = grp->gr_name;
+    passwd = grp->gr_passwd;
+    gid = grp->gr_gid;
+    for (auto pos = grp->gr_mem; pos != NULL && *pos != NULL; ++pos)
+    {
+        mem.push_back(*pos);
+    }
+}
+
 AccountsWrapper::AccountsWrapper()
 {
+    m_fsWatcher = new QFileSystemWatcher(QStringList{PATH_PASSWD, PATH_SHADOW, PATH_GROUP}, this);
+    m_reloadTimer = new QTimer(this);
 }
 
-AccountsWrapper *AccountsWrapper::instance_ = nullptr;
-void AccountsWrapper::global_init()
+AccountsWrapper *AccountsWrapper::m_instance = nullptr;
+void AccountsWrapper::globalInit()
 {
-    instance_ = new AccountsWrapper();
-    instance_->init();
+    m_instance = new AccountsWrapper();
+    m_instance->init();
 }
 
-std::vector<PasswdShadow> AccountsWrapper::get_passwds_shadows()
+QVector<PasswdShadow> AccountsWrapper::getPasswdsShadows()
 {
-    std::vector<PasswdShadow> passwds_shadows;
+    QVector<PasswdShadow> passwdsShadows;
 
-    for (auto iter = this->passwds_.begin(); iter != this->passwds_.end(); ++iter)
+    for (auto iter = m_passwds.begin(); iter != m_passwds.end(); ++iter)
     {
-        auto spwd = this->spwds_.find(iter->first);
+        auto spwd = m_spwds.find(iter.key());
         // 如果spwd不存在，可能是因为账户正在创建中，这个时候不作为返回值，避免出现处理空指针引起的崩溃问题
-        if (spwd != this->spwds_.end())
+        if (spwd != m_spwds.end())
         {
-            passwds_shadows.push_back(std::make_pair(iter->second, spwd->second));
+            passwdsShadows.push_back(QPair<QSharedPointer<Passwd>, QSharedPointer<SPwd>>(iter.value(), spwd.value()));
         }
         else
         {
-            KLOG_DEBUG_ACCOUNTS("The shadow info isn't found.");
+            KLOG_WARNING(accounts) << "The shadow info of user" << iter.key() << "isn't found.";
         }
     }
 
-    return passwds_shadows;
+    return passwdsShadows;
 }
-std::shared_ptr<Passwd> AccountsWrapper::get_passwd_by_name(const std::string &user_name)
+QSharedPointer<Passwd> AccountsWrapper::getPasswdByName(const QString &userName)
 {
-    auto iter = this->passwds_.find(user_name);
-    if (iter != this->passwds_.end())
+    auto iter = m_passwds.find(userName);
+    if (iter != m_passwds.end())
     {
-        return iter->second;
+        return iter.value();
     }
 
-    auto pwent = getpwnam(user_name.c_str());
+    auto pwent = getpwnam(userName.toUtf8().data());
     if (pwent != NULL)
     {
-        return std::make_shared<Passwd>(pwent);
+        return QSharedPointer<Passwd>::create(pwent);
     }
 
     return nullptr;
 }
 
-std::shared_ptr<Passwd> AccountsWrapper::get_passwd_by_uid(uint64_t uid)
+QSharedPointer<Passwd> AccountsWrapper::getPasswdByUID(uint64_t uid)
 {
-    auto iter = this->passwds_by_uid_.find(uid);
-    if (iter != this->passwds_by_uid_.end() && !iter->second.expired())
+    auto iter = m_passwdsByUID.find(uid);
+    if (iter != m_passwdsByUID.end())
     {
-        return iter->second.lock();
+        return iter.value();
     }
 
     auto pwent = getpwuid(uid);
     if (pwent != NULL)
     {
-        return std::make_shared<Passwd>(pwent);
+        return QSharedPointer<Passwd>::create(pwent);
     }
     return nullptr;
 }
 
-std::shared_ptr<SPwd> AccountsWrapper::get_spwd_by_name(const std::string &user_name)
+QSharedPointer<SPwd> AccountsWrapper::getSpwdByName(const QString &userName)
 {
-    auto iter = this->spwds_.find(user_name);
-    if (iter != this->spwds_.end())
+    auto iter = m_spwds.find(userName);
+    if (iter != m_spwds.end())
     {
-        return iter->second;
+        return iter.value();
     }
 
-    auto spent = getspnam(user_name.c_str());
+    auto spent = getspnam(userName.toUtf8().data());
     if (spent != NULL)
     {
-        return std::make_shared<SPwd>(spent);
+        return QSharedPointer<SPwd>::create(spent);
     }
     return nullptr;
 }
 
-std::shared_ptr<Group> AccountsWrapper::get_group_by_name(const std::string &group_name)
+QSharedPointer<Group> AccountsWrapper::getGroupByName(const QString &groupName)
 {
-    auto grp = getgrnam(group_name.c_str());
+    auto grp = getgrnam(groupName.toUtf8().data());
     if (grp == NULL)
     {
         return nullptr;
     }
     else
     {
-        return std::make_shared<Group>(grp);
+        return QSharedPointer<Group>::create(grp);
     }
 }
 
-std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
-                                                       uint32_t group)
+QVector<uint32_t> AccountsWrapper::getUserGroups(const QString &user, uint32_t group)
 {
     int32_t ngroups = 0;
-    getgrouplist(user.c_str(), group, NULL, &ngroups);
-
-    auto groups = g_new(gid_t, ngroups);
-    auto res = getgrouplist(user.c_str(), group, groups, &ngroups);
-
-    return std::vector<uint32_t>(groups, groups + res);
+    getgrouplist(user.toLatin1().data(), group, NULL, &ngroups);
+    auto groups = new gid_t[ngroups];
+    auto res = getgrouplist(user.toLatin1().data(), group, groups, &ngroups);
+    return QVector<uint32_t>(groups, groups + res);
 }
 
 void AccountsWrapper::init()
 {
-    this->passwd_monitor_ = FileUtils::make_monitor_file(PATH_PASSWD, sigc::mem_fun(this, &AccountsWrapper::passwd_changed));
-    this->shadow_monitor_ = FileUtils::make_monitor_file(PATH_SHADOW, sigc::mem_fun(this, &AccountsWrapper::shadow_changed));
-    this->group_monitor_ = FileUtils::make_monitor_file(PATH_GROUP, sigc::mem_fun(this, &AccountsWrapper::group_changed));
+    connect(m_fsWatcher, SIGNAL(fileChanged(const QString &)), this, SLOT(idleReload(const QString &)));
+    connect(m_reloadTimer, SIGNAL(timeout()), this, SLOT(reload()));
 
-    this->reload_passwd();
-    this->reload_shadow();
+    reloadPasswd();
+    reloadShadow();
 }
 
-void AccountsWrapper::passwd_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
-
-    this->reload_passwd();
-
-    this->file_changed_.emit(FileChangedType::PASSWD_CHANGED);
-}
-
-void AccountsWrapper::shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
-
-    this->reload_shadow();
-
-    this->file_changed_.emit(FileChangedType::SHADOW_CHANGED);
-}
-
-void AccountsWrapper::group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED && event_type != Gio::FILE_MONITOR_EVENT_CREATED);
-
-    this->file_changed_.emit(FileChangedType::GROUP_CHANGED);
-}
-
-void AccountsWrapper::reload_passwd()
+void AccountsWrapper::reloadPasswd()
 {
     auto fp = fopen(PATH_PASSWD, "r");
     if (fp == NULL)
     {
-        KLOG_WARNING_ACCOUNTS("Unable to open %s: %s", PATH_PASSWD, g_strerror(errno));
+        KLOG_WARNING(accounts) << "Unable to open" << PATH_PASSWD << ":" << strerror(errno);
         return;
     }
 
-    this->passwds_.clear();
-    this->passwds_by_uid_.clear();
+    SCOPE_EXIT({
+        if (fp)
+        {
+            fclose(fp);
+        }
+    });
+
+    m_passwds.clear();
+    m_passwdsByUID.clear();
     struct passwd *pwent;
 
     do
@@ -182,23 +209,23 @@ void AccountsWrapper::reload_passwd()
         pwent = fgetpwent(fp);
         if (pwent != NULL)
         {
-            auto passwd = std::make_shared<Passwd>(pwent);
-            this->passwds_.emplace(passwd->pw_name, passwd);
-            this->passwds_by_uid_.emplace(passwd->pw_uid, passwd);
+            auto passwd = QSharedPointer<Passwd>::create(pwent);
+            m_passwds.insert(passwd->name, passwd);
+            m_passwdsByUID.insert(passwd->uid, passwd);
         }
 
     } while (pwent != NULL);
 }
-void AccountsWrapper::reload_shadow()
+void AccountsWrapper::reloadShadow()
 {
     auto fp = fopen(PATH_SHADOW, "r");
     if (fp == NULL)
     {
-        KLOG_WARNING_ACCOUNTS("Unable to open %s: %s", PATH_SHADOW, g_strerror(errno));
+        KLOG_WARNING(accounts) << "Unable to open" << PATH_SHADOW << ":" << strerror(errno);
         return;
     }
 
-    this->spwds_.clear();
+    m_spwds.clear();
 
     struct
     {
@@ -206,23 +233,45 @@ void AccountsWrapper::reload_shadow()
         char buf[1024];
     } shadow_buffer;
 
-    struct spwd *shadow_entry;
+    struct spwd *shadowEntry;
 
     do
     {
-        auto ret = fgetspent_r(fp, &shadow_buffer.spbuf, shadow_buffer.buf, sizeof(shadow_buffer.buf), &shadow_entry);
-        if (ret == 0 && shadow_entry != NULL)
+        auto ret = fgetspent_r(fp, &shadow_buffer.spbuf, shadow_buffer.buf, sizeof(shadow_buffer.buf), &shadowEntry);
+        if (ret == 0 && shadowEntry != NULL)
         {
-            auto spwd = std::make_shared<SPwd>(shadow_entry);
-            this->spwds_.emplace(spwd->sp_namp, spwd);
+            auto spwd = QSharedPointer<SPwd>::create(shadowEntry);
+            m_spwds.insert(spwd->namp, spwd);
         }
         else if (errno != EINTR)
         {
             break;
         }
-    } while (shadow_entry != NULL);
+    } while (shadowEntry != NULL);
 
     fclose(fp);
+}
+
+void AccountsWrapper::idleReload(const QString &filePath)
+{
+    KLOG_INFO(accounts) << "File" << filePath << "is changed";
+
+    if (!m_reloadTimer->isActive())
+    {
+        m_reloadTimer->start(100);
+    }
+}
+
+void AccountsWrapper::reload()
+{
+    m_reloadTimer->stop();
+
+    reloadPasswd();
+    reloadShadow();
+    Q_EMIT userChanged();
+
+    // 需要重新添加监听，因为这个文件不是直接被修改，而是修改的是备份文件然后重新替换的，导致监听被移除
+    m_fsWatcher->addPaths(QStringList{PATH_PASSWD, PATH_SHADOW, PATH_GROUP});
 }
 
 }  // namespace Kiran

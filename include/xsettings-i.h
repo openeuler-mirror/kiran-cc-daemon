@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -25,49 +25,49 @@ extern "C"
 
 #define XSETTINGS_SCHEMA_ID "com.kylinsec.kiran.xsettings"
 
-#define XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_TIME "net-double-click-time"
-#define XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_DISTANCE "net-double-click-distance"
-#define XSETTINGS_SCHEMA_NET_DND_DRAG_THRESHOLD "net-dnd-drag-threshold"
-#define XSETTINGS_SCHEMA_NET_CURSOR_BLINK "net-cursor-blink"
-#define XSETTINGS_SCHEMA_NET_CURSOR_BLINK_TIME "net-cursor-blink-time"
-#define XSETTINGS_SCHEMA_NET_THEME_NAME "net-theme-name"
-#define XSETTINGS_SCHEMA_NET_ICON_THEME_NAME "net-icon-theme-name"
-#define XSETTINGS_SCHEMA_NET_ENABLE_EVENT_SOUNDS "net-enable-event-sounds"
-#define XSETTINGS_SCHEMA_NET_SOUND_THEME_NAME "net-sound-theme-name"
-#define XSETTINGS_SCHEMA_NET_ENABLE_INPUT_FEEDBACK_SOUNDS "net-enable-input-feedback-sounds"
+#define XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_TIME "netDoubleClickTime"
+#define XSETTINGS_SCHEMA_NET_DOUBLE_CLICK_DISTANCE "netDoubleClickDistance"
+#define XSETTINGS_SCHEMA_NET_DND_DRAG_THRESHOLD "netDndDragThreshold"
+#define XSETTINGS_SCHEMA_NET_CURSOR_BLINK "netCursorBlink"
+#define XSETTINGS_SCHEMA_NET_CURSOR_BLINK_TIME "netCursorBlinkTime"
+#define XSETTINGS_SCHEMA_NET_THEME_NAME "netThemeName"
+#define XSETTINGS_SCHEMA_NET_ICON_THEME_NAME "netIconThemeName"
+#define XSETTINGS_SCHEMA_NET_ENABLE_EVENT_SOUNDS "netEnableEventSounds"
+#define XSETTINGS_SCHEMA_NET_SOUND_THEME_NAME "netSoundThemeName"
+#define XSETTINGS_SCHEMA_NET_ENABLE_INPUT_FEEDBACK_SOUNDS "netEnableInputFeedbackSounds"
 
-#define XSETTINGS_SCHEMA_XFT_ANTIALIAS "xft-antialias"
-#define XSETTINGS_SCHEMA_XFT_HINTING "xft-hinting"
-#define XSETTINGS_SCHEMA_XFT_HINT_STYLE "xft-hint-style"
-#define XSETTINGS_SCHEMA_XFT_RGBA "xft-rgba"
-#define XSETTINGS_SCHEMA_XFT_DPI "xft-dpi"
-#define XSETTINGS_SCHEMA_FONT_DPI "font-dpi"
+#define XSETTINGS_SCHEMA_XFT_ANTIALIAS "xftAntialias"
+#define XSETTINGS_SCHEMA_XFT_HINTING "xftHinting"
+#define XSETTINGS_SCHEMA_XFT_HINT_STYLE "xftHintStyle"
+#define XSETTINGS_SCHEMA_XFT_RGBA "xftRgba"
+#define XSETTINGS_SCHEMA_XFT_DPI "xftDpi"
+#define XSETTINGS_SCHEMA_FONT_DPI "fontDpi"
 
-#define XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME "gtk-cursor-theme-name"
-#define XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE "gtk-cursor-theme-size"
-#define XSETTINGS_SCHEMA_GTK_FONT_NAME "gtk-font-name"
-#define XSETTINGS_SCHEMA_GTK_KEY_THEME_NAME "gtk-key-theme-name"
-#define XSETTINGS_SCHEMA_GTK_TOOLBAR_STYLE "gtk-toolbar-style"
-#define XSETTINGS_SCHEMA_GTK_TOOLBAR_ICONS_SIZE "gtk-toolbar-icons-size"
-#define XSETTINGS_SCHEMA_GTK_IM_PREEDIT_STYLE "gtk-im-preedit-style"
-#define XSETTINGS_SCHEMA_GTK_IM_STATUS_STYLE "gtk-im-status-style"
-#define XSETTINGS_SCHEMA_GTK_IM_MODULE "gtk-im-module"
-#define XSETTINGS_SCHEMA_GTK_MENU_IMAGES "gtk-menu-images"
-#define XSETTINGS_SCHEMA_GTK_BUTTON_IMAGES "gtk-button-images"
-#define XSETTINGS_SCHEMA_GTK_MENUBAR_ACCEL "gtk-menubar-accel"
-#define XSETTINGS_SCHEMA_GTK_COLOR_SCHEME "gtk-color-scheme"
-#define XSETTINGS_SCHEMA_GTK_FILE_CHOOSER_BACKEND "gtk-file-chooser-backend"
-#define XSETTINGS_SCHEMA_GTK_DECORATION_LAYOUT "gtk-decoration-layout"
-#define XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_APP_MENU "gtk-shell-shows-app-menu"
-#define XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_MENUBAR "gtk-shell-shows-menubar"
-#define XSETTINGS_SCHEMA_GTK_SHOW_INPUT_METHOD_MENU "gtk-show-input-method-menu"
-#define XSETTINGS_SCHEMA_GTK_SHOW_UNICODE_MENU "gtk-show-unicode-menu"
-#define XSETTINGS_SCHEMA_GTK_AUTOMATIC_MNEMONICS "gtk-automatic-mnemonics"
-#define XSETTINGS_SCHEMA_GTK_ENABLE_PRIMARY_PASTE "gtk-enable-primary-paste"
-#define XSETTINGS_SCHEMA_GTK_ENABLE_ANIMATIONS "gtk-enable-animations"
-#define XSETTINGS_SCHEMA_GTK_DIALOGS_USE_HEADER "gtk-dialogs-use-header"
-#define XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR "window-scaling-factor"
-#define XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC "window-scaling-factor-qt-sync"
+#define XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME "gtkCursorThemeName"
+#define XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE "gtkCursorThemeSize"
+#define XSETTINGS_SCHEMA_GTK_FONT_NAME "gtkFontName"
+#define XSETTINGS_SCHEMA_GTK_KEY_THEME_NAME "gtkKeyThemeName"
+#define XSETTINGS_SCHEMA_GTK_TOOLBAR_STYLE "gtkToolbarStyle"
+#define XSETTINGS_SCHEMA_GTK_TOOLBAR_ICONS_SIZE "gtkToolbarIconsSize"
+#define XSETTINGS_SCHEMA_GTK_IM_PREEDIT_STYLE "gtkImPreeditStyle"
+#define XSETTINGS_SCHEMA_GTK_IM_STATUS_STYLE "gtkImStatusStyle"
+#define XSETTINGS_SCHEMA_GTK_IM_MODULE "gtkImModule"
+#define XSETTINGS_SCHEMA_GTK_MENU_IMAGES "gtkMenuImages"
+#define XSETTINGS_SCHEMA_GTK_BUTTON_IMAGES "gtkButtonImages"
+#define XSETTINGS_SCHEMA_GTK_MENUBAR_ACCEL "gtkMenubarAccel"
+#define XSETTINGS_SCHEMA_GTK_COLOR_SCHEME "gtkColorScheme"
+#define XSETTINGS_SCHEMA_GTK_FILE_CHOOSER_BACKEND "gtkFileChooserBackend"
+#define XSETTINGS_SCHEMA_GTK_DECORATION_LAYOUT "gtkDecorationLayout"
+#define XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_APP_MENU "gtkShellShowsAppMenu"
+#define XSETTINGS_SCHEMA_GTK_SHELL_SHOWS_MENUBAR "gtkShellShowsMenubar"
+#define XSETTINGS_SCHEMA_GTK_SHOW_INPUT_METHOD_MENU "gtkShowInputMethodMenu"
+#define XSETTINGS_SCHEMA_GTK_SHOW_UNICODE_MENU "gtkShowUnicodeMenu"
+#define XSETTINGS_SCHEMA_GTK_AUTOMATIC_MNEMONICS "gtkAutomaticMnemonics"
+#define XSETTINGS_SCHEMA_GTK_ENABLE_PRIMARY_PASTE "gtkEnablePrimaryPaste"
+#define XSETTINGS_SCHEMA_GTK_ENABLE_ANIMATIONS "gtkEnableAnimations"
+#define XSETTINGS_SCHEMA_GTK_DIALOGS_USE_HEADER "gtkDialogsUseHeader"
+#define XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR "windowScalingFactor"
+#define XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC "windowScalingFactorQtSync"
 
 #define XSETTINGS_REGISTRY_PROP_NET_DOUBLE_CLICK_TIME "Net/DoubleClickTime"
 #define XSETTINGS_REGISTRY_PROP_NET_DOUBLE_CLICK_DISTANCE "Net/DoubleClickDistance"

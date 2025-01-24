@@ -1,28 +1,31 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/tools/power-backlight-helper.h"
-
-#include <glib/gi18n.h>
-
+#include "power-backlight-helper.h"
+#include <unistd.h>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include "../wrapper/power-upower-device.h"
+#include "../wrapper/power-upower.h"
 #include "lib/base/base.h"
 
 namespace Kiran
 {
 #define POWER_BACKLIGHT_SYS_PATH "/sys/class/backlight"
 
-const std::vector<std::string> PowerBacklightHelper::backlight_search_subdirs_ = {
+const QStringList PowerBacklightHelper::m_backlightSearchSubdirs = {
     "gmux_backlight",
     "nv_backlight",
     "nvidia_backlight",
@@ -40,10 +43,10 @@ const std::vector<std::string> PowerBacklightHelper::backlight_search_subdirs_ =
     "sony",
     "samsung"};
 
-PowerBacklightHelper::PowerBacklightHelper() : brightness_value_(-1)
+PowerBacklightHelper::PowerBacklightHelper() : m_brightnessValue(-1)
 {
-    this->backlight_dir_ = this->get_backlight_filepath();
-    this->upower_client_ = std::make_shared<PowerUPower>();
+    m_backlightDir = getBacklightFilepath();
+    m_upowerClient = QSharedPointer<PowerUPower>::create();
 }
 
 PowerBacklightHelper::~PowerBacklightHelper()
@@ -52,28 +55,27 @@ PowerBacklightHelper::~PowerBacklightHelper()
 
 void PowerBacklightHelper::init()
 {
-    if (this->backlight_dir_.length() > 0)
+    if (m_backlightDir.length() > 0)
     {
-        auto filename = Glib::build_filename(this->backlight_dir_, "brightness");
-        this->brightness_monitor_ = FileUtils::make_monitor_file(filename, sigc::mem_fun(this, &PowerBacklightHelper::on_brightness_changed), Gio::FILE_MONITOR_NONE);
-        this->brightness_value_ = this->get_brightness_value();
+        // auto fileName = QString("%1/brightness").arg(m_backlightDir);
+        m_brightnessValue = getBrightnessValue();
     }
 
-    this->upower_client_->init();
+    m_upowerClient->init();
 }
-bool PowerBacklightHelper::support_backlight()
+bool PowerBacklightHelper::supportBacklight()
 {
-    std::vector<uint32_t> device_types = {UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS};
+    std::vector<uint32_t> deviceTypes = {UP_DEVICE_KIND_BATTERY, UP_DEVICE_KIND_UPS};
 
-    for (auto device_type : device_types)
+    for (auto deviceType : deviceTypes)
     {
-        for (auto upower_device : this->upower_client_->get_devices())
+        for (auto upowerDevice : m_upowerClient->getDevices())
         {
-            auto& device_props = upower_device->get_props();
-            if (device_props.type == device_type &&
-                device_props.is_present)
+            auto& deviceProps = upowerDevice->getProps();
+            if (deviceProps.type == deviceType &&
+                deviceProps.isPresent)
             {
-                return (this->brightness_value_ >= 0);
+                return (m_brightnessValue >= 0);
             }
         }
     }
@@ -81,118 +83,93 @@ bool PowerBacklightHelper::support_backlight()
     return false;
 }
 
-int32_t PowerBacklightHelper::get_brightness_value()
+int32_t PowerBacklightHelper::getBrightnessValue()
 {
-    RETURN_VAL_IF_FALSE(this->backlight_dir_.length() > 0, -1);
+    RETURN_VAL_IF_FALSE(m_backlightDir.length() > 0, -1);
 
-    try
+    auto fileName = QString("%1/brightness").arg(m_backlightDir);
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        auto filename = Glib::build_filename(this->backlight_dir_, "brightness");
-        auto content = Glib::file_get_contents(filename);
-        return (int32_t)std::strtol(content.c_str(), nullptr, 0);
+        KLOG_WARNING(power) << "Cannot access file" << fileName;
+        return -1;
     }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
-    }
-    return -1;
+    auto content = file.readAll();
+    return content.toInt();
 }
 
-int32_t PowerBacklightHelper::get_brightness_max_value()
+int32_t PowerBacklightHelper::getBrightnessMaxValue()
 {
-    RETURN_VAL_IF_FALSE(this->backlight_dir_.length() > 0, -1);
+    RETURN_VAL_IF_FALSE(m_backlightDir.length() > 0, -1);
 
-    try
+    auto fileName = QString("%1/max_brightness").arg(m_backlightDir);
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        auto filename = Glib::build_filename(this->backlight_dir_, "max_brightness");
-        auto content = Glib::file_get_contents(filename);
-        return (int32_t)std::strtol(content.c_str(), nullptr, 0);
+        KLOG_WARNING(power) << "Cannot access file" << fileName;
+        return -1;
     }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
-    }
-    return -1;
+    auto content = file.readAll();
+    return content.toInt();
 }
 
-bool PowerBacklightHelper::set_brightness_value(int32_t brightness_value, std::string& error)
+bool PowerBacklightHelper::setBrightnessValue(int32_t brightnessValue, QString& error)
 {
     auto uid = getuid();
     auto euid = geteuid();
     if (uid != 0 || euid != 0)
     {
-        error = fmt::format("{0}", _("This program can only be used by the root user"));
+        error = QString(tr("This program can only be used by the root user"));
         return false;
     }
 
-    auto pkexec_uid_str = g_getenv("PKEXEC_UID");
-    if (pkexec_uid_str == NULL)
+    auto pkexecUidStr = qgetenv("PKEXEC_UID");
+    if (pkexecUidStr.isEmpty())
     {
-        error = fmt::format("{0}", _("This program must only be run through pkexec"));
+        error = QString(tr("This program must only be run through pkexec"));
         return false;
     }
 
-    auto contents = fmt::format("{0}", brightness_value);
-    auto filename = Glib::build_filename(this->backlight_dir_, "brightness");
+    auto fileName = QString("%1/brightness").arg(m_backlightDir);
 
-    if (!FileUtils::write_contents(filename, contents))
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadWrite | QIODevice::Text))
     {
-        error = fmt::format("{0}", _("Could not set the value of the backlight"));
+        QTextStream out(&file);
+        out << brightnessValue;
+        out.flush();
+    }
+    else
+    {
+        error = QString(tr("Could not set the value of the backlight"));
         return false;
     }
+
     return true;
 }
 
-std::string PowerBacklightHelper::get_backlight_filepath()
+QString PowerBacklightHelper::getBacklightFilepath()
 {
     // 先搜索指定的目录
-    for (auto& sub_dir : this->backlight_search_subdirs_)
+    for (auto& subDir : m_backlightSearchSubdirs)
     {
-        auto backlight_dir = Glib::build_filename(POWER_BACKLIGHT_SYS_PATH, sub_dir);
-        if (Glib::file_test(backlight_dir, Glib::FileTest::FILE_TEST_EXISTS))
+        auto backlightDir = QString("%1/%2").arg(POWER_BACKLIGHT_SYS_PATH).arg(subDir);
+        if (QFileInfo::exists(backlightDir))
         {
-            return backlight_dir;
+            return backlightDir;
         }
     }
 
     // 搜索不到的情况下选择第一个目录
-    try
+    QDir dir(POWER_BACKLIGHT_SYS_PATH);
+    auto fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    if (fileInfoList.size() > 0)
     {
-        Glib::Dir dir(POWER_BACKLIGHT_SYS_PATH);
-
-        auto subdir = dir.read_name();
-        if (subdir.size() > 0)
-        {
-            return Glib::build_filename(POWER_BACKLIGHT_SYS_PATH, subdir);
-        }
+        return fileInfoList.first().absoluteFilePath();
     }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
-        return std::string();
-    }
-    return std::string();
-}
-
-void PowerBacklightHelper::on_brightness_changed(const Glib::RefPtr<Gio::File>& file,
-                                                 const Glib::RefPtr<Gio::File>& other_file,
-                                                 Gio::FileMonitorEvent event_type)
-{
-    switch (event_type)
-    {
-    case Gio::FILE_MONITOR_EVENT_CHANGED:
-    {
-        auto brightness_value = this->get_brightness_value();
-        if (brightness_value != this->brightness_value_)
-        {
-            this->brightness_value_ = brightness_value;
-            this->brightness_changed_.emit(this->brightness_value_);
-        }
-        break;
-    }
-    default:
-        break;
-    }
+    return QString();
 }
 
 }  // namespace  Kiran

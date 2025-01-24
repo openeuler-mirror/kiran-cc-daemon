@@ -1,0 +1,5 @@
+{
+    "id": "display",
+    "description": "used for display manager",
+    "enabled": true
+}

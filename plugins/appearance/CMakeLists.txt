@@ -1,29 +1,22 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME appearance)
 
 file(GLOB_RECURSE APPEARANCE_H_FILES ./*.h)
 file(GLOB_RECURSE APPEARANCE_CPP_FILES ./*.cpp)
 
-gen_dbus_stub(
-  APPEARANCE
-  appearance
-  com.kylinsec.
-  ${CMAKE_SOURCE_DIR}/plugins/appearance/com.kylinsec.Kiran.SessionDaemon.Appearance.xml
-)
+qt5_add_dbus_adaptor(
+  APPEARANCE_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SessionDaemon.Appearance.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/appearance-manager.h Kiran::AppearanceManager)
 
 add_library(${TARGET_NAME} SHARED ${APPEARANCE_H_FILES} ${APPEARANCE_CPP_FILES}
-                                  ${APPEARANCE_GENERATED_STUB})
-
-set_common_shared_linker_flags()
+                                  ${APPEARANCE_SRCS})
 
 target_include_directories(
-  ${TARGET_NAME} PUBLIC ${PROJECT_BINARY_DIR}/generated ${GTKMM3_INCLUDE_DIRS}
-                        ${JSONCPP_INCLUDE_DIRS} ${CAIROMM_XLIB_INCLUDES_DIRS})
+  ${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+                         ${GSETTINGS_QT_INCLUDE_DIRS} ${XCB_IMAGE_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_NAME}
-  PRIVATE ${KSD_LINKER_FLAGS} ${GTKMM3_LIBRARIES} ${JSONCPP_LIBRARIES}
-          ${CAIROMM_XLIB_LIBRARIES} lib-base)
+  ${TARGET_NAME} PRIVATE ${GSETTINGS_QT_LIBRARIES} ${XCB_IMAGE_LIBRARIES} kbase
+                         kxcb Qt5::Widgets)
 
-install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/session)
+install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

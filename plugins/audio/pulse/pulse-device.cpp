@@ -1,95 +1,104 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/pulse/pulse-device.h"
+#include "pulse-device.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {
-PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sink_info) : PulseNodeInfo(PulseNodeInfo{.index = sink_info->index,
-                                                                                              .name = POINTER_TO_STRING(sink_info->name),
-                                                                                              .channel_map = sink_info->channel_map,
-                                                                                              .cvolume = sink_info->volume,
-                                                                                              .mute = sink_info->mute,
-                                                                                              .base_volume = sink_info->base_volume,
-                                                                                              .proplist = sink_info->proplist}),
+PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sinkInfo) : PulseNodeInfo(PulseNodeInfo{.index = sinkInfo->index,
+                                                                                             .name = POINTER_TO_STRING(sinkInfo->name),
+                                                                                             .channelMap = sinkInfo->channel_map,
+                                                                                             .cvolume = sinkInfo->volume,
+                                                                                             .mute = sinkInfo->mute,
+                                                                                             .baseVolume = sinkInfo->base_volume,
+                                                                                             .proplist = sinkInfo->proplist}),
 
-                                                                  card_index(sink_info->card)
+                                                                 m_cardIndex(sinkInfo->card)
 {
-    for (uint32_t i = 0; i < sink_info->n_ports; ++i)
+    for (uint32_t i = 0; i < sinkInfo->n_ports; ++i)
     {
-        auto port = std::make_shared<PulsePort>(sink_info->ports[i]);
-        auto iter = this->ports.emplace(port->get_name(), port);
-        if (!iter.second)
+        auto port = QSharedPointer<PulsePort>::create(sinkInfo->ports[i]);
+        auto portName = port->getName();
+        if (m_ports.contains(portName))
         {
-            KLOG_WARNING_AUDIO("The port %s already exist.", port->get_name().c_str());
+            KLOG_WARNING(audio) << "The port" << portName << "already exist.";
+        }
+        else
+        {
+            m_ports.insert(portName, port);
         }
     }
 
-    if (sink_info->active_port)
+    if (sinkInfo->active_port)
     {
-        this->active_port_name = POINTER_TO_STRING(sink_info->active_port->name);
+        m_activePortName = POINTER_TO_STRING(sinkInfo->active_port->name);
     }
 }
 
-PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *source_info) : PulseNodeInfo(PulseNodeInfo{.index = source_info->index,
-                                                                                                  .name = POINTER_TO_STRING(source_info->name),
-                                                                                                  .channel_map = source_info->channel_map,
-                                                                                                  .cvolume = source_info->volume,
-                                                                                                  .mute = source_info->mute,
-                                                                                                  .base_volume = source_info->base_volume,
-                                                                                                  .proplist = source_info->proplist}),
-                                                                      card_index(source_info->card)
+PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *sourceInfo) : PulseNodeInfo(PulseNodeInfo{.index = sourceInfo->index,
+                                                                                                 .name = POINTER_TO_STRING(sourceInfo->name),
+                                                                                                 .channelMap = sourceInfo->channel_map,
+                                                                                                 .cvolume = sourceInfo->volume,
+                                                                                                 .mute = sourceInfo->mute,
+                                                                                                 .baseVolume = sourceInfo->base_volume,
+                                                                                                 .proplist = sourceInfo->proplist}),
+                                                                     m_cardIndex(sourceInfo->card)
 {
-    for (uint32_t i = 0; i < source_info->n_ports; ++i)
+    for (uint32_t i = 0; i < sourceInfo->n_ports; ++i)
     {
-        auto port = std::make_shared<PulsePort>(source_info->ports[i]);
-        auto iter = this->ports.emplace(port->get_name(), port);
-        if (!iter.second)
+        auto port = QSharedPointer<PulsePort>::create(sourceInfo->ports[i]);
+        auto portName = port->getName();
+        if (m_ports.contains(portName))
         {
-            KLOG_WARNING_AUDIO("The port %s already exist.", port->get_name().c_str());
+            KLOG_WARNING(audio) << "The port" << portName << "already exist.";
+        }
+        else
+        {
+            m_ports.insert(portName, port);
         }
     }
 
-    if (source_info->active_port)
+    if (sourceInfo->active_port)
     {
-        this->active_port_name = POINTER_TO_STRING(source_info->active_port->name);
+        m_activePortName = POINTER_TO_STRING(sourceInfo->active_port->name);
     }
 }
 
-PulseDevice::PulseDevice(const PulseDeviceInfo &device_info) : PulseNode(device_info),
-                                                               card_index_(device_info.card_index),
-                                                               ports_(device_info.ports),
-                                                               active_port_name_(device_info.active_port_name)
+PulseDevice::PulseDevice(const PulseDeviceInfo &deviceInfo) : PulseNode(deviceInfo),
+                                                              m_cardIndex(deviceInfo.m_cardIndex),
+                                                              m_ports(deviceInfo.m_ports),
+                                                              m_activePortName(deviceInfo.m_activePortName)
 {
 }
 
-bool PulseDevice::set_active_port(const std::string &port_name)
+bool PulseDevice::setActivePort(const QString &portName)
 {
     // 不支持，需要调用子类函数
     return false;
 }
 
-void PulseDevice::update(const PulseDeviceInfo &device_info)
+void PulseDevice::update(const PulseDeviceInfo &deviceInfo)
 {
-    this->ports_ = device_info.ports;
+    m_ports = deviceInfo.m_ports;
 
-    if (this->active_port_name_ != device_info.active_port_name)
+    if (m_activePortName != deviceInfo.m_activePortName)
     {
-        this->active_port_name_ = device_info.active_port_name;
-        this->active_port_changed_.emit(this->active_port_name_);
+        m_activePortName = deviceInfo.m_activePortName;
+        Q_EMIT activePortChanged(m_activePortName);
     }
 
-    this->PulseNode::update(device_info.channel_map, device_info.cvolume, device_info.mute, device_info.base_volume);
+    PulseNode::update(deviceInfo.channelMap, deviceInfo.cvolume, deviceInfo.mute, deviceInfo.baseVolume);
 }
 }  // namespace Kiran

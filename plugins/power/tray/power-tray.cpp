@@ -1,23 +1,23 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/tray/power-tray.h"
+#include "tray/power-tray.h"
 
 #include <glib/gi18n.h>
-#include "plugins/power/power-utils.h"
-#include "plugins/power/wrapper/power-upower.h"
 #include "power-i.h"
+#include "power-utils.h"
+#include "wrapper/power-upower.h"
 
 namespace Kiran
 {
@@ -110,7 +110,7 @@ void PowerTray::update_status_icon_toolstip(std::shared_ptr<PowerUPowerDevice> d
         auto time_to_full = device_for_tray->get_props().time_to_full;
         if (time_to_full > 0)
         {
-            auto time_to_full_text = PowerUtils::get_time_translation(time_to_full);
+            auto time_to_full_text = PowerUtils::getTimeTranslation(time_to_full);
             auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately {1} until charged"),
                                             device_for_tray->get_props().percentage,
                                             time_to_full_text);
@@ -125,7 +125,7 @@ void PowerTray::update_status_icon_toolstip(std::shared_ptr<PowerUPowerDevice> d
         auto time_to_empty = device_for_tray->get_props().time_to_empty;
         if (time_to_empty > 0)
         {
-            auto time_to_empty_text = PowerUtils::get_time_translation(time_to_empty);
+            auto time_to_empty_text = PowerUtils::getTimeTranslation(time_to_empty);
             auto tooltip_text = fmt::format(_("Remaining electricty: {0:.1f}%, approximately provides {1} runtime"),
                                             device_for_tray->get_props().percentage,
                                             time_to_empty_text);
@@ -152,8 +152,7 @@ void PowerTray::delay_update_status_icon()
     this->update_icon_handler_ = timeout.connect([this]() -> bool
                                                  {
                                                      this->update_status_icon();
-                                                     return false;
-                                                 },
+                                                     return false; },
                                                  100);
 }
 

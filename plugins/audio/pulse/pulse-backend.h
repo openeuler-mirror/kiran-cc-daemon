@@ -1,30 +1,26 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include "lib/base/base.h"
-
+#include <pulse/introspect.h>
+#include <QMap>
+#include <QObject>
+#include <QSharedPointer>
 #include "audio-i.h"
-#include "plugins/audio/pulse/pulse-card.h"
-#include "plugins/audio/pulse/pulse-context.h"
-#include "plugins/audio/pulse/pulse-sink-input.h"
-#include "plugins/audio/pulse/pulse-sink.h"
-#include "plugins/audio/pulse/pulse-source-output.h"
-#include "plugins/audio/pulse/pulse-source.h"
 
-/* 
+/*
 1个主机可以有多个card，一个card可以看作是一个声卡
 一个card可以有多个card profile，card profile可以看作是card的一种配置方案，同一时间只有一个card profile在使用
 一个card profile可以有多个source和多个sink
@@ -40,6 +36,8 @@ card --> card profile --> |                            |
                           -----------------------------
 
 */
+
+class QTimer;
 
 namespace Kiran
 {
@@ -81,118 +79,120 @@ enum PulseSourceOutputEvent
 struct PulseServerInfo
 {
     // 启动PulseAudio服务器的用户名
-    std::string user_name;
+    QString userName;
     // PulseAudio服务器的主机名
-    std::string host_name;
+    QString hostName;
     // PulseAudio服务器版本
-    std::string server_version;
+    QString serverVersion;
     // PulseAudio服务器包名（一般未pulseaudio）
-    std::string server_name;
+    QString serverName;
     // 默认采样策略
-    pa_sample_spec sample_spec;
+    pa_sample_spec sampleSpec;
     // 默认sink名
-    std::string default_sink_name;
+    QString defaultSinkName;
     // 默认source名
-    std::string default_source_name;
+    QString defaultSourceName;
     // 随机数cookie，用于标识一个PulseAudio实例
     uint32_t cookie;
     // pa_channel_map channel_map;
 };
 
-class PulseBackend
+class PulseContext;
+class PulseCard;
+class PulseSink;
+class PulseSinkInput;
+class PulseSource;
+class PulseSourceOutput;
+
+class PulseBackend : public QObject
 {
+    Q_OBJECT
+
 public:
     PulseBackend();
     virtual ~PulseBackend();
 
-    static PulseBackend *get_instance() { return instance_; };
+    static PulseBackend *getInstance() { return m_instance; };
 
-    static void global_init();
+    static void globalInit();
 
-    static void global_deinit() { delete instance_; };
+    static void globalDeinit() { delete m_instance; };
 
-    std::shared_ptr<PulseContext> get_context() { return this->context_; };
-    AudioState get_state() { return this->state_; };
+    QSharedPointer<PulseContext> getContext() { return m_context; };
+    AudioState getState() { return m_state; };
 
-    PulseCardVec get_cards() { return MapHelper::get_values(this->cards_); };
-    PulseSinkVec get_sinks() { return MapHelper::get_values(this->sinks_); };
-    PulseSinkInputVec get_sink_inputs() { return MapHelper::get_values(this->sink_inputs_); };
-    PulseSourceVec get_sources() { return MapHelper::get_values(this->sources_); };
-    PulseSourceOutputVec get_source_outputs() { return MapHelper::get_values(this->source_outputs_); };
+    QList<QSharedPointer<PulseCard>> getCards() { return m_cards.values(); };
+    QList<QSharedPointer<PulseSink>> getSinks() { return m_sinks.values(); };
+    QList<QSharedPointer<PulseSinkInput>> getSinkInputs() { return m_sinkInputs.values(); };
+    QList<QSharedPointer<PulseSource>> getSources() { return m_sources.values(); };
+    QList<QSharedPointer<PulseSourceOutput>> getSourceOutputs() { return m_sourceOutputs.values(); };
 
-    std::shared_ptr<PulseCard> get_card(uint32_t index) { return MapHelper::get_value(this->cards_, index); };
-    std::shared_ptr<PulseSink> get_sink(uint32_t index) { return MapHelper::get_value(this->sinks_, index); };
-    std::shared_ptr<PulseSink> get_sink_by_name(const std::string &name);
-    std::shared_ptr<PulseSinkInput> get_sink_input(uint32_t index) { return MapHelper::get_value(this->sink_inputs_, index); };
-    std::shared_ptr<PulseSource> get_source(uint32_t index) { return MapHelper::get_value(this->sources_, index); };
-    std::shared_ptr<PulseSource> get_source_by_name(const std::string &name);
-    std::shared_ptr<PulseSourceOutput> get_source_output(uint32_t index) { return MapHelper::get_value(this->source_outputs_, index); };
+    QSharedPointer<PulseCard> getCard(uint32_t index) { return m_cards.value(index); };
+    QSharedPointer<PulseSink> getSink(uint32_t index) { return m_sinks.value(index); };
+    QSharedPointer<PulseSink> getSinkByName(const QString &name);
+    QSharedPointer<PulseSinkInput> getSinkInput(uint32_t index) { return m_sinkInputs.value(index); };
+    QSharedPointer<PulseSource> getSource(uint32_t index) { return m_sources.value(index); };
+    QSharedPointer<PulseSource> getSourceByName(const QString &name);
+    QSharedPointer<PulseSourceOutput> getSourceOutput(uint32_t index) { return m_sourceOutputs.value(index); };
 
-    bool set_default_sink(std::shared_ptr<PulseSink> sink);
-    bool set_default_source(std::shared_ptr<PulseSource> source);
-    std::shared_ptr<PulseSink> get_default_sink() { return this->default_sink_; };
-    std::shared_ptr<PulseSource> get_default_source() { return this->default_source_; };
+    bool setDefaultSink(QSharedPointer<PulseSink> sink);
+    bool setDefaultSource(QSharedPointer<PulseSource> source);
+    QSharedPointer<PulseSink> getDefaultSink() { return m_defaultSink; };
+    QSharedPointer<PulseSource> getDefaultSource() { return m_defaultSource; };
 
-    sigc::signal<void, AudioState> &signal_state_changed() { return this->state_changed_; };
-    sigc::signal<void, std::shared_ptr<PulseSink>> &signal_default_sink_changed() { return this->default_sink_changed_; };
-    sigc::signal<void, std::shared_ptr<PulseSource>> &signal_default_source_changed() { return this->default_source_changed_; };
-    sigc::signal<void, PulseCardEvent, std::shared_ptr<PulseCard>> &signal_card_event() { return this->card_event_; };
-    sigc::signal<void, PulseSinkEvent, std::shared_ptr<PulseSink>> &signal_sink_event() { return this->sink_event_; };
-    sigc::signal<void, PulseSinkInputEvent, std::shared_ptr<PulseSinkInput>> &signal_sink_input_event() { return this->sink_input_event_; };
-    sigc::signal<void, PulseSourceEvent, std::shared_ptr<PulseSource>> &signal_source_event() { return this->source_event_; };
-    sigc::signal<void, PulseSourceOutputEvent, std::shared_ptr<PulseSourceOutput>> &signal_source_output_event() { return this->source_output_event_; };
+Q_SIGNALS:
+    void stateChanged(AudioState state);
+    void defaultSinkChanged(QSharedPointer<PulseSink> sink);
+    void defaultSourceChanged(QSharedPointer<PulseSource> source);
+    void cardEvent(PulseCardEvent event, QSharedPointer<PulseCard> card);
+    void sinkEvent(PulseSinkEvent event, QSharedPointer<PulseSink> sink);
+    void sinkInputEvent(PulseSinkInputEvent event, QSharedPointer<PulseSinkInput> sinkInput);
+    void sourceEvent(PulseSourceEvent event, QSharedPointer<PulseSource> source);
+    void sourceOutputEvent(PulseSourceOutputEvent event, QSharedPointer<PulseSourceOutput> sourceOutput);
 
 private:
     bool init();
 
-    void set_state(AudioState state);
+    void setState(AudioState state);
     // 尝试重新连接，直到连接成功为止
-    bool try_reconnection();
+    void tryReconnection();
     // 如果断开连接，则重置数据
-    void reset_data();
+    void resetData();
 
-    void on_connection_state_changed_cb(PulseConnectionState connection_state);
-    void on_server_info_changed_cb(const pa_server_info *server_info);
-    void on_card_info_changed_cb(const pa_card_info *card_info);
-    void on_card_info_removed_cb(uint32_t index);
-    void on_sink_info_changed_cb(const pa_sink_info *sink_info);
-    void on_sink_info_removed_cb(uint32_t index);
-    void on_sink_input_info_changed_cb(const pa_sink_input_info *sink_input_info);
-    void on_sink_input_info_removed_cb(uint32_t index);
-    void on_source_info_changed_cb(const pa_source_info *source_info);
-    void on_source_info_removed_cb(uint32_t index);
-    void on_source_output_info_changed_cb(const pa_source_output_info *source_output_info);
-    void on_source_output_info_removed_cb(uint32_t index);
+    void processConnectionStateChanged(int32_t connectionState);
+    void processServerInfoChanged(const pa_server_info *serverInfo);
+    void processCardInfoChanged(const pa_card_info *cardInfo);
+    void processCardInfoRemoved(uint32_t index);
+    void processSinkInfoChanged(const pa_sink_info *sinkInfo);
+    void processSinkInfoRemoved(uint32_t index);
+    void processSinkInputInfoChanged(const pa_sink_input_info *sinkInputInfo);
+    void processSinkInputInfoRemoved(uint32_t index);
+    void processSourceInfoChanged(const pa_source_info *sourceInfo);
+    void processSourceInfoRemoved(uint32_t index);
+    void processSourceOutputInfoChanged(const pa_source_output_info *sourceOutputInfo);
+    void processSourceOutputInfoRemoved(uint32_t index);
 
 private:
-    static PulseBackend *instance_;
+    static PulseBackend *m_instance;
 
-    std::shared_ptr<PulseContext> context_;
+    QSharedPointer<PulseContext> m_context;
 
     // 可用状态
-    AudioState state_;
+    AudioState m_state;
+    QTimer *m_reconnectTimer;
     // 重新连接次数
-    int32_t reconnection_count_;
-    uint32_t reconnection_handle_;
+    int32_t m_reconnectionCount;
+    uint32_t m_reconnectionHandle;
 
-    PulseServerInfo server_info_;
-    std::map<uint32_t, std::shared_ptr<PulseCard>> cards_;
-    std::map<uint32_t, std::shared_ptr<PulseSink>> sinks_;
-    std::map<uint32_t, std::shared_ptr<PulseSinkInput>> sink_inputs_;
-    std::map<uint32_t, std::shared_ptr<PulseSource>> sources_;
-    std::map<uint32_t, std::shared_ptr<PulseSourceOutput>> source_outputs_;
+    PulseServerInfo m_serverInfo;
+    QMap<uint32_t, QSharedPointer<PulseCard>> m_cards;
+    QMap<uint32_t, QSharedPointer<PulseSink>> m_sinks;
+    QMap<uint32_t, QSharedPointer<PulseSinkInput>> m_sinkInputs;
+    QMap<uint32_t, QSharedPointer<PulseSource>> m_sources;
+    QMap<uint32_t, QSharedPointer<PulseSourceOutput>> m_sourceOutputs;
 
     // default_sink的name在card profile发生变化时可能会在某一刻时间与server_info中的default_sink_name不相等。default source同理
-    std::shared_ptr<PulseSink> default_sink_;
-    std::shared_ptr<PulseSource> default_source_;
-
-    sigc::signal<void, AudioState> state_changed_;
-    sigc::signal<void, std::shared_ptr<PulseSink>> default_sink_changed_;
-    sigc::signal<void, std::shared_ptr<PulseSource>> default_source_changed_;
-    sigc::signal<void, PulseCardEvent, std::shared_ptr<PulseCard>> card_event_;
-    sigc::signal<void, PulseSinkEvent, std::shared_ptr<PulseSink>> sink_event_;
-    sigc::signal<void, PulseSinkInputEvent, std::shared_ptr<PulseSinkInput>> sink_input_event_;
-    sigc::signal<void, PulseSourceEvent, std::shared_ptr<PulseSource>> source_event_;
-    sigc::signal<void, PulseSourceOutputEvent, std::shared_ptr<PulseSourceOutput>> source_output_event_;
+    QSharedPointer<PulseSink> m_defaultSink;
+    QSharedPointer<PulseSource> m_defaultSource;
 };
 }  // namespace Kiran

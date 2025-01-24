@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -16,51 +16,36 @@
 
 #include "lib/base/base.h"
 
+class QDBusMessage;
+
 namespace Kiran
 {
-#define ADMIN_GROUP "wheel"
-#define AUTH_USER_ADMIN "com.kylinsec.kiran.system-daemon.accounts.user-administration"
-#define AUTH_CHANGE_OWN_USER_DATA "com.kylinsec.kiran.system-daemon.accounts.change-own-user-data"
-#define AUTH_CHANGE_OWN_PASSWORD "com.kylinsec.kiran.system-daemon.accounts.change-own-password"
-
-#define SPAWN_DBUS(invocation, ...)                                                        \
-    {                                                                                      \
-        std::vector<std::string> argv = {__VA_ARGS__};                                     \
-        std::string error;                                                                 \
-        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error))     \
-        {                                                                                  \
-            invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, error.c_str())); \
-            return;                                                                        \
-        }                                                                                  \
+#define SPAWN_WITH_DBUS_MESSAGE(message, program, arguments)                              \
+    {                                                                                     \
+        QString errMessage;                                                               \
+        if (!AccountsUtil::spawnWithLoginUid(message, program, arguments, errMessage))    \
+        {                                                                                 \
+            auto replyMessage = message.createErrorReply(QDBusError::Failed, errMessage); \
+            QDBusConnection::systemBus().send(replyMessage);                              \
+            return;                                                                       \
+        }                                                                                 \
     }
 
-#define SPAWN_DBUS_WITH_ARGS(invocation, argv)                                             \
-    {                                                                                      \
-        std::string error;                                                                 \
-        if (!AccountsUtil::spawn_with_login_uid(invocation.getMessage(), argv, error))     \
-        {                                                                                  \
-            invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, error.c_str())); \
-            return;                                                                        \
-        }                                                                                  \
-    }
-
-class AccountsUtil
+class AccountsUtil : public QObject
 {
+    Q_OBJECT
 public:
     AccountsUtil(){};
     virtual ~AccountsUtil(){};
 
-    static bool get_caller_pid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, GPid &pid);
-    static bool get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t &uid);
-
-    static void get_caller_loginuid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, std::string &loginuid);
-
-    static void setup_loginuid(const std::string &id);
-    static bool spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
-                                     const std::vector<std::string> argv,
-                                     std::string &error);
-
+    static bool getCallerPID(const QDBusMessage &message, uint32_t &pid);
+    static bool getCallerUID(const QDBusMessage &message, uint32_t &uid);
+    static void getCallerLoginUID(const QDBusMessage &message, QString &loginUID);
+    static bool spawnWithLoginUid(const QDBusMessage &message,
+                                  const QString &program,
+                                  const QStringList &arguments,
+                                  QString &error);
     // 翻译命令行返回的错误码
-    static bool parse_exit_status(int32_t exit_status, CCErrorCode &error_code);
+    static bool parseExitStatus(int32_t exitStatus, CCErrorCode &errorCode);
 };
 }  // namespace Kiran

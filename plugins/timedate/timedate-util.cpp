@@ -1,73 +1,64 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #include "plugins/timedate/timedate-util.h"
-
-#include <fcntl.h>
-#include <glib/gstdio.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
+#include <glib.h>
+#include <QFile>
 #include "lib/base/base.h"
-#include "plugins/timedate/timedate-def.h"
+#include "timedate-def.h"
 
 namespace Kiran
 {
-bool TimedateUtil::is_local_rtc()
+bool TimedateUtil::isLocalRtc()
 {
-    std::string contents;
-    try
+    QFile file(ADJTIME_PATH);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        contents = Glib::file_get_contents(ADJTIME_PATH);
-    }
-    catch (const Glib::FileError &e)
-    {
+        KLOG_WARNING(timedate) << "Cannot access file" << ADJTIME_PATH;
         return false;
     }
 
-    if (contents.find("LOCAL") != std::string::npos)
-    {
-        return true;
-    }
-    return false;
+    auto contents = file.readAll();
+    return contents.contains("LOCAL");
 }
 
-std::string TimedateUtil::get_timezone()
+QString TimedateUtil::getTimezone()
 {
     g_autofree gchar *link = NULL;
 
     link = g_file_read_link(LOCALTIME_PATH, NULL);
     if (!link)
     {
-        return std::string();
+        return QString();
     }
 
     auto zone = g_strrstr(link, ZONEINFO_PATH);
     if (!zone)
     {
-        return std::string();
+        return QString();
     }
 
     zone += strlen(ZONEINFO_PATH);
 
-    return std::string(zone);
+    return QString(zone);
 }
 
-int64_t TimedateUtil::get_gmt_offset(const std::string &zone)
+int64_t TimedateUtil::getGMTOffset(const QString &zone)
 {
     char *tz = getenv("TZ");
-    setenv("TZ", zone.c_str(), 1);
+    setenv("TZ", zone.toLatin1().data(), 1);
 
     time_t cur_time = time(NULL);
     auto tm = localtime(&cur_time);

@@ -12,28 +12,31 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/timedate/timedate-manager.h"
-
+#include "timedate-manager.h"
 #include <fcntl.h>
-#include <fmt/format.h>
-#include <glib/gi18n.h>
+#include <glib.h>
 #include <linux/rtc.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/timex.h>
-#include <sys/types.h>
 #include <unistd.h>
-
-#include <algorithm>
-#include <cinttypes>
-
+#include <QDBusConnection>
+#include <QDBusInterface>
+#include <QDBusObjectPath>
+#include <QFile>
+#include <QFileSystemWatcher>
+#include <QProcess>
+#include <QRandomGenerator>
+#include <QRegExp>
 #include "config.h"
 #include "lib/base/base.h"
-#include "plugins/timedate/timedate-def.h"
-#include "plugins/timedate/timedate-util.h"
-
+#include "lib/base/polkit-proxy.h"
+#include "timedate-def.h"
+#include "timedate-format.h"
 #include "timedate-i.h"
+#include "timedate-util.h"
+#include "timedateadaptor.h"
 
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
@@ -64,238 +67,49 @@ namespace Kiran
 #define POLKIT_ACTION_SET_TIMEZONE "com.kylinsec.kiran.system-daemon.timedate.set-timezone"
 #define POLKIT_AUTH_CHECK_TIMEOUT 20
 
-TimedateManager *TimedateManager::instance_ = nullptr;
-const std::vector<std::string> TimedateManager::ntp_units_paths_ = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
+TimedateManager *TimedateManager::m_instance = nullptr;
+const QStringList TimedateManager::m_ntpUnitsPaths = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
 
-TimedateManager::TimedateManager() : dbus_connect_id_(0),
-                                     object_register_id_(0),
-                                     local_rtc_(false),
-                                     ntp_active_(false)
+TimedateManager::TimedateManager() : m_localRtc(false),
+                                     m_ntpActive(false),
+                                     m_ntpUnitInterface(nullptr)
 {
+    m_adaptor = new TimeDateAdaptor(this);
+    m_timedateFormat = new TimedateFormat(this);
+    m_fileWatcher = new QFileSystemWatcher(this);
+    m_tzTranslator = new QTranslator(this);
+    m_hwSyncProcess = new QProcess(this);
+
+    qDBusRegisterMetaType<DBusZoneInfo>();
+    qDBusRegisterMetaType<DBusZoneInfos>();
 }
 
 TimedateManager::~TimedateManager()
 {
-    if (this->dbus_connect_id_)
-    {
-        Gio::DBus::unown_name(this->dbus_connect_id_);
-    }
 }
 
-void TimedateManager::global_init()
+void TimedateManager::globalInit()
 {
-    instance_ = new TimedateManager();
-    instance_->init();
+    m_instance = new TimedateManager();
+    m_instance->init();
 }
 
-void TimedateManager::SetTime(gint64 requested_time,
-                              bool relative,
-                              MethodInvocation &invocation)
+int TimedateManager::getDateLongFormatIndex() const
 {
-    KLOG_DEBUG_TIMEDATE("Requested Time as %" PRId64 " Relative is %d", requested_time, relative);
-    if (this->ntp_get())
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NTP_IS_ACTIVE);
-    }
-
-    int64_t request_time = g_get_monotonic_time();
-
-    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_TIME,
-                                                  TRUE,
-                                                  invocation.getMessage(),
-                                                  std::bind(&TimedateManager::funish_set_time, this, std::placeholders::_1, request_time, requested_time, relative));
+    return m_timedateFormat->getDateLongFormatIndex();
 }
 
-void TimedateManager::SetTimezone(const Glib::ustring &time_zone,
-                                  MethodInvocation &invocation)
+int TimedateManager::getDateShortFormatIndex() const
 {
-    KLOG_DEBUG_TIMEDATE("Set timezone as %s.", time_zone.c_str());
-    if (!check_timezone_name(time_zone))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_TIMEZONE_INVALIDE);
-    }
-
-    auto current_timezone = this->time_zone_get();
-    if (current_timezone == time_zone)
-    {
-        invocation.ret();
-        return;
-    }
-
-    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_TIMEZONE,
-                                                  TRUE,
-                                                  invocation.getMessage(),
-                                                  std::bind(&TimedateManager::finish_set_timezone, this, std::placeholders::_1, time_zone));
+    return m_timedateFormat->getDateShortFormatIndex();
 }
 
-void TimedateManager::GetZoneList(MethodInvocation &invocation)
+int TimedateManager::getHourFormat() const
 {
-    std::vector<std::tuple<Glib::ustring, Glib::ustring, int64_t>> result;
-
-    auto zone_infos = this->get_zone_infos();
-    for (auto &zone_info : zone_infos)
-    {
-        auto local_zone_name = dgettext(TIMEZONE_DOMAIN, zone_info.tz.c_str());
-        auto gmt = TimedateUtil::get_gmt_offset(zone_info.tz);
-        result.push_back(std::make_tuple(zone_info.tz, std::string(local_zone_name), gmt));
-    }
-    invocation.ret(result);
+    return m_timedateFormat->getHourFormat();
 }
 
-void TimedateManager::SetLocalRTC(bool local,
-                                  bool adjust_system,
-                                  MethodInvocation &invocation)
-{
-    if (local == this->local_rtc_get())
-    {
-        invocation.ret();
-        return;
-    }
-
-    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_RTC_LOCAL,
-                                                  TRUE,
-                                                  invocation.getMessage(),
-                                                  std::bind(&TimedateManager::finish_set_rtc_local, this, std::placeholders::_1, local, adjust_system));
-}
-
-void TimedateManager::SetNTP(bool active,
-                             MethodInvocation &invocation)
-{
-    if (active == this->ntp_get())
-    {
-        invocation.ret();
-        return;
-    }
-
-    if (this->ntp_unit_name_.length() == 0)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NO_NTP_UNIT);
-    }
-
-    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_NTP_ACTIVE,
-                                                  TRUE,
-                                                  invocation.getMessage(),
-                                                  std::bind(&TimedateManager::finish_set_ntp_active, this, std::placeholders::_1, active));
-}
-
-void TimedateManager::GetDateFormatList(gint32 type, MethodInvocation &invocation)
-{
-    switch (type)
-    {
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
-    {
-        auto formats = this->timedate_format_.get_long_formats();
-        invocation.ret(std::vector<Glib::ustring>(formats.begin(), formats.end()));
-        break;
-    }
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
-    {
-        auto formats = this->timedate_format_.get_short_formats();
-        invocation.ret(std::vector<Glib::ustring>(formats.begin(), formats.end()));
-        break;
-    }
-    default:
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_1);
-    }
-    return;
-}
-
-void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvocation &invocation)
-{
-    bool result = false;
-    switch (type)
-    {
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
-        result = this->date_long_format_index_set(index);
-        break;
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
-        result = this->date_short_format_index_set(index);
-        break;
-    default:
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
-    }
-
-    if (result)
-    {
-        invocation.ret();
-    }
-    else
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_DATE_FORMAT_FAILED);
-    }
-}
-
-void TimedateManager::SetHourFormat(gint32 format, MethodInvocation &invocation)
-{
-    if (!this->hour_format_set(format))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_HOUR_FORMAT_FAILED);
-    }
-    else
-    {
-        invocation.ret();
-    }
-}
-
-void TimedateManager::EnableSecondsShowing(bool enabled, MethodInvocation &invocation)
-{
-    if (!this->seconds_showing_set(enabled))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_SECONDS_SHOWING_FAILED);
-    }
-    else
-    {
-        invocation.ret();
-    }
-}
-
-bool TimedateManager::time_zone_setHandler(const Glib::ustring &value)
-{
-    this->time_zone_ = value.raw();
-    return true;
-}
-
-bool TimedateManager::local_rtc_setHandler(bool value)
-{
-    this->local_rtc_ = value;
-    return true;
-}
-
-bool TimedateManager::ntp_setHandler(bool value)
-{
-    this->ntp_active_ = value;
-    return true;
-}
-
-bool TimedateManager::date_long_format_index_setHandler(gint32 value)
-{
-    return this->timedate_format_.set_date_long_format(value);
-}
-
-bool TimedateManager::date_short_format_index_setHandler(gint32 value)
-{
-    return this->timedate_format_.set_date_short_format(value);
-}
-
-bool TimedateManager::hour_format_setHandler(gint32 value)
-{
-    RETURN_VAL_IF_TRUE(value < 0 || value >= TimedateHourFormat::TIMEDATE_HOUSR_FORMAT_LAST, false);
-    return this->timedate_format_.set_hour_format(TimedateHourFormat(value));
-}
-
-bool TimedateManager::seconds_showing_setHandler(bool value)
-{
-    return this->timedate_format_.set_seconds_showing(value);
-}
-
-guint64 TimedateManager::system_time_get()
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
-}
-
-guint64 TimedateManager::rtc_time_get()
+qulonglong TimedateManager::getRtcTime() const
 {
     struct rtc_time rtc;
     struct tm tm;
@@ -326,463 +140,522 @@ guint64 TimedateManager::rtc_time_get()
     /* This is the raw time as if the RTC was in UTC */
     rtc_time = timegm(&tm);
 
-    return (uint64_t)rtc_time * 1000000;
+    return (qulonglong)rtc_time * 1000000;
 }
 
-gint32 TimedateManager::date_long_format_index_get()
+bool TimedateManager::getSecondsShowing() const
 {
-    return this->timedate_format_.get_date_long_format_index();
+    return m_timedateFormat->getSecondsShowing();
 }
 
-gint32 TimedateManager::date_short_format_index_get()
+qulonglong TimedateManager::getSystemTime() const
 {
-    return this->timedate_format_.get_date_short_format_index();
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (qulonglong)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-gint32 TimedateManager::hour_format_get()
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                          \
+    QVariantMap changedProperties;                                            \
+    changedProperties.insert(QStringLiteral(#property), get##propertyHump()); \
+                                                                              \
+    QDBusMessage signalMessage = QDBusMessage::createSignal(                  \
+        TIMEDATE_OBJECT_PATH,                                                 \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                    \
+        QStringLiteral("PropertiesChanged"));                                 \
+                                                                              \
+    signalMessage.setArguments({                                              \
+        TIMEDATE_DBUS_INTERFACE_NAME,                                         \
+        changedProperties,                                                    \
+        QStringList(),                                                        \
+    });                                                                       \
+    QDBusConnection::systemBus().send(signalMessage);
+
+void TimedateManager::setDateLongFormatIndex(int index)
 {
-    return this->timedate_format_.get_hour_format();
+    if (m_timedateFormat->setDateLongFormat(index))
+    {
+        SEND_PROPERTY_NOTIFY(date_long_format_index, DateLongFormatIndex);
+    }
 }
 
-bool TimedateManager::seconds_showing_get()
+void TimedateManager::setDateShortFormatIndex(int index)
 {
-    return this->timedate_format_.get_seconds_showing();
+    if (m_timedateFormat->setDateShortFormat(index))
+    {
+        SEND_PROPERTY_NOTIFY(date_short_format_index, DateShortFormatIndex);
+    }
+}
+
+void TimedateManager::setHourFormat(int format)
+{
+    RETURN_IF_TRUE(format < 0 || format >= TimedateHourFormat::TIMEDATE_HOUSR_FORMAT_LAST);
+
+    if (m_timedateFormat->setHourFormat(TimedateHourFormat(format)))
+    {
+        SEND_PROPERTY_NOTIFY(hour_format, HourFormat);
+    }
+}
+
+void TimedateManager::setLocalRtc(bool rtc)
+{
+    if (m_localRtc != rtc)
+    {
+        m_localRtc = rtc;
+        SEND_PROPERTY_NOTIFY(local_rtc, LocalRtc);
+    }
+}
+
+void TimedateManager::setNTP(bool active)
+{
+    if (m_ntpActive != active)
+    {
+        m_ntpActive = active;
+        SEND_PROPERTY_NOTIFY(ntp, NTP);
+    }
+}
+
+void TimedateManager::setSecondsShowing(bool secondsShowing)
+{
+    m_timedateFormat->setSecondsShowing(secondsShowing);
+    SEND_PROPERTY_NOTIFY(seconds_showing, SecondsShowing);
+}
+
+void TimedateManager::setTimeZone(const QString &timeZone)
+{
+    if (m_timeZone != timeZone)
+    {
+        m_timeZone = timeZone;
+        SEND_PROPERTY_NOTIFY(time_zone, TimeZone);
+    }
+}
+
+void TimedateManager::EnableSecondsShowing(bool enabled)
+{
+    setSecondsShowing(enabled);
+}
+
+QStringList TimedateManager::GetDateFormatList(int type)
+{
+    switch (type)
+    {
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
+        return m_timedateFormat->getLongFormats();
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
+        return m_timedateFormat->getShortFormats();
+    default:
+        DBUS_ERROR_REPLY_AND_RETVAL(QStringList(), CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_1);
+    }
+    return QStringList();
+}
+
+DBusZoneInfos TimedateManager::GetZoneList()
+{
+    DBusZoneInfos dbusZoneInfos;
+
+    auto zoneInfos = getZoneInfos();
+    for (auto &zoneInfo : zoneInfos)
+    {
+        auto localZoneName = m_tzTranslator->translate("TimeZone", zoneInfo.tz.toLatin1().data());
+        auto gmt = TimedateUtil::getGMTOffset(zoneInfo.tz);
+
+        DBusZoneInfo dbusZoneInfo;
+        dbusZoneInfo.name = zoneInfo.tz;
+        dbusZoneInfo.localName = localZoneName;
+        dbusZoneInfo.gmt = qlonglong(gmt);
+
+        dbusZoneInfos.push_back(dbusZoneInfo);
+    }
+
+    return dbusZoneInfos;
+}
+
+void TimedateManager::SetDateFormatByIndex(int type, int index)
+{
+    switch (type)
+    {
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
+        setDateLongFormatIndex(index);
+        break;
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
+        setDateShortFormatIndex(index);
+        break;
+    default:
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
+    }
+}
+
+void TimedateManager::SetHourFormat(int format)
+{
+    setHourFormat(format);
+}
+
+void TimedateManager::SetLocalRTC(bool local, bool adjustSystem)
+{
+    RETURN_IF_TRUE(local == getLocalRtc())
+
+    this->setDelayedReply(true);
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_RTC_LOCAL,
+                                                  true,
+                                                  this->message(),
+                                                  std::bind(&TimedateManager::finishSetRtcLocal, this, std::placeholders::_1, local, adjustSystem));
+}
+
+void TimedateManager::SetNTP(bool active)
+{
+    RETURN_IF_TRUE(active == getNTP());
+
+    if (m_ntpUnitName.length() == 0)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NO_NTP_UNIT);
+    }
+
+    this->setDelayedReply(true);
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_NTP_ACTIVE,
+                                                  true,
+                                                  this->message(),
+                                                  std::bind(&TimedateManager::finishSetNTPActive, this, std::placeholders::_1, active));
+}
+
+void TimedateManager::SetTime(qlonglong requestedTime, bool relative)
+{
+    if (getNTP())
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NTP_IS_ACTIVE);
+    }
+
+    int64_t requestTime = g_get_monotonic_time();
+
+    this->setDelayedReply(true);
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_TIME,
+                                                  true,
+                                                  this->message(),
+                                                  std::bind(&TimedateManager::funishSetTime, this, std::placeholders::_1, requestTime, requestedTime, relative));
+}
+
+void TimedateManager::SetTimezone(const QString &timeZone)
+{
+    if (!checkTimezoneName(timeZone))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_TIMEZONE_INVALIDE);
+    }
+
+    auto currentTimezone = getTimeZone();
+    RETURN_IF_TRUE(currentTimezone == timeZone);
+
+    this->setDelayedReply(true);
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_TIMEZONE,
+                                                  true,
+                                                  this->message(),
+                                                  std::bind(&TimedateManager::finishSetTimezone, this, std::placeholders::_1, timeZone));
 }
 
 void TimedateManager::init()
 {
-    bindtextdomain(TIMEZONE_DOMAIN, KCC_LOCALEDIR);
-    bind_textdomain_codeset(TIMEZONE_DOMAIN, "UTF-8");
-
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                 TIMEDATE_DBUS_NAME,
-                                                 sigc::mem_fun(this, &TimedateManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &TimedateManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &TimedateManager::on_name_lost));
-
-    this->systemd_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, SYSTEMD_PATH, SYSTEMD_MANAGER_INTERFACE);
-    this->polkit_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, POLKIT_NAME, POLKIT_PATH, POLKIT_INTERFACE);
-
-    this->tz_monitor_ = FileUtils::make_monitor_file(LOCALTIME_PATH, sigc::mem_fun(this, &TimedateManager::time_zone_changed));
-    this->adjtime_monitor_ = FileUtils::make_monitor_file(ADJTIME_PATH, sigc::mem_fun(this, &TimedateManager::adjtime_changed));
-    for (const auto &unit_dir : this->ntp_units_paths_)
+    auto translationFilePath = QString("%1-%2").arg(PROJECT_NAME).arg("timezones");
+    if (!m_tzTranslator->load(QLocale(), translationFilePath, ".", KCD_INSTALL_TRANSLATIONDIR, ".qm"))
     {
-        auto unit_monitor = FileUtils::make_monitor_directory(unit_dir, sigc::mem_fun(this, &TimedateManager::ntp_unit_changed));
-        this->ntp_unit_monitors_.push_back(unit_monitor);
+        KLOG_WARNING(timedate) << "Load translation file timezones failed.";
     }
 
-    this->time_zone_ = TimedateUtil::get_timezone();
-    this->local_rtc_ = TimedateUtil::is_local_rtc();
-    this->init_ntp_units();
-    this->ntp_active_ = this->ntp_is_active();
-
-    this->timedate_format_.init();
-}
-
-void TimedateManager::init_ntp_units()
-{
-    auto ntp_units = this->get_ntp_units();
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-
-    this->ntp_unit_name_.clear();
-    for (auto &ntp_unit : ntp_units)
+    auto systemConnection = QDBusConnection::systemBus();
+    if (!systemConnection.registerService(TIMEDATE_DBUS_NAME))
     {
-        if (ntp_unit == ntp_units.front())
-        {
-            this->ntp_unit_name_ = ntp_unit;
-            continue;
-        }
-
-        if (!this->stop_ntp_unit(ntp_unit, error_code))
-        {
-            KLOG_WARNING_TIMEDATE("%s", CC_ERROR2STR(error_code).c_str());
-        }
-    }
-
-    auto unit_object_path = this->get_unit_object_path();
-
-    if (unit_object_path.length() > 0)
-    {
-        this->ntp_unit_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM, SYSTEMD_NAME, unit_object_path, SYSTEMD_UNIT_INTERFACE);
-
-        if (this->ntp_unit_proxy_)
-        {
-            this->ntp_unit_proxy_->signal_properties_changed().connect(sigc::mem_fun(this, &TimedateManager::ntp_unit_props_changed));
-        }
-        else
-        {
-            KLOG_WARNING_TIMEDATE("Failed to create dbus proxy. Object path: %s.", unit_object_path.c_str());
-        }
-    }
-}
-
-std::vector<std::string> TimedateManager::get_ntp_units()
-{
-    std::vector<std::string> ntp_units;
-
-    for (auto iter = this->ntp_units_paths_.begin(); iter != this->ntp_units_paths_.end(); ++iter)
-    {
-        try
-        {
-            auto &unit_dir = *iter;
-            Glib::Dir dir(unit_dir);
-            std::vector<std::string> paths;
-
-            for (auto dir_iter = dir.begin(); dir_iter != dir.end(); ++dir_iter)
-            {
-                auto entry = *dir_iter;
-                auto path = fmt::format("{0}/{1}", unit_dir, entry);
-                paths.push_back(path);
-            }
-
-            // 排序确定加载优先级，字母序越大的优先使用
-            std::sort(paths.begin(), paths.end(), std::greater<std::string>());
-
-            for (auto iter = paths.begin(); iter != paths.end(); ++iter)
-            {
-                auto path = *iter;
-                std::string contents;
-
-                try
-                {
-                    contents = Glib::file_get_contents(path);
-                }
-                catch (const Glib::FileError &e)
-                {
-                    KLOG_WARNING_TIMEDATE("Failed to get contents of the file %s: %s", path.c_str(), e.what().c_str());
-                    continue;
-                }
-
-                auto lines = StrUtils::split_lines(contents);
-
-                for (auto line_iter = lines.begin(); line_iter != lines.end(); ++line_iter)
-                {
-                    auto line = *line_iter;
-                    if (line.length() == 0 || line.at(0) == '#')
-                    {
-                        KLOG_DEBUG_TIMEDATE("The line %s is ingored. Length: %d", line.c_str(), line.length());
-                        continue;
-                    }
-
-                    if (!call_systemd_noresult("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", line.c_str()), false)))
-                    {
-                        KLOG_DEBUG_TIMEDATE("Failed to LoadUnit: %s.", line.c_str());
-                        continue;
-                    }
-
-                    if (std::find(ntp_units.begin(), ntp_units.end(), line) == ntp_units.end())
-                    {
-                        KLOG_DEBUG_TIMEDATE("Insert ntp unit: %s %s.", line.c_str(), path.c_str());
-                        ntp_units.push_back(line);
-                    }
-                    else
-                    {
-                        KLOG_DEBUG_TIMEDATE("Ignore duplication ntp unit: %s %s.", line.c_str(), path.c_str());
-                    }
-                }
-            }
-        }
-        catch (const Glib::FileError &e)
-        {
-            KLOG_DEBUG_TIMEDATE("%s", e.what().c_str());
-        }
-    }
-
-    return ntp_units;
-}
-
-bool TimedateManager::start_ntp_unit(const std::string &name, CCErrorCode &error_code)
-{
-    GVariantBuilder builder;
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
-
-    if (!call_systemd_noresult("StartUnit", Glib::VariantContainerBase(g_variant_new("(ss)", name.c_str(), "replace"), false)))
-    {
-        error_code = CCErrorCode::ERROR_TIMEDATE_START_NTP_FAILED;
-        return false;
-    }
-    else
-    {
-        g_variant_builder_add(&builder, "s", name.c_str());
-        call_systemd_noresult("EnableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asbb)", &builder, FALSE, TRUE), false));
-        call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
-    }
-    return true;
-}
-
-bool TimedateManager::stop_ntp_unit(const std::string &name, CCErrorCode &error_code)
-{
-    GVariantBuilder builder;
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
-
-    if (!call_systemd_noresult("StopUnit", Glib::VariantContainerBase(g_variant_new("(ss)", name.c_str(), "replace"), false)))
-    {
-        error_code = CCErrorCode::ERROR_TIMEDATE_STOP_NTP_FAILED;
-        return false;
-    }
-    else
-    {
-        g_variant_builder_add(&builder, "s", name.c_str());
-        call_systemd_noresult("DisableUnitFiles", Glib::VariantContainerBase(g_variant_new("(asb)", &builder, FALSE), false));
-        call_systemd_noresult("Reload", Glib::VariantContainerBase(g_variant_new("()"), false));
-    }
-    return true;
-}
-
-bool TimedateManager::ntp_is_active()
-{
-    RETURN_VAL_IF_FALSE(this->ntp_unit_proxy_, false);
-
-    Glib::VariantBase state;
-    this->ntp_unit_proxy_->get_cached_property(state, UNIT_PROP_ACTIVE_STATE);
-    RETURN_VAL_IF_FALSE(state.gobj() != NULL, false);
-
-    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(state).get();
-
-    return (state_str == "active" || state_str == "activating");
-}
-
-void TimedateManager::ntp_unit_props_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties,
-                                             const std::vector<Glib::ustring> &invalidated_properties)
-{
-    auto iter = changed_properties.find(UNIT_PROP_ACTIVE_STATE);
-    RETURN_IF_TRUE(iter == changed_properties.end());
-
-    auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(iter->second).get();
-
-    if (state_str == "active" || state_str == "activating")
-    {
-        this->ntp_set(true);
-    }
-    else
-    {
-        this->ntp_set(false);
-    }
-}
-
-void TimedateManager::time_zone_changed(const Glib::RefPtr<Gio::File> &file,
-                                        const Glib::RefPtr<Gio::File> &other_file,
-                                        Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
-                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
-                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
-
-    auto tz = TimedateUtil::get_timezone();
-    this->time_zone_set(tz);
-}
-
-void TimedateManager::adjtime_changed(const Glib::RefPtr<Gio::File> &file,
-                                      const Glib::RefPtr<Gio::File> &other_file,
-                                      Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
-                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
-                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
-
-    this->local_rtc_set(TimedateUtil::is_local_rtc());
-}
-
-void TimedateManager::ntp_unit_changed(const Glib::RefPtr<Gio::File> &file,
-                                       const Glib::RefPtr<Gio::File> &other_file,
-                                       Gio::FileMonitorEvent event_type)
-{
-    RETURN_IF_TRUE(event_type != Gio::FILE_MONITOR_EVENT_CHANGED &&
-                   event_type != Gio::FILE_MONITOR_EVENT_CREATED &&
-                   event_type != Gio::FILE_MONITOR_EVENT_DELETED);
-
-    this->init_ntp_units();
-}
-
-std::string TimedateManager::get_unit_object_path()
-{
-    RETURN_VAL_IF_TRUE(this->ntp_unit_name_.size() <= 0, std::string());
-
-    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", this->ntp_unit_name_.c_str())));
-    RETURN_VAL_IF_FALSE(result.gobj(), std::string());
-    RETURN_VAL_IF_FALSE(result.get_n_children() > 0, std::string());
-
-    auto path_base = result.get_child();
-    auto object_path = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(path_base).get();
-    return object_path;
-}
-
-std::vector<ZoneInfo> TimedateManager::get_zone_infos()
-{
-    std::vector<ZoneInfo> zone_infos;
-
-    auto file_path = Glib::build_filename(ZONEINFO_PATH, ZONE_TABLE);
-
-    std::string contents;
-    try
-    {
-        contents = Glib::file_get_contents(file_path);
-    }
-    catch (const Glib::FileError &e)
-    {
-        KLOG_WARNING_TIMEDATE("Failed to get file contents: %s.", file_path.c_str());
-        return zone_infos;
-    }
-
-    auto lines = StrUtils::split_lines(contents);
-
-    for (auto &line : lines)
-    {
-        if (line[0] == '#' || line.length() == 0)
-        {
-            continue;
-        }
-        auto regex = Glib::Regex::create("\\s+");
-        std::vector<std::string> tokens = regex->split(line);
-        if (tokens.size() >= ZONE_TABLE_MIN_COLUMN)
-        {
-            ZoneInfo zone_info;
-            zone_info.country_code = tokens[0];
-            zone_info.coordinates = tokens[1];
-            zone_info.tz = tokens[2];
-            zone_infos.push_back(std::move(zone_info));
-        }
-        else
-        {
-            KLOG_WARNING_TIMEDATE("Ignore line: %s, the line is less than %d columns.", line.c_str(), ZONE_TABLE_MIN_COLUMN);
-        }
-    }
-    return zone_infos;
-}
-
-Glib::VariantContainerBase TimedateManager::call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters)
-{
-    KLOG_DEBUG_TIMEDATE("Call systemd method about %s.", method_name.c_str());
-    Glib::VariantContainerBase retval;
-    try
-    {
-        retval = this->systemd_proxy_->call_sync(method_name, parameters);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_TIMEDATE("Failed to call systemd method: %s", e.what().c_str());
-    }
-    return retval;
-}
-
-bool TimedateManager::call_systemd_noresult(const std::string &method_name, const Glib::VariantContainerBase &parameters)
-{
-    KLOG_DEBUG_TIMEDATE("Call systemd noresult method about %s.", method_name.c_str());
-    auto retval = call_systemd(method_name, parameters);
-    if (retval.gobj())
-    {
-        return true;
-    }
-    return false;
-}
-
-void TimedateManager::finish_hwclock_call(GPid pid, gint status, gpointer user_data)
-{
-    auto hwclock_call = static_cast<HWClockCall *>(user_data);
-    GError *error = NULL;
-
-    Glib::spawn_close_pid(pid);
-
-    if (g_spawn_check_exit_status(status, &error))
-    {
-        if (hwclock_call->handler && hwclock_call->invocation)
-            (hwclock_call->handler)(hwclock_call->invocation);
-    }
-    else
-    {
-        KLOG_WARNING_TIMEDATE("Hwclock failed: %s\n", error->message);
-        if (hwclock_call->invocation)
-        {
-            auto err_message = fmt::format("hwclock failed: %s", error->message);
-            hwclock_call->invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
-        }
-
-        g_error_free(error);
-    }
-
-    delete hwclock_call;
-}
-
-void TimedateManager::start_hwclock_call(bool hctosys,
-                                         bool local,
-                                         bool utc,
-                                         Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
-                                         AuthManager::AuthCheckHandler handler)
-{
-    std::vector<std::string> argv;
-    Glib::Pid pid;
-    struct stat st;
-
-    if (stat(RTC_DEVICE, &st) || !(st.st_mode & S_IFCHR))
-    {
-        if (invocation)
-        {
-            invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "No RTC device"));
-        }
+        KLOG_WARNING() << "Failed to register dbus name: " << TIMEDATE_DBUS_NAME;
         return;
     }
 
-    argv.push_back(HWCLOCK_PATH);
-    argv.push_back("-f");
-    argv.push_back(RTC_DEVICE);
-    if (hctosys)
+    if (!systemConnection.registerObject(TIMEDATE_OBJECT_PATH, TIMEDATE_DBUS_INTERFACE_NAME, this))
     {
-        argv.push_back("--hctosys");
+        KLOG_ERROR() << "Can't register object:" << systemConnection.lastError();
+        return;
+    }
+
+    m_fileWatcher->addPath(LOCALTIME_PATH);
+    m_fileWatcher->addPath(ADJTIME_PATH);
+
+    for (const auto &unitDir : m_ntpUnitsPaths)
+    {
+        m_fileWatcher->addPath(unitDir);
+    }
+
+    m_timeZone = TimedateUtil::getTimezone();
+    m_localRtc = TimedateUtil::isLocalRtc();
+    initNTPUnits();
+    m_ntpActive = ntpIsActive();
+    m_timedateFormat->init();
+
+    connect(m_fileWatcher, SIGNAL(fileChanged(const QString &)), this, SLOT(processFilesChanged(const QString &)));
+    connect(m_fileWatcher, SIGNAL(directoryChanged(const QString &)), this, SLOT(processDirectoryChanged(const QString &)));
+    connect(m_hwSyncProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processHWSyncFinished(int, QProcess::ExitStatus)));
+}
+
+void TimedateManager::initNTPUnits()
+{
+    auto ntpUnits = getNTPUnits();
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+
+    m_ntpUnitName.clear();
+    for (auto &ntpUnit : ntpUnits)
+    {
+        if (ntpUnit == ntpUnits.front())
+        {
+            m_ntpUnitName = ntpUnit;
+            continue;
+        }
+
+        if (!stopNTPUnit(ntpUnit, errorCode))
+        {
+            KLOG_WARNING(timedate) << KCD_ERROR2STR(errorCode);
+        }
+    }
+
+    auto unitObjectPath = getUnitObjectPath();
+
+    if (unitObjectPath.length() > 0)
+    {
+        m_ntpUnitInterface = new QDBusInterface(SYSTEMD_NAME,
+                                                unitObjectPath,
+                                                SYSTEMD_UNIT_INTERFACE,
+                                                QDBusConnection::systemBus(),
+                                                this);
+
+        QDBusConnection::systemBus().connect(SYSTEMD_NAME,
+                                             unitObjectPath,
+                                             SYSTEMD_UNIT_INTERFACE,
+                                             "PropertiesChanged",
+                                             this,
+                                             SLOT(processNTPUnitPropsChanged(const QDBusMessage &)));
+    }
+}
+
+QStringList TimedateManager::getNTPUnits()
+{
+    QStringList ntpUnits;
+
+    for (auto &ntpUnitsPath : m_ntpUnitsPaths)
+    {
+        QDir dir(ntpUnitsPath);
+        auto files = dir.entryList(QDir::Files, QDir::Name | QDir::Reversed);
+
+        for (auto &fileName : files)
+        {
+            auto filePath = QString("%1/%2").arg(ntpUnitsPath).arg(fileName);
+            QFile file(filePath);
+
+            if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                KLOG_WARNING(timedate) << "Cannot access file" << filePath;
+                continue;
+            }
+
+            auto contents = file.readAll();
+            auto lines = contents.split('\n');
+            for (auto &line : lines)
+            {
+                if (line.length() == 0 || line.at(0) == '#')
+                {
+                    KLOG_DEBUG(timedate) << "The line" << line << "is ingored.";
+                    continue;
+                }
+                auto arguments = QList<QVariant>{QString(line)};
+                if (!callSystemdNoresult("LoadUnit", arguments))
+                {
+                    KLOG_WARNING(timedate) << "Failed to LoadUnit" << line;
+                    continue;
+                }
+
+                if (!ntpUnits.contains(line))
+                {
+                    ntpUnits.push_back(line);
+                }
+                else
+                {
+                    KLOG_WARNING(timedate) << "Ignore duplication ntp unit" << line;
+                }
+            }
+        }
+    }
+
+    return ntpUnits;
+}
+
+bool TimedateManager::startNTPUnit(const QString &name, CCErrorCode &errorCode)
+{
+    auto arguments = QList<QVariant>{name, QString("replace")};
+    if (!callSystemdNoresult("StartUnit", arguments))
+    {
+        errorCode = CCErrorCode::ERROR_TIMEDATE_START_NTP_FAILED;
+        return false;
     }
     else
     {
-        argv.push_back("--systohc");
+        auto arguments = QList<QVariant>{QStringList(name), false, true};
+        callSystemdNoresult("EnableUnitFiles", arguments);
+        callSystemdNoresult("Reload", QList<QVariant>());
+    }
+    return true;
+}
+
+bool TimedateManager::stopNTPUnit(const QString &name, CCErrorCode &errorCode)
+{
+    auto arguments = QList<QVariant>{name, QString("replace")};
+    if (!callSystemdNoresult("StopUnit", arguments))
+    {
+        errorCode = CCErrorCode::ERROR_TIMEDATE_STOP_NTP_FAILED;
+        return false;
+    }
+    else
+    {
+        auto arguments = QList<QVariant>{QStringList(name), false};
+        callSystemdNoresult("DisableUnitFiles", arguments);
+        callSystemdNoresult("Reload", QList<QVariant>());
+    }
+    return true;
+}
+
+bool TimedateManager::ntpIsActive()
+{
+    RETURN_VAL_IF_FALSE(m_ntpUnitInterface, false);
+    auto state = m_ntpUnitInterface->property(UNIT_PROP_ACTIVE_STATE).toString();
+    return (state == "active" || state == "activating");
+}
+
+QString TimedateManager::getUnitObjectPath()
+{
+    RETURN_VAL_IF_TRUE(m_ntpUnitName.size() <= 0, QString());
+
+    auto arguments = QList<QVariant>{m_ntpUnitName};
+    auto replyMessage = callSystemd("LoadUnit", arguments);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
+    {
+        KLOG_WARNING() << "Call Get failed: " << replyMessage.errorMessage();
+        return QString();
+    }
+
+    auto retval = replyMessage.arguments().takeFirst().value<QDBusObjectPath>();
+    return retval.path();
+}
+
+QVector<ZoneInfo> TimedateManager::getZoneInfos()
+{
+    QVector<ZoneInfo> zoneInfos;
+
+    auto filePath = QString("%1%2").arg(ZONEINFO_PATH).arg(ZONE_TABLE);
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        KLOG_WARNING(timedate) << "Cannot access file " << filePath;
+        return zoneInfos;
+    }
+
+    QString line;
+
+    auto contents = file.readAll();
+    auto lines = contents.split('\n');
+
+    for (auto &line : lines)
+    {
+        if (line.length() == 0 || line.at(0) == '#')
+        {
+            continue;
+        }
+
+        auto fields = QString(line).split(QRegExp("\\s+"));
+        if (fields.size() >= ZONE_TABLE_MIN_COLUMN)
+        {
+            ZoneInfo zoneInfo;
+            zoneInfo.countryCode = fields[0];
+            zoneInfo.coordinates = fields[1];
+            zoneInfo.tz = fields[2];
+            zoneInfos.push_back(std::move(zoneInfo));
+        }
+        else
+        {
+            KLOG_WARNING(timedate) << "Ignore line" << line << ", because of the line is less than" << ZONE_TABLE_MIN_COLUMN << "columns.";
+        }
+    }
+
+    return zoneInfos;
+}
+
+QDBusMessage TimedateManager::callSystemd(const QString &methodName, const QList<QVariant> &arguments)
+{
+    QDBusMessage sendMessage = QDBusMessage::createMethodCall(SYSTEMD_NAME,
+                                                              SYSTEMD_PATH,
+                                                              SYSTEMD_MANAGER_INTERFACE,
+                                                              methodName);
+    sendMessage.setArguments(arguments);
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block, DBUS_TIMEOUT_MS);
+    return replyMessage;
+}
+
+bool TimedateManager::callSystemdNoresult(const QString &methodName, const QList<QVariant> &arguments)
+{
+    auto replyMessage = callSystemd(methodName, arguments);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
+    {
+        KLOG_WARNING() << "Call Get failed: " << replyMessage.errorMessage();
+        return false;
+    }
+    return true;
+}
+
+bool TimedateManager::syncHWClock(bool hctosys, bool local, bool utc)
+{
+    struct stat st;
+    if (stat(RTC_DEVICE, &st) || !(st.st_mode & S_IFCHR))
+    {
+        KLOG_WARNING(timedate) << "No RTC device";
+        return false;
+    }
+
+    if (m_hwSyncProcess->state() != QProcess::NotRunning)
+    {
+        KLOG_WARNING(timedate) << "Exists a hwclock process running already";
+        return true;
+    }
+
+    QStringList arguments{"-f", RTC_DEVICE};
+
+    if (hctosys)
+    {
+        arguments.append("--hctosys");
+    }
+    else
+    {
+        arguments.append("--systohc");
     }
 
     if (local)
     {
-        argv.push_back("--local");
+        arguments.append("--local");
     }
 
     if (utc)
     {
-        argv.push_back("--utc");
+        arguments.append("--utc");
     }
 
-    try
-    {
-        std::vector<std::string> envp;
-        Glib::spawn_async(std::string(),
-                          argv,
-                          envp,
-                          Glib::SPAWN_DO_NOT_REAP_CHILD | Glib::SPAWN_STDOUT_TO_DEV_NULL | Glib::SPAWN_STDERR_TO_DEV_NULL,
-                          Glib::SlotSpawnChildSetup(),
-                          &pid);
-    }
-    catch (const Glib::SpawnError &e)
-    {
-        KLOG_WARNING_TIMEDATE("%s\n", e.what().c_str());
-        if (invocation)
-        {
-            invocation->return_error(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, e.what().c_str()));
-        }
-        return;
-    }
-
-    auto hwclock_call = new HWClockCall();
-    hwclock_call->invocation = invocation;
-    hwclock_call->handler = handler;
-
-    g_child_watch_add(pid, (GChildWatchFunc)(TimedateManager::finish_hwclock_call), hwclock_call);
+    m_hwSyncProcess->setProgram(HWCLOCK_PATH);
+    m_hwSyncProcess->setArguments(arguments);
+    m_hwSyncProcess->start();
+    return true;
 }
 
-void TimedateManager::funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative)
+void TimedateManager::funishSetTime(const QDBusMessage &message, int64_t requestTime, int64_t requestedTime, bool relative)
 {
     struct timeval tv;
     struct timex tx;
-    std::string err_message;
+    QString errMessage;
 
     if (relative)
     {
         tx.modes = ADJ_SETOFFSET | ADJ_NANO;
 
-        tx.time.tv_sec = requested_time / 1000000;
-        tx.time.tv_usec = requested_time - tx.time.tv_sec * 1000000;
+        tx.time.tv_sec = requestedTime / 1000000;
+        tx.time.tv_usec = requestedTime - tx.time.tv_sec * 1000000;
         if (tx.time.tv_usec < 0)
         {
             tx.time.tv_sec--;
@@ -794,35 +667,35 @@ void TimedateManager::funish_set_time(MethodInvocation invocation, int64_t reque
 
         if (adjtimex(&tx) < 0)
         {
-            err_message = fmt::format("Failed to set system clock: {0}", strerror(errno));
+            errMessage = QString("Failed to set system clock: %1").arg(strerror(errno));
         }
     }
     else
     {
         /* Compensate for the time taken by the authorization check */
-        requested_time += g_get_monotonic_time() - request_time;
+        requestedTime += g_get_monotonic_time() - requestTime;
 
-        tv.tv_sec = requested_time / 1000000;
-        tv.tv_usec = requested_time - tv.tv_sec * 1000000;
+        tv.tv_sec = requestedTime / 1000000;
+        tv.tv_usec = requestedTime - tv.tv_sec * 1000000;
         if (settimeofday(&tv, NULL))
         {
-            err_message = fmt::format("Failed to set system clock: {0}", strerror(errno));
+            errMessage = QString("Failed to set system clock: %1").arg(strerror(errno));
         }
     }
 
-    if (err_message.length() > 0)
+    if (errMessage.length() > 0)
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, err_message.c_str()));
+        auto replyMessage = message.createErrorReply(QDBusError::Failed, errMessage);
+        QDBusConnection::systemBus().send(replyMessage);
     }
     else
     {
-        invocation.ret();
-        /* Set the RTC to the new system time */
-        start_hwclock_call(false, false, false, Glib::RefPtr<Gio::DBus::MethodInvocation>(), nullptr);
+        syncHWClock(false, false, false);
+        QDBusConnection::systemBus().send(message.createReply());
     }
 }
 
-void TimedateManager::set_localtime_file_context(const std::string &path)
+void TimedateManager::setLocaltimeFileContext(const QString &path)
 {
 #ifdef HAVE_SELINUX
     security_context_t con;
@@ -835,7 +708,7 @@ void TimedateManager::set_localtime_file_context(const std::string &path)
 
     if (!matchpathcon(LOCALTIME_PATH, S_IFLNK, &con))
     {
-        lsetfilecon(path.c_str(), con);
+        lsetfilecon(path.toLatin1().data(), con);
         freecon(con);
     }
 
@@ -843,7 +716,7 @@ void TimedateManager::set_localtime_file_context(const std::string &path)
 #endif
 }
 
-void TimedateManager::update_kernel_utc_offset(void)
+void TimedateManager::updateKernelUtcOffset(void)
 {
     struct timezone tz;
     struct timeval tv;
@@ -876,141 +749,161 @@ void TimedateManager::update_kernel_utc_offset(void)
 
     if (!updated)
     {
-        KLOG_WARNING_TIMEDATE("Failed to update kernel UTC offset");
+        KLOG_WARNING(timedate) << "Failed to update kernel UTC offset";
     }
 }
 
-bool TimedateManager::check_timezone_name(const std::string &name)
+bool TimedateManager::checkTimezoneName(const QString &name)
 {
     /* Check if the name is sane */
     if (name.length() == 0 ||
-        name.front() == '/' ||
-        strstr(name.c_str(), "//") ||
-        strstr(name.c_str(), "..") ||
+        name.at(0) == '/' ||
+        name.contains("//") ||
+        name.contains("..") ||
         name.length() > MAX_TIMEZONE_LENGTH)
         return false;
 
-    auto iter = std::find_if(name.begin(), name.end(), [](char c) -> bool
-                             { return !g_ascii_isalnum(c) && !strchr("+-_/", c); });
-
-    if (iter != name.end())
+    for (auto c : name)
     {
-        return false;
+        if (!c.isLetterOrNumber() && !strchr("+-_/", c.toLatin1()))
+        {
+            return false;
+        }
     }
 
     /* Check if the correspoding file exists in the zoneinfo directory, it
            doesn't have to be listed in zone.tab */
-    auto link = fmt::format("{0}{1}", ZONEINFO_PATH, name);
+    auto link = QString("%1%2").arg(ZONEINFO_PATH).arg(name);
     struct stat st;
-    if (stat(link.c_str(), &st) || !(st.st_mode & S_IFREG))
+    if (stat(link.toLatin1().data(), &st) || !(st.st_mode & S_IFREG))
         return false;
 
     return true;
 }
 
-void TimedateManager::finish_set_timezone(MethodInvocation invocation, std::string time_zone)
+void TimedateManager::finishSetTimezone(const QDBusMessage &message, const QString &timeZone)
 {
-    auto link = fmt::format("{0}{1}{2}", LOCALTIME_TO_ZONEINFO_PATH, ZONEINFO_PATH, time_zone);
-    auto tmp = fmt::format("%s.%06u", LOCALTIME_PATH, g_random_int());
+    auto link = QString("%1%2%3").arg(LOCALTIME_TO_ZONEINFO_PATH).arg(ZONEINFO_PATH).arg(timeZone);
+    auto tmp = QString("%1.%2").arg(LOCALTIME_PATH).arg(QRandomGenerator(time(NULL)).generate());
     bool successed = false;
     do
     {
-        if (symlink(link.c_str(), tmp.c_str()))
+        if (symlink(link.toLatin1().data(), tmp.toLatin1().data()))
             break;
 
-        set_localtime_file_context(tmp);
+        setLocaltimeFileContext(tmp);
 
-        if (rename(tmp.c_str(), LOCALTIME_PATH))
+        if (rename(tmp.toLatin1().data(), LOCALTIME_PATH))
         {
-            unlink(tmp.c_str());
+            unlink(tmp.toLatin1().data());
             break;
         }
 
-        this->time_zone_set(time_zone);
+        setTimeZone(timeZone);
 
-        update_kernel_utc_offset();
+        updateKernelUtcOffset();
 
         /* RTC in local needs to be set for the new timezone */
-        if (this->local_rtc_get())
+        if (getLocalRtc())
         {
-            start_hwclock_call(false, false, false, Glib::RefPtr<Gio::DBus::MethodInvocation>(), nullptr);
+            syncHWClock(false, false, false);
         }
         successed = true;
     } while (0);
 
     if (!successed)
     {
-        invocation.ret(Glib::Error(G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "Failed to update " LOCALTIME_PATH));
+        auto replyMessage = message.createErrorReply(QDBusError::Failed, "Failed to update " LOCALTIME_PATH);
+        QDBusConnection::systemBus().send(replyMessage);
     }
     else
     {
-        invocation.ret();
+        QDBusConnection::systemBus().send(message.createReply());
     }
 }
 
-void TimedateManager::finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local)
+void TimedateManager::finishSetRtcLocal(const QDBusMessage &message, bool local, bool adjustSystem)
 {
-    this->local_rtc_set(local);
-    invocation.ret();
+    if (syncHWClock(adjustSystem, local, !local))
+    {
+        setLocalRtc(local);
+        QDBusConnection::systemBus().send(message.createReply());
+    }
+    else
+    {
+        DBUS_ERROR_DELAY_REPLY(CCErrorCode::ERROR_FAILED);
+    }
 }
 
-void TimedateManager::finish_set_rtc_local(MethodInvocation invocation,
-                                           bool local,
-                                           bool adjust_system)
+void TimedateManager::finishSetNTPActive(const QDBusMessage &message, bool active)
 {
-    start_hwclock_call(adjust_system,
-                       local,
-                       !local,
-                       invocation.getMessage(),
-                       std::bind(&TimedateManager::finish_set_rtc_local_hwclock, this, std::placeholders::_1, local));
-}
-
-void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool active)
-{
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
     bool result = false;
     if (active)
     {
-        result = this->start_ntp_unit(this->ntp_unit_name_, error_code);
+        result = startNTPUnit(m_ntpUnitName, errorCode);
     }
     else
     {
-        result = this->stop_ntp_unit(this->ntp_unit_name_, error_code);
+        result = stopNTPUnit(m_ntpUnitName, errorCode);
     }
 
     if (!result)
     {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(errorCode);
     }
 
-    this->ntp_set(active);
-    invocation.ret();
+    setNTP(active);
+    QDBusConnection::systemBus().send(message.createReply());
 }
 
-void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
+void TimedateManager::processNTPUnitPropsChanged(const QDBusMessage &message)
 {
-    if (!connect)
+    QList<QVariant> args = message.arguments();
+    RETURN_IF_TRUE(args.count() != 3);
+
+    QVariantMap changedProperties = qdbus_cast<QVariantMap>(args.at(1).value<QDBusArgument>());
+    auto iter = changedProperties.find(UNIT_PROP_ACTIVE_STATE);
+    RETURN_IF_TRUE(iter == changedProperties.end());
+    auto state = iter.value().toString();
+
+    if (state == "active" || state == "activating")
     {
-        KLOG_WARNING_TIMEDATE("Failed to connect dbus with %s", name.c_str());
-        return;
+        setNTP(true);
     }
-    try
+    else
     {
-        this->object_register_id_ = this->register_object(connect, TIMEDATE_OBJECT_PATH);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_TIMEDATE("Register object_path %s fail: %s.", TIMEDATE_OBJECT_PATH, e.what().c_str());
+        setNTP(false);
     }
 }
 
-void TimedateManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
+void TimedateManager::processFilesChanged(const QString &path)
 {
-    KLOG_DEBUG_TIMEDATE("Success to register dbus name: %s", name.c_str());
+    switch (shash(path.toLatin1().data()))
+    {
+    case CONNECT(LOCALTIME_PATH, _hash):
+    {
+        auto tz = TimedateUtil::getTimezone();
+        setTimeZone(tz);
+        break;
+    }
+    case CONNECT(ADJTIME_PATH, _hash):
+        setLocalRtc(TimedateUtil::isLocalRtc());
+        break;
+    }
 }
 
-void TimedateManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
+void TimedateManager::processDirectoryChanged(const QString &path)
 {
-    KLOG_WARNING_TIMEDATE("Failed to register dbus name: %s", name.c_str());
+    initNTPUnits();
 }
+
+void TimedateManager::processHWSyncFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    if (exitStatus != QProcess::ExitStatus::NormalExit)
+    {
+        KLOG_WARNING(timedate) << "hwclock sync failed, exit code is" << exitCode << ", exit status is" << exitStatus;
+    }
+}
+
 }  // namespace Kiran

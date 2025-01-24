@@ -1,31 +1,37 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/appearance/theme/appearance-theme.h"
-
+#include "appearance-theme.h"
+#include <QGSettings>
 #include "lib/base/base.h"
+#include "theme-monitor.h"
+#include "theme-parse.h"
 #include "xsettings-i.h"
+
+namespace Kiran
+{
 
 #define MARCO_SCHEMA_ID "org.mate.Marco.general"
 #define MARCO_SCHEMA_KEY_THEME "theme"
 
 #define MOUSE_SCHEMA_ID "org.mate.peripherals-mouse"
-#define MOUSE_SCHEMA_KEY_CURSOR_THEME "cursor-theme"
-#define MOUSE_SCHEMA_KEY_CURSOR_SIZE "cursor-size"
+#define MOUSE_SCHEMA_KEY_CURSOR_THEME "cursorTheme"
+#define MOUSE_SCHEMA_KEY_CURSOR_SIZE "cursorSize"
 
 #define GNOME_DESKTOP_SCHEMA_ID "org.gnome.desktop.interface"
 #define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "color-scheme"
+
 enum GnomeDesktopColorScheme
 {
     GNOME_COLOR_SCHEME_DEFAULT,
@@ -34,303 +40,325 @@ enum GnomeDesktopColorScheme
     GNOME_COLOR_SCHEME_LAST
 };
 
-namespace Kiran
+AppearanceTheme::AppearanceTheme(QObject* parent) : QObject(parent),
+                                                    m_themeMonitor(nullptr),
+                                                    m_xsettingsSettings(nullptr),
+                                                    m_marcoSettings(nullptr),
+                                                    m_mouseSettings(nullptr),
+                                                    m_gnomeDesktopSettigns(nullptr)
 {
-AppearanceTheme::AppearanceTheme()
-{
-    this->xsettings_settings_ = Gio::Settings::create(XSETTINGS_SCHEMA_ID);
+    m_themeMonitor = new ThemeMonitor(this);
 
-    auto schemas = Gio::Settings::list_schemas();
-    if (std::find(schemas.begin(), schemas.end(), MARCO_SCHEMA_ID) != schemas.end())
+    m_xsettingsSettings = new QGSettings(XSETTINGS_SCHEMA_ID, "", this);
+
+    if (QGSettings::isSchemaInstalled(MARCO_SCHEMA_ID))
     {
-        this->marco_settings_ = Gio::Settings::create(MARCO_SCHEMA_ID);
+        m_marcoSettings = new QGSettings(MARCO_SCHEMA_ID, "", this);
     }
 
-    if (std::find(schemas.begin(), schemas.end(), MOUSE_SCHEMA_ID) != schemas.end())
+    if (QGSettings::isSchemaInstalled(MOUSE_SCHEMA_ID))
     {
-        this->mouse_settings_ = Gio::Settings::create(MOUSE_SCHEMA_ID);
+        m_mouseSettings = new QGSettings(MOUSE_SCHEMA_ID, "", this);
     }
 
-    if (std::find(schemas.begin(), schemas.end(), GNOME_DESKTOP_SCHEMA_ID) != schemas.end())
+    if (QGSettings::isSchemaInstalled(GNOME_DESKTOP_SCHEMA_ID))
     {
-        auto temp_settings = Gio::Settings::create(GNOME_DESKTOP_SCHEMA_ID);
-        auto keys = temp_settings->list_keys();
-        if ( std::find(keys.begin(), keys.end(), GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA) != keys.end() )
-        {
-            // 确保 org.gnome.desktop.interface color-scheme 完全存在才使用
-            this->gnome_desktop_settigns_ = temp_settings;
-        }
+        m_gnomeDesktopSettigns = new QGSettings(GNOME_DESKTOP_SCHEMA_ID, "", this);
     }
 }
 
 void AppearanceTheme::init()
 {
-    this->theme_monitor_.init();
+    m_themeMonitor->init();
 
-    for (auto& monitor_info : this->theme_monitor_.get_monitor_infos())
+    for (auto& monitorInfo : m_themeMonitor->getMonitorInfos())
     {
-        ThemeParse parse(monitor_info);
+        ThemeParse parse(monitorInfo);
         auto theme = parse.parse();
         if (theme)
         {
-            this->add_theme(theme);
+            addTheme(theme);
         }
-    } 
+    }
 
-    this->xsettings_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceTheme::on_xsettings_settings_changed));
-    this->theme_monitor_.signal_monitor_event().connect(sigc::mem_fun(this, &AppearanceTheme::on_monitor_event_changed));
+    trySyncGnomeColorSchema();
 
-    this->try_sync_gnome_color_schema();
+    connect(m_xsettingsSettings, &QGSettings::changed, this, &AppearanceTheme::processXSettingsSettingsChanged);
+    connect(m_themeMonitor, &ThemeMonitor::themeChanged, this, &AppearanceTheme::processMonitorInfoChanged);
 }
 
-ThemeInfoVec AppearanceTheme::get_themes_by_type(AppearanceThemeType type)
+ThemeInfoVec AppearanceTheme::getThemesByType(AppearanceThemeType type)
 {
     ThemeInfoVec themes;
-    for (auto& iter : this->themes_)
+    for (auto key : m_themes.keys())
     {
-        // map结构是按照优先级排序的，所以如果存在相同类型的主题，只取优先级最高的主题
-        if (iter.first.first == type &&
-            iter.second.size() > 0)
+        // QMap结构是按照优先级排序的，所以如果存在相同类型的主题，只取优先级最高的主题
+        if (key.first == type && m_themes[key].size() > 0)
         {
-            themes.push_back(iter.second.begin()->second);
+            themes.push_back(m_themes[key].begin().value());
         }
     }
     return themes;
 }
 
-std::shared_ptr<ThemeBase> AppearanceTheme::get_theme(ThemeUniqueKey unique_key)
+QSharedPointer<ThemeBase> AppearanceTheme::getTheme(ThemeUniqueKey unique_key)
 {
-    ThemeKey key = std::make_pair(std::get<0>(unique_key), std::get<1>(unique_key));
-    auto themes_iter = this->themes_.find(key);
-    RETURN_VAL_IF_TRUE(themes_iter == this->themes_.end(), nullptr);
+    ThemeKey key = qMakePair(std::get<0>(unique_key), std::get<1>(unique_key));
+    auto themesIter = m_themes.find(key);
+    RETURN_VAL_IF_TRUE(themesIter == m_themes.end(), nullptr);
 
-    auto theme_iter = themes_iter->second.find(std::get<2>(unique_key));
-    RETURN_VAL_IF_TRUE(theme_iter == themes_iter->second.end(), nullptr);
-    return theme_iter->second;
+    auto themeIter = themesIter.value().find(std::get<2>(unique_key));
+    RETURN_VAL_IF_TRUE(themeIter == themesIter.value().end(), nullptr);
+    return themeIter.value();
 }
 
-std::shared_ptr<ThemeBase> AppearanceTheme::get_theme(ThemeKey key)
+QSharedPointer<ThemeBase> AppearanceTheme::getTheme(ThemeKey key)
 {
-    auto themes_iter = this->themes_.find(key);
-    RETURN_VAL_IF_TRUE(themes_iter == this->themes_.end(), nullptr);
-    RETURN_VAL_IF_TRUE(themes_iter->second.size() == 0, nullptr);
-
-    return themes_iter->second.begin()->second;
+    auto value = m_themes.value(key);
+    RETURN_VAL_IF_TRUE(value.size() == 0, nullptr);
+    return value.begin().value();
 }
 
-bool AppearanceTheme::set_theme(ThemeKey key, CCErrorCode& error_code)
+bool AppearanceTheme::setTheme(ThemeKey key, CCErrorCode& errorCode)
 {
-    auto theme = this->get_theme(key);
+    auto theme = getTheme(key);
     if (!theme)
     {
-        error_code = CCErrorCode::ERROR_APPEARANCE_THEME_NOT_EXIST;
+        errorCode = CCErrorCode::ERROR_APPEARANCE_THEME_NOT_EXIST;
         return false;
     }
+
+    KLOG_INFO(appearance) << "Set" << themeEnum2Str(theme->type) << "theme to " << theme->name;
 
     switch (theme->type)
     {
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_META:
-        this->set_meta_theme(std::static_pointer_cast<ThemeMeta>(theme));
+        setMetaTheme(theme.staticCast<ThemeMeta>());
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
-        this->set_gtk_theme(theme->name);
-        this->try_sync_gnome_color_schema();
+        setGtkTheme(theme->name);
+        trySyncGnomeColorSchema();
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
-        this->set_metacity_theme(theme->name);
+        setMetacityTheme(theme->name);
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON:
-        this->set_icon_theme(theme->name);
+        setIconTheme(theme->name);
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR:
-        this->set_cursor_theme(theme->name);
+        setCursorTheme(theme->name);
         break;
     default:
-        error_code = CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_UNSUPPORTED;
+        errorCode = CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_UNSUPPORTED;
         return false;
     }
     return true;
 }
 
-std::string AppearanceTheme::get_theme(AppearanceThemeType type)
+QString AppearanceTheme::getTheme(AppearanceThemeType type)
 {
     switch (type)
     {
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
-        return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_THEME_NAME).raw();
+        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_NET_THEME_NAME).toString();
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
     {
-        if (this->marco_settings_)
+        if (m_marcoSettings)
         {
-            return this->marco_settings_->get_string(MARCO_SCHEMA_KEY_THEME);
+            return m_marcoSettings->get(MARCO_SCHEMA_KEY_THEME).toString();
         }
         break;
     }
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON:
-        return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME);
+        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME).toString();
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR:
-        return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME);
+        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME).toString();
     default:
         break;
     }
-    return std::string();
+    return QString();
 }
 
-bool AppearanceTheme::add_theme(std::shared_ptr<ThemeBase> theme)
+bool AppearanceTheme::addTheme(QSharedPointer<ThemeBase> theme)
 {
     RETURN_VAL_IF_FALSE(theme, false);
-    ThemeKey key = std::make_pair(theme->type, theme->name);
-    auto iter = this->themes_[key].emplace(theme->priority, theme);
-    return iter.second;
-}
+    ThemeKey key = qMakePair(theme->type, theme->name);
 
-bool AppearanceTheme::replace_theme(std::shared_ptr<ThemeBase> theme)
-{
-    RETURN_VAL_IF_FALSE(theme, false);
-    ThemeKey key = std::make_pair(theme->type, theme->name);
-    this->themes_[key][theme->priority] = theme;
+    RETURN_VAL_IF_TRUE(m_themes[key].contains(theme->priority), false);
+    m_themes[key][theme->priority] = theme;
     return true;
 }
 
-bool AppearanceTheme::del_theme(ThemeUniqueKey unique_key)
+bool AppearanceTheme::replaceTheme(QSharedPointer<ThemeBase> theme)
 {
-    ThemeKey key = std::make_pair(std::get<0>(unique_key), std::get<1>(unique_key));
-    auto themes_iter = this->themes_.find(key);
-    if (themes_iter != this->themes_.end())
+    RETURN_VAL_IF_FALSE(theme, false);
+    ThemeKey key = qMakePair(theme->type, theme->name);
+    m_themes[key][theme->priority] = theme;
+    return true;
+}
+
+bool AppearanceTheme::delTheme(ThemeUniqueKey uniqueKey)
+{
+    ThemeKey key = qMakePair(std::get<0>(uniqueKey), std::get<1>(uniqueKey));
+    auto themesIter = m_themes.find(key);
+    if (themesIter != m_themes.end())
     {
-        auto theme_iter = themes_iter->second.find(std::get<2>(unique_key));
-        if (theme_iter != themes_iter->second.end())
+        auto themeIter = themesIter.value().find(std::get<2>(uniqueKey));
+        if (themeIter != themesIter.value().end())
         {
-            themes_iter->second.erase(theme_iter);
+            themesIter.value().erase(themeIter);
             return true;
         }
     }
     return false;
 }
 
-void AppearanceTheme::set_meta_theme(std::shared_ptr<ThemeMeta> theme)
+void AppearanceTheme::setMetaTheme(QSharedPointer<ThemeMeta> theme)
 {
-    this->set_gtk_theme(theme->gtk_theme);
-    this->set_icon_theme(theme->icon_theme);
-    this->set_cursor_theme(theme->cursor_theme);
-    this->set_metacity_theme(theme->metacity_theme);
+    setGtkTheme(theme->gtk_theme);
+    setIconTheme(theme->icon_theme);
+    setCursorTheme(theme->cursor_theme);
+    setMetacityTheme(theme->metacity_theme);
 
-    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_META, theme->name));
+    Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_META, theme->name));
 }
 
-void AppearanceTheme::set_gtk_theme(const std::string& theme_name)
+void AppearanceTheme::setGtkTheme(const QString& themeName)
 {
-    RETURN_IF_TRUE(theme_name.empty());
-    this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_THEME_NAME, theme_name);
-    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name));
+    RETURN_IF_TRUE(themeName.isEmpty());
+    m_xsettingsSettings->set(XSETTINGS_SCHEMA_NET_THEME_NAME, themeName);
+    Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, themeName));
 }
 
-void AppearanceTheme::set_icon_theme(const std::string& theme_name)
+void AppearanceTheme::setIconTheme(const QString& themeName)
 {
-    RETURN_IF_TRUE(theme_name.empty());
-    this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, theme_name);
-    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON, theme_name));
+    RETURN_IF_TRUE(themeName.isEmpty());
+    m_xsettingsSettings->set(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, themeName);
+    Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON, themeName));
 }
 
-void AppearanceTheme::set_cursor_theme(const std::string& theme_name)
+void AppearanceTheme::setCursorTheme(const QString& themeName)
 {
-    RETURN_IF_TRUE(theme_name.empty());
-    this->xsettings_settings_->set_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, theme_name);
+    RETURN_IF_TRUE(themeName.isEmpty());
+    m_xsettingsSettings->set(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, themeName);
     // 由于Marco是从org.mate.peripherals-mouse读取光标主题的，所以这里要做一下适配
-    if (this->mouse_settings_)
+    if (m_mouseSettings)
     {
-        this->mouse_settings_->set_string(MOUSE_SCHEMA_KEY_CURSOR_THEME, theme_name);
+        m_mouseSettings->set(MOUSE_SCHEMA_KEY_CURSOR_THEME, themeName);
     }
-    this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR, theme_name));
+    Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR, themeName));
 }
 
-void AppearanceTheme::set_metacity_theme(const std::string& theme_name)
+void AppearanceTheme::setMetacityTheme(const QString& themeName)
 {
-    RETURN_IF_TRUE(theme_name.empty());
+    RETURN_IF_TRUE(themeName.isEmpty());
 
-    if (this->marco_settings_)
+    if (m_marcoSettings)
     {
-        this->marco_settings_->set_string(MARCO_SCHEMA_KEY_THEME, theme_name);
-        this->theme_changed_.emit(ThemeKey{AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name});
+        m_marcoSettings->set(MARCO_SCHEMA_KEY_THEME, themeName);
+        Q_EMIT themeChanged(ThemeKey{AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, themeName});
     }
 }
 
-void AppearanceTheme::on_xsettings_settings_changed(const Glib::ustring& key)
+void AppearanceTheme::trySyncGnomeColorSchema()
 {
-    switch (shash(key.c_str()))
+    if (!m_gnomeDesktopSettigns)
+    {
+        return;
+    }
+
+    if (!m_gnomeDesktopSettigns->keys().contains(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA))
+    {
+        return;
+    }
+
+    auto themeName = getTheme(APPEARANCE_THEME_TYPE_GTK);
+    if (themeName == APPEARANCE_DEFAULT_DARK_GTK_THEME)
+    {
+        m_gnomeDesktopSettigns->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, GNOME_COLOR_SCHEME_PREFER_DARK);
+    }
+    else
+    {
+        m_gnomeDesktopSettigns->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, GNOME_COLOR_SCHEME_PREFER_LIGHT);
+    }
+}
+
+QString AppearanceTheme::themeEnum2Str(AppearanceThemeType type)
+{
+    switch (type)
+    {
+    case AppearanceThemeType::APPEARANCE_THEME_TYPE_META:
+        return "meta";
+    case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
+        return "gtk";
+    case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
+        return "metacity";
+    case AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON:
+        return "icon";
+    case AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR:
+        return "cursor";
+    default:
+        break;
+    }
+    return "unknown";
+}
+
+void AppearanceTheme::processXSettingsSettingsChanged(const QString& key)
+{
+    switch (shash(key.toLatin1().data()))
     {
     case CONNECT(XSETTINGS_SCHEMA_NET_THEME_NAME, _hash):
-        this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK,
-                                                 this->get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK)));
+        Q_EMIT themeChanged(QPair<AppearanceThemeType, QString>(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK,
+                                                                getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK)));
         break;
     case CONNECT(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, _hash):
-        this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON,
-                                                 this->get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON)));
+        Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON,
+                                      getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON)));
         break;
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
-        this->theme_changed_.emit(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR,
-                                                 this->get_theme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR)));
+        Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR,
+                                      getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR)));
         break;
     default:
         break;
     }
 }
 
-void AppearanceTheme::on_monitor_event_changed(std::shared_ptr<ThemeMonitorInfo> monitor_info,
-                                               ThemeMonitorEventType event_type)
+void AppearanceTheme::processMonitorInfoChanged(QSharedPointer<ThemeMonitorInfo> monitorInfo,
+                                                ThemeMonitorEventType eventType)
 {
-    ThemeParse parse(monitor_info);
-    auto base = parse.parse_base();
+    ThemeParse parse(monitorInfo);
+    auto base = parse.parseBase();
     RETURN_IF_FALSE(base);
 
-    auto key = std::make_pair(base->type, base->name);
-    auto old_theme = this->get_theme(key);
+    auto key = qMakePair(base->type, base->name);
+    auto old_theme = getTheme(key);
     auto parsed_theme = parse.parse();
 
     if (parsed_theme)
     {
-        this->replace_theme(parsed_theme);
+        replaceTheme(parsed_theme);
     }
     else
     {
-        ThemeUniqueKey unique_key = std::make_tuple(base->type, base->name, monitor_info->get_priority());
-        this->del_theme(unique_key);
+        ThemeUniqueKey unique_key = std::make_tuple(base->type, base->name, monitorInfo->getPriority());
+        delTheme(unique_key);
     }
 
     // 需要在执行替换或删除操作后再进行获取，因为不确定变动的是否为最高优先级的主题
-    auto new_theme = this->get_theme(key);
+    auto new_theme = getTheme(key);
 
     if (old_theme && !new_theme)
     {
-        this->themes_changed_.emit(key, ThemeEventType::THEME_EVENT_TYPE_DEL);
+        Q_EMIT themeDetailChanged(key, ThemeEventType::THEME_EVENT_TYPE_DEL);
     }
     else if (!old_theme && new_theme)
     {
-        this->themes_changed_.emit(key, ThemeEventType::THEME_EVENT_TYPE_ADD);
+        Q_EMIT themeDetailChanged(key, ThemeEventType::THEME_EVENT_TYPE_ADD);
     }
     else if (old_theme && new_theme)
     {
-        this->themes_changed_.emit(key, ThemeEventType::THEME_EVENT_TYPE_CHG);
-    }
-}
-
-void AppearanceTheme::try_sync_gnome_color_schema()
-{
-    if (!this->gnome_desktop_settigns_)
-    {
-        return;
-    }
-
-    auto theme_name = this->get_theme(APPEARANCE_THEME_TYPE_GTK);
-    if (theme_name == APPEARANCE_DEFAULT_DARK_GTK_THEME)
-    {
-        this->gnome_desktop_settigns_->set_enum(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA,
-                                                GNOME_COLOR_SCHEME_PREFER_DARK);
-    }
-    else
-    {
-        this->gnome_desktop_settigns_->set_enum(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA,
-                                                GNOME_COLOR_SCHEME_PREFER_LIGHT);
+        Q_EMIT themeDetailChanged(key, ThemeEventType::THEME_EVENT_TYPE_CHG);
     }
 }
 

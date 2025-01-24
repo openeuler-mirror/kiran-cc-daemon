@@ -1,23 +1,24 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/xsettings/xsettings-xresource.h"
-
-#include "plugins/xsettings/xsettings-common.h"
-#include "plugins/xsettings/xsettings-manager.h"
-//
-#include <X11/Xatom.h>
+#include "xsettings-xresource.h"
+#include <glib.h>
+#include <xcb/xcb.h>
+#include "lib/base/base.h"
+#include "lib/xcb/xcb-connection.h"
+#include "xsettings-common.h"
+#include "xsettings-manager.h"
 
 namespace Kiran
 {
@@ -30,90 +31,105 @@ namespace Kiran
 #define XRESOURCE_PROP_XCURSOR_THEME "Xcursor.theme"
 #define XRESOURCE_PROP_XCURSOR_SIZE "Xcursor.size"
 
-XSettingsXResource::XSettingsXResource()
+XSettingsXResource::XSettingsXResource(QObject *parent) : QObject(parent)
 {
+    m_xcbConnection = XcbConnection::getDefault();
 }
 
 void XSettingsXResource::init()
 {
-    this->update_properties();
+    updateProperties();
 
-    XSettingsManager::get_instance()->signal_xsettings_changed().connect(sigc::mem_fun(this, &XSettingsXResource::on_xsettings_changed));
+    connect(XSettingsManager::getInstance(), &XSettingsManager::xsettingsChanged, this, &XSettingsXResource::processXsettingsChanged);
 }
 
-void XSettingsXResource::update_properties()
+void XSettingsXResource::updateProperties()
 {
     char dpibuf[G_ASCII_DTOSTR_BUF_SIZE];
-    auto dpy = XOpenDisplay(NULL);
-    auto xsettings_manager = XSettingsManager::get_instance();
+    auto xsettingsManager = XSettingsManager::getInstance();
+    auto xcbConnection = m_xcbConnection->getConnection();
+    auto rootWindow = m_xcbConnection->getDefaultScreen()->root;
 
-    RETURN_IF_TRUE(dpy == NULL);
-    RETURN_IF_TRUE(xsettings_manager == NULL);
+    RETURN_IF_TRUE(xsettingsManager == NULL);
 
-    auto p_porps = XResourceManagerString(dpy);
-    std::string props = POINTER_TO_STRING(p_porps);
+    int offset = 0;
+    QByteArray resourceProperties;
+    while (true)
+    {
+        auto reply = XCB_REPLY_UNCHECKED(xcb_get_property,
+                                         xcbConnection,
+                                         false,
+                                         rootWindow,
+                                         XCB_ATOM_RESOURCE_MANAGER,
+                                         XCB_ATOM_STRING, offset / 4, 8192);
+        bool more = false;
+        if (reply && reply->format == 8 && reply->type == XCB_ATOM_STRING)
+        {
+            resourceProperties += QByteArray((const char *)xcb_get_property_value(reply.get()), xcb_get_property_value_length(reply.get()));
+            offset += xcb_get_property_value_length(reply.get());
+            more = reply->bytes_after != 0;
+        }
 
-    KLOG_DEBUG_XSETTINGS("The Old Xresource is %s", props.c_str());
-    auto xcursor_size = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_gtk_cursor_theme_size()));
+        BREAK_IF_TRUE(!more)
+    }
 
-    auto dpi = std::string(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettings_manager->get_xft_dpi() / 1024.0));
-    auto lcdfilter = (xsettings_manager->get_xft_rgba() == "rgb") ? "lcddefault" : "none";
+    KLOG_INFO(xsettings) << "The Old Xresource is" << resourceProperties;
+    auto xcursorSize = QString(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettingsManager->getGtkCursorThemeSize()));
 
-    this->update_property(props, XRESOURCE_PROP_XFT_DPI, dpi);
-    this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
-    this->update_property(props, XRESOURCE_PROP_XFT_ANTIALIAS, xsettings_manager->get_xft_antialias() > 0 ? "1" : "0");
-    this->update_property(props, XRESOURCE_PROP_XFT_HINTING, xsettings_manager->get_xft_hinting() > 0 ? "1" : "0");
-    this->update_property(props, XRESOURCE_PROP_XFT_HINTSTYLE, xsettings_manager->get_xft_hint_style());
-    this->update_property(props, XRESOURCE_PROP_XFT_RGBA, xsettings_manager->get_xft_rgba());
-    this->update_property(props, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
-    this->update_property(props, XRESOURCE_PROP_XCURSOR_THEME, xsettings_manager->get_gtk_cursor_theme_name());
-    this->update_property(props, XRESOURCE_PROP_XCURSOR_SIZE, xcursor_size);
+    auto dpi = QString(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettingsManager->getXftDPI() / 1024.0));
+    auto lcdfilter = (xsettingsManager->getXftRGBA() == "rgb") ? "lcddefault" : "none";
 
-    KLOG_DEBUG_XSETTINGS("The New Xresource is %s", props.c_str());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_DPI, dpi);
+    updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_SIZE, xcursorSize);
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_ANTIALIAS, xsettingsManager->getXftAntialias() > 0 ? "1" : "0");
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_HINTING, xsettingsManager->getXftHinting() > 0 ? "1" : "0");
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_HINTSTYLE, xsettingsManager->getXftHintStyle());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_RGBA, xsettingsManager->getXftRGBA());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
+    updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_THEME, xsettingsManager->getGtkCursorThemeName());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_SIZE, xcursorSize);
 
-    XChangeProperty(dpy,
-                    RootWindow(dpy, 0),
-                    XA_RESOURCE_MANAGER,
-                    XA_STRING,
-                    8,
-                    PropModeReplace,
-                    const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(props.c_str())),
-                    props.length());
+    KLOG_INFO(xsettings) << "The New Xresource is" << resourceProperties;
 
-    XCloseDisplay(dpy);
+    xcb_change_property(xcbConnection,
+                        XCB_PROP_MODE_REPLACE,
+                        rootWindow,
+                        XCB_ATOM_RESOURCE_MANAGER,
+                        XCB_ATOM_STRING, 8, resourceProperties.length(),
+                        resourceProperties.data());
 }
 
-void XSettingsXResource::update_property(std::string &props, const std::string &key, const std::string &value)
+void XSettingsXResource::updateProperty(QByteArray &props, const QString &key, const QString &value)
 {
-    auto needle = key + std::string(":");
-    auto found_start = props.find(needle);
+    auto needle = key + QString(":");
+    auto foundStart = props.indexOf(needle.toUtf8());
 
     // XrmValue数据格式 key:\tvalue\n
-    if (found_start != std::string::npos)
+    if (foundStart >= 0)
     {
-        auto found_end = props.find('\n', found_start);
+        auto foundEnd = props.indexOf('\n', foundStart);
         // +1是跳过制表符
-        auto found_value = found_start + needle.length() + 1;
-        if (found_end != std::string::npos)
+        auto foundValue = foundStart + needle.length() + 1;
+        if (foundEnd >= 0)
         {
-            props.erase(found_value, found_end - found_value + 1);
+            props.remove(foundValue, foundEnd - foundValue + 1);
         }
         else
         {
-            props.erase(found_value);
+            props.remove(foundValue, props.length() - foundValue);
         }
-        props.insert(found_value, 1, '\n');
-        props.insert(found_value, value);
+        props.insert(foundValue, 1, '\n');
+        props.insert(foundValue, value.toUtf8());
     }
     else
     {
-        props += fmt::format("{0}:\t{1}\n", key, value);
+        props += QString("%1:\t%2\n").arg(key).arg(value).toUtf8();
     }
 }
 
-void XSettingsXResource::on_xsettings_changed(const std::string &key)
+void XSettingsXResource::processXsettingsChanged(const QString &key)
 {
-    switch (shash(key.c_str()))
+    switch (shash(key.toLatin1().data()))
     {
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
     case CONNECT(XSETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
@@ -123,7 +139,7 @@ void XSettingsXResource::on_xsettings_changed(const std::string &key)
     case CONNECT(XSETTINGS_SCHEMA_XFT_DPI, _hash):
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
-        this->update_properties();
+        updateProperties();
         break;
     default:
         break;

@@ -1,202 +1,167 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/event/power-event-button.h"
-#include <X11/XF86keysym.h>
-#include "plugins/power/power-utils.h"
+#include "power-event-button.h"
+#include <unistd.h>
+#include <KActionCollection>
+#include <KGlobalAccel>
+#include <QElapsedTimer>
+#include <QTimer>
+#include "../power-utils.h"
+#include "../wrapper/power-login1.h"
+#include "../wrapper/power-upower.h"
+#include "../wrapper/power-wrapper-manager.h"
+#include "lib/base/base.h"
 
 namespace Kiran
 {
-#define POWER_BUTTON_DUPLICATE_TIMEOUT 0.125f
+#define POWER_BUTTON_DUPLICATE_TIMEOUT 125
 #define POWER_BUTTON_POWEROFF_TIMEOUT_MILLISECONDS 125
 
-PowerEventButton::PowerEventButton() : login1_inhibit_fd_(-1)
+PowerEventButton::PowerEventButton(QObject *parent) : QObject(parent),
+                                                      m_login1InhibitFD(-1)
 {
-    this->display_ = gdk_display_get_default();
-    this->xdisplay_ = GDK_DISPLAY_XDISPLAY(this->display_);
-
-    auto screen = gdk_screen_get_default();
-    this->root_window_ = gdk_screen_get_root_window(screen);
-    this->xroot_window_ = GDK_WINDOW_XID(this->root_window_);
-
-    this->upower_client_ = PowerWrapperManager::get_instance()->get_default_upower();
+    m_upowerClient = PowerWrapperManager::getInstance()->getDefaultUpower();
+    m_actionCollection = new KActionCollection(this);
+    m_actionCollection->setComponentDisplayName(tr("Power Management"));
+    m_buttonTimer = new QElapsedTimer();
+    m_powerOffTimer = new QTimer(this);
 }
 
 PowerEventButton::~PowerEventButton()
 {
-    gdk_window_remove_filter(this->root_window_, &PowerEventButton::window_event, this);
-
-    if (this->login1_inhibit_fd_ > 0)
+    if (m_login1InhibitFD > 0)
     {
-        close(this->login1_inhibit_fd_);
+        close(m_login1InhibitFD);
     }
 
-    if (this->poweroff_timeout_id_)
+    if (m_buttonTimer)
     {
-        this->poweroff_timeout_id_.disconnect();
+        delete m_buttonTimer;
     }
 }
 
 void PowerEventButton::init()
 {
     // 这里需要对systemd-login1添加抑制器，避免systemd-login1对电源、休眠、挂起按键和合上盖子进行操作。
-    auto login1 = PowerWrapperManager::get_instance()->get_default_login1();
-    this->login1_inhibit_fd_ = login1->inhibit("handle-power-key:handle-suspend-key:handle-lid-switch");
+    auto login1 = PowerWrapperManager::getInstance()->getDefaultLogin1();
+    m_login1InhibitFD = login1->inhibit("handle-power-key:handle-suspend-key:handle-lid-switch");
 
-    this->register_button(XF86XK_PowerOff, PowerEvent::POWER_EVENT_RELEASE_POWEROFF);
-    this->register_button(XF86XK_Suspend, PowerEvent::POWER_EVENT_PRESSED_SUSPEND);
-    this->register_button(XF86XK_Sleep, PowerEvent::POWER_EVENT_PRESSED_SLEEP);
-    this->register_button(XF86XK_Hibernate, PowerEvent::POWER_EVENT_PRESSED_HIBERNATE);
-    this->register_button(XF86XK_MonBrightnessUp, PowerEvent::POWER_EVENT_PRESSED_BRIGHT_UP);
-    this->register_button(XF86XK_MonBrightnessDown, PowerEvent::POWER_EVENT_PRESSED_BRIGHT_DOWN);
-    this->register_button(XF86XK_KbdBrightnessUp, PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_UP);
-    this->register_button(XF86XK_KbdBrightnessDown, PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_DOWN);
-    this->register_button(XF86XK_KbdLightOnOff, PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_TOGGLE);
-    this->register_button(XF86XK_ScreenSaver, PowerEvent::POWER_EVENT_PRESSED_LOCK);
-    this->register_button(XF86XK_Battery, PowerEvent::POWER_EVENT_PRESSED_BATTERY);
+    registerButton(Qt::Key_PowerOff,
+                   QLatin1String("PowerOff"),
+                   tr("Power Off"),
+                   PowerEvent::POWER_EVENT_PRESSED_POWEROFF);
 
-    this->upower_client_->signal_lid_is_closed_changed().connect(sigc::mem_fun(this, &PowerEventButton::on_lid_is_closed_change));
+    registerButton(Qt::Key_Suspend,
+                   QLatin1String("Suspend"),
+                   tr("Suspend"),
+                   PowerEvent::POWER_EVENT_PRESSED_SUSPEND);
 
-    gdk_window_add_filter(this->root_window_, &PowerEventButton::window_event, this);
+    registerButton(Qt::Key_Sleep,
+                   QLatin1String("Sleep"),
+                   tr("Sleep"),
+                   PowerEvent::POWER_EVENT_PRESSED_SLEEP);
+
+    registerButton(Qt::Key_Hibernate,
+                   QLatin1String("Hibernate"),
+                   tr("Hibernate"),
+                   PowerEvent::POWER_EVENT_PRESSED_HIBERNATE);
+
+    registerButton(Qt::Key_MonBrightnessUp,
+                   QLatin1String("Increase Screen Brightness"),
+                   tr("Increase Screen Brightness"),
+                   PowerEvent::POWER_EVENT_PRESSED_BRIGHT_UP);
+
+    registerButton(Qt::Key_MonBrightnessDown,
+                   QLatin1String("Decrease Screen Brightness"),
+                   tr("Decrease Screen Brightness"),
+                   PowerEvent::POWER_EVENT_PRESSED_BRIGHT_DOWN);
+
+    registerButton(Qt::Key_KeyboardBrightnessUp,
+                   QLatin1String("Increase Keyboard Brightness"),
+                   tr("Increase Keyboard Brightness"),
+                   PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_UP);
+
+    registerButton(Qt::Key_KeyboardBrightnessDown,
+                   QLatin1String("Decrease Keyboard Brightness"),
+                   tr("Decrease Keyboard Brightness"),
+                   PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_DOWN);
+
+    registerButton(Qt::Key_KeyboardLightOnOff,
+                   QLatin1String("Toggle Keyboard Backlight"),
+                   tr("Toggle Keyboard Backlight"),
+                   PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_TOGGLE);
+
+    registerButton(Qt::Key_ScreenSaver,
+                   QLatin1String("Lock Screen"),
+                   tr("Lock Screen"),
+                   PowerEvent::POWER_EVENT_PRESSED_LOCK);
+
+    m_buttonTimer->start();
+
+    connect(m_upowerClient.get(), &PowerUPower::lidIsClosedChanged, this, &PowerEventButton::processLidChanged);
+    connect(m_powerOffTimer, &QTimer::timeout, this, &PowerEventButton::emitPoweroffSignal);
 }
 
-bool PowerEventButton::register_button(uint32_t keysym, PowerEvent type)
+bool PowerEventButton::registerButton(const QKeySequence &key,
+                                      const QString &name,
+                                      const QString &displayName,
+                                      PowerEvent type)
 {
-    auto keycode = XKeysymToKeycode(this->xdisplay_, keysym);
-    if (keycode == 0)
-    {
-        KLOG_WARNING_POWER("Could not map keysym 0x%x to keycode", keysym);
-        return false;
-    }
+    QAction *globalAction = m_actionCollection->addAction(name);
+    globalAction->setText(displayName);
+    connect(globalAction, &QAction::triggered, this, [this, type]
+            { this->emitButtonSignal(type); });
 
-    KLOG_DEBUG_POWER("Keysym: 0x%08x, keycode: 0x%08x.", keysym, keycode);
-
-    auto keycode_str = fmt::format("0x{:x}", keycode);
-
-    auto iter = this->buttons_.emplace(keycode_str, type);
-    if (!iter.second)
-    {
-        KLOG_WARNING_POWER("Already exists keycode: %s.", keycode_str.c_str());
-        return false;
-    }
-
-    gdk_x11_display_error_trap_push(this->display_);
-
-    auto ret = XGrabKey(this->xdisplay_,
-                        keycode,
-                        AnyModifier,
-                        this->xroot_window_,
-                        True,
-                        GrabModeAsync,
-                        GrabModeAsync);
-    if (ret == BadAccess)
-    {
-        KLOG_WARNING_POWER("Failed to grab keycode: %d", (int32_t)keycode);
-        return false;
-    }
-
-    gdk_display_flush(this->display_);
-    gdk_x11_display_error_trap_pop_ignored(this->display_);
-
-    return true;
+    return KGlobalAccel::self()->setGlobalShortcut(globalAction, QList<QKeySequence>() << key);
 }
 
-bool PowerEventButton::on_poweroff_timeout()
+void PowerEventButton::emitPoweroffSignal()
 {
-    this->button_changed_.emit(POWER_EVENT_RELEASE_POWEROFF);
-    return false;
+    Q_EMIT buttonChanged(POWER_EVENT_PRESSED_POWEROFF);
+    m_powerOffTimer->stop();
 }
 
-void PowerEventButton::add_poweroff_timeout()
-{
-    if (!this->poweroff_timeout_id_)
-    {
-        this->poweroff_timeout_id_ = Glib::signal_timeout().connect(
-            sigc::mem_fun(this, &PowerEventButton::on_poweroff_timeout),
-            POWER_BUTTON_POWEROFF_TIMEOUT_MILLISECONDS);
-    }
-}
-
-void PowerEventButton::remove_poweroff_timeout()
-{
-    if (this->poweroff_timeout_id_)
-    {
-        this->poweroff_timeout_id_.disconnect();
-    }
-}
-
-void PowerEventButton::emit_button_signal(PowerEvent type)
+void PowerEventButton::emitButtonSignal(PowerEvent type)
 {
     // 仅电源按键事件延迟处理，避免单次点击电源按钮短时间触发多次按键事件，导致息屏又立即唤醒
-    if (type == POWER_EVENT_RELEASE_POWEROFF)
+    if (type == POWER_EVENT_PRESSED_POWEROFF)
     {
-        this->remove_poweroff_timeout();
-        this->add_poweroff_timeout();
+        m_powerOffTimer->start(POWER_BUTTON_POWEROFF_TIMEOUT_MILLISECONDS);
         return;
     }
 
-    unsigned long elapsed_msec;
-    if (this->button_signal_timer_.elapsed(elapsed_msec) < POWER_BUTTON_DUPLICATE_TIMEOUT)
+    if (m_buttonTimer->elapsed() < POWER_BUTTON_DUPLICATE_TIMEOUT)
     {
-        KLOG_DEBUG_POWER("Ignoring duplicate button %d", type);
+        KLOG_INFO(power) << "Ignoring duplicate button" << type;
         return;
     }
 
-    this->button_changed_.emit(type);
-    this->button_signal_timer_.reset();
+    Q_EMIT buttonChanged(type);
+    m_buttonTimer->restart();
 }
 
-void PowerEventButton::on_lid_is_closed_change(bool lid_is_closed)
+void PowerEventButton::processLidChanged(bool lidIsClosed)
 {
-    if (lid_is_closed)
+    if (lidIsClosed)
     {
-        this->button_changed_.emit(PowerEvent::POWER_EVENT_LID_CLOSED);
+        Q_EMIT buttonChanged(PowerEvent::POWER_EVENT_LID_CLOSED);
     }
     else
     {
-        this->button_changed_.emit(PowerEvent::POWER_EVENT_LID_OPEN);
+        Q_EMIT buttonChanged(PowerEvent::POWER_EVENT_LID_OPEN);
     }
-}
-
-GdkFilterReturn PowerEventButton::window_event(GdkXEvent *gdk_event, GdkEvent *event, gpointer data)
-{
-    auto button = static_cast<PowerEventButton *>(data);
-    XEvent *xevent = static_cast<XEvent *>(gdk_event);
-
-    if (xevent->xkey.keycode == XKeysymToKeycode(button->xdisplay_, XF86XK_PowerOff))
-    {
-        RETURN_VAL_IF_TRUE(xevent->type != KeyRelease, GDK_FILTER_CONTINUE);
-    }
-    else
-    {
-        RETURN_VAL_IF_TRUE(xevent->type != KeyPress, GDK_FILTER_CONTINUE);
-    }
-
-    auto keycode = xevent->xkey.keycode;
-    auto keycode_str = fmt::format("0x{:x}", keycode);
-
-    auto iter = button->buttons_.find(keycode_str);
-    if (iter == button->buttons_.end())
-    {
-        KLOG_DEBUG_POWER("Keycode %d not found.", keycode);
-        return GDK_FILTER_CONTINUE;
-    }
-
-    KLOG_DEBUG_POWER("Receipt keycode signal: %s, event type: %d.", keycode_str.c_str(), xevent->type);
-    button->emit_button_signal(iter->second);
-
-    return GDK_FILTER_REMOVE;
 }
 
 }  // namespace Kiran

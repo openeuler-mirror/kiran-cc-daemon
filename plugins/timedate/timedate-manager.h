@@ -1,177 +1,157 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include <timedate_dbus_stub.h>
+#pragma once
 
-#include <functional>
+#include <error-i.h>
+#include <QDBusContext>
+#include <QProcess>
+#include <QString>
+#include <QTranslator>
+#include <QVector>
+#include "dbus-types.h"
 
-#include "lib/dbus/dbus.h"
-#include "plugins/timedate/timedate-format.h"
+class TimeDateAdaptor;
+class QDBusInterface;
+class QFileSystemWatcher;
+class QProcess;
 
 namespace Kiran
 {
+class TimedateFormat;
+
 struct ZoneInfo
 {
-    std::string country_code;
-    std::string coordinates;
-    std::string tz;
+    QString countryCode;
+    QString coordinates;
+    QString tz;
 };
 
-class TimedateManager : public SystemDaemon::TimeDateStub
+class TimedateManager : public QObject,
+                        protected QDBusContext
 {
-private:
-    struct HWClockCall
-    {
-        Glib::RefPtr<Gio::DBus::MethodInvocation> invocation;
-        AuthManager::AuthCheckHandler handler;
-    };
+    Q_OBJECT
+
+    Q_PROPERTY(bool can_ntp READ getCanNTP)
+    Q_PROPERTY(int date_long_format_index READ getDateLongFormatIndex WRITE setDateLongFormatIndex)
+    Q_PROPERTY(int date_short_format_index READ getDateShortFormatIndex WRITE setDateShortFormatIndex)
+    Q_PROPERTY(int hour_format READ getHourFormat WRITE setHourFormat)
+    Q_PROPERTY(bool local_rtc READ getLocalRtc WRITE setLocalRtc)
+    Q_PROPERTY(bool ntp READ getNTP WRITE setNTP)
+    Q_PROPERTY(qulonglong rtc_time READ getRtcTime)
+    Q_PROPERTY(bool seconds_showing READ getSecondsShowing WRITE setSecondsShowing)
+    Q_PROPERTY(qulonglong system_time READ getSystemTime)
+    Q_PROPERTY(QString time_zone READ getTimeZone WRITE setTimeZone)
 
 public:
     TimedateManager();
     virtual ~TimedateManager();
 
-    static TimedateManager *get_instance() { return instance_; };
+    static TimedateManager *get_instance() { return m_instance; };
 
-    static void global_init();
+    static void globalInit();
+    static void globalDeinit() { delete m_instance; };
 
-    static void global_deinit() { delete instance_; };
+public:
+    bool getCanNTP() const { return m_ntpUnitName.length() > 0; };
+    int getDateLongFormatIndex() const;
+    int getDateShortFormatIndex() const;
+    int getHourFormat() const;
+    bool getLocalRtc() const { return m_localRtc; };
+    bool getNTP() const { return m_ntpActive; };
+    qulonglong getRtcTime() const;
+    bool getSecondsShowing() const;
+    qulonglong getSystemTime() const;
+    QString getTimeZone() const { return m_timeZone; };
 
-protected:
-    // 设置系统(软件)时间，如果relative为真，则设置相对时间，否则为绝对时间，时间单位为微妙
-    virtual void SetTime(gint64 requested_time,
-                         bool relative,
-                         MethodInvocation &invocation);
-    // 设置系统时区
-    virtual void SetTimezone(const Glib::ustring &time_zone,
-                             MethodInvocation &invocation);
+    void setDateLongFormatIndex(int index);
+    void setDateShortFormatIndex(int index);
+    void setHourFormat(int format);
+    void setLocalRtc(bool rtc);
+    void setNTP(bool active);
+    void setSecondsShowing(bool secondsShowing);
+    void setTimeZone(const QString &timeZone);
 
-    // 获取时区列表
-    virtual void GetZoneList(MethodInvocation &invocation);
-
-    // 调整硬件时钟设置，如果local为true则按本地时区进行存储，否则按UTC存储，adjust_system为true则将硬件时间同步到系统时间，否则将系统时间同步到硬件时间
-    virtual void SetLocalRTC(bool local,
-                             bool adjust_system,
-                             MethodInvocation &invocation);
-
-    // 是否开启网络时间同步
-    virtual void SetNTP(bool active, MethodInvocation &invocation);
-
-    // 获取可设置的日期时间格式列表，type参考TimedateFormatType
-    virtual void GetDateFormatList(gint32 type, MethodInvocation &invocation);
-
-    // 通过索引设置日期时间格式
-    virtual void SetDateFormatByIndex(gint32 type, gint32 index, MethodInvocation &invocation);
-
-    // 设置小时显示格式，format参考TimedateHourFormat
-    virtual void SetHourFormat(gint32 format, MethodInvocation &invocation);
-
+public Q_SLOTS:
     // 开启时间显示到秒
-    virtual void EnableSecondsShowing(bool enabled, MethodInvocation &invocation);
-
-    virtual bool time_zone_setHandler(const Glib::ustring &value);
-    virtual bool local_rtc_setHandler(bool value);
-    virtual bool can_ntp_setHandler(bool value) { return true; };
-    virtual bool ntp_setHandler(bool value);
-    virtual bool system_time_setHandler(guint64 value) { return true; };
-    virtual bool rtc_time_setHandler(guint64 value) { return true; };
-    virtual bool date_long_format_index_setHandler(gint32 value);
-    virtual bool date_short_format_index_setHandler(gint32 value);
-    virtual bool hour_format_setHandler(gint32 value);
-    virtual bool seconds_showing_setHandler(bool value);
-
-    virtual Glib::ustring time_zone_get() { return this->time_zone_; };
-    virtual bool local_rtc_get() { return this->local_rtc_; };
-    virtual bool can_ntp_get() { return this->ntp_unit_name_.length() > 0; };
-    virtual bool ntp_get() { return this->ntp_active_; };
-    virtual guint64 system_time_get();
-    virtual guint64 rtc_time_get();
-    virtual gint32 date_long_format_index_get();
-    virtual gint32 date_short_format_index_get();
-    virtual gint32 hour_format_get();
-    virtual bool seconds_showing_get();
+    void EnableSecondsShowing(bool enabled);
+    // 获取可设置的日期时间格式列表，type参考TimedateFormatType
+    QStringList GetDateFormatList(int type);
+    // 获取时区列表
+    DBusZoneInfos GetZoneList();
+    // 通过索引设置日期时间格式
+    void SetDateFormatByIndex(int type, int index);
+    // 设置小时显示格式，format参考TimedateHourFormat
+    void SetHourFormat(int format);
+    // 调整硬件时钟设置，如果local为true则按本地时区进行存储，否则按UTC存储，adjust_system为true则将硬件时间同步到系统时间，否则将系统时间同步到硬件时间
+    void SetLocalRTC(bool local, bool adjustSystem);
+    // 是否开启网络时间同步
+    void SetNTP(bool active);
+    // 设置系统(软件)时间，如果relative为真，则设置相对时间，否则为绝对时间，时间单位为微妙
+    void SetTime(qlonglong requestedTime, bool relative);
+    // 设置系统时区
+    void SetTimezone(const QString &timeZone);
 
 private:
     void init();
-    void init_ntp_units();
+    void initNTPUnits();
     // 获取可用的时间同步服务
-    std::vector<std::string> get_ntp_units();
+    QStringList getNTPUnits();
     // 开启NTP服务
-    bool start_ntp_unit(const std::string &name, CCErrorCode &error_code);
+    bool startNTPUnit(const QString &name, CCErrorCode &errorCode);
     // 停止NTP服务
-    bool stop_ntp_unit(const std::string &name, CCErrorCode &error_code);
+    bool stopNTPUnit(const QString &name, CCErrorCode &errorCode);
     // NTP服务是否开启
-    bool ntp_is_active();
+    bool ntpIsActive();
 
+    QString getUnitObjectPath();
+
+    QVector<ZoneInfo> getZoneInfos();
+
+    QDBusMessage callSystemd(const QString &methodName, const QList<QVariant> &arguments);
+    bool callSystemdNoresult(const QString &methodName, const QList<QVariant> &arguments);
+
+    bool syncHWClock(bool hctosys, bool local, bool utc);
+    void funishSetTime(const QDBusMessage &message, int64_t requestTime, int64_t requestedTime, bool relative);
+
+    void setLocaltimeFileContext(const QString &path);
+    void updateKernelUtcOffset();
+    bool checkTimezoneName(const QString &name);
+    void finishSetTimezone(const QDBusMessage &message, const QString &timeZone);
+    void finishSetRtcLocal(const QDBusMessage &message, bool local, bool adjustSystem);
+    void finishSetNTPActive(const QDBusMessage &message, bool active);
+
+private Q_SLOTS:
     // 监控信号变化处理
-    void ntp_unit_props_changed(const Gio::DBus::Proxy::MapChangedProperties &changed_properties, const std::vector<Glib::ustring> &invalidated_properties);
-    void time_zone_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
-    void adjtime_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
-    void ntp_unit_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
-
-    std::string get_unit_object_path();
-
-    std::vector<ZoneInfo> get_zone_infos();
-
-    Glib::VariantContainerBase call_systemd(const std::string &method_name, const Glib::VariantContainerBase &parameters);
-    bool call_systemd_noresult(const std::string &method_name, const Glib::VariantContainerBase &parameters);
-
-    static void finish_hwclock_call(GPid pid, gint status, gpointer user_data);
-    void start_hwclock_call(bool hctosys,
-                            bool local,
-                            bool utc,
-                            Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
-                            AuthManager::AuthCheckHandler handler);
-
-    void funish_set_time(MethodInvocation invocation, int64_t request_time, int64_t requested_time, bool relative);
-
-    void set_localtime_file_context(const std::string &path);
-    void update_kernel_utc_offset();
-    bool check_timezone_name(const std::string &name);
-    void finish_set_timezone(MethodInvocation invocation, std::string time_zone);
-
-    void finish_set_rtc_local_hwclock(MethodInvocation invocation, bool local);
-    void finish_set_rtc_local(MethodInvocation invocation, bool local, bool adjust_system);
-
-    void finish_set_ntp_active(MethodInvocation invocation, bool active);
-
-    void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
+    void processNTPUnitPropsChanged(const QDBusMessage &message);
+    void processFilesChanged(const QString &path);
+    void processDirectoryChanged(const QString &path);
+    void processHWSyncFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    static TimedateManager *instance_;
+    static TimedateManager *m_instance;
 
-    const static std::vector<std::string> ntp_units_paths_;
-
-    uint32_t dbus_connect_id_;
-
-    uint32_t object_register_id_;
-
-    Glib::RefPtr<Gio::DBus::Proxy> systemd_proxy_;
-    Glib::RefPtr<Gio::DBus::Proxy> polkit_proxy_;
-
-    std::string ntp_unit_name_;
-    Glib::RefPtr<Gio::DBus::Proxy> ntp_unit_proxy_;
-
-    Glib::RefPtr<Gio::FileMonitor> tz_monitor_;
-    Glib::RefPtr<Gio::FileMonitor> adjtime_monitor_;
-    std::vector<Glib::RefPtr<Gio::FileMonitor>> ntp_unit_monitors_;
-
-    std::string time_zone_;
-    bool local_rtc_;
-    bool ntp_active_;
-
-    TimedateFormat timedate_format_;
+    TimeDateAdaptor *m_adaptor;
+    TimedateFormat *m_timedateFormat;
+    QDBusInterface *m_ntpUnitInterface;
+    QFileSystemWatcher *m_fileWatcher;
+    QTranslator *m_tzTranslator;
+    const static QStringList m_ntpUnitsPaths;
+    QString m_ntpUnitName;
+    QString m_timeZone;
+    bool m_localRtc;
+    bool m_ntpActive;
+    QProcess *m_hwSyncProcess;
 };
 }  // namespace Kiran

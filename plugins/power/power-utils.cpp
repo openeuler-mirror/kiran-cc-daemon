@@ -1,54 +1,51 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/power-utils.h"
-
-#include <fmt/format.h>
-#include <glib/gi18n.h>
+#include "power-utils.h"
 #include <power-i.h>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
-std::string PowerUtils::get_time_translation(uint32_t seconds)
+QString PowerUtils::getTimeTranslation(uint32_t seconds)
 {
     auto minutes = seconds / 60;
 
-    RETURN_VAL_IF_TRUE(minutes == 0, _("Less than 1 minute"));
+    RETURN_VAL_IF_TRUE(minutes == 0, tr("Less than 1 minute"));
 
     if (minutes < 60)
     {
-        return fmt::format(ngettext("{0} minute", "{0} minutes", minutes), minutes);
+        auto minutesTranslation = (minutes <= 1) ? tr("%1 minute") : tr("%1 minutes");
+        return QString(minutesTranslation).arg(minutes);
     }
 
     auto hours = minutes / 60;
     minutes = minutes % 60;
 
+    auto minutesTranslation = (minutes <= 1) ? tr("%1 minute") : tr("%1 minutes");
+    auto hoursTranslation = (hours <= 1) ? tr("%1 hour") : tr("%1 hours");
     if (minutes == 0)
     {
-        return fmt::format(ngettext("{0} hour", "{0} hours", hours), hours);
+        return QString(hoursTranslation).arg(hours);
     }
     else
     {
-        return fmt::format("{0} {1} {2} {3}",
-                           hours,
-                           ngettext("hour", "hours", hours),
-                           minutes,
-                           ngettext("minute", "minutes", minutes));
+        return QString("%1 %2").arg(hoursTranslation).arg(minutesTranslation);
     }
 }
 
-std::string PowerUtils::action_enum2str(uint32_t action)
+QString PowerUtils::actionEnum2str(uint32_t action)
 {
     switch (action)
     {
@@ -73,7 +70,7 @@ std::string PowerUtils::action_enum2str(uint32_t action)
     };
 }
 
-std::string PowerUtils::event_enum2str(uint32_t event)
+QString PowerUtils::eventEnum2str(uint32_t event)
 {
     switch (event)
     {
@@ -97,8 +94,6 @@ std::string PowerUtils::event_enum2str(uint32_t event)
         return "kbd bright toggle pressed";
     case PowerEvent::POWER_EVENT_PRESSED_LOCK:
         return "lock pressed";
-    case PowerEvent::POWER_EVENT_PRESSED_BATTERY:
-        return "battery pressed";
     case PowerEvent::POWER_EVENT_BATTERY_CHARGE_ACTION:
         return "battery charge action";
     default:
@@ -106,7 +101,7 @@ std::string PowerUtils::event_enum2str(uint32_t event)
     }
 }
 
-std::string PowerUtils::device_enum2str(uint32_t device)
+QString PowerUtils::deviceEnum2str(uint32_t device)
 {
     switch (device)
     {
@@ -123,7 +118,7 @@ std::string PowerUtils::device_enum2str(uint32_t device)
     }
 }
 
-std::string PowerUtils::supply_enum2str(uint32_t supply)
+QString PowerUtils::supplyEnum2str(uint32_t supply)
 {
     switch (supply)
     {

@@ -1,0 +1,5 @@
+{
+    "id": "touchpad",
+    "description": "used for touchpad settings",
+    "enabled": true
+}

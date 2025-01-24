@@ -22,7 +22,7 @@
         <method name="GetIdleAction">
             <arg type="i" name="device" direction="in" />
             <arg type="i" name="supply" direction="in" />
-            <arg type="(ii)" name="idle_action" direction="out">
+            <arg type="s" name="idle_action" direction="out">
                 <description>The field contains idle timeout and action.</description>
             </arg>
             <description>Get the idle action for the specified device on the supply.</description>

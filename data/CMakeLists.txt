@@ -2,137 +2,115 @@ cmake_minimum_required(VERSION 3.0)
 
 find_program(INTLTOOL-MERGE NAMES "intltool-merge" REQUIRED)
 
-# system-daemon
-if(build-system-daemon)
+# policy files
+file(GLOB POLICY_IN_FILES ${PROJECT_SOURCE_DIR}/data/*SystemDaemon*.policy.in)
 
-  # policy files
-  file(GLOB POLICY_IN_FILES ${PROJECT_SOURCE_DIR}/data/*SystemDaemon*.policy.in)
-
-  foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
-    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
-    execute_process(
-      COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE}
-              ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
-
-    install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
-            DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/polkit-1/actions/)
-  endforeach()
-
-  # service files
-  file(GLOB SERVICE_IN_FILES
-       ${PROJECT_SOURCE_DIR}/data/services/*SystemDaemon*service.in
-       ${PROJECT_SOURCE_DIR}/data/services/kiran-system-daemon.service.in)
-
-  foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
-    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
-    configure_file(${SERVICE_IN_FILE}
-                   ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE})
-  endforeach()
-
-  if(SYSTEMD_FOUND)
-    pkg_get_variable(SYSTEM_UNIT_DIR systemd systemdsystemunitdir)
-    message(STATUS "systemdsystemunitdir: ${SYSTEM_UNIT_DIR}")
-    install(
-      FILES ${PROJECT_BINARY_DIR}/data/services/kiran-system-daemon.service
-      DESTINATION ${SYSTEM_UNIT_DIR})
-  endif()
-
-  install(
-    FILES
-      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.service
-      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Accounts.service
-      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
-      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Greeter.service
-      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
-    DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/system-services)
-
-  # conf files
-  file(GLOB CONF_FILES ${PROJECT_SOURCE_DIR}/data/*.conf)
-
-  foreach(CONF_FILE IN LISTS CONF_FILES)
-    install(FILES ${CONF_FILE} DESTINATION ${SYSCONFDIR}/dbus-1/system.d)
-  endforeach()
-
-  # plugins configuration
-  configure_file(${PROJECT_SOURCE_DIR}/data/plugin_options.system.in
-                 ${PROJECT_BINARY_DIR}/data/plugin_options.system)
-  install(
-    FILES ${PROJECT_BINARY_DIR}/data/plugin_options.system
-    DESTINATION ${KCC_PLUGIN_DIR}/system
-    RENAME plugin_options)
-endif()
-
-# session-daemon
-if(build-session-daemon)
-
-  # policy files
-
-  # policy.ini.in files
+foreach(POLICY_IN_FILE IN LISTS POLICY_IN_FILES)
+  string(REGEX REPLACE ".+/(.+)\\..*" "\\1" POLICY_FILE ${POLICY_IN_FILE})
   execute_process(
-    COMMAND
-      ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/
-      ${PROJECT_SOURCE_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in.in
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in
-  )
-  configure_file(
-    ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in
-    ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy)
+    COMMAND ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/ ${POLICY_IN_FILE}
+            ${PROJECT_BINARY_DIR}/data/${POLICY_FILE})
 
-  install(
-    FILES
-      ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy
-    DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/polkit-1/actions/)
+  install(FILES ${PROJECT_BINARY_DIR}/data/${POLICY_FILE}
+          DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/polkit-1/actions/)
+endforeach()
 
-  # gschema.xml
-  file(GLOB SCHEMA_IN_FILES ${PROJECT_SOURCE_DIR}/data/schemas/*.gschema.xml.in)
+# service files
+file(GLOB SERVICE_IN_FILES
+     ${PROJECT_SOURCE_DIR}/data/services/*SystemDaemon*service.in
+     ${PROJECT_SOURCE_DIR}/data/services/kiran-system-daemon.service.in)
 
-  foreach(SCHEMA_IN_FILE IN LISTS SCHEMA_IN_FILES)
-    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SCHEMA_FILE ${SCHEMA_IN_FILE})
-    configure_file(${SCHEMA_IN_FILE}
-                   ${PROJECT_BINARY_DIR}/data/schemas/${SCHEMA_FILE})
+foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
+  string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
+  configure_file(${SERVICE_IN_FILE}
+                 ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE})
+endforeach()
 
-    install(FILES ${PROJECT_BINARY_DIR}/data/schemas/${SCHEMA_FILE}
-            DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/)
-  endforeach()
-
-  install(
-    CODE "execute_process(COMMAND glib-compile-schemas \"${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/\")"
-  )
-
-  # plugins configuration
-  configure_file(${PROJECT_SOURCE_DIR}/data/plugin_options.session.in
-                 ${PROJECT_BINARY_DIR}/data/plugin_options.session)
-  install(
-    FILES ${PROJECT_BINARY_DIR}/data/plugin_options.session
-    DESTINATION ${KCC_PLUGIN_DIR}/session
-    RENAME plugin_options)
-
-  # service files
-  file(GLOB SERVICE_IN_FILES
-       ${PROJECT_SOURCE_DIR}/data/services/*SessionDaemon*service.in)
-
-  foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
-    string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
-    configure_file(${SERVICE_IN_FILE}
-                   ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE})
-    install(FILES ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE}
-            DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/services)
-  endforeach()
-
-  # desktop files
-  configure_file(./kiran-session-daemon.desktop.in
-                 ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop)
-  install(FILES ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop
-          DESTINATION ${SYSCONFDIR}/xdg/autostart)
-
-  # keybindings
-  file(GLOB KEYBINDINGS_XML_FILES ${PROJECT_SOURCE_DIR}/data/keybindings/*.xml)
-
-  install(
-    FILES ${KEYBINDINGS_XML_FILES}
-    DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}/keybindings/)
-
+if(SYSTEMD_FOUND)
+  pkg_get_variable(SYSTEM_UNIT_DIR systemd systemdsystemunitdir)
+  message(STATUS "systemdsystemunitdir: ${SYSTEM_UNIT_DIR}")
+  install(FILES ${PROJECT_BINARY_DIR}/data/services/kiran-system-daemon.service
+          DESTINATION ${SYSTEM_UNIT_DIR})
 endif()
+
+install(
+  FILES
+    ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.service
+    ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Accounts.service
+    ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
+    ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Greeter.service
+    ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
+  DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/system-services)
+
+# conf files
+file(GLOB CONF_FILES ${PROJECT_SOURCE_DIR}/data/*.conf)
+
+foreach(CONF_FILE IN LISTS CONF_FILES)
+  install(FILES ${CONF_FILE}
+          DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/dbus-1/system.d)
+endforeach()
+
+# plugins configuration
+configure_file(${PROJECT_SOURCE_DIR}/data/plugin_options.system.in
+               ${PROJECT_BINARY_DIR}/data/plugin_options.system)
+install(
+  FILES ${PROJECT_BINARY_DIR}/data/plugin_options.system
+  DESTINATION ${KCD_PLUGIN_DIR}/system
+  RENAME plugin_options)
+
+# policy.ini.in files
+execute_process(
+  COMMAND
+    ${INTLTOOL-MERGE} -x ${PROJECT_SOURCE_DIR}/po/
+    ${PROJECT_SOURCE_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in.in
+    ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in)
+configure_file(
+  ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy.in
+  ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy)
+
+install(
+  FILES ${PROJECT_BINARY_DIR}/data/com.kylinsec.Kiran.SessionDaemon.Power.policy
+  DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/polkit-1/actions/)
+
+# gschema.xml
+file(GLOB SCHEMA_IN_FILES ${PROJECT_SOURCE_DIR}/data/schemas/*.gschema.xml.in)
+
+foreach(SCHEMA_IN_FILE IN LISTS SCHEMA_IN_FILES)
+  string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SCHEMA_FILE ${SCHEMA_IN_FILE})
+  configure_file(${SCHEMA_IN_FILE}
+                 ${PROJECT_BINARY_DIR}/data/schemas/${SCHEMA_FILE})
+
+  install(FILES ${PROJECT_BINARY_DIR}/data/schemas/${SCHEMA_FILE}
+          DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/)
+endforeach()
+
+install(
+  CODE "execute_process(COMMAND glib-compile-schemas \"${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/\")"
+)
+
+# service files
+file(GLOB SERVICE_IN_FILES
+     ${PROJECT_SOURCE_DIR}/data/services/*SessionDaemon*service.in)
+
+foreach(SERVICE_IN_FILE IN LISTS SERVICE_IN_FILES)
+  string(REGEX REPLACE ".+/(.+)\\..*" "\\1" SERVICE_FILE ${SERVICE_IN_FILE})
+  configure_file(${SERVICE_IN_FILE}
+                 ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE})
+  install(FILES ${PROJECT_BINARY_DIR}/data/services/${SERVICE_FILE}
+          DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/services)
+endforeach()
+
+# desktop files
+configure_file(./kiran-session-daemon.desktop.in
+               ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop)
+install(FILES ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop
+        DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/autostart)
+
+# keybindings
+file(GLOB KEYBINDINGS_XML_FILES ${PROJECT_SOURCE_DIR}/data/keybindings/*.xml)
+
+install(FILES ${KEYBINDINGS_XML_FILES}
+        DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}/keybindings/)
 
 # include files
 install(
@@ -140,7 +118,7 @@ install(
         ${PROJECT_SOURCE_DIR}/include/timedate-i.h
         ${PROJECT_SOURCE_DIR}/include/greeter-i.h
         ${PROJECT_SOURCE_DIR}/include/systeminfo-i.h
-  DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-system-daemon)
+  DESTINATION ${KCD_INSTALL_INCLUDE}/kiran-system-daemon)
 
 install(
   FILES ${PROJECT_SOURCE_DIR}/include/audio-i.h
@@ -148,7 +126,6 @@ install(
         ${PROJECT_SOURCE_DIR}/include/appearance-i.h
         ${PROJECT_SOURCE_DIR}/include/display-i.h
         ${PROJECT_SOURCE_DIR}/include/keybinding-i.h
-        ${PROJECT_SOURCE_DIR}/include/media-keys-i.h
         ${PROJECT_SOURCE_DIR}/include/keyboard-i.h
         ${PROJECT_SOURCE_DIR}/include/mouse-i.h
         ${PROJECT_SOURCE_DIR}/include/power-i.h
@@ -156,10 +133,10 @@ install(
         ${PROJECT_SOURCE_DIR}/include/xsettings-i.h
         ${PROJECT_SOURCE_DIR}/include/network-i.h
         ${PROJECT_SOURCE_DIR}/include/clipboard-i.h
-  DESTINATION ${KCC_INSTALL_INCLUDE}/kiran-session-daemon)
+  DESTINATION ${KCD_INSTALL_INCLUDE}/kiran-session-daemon)
 
 install(FILES ${PROJECT_SOURCE_DIR}/include/error-i.h
-        DESTINATION ${KCC_INSTALL_INCLUDE})
+        DESTINATION ${KCD_INSTALL_INCLUDE})
 
 # pc file
 file(GLOB PC_IN_FILES ${PROJECT_SOURCE_DIR}/data/*.pc.in)

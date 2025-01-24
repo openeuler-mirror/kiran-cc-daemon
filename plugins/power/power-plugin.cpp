@@ -1,64 +1,48 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/power-plugin.h"
-
-#include <gtk3-log-i.h>
-#include "plugins/power/backlight/power-backlight.h"
-#include "plugins/power/event/power-event-control.h"
-#include "plugins/power/idle/power-idle-control.h"
-#include "plugins/power/notification/power-notification-manager.h"
-#include "plugins/power/power-manager.h"
-#include "plugins/power/save/power-save.h"
-#include "plugins/power/tray/power-tray.h"
-#include "plugins/power/wrapper/power-wrapper-manager.h"
-
-PLUGIN_EXPORT_FUNC_DEF(PowerPlugin);
+#include "power-plugin.h"
+#include "backlight/power-backlight.h"
+#include "event/power-event-control.h"
+#include "idle/power-idle-control.h"
+#include "notification/power-notification-manager.h"
+#include "power-manager.h"
+#include "save/power-save.h"
+#include "wrapper/power-wrapper-manager.h"
 
 namespace Kiran
 {
-PowerPlugin::PowerPlugin()
-{
-}
-
-PowerPlugin::~PowerPlugin()
-{
-}
 
 void PowerPlugin::activate()
 {
-    KLOG_DEBUG_POWER("Active power plugin.");
-
-    PowerWrapperManager::global_init();
-    PowerBacklight::global_init();
-    PowerManager::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
-    PowerSave::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
-    PowerIdleControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
-    PowerEventControl::global_init(PowerWrapperManager::get_instance(), PowerBacklight::get_instance());
-    PowerNotificationManager::global_init(PowerWrapperManager::get_instance());
+    PowerWrapperManager::globalInit();
+    PowerBacklight::globalInit();
+    PowerManager::globalInit(PowerWrapperManager::getInstance(), PowerBacklight::getInstance());
+    PowerSave::globalInit(PowerWrapperManager::getInstance(), PowerBacklight::getInstance());
+    PowerIdleControl::globalInit(PowerWrapperManager::getInstance(), PowerBacklight::getInstance());
+    PowerEventControl::globalInit(PowerWrapperManager::getInstance(), PowerBacklight::getInstance());
+    PowerNotificationManager::globalInit(PowerWrapperManager::getInstance());
 }
 
 void PowerPlugin::deactivate()
 {
-    KLOG_DEBUG_POWER("Deactive power plugin.");
-
-    PowerNotificationManager::global_deinit();
-    PowerEventControl::global_deinit();
-    PowerIdleControl::global_deinit();
-    PowerSave::global_deinit();
-    PowerManager::global_deinit();
-    PowerBacklight::global_deinit();
-    PowerWrapperManager::global_deinit();
+    PowerNotificationManager::globalDeinit();
+    PowerEventControl::globalDeinit();
+    PowerIdleControl::globalDeinit();
+    PowerSave::globalDeinit();
+    PowerManager::globalDeinit();
+    PowerBacklight::globalDeinit();
+    PowerWrapperManager::globalDeinit();
 }
 }  // namespace Kiran

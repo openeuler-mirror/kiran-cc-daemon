@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -23,16 +23,13 @@ public:
     XSettingsUtils(){};
     virtual ~XSettingsUtils(){};
 
-    static double get_dpi_from_x_server();
-    static int get_window_scale_auto();
-
-    static bool update_user_env_variable(const std::string &variable,
-                                         const std::string &value,
-                                         std::string &error);
-
-    static double format_scale_dpi(int32_t scale, double dpi);
+    static double getDPIFromXServer();
+    static int getWindowScaleAuto();
+    static bool updateUserEnvVariable(const QString &variable, const QString &value);
+    static double formatScaleDPI(int32_t scale, double dpi);
 
 private:
-    static double dpi_from_pixels_and_mm(int pixels, int mm);
+    static double
+    dpiFromPixelsAndMm(int pixels, int mm);
 };
 }  // namespace Kiran

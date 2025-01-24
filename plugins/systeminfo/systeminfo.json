@@ -1,0 +1,5 @@
+{
+    "id": "systeminfo",
+    "description": "used for systeminfo settings",
+    "enabled": true
+}

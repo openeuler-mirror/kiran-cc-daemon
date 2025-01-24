@@ -40,4 +40,4 @@ target_include_directories(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${KSD_LINKER_FLAGS} lib-base)
 
-install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/session)
+install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

@@ -1,21 +1,25 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/accounts/accounts-util.h"
-
-#include <fcntl.h>
-#include <glib/gi18n.h>
+#include "accounts-util.h"
+#include <glib.h>
+#include <unistd.h>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QFile>
+#include <QProcess>
+#include <QTextStream>
 
 enum CommandExitStatus
 {
@@ -56,226 +60,202 @@ enum CommandExitStatus
 
 namespace Kiran
 {
-bool AccountsUtil::get_caller_pid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, GPid &pid)
+bool AccountsUtil::getCallerPID(const QDBusMessage &message, uint32_t &pid)
 {
-    guint32 pid_as_int;
-    auto dbus_proxy = Gio::DBus::Proxy::create_sync(invocation->get_connection(),
-                                                    "org.freedesktop.DBus",
-                                                    "/org/freedesktop/DBus",
-                                                    "org.freedesktop.DBus");
-
-    if (dbus_proxy)
+    auto sendMessage = QDBusMessage::createMethodCall("org.freedesktop.DBus",
+                                                      "/org/freedesktop/DBus",
+                                                      "org.freedesktop.DBus",
+                                                      "GetConnectionUnixProcessID");
+    sendMessage << message.service();
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        try
-        {
-            auto result = dbus_proxy->call_sync("GetConnectionUnixProcessID",
-                                                Glib::VariantContainerBase(g_variant_new("(s)", invocation->get_sender().c_str())),
-                                                -1);
-
-            g_variant_get(result.gobj(), "(u)", &pid_as_int);
-            pid = pid_as_int;
-        }
-        catch (const Glib::Error &e)
-        {
-            KLOG_WARNING_ACCOUNTS("Failed to call GetConnectionUnixProcessID: %s", e.what().c_str());
-            return false;
-        }
-    }
-    else
-    {
-        KLOG_WARNING_ACCOUNTS("Failed to create dbus proxy for org.freedesktop.DBus");
+        KLOG_WARNING(accounts) << "Call GetConnectionUnixProcessID failed: " << replyMessage.errorMessage();
         return false;
     }
-
+    pid = replyMessage.arguments().takeFirst().toUInt();
     return true;
 }
 
-bool AccountsUtil::get_caller_uid(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, int32_t &uid)
+bool AccountsUtil::getCallerUID(const QDBusMessage &message, uint32_t &uid)
 {
-    auto dbus_proxy = Gio::DBus::Proxy::create_sync(invocation->get_connection(),
-                                                    "org.freedesktop.DBus",
-                                                    "/org/freedesktop/DBus",
-                                                    "org.freedesktop.DBus");
-
-    if (dbus_proxy)
+    auto sendMessage = QDBusMessage::createMethodCall("org.freedesktop.DBus",
+                                                      "/org/freedesktop/DBus",
+                                                      "org.freedesktop.DBus",
+                                                      "GetConnectionUnixUser");
+    sendMessage << message.service();
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        try
-        {
-            auto result = dbus_proxy->call_sync("GetConnectionUnixUser",
-                                                Glib::VariantContainerBase(g_variant_new("(s)", invocation->get_sender().c_str())),
-                                                -1);
-
-            g_variant_get(result.gobj(), "(u)", &uid);
-        }
-        catch (const Glib::Error &e)
-        {
-            KLOG_WARNING_ACCOUNTS("Failed to call GetConnectionUnixUser: %s", e.what().c_str());
-            return false;
-        }
-    }
-    else
-    {
-        KLOG_WARNING_ACCOUNTS("Failed to create dbus proxy for org.freedesktop.DBus");
+        KLOG_WARNING(accounts) << "Call GetConnectionUnixUser failed: " << replyMessage.errorMessage();
         return false;
     }
-
+    uid = replyMessage.arguments().takeFirst().toUInt();
     return true;
 }
 
-void AccountsUtil::get_caller_loginuid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation, std::string &loginuid)
+void AccountsUtil::getCallerLoginUID(const QDBusMessage &message, QString &loginUID)
 {
-    GPid pid;
-    int32_t uid;
+    uint32_t pid = 0;
+    uint32_t uid = 0;
 
-    if (!AccountsUtil::get_caller_uid(invocation, uid))
+    if (!AccountsUtil::getCallerUID(message, uid))
     {
         uid = getuid();
     }
 
-    if (AccountsUtil::get_caller_pid(invocation, pid))
+    if (AccountsUtil::getCallerPID(message, pid))
     {
-        auto path = fmt::format("/proc/{0}/loginuid", (int)pid);
-        try
+        auto path = QString("/proc/%1/loginuid").arg(pid);
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            loginuid = Glib::file_get_contents(path);
+            KLOG_WARNING(accounts) << "Cannot access file " << path;
+            return;
         }
-        catch (const Glib::FileError &e)
+
+        QTextStream in(&file);
+        loginUID = in.readLine();
+    }
+
+    if (loginUID.isEmpty())
+    {
+        loginUID = QString("%1").arg(uid);
+    }
+}
+
+class SetupChildProcess : public QProcess
+{
+public:
+    SetupChildProcess(const QString &loginUID) : m_loginUID(loginUID){};
+
+protected:
+    virtual void setupChildProcess()
+    {
+        QFile file("/proc/self/loginuid");
+        if (file.open(QIODevice::ReadWrite | QIODevice::Text))
         {
-            KLOG_DEBUG_ACCOUNTS("%s", e.what().c_str());
-            loginuid = fmt::format("{0}", uid);
+            QTextStream out(&file);
+            out << m_loginUID;
+            out.flush();
         }
+    };
+
+private:
+    QString m_loginUID;
+};
+
+bool AccountsUtil::spawnWithLoginUid(const QDBusMessage &message,
+                                     const QString &program,
+                                     const QStringList &arguments,
+                                     QString &error)
+{
+    QString loginUID;
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+
+    AccountsUtil::getCallerLoginUID(message, loginUID);
+
+    SetupChildProcess process(loginUID);
+    process.start(program, arguments);
+    process.waitForFinished();
+    auto standardError = process.readAllStandardError();
+    auto exitCode = process.exitCode();
+    auto command = QString("%1 %2").arg(program).arg(arguments.join(" "));
+
+    KLOG_INFO(accounts) << "The exitcode of command" << command << "is" << exitCode << ", exit status is" << process.exitStatus();
+
+    if (process.exitStatus() == QProcess::CrashExit)
+    {
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED;
     }
     else
     {
-        loginuid = fmt::format("{0}", uid);
-    }
-}
-
-void AccountsUtil::setup_loginuid(const std::string &id)
-{
-    auto fd = open("/proc/self/loginuid", O_WRONLY);
-    if (write(fd, id.c_str(), id.length()) != (int)id.length())
-    {
-        KLOG_WARNING_ACCOUNTS("Failed to write loginuid '%s'\n", id.c_str());
-    }
-    close(fd);
-}
-
-bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
-                                        const std::vector<std::string> argv,
-                                        std::string &error)
-{
-    std::string loginuid;
-    std::string standard_error;
-    int status;
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-
-    AccountsUtil::get_caller_loginuid(invocation, loginuid);
-
-    try
-    {
-        std::string working_directory;
-        Glib::spawn_sync(working_directory,
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         sigc::bind(&AccountsUtil::setup_loginuid, loginuid),
-                         nullptr,
-                         &standard_error,
-                         &status);
-    }
-    catch (const Glib::SpawnError &e)
-    {
-        KLOG_WARNING_ACCOUNTS("%s.", e.what().c_str());
-        error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_SYNC_FAILED;
+        AccountsUtil::parseExitStatus(exitCode, errorCode);
     }
 
-    KLOG_INFO_ACCOUNTS("The result of command %s is %d.", StrUtils::join(argv, " ").c_str(), status);
-
-    if (error_code == CCErrorCode::SUCCESS)
+    if (errorCode != CCErrorCode::SUCCESS)
     {
-        AccountsUtil::parse_exit_status(status, error_code);
-    }
-
-    if (error_code != CCErrorCode::SUCCESS)
-    {
-        error = CCError::get_error_desc(error_code, false);
-        if (!standard_error.empty())
+        error = CCError::getErrorDesc(errorCode, false);
+        if (!standardError.isEmpty())
         {
-            error += fmt::format(_(" ({0}, error code: 0x{1:x})"), StrUtils::rtrim(standard_error), int32_t(error_code));
+            error.append(tr(" (%1, error code: 0x%2)").arg(QString(standardError.trimmed())).arg(errorCode, 0, 16));
         }
         else
         {
-            error += fmt::format(_(" (error code: 0x{:x})"), int32_t(error_code));
+            error.append(tr(" (error code: 0x%1)").arg(errorCode, 0, 16));
         }
         return false;
     }
     return true;
 }
 
-bool AccountsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_code)
+bool AccountsUtil::parseExitStatus(int32_t exitStatus, CCErrorCode &errorCode)
 {
-    g_autoptr(GError) g_error = NULL;
-    if (!WIFEXITED(exit_status))
+    GError *gError = NULL;
+
+    if (!WIFEXITED(exitStatus))
     {
-        auto result = g_spawn_check_exit_status(exit_status, &g_error);
+        auto result = g_spawn_check_wait_status(exitStatus, &gError);
+
         if (!result)
         {
-            KLOG_WARNING_ACCOUNTS("%s.", g_error->message);
-            error_code = CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS;
+            KLOG_WARNING(accounts) << gError->message;
+            g_error_free(gError);
+            errorCode = CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS;
         }
         return result;
     }
-    switch (WEXITSTATUS(exit_status))
+    switch (WEXITSTATUS(exitStatus))
     {
     case COMMAND_EXIT_STATUS_SUCCESS:
         return true;
     case COMMAND_EXIT_STATUS_PW_UPDATE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_PW_UPDATE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_PW_UPDATE;
         break;
     case COMMAND_EXIT_STATUS_USAGE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_USAGE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_USAGE;
         break;
     case COMMAND_EXIT_STATUS_BAD_ARG:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_BAD_ARG;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_BAD_ARG;
         break;
     case COMMAND_EXIT_STATUS_UID_IN_USE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UID_IN_USE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UID_IN_USE;
         break;
     case COMMAND_EXIT_STATUS_BAD_PWFILE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_BAD_PWFILE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_BAD_PWFILE;
         break;
     case COMMAND_EXIT_STATUS_NOTFOUND:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NOTFOUND;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NOTFOUND;
         break;
     case COMMAND_EXIT_STATUS_USER_BUSY:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_USER_BUSY;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_USER_BUSY;
         break;
     case COMMAND_EXIT_STATUS_NAME_IN_USE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NAME_IN_USE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NAME_IN_USE;
         break;
     case COMMAND_EXIT_STATUS_GRP_UPDATE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_GRP_UPDATE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_GRP_UPDATE;
         break;
     case COMMAND_EXIT_STATUS_NOSPACE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NOSPACE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_NOSPACE;
         break;
     case COMMAND_EXIT_STATUS_HOMEDIR:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_HOMEDIR;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_HOMEDIR;
         break;
     case COMMAND_EXIT_STATUS_SE_UPDATE_1:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SE_UPDATE_1;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SE_UPDATE_1;
         break;
     case COMMAND_EXIT_STATUS_SE_UPDATE_2:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SE_UPDATE_2;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SE_UPDATE_2;
         break;
     case COMMAND_EXIT_STATUS_SUB_UID_UPDATE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SUB_UID_UPDATE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SUB_UID_UPDATE;
         break;
     case COMMAND_EXIT_STATUS_SUB_GID_UPDATE:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SUB_GID_UPDATE;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_SUB_GID_UPDATE;
         break;
     default:
-        error_code = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN;
+        errorCode = CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN;
         break;
     }
     return false;
