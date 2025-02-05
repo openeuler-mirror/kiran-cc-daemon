@@ -51,6 +51,7 @@
         </method>
 
         <method name="GetColor">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="DColor"/>
             <arg type="s" name="name" direction="in">
                 <summary>The XSettings Registry property name.</summary>
             </arg>
@@ -61,6 +62,7 @@
         </method>
 
         <method name="SetColor">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="DColor"/>
             <arg type="s" name="name" direction="in">
                 <summary>The XSettings Registry property name.</summary>
             </arg>

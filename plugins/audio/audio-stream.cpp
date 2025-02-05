@@ -1,57 +1,123 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/audio-stream.h"
-#include "plugins/audio/audio-utils.h"
+#include "audio-stream.h"
+#include "audio-utils.h"
+#include "lib/base/base.h"
+#include "pulse/pulse-stream.h"
+#include "streamadaptor.h"
 
 namespace Kiran
 {
-AudioStream::AudioStream(std::shared_ptr<PulseStream> stream) : stream_(stream),
-                                                                object_register_id_(0)
+AudioStream::AudioStream(QSharedPointer<PulseStream> stream) : m_stream(stream)
 {
-    this->mute_ = this->stream_->get_mute();
-    this->volume_ = AudioUtils::volume_absolute2range(this->stream_->get_volume(),
-                                                      this->stream_->get_min_volume(),
-                                                      this->stream_->get_max_volume());
-    this->stream_->signal_node_info_changed().connect(sigc::mem_fun(this, &AudioStream::on_node_info_changed_cb));
+    m_adaptor = new StreamAdaptor(this);
+
+    m_mute = m_stream->getMute();
+    m_volume = AudioUtils::volumeAbsolute2range(m_stream->getVolume(),
+                                                m_stream->getMinVolume(),
+                                                m_stream->getMaxVolume());
+
+    connect(qSharedPointerCast<PulseNode>(m_stream).data(), &PulseNode::nodeInfoChanged, this, &AudioStream::processNodeInfoChanged);
 }
 
 AudioStream::~AudioStream()
 {
-    this->dbus_unregister();
+    dbusUnregister();
 }
 
-bool AudioStream::init(const std::string &object_path_prefix)
+bool AudioStream::init(const QString &objectPathPrefix)
 {
-    RETURN_VAL_IF_FALSE(this->stream_, false);
+    RETURN_VAL_IF_FALSE(m_stream, false);
 
-    this->object_path_ = fmt::format("{0}{1}", object_path_prefix, this->stream_->get_index());
-    return this->dbus_register();
+    m_objectPath = QString("%1%2").arg(objectPathPrefix).arg(m_stream->getIndex());
+    return dbusRegister();
 }
 
-void AudioStream::SetVolume(double volume, MethodInvocation &invocation)
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                                \
+    QVariantMap changedProperties;                                                  \
+    changedProperties.insert(QStringLiteral(#property), this->get##propertyHump()); \
+                                                                                    \
+    QDBusMessage message = QDBusMessage::createSignal(                              \
+        this->m_objectPath,                                                         \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                          \
+        QStringLiteral("PropertiesChanged"));                                       \
+                                                                                    \
+    message.setArguments({                                                          \
+        QStringLiteral(AUDIO_STREAM_DBUS_INTERFACE_NAME),                           \
+        changedProperties,                                                          \
+        QStringList(),                                                              \
+    });                                                                             \
+                                                                                    \
+    QDBusConnection::sessionBus().send(message);
+
+void AudioStream::setMute(bool mute)
+{
+    if (m_mute != mute)
+    {
+        m_mute = mute;
+        SEND_PROPERTY_NOTIFY(mute, Mute)
+    }
+}
+void AudioStream::setVolume(double volume)
+{
+    if (std::fabs(m_volume - volume) > EPS)
+    {
+        m_volume = volume;
+        SEND_PROPERTY_NOTIFY(volume, Volume)
+    }
+}
+
+uint AudioStream::getIndex() const
+{
+    return m_stream->getIndex();
+}
+
+QString AudioStream::getName() const
+{
+    return m_stream->getName();
+}
+uint AudioStream::getState() const
+{
+    return m_stream->getFlags();
+}
+
+QString AudioStream::GetProperty(const QString &key)
+{
+    return m_stream->getProperty(key);
+}
+
+void AudioStream::SetMute(bool mute)
+{
+    if (!m_stream->setMute(mute))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED);
+    }
+}
+
+void AudioStream::SetVolume(double volume)
 {
     if (volume < 0 || volume > 1.0 + EPS)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_VOLUME_RANGE_INVLAID);
     }
 
-    auto volume_absolute = AudioUtils::volume_range2absolute(volume,
-                                                             this->stream_->get_min_volume(),
-                                                             this->stream_->get_max_volume());
+    auto volumeAbsolute = AudioUtils::volumeRange2absolute(volume,
+                                                           m_stream->getMinVolume(),
+                                                           m_stream->getMaxVolume());
 
-    if (!this->stream_->set_volume(volume_absolute))
+    if (!m_stream->setVolume(volumeAbsolute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_SET_VOLUME_FAILED);
     }
@@ -59,92 +125,46 @@ void AudioStream::SetVolume(double volume, MethodInvocation &invocation)
     // 如果音量大于0，则取消静音
     if (volume > EPS)
     {
-        this->stream_->set_mute(false);
+        m_stream->setMute(false);
     }
-
-    invocation.ret();
 }
 
-void AudioStream::SetMute(bool mute, MethodInvocation &invocation)
+bool AudioStream::dbusRegister()
 {
-    if (!this->stream_->set_mute(mute))
+    KLOG_INFO(audio) << "Register object path" << m_objectPath;
+
+    RETURN_VAL_IF_FALSE(m_stream, false);
+
+    auto sessionConnection = QDBusConnection::sessionBus();
+    if (!sessionConnection.registerObject(m_objectPath, AUDIO_STREAM_DBUS_INTERFACE_NAME, this))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_STREAM_SET_MUTE_FAILED);
-    }
-
-    invocation.ret();
-}
-
-void AudioStream::GetProperty(const Glib::ustring &key, MethodInvocation &invocation)
-{
-    auto value = this->stream_->get_property(key);
-    invocation.ret(value);
-}
-
-#define SET_COMMON_PROPERTY(property, type)                    \
-    bool AudioStream::property##_setHandler(type value)        \
-    {                                                          \
-        RETURN_VAL_IF_TRUE(this->property##_ == value, false); \
-        this->property##_ = value;                             \
-        return true;                                           \
-    }
-
-#define SET_DOUBLE_PROPERTY(property)                     \
-    bool AudioStream::property##_setHandler(double value) \
-    {                                                     \
-        if (std::fabs(this->property##_ - value) < EPS)   \
-        {                                                 \
-            return false;                                 \
-        }                                                 \
-        this->property##_ = value;                        \
-        return true;                                      \
-    }
-
-SET_COMMON_PROPERTY(mute, bool)
-SET_DOUBLE_PROPERTY(volume)
-
-bool AudioStream::dbus_register()
-{
-    KLOG_DEBUG_AUDIO("Register object path: %s.", this->object_path_.c_str());
-    RETURN_VAL_IF_FALSE(this->stream_, false);
-
-    try
-    {
-        this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SESSION);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING("Failed to get session bus: %s.", e.what().c_str());
+        KLOG_ERROR(audio) << "Can't register object:" << sessionConnection.lastError();
         return false;
     }
 
-    this->object_register_id_ = this->register_object(this->dbus_connect_, this->object_path_.c_str());
     return true;
 }
 
-void AudioStream::dbus_unregister()
+void AudioStream::dbusUnregister()
 {
-    KLOG_DEBUG_AUDIO("unregister object path: %s.", this->object_path_.c_str());
-    if (this->object_register_id_)
-    {
-        this->unregister_object();
-        this->object_register_id_ = 0;
-    }
+    auto sessionConnection = QDBusConnection::sessionBus();
+    sessionConnection.unregisterObject(m_objectPath);
 }
 
-void AudioStream::on_node_info_changed_cb(PulseNodeField field)
+void AudioStream::processNodeInfoChanged(int32_t field)
 {
     switch (field)
     {
     case PulseNodeField::PULSE_NODE_FIELD_MUTE:
-        this->mute_set(this->stream_->get_mute());
+        setMute(m_stream->getMute());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_VOLUME:
     {
-        auto volume_range = AudioUtils::volume_absolute2range(this->stream_->get_volume(),
-                                                              this->stream_->get_min_volume(),
-                                                              this->stream_->get_max_volume());
-        this->volume_set(volume_range);
+        auto volume = AudioUtils::volumeAbsolute2range(m_stream->getVolume(),
+                                                       m_stream->getMinVolume(),
+                                                       m_stream->getMaxVolume());
+
+        setVolume(volume);
         break;
     }
     default:

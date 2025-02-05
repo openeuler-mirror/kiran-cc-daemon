@@ -7,26 +7,30 @@ set(TARGET_NAME kiran-cc-test)
 file(GLOB_RECURSE TEST_H_FILES ./*.h)
 file(GLOB_RECURSE TEST_CPP_FILES ./*.cpp)
 
-gen_dbus_stub(
-  ACCOUNTS
-  accounts
-  com.kylinsec.
+set_source_files_properties(
   ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.xml
-)
-gen_dbus_stub(
-  USER
-  user
-  com.kylinsec.
+  PROPERTIES CLASSNAME AccountsProxy NO_NAMESPACE true)
+
+qt5_add_dbus_interface(
+  ACCOUNTS_SRCS
+  ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.xml
+  accounts_interface)
+
+set_source_files_properties(
   ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.User.xml
-)
+  PROPERTIES CLASSNAME UserProxy NO_NAMESPACE true)
 
-add_executable(${TARGET_NAME} ${TEST_H_FILES} ${TEST_CPP_FILES}
-                              ${ACCOUNTS_GENERATED_STUB} ${USER_GENERATED_STUB})
+qt5_add_dbus_interface(
+  USERS_SRCS
+  ${CMAKE_SOURCE_DIR}/plugins/accounts/com.kylinsec.Kiran.SystemDaemon.Accounts.User.xml
+  user_interface)
 
-target_include_directories(
-  ${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include
-                        ${PROJECT_BINARY_DIR}/generated ${GTEST_INCLUDE_DIRS})
+add_executable(${TARGET_NAME} ${CMAKE_SOURCE_DIR}/test/test-system-daemon.cpp
+                              ${ACCOUNTS_SRCS} ${USERS_SRCS})
 
-target_link_libraries(${TARGET_NAME} PRIVATE ${GTEST_LIBRARIES} lib-base)
+target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include
+                                                 ${CMAKE_BINARY_DIR})
+
+target_link_libraries(${TARGET_NAME} PRIVATE Qt5::Test kbase)
 
 add_test(NAME test COMMAND ${TARGET_NAME})

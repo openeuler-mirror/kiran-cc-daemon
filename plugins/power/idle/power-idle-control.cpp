@@ -1,135 +1,141 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/idle/power-idle-control.h"
-
-#include "plugins/power/save/power-save.h"
+#include "power-idle-control.h"
+#include <QGSettings>
+#include "../backlight/power-backlight.h"
+#include "../save/power-save.h"
+#include "../wrapper/power-upower.h"
+#include "../wrapper/power-wrapper-manager.h"
+#include "lib/base/base.h"
+#include "power-idle-timer.h"
 
 namespace Kiran
 {
-PowerIdleControl::PowerIdleControl(PowerWrapperManager* wrapper_manager,
-                                   PowerBacklight* backlight) : wrapper_manager_(wrapper_manager),
-                                                                backlight_(backlight),
-                                                                computer_idle_time_(0),
-                                                                display_idle_time_(0),
-                                                                display_dimmed_set_(false)
+PowerIdleControl::PowerIdleControl(PowerWrapperManager* wrapperManager,
+                                   PowerBacklight* backlight) : m_wrapperManager(wrapperManager),
+                                                                m_backlight(backlight),
+                                                                m_computerIdleTime(0),
+                                                                m_displayIdleTime(0),
+                                                                m_displayDimmedSet(false)
 {
-    this->upower_client_ = this->wrapper_manager_->get_default_upower();
-    power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
+    m_upowerClient = m_wrapperManager->getDefaultUpower();
+    m_idleTimer = new PowerIdleTimer(this);
+    m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
 }
 
 PowerIdleControl::~PowerIdleControl()
 {
 }
 
-PowerIdleControl* PowerIdleControl::instance_ = nullptr;
-void PowerIdleControl::global_init(PowerWrapperManager* wrapper_manager, PowerBacklight* backlight)
+PowerIdleControl* PowerIdleControl::m_instance = nullptr;
+void PowerIdleControl::globalInit(PowerWrapperManager* wrapperManager, PowerBacklight* backlight)
 {
-    instance_ = new PowerIdleControl(wrapper_manager, backlight);
-    instance_->init();
+    m_instance = new PowerIdleControl(wrapperManager, backlight);
+    m_instance->init();
 }
 
 void PowerIdleControl::init()
 {
-    this->idle_timer_.init();
-    this->update_idle_timer();
+    m_idleTimer->init();
+    updateIdleTimer();
 
-    this->upower_client_->signal_on_battery_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_battery_changed));
-    this->power_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_settings_changed));
-    this->idle_timer_.signal_mode_changed().connect(sigc::mem_fun(this, &PowerIdleControl::on_idle_mode_changed));
+    connect(m_upowerClient.get(), &PowerUPower::onBatteryChanged, this, &PowerIdleControl::processBatteryChanged);
+    connect(m_powerSettings, &QGSettings::changed, this, &PowerIdleControl::processSettingsChanged);
+    connect(m_idleTimer, &PowerIdleTimer::modeChanged, this, &PowerIdleControl::processIdleModeChanged);
 }
 
-void PowerIdleControl::update_idle_timer()
+void PowerIdleControl::updateIdleTimer()
 {
-    if (this->upower_client_->get_on_battery())
+    if (m_upowerClient->getOnBattery())
     {
-        this->computer_idle_time_ = this->power_settings_->get_int(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME);
-        this->computer_idle_action_ = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION));
+        m_computerIdleTime = m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME).toInt();
+        m_computerIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION).toInt());
 
-        this->display_idle_time_ = this->power_settings_->get_int(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME);
-        this->display_idle_action_ = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION));
+        m_displayIdleTime = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME).toInt();
+        m_displayIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION).toInt());
     }
     else
     {
-        this->computer_idle_time_ = this->power_settings_->get_int(POWER_SCHEMA_COMPUTER_AC_IDLE_TIME);
-        this->computer_idle_action_ = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION));
+        m_computerIdleTime = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_TIME).toInt();
+        m_computerIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION).toInt());
 
-        this->display_idle_time_ = this->power_settings_->get_int(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME);
-        this->display_idle_action_ = PowerAction(this->power_settings_->get_enum(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION));
+        m_displayIdleTime = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME).toInt();
+        m_displayIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION).toInt());
     }
 
-    this->idle_timer_.set_idle_timeout(PowerIdleMode::POWER_IDLE_MODE_BLANK, this->display_idle_time_);
-    this->idle_timer_.set_idle_timeout(PowerIdleMode::POWER_IDLE_MODE_SLEEP, this->computer_idle_time_);
+    m_idleTimer->setIdleTimeout(PowerIdleMode::POWER_IDLE_MODE_BLANK, m_displayIdleTime);
+    m_idleTimer->setIdleTimeout(PowerIdleMode::POWER_IDLE_MODE_SLEEP, m_computerIdleTime);
 }
 
-void PowerIdleControl::switch_to_normal()
+void PowerIdleControl::switchToNormal()
 {
-    std::string error;
+    QString error;
 
     // 正常状态下退出显示器的节能模式
-    if (!PowerSave::get_instance()->do_save(PowerAction::POWER_ACTION_DISPLAY_ON, error))
+    if (!PowerSave::getInstance()->doSave(PowerAction::POWER_ACTION_DISPLAY_ON, error))
     {
-        KLOG_WARNING_POWER("%s", error.c_str());
+        KLOG_WARNING(power) << error;
     }
 
     // 之前如果设置过变暗操作，则进行恢复
-    if (this->display_dimmed_set_)
+    if (m_displayDimmedSet)
     {
-        PowerSave::get_instance()->do_display_restore_dimmed();
-        this->display_dimmed_set_ = false;
+        PowerSave::getInstance()->doDisplayRestoreDimmed();
+        m_displayDimmedSet = false;
     }
 }
 
-void PowerIdleControl::switch_to_dim()
+void PowerIdleControl::switchToDim()
 {
-    auto display_idle_dimmed_enabled = this->power_settings_->get_boolean(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED);
+    auto display_idle_dimmed_enabled = m_powerSettings->get(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED).toBool();
     // 这里必须要判断当前是否处于变暗状态。如果当前已经处于变暗状态，调用do_display_dimmed函数会导致display_dimmed_set_置为false。
-    if (display_idle_dimmed_enabled && !PowerSave::get_instance()->is_display_dimmed())
+    if (display_idle_dimmed_enabled && !PowerSave::getInstance()->isDisplayDimmed())
     {
-        this->display_dimmed_set_ = PowerSave::get_instance()->do_display_dimmed();
+        m_displayDimmedSet = PowerSave::getInstance()->doDisplayDimmed();
     }
 }
 
-void PowerIdleControl::switch_to_blank()
+void PowerIdleControl::switchToBlank()
 {
-    std::string error;
+    QString error;
 
-    if (!PowerSave::get_instance()->do_save(this->display_idle_action_, error))
+    if (!PowerSave::getInstance()->doSave(m_displayIdleAction, error))
     {
-        KLOG_WARNING_POWER("%s", error.c_str());
+        KLOG_WARNING(power) << error;
     }
 }
 
-void PowerIdleControl::switch_to_sleep()
+void PowerIdleControl::switchToSleep()
 {
-    std::string error;
+    QString error;
 
-    if (!PowerSave::get_instance()->do_save(this->computer_idle_action_, error))
+    if (!PowerSave::getInstance()->doSave(m_computerIdleAction, error))
     {
-        KLOG_WARNING_POWER("%s", error.c_str());
+        KLOG_WARNING(power) << error;
     }
 }
 
-void PowerIdleControl::on_battery_changed(bool)
+void PowerIdleControl::processBatteryChanged(bool)
 {
     // 电池/电源切换时，空闲超时参数需要重新设置
-    this->update_idle_timer();
+    updateIdleTimer();
 }
 
-void PowerIdleControl::on_settings_changed(const Glib::ustring& key)
+void PowerIdleControl::processSettingsChanged(const QString& key)
 {
-    switch (shash(key.c_str()))
+    switch (shash(key.toLatin1().data()))
     {
     case CONNECT(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME, _hash):
     case CONNECT(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION, _hash):
@@ -139,26 +145,26 @@ void PowerIdleControl::on_settings_changed(const Glib::ustring& key)
     case CONNECT(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION, _hash):
     case CONNECT(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME, _hash):
     case CONNECT(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION, _hash):
-        this->update_idle_timer();
+        updateIdleTimer();
         break;
     }
 }
 
-void PowerIdleControl::on_idle_mode_changed(PowerIdleMode mode)
+void PowerIdleControl::processIdleModeChanged(int mode)
 {
     switch (mode)
     {
     case PowerIdleMode::POWER_IDLE_MODE_NORMAL:
-        this->switch_to_normal();
+        switchToNormal();
         break;
     case PowerIdleMode::POWER_IDLE_MODE_DIM:
-        this->switch_to_dim();
+        switchToDim();
         break;
     case PowerIdleMode::POWER_IDLE_MODE_BLANK:
-        this->switch_to_blank();
+        switchToBlank();
         break;
     case PowerIdleMode::POWER_IDLE_MODE_SLEEP:
-        this->switch_to_sleep();
+        switchToSleep();
         break;
     default:
         break;

@@ -1,431 +1,426 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/appearance/theme/theme-monitor.h"
+#include "theme-monitor.h"
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QIcon>
+#include <QSignalBlocker>
+#include <QStandardPaths>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
-ThemeMonitorInfo::ThemeMonitorInfo(Glib::RefPtr<Gio::FileMonitor> monitor,
-                                   ThemeMonitorType type,
+ThemeMonitorInfo::ThemeMonitorInfo(ThemeMonitorType type,
                                    int32_t priority,
-                                   const std::string &path) : monitor_(monitor),
-                                                              type_(type),
-                                                              priority_(priority),
-                                                              path_(path)
+                                   const QString &path) : m_type(type),
+                                                          m_priority(priority),
+                                                          m_path(path)
 {
 }
 
-ThemeMonitor::ThemeMonitor()
+ThemeMonitor::ThemeMonitor(QObject *parent) : QObject(parent)
 {
+    m_filesWatcher = new QFileSystemWatcher(this);
 }
 
 void ThemeMonitor::init()
 {
-    std::string themes_dir;
+    auto dataDirs = QStandardPaths::standardLocations(QStandardPaths::StandardLocation::GenericDataLocation);
 
-    // meta主题目录
-    themes_dir = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{Glib::get_user_data_dir(), "themes"});
-    this->add_meta_theme_parent_monitor(themes_dir, 0);
+    // 等初始化后再发射信号
+    QSignalBlocker blocker(this);
 
-    themes_dir = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{Glib::get_home_dir(), ".themes"});
-    this->add_meta_theme_parent_monitor(themes_dir, 1);
-
-    int32_t i = 2;
-    for (const auto &iter : Glib::get_system_data_dirs())
+    // 第一个为${HOME}/.local/share
+    if (dataDirs.size() > 0)
     {
-        themes_dir = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{iter, "themes"});
-        this->add_meta_theme_parent_monitor(themes_dir, i++);
+        auto themeDir = QString("%1/%2").arg(dataDirs[0], "themes");
+        addMetaThemeParent(themeDir, 0);
     }
 
-    // 图标主题目录
-    auto icon_theme = Gtk::IconTheme::get_default();
-    i = 0;
-    for (auto &icon_path : icon_theme->get_search_path())
+    auto homeThemeDir = QString("%1/%2").arg(QDir::homePath()).arg(".themes");
+    addMetaThemeParent(homeThemeDir, 1);
+
+    for (int i = 1; i < dataDirs.size(); ++i)
     {
-        this->add_icon_theme_parent_monitor(icon_path, i++);
+        auto themeDir = QString("%1/%2").arg(dataDirs[i], "themes");
+        addMetaThemeParent(themeDir, i + 1);
     }
+
+    // 测试结果：(".local/share/icons", "/usr/share/icons", "/usr/local/share/icons", ":/icons")
+    auto iconThemePaths = QIcon::themeSearchPaths();
+    for (int i = 0; i < iconThemePaths.size(); ++i)
+    {
+        auto iconThemePath = iconThemePaths[i];
+
+        CONTINUE_IF_TRUE(iconThemePath.startsWith(":/"));
+
+        if (iconThemePath.startsWith(".local"))
+        {
+            iconThemePath = QString("%1/%2").arg(QDir::homePath()).arg(iconThemePath);
+        }
+
+        addIconThemeParent(iconThemePaths[i], i++);
+    }
+
+    connect(m_filesWatcher, &QFileSystemWatcher::directoryChanged, this, &ThemeMonitor::updateThemeWhenDirChange);
+    connect(m_filesWatcher, &QFileSystemWatcher::fileChanged, this, &ThemeMonitor::updateThemeWhenFileChange);
 }
 
-ThemeMonitorInfoVec ThemeMonitor::get_monitor_infos()
+ThemeMonitorInfoVec ThemeMonitor::getMonitorInfos()
 {
     ThemeMonitorInfoVec result;
-    for (auto &itr : this->monitors_)
+    for (auto &monitor : m_monitors)
     {
-        result.push_back(itr.second);
+        result.push_back(monitor);
     }
     return result;
 }
 
-std::shared_ptr<ThemeMonitorInfo> ThemeMonitor::get_monitor(const std::string &path)
+QSharedPointer<ThemeMonitorInfo> ThemeMonitor::getMonitor(const QString &path)
 {
-    auto iter = this->monitors_.find(path);
-    if (iter != this->monitors_.end())
-    {
-        return iter->second;
-    }
-    return nullptr;
+    return m_monitors.value(path);
 }
 
-std::shared_ptr<ThemeMonitorInfo> ThemeMonitor::get_and_check_parent_monitor(const Glib::RefPtr<Gio::File> &file)
+bool ThemeMonitor::addMonitor(const QString &path, QSharedPointer<ThemeMonitorInfo> monitor)
 {
-    RETURN_VAL_IF_FALSE(file, nullptr);
-
-    auto parent_file = file->get_parent();
-    RETURN_VAL_IF_FALSE(parent_file, nullptr);
-
-    auto monitor = this->get_monitor(parent_file->get_path());
-    if (!monitor)
+    if (m_monitors.contains(path))
     {
-        KLOG_WARNING_APPEARANCE("Not found monitor info for: %s.", parent_file->get_path().c_str());
-        return nullptr;
-    }
-    return monitor;
-}
-
-bool ThemeMonitor::add_monitor(const std::string &path, std::shared_ptr<ThemeMonitorInfo> monitor)
-{
-    auto iter = this->monitors_.emplace(path, monitor);
-    if (!iter.second)
-    {
-        KLOG_DEBUG_APPEARANCE("Path already exists: %s.", path.c_str());
+        KLOG_INFO(appearance) << "Path" << path << "already exists";
         return false;
+    }
+    else
+    {
+        m_monitors.insert(path, monitor);
     }
     return true;
 }
 
-std::shared_ptr<ThemeMonitorInfo> ThemeMonitor::create_and_add_monitor(const std::string &path,
-                                                                       int32_t priority,
-                                                                       ThemeMonitorType type,
-                                                                       const FileMonitorCallBack &callback)
+QSharedPointer<ThemeMonitorInfo> ThemeMonitor::createAndAddMonitor(const QString &path,
+                                                                   int32_t priority,
+                                                                   ThemeMonitorType type)
 {
-    RETURN_VAL_IF_FALSE(path.length() > 0, nullptr);
-    RETURN_VAL_IF_FALSE(Glib::file_test(path, Glib::FILE_TEST_IS_DIR), nullptr);
+    QFileInfo fileInfo(path);
 
-    auto file_monitor = FileUtils::make_monitor_directory(path, callback);
-    auto theme_monitor = std::make_shared<ThemeMonitorInfo>(file_monitor, type, priority, path);
-    RETURN_VAL_IF_FALSE(this->add_monitor(path, theme_monitor), nullptr);
-    return theme_monitor;
+    auto themeMonitor = getMonitor(path);
+
+    if (!themeMonitor)
+    {
+        m_filesWatcher->addPath(path);
+        themeMonitor = QSharedPointer<ThemeMonitorInfo>::create(type, priority, path);
+        addMonitor(path, themeMonitor);
+    }
+    return themeMonitor;
 }
 
-void ThemeMonitor::add_meta_theme_parent_monitor(const std::string &path, int32_t priority)
+void ThemeMonitor::addMetaThemeParent(const QString &path, int32_t priority)
 {
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_META_PARENT,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_meta_theme_parent_changed));
+    QDir dir(path);
+    RETURN_IF_FALSE(dir.exists());
+
+    auto monitor = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_META_PARENT);
     RETURN_IF_FALSE(monitor);
 
-    auto file_dir = Gio::File::create_for_path(path);
-    try
+    addMetaThemeParentChildren(monitor);
+}
+
+void ThemeMonitor::addMetaThemeParentChildren(QSharedPointer<ThemeMonitorInfo> monitorInfo)
+{
+    QDir dir(monitorInfo->getPath());
+
+    for (const auto &fileInfo : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot))
     {
-        auto file_iter = file_dir->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_NAME);
-        for (auto file_info = file_iter->next_file(); file_info; file_info = file_iter->next_file())
+        auto filePath = fileInfo.absoluteFilePath();
+        if (getMonitor(filePath))
         {
-            if (file_info->get_file_type() == Gio::FILE_TYPE_DIRECTORY ||
-                file_info->get_file_type() == Gio::FILE_TYPE_SYMBOLIC_LINK)
-            {
-                auto name = file_info->get_name();
-                auto child_path = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{path, name});
-                this->add_meta_theme_monitor(child_path, priority);
-            }
+            continue;
+        }
+        else
+        {
+            addMetaTheme(fileInfo.absoluteFilePath(), monitorInfo->getPriority());
         }
     }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_APPEARANCE("%s", e.what().c_str());
-        return;
-    }
 }
 
-void ThemeMonitor::add_meta_theme_monitor(const std::string &path, int32_t priority)
+void ThemeMonitor::addMetaTheme(const QString &path, int32_t priority)
 {
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_META,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_meta_theme_changed));
+    auto monitor = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_META);
     RETURN_IF_FALSE(monitor);
-    this->events_.emit(monitor, ThemeMonitorEventType::TMET_META_ADD);
+    Q_EMIT themeChanged(monitor, ThemeMonitorEventType::TMET_META_ADD);
 
+    m_filesWatcher->addPath(QString("%1/index.theme").arg(path));
+    addMetaThemeChildren(monitor);
+}
+
+void ThemeMonitor::addMetaThemeChildren(QSharedPointer<ThemeMonitorInfo> monitorInfo)
+{
+    auto path = monitorInfo->getPath();
     // gtk
-    auto gtk_path = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{path, this->get_gtk_dirname()});
-    this->add_gtk_theme_monitor(gtk_path, priority);
+    auto gtkPath = QString("%1/gtk-3.0").arg(path);
+    if (!getMonitor(gtkPath))
+    {
+        addGtkTheme(gtkPath, monitorInfo->getPriority());
+    }
 
     // metacity-1
-    auto metacity_path = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{path, "metacity-1"});
-    this->add_metacity_theme_monitor(metacity_path, priority);
+    auto metacityPath = QString("%1/metacity-1").arg(path);
+    if (!getMonitor(metacityPath))
+    {
+        addMetacityTheme(metacityPath, monitorInfo->getPriority());
+    }
 }
 
-void ThemeMonitor::add_gtk_theme_monitor(const std::string &path, int32_t priority)
+void ThemeMonitor::addGtkTheme(const QString &path, int32_t priority)
 {
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_GTK,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_gtk_theme_changed));
+    auto monitor = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_GTK);
     RETURN_IF_FALSE(monitor);
-    this->events_.emit(monitor, ThemeMonitorEventType::TMET_GTK_ADD);
+    Q_EMIT themeChanged(monitor, ThemeMonitorEventType::TMET_GTK_ADD);
+
+    m_filesWatcher->addPath(QString("%1/gtk.css").arg(path));
 }
 
-void ThemeMonitor::add_metacity_theme_monitor(const std::string &path, int32_t priority)
+void ThemeMonitor::addMetacityTheme(const QString &path, int32_t priority)
 {
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_METACITY,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_metacity_theme_changed));
+    auto monitor = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_METACITY);
     RETURN_IF_FALSE(monitor);
-    this->events_.emit(monitor, ThemeMonitorEventType::TMET_METACITY_ADD);
+    Q_EMIT themeChanged(monitor, ThemeMonitorEventType::TMET_METACITY_ADD);
+
+    m_filesWatcher->addPath(QString("%1/metacity-theme-1.xml").arg(path));
+    m_filesWatcher->addPath(QString("%1/metacity-theme-2.xml").arg(path));
+    m_filesWatcher->addPath(QString("%1/metacity-theme-3.xml").arg(path));
 }
 
-void ThemeMonitor::del_theme_and_notify(const std::string &path, ThemeMonitorEventType type)
+void ThemeMonitor::delThemeAndNotify(const QString &path, ThemeMonitorEventType type)
 {
     RETURN_IF_FALSE(path.length() > 0);
-    RETURN_IF_FALSE(Glib::file_test(path, Glib::FILE_TEST_IS_DIR));
-    auto monitor = this->get_monitor(path);
+    RETURN_IF_FALSE(QFileInfo(path).isDir());
+    auto monitor = getMonitor(path);
     if (!monitor)
     {
-        KLOG_WARNING_APPEARANCE("Not found monitor info for %s.", path.c_str());
+        KLOG_WARNING(appearance) << "Not found monitor info for" << path;
         return;
     }
-    this->events_.emit(monitor, type);
-    this->monitors_.erase(monitor->get_path());
+    Q_EMIT themeChanged(monitor, type);
+    m_monitors.remove(path);
+    m_filesWatcher->removePath(path);
 }
 
-void ThemeMonitor::on_meta_theme_parent_changed(const Glib::RefPtr<Gio::File> &file,
-                                                const Glib::RefPtr<Gio::File> &other_file,
-                                                Gio::FileMonitorEvent event_type)
+void ThemeMonitor::addIconThemeParent(const QString &path, int32_t priority)
 {
-    auto monitor = this->get_and_check_parent_monitor(file);
-    RETURN_IF_FALSE(monitor);
+    QDir dir(path);
+    RETURN_IF_FALSE(dir.exists());
 
-    switch (event_type)
-    {
-    case Gio::FILE_MONITOR_EVENT_CREATED:
-        this->add_meta_theme_monitor(file->get_path(), monitor->get_priority());
-        break;
-    case Gio::FILE_MONITOR_EVENT_DELETED:
-        this->del_theme_and_notify(file->get_path(), ThemeMonitorEventType::TMET_META_DEL);
-        break;
-    default:
-        break;
-    }
+    auto monitorInfo = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_ICON_PARENT);
+    RETURN_IF_FALSE(monitorInfo);
+
+    addIconThemeParentChildren(monitorInfo);
 }
 
-void ThemeMonitor::on_meta_theme_changed(const Glib::RefPtr<Gio::File> &file,
-                                         const Glib::RefPtr<Gio::File> &other_file,
-                                         Gio::FileMonitorEvent event_type)
+void ThemeMonitor::addIconThemeParentChildren(QSharedPointer<ThemeMonitorInfo> monitorInfo)
 {
-    auto monitor = this->get_and_check_parent_monitor(file);
-    auto basename = file->get_basename();
+    QDir dir(monitorInfo->getPath());
 
-    RETURN_IF_FALSE(monitor);
-
-    // meta theme
-    if (basename == "index.theme")
+    for (const auto &fileInfo : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot))
     {
-        this->events_.emit(monitor, ThemeMonitorEventType::TMET_META_CHG);
-        return;
-    }
-
-    // gtk theme
-    if (basename == this->get_gtk_dirname())
-    {
-        switch (event_type)
+        auto filePath = fileInfo.absoluteFilePath();
+        if (getMonitor(filePath))
         {
-        case Gio::FILE_MONITOR_EVENT_CREATED:
-            this->add_gtk_theme_monitor(file->get_path(), monitor->get_priority());
-            break;
-        case Gio::FILE_MONITOR_EVENT_DELETED:
-            this->del_theme_and_notify(file->get_path(), ThemeMonitorEventType::TMET_GTK_DEL);
-            break;
-        default:
-            return;
+            continue;
         }
-        return;
-    }
-
-    // metacity theme
-    if (basename == "metacity-1")
-    {
-        switch (event_type)
+        else
         {
-        case Gio::FILE_MONITOR_EVENT_CREATED:
-            this->add_metacity_theme_monitor(file->get_path(), monitor->get_priority());
-            break;
-        case Gio::FILE_MONITOR_EVENT_DELETED:
-            this->del_theme_and_notify(file->get_path(), ThemeMonitorEventType::TMET_METACITY_DEL);
-            break;
-        default:
-            return;
-        }
-        return;
-    }
-}
-
-void ThemeMonitor::on_gtk_theme_changed(const Glib::RefPtr<Gio::File> &file,
-                                        const Glib::RefPtr<Gio::File> &other_file,
-                                        Gio::FileMonitorEvent event_type)
-{
-    auto monitor = this->get_and_check_parent_monitor(file);
-    auto basename = file->get_basename();
-    auto gtk_major = gtk_get_major_version();
-    auto regex = Glib::Regex::create("gtk-.*\\.css");
-
-    RETURN_IF_FALSE(monitor);
-
-    if ((basename == "gtkrc" && gtk_major == GTK2_MAJOR) ||
-        (regex->match(basename) && gtk_major > GTK2_MAJOR))
-    {
-        this->events_.emit(monitor, ThemeMonitorEventType::TMET_GTK_CHG);
-    }
-}
-
-void ThemeMonitor::on_metacity_theme_changed(const Glib::RefPtr<Gio::File> &file,
-                                             const Glib::RefPtr<Gio::File> &other_file,
-                                             Gio::FileMonitorEvent event_type)
-{
-    auto monitor = this->get_and_check_parent_monitor(file);
-    auto basename = file->get_basename();
-    auto regex = Glib::Regex::create("metacity-theme.*\\.xml");
-
-    RETURN_IF_FALSE(monitor);
-
-    if (regex->match(basename))
-    {
-        this->events_.emit(monitor, ThemeMonitorEventType::TMET_METACITY_CHG);
-    }
-}
-
-void ThemeMonitor::add_icon_theme_parent_monitor(const std::string &path, int32_t priority)
-{
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_ICON_PARENT,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_icon_theme_parent_changed));
-    RETURN_IF_FALSE(monitor);
-
-    auto file_dir = Gio::File::create_for_path(path);
-    try
-    {
-        auto file_iter = file_dir->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_NAME);
-        for (auto file_info = file_iter->next_file(); file_info; file_info = file_iter->next_file())
-        {
-            if (file_info->get_file_type() == Gio::FILE_TYPE_DIRECTORY ||
-                file_info->get_file_type() == Gio::FILE_TYPE_SYMBOLIC_LINK)
-            {
-                auto name = file_info->get_name();
-                auto child_path = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{path, name});
-                this->add_icon_theme_monitor(child_path, priority);
-            }
+            addIconTheme(fileInfo.absoluteFilePath(), monitorInfo->getPriority());
         }
     }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_APPEARANCE("%s", e.what().c_str());
-        return;
-    }
 }
 
-void ThemeMonitor::add_icon_theme_monitor(const std::string &path, int32_t priority)
+void ThemeMonitor::addIconTheme(const QString &path, int32_t priority)
 {
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_ICON,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_icon_theme_changed));
+    auto monitor = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_ICON);
     RETURN_IF_FALSE(monitor);
-    this->events_.emit(monitor, ThemeMonitorEventType::TMET_ICON_ADD);
+
+    Q_EMIT themeChanged(monitor, ThemeMonitorEventType::TMET_ICON_ADD);
+
+    m_filesWatcher->addPath(QString("%1/index.theme").arg(path));
+    addIconThemeChildren(monitor);
+}
+
+void ThemeMonitor::addIconThemeChildren(QSharedPointer<ThemeMonitorInfo> monitorInfo)
+{
+    auto path = monitorInfo->getPath();
 
     // cursor
-    auto cursor_path = Glib::build_path(G_DIR_SEPARATOR_S, std::vector<std::string>{path, "cursors"});
-    this->add_cursor_theme_monitor(cursor_path, priority);
-}
-
-void ThemeMonitor::add_cursor_theme_monitor(const std::string &path, int32_t priority)
-{
-    auto monitor = this->create_and_add_monitor(path,
-                                                priority,
-                                                ThemeMonitorType::THEME_MONITOR_TYPE_CURSOR,
-                                                sigc::mem_fun(this, &ThemeMonitor::on_cursor_theme_changed));
-
-    RETURN_IF_FALSE(monitor);
-    this->events_.emit(monitor, ThemeMonitorEventType::TMET_CURSOR_ADD);
-}
-
-void ThemeMonitor::on_icon_theme_parent_changed(const Glib::RefPtr<Gio::File> &file,
-                                                const Glib::RefPtr<Gio::File> &other_file,
-                                                Gio::FileMonitorEvent event_type)
-{
-    auto monitor = this->get_and_check_parent_monitor(file);
-    RETURN_IF_FALSE(monitor);
-
-    switch (event_type)
+    auto cursorPath = QString("%1/cursors").arg(path);
+    if (!getMonitor(cursorPath))
     {
-    case Gio::FILE_MONITOR_EVENT_CREATED:
-        this->add_icon_theme_monitor(file->get_path(), monitor->get_priority());
+        addCursorTheme(cursorPath, monitorInfo->getPriority());
+    }
+}
+
+void ThemeMonitor::addCursorTheme(const QString &path, int32_t priority)
+{
+    auto monitor = createAndAddMonitor(path, priority, ThemeMonitorType::THEME_MONITOR_TYPE_CURSOR);
+    RETURN_IF_FALSE(monitor);
+    Q_EMIT themeChanged(monitor, ThemeMonitorEventType::TMET_CURSOR_ADD);
+}
+
+void ThemeMonitor::updateThemeWhenDirChange(const QString &dirPath)
+{
+    QDir dir(dirPath);
+    auto monitorInfo = getMonitor(dirPath);
+
+    if (!monitorInfo)
+    {
+        KLOG_WARNING(appearance) << "Not found monitor info for path" << dirPath;
+        return;
+    }
+
+    switch (monitorInfo->getType())
+    {
+    case THEME_MONITOR_TYPE_META_PARENT:
+        // 根目录只关注添加，不关注删除，因为删除后就不再监听范围了，没法再恢复监控
+        addMetaThemeParentChildren(monitorInfo);
         break;
-    case Gio::FILE_MONITOR_EVENT_DELETED:
-        this->del_theme_and_notify(file->get_path(), ThemeMonitorEventType::TMET_ICON_DEL);
+    case THEME_MONITOR_TYPE_META:
+        updateMetaTheme(monitorInfo);
         break;
+    case THEME_MONITOR_TYPE_GTK:
+    {
+        if (!dir.exists())
+        {
+            delThemeAndNotify(monitorInfo->getPath(), ThemeMonitorEventType::TMET_GTK_DEL);
+            m_filesWatcher->removePath(QString("%1/gtk.css").arg(monitorInfo->getPath()));
+        }
+        break;
+    }
+    case THEME_MONITOR_TYPE_METACITY:
+    {
+        if (!dir.exists())
+        {
+            delThemeAndNotify(monitorInfo->getPath(), ThemeMonitorEventType::TMET_METACITY_DEL);
+            m_filesWatcher->removePath(QString("%1/metacity-theme-1.xml").arg(monitorInfo->getPath()));
+            m_filesWatcher->removePath(QString("%1/metacity-theme-2.xml").arg(monitorInfo->getPath()));
+            m_filesWatcher->removePath(QString("%1/metacity-theme-3.xml").arg(monitorInfo->getPath()));
+        }
+        break;
+    }
+    case THEME_MONITOR_TYPE_ICON_PARENT:
+        addIconThemeParentChildren(monitorInfo);
+        break;
+    case THEME_MONITOR_TYPE_ICON:
+        updateIconTheme(monitorInfo);
+        break;
+    case THEME_MONITOR_TYPE_CURSOR:
+    {
+        if (!dir.exists())
+        {
+            delThemeAndNotify(monitorInfo->getPath(), ThemeMonitorEventType::TMET_CURSOR_DEL);
+        }
+        else
+        {
+            Q_EMIT themeChanged(monitorInfo, ThemeMonitorEventType::TMET_CURSOR_CHG);
+        }
+        break;
+    }
     default:
         break;
     }
 }
 
-void ThemeMonitor::on_icon_theme_changed(const Glib::RefPtr<Gio::File> &file,
-                                         const Glib::RefPtr<Gio::File> &other_file,
-                                         Gio::FileMonitorEvent event_type)
+void ThemeMonitor::updateThemeWhenFileChange(const QString &filePath)
 {
-    auto monitor = this->get_and_check_parent_monitor(file);
-    auto basename = file->get_basename();
+    auto dirPath = QFileInfo(filePath).absolutePath();
+    auto monitorInfo = getMonitor(dirPath);
 
-    RETURN_IF_FALSE(monitor);
-
-    // icon theme
-    if (basename == "index.theme")
+    if (!monitorInfo)
     {
-        this->events_.emit(monitor, ThemeMonitorEventType::TMET_ICON_CHG);
+        KLOG_WARNING(appearance) << "Not found monitor info for path" << dirPath;
         return;
     }
 
-    // cursor theme
-    if (basename == "cursors")
+    switch (monitorInfo->getType())
     {
-        switch (event_type)
+    case THEME_MONITOR_TYPE_META:
+    {
+        if (filePath.endsWith("index.theme"))
         {
-        case Gio::FILE_MONITOR_EVENT_CREATED:
-            this->add_icon_theme_monitor(file->get_path(), monitor->get_priority());
-            break;
-        case Gio::FILE_MONITOR_EVENT_DELETED:
-            this->del_theme_and_notify(file->get_path(), ThemeMonitorEventType::TMET_CURSOR_DEL);
-            break;
-        default:
-            return;
+            Q_EMIT themeChanged(monitorInfo, ThemeMonitorEventType::TMET_META_CHG);
         }
-        return;
+        break;
     }
-}
-
-void ThemeMonitor::on_cursor_theme_changed(const Glib::RefPtr<Gio::File> &file,
-                                           const Glib::RefPtr<Gio::File> &other_file,
-                                           Gio::FileMonitorEvent event_type)
-{
-    auto monitor = this->get_and_check_parent_monitor(file);
-    RETURN_IF_FALSE(monitor);
-
-    if (event_type == Gio::FILE_MONITOR_EVENT_CREATED ||
-        event_type == Gio::FILE_MONITOR_EVENT_DELETED ||
-        event_type == Gio::FILE_MONITOR_EVENT_CHANGED)
+    case THEME_MONITOR_TYPE_GTK:
     {
-        this->events_.emit(monitor, ThemeMonitorEventType::TMET_CURSOR_CHG);
+        if (filePath.endsWith("gtk.css"))
+        {
+            Q_EMIT themeChanged(monitorInfo, ThemeMonitorEventType::TMET_GTK_CHG);
+        }
+        break;
+    }
+    case THEME_MONITOR_TYPE_METACITY:
+    {
+        if (filePath.endsWith("metacity-theme-1.xml") ||
+            filePath.endsWith("metacity-theme-2.xml") ||
+            filePath.endsWith("metacity-theme-3.xml"))
+        {
+            Q_EMIT themeChanged(monitorInfo, ThemeMonitorEventType::TMET_METACITY_CHG);
+        }
+        break;
+    }
+    case THEME_MONITOR_TYPE_ICON:
+    {
+        if (filePath.endsWith("index.theme"))
+        {
+            Q_EMIT themeChanged(monitorInfo, ThemeMonitorEventType::TMET_ICON_CHG);
+        }
+        break;
+    }
+    default:
+        break;
     }
 }
+
+void ThemeMonitor::updateMetaTheme(QSharedPointer<ThemeMonitorInfo> monitorInfo)
+{
+    QDir dir(monitorInfo->getPath());
+
+    // 如果目录还存在，说明是目录内容发生了变化，这里只考虑子目录增加的情况，删除的情况由监听子目录变化信号处理
+    if (dir.exists())
+    {
+        addMetaThemeChildren(monitorInfo);
+    }
+    else
+    {
+        delThemeAndNotify(monitorInfo->getPath(), ThemeMonitorEventType::TMET_META_DEL);
+        m_filesWatcher->removePath(QString("%1/index.theme").arg(monitorInfo->getPath()));
+    }
+}
+
+void ThemeMonitor::updateIconTheme(QSharedPointer<ThemeMonitorInfo> monitorInfo)
+{
+    QDir dir(monitorInfo->getPath());
+
+    // 如果目录还存在，说明是目录内容发生了变化，这里只考虑子目录增加的情况，删除的情况由监听子目录变化信号处理
+    if (dir.exists())
+    {
+        addIconThemeChildren(monitorInfo);
+    }
+    else
+    {
+        delThemeAndNotify(monitorInfo->getPath(), ThemeMonitorEventType::TMET_ICON_DEL);
+        m_filesWatcher->removePath(QString("%1/index.theme").arg(monitorInfo->getPath()));
+    }
+}
+
 }  // namespace Kiran

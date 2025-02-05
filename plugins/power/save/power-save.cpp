@@ -1,19 +1,27 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/save/power-save.h"
-#include "plugins/power/power-utils.h"
+#include "power-save.h"
+#include <KScreenDpms/Dpms>
+#include <QGSettings>
+#include "../backlight/power-backlight-interface.h"
+#include "../backlight/power-backlight.h"
+#include "../power-utils.h"
+#include "../wrapper/power-profiles.h"
+#include "../wrapper/power-wrapper-manager.h"
+#include "power-i.h"
+#include "power-save-computer.h"
 
 namespace Kiran
 {
@@ -21,57 +29,58 @@ namespace Kiran
 #define DISPLAY_DIMMED_INTERVAL 10
 #define CPU_SAVER_INTERVAL 3
 
-PowerSave::PowerSave(PowerWrapperManager* wrapper_manager,
-                     PowerBacklight* backlight) : wrapper_manager_(wrapper_manager),
-                                                  backlight_(backlight),
-                                                  kbd_restore_brightness_(-1),
-                                                  monitor_restore_brightness_(-1),
-                                                  display_dimmed_timestamp_(0),
-                                                  cpu_saver_cookie_(0),
-                                                  cpu_saver_timestamp_(0)
+PowerSave::PowerSave(PowerWrapperManager* wrapperManager,
+                     PowerBacklight* backlight) : m_wrapperManager(wrapperManager),
+                                                  m_backlight(backlight),
+                                                  m_kbdRestoreBrightness(-1),
+                                                  m_monitorRestoreBrightness(-1),
+                                                  m_displayDimmedTimestamp(0),
+                                                  m_cpuSaverCookie(0),
+                                                  m_cpuSaverTimestamp(0)
 {
-    this->power_settings_ = Gio::Settings::create(POWER_SCHEMA_ID);
-    this->backlight_kbd_ = backlight->get_backlight_device(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
-    this->backlight_monitor_ = backlight->get_backlight_device(PowerDeviceType::POWER_DEVICE_TYPE_MONITOR);
-    this->profiles_ = this->wrapper_manager_->get_default_profiles();
+    m_dpms = new KScreen::Dpms(this);
+    m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
+    m_profiles = m_wrapperManager->getDefaultProfiles();
+    m_saveComputer = new PowerSaveComputer(this);
 }
 
 PowerSave::~PowerSave()
 {
 }
 
-PowerSave* PowerSave::instance_ = nullptr;
-void PowerSave::global_init(PowerWrapperManager* wrapper_manager, PowerBacklight* backlight)
+PowerSave* PowerSave::m_instance = nullptr;
+void PowerSave::globalInit(PowerWrapperManager* wrapperManager, PowerBacklight* backlight)
 {
-    instance_ = new PowerSave(wrapper_manager, backlight);
-    instance_->init();
+    m_instance = new PowerSave(wrapperManager, backlight);
+    m_instance->init();
 }
 
-bool PowerSave::do_save(PowerAction action, std::string& error)
+bool PowerSave::doSave(PowerAction action, QString& error)
 {
-    KLOG_DEBUG("Do power save action '%s'.", PowerUtils::action_enum2str(action).c_str());
+    KLOG_INFO(power) << "Do power save action" << PowerUtils::actionEnum2str(action);
+
     switch (action)
     {
     case PowerAction::POWER_ACTION_DISPLAY_ON:
-        this->save_dpms_.set_level(PowerDpmsLevel::POWER_DPMS_LEVEL_ON);
+        m_dpms->switchMode(KScreen::Dpms::Mode::On);
         break;
     case PowerAction::POWER_ACTION_DISPLAY_STANDBY:
-        this->save_dpms_.set_level(PowerDpmsLevel::POWER_DPMS_LEVEL_STANDBY);
+        m_dpms->switchMode(KScreen::Dpms::Mode::Standby);
         break;
     case PowerAction::POWER_ACTION_DISPLAY_SUSPEND:
-        this->save_dpms_.set_level(PowerDpmsLevel::POWER_DPMS_LEVEL_SUSPEND);
+        m_dpms->switchMode(KScreen::Dpms::Mode::Suspend);
         break;
     case PowerAction::POWER_ACTION_DISPLAY_OFF:
-        this->save_dpms_.set_level(PowerDpmsLevel::POWER_DPMS_LEVEL_OFF);
+        m_dpms->switchMode(KScreen::Dpms::Mode::Off);
         break;
     case PowerAction::POWER_ACTION_COMPUTER_SUSPEND:
-        this->save_computer_.suspend();
+        m_saveComputer->suspend();
         break;
     case PowerAction::POWER_ACTION_COMPUTER_SHUTDOWN:
-        this->save_computer_.shutdown();
+        m_saveComputer->shutdown();
         break;
     case PowerAction::POWER_ACTION_COMPUTER_HIBERNATE:
-        this->save_computer_.hibernate();
+        m_saveComputer->hibernate();
         break;
     case PowerAction::POWER_ACTION_NOTHING:
         break;
@@ -82,137 +91,143 @@ bool PowerSave::do_save(PowerAction action, std::string& error)
     return true;
 }
 
-bool PowerSave::is_display_dimmed()
+bool PowerSave::isDisplayDimmed()
 {
-    if (this->kbd_restore_brightness_ != -1 || this->monitor_restore_brightness_ != -1)
+    if (m_kbdRestoreBrightness != -1 || m_monitorRestoreBrightness != -1)
     {
         return true;
     }
     return false;
 }
 
-bool PowerSave::do_display_dimmed()
+bool PowerSave::doDisplayDimmed()
 {
     // 如果还处于变暗状态，则不允许重新设置，避免多个场景(计算机空闲、电量过低）下设置变暗->恢复变暗冲突
-    if (this->is_display_dimmed())
+    if (isDisplayDimmed())
     {
-        KLOG_DEBUG("The display already is dimmed status.");
+        KLOG_INFO(power) << "The display already is dimmed status.";
         return false;
     }
 
-    auto brightness_percentage = this->power_settings_->get_int(POWER_SCHEMA_DISPLAY_DIMMED_BRIGHTNESS);
-    if (brightness_percentage > 0 && brightness_percentage <= 100)
+    auto backlightKbd = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
+    auto backlightMonitor = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_MONITOR);
+    auto brightnessPercentage = m_powerSettings->get(POWER_SCHEMA_DISPLAY_DIMMED_BRIGHTNESS).toInt();
+    if (brightnessPercentage > 0 && brightnessPercentage <= 100)
     {
-        this->display_dimmed_timestamp_ = time(NULL);
+        m_displayDimmedTimestamp = time(NULL);
 
-        auto kbd_brightness_percentage = this->backlight_kbd_->get_brightness();
+        auto kbd_brightness_percentage = backlightKbd->getBrightness();
         if (kbd_brightness_percentage >= 0)
         {
-            this->backlight_kbd_->set_brightness(brightness_percentage);
-            this->kbd_restore_brightness_ = kbd_brightness_percentage;
+            backlightKbd->setBrightness(brightnessPercentage);
+            m_kbdRestoreBrightness = kbd_brightness_percentage;
         }
 
-        auto monitor_brightness_percentage = this->backlight_monitor_->get_brightness();
+        auto monitor_brightness_percentage = backlightMonitor->getBrightness();
         if (monitor_brightness_percentage >= 0)
         {
-            this->backlight_monitor_->set_brightness(brightness_percentage);
-            this->monitor_restore_brightness_ = monitor_brightness_percentage;
+            backlightMonitor->setBrightness(brightnessPercentage);
+            m_monitorRestoreBrightness = monitor_brightness_percentage;
         }
 
-        KLOG_DEBUG("The display is dimmed.");
+        KLOG_INFO(power) << "The display is dimmed.";
     }
     else
     {
-        KLOG_WARNING("The brightness value is invalid: %d", brightness_percentage);
+        KLOG_WARNING(power) << "The brightness value is invalid, brightness:" << brightnessPercentage;
     }
 
     return true;
 }
 
-void PowerSave::do_display_restore_dimmed()
+void PowerSave::doDisplayRestoreDimmed()
 {
-    RETURN_IF_TRUE(!this->is_display_dimmed());
+    RETURN_IF_TRUE(!isDisplayDimmed());
 
-    auto kbd_brightness_percentage = this->backlight_kbd_->get_brightness();
+    auto backlightKbd = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
+    auto backlightMonitor = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_MONITOR);
+    auto kbd_brightness_percentage = backlightKbd->getBrightness();
 
-    if (kbd_brightness_percentage >= 0 && this->kbd_restore_brightness_ >= 0)
+    if (kbd_brightness_percentage >= 0 && m_kbdRestoreBrightness >= 0)
     {
-        this->backlight_kbd_->set_brightness(this->kbd_restore_brightness_);
-        this->kbd_restore_brightness_ = -1;
+        backlightKbd->setBrightness(m_kbdRestoreBrightness);
+        m_kbdRestoreBrightness = -1;
     }
 
-    auto monitor_brightness_percentage = this->backlight_monitor_->get_brightness();
-    if (monitor_brightness_percentage >= 0 && this->monitor_restore_brightness_ >= 0)
+    auto monitor_brightness_percentage = backlightMonitor->getBrightness();
+    if (monitor_brightness_percentage >= 0 && m_monitorRestoreBrightness >= 0)
     {
-        this->backlight_monitor_->set_brightness(this->monitor_restore_brightness_);
-        this->monitor_restore_brightness_ = -1;
+        backlightMonitor->setBrightness(m_monitorRestoreBrightness);
+        m_monitorRestoreBrightness = -1;
     }
 
-    this->display_dimmed_timestamp_ = 0;
+    m_displayDimmedTimestamp = 0;
 
-    KLOG_DEBUG("The display is restore dimmed.");
+    KLOG_INFO(power) << "The display is restore dimmed.";
 }
 
-void PowerSave::do_cpu_saver()
+void PowerSave::doCpuSaver()
 {
-    if (this->cpu_saver_cookie_ > 0)
+    if (m_cpuSaverCookie > 0)
     {
-        KLOG_DEBUG("The cpu already is on saver mode.");
+        KLOG_INFO(power) << "The cpu already is on saver mode.";
         return;
     }
 
-    this->cpu_saver_cookie_ = this->profiles_->hold_profile(PowerProfileMode::POWER_PROFILE_MODE_SAVER, "battery or ups power low.");
-    this->cpu_saver_timestamp_ = time(NULL);
+    m_cpuSaverCookie = m_profiles->holdProfile(PowerProfileMode::POWER_PROFILE_MODE_SAVER, "battery or ups power low.");
+    m_cpuSaverTimestamp = time(NULL);
 }
 
-void PowerSave::do_cpu_restore_saver()
+void PowerSave::doCpuRestoreSaver()
 {
-    if (this->cpu_saver_cookie_ > 0)
+    if (m_cpuSaverCookie > 0)
     {
-        this->profiles_->release_profile(this->cpu_saver_cookie_);
-        this->cpu_saver_cookie_ = 0;
+        m_profiles->releaseProfile(m_cpuSaverCookie);
+        m_cpuSaverCookie = 0;
     }
-    this->cpu_saver_timestamp_ = 0;
+    m_cpuSaverTimestamp = 0;
 }
 
 void PowerSave::init()
 {
-    this->save_computer_.init();
-    this->save_dpms_.init();
+    m_saveComputer->init();
 
-    this->backlight_kbd_->signal_brightness_changed().connect(sigc::mem_fun(this, &PowerSave::on_kbd_brightness_changed));
-    this->backlight_monitor_->signal_brightness_changed().connect(sigc::mem_fun(this, &PowerSave::on_monitor_brightness_changed));
-    this->profiles_->signal_active_profile_changed().connect(sigc::mem_fun(this, &PowerSave::on_active_profile_changed));
+    auto backlightKbd = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
+    auto backlightMonitor = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_MONITOR);
+
+    connect(backlightKbd, &PowerBacklightPercentage::brightnessChanged, this, &PowerSave::processKbdBrightnessChanged);
+    connect(backlightMonitor, &PowerBacklightPercentage::brightnessChanged, this, &PowerSave::processMonitorBrightnessChanged);
+    connect(m_profiles.get(), &PowerProfiles::activeProfileChanged, this, &PowerSave::processActiveProfileChanged);
 }
 
-void PowerSave::on_kbd_brightness_changed(int32_t brightness_percentage)
+void PowerSave::processKbdBrightnessChanged(int32_t brightnessPercentage)
 {
     // 亮度变暗操作结束DISPLAY_DIMMED_INTERVAL秒后，认为后续的亮度变化为手动设置，如果亮度进行了手动设置，则不再做亮度变暗恢复操作。
-    if (this->display_dimmed_timestamp_ > 0 &&
-        this->display_dimmed_timestamp_ + DISPLAY_DIMMED_INTERVAL < time(NULL))
+    if (m_displayDimmedTimestamp > 0 &&
+        m_displayDimmedTimestamp + DISPLAY_DIMMED_INTERVAL < time(NULL))
     {
-        KLOG_DEBUG("The keyboard brightness is changed, so ignore keyboard brightness restores.");
-        this->kbd_restore_brightness_ = -1;
+        KLOG_DEBUG(power) << "The keyboard brightness is changed, so ignore keyboard brightness restores.";
+        m_kbdRestoreBrightness = -1;
     }
 }
 
-void PowerSave::on_monitor_brightness_changed(int32_t brightness_percentage)
+void PowerSave::processMonitorBrightnessChanged(int32_t brightnessPercentage)
 {
-    if (this->display_dimmed_timestamp_ > 0 &&
-        this->display_dimmed_timestamp_ + DISPLAY_DIMMED_INTERVAL < time(NULL))
+    if (m_displayDimmedTimestamp > 0 &&
+        m_displayDimmedTimestamp + DISPLAY_DIMMED_INTERVAL < time(NULL))
     {
-        KLOG_DEBUG("The monitor brightness is changed, so ignore monitor brightness restores.");
-        this->monitor_restore_brightness_ = -1;
+        KLOG_DEBUG(power) << "The monitor brightness is changed, so ignore monitor brightness restores.";
+        m_monitorRestoreBrightness = -1;
     }
 }
 
-void PowerSave::on_active_profile_changed(int32_t profile_mode)
+void PowerSave::processActiveProfileChanged(int32_t profileMode)
 {
-    if (this->cpu_saver_timestamp_ > 0 &&
-        this->cpu_saver_timestamp_ + CPU_SAVER_INTERVAL < time(NULL))
+    if (m_cpuSaverTimestamp > 0 &&
+        m_cpuSaverTimestamp + CPU_SAVER_INTERVAL < time(NULL))
     {
-        KLOG_DEBUG("The power active profile is changed, so release previous profile.");
-        this->do_cpu_restore_saver();
+        KLOG_DEBUG(power) << "The power active profile is changed, so release previous profile.";
+        doCpuRestoreSaver();
     }
 }
 }  // namespace Kiran

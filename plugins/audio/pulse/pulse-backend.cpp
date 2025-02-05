@@ -1,70 +1,81 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/pulse/pulse-backend.h"
+#include "pulse-backend.h"
+#include <QTimer>
+#include "lib/base/base.h"
+#include "pulse-card.h"
+#include "pulse-context.h"
+#include "pulse-sink-input.h"
+#include "pulse-sink.h"
+#include "pulse-source-output.h"
+#include "pulse-source.h"
 
 namespace Kiran
 {
 #define MAX_RECONNECTION_NUM 50
 
-PulseBackend::PulseBackend() : state_(AudioState::AUDIO_STATE_IDLE),
-                               reconnection_count_(0),
-                               reconnection_handle_(0)
+PulseBackend::PulseBackend() : m_state(AudioState::AUDIO_STATE_IDLE),
+                               m_reconnectTimer(nullptr),
+                               m_reconnectionCount(0),
+                               m_reconnectionHandle(0)
 {
-    this->context_ = std::make_shared<PulseContext>();
+    m_context = QSharedPointer<PulseContext>::create();
+    m_reconnectTimer = new QTimer(this);
+    m_reconnectTimer->setInterval(400);
 }
 
 PulseBackend::~PulseBackend()
 {
 }
 
-PulseBackend *PulseBackend::instance_ = nullptr;
-void PulseBackend::global_init()
+PulseBackend *PulseBackend::m_instance = nullptr;
+void PulseBackend::globalInit()
 {
-    instance_ = new PulseBackend();
-    instance_->init();
+    m_instance = new PulseBackend();
+    m_instance->init();
 }
 
-std::shared_ptr<PulseSink> PulseBackend::get_sink_by_name(const std::string &name)
+QSharedPointer<PulseSink> PulseBackend::getSinkByName(const QString &name)
 {
-    for (auto &iter : this->sinks_)
+    for (auto sink : m_sinks)
     {
-        if (iter.second->get_name() == name)
+        if (sink->getName() == name)
         {
-            return iter.second;
+            return sink;
         }
     }
     return nullptr;
 }
 
-std::shared_ptr<PulseSource> PulseBackend::get_source_by_name(const std::string &name)
+QSharedPointer<PulseSource> PulseBackend::getSourceByName(const QString &name)
 {
-    for (auto &iter : this->sources_)
+    for (auto &source : m_sources)
     {
-        if (iter.second->get_name() == name)
+        if (source->getName() == name)
         {
-            return iter.second;
+            return source;
         }
     }
     return nullptr;
 }
 
-bool PulseBackend::set_default_sink(std::shared_ptr<PulseSink> sink)
+bool PulseBackend::setDefaultSink(QSharedPointer<PulseSink> sink)
 {
     RETURN_VAL_IF_FALSE(sink, false);
 
-    RETURN_VAL_IF_FALSE(this->context_->set_default_sink(sink->get_name()), false);
+    RETURN_VAL_IF_FALSE(m_context->setDefaultSink(sink->getName()), false);
 
     // PULSE_SET_PENDING_SINK_NULL(pulse);
     // PULSE_SET_DEFAULT_SINK(pulse, stream);
@@ -72,11 +83,11 @@ bool PulseBackend::set_default_sink(std::shared_ptr<PulseSink> sink)
     return true;
 }
 
-bool PulseBackend::set_default_source(std::shared_ptr<PulseSource> source)
+bool PulseBackend::setDefaultSource(QSharedPointer<PulseSource> source)
 {
     RETURN_VAL_IF_FALSE(source, false);
 
-    RETURN_VAL_IF_FALSE(this->context_->set_default_source(source->get_name()), false);
+    RETURN_VAL_IF_FALSE(m_context->setDefaultSource(source->getName()), false);
 
     // PULSE_SET_PENDING_SINK_NULL(pulse);
     // PULSE_SET_DEFAULT_SINK(pulse, stream);
@@ -86,116 +97,118 @@ bool PulseBackend::set_default_source(std::shared_ptr<PulseSource> source)
 
 bool PulseBackend::init()
 {
-    this->context_->signal_connection_state_changed().connect(sigc::mem_fun(this, &PulseBackend::on_connection_state_changed_cb));
-    this->context_->signal_server_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_server_info_changed_cb));
-    this->context_->signal_card_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_card_info_changed_cb));
-    this->context_->signal_card_info_removed().connect(sigc::mem_fun(this, &PulseBackend::on_card_info_removed_cb));
-    this->context_->signal_sink_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_sink_info_changed_cb));
-    this->context_->signal_sink_info_removed().connect(sigc::mem_fun(this, &PulseBackend::on_sink_info_removed_cb));
-    this->context_->signal_sink_input_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_sink_input_info_changed_cb));
-    this->context_->signal_sink_input_info_removed().connect(sigc::mem_fun(this, &PulseBackend::on_sink_input_info_removed_cb));
-    this->context_->signal_source_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_source_info_changed_cb));
-    this->context_->signal_source_info_removed().connect(sigc::mem_fun(this, &PulseBackend::on_source_info_removed_cb));
-    this->context_->signal_source_output_info_changed().connect(sigc::mem_fun(this, &PulseBackend::on_source_output_info_changed_cb));
-    this->context_->signal_source_output_info_removed().connect(sigc::mem_fun(this, &PulseBackend::on_source_output_info_removed_cb));
+    QObject::connect(m_context.data(), &PulseContext::connectionStateChanged, this, &PulseBackend::processConnectionStateChanged);
+    QObject::connect(m_context.data(), &PulseContext::serverInfoChanged, this, &PulseBackend::processServerInfoChanged);
+    QObject::connect(m_context.data(), &PulseContext::cardInfoChanged, this, &PulseBackend::processCardInfoChanged);
+    QObject::connect(m_context.data(), &PulseContext::cardInfoRemoved, this, &PulseBackend::processCardInfoRemoved);
+    QObject::connect(m_context.data(), &PulseContext::sinkInfoChanged, this, &PulseBackend::processSinkInfoChanged);
+    QObject::connect(m_context.data(), &PulseContext::sinkInfoRemoved, this, &PulseBackend::processSinkInfoRemoved);
+    QObject::connect(m_context.data(), &PulseContext::sinkInputInfoChanged, this, &PulseBackend::processSinkInputInfoChanged);
+    QObject::connect(m_context.data(), &PulseContext::sinkInputInfoRemoved, this, &PulseBackend::processSinkInputInfoRemoved);
+    QObject::connect(m_context.data(), &PulseContext::sourceInfoChanged, this, &PulseBackend::processSourceInfoChanged);
+    QObject::connect(m_context.data(), &PulseContext::sourceInfoRemoved, this, &PulseBackend::processSourceInfoRemoved);
+    QObject::connect(m_context.data(), &PulseContext::sourceOutputInfoChanged, this, &PulseBackend::processSourceOutputInfoChanged);
+    QObject::connect(m_context.data(), &PulseContext::sourceOutputInfoRemoved, this, &PulseBackend::processSourceOutputInfoRemoved);
 
-    this->set_state(AudioState::AUDIO_STATE_CONNECTING);
+    QObject::connect(m_reconnectTimer, &QTimer::timeout, this, &PulseBackend::tryReconnection);
 
-    if (!this->context_->connect(true))
+    setState(AudioState::AUDIO_STATE_CONNECTING);
+
+    if (!m_context->connect(true))
     {
-        this->set_state(AudioState::AUDIO_STATE_FAILED);
+        setState(AudioState::AUDIO_STATE_FAILED);
         return false;
     }
 
     return true;
 }
 
-void PulseBackend::set_state(AudioState state)
+void PulseBackend::setState(AudioState state)
 {
-    if (this->state_ != state)
+    if (m_state != state)
     {
-        this->state_ = state;
-        this->state_changed_.emit(this->state_);
+        m_state = state;
+        Q_EMIT stateChanged(m_state);
     }
 }
 
-bool PulseBackend::try_reconnection()
+void PulseBackend::tryReconnection()
 {
-    ++this->reconnection_count_;
+    ++m_reconnectionCount;
 
-    KLOG_DEBUG_AUDIO("Try to reconnect pulseaudio service, reconnection count: %d.", this->reconnection_count_);
+    KLOG_INFO(audio) << "Try to reconnect pulseaudio service, reconnection count:" << m_reconnectionCount;
 
-    if (this->reconnection_count_ > MAX_RECONNECTION_NUM)
+    if (m_reconnectionCount > MAX_RECONNECTION_NUM)
     {
-        KLOG_WARNING_AUDIO("The maximum number of reconnections (%d) has been exceeded, Stop reconnection.", MAX_RECONNECTION_NUM);
-        this->reconnection_handle_ = 0;
-        return G_SOURCE_REMOVE;
+        KLOG_WARNING(audio) << "The maximum number of reconnections ("
+                            << MAX_RECONNECTION_NUM
+                            << ") has been exceeded, Stop reconnection.";
+        m_reconnectionHandle = 0;
+        m_reconnectTimer->stop();
+        return;
     }
 
-    if (this->context_->connect(true))
+    if (m_context->connect(true))
     {
-        this->reconnection_handle_ = 0;
-        return G_SOURCE_REMOVE;
+        m_reconnectionHandle = 0;
+        m_reconnectTimer->stop();
     }
-    return G_SOURCE_CONTINUE;
 }
 
-void PulseBackend::reset_data()
+void PulseBackend::resetData()
 {
-    this->server_info_ = PulseServerInfo();
+    m_serverInfo = PulseServerInfo();
 
-    for (auto iter : this->cards_)
+    for (auto card : m_cards)
     {
-        this->card_event_.emit(PulseCardEvent::PULSE_CARD_EVENT_DELETED, iter.second);
+        Q_EMIT cardEvent(PulseCardEvent::PULSE_CARD_EVENT_DELETED, card);
     }
-    this->cards_.clear();
+    m_cards.clear();
 
-    for (auto iter : this->sinks_)
+    for (auto sink : m_sinks)
     {
-        this->sink_event_.emit(PulseSinkEvent::PULSE_SINK_EVENT_DELETED, iter.second);
+        Q_EMIT sinkEvent(PulseSinkEvent::PULSE_SINK_EVENT_DELETED, sink);
     }
-    this->sinks_.clear();
+    m_sinks.clear();
 
-    for (auto iter : this->sink_inputs_)
+    for (auto sinkInput : m_sinkInputs)
     {
-        this->sink_input_event_.emit(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_DELETED, iter.second);
+        Q_EMIT sinkInputEvent(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_DELETED, sinkInput);
     }
-    this->sinks_.clear();
+    m_sinks.clear();
 
-    for (auto iter : this->sources_)
+    for (auto source : m_sources)
     {
-        this->source_event_.emit(PulseSourceEvent::PULSE_SOURCE_EVENT_DELETED, iter.second);
+        Q_EMIT sourceEvent(PulseSourceEvent::PULSE_SOURCE_EVENT_DELETED, source);
     }
-    this->sources_.clear();
+    m_sources.clear();
 
-    for (auto iter : this->source_outputs_)
+    for (auto sourceOutput : m_sourceOutputs)
     {
-        this->source_output_event_.emit(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_DELETED, iter.second);
+        Q_EMIT sourceOutputEvent(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_DELETED, sourceOutput);
     }
-    this->source_outputs_.clear();
+    m_sourceOutputs.clear();
 }
 
-void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connection_state)
+void PulseBackend::processConnectionStateChanged(int32_t connectionState)
 {
-    KLOG_DEBUG_AUDIO("Pulse connection state: %d.", connection_state);
-    switch (connection_state)
+    KLOG_INFO(audio) << "Pulse connection state changed to" << connectionState;
+
+    switch (connectionState)
     {
     case PulseConnectionState::PULSE_CONNECTION_DISCONNECTED:
     {
         // 重新连接之前需要清理掉之前的数据，需要测试一下重启pulseaudio服务程序会不会出问题
-        this->reset_data();
-        this->set_state(AudioState::AUDIO_STATE_CONNECTING);
+        resetData();
+        setState(AudioState::AUDIO_STATE_CONNECTING);
 
-        if (this->reconnection_handle_)
+        if (m_reconnectTimer->isActive())
         {
-            KLOG_DEBUG_AUDIO("The reconnection handle %d is already exist.", this->reconnection_handle_);
+            KLOG_INFO(audio) << "The timer is already exist.";
         }
         else
         {
-            auto timeout_source = Glib::TimeoutSource::create(400);
-            timeout_source->connect(sigc::mem_fun(this, &PulseBackend::try_reconnection));
-            auto glib_context = Glib::wrap(g_main_context_get_thread_default());
-            this->reconnection_handle_ = timeout_source->attach(glib_context);
+            m_reconnectTimer->start();
         }
 
         break;
@@ -203,13 +216,13 @@ void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connectio
     case PulseConnectionState::PULSE_CONNECTION_CONNECTING:
     case PulseConnectionState::PULSE_CONNECTION_AUTHORIZING:
     case PulseConnectionState::PULSE_CONNECTION_LOADING:
-        this->set_state(AudioState::AUDIO_STATE_CONNECTING);
+        setState(AudioState::AUDIO_STATE_CONNECTING);
         break;
     case PulseConnectionState::PULSE_CONNECTION_CONNECTED:
     {
         // 如果连接成功，重连次数清0
-        this->reconnection_count_ = 0;
-        this->set_state(AudioState::AUDIO_STATE_READY);
+        m_reconnectionCount = 0;
+        setState(AudioState::AUDIO_STATE_READY);
         break;
     }
     default:
@@ -217,170 +230,168 @@ void PulseBackend::on_connection_state_changed_cb(PulseConnectionState connectio
     }
 }
 
-void PulseBackend::on_server_info_changed_cb(const pa_server_info *server_info)
+void PulseBackend::processServerInfoChanged(const pa_server_info *serverInfo)
 {
-    RETURN_IF_FALSE(server_info != NULL);
+    RETURN_IF_FALSE(serverInfo != NULL);
 
-    KLOG_DEBUG_AUDIO("The server info changed");
+    auto oldServerInfo = m_serverInfo;
+    m_serverInfo = PulseServerInfo{.userName = POINTER_TO_STRING(serverInfo->user_name),
+                                   .hostName = POINTER_TO_STRING(serverInfo->host_name),
+                                   .serverVersion = POINTER_TO_STRING(serverInfo->server_version),
+                                   .serverName = POINTER_TO_STRING(serverInfo->server_name),
+                                   .sampleSpec = serverInfo->sample_spec,
+                                   .defaultSinkName = POINTER_TO_STRING(serverInfo->default_sink_name),
+                                   .defaultSourceName = POINTER_TO_STRING(serverInfo->default_source_name),
+                                   .cookie = serverInfo->cookie};
 
-    auto old_server_info = this->server_info_;
-    this->server_info_ = PulseServerInfo{.user_name = POINTER_TO_STRING(server_info->user_name),
-                                         .host_name = POINTER_TO_STRING(server_info->host_name),
-                                         .server_version = POINTER_TO_STRING(server_info->server_version),
-                                         .server_name = POINTER_TO_STRING(server_info->server_name),
-                                         .sample_spec = server_info->sample_spec,
-                                         .default_sink_name = POINTER_TO_STRING(server_info->default_sink_name),
-                                         .default_source_name = POINTER_TO_STRING(server_info->default_source_name),
-                                         .cookie = server_info->cookie};
-
-    KLOG_DEBUG_AUDIO("Server info: username: %s, hostname: %s, server version: %s, "
-                     "server name: %s, default sink name: %s, default source name: %s, cookie: %d.",
-                     this->server_info_.user_name.c_str(),
-                     this->server_info_.host_name.c_str(),
-                     this->server_info_.server_version.c_str(),
-                     this->server_info_.server_name.c_str(),
-                     this->server_info_.default_sink_name.c_str(),
-                     this->server_info_.default_source_name.c_str(),
-                     this->server_info_.cookie);
+    KLOG_INFO(audio) << "Server info is changed. Username is" << m_serverInfo.userName
+                     << ", hostname is" << m_serverInfo.hostName
+                     << ", server version is" << m_serverInfo.serverVersion
+                     << ", server name is" << m_serverInfo.serverName
+                     << ", default sink name is" << m_serverInfo.defaultSinkName
+                     << ", default source name is" << m_serverInfo.defaultSourceName
+                     << ", cookie is" << m_serverInfo.cookie;
 
     // 检测默认的sink是否发生变化
-    if (old_server_info.default_sink_name != this->server_info_.default_sink_name)
+    if (oldServerInfo.defaultSinkName != m_serverInfo.defaultSinkName)
     {
-        if (this->server_info_.default_sink_name.empty())
+        if (m_serverInfo.defaultSinkName.isEmpty())
         {
-            this->default_sink_ = nullptr;
-            this->default_sink_changed_.emit(this->default_sink_);
+            m_defaultSink = nullptr;
+            Q_EMIT defaultSinkChanged(m_defaultSink);
         }
         else
         {
-            auto sink = this->get_sink_by_name(this->server_info_.default_sink_name);
+            auto sink = getSinkByName(m_serverInfo.defaultSinkName);
             /* 当card profile发生变化时，on_server_info_changed_cb可能优先on_sink_info_changed_cb函数被调用，
                此时default sink可能还找不到（为空），这种情况则将信号延迟到on_sink_info_changed_cb时再进行处理。*/
             if (sink)
             {
-                this->default_sink_ = sink;
-                this->default_sink_changed_.emit(this->default_sink_);
+                m_defaultSink = sink;
+                Q_EMIT defaultSinkChanged(m_defaultSink);
             }
             else
             {
-                this->context_->load_sink_info_by_name(this->server_info_.default_sink_name);
+                m_context->loadSinkInfoByName(m_serverInfo.defaultSinkName);
             }
         }
     }
 
     // 检测默认的source是否发生变化
-    if (old_server_info.default_source_name != this->server_info_.default_source_name)
+    if (oldServerInfo.defaultSourceName != m_serverInfo.defaultSourceName)
     {
-        if (this->server_info_.default_source_name.empty())
+        if (m_serverInfo.defaultSourceName.isEmpty())
         {
-            this->default_source_ = nullptr;
-            this->default_source_changed_.emit(this->default_source_);
+            m_defaultSource = nullptr;
+            Q_EMIT defaultSourceChanged(m_defaultSource);
         }
         else
         {
-            auto source = this->get_source_by_name(this->server_info_.default_source_name);
+            auto source = getSourceByName(m_serverInfo.defaultSourceName);
             if (source)
             {
-                this->default_source_ = source;
-                this->default_source_changed_.emit(this->default_source_);
+                m_defaultSource = source;
+                Q_EMIT defaultSourceChanged(m_defaultSource);
             }
             else
             {
-                this->context_->load_source_info_by_name(this->server_info_.default_source_name);
+                m_context->loadSourceInfoByName(m_serverInfo.defaultSourceName);
             }
         }
     }
 }
 
-void PulseBackend::on_card_info_changed_cb(const pa_card_info *card_info)
+void PulseBackend::processCardInfoChanged(const pa_card_info *cardInfo)
 {
-    RETURN_IF_FALSE(card_info != NULL);
+    RETURN_IF_FALSE(cardInfo != NULL);
 
-    KLOG_DEBUG_AUDIO("Card info changed, the card index is %d and name is %s.", card_info->index, card_info->name ? card_info->name : "NULL");
+    KLOG_INFO(audio) << "Card info changed. The card index is" << cardInfo->index
+                     << ", name is" << cardInfo->name;
 
-    auto card = this->get_card(card_info->index);
+    auto card = getCard(cardInfo->index);
 
     if (card)
     {
-        card->update(card_info);
-        this->card_event_.emit(PulseCardEvent::PULSE_CARD_EVENT_CHANGED, card);
+        card->update(cardInfo);
+        Q_EMIT cardEvent(PulseCardEvent::PULSE_CARD_EVENT_CHANGED, card);
     }
     else
     {
-        card = std::make_shared<PulseCard>(card_info);
-        this->cards_.emplace(card_info->index, card);
-        this->card_event_.emit(PulseCardEvent::PULSE_CARD_EVENT_ADDED, card);
+        card = QSharedPointer<PulseCard>::create(cardInfo);
+        m_cards.insert(cardInfo->index, card);
+        Q_EMIT cardEvent(PulseCardEvent::PULSE_CARD_EVENT_ADDED, card);
     }
 }
 
-void PulseBackend::on_card_info_removed_cb(uint32_t index)
+void PulseBackend::processCardInfoRemoved(uint32_t index)
 {
-    KLOG_DEBUG_AUDIO("Remove card with index: %d.", index);
+    KLOG_INFO(audio) << "Remove card with index" << index;
 
-    auto card = this->get_card(index);
+    auto card = getCard(index);
 
     if (card)
     {
-        this->card_event_.emit(PulseCardEvent::PULSE_CARD_EVENT_DELETED, card);
-        this->cards_.erase(index);
+        Q_EMIT cardEvent(PulseCardEvent::PULSE_CARD_EVENT_DELETED, card);
+        m_cards.remove(index);
     }
     else
     {
-        KLOG_WARNING_AUDIO("The card index %d is not found.", index);
+        KLOG_WARNING(audio) << "The card index " << index << " is not found.";
     }
 }
 
-void PulseBackend::on_sink_info_changed_cb(const pa_sink_info *sink_info)
+void PulseBackend::processSinkInfoChanged(const pa_sink_info *sinkInfo)
 {
-    RETURN_IF_FALSE(sink_info != NULL);
+    RETURN_IF_FALSE(sinkInfo != NULL);
 
-    KLOG_DEBUG_AUDIO("Sink changed, index is %d, name is %s.", sink_info->index, sink_info->name ? sink_info->name : "NULL");
+    KLOG_INFO(audio) << "Sink changed, index is" << sinkInfo->index
+                     << "and name is" << sinkInfo->name;
 
-    auto sink = this->get_sink(sink_info->index);
+    auto sink = getSink(sinkInfo->index);
 
     if (sink)
     {
-        sink->update(sink_info);
-        this->sink_event_.emit(PulseSinkEvent::PULSE_SINK_EVENT_CHANGED, sink);
+        sink->update(sinkInfo);
+        Q_EMIT sinkEvent(PulseSinkEvent::PULSE_SINK_EVENT_CHANGED, sink);
     }
     else
     {
-        sink = std::make_shared<PulseSink>(this->context_, sink_info);
-        this->sinks_.emplace(sink_info->index, sink);
-        this->sink_event_.emit(PulseSinkEvent::PULSE_SINK_EVENT_ADDED, sink);
+        sink = QSharedPointer<PulseSink>::create(m_context, sinkInfo);
+        m_sinks.insert(sinkInfo->index, sink);
+        Q_EMIT sinkEvent(PulseSinkEvent::PULSE_SINK_EVENT_ADDED, sink);
         /* sink一般情况下都会绑定一个card，部分的后端Device Driver（例如OSS）不存在card的概念，
            因此不确定sink是否在任何情况下都会绑定card，而且card和sink的初始化都是异步回调函数（不确定card是否先于sink回调？)，
            因此保险起见在这里加一个判空条件。*/
-        // auto card = this->get_card(sink_info->card);
+        // auto card = get_card(sink_info->card);
         // if (card)
         // {
         //     card->add_stream(sink);
         // }
 
         // 如果新增的是默认sink，则发送信号（延迟到此时进行处理）
-        if (sink->get_name() == this->server_info_.default_sink_name)
+        if (sink->getName() == m_serverInfo.defaultSinkName)
         {
-            this->default_sink_ = sink;
-            this->default_sink_changed_.emit(this->default_sink_);
+            m_defaultSink = sink;
+            Q_EMIT defaultSinkChanged(m_defaultSink);
         }
     }
 }
 
-void PulseBackend::on_sink_info_removed_cb(uint32_t index)
+void PulseBackend::processSinkInfoRemoved(uint32_t index)
 {
-    KLOG_DEBUG_AUDIO("Removed sink info with index: %d.", index);
+    KLOG_INFO(audio) << "Removed sink info with index" << index;
 
-    auto sink = this->get_sink(index);
+    auto sink = getSink(index);
 
     if (!sink)
     {
-        KLOG_WARNING_AUDIO("The sink index %d is not found.", index);
+        KLOG_WARNING(audio) << "The sink index" << index << "is not found.";
         return;
     }
 
     // auto card = sink->get_card();
-    this->sink_event_.emit(PulseSinkEvent::PULSE_SINK_EVENT_DELETED, sink);
-    this->sinks_.erase(index);
+    Q_EMIT sinkEvent(PulseSinkEvent::PULSE_SINK_EVENT_DELETED, sink);
+    m_sinks.remove(index);
 
     // if (card)
     // {
@@ -388,100 +399,102 @@ void PulseBackend::on_sink_info_removed_cb(uint32_t index)
     // }
 
     /*当card profile发生变化时，default sink可能会发生变化，因此这里先进行清理*/
-    if (sink->get_name() == this->server_info_.default_sink_name)
+    if (sink->getName() == m_serverInfo.defaultSinkName)
     {
-        this->default_sink_ = nullptr;
-        this->default_sink_changed_.emit(this->default_sink_);
-        this->context_->load_server_info();
+        m_defaultSink = nullptr;
+        Q_EMIT defaultSinkChanged(m_defaultSink);
+        m_context->loadServerInfo();
     }
 }
 
-void PulseBackend::on_sink_input_info_changed_cb(const pa_sink_input_info *sink_input_info)
+void PulseBackend::processSinkInputInfoChanged(const pa_sink_input_info *sinkInputInfo)
 {
-    RETURN_IF_FALSE(sink_input_info != NULL);
+    RETURN_IF_FALSE(sinkInputInfo != NULL);
 
-    KLOG_DEBUG_AUDIO("Sink input changed, index is %d, name is %s.", sink_input_info->index, sink_input_info->name ? sink_input_info->name : "NULL");
+    KLOG_INFO(audio) << "Sink input changed. Index is" << sinkInputInfo->index
+                     << "and name is" << sinkInputInfo->name;
 
-    auto sink_input = this->get_sink_input(sink_input_info->index);
+    auto sinkInput = getSinkInput(sinkInputInfo->index);
 
-    if (sink_input)
+    if (sinkInput)
     {
-        sink_input->update(sink_input_info);
-        this->sink_input_event_.emit(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_CHANGED, sink_input);
+        sinkInput->update(sinkInputInfo);
+        Q_EMIT sinkInputEvent(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_CHANGED, sinkInput);
     }
     else
     {
-        sink_input = std::make_shared<PulseSinkInput>(this->context_, sink_input_info);
-        this->sink_inputs_.emplace(sink_input_info->index, sink_input);
-        this->sink_input_event_.emit(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_ADDED, sink_input);
+        sinkInput = QSharedPointer<PulseSinkInput>::create(m_context, sinkInputInfo);
+        m_sinkInputs.insert(sinkInputInfo->index, sinkInput);
+        Q_EMIT sinkInputEvent(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_ADDED, sinkInput);
     }
 }
 
-void PulseBackend::on_sink_input_info_removed_cb(uint32_t index)
+void PulseBackend::processSinkInputInfoRemoved(uint32_t index)
 {
-    KLOG_DEBUG_AUDIO("Remove sink input with index: %d.", index);
+    KLOG_INFO(audio) << "Remove sink input with index" << index;
 
-    auto sink_input = this->get_sink_input(index);
+    auto sinkInput = getSinkInput(index);
 
-    if (!sink_input)
+    if (!sinkInput)
     {
-        KLOG_WARNING_AUDIO("The sink input index %d is not found.", index);
+        KLOG_WARNING(audio) << "The sink input index" << index << "is not found.";
         return;
     }
 
-    this->sink_input_event_.emit(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_DELETED, sink_input);
-    this->sink_inputs_.erase(index);
+    Q_EMIT sinkInputEvent(PulseSinkInputEvent::PULSE_SINK_INPUT_EVENT_DELETED, sinkInput);
+    m_sinkInputs.remove(index);
 }
 
-void PulseBackend::on_source_info_changed_cb(const pa_source_info *source_info)
+void PulseBackend::processSourceInfoChanged(const pa_source_info *sourceInfo)
 {
-    RETURN_IF_FALSE(source_info != NULL);
+    RETURN_IF_FALSE(sourceInfo != NULL);
 
-    KLOG_DEBUG_AUDIO("Source changed, index: %d, name: %s.", source_info->index, source_info->name ? source_info->name : "NULL");
+    KLOG_INFO(audio) << "Source changed. Index is" << sourceInfo->index
+                     << "and name is" << sourceInfo->name;
 
-    auto source = this->get_source(source_info->index);
+    auto source = getSource(sourceInfo->index);
 
     if (source)
     {
-        source->update(source_info);
-        this->source_event_.emit(PulseSourceEvent::PULSE_SOURCE_EVENT_CHANGED, source);
+        source->update(sourceInfo);
+        Q_EMIT sourceEvent(PulseSourceEvent::PULSE_SOURCE_EVENT_CHANGED, source);
     }
     else
     {
-        source = std::make_shared<PulseSource>(this->context_, source_info);
-        this->sources_.emplace(source_info->index, source);
-        this->source_event_.emit(PulseSourceEvent::PULSE_SOURCE_EVENT_ADDED, source);
+        source = QSharedPointer<PulseSource>::create(m_context, sourceInfo);
+        m_sources.insert(sourceInfo->index, source);
+        Q_EMIT sourceEvent(PulseSourceEvent::PULSE_SOURCE_EVENT_ADDED, source);
 
-        // auto card = this->get_card(source_info->card);
+        // auto card = get_card(source_info->card);
         // if (card)
         // {
         //     card->add_stream(source);
         // }
 
         // 如果新增的是默认source，则发送信号（延迟到此时进行处理）
-        if (source->get_name() == this->server_info_.default_source_name)
+        if (source->getName() == m_serverInfo.defaultSourceName)
         {
-            this->default_source_ = source;
-            this->default_source_changed_.emit(this->default_source_);
+            m_defaultSource = source;
+            Q_EMIT defaultSourceChanged(m_defaultSource);
         }
     }
 }
 
-void PulseBackend::on_source_info_removed_cb(uint32_t index)
+void PulseBackend::processSourceInfoRemoved(uint32_t index)
 {
-    KLOG_DEBUG_AUDIO("Remove source info with index: %d.", index);
+    KLOG_INFO(audio) << "Remove source info with index" << index;
 
-    auto source = this->get_source(index);
+    auto source = getSource(index);
 
     if (!source)
     {
-        KLOG_WARNING_AUDIO("The source index %d is not found.", index);
+        KLOG_WARNING(audio) << "The source index" << index << "is not found.";
         return;
     }
 
     // auto card = source->get_card();
-    this->source_event_.emit(PulseSourceEvent::PULSE_SOURCE_EVENT_DELETED, source);
-    this->sources_.erase(index);
+    Q_EMIT sourceEvent(PulseSourceEvent::PULSE_SOURCE_EVENT_DELETED, source);
+    m_sources.remove(index);
 
     // if (card)
     // {
@@ -489,48 +502,49 @@ void PulseBackend::on_source_info_removed_cb(uint32_t index)
     // }
 
     /*当card profile发生变化时，default source可能会发生变化，因此这里先进行清理*/
-    if (source->get_name() == this->server_info_.default_source_name)
+    if (source->getName() == m_serverInfo.defaultSourceName)
     {
-        this->default_source_ = nullptr;
-        this->default_source_changed_.emit(this->default_source_);
-        this->context_->load_server_info();
+        m_defaultSource = nullptr;
+        Q_EMIT defaultSourceChanged(m_defaultSource);
+        m_context->loadServerInfo();
     }
 }
 
-void PulseBackend::on_source_output_info_changed_cb(const pa_source_output_info *source_output_info)
+void PulseBackend::processSourceOutputInfoChanged(const pa_source_output_info *sourceOutputInfo)
 {
-    RETURN_IF_FALSE(source_output_info != NULL);
+    RETURN_IF_FALSE(sourceOutputInfo != NULL);
 
-    KLOG_DEBUG_AUDIO("Source output changed, index: %d, name: %s.", source_output_info->index, source_output_info->name ? source_output_info->name : "NULL");
+    KLOG_INFO(audio) << "Source output changed. Index is" << sourceOutputInfo->index
+                     << "and name is" << sourceOutputInfo->name;
 
-    auto source_output = this->get_source_output(source_output_info->index);
+    auto sourceOutput = getSourceOutput(sourceOutputInfo->index);
 
-    if (source_output)
+    if (sourceOutput)
     {
-        source_output->update(source_output_info);
-        this->source_output_event_.emit(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_CHANGED, source_output);
+        sourceOutput->update(sourceOutputInfo);
+        Q_EMIT sourceOutputEvent(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_CHANGED, sourceOutput);
     }
     else
     {
-        source_output = std::make_shared<PulseSourceOutput>(this->context_, source_output_info);
-        this->source_outputs_.emplace(source_output_info->index, source_output);
-        this->source_output_event_.emit(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_ADDED, source_output);
+        sourceOutput = QSharedPointer<PulseSourceOutput>::create(m_context, sourceOutputInfo);
+        m_sourceOutputs.insert(sourceOutputInfo->index, sourceOutput);
+        Q_EMIT sourceOutputEvent(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_ADDED, sourceOutput);
     }
 }
 
-void PulseBackend::on_source_output_info_removed_cb(uint32_t index)
+void PulseBackend::processSourceOutputInfoRemoved(uint32_t index)
 {
-    KLOG_DEBUG_AUDIO("Remove source output info with index: %d.", index);
+    KLOG_INFO(audio) << "Remove source output info with index" << index;
 
-    auto source_output = this->get_source_output(index);
+    auto sourceOutput = getSourceOutput(index);
 
-    if (!source_output)
+    if (!sourceOutput)
     {
-        KLOG_WARNING_AUDIO("The source output index %d is not found.", index);
+        KLOG_WARNING(audio) << "The source output index" << index << "is not found.";
         return;
     }
 
-    this->source_output_event_.emit(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_DELETED, source_output);
-    this->source_outputs_.erase(index);
+    Q_EMIT sourceOutputEvent(PulseSourceOutputEvent::PULSE_SOURCE_OUTPUT_EVENT_DELETED, sourceOutput);
+    m_sourceOutputs.remove(index);
 }
 }  // namespace Kiran

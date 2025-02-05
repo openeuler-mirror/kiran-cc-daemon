@@ -1,104 +1,99 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/systeminfo/systeminfo-software.h"
-
+#include "systeminfo-software.h"
 #include <sys/utsname.h>
+#include <QProcess>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
-#define KYINFO_FILE "/etc/.kyinfo"
-#define KYINFO_GROUP_NAME "dist"
-#define KYINFO_KEY_NAME "name"
-#define KYINFO_KEY_MILESTONE "milestone"
-
 #define SET_HOSTNAME_CMD "/usr/bin/hostnamectl"
 
-SystemInfoSoftware::SystemInfoSoftware()
+SystemInfoSoftware::SystemInfoSoftware(QObject *parent) : QObject(parent)
 {
 }
 
-SoftwareInfo SystemInfoSoftware::get_software_info()
+SoftwareInfo SystemInfoSoftware::getSoftwareInfo()
 {
-    SoftwareInfo software_info;
-    this->read_kernel_info(software_info);
-    this->read_product_info(software_info);
-    return software_info;
+    SoftwareInfo softwareInfo;
+    readKernelInfo(softwareInfo);
+    readProductInfo(softwareInfo);
+    return softwareInfo;
 }
 
-bool SystemInfoSoftware::set_host_name(const std::string &host_name)
+bool SystemInfoSoftware::setHostName(const QString &hostName)
 {
-    KLOG_DEBUG_SYSTEMINFO("Set host name as %s.", host_name.c_str());
+    QProcess process;
+    process.setProgram(SET_HOSTNAME_CMD);
+    process.setArguments(QStringList({"set-hostname", hostName}));
+    process.start();
+    process.waitForFinished();
 
-    std::vector<std::string> argv{SET_HOSTNAME_CMD, "set-hostname", host_name};
-
-    try
+    if (process.exitStatus() != QProcess::ExitStatus::NormalExit)
     {
-        Glib::spawn_sync("",
-                         argv,
-                         Glib::SPAWN_DEFAULT,
-                         Glib::SlotSpawnChildSetup(),
-                         nullptr);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());
+        KLOG_WARNING(systeminfo) << "Call hostnamectl failed, exit code:" << process.exitCode();
         return false;
     }
-
     return true;
 }
 
-bool SystemInfoSoftware::read_kernel_info(SoftwareInfo &software_info)
+bool SystemInfoSoftware::readKernelInfo(SoftwareInfo &softwareInfo)
 {
-    struct utsname uts_name;
+    struct utsname utsName;
 
-    auto retval = uname(&uts_name);
+    auto retval = uname(&utsName);
     if (retval < 0)
     {
-        KLOG_WARNING_SYSTEMINFO("Call uname() failed: %s.", strerror(errno));
+        KLOG_WARNING(systeminfo) << "Call uname() failed:" << strerror(errno);
         return false;
     }
 
-    software_info.kernel_name = uts_name.sysname;
-    software_info.host_name = uts_name.nodename;
-    software_info.kernel_release = uts_name.release;
-    software_info.kernel_version = uts_name.version;
-    software_info.arch = uts_name.machine;
+    softwareInfo.kernelName = utsName.sysname;
+    softwareInfo.hostName = utsName.nodename;
+    softwareInfo.kernelRelease = utsName.release;
+    softwareInfo.kernelVersion = utsName.version;
+    softwareInfo.arch = utsName.machine;
 
     return true;
 }
 
-void SystemInfoSoftware::read_product_info(SoftwareInfo &software_info)
+void SystemInfoSoftware::readProductInfo(SoftwareInfo &softwareInfo)
 {
-#define GET_RELEASE_INFO(cmd, var)                                       \
-    try                                                                  \
-    {                                                                    \
-        Glib::spawn_command_line_sync(cmd, &var);                        \
-        var = StrUtils::trim(var);                                       \
-        if (var.length() > 1 && var.front() == '"' && var.back() == '"') \
-        {                                                                \
-            var.erase(0, 1);                                             \
-            var.pop_back();                                              \
-        }                                                                \
-    }                                                                    \
-    catch (const Glib::Error &e)                                         \
-    {                                                                    \
-        KLOG_WARNING_SYSTEMINFO("%s", e.what().c_str());                 \
-    }
+    softwareInfo.productName = getReleaseInfo("lsb_release", QStringList({"-i", "-s"}));
+    softwareInfo.productRelease = getReleaseInfo("lsb_release", QStringList({"-d", "-s"}));
+}
 
-    GET_RELEASE_INFO("lsb_release -i -s", software_info.product_name)
-    GET_RELEASE_INFO("lsb_release -d -s", software_info.product_release)
+QString SystemInfoSoftware::getReleaseInfo(const QString &program, const QStringList &arguments)
+{
+    QString output;
+    QProcess process;
+    process.start(program, arguments);
+    process.waitForFinished();
+    if (process.exitStatus() != QProcess::ExitStatus::NormalExit)
+    {
+        KLOG_WARNING(systeminfo) << "Call lsb_release failed, exit code:" << process.exitCode();
+    }
+    else
+    {
+        output = process.readAllStandardOutput().trimmed();
+        if (output.size() > 1 && output.front() == '"' && output.back() == '"')
+        {
+            output.remove(0, 1);
+            output.chop(1);
+        }
+    }
+    return output;
 }
 }  // namespace Kiran

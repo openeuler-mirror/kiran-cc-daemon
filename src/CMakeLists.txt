@@ -1,73 +1,44 @@
 cmake_minimum_required(VERSION 3.0)
 
-set_common_exe_linker_flags()
+qt5_add_dbus_adaptor(
+  DBUS_SRCS ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.Plugins.xml
+  ${CMAKE_SOURCE_DIR}/src/plugin-manager.h Kiran::PluginManager
+  plugin_manager_adaptor PluginManagerAdaptor)
 
-file(GLOB_RECURSE CORE_H_FILES ./*.h)
-file(GLOB_RECURSE CORE_CPP_FILES ./*.cpp)
+# system daemon
+set(TARGET_SYSTEM_DAEMON kiran-system-daemon)
 
-gen_dbus_stub(CC_DAEMON cc_daemon com.kylinsec.
-              ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.xml)
+add_executable(${TARGET_SYSTEM_DAEMON} ${DBUS_SRCS} main-system.cpp
+                                       plugin-manager.cpp)
 
-add_custom_target(TARGET_CC_DAEMON DEPENDS ${CC_DAEMON_GENERATED_STUB})
+target_include_directories(
+  ${TARGET_SYSTEM_DAEMON}
+  PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}
+          ${PROJECT_SOURCE_DIR}/include ${KLOG_QT5_INCLUDE_DIRS}
+          ${GSETTINGS_QT_INCLUDE_DIRS})
 
-configure_file(config.h.in ${PROJECT_BINARY_DIR}/config.h)
+target_link_libraries(
+  ${TARGET_SYSTEM_DAEMON}
+  PRIVATE ${KLOG_QT5_LIBRARIES} ${GSETTINGS_QT_LIBRARIES} kbase Qt5::Core
+          Qt5::DBus)
 
-if(build-system-daemon)
-  # system daemon
-  set(TARGET_SYSTEM_DAEMON kiran-system-daemon)
+install(TARGETS ${TARGET_SYSTEM_DAEMON}
+        DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 
-  add_executable(${TARGET_SYSTEM_DAEMON} ${CORE_H_FILES} ${CORE_CPP_FILES}
-                                         ${CC_DAEMON_GENERATED_STUB})
+# session daemon
 
-  target_include_directories(
-    ${TARGET_SYSTEM_DAEMON} PUBLIC ${PROJECT_BINARY_DIR}/generated
-                                   ${GMODULE_INCLUDE_DIRS})
+set(TARGET_SESSION_DAEMON kiran-session-daemon)
 
-  target_compile_definitions(
-    ${TARGET_SYSTEM_DAEMON} PRIVATE -DKCC_TYPE="system" -DKCC_SYSTEM_TYPE
-                                    -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/system")
+add_executable(${TARGET_SESSION_DAEMON} ${DBUS_SRCS} main-session.cpp
+                                        plugin-manager.cpp session-guarder.cpp)
 
-  target_link_libraries(${TARGET_SYSTEM_DAEMON}
-                        PRIVATE ${GMODULE_LIBRARIES} lib-base lib-dbus lib-iso)
+target_include_directories(
+  ${TARGET_SESSION_DAEMON} PRIVATE ${PROJECT_SOURCE_DIR}
+                                   ${GSETTINGS_QT_INCLUDE_DIRS})
 
-  add_dependencies(${TARGET_SYSTEM_DAEMON} TARGET_CC_DAEMON)
+target_link_libraries(
+  ${TARGET_SESSION_DAEMON} PRIVATE ${GSETTINGS_QT_LIBRARIES} kbase Qt5::DBus
+                                   Qt5::Widgets)
 
-  install(TARGETS ${TARGET_SYSTEM_DAEMON}
-          DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
-
-endif()
-
-if(build-session-daemon)
-  # session daemon
-  set(TARGET_SESSION_DAEMON kiran-session-daemon)
-
-  add_executable(${TARGET_SESSION_DAEMON} ${CORE_H_FILES} ${CORE_CPP_FILES}
-                                          ${CC_DAEMON_GENERATED_STUB})
-
-  target_include_directories(
-    ${TARGET_SESSION_DAEMON}
-    PUBLIC ${PROJECT_BINARY_DIR}/generated ${GMODULE_INCLUDE_DIRS}
-           ${GTKMM3_INCLUDE_DIRS} ${LIBNOTIFY_INCLUDE_DIRS})
-
-  target_compile_definitions(
-    ${TARGET_SESSION_DAEMON}
-    PRIVATE -DKCC_TYPE="session" -DKCC_SESSION_TYPE
-            -DKCC_PLUGIN_DIR="${KCC_PLUGIN_DIR}/session")
-
-  target_link_libraries(
-    ${TARGET_SESSION_DAEMON}
-    PRIVATE ${GMODULE_LIBRARIES}
-            ${GTKMM3_LIBRARIES}
-            ${LIBNOTIFY_LIBRARIES}
-            lib-base
-            lib-dbus
-            lib-iso
-            lib-display
-            lib-osdwindow)
-
-  add_dependencies(${TARGET_SESSION_DAEMON} TARGET_CC_DAEMON)
-
-  install(TARGETS ${TARGET_SESSION_DAEMON}
-          DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
-
-endif()
+install(TARGETS ${TARGET_SESSION_DAEMON}
+        DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

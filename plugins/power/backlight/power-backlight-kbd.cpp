@@ -1,18 +1,20 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-kbd.h"
+#include "power-backlight-kbd.h"
+#include <QDBusConnection>
+#include <QDBusMessage>
 
 namespace Kiran
 {
@@ -22,9 +24,10 @@ namespace Kiran
 
 #define POWER_KBD_BACKLIGHT_STEP 10
 
-PowerBacklightKbd::PowerBacklightKbd() : brightness_value_(-1),
-                                         brightness_percentage_(-1),
-                                         max_brightness_value_(-1)
+PowerBacklightKbd::PowerBacklightKbd(QObject* parent) : PowerBacklightPercentage(parent),
+                                                        m_brightnessValue(-1),
+                                                        m_brightnessPercentage(-1),
+                                                        m_maxBrightnessValue(-1)
 {
 }
 
@@ -34,137 +37,122 @@ PowerBacklightKbd::~PowerBacklightKbd()
 
 void PowerBacklightKbd::init()
 {
-    try
-    {
-        this->upower_kbd_proxy_ = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                                        UPOWER_KBD_BACKLIGHT_DBUS_NAME,
-                                                                        UPOWER_KBD_BACKLIGHT_DBUS_OBJECT,
-                                                                        UPOWER_KBD_BACKLIGHT_DBUS_INTERFACE);
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_DEBUG_POWER("%s", e.what().c_str());
-        return;
-    }
-
-    this->max_brightness_value_ = this->get_max_brightness_value();
+    m_maxBrightnessValue = getMaxBrightnessValue();
     // 判断是否支持亮度设置
-    RETURN_IF_TRUE(this->max_brightness_value_ <= 1);
+    RETURN_IF_TRUE(m_maxBrightnessValue <= 1);
 
-    this->brightness_value_ = this->get_brightness_value();
-    this->brightness_percentage_ = this->brightness_discrete2percent(this->brightness_value_, this->max_brightness_value_);
+    m_brightnessValue = getBrightnessValue();
+    m_brightnessPercentage = brightnessDiscrete2Percent(m_brightnessValue, m_maxBrightnessValue);
 
-    this->upower_kbd_proxy_->signal_signal().connect(sigc::mem_fun(this, &PowerBacklightKbd::on_upower_kbd_signal));
+    QDBusConnection::systemBus().connect(UPOWER_KBD_BACKLIGHT_DBUS_NAME,
+                                         UPOWER_KBD_BACKLIGHT_DBUS_OBJECT,
+                                         UPOWER_KBD_BACKLIGHT_DBUS_INTERFACE,
+                                         "BrightnessChanged",
+                                         this,
+                                         SLOT(processBrightnessChanged(const QDBusMessage&)));
 }
 
-bool PowerBacklightKbd::set_brightness(int32_t percentage)
+bool PowerBacklightKbd::setBrightness(int32_t percentage)
 {
-    RETURN_VAL_IF_TRUE(this->max_brightness_value_ <= 1, false);
-    RETURN_VAL_IF_TRUE(percentage == this->brightness_percentage_, true);
+    RETURN_VAL_IF_TRUE(m_maxBrightnessValue <= 1, false);
+    RETURN_VAL_IF_TRUE(percentage == m_brightnessPercentage, true);
 
-    auto new_brightness_value = this->brightness_percent2discrete(percentage, this->max_brightness_value_);
-    auto adjust_scale = (percentage > this->brightness_percentage_) ? 1 : -1;
+    auto newBrightnessValue = brightnessPercent2Discrete(percentage, m_maxBrightnessValue);
+    auto adjustScale = (percentage > m_brightnessPercentage) ? 1 : -1;
 
     // 如果设置的百分比和当前的百分比对应的值是相同的，则向上或者向下调整亮度值
-    if (new_brightness_value == this->brightness_value_)
+    if (newBrightnessValue == m_brightnessValue)
     {
-        new_brightness_value += adjust_scale;
+        newBrightnessValue += adjustScale;
     }
 
-    while (this->brightness_value_ != new_brightness_value)
+    while (m_brightnessValue != newBrightnessValue)
     {
-        this->brightness_value_ += adjust_scale;
-        if (!this->set_brightness_value(this->brightness_value_))
+        m_brightnessValue += adjustScale;
+        if (!setBrightnessValue(m_brightnessValue))
         {
             break;
         }
     }
-    this->brightness_percentage_ = this->brightness_discrete2percent(this->brightness_value_, this->max_brightness_value_);
-    KLOG_DEBUG_POWER("Current brightness is %d,set %d to be new brightness.", this->brightness_value_, new_brightness_value);
+    m_brightnessPercentage = brightnessDiscrete2Percent(m_brightnessValue, m_maxBrightnessValue);
 
-    return (this->brightness_value_ == new_brightness_value);
+    KLOG_INFO(power) << "Current brightness is" << m_brightnessValue << ", set" << newBrightnessValue << "to be new brightness.";
+    return (m_brightnessValue == newBrightnessValue);
 }
 
-bool PowerBacklightKbd::brightness_up()
+bool PowerBacklightKbd::brightnessUp()
 {
-    RETURN_VAL_IF_TRUE(this->max_brightness_value_ <= 1, false);
+    RETURN_VAL_IF_TRUE(m_maxBrightnessValue <= 1, false);
 
-    auto brightness_percentage = std::min(this->brightness_percentage_ + POWER_KBD_BACKLIGHT_STEP, 100);
-    return this->set_brightness(brightness_percentage);
+    auto brightnessPercentage = std::min(m_brightnessPercentage + POWER_KBD_BACKLIGHT_STEP, 100);
+    return setBrightness(brightnessPercentage);
 }
 
-bool PowerBacklightKbd::brightness_down()
+bool PowerBacklightKbd::brightnessDown()
 {
-    RETURN_VAL_IF_TRUE(this->max_brightness_value_ <= 1, false);
+    RETURN_VAL_IF_TRUE(m_maxBrightnessValue <= 1, false);
 
-    auto brightness_percentage = std::max(this->brightness_percentage_ - POWER_KBD_BACKLIGHT_STEP, 0);
-    return this->set_brightness(brightness_percentage);
+    auto brightnessPercentage = std::max(m_brightnessPercentage - POWER_KBD_BACKLIGHT_STEP, 0);
+    return setBrightness(brightnessPercentage);
 }
 
-int32_t PowerBacklightKbd::get_brightness_value()
+int32_t PowerBacklightKbd::getBrightnessValue()
 {
-    RETURN_VAL_IF_FALSE(this->upower_kbd_proxy_, -1);
+    auto sendMessage = QDBusMessage::createMethodCall(UPOWER_KBD_BACKLIGHT_DBUS_NAME,
+                                                      UPOWER_KBD_BACKLIGHT_DBUS_OBJECT,
+                                                      UPOWER_KBD_BACKLIGHT_DBUS_INTERFACE,
+                                                      "GetBrightness");
 
-    try
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        auto retval = this->upower_kbd_proxy_->call_sync("GetBrightness", Glib::VariantContainerBase());
-        auto v1 = retval.get_child(0);
-        auto brightness_value = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(v1).get();
-        return brightness_value;
+        KLOG_INFO(power) << "Call GetBrightness return error:" << replyMessage.errorMessage();
+        return -1;
     }
-    catch (const Glib::Error& e)
+    else
     {
-        KLOG_DEBUG_POWER("%s", e.what().c_str());
+        return replyMessage.arguments().takeFirst().value<int>();
     }
-    catch (const std::exception& e)
-    {
-        KLOG_WARNING_POWER("%s", e.what());
-    }
-    return -1;
 }
 
-bool PowerBacklightKbd::set_brightness_value(int32_t value)
+bool PowerBacklightKbd::setBrightnessValue(int32_t value)
 {
-    RETURN_VAL_IF_FALSE(this->upower_kbd_proxy_, false);
+    auto sendMessage = QDBusMessage::createMethodCall(UPOWER_KBD_BACKLIGHT_DBUS_NAME,
+                                                      UPOWER_KBD_BACKLIGHT_DBUS_OBJECT,
+                                                      UPOWER_KBD_BACKLIGHT_DBUS_INTERFACE,
+                                                      "SetBrightness");
 
-    auto parameters = g_variant_new("(i)", value);
-    Glib::VariantContainerBase base(parameters, false);
+    sendMessage << value;
 
-    try
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        this->upower_kbd_proxy_->call_sync("SetBrightness", base);
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_DEBUG_POWER("%s", e.what().c_str());
+        KLOG_INFO(power) << "Call SetBrightness return error:" << replyMessage.errorMessage();
         return false;
     }
     return true;
 }
 
-int32_t PowerBacklightKbd::get_max_brightness_value()
+int32_t PowerBacklightKbd::getMaxBrightnessValue()
 {
-    RETURN_VAL_IF_FALSE(this->upower_kbd_proxy_, -1);
+    auto sendMessage = QDBusMessage::createMethodCall(UPOWER_KBD_BACKLIGHT_DBUS_NAME,
+                                                      UPOWER_KBD_BACKLIGHT_DBUS_OBJECT,
+                                                      UPOWER_KBD_BACKLIGHT_DBUS_INTERFACE,
+                                                      "GetMaxBrightness");
 
-    try
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        auto retval = this->upower_kbd_proxy_->call_sync("GetMaxBrightness", Glib::VariantContainerBase());
-        auto v1 = retval.get_child(0);
-        auto max_brightness_value = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(v1).get();
-        return max_brightness_value;
+        KLOG_INFO(power) << "Call GetMaxBrightness return error:" << replyMessage.errorMessage();
+        return -1;
     }
-    catch (const Glib::Error& e)
+    else
     {
-        KLOG_DEBUG_POWER("%s", e.what().c_str());
+        return replyMessage.arguments().takeFirst().value<int>();
     }
-    catch (const std::exception& e)
-    {
-        KLOG_WARNING_POWER("%s", e.what());
-    }
-    return -1;
 }
 
-int32_t PowerBacklightKbd::brightness_percent2discrete(int32_t percentage, int32_t levels)
+int32_t PowerBacklightKbd::brightnessPercent2Discrete(int32_t percentage, int32_t levels)
 {
     RETURN_VAL_IF_TRUE(percentage > 100, levels);
     RETURN_VAL_IF_TRUE(levels == 0, 0);
@@ -174,7 +162,7 @@ int32_t PowerBacklightKbd::brightness_percent2discrete(int32_t percentage, int32
     return (int32_t)((((double)percentage * (double)(levels - factor)) / 100.0f) + 0.5f);
 }
 
-int32_t PowerBacklightKbd::brightness_discrete2percent(int32_t discrete, int32_t levels)
+int32_t PowerBacklightKbd::brightnessDiscrete2Percent(int32_t discrete, int32_t levels)
 {
     RETURN_VAL_IF_TRUE(discrete > levels, 100);
     RETURN_VAL_IF_TRUE(levels == 0, 0);
@@ -184,33 +172,11 @@ int32_t PowerBacklightKbd::brightness_discrete2percent(int32_t discrete, int32_t
     return (int32_t)(((double)discrete * (100.0f / (double)(levels - factor))) + 0.5f);
 }
 
-void PowerBacklightKbd::on_upower_kbd_signal(const Glib::ustring& sender_name,
-                                             const Glib::ustring& signal_name,
-                                             const Glib::VariantContainerBase& parameters)
+void PowerBacklightKbd::processBrightnessChanged(const QDBusMessage& message)
 {
-    KLOG_DEBUG_POWER("Recieve the request of %s from %s.", signal_name.c_str(), sender_name.c_str());
-
-    switch (shash(signal_name.c_str()))
-    {
-    case "BrightnessChanged"_hash:
-    {
-        try
-        {
-            Glib::VariantContainerBase v1;
-            parameters.get_child(v1, 0);
-            this->brightness_value_ = Glib::VariantBase::cast_dynamic<Glib::Variant<int32_t>>(v1).get();
-            this->brightness_percentage_ = this->brightness_discrete2percent(this->brightness_value_, this->max_brightness_value_);
-            this->brightness_changed_.emit(this->brightness_percentage_);
-        }
-        catch (const std::exception& e)
-        {
-            KLOG_WARNING_POWER("%s.", e.what());
-        }
-        break;
-    }
-    default:
-        break;
-    }
+    m_brightnessValue = message.arguments().takeFirst().value<int>();
+    m_brightnessPercentage = brightnessDiscrete2Percent(m_brightnessValue, m_maxBrightnessValue);
+    Q_EMIT brightnessChanged(m_brightnessPercentage);
 }
 
 }  // namespace  Kiran

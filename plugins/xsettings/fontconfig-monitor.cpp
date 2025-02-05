@@ -1,69 +1,78 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/xsettings/fontconfig-monitor.h"
+#include "fontconfig-monitor.h"
+#include <fontconfig/fontconfig.h>
+#include <QFileSystemWatcher>
+#include <QTimer>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
 #define FONTCONFIG_UPDATE_TIMEOUT_SECONDS 2
 
+FontconfigMonitor::FontconfigMonitor(QObject *parent) : QObject(parent)
+{
+    m_filesWatcher = new QFileSystemWatcher(this);
+    m_timer = new QTimer(this);
+}
+
 void FontconfigMonitor::init()
 {
+    m_timer->setInterval(1000);
+
     FcInit();
-    this->load_files_monitors();
+    loadFilesMonitors();
+
+    connect(m_filesWatcher, SIGNAL(fileChanged(const QString &)), m_timer, SLOT(start()));
+    connect(m_filesWatcher, SIGNAL(directoryChanged(const QString &)), m_timer, SLOT(start()));
+    connect(m_timer, &QTimer::timeout, this, &FontconfigMonitor::updateFontConfig);
 }
 
-void FontconfigMonitor::load_files_monitors()
+void FontconfigMonitor::loadFilesMonitors()
 {
-    this->files_monitors_.clear();
-    this->add_files_monitors(FcConfigGetConfigFiles(NULL));
-    this->add_files_monitors(FcConfigGetFontDirs(NULL));
-}
+    auto oldPaths = m_filesWatcher->files();
+    oldPaths.append(m_filesWatcher->directories());
 
-void FontconfigMonitor::add_files_monitors(FcStrList *files)
-{
-    const char *str;
-
-    while ((str = reinterpret_cast<const char *>(FcStrListNext(files))))
+    if (oldPaths.size() > 0)
     {
-        auto monitor = FileUtils::make_monitor(str, sigc::mem_fun(this, &FontconfigMonitor::file_changed));
-        this->files_monitors_.push_back(monitor);
+        m_filesWatcher->removePaths(oldPaths);
     }
 
+    addFilesMonitors(FcConfigGetConfigFiles(NULL));
+    addFilesMonitors(FcConfigGetFontDirs(NULL));
+}
+
+void FontconfigMonitor::addFilesMonitors(FcStrList *files)
+{
+    const char *str;
+    while ((str = reinterpret_cast<const char *>(FcStrListNext(files))))
+    {
+        m_filesWatcher->addPath(str);
+    }
     FcStrListDone(files);
 }
 
-void FontconfigMonitor::file_changed(const Glib::RefPtr<Gio::File> &file,
-                                     const Glib::RefPtr<Gio::File> &other_file,
-                                     Gio::FileMonitorEvent event_type)
+void FontconfigMonitor::updateFontConfig()
 {
-    if (this->timeout_handler_)
-    {
-        this->timeout_handler_.disconnect();
-    }
-    auto timeout = Glib::MainContext::get_default()->signal_timeout();
-    this->timeout_handler_ = timeout.connect_seconds(sigc::mem_fun(this, &FontconfigMonitor::update), FONTCONFIG_UPDATE_TIMEOUT_SECONDS);
-}
+    KLOG_INFO(xsettings) << "Font files is changes. so reload fontconfig";
 
-bool FontconfigMonitor::update()
-{
-    this->timeout_handler_.disconnect();
+    m_timer->stop();
     if (!FcConfigUptoDate(NULL) && FcInitReinitialize())
     {
-        this->load_files_monitors();
-        this->timestamp_changed_.emit();
+        loadFilesMonitors();
+        Q_EMIT timestampChanged();
     }
-    return false;
 }
 }  // namespace Kiran

@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -20,48 +20,54 @@
 namespace Kiran
 {
 // 背光设备亮度控制基类
-class PowerBacklightPercentage
+class PowerBacklightPercentage : public QObject
 {
+    Q_OBJECT
 public:
-    PowerBacklightPercentage(){};
+    PowerBacklightPercentage(QObject *parent = nullptr) : QObject(parent){};
     virtual ~PowerBacklightPercentage(){};
 
     virtual void init() = 0;
 
-    virtual PowerDeviceType get_type() = 0;
+    virtual PowerDeviceType getType() = 0;
 
     // 设置亮度百分比
-    virtual bool set_brightness(int32_t percentage) = 0;
+    virtual bool setBrightness(int32_t percentage) = 0;
     // 获取亮度百分比，如果小于0，则说明不支持调节亮度
-    virtual int32_t get_brightness() = 0;
+    virtual int32_t getBrightness() = 0;
 
     // 增加亮度百分比
-    virtual bool brightness_up() = 0;
+    virtual bool brightnessUp() = 0;
     // 降低亮度百分比
-    virtual bool brightness_down() = 0;
+    virtual bool brightnessDown() = 0;
 
+Q_SIGNALS:
     // 亮度发生变化
-    virtual sigc::signal<void, int32_t> &signal_brightness_changed() = 0;
+    void brightnessChanged(int32_t percentage);
 };
 
-class PowerBacklightAbsolute
+class PowerBacklightAbsolute : public QObject
 {
+    Q_OBJECT
+
 public:
     PowerBacklightAbsolute(){};
     virtual ~PowerBacklightAbsolute(){};
 
     // 设置亮度值
-    virtual bool set_brightness_value(int32_t brightness_value) = 0;
+    virtual bool setBrightnessValue(int32_t brightnessValue) = 0;
     // 获取亮度值
-    virtual int32_t get_brightness_value() = 0;
+    virtual int32_t getBrightnessValue() = 0;
     // 获取亮度最大最小值
-    virtual bool get_brightness_range(int32_t &min, int32_t &max) = 0;
+    virtual bool getBrightnessRange(int32_t &min, int32_t &max) = 0;
 };
 
-using PowerBacklightAbsoluteVec = std::vector<std::shared_ptr<PowerBacklightAbsolute>>;
+using PowerBacklightAbsoluteList = QVector<QSharedPointer<PowerBacklightAbsolute>>;
 
-class PowerBacklightMonitors
+class PowerBacklightMonitors : public QObject
 {
+    Q_OBJECT
+
 public:
     PowerBacklightMonitors(){};
     virtual ~PowerBacklightMonitors(){};
@@ -69,9 +75,11 @@ public:
     virtual void init() = 0;
 
     // 获取所有显示器亮度设置对象
-    virtual PowerBacklightAbsoluteVec get_monitors() = 0;
-    virtual sigc::signal<void> signal_monitor_changed() = 0;
-    virtual sigc::signal<void> signal_brightness_changed() = 0;
+    virtual PowerBacklightAbsoluteList getMonitors() = 0;
+
+Q_SIGNALS:
+    void monitorChanged();
+    void brightnessChanged();
 };
 
 }  // namespace Kiran

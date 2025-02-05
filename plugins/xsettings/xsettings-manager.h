@@ -1,103 +1,103 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include <xsettings_dbus_stub.h>
+#include <QDBusContext>
+#include <QMap>
+#include "dbus-types.h"
 
-#include "plugins/xsettings/fontconfig-monitor.h"
-#include "plugins/xsettings/xsettings-common.h"
-#include "plugins/xsettings/xsettings-registry.h"
-#include "plugins/xsettings/xsettings-xresource.h"
+class XSettingsAdaptor;
+class QGSettings;
+class QTimer;
 
 namespace Kiran
 {
-class XSettingsManager : public SessionDaemon::XSettingsStub
+class XSettingsRegistry;
+class FontconfigMonitor;
+class XSettingsXResource;
+
+class XSettingsManager : public QObject,
+                         protected QDBusContext
 {
+    Q_OBJECT
+
 public:
     XSettingsManager();
     virtual ~XSettingsManager();
 
-    static XSettingsManager *get_instance() { return instance_; };
+    static XSettingsManager *getInstance() { return m_instance; };
+    static void globalInit();
+    static void globalDeinit() { delete m_instance; };
+    int getWindowScale();
 
-    static void global_init();
+public Q_SLOTS:
+    DColor GetColor(const QString &name);
+    int GetInteger(const QString &name);
+    QString GetString(const QString &name);
+    QStringList ListPropertyNames();
+    void SetColor(const QString &name, DColor value);
+    void SetInteger(const QString &name, int value);
+    void SetString(const QString &name, const QString &value);
 
-    static void global_deinit() { delete instance_; };
-
-    sigc::signal<void, const std::string &> &signal_xsettings_changed() { return this->xsettings_changed_; };
-
-    int get_window_scale();
+Q_SIGNALS:
+    void PropertiesChanged(const QStringList &names);
+    void xsettingsChanged(const QString &name);
 
 public:
-    virtual void ListPropertyNames(MethodInvocation &invocation);
-    virtual void GetInteger(const Glib::ustring &name, MethodInvocation &invocation);
-    virtual void SetInteger(const Glib::ustring &name, gint32 value, MethodInvocation &invocation);
-    virtual void GetString(const Glib::ustring &name, MethodInvocation &invocation);
-    virtual void SetString(const Glib::ustring &name, const Glib::ustring &value, MethodInvocation &invocation);
-    virtual void GetColor(const Glib::ustring &name, MethodInvocation &invocation);
-    virtual void SetColor(const Glib::ustring &name, const std::tuple<guint16, guint16, guint16, guint16> &value, MethodInvocation &invocation);
-
-    int32_t get_xft_antialias() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_ANTIALIAS); }
-    int32_t get_xft_hinting() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_HINTING); }
-    std::string get_xft_hint_style() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_XFT_HINT_STYLE); }
-    std::string get_xft_rgba() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_XFT_RGBA); }
-    int32_t get_xft_dpi() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_XFT_DPI); }
-    double get_font_dpi() { return this->xsettings_settings_->get_double(XSETTINGS_SCHEMA_FONT_DPI); }
-    std::string get_gtk_cursor_theme_name() { return this->xsettings_settings_->get_string(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME); }
-    int32_t get_gtk_cursor_theme_size() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE); }
-    int32_t get_window_scaling_factor() { return this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR); }
-    bool get_window_scaling_factor_qt_sync() { return this->xsettings_settings_->get_boolean(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC); }
+    int getXftAntialias();
+    int getXftHinting();
+    QString getXftHintStyle();
+    QString getXftRGBA();
+    int getXftDPI();
+    double getFontDPI();
+    QString getGtkCursorThemeName();
+    int getGtkCursorThemeSize();
+    int getWindowScalingFactor();
+    bool getWindowScalingFactorQtSync();
 
 private:
     void init();
 
-    void load_from_settings();
-    void settings_changed(const Glib::ustring &key, bool is_notify);
-    double get_optimize_dpi();
-    void scale_settings();
-    void scale_change_workarounds(int32_t scale);
-    void on_screen_changed();
-    bool delayed_toggle_bg_draw(bool value);
-    void on_fontconfig_timestamp_changed();
-    void on_properties_changed(const std::vector<Glib::ustring> &properties);
-
-    void set_registry_var(std::shared_ptr<XSettingsPropertyBase> var, MethodInvocation &invocation);
-
-    void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
-    void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
+    void loadFromSettings();
+    void settingsChanged(const QString &key, bool isNotify);
+    double getOptimizeDPI();
+    void scaleSettings();
+    void scaleChangeWorkarounds(int32_t scale);
+    void processScreenChanged();
+    bool delayedToggleBgDraw(bool value);
+    void processFontconfigTimestampChanged();
+    void processPropertiesChanged(const QStringList &properties);
 
 private:
-    static XSettingsManager *instance_;
+    static XSettingsManager *m_instance;
+    XSettingsAdaptor *m_xsettingsAdaptor;
 
-    uint32_t dbus_connect_id_;
-    uint32_t object_register_id_;
-
-    sigc::signal<void, const std::string &> xsettings_changed_;
     // 当window_scaling_factor_为0时，根据屏幕信息设置缩放，否则跟window_scaling_factor_相同。
-    int32_t window_scale_;
+    int32_t m_windowScale;
 
-    Glib::RefPtr<Gio::Settings> xsettings_settings_;
-    Glib::RefPtr<Gio::Settings> background_settings_;
-    XSettingsRegistry registry_;
-    XSettingsXResource xresource_;
+    QGSettings *m_xsettingsSettings;
+    QGSettings *m_backgroundSettings;
+    XSettingsRegistry *m_registry;
+    XSettingsXResource *m_xresource;
 
-    const static std::map<std::string, std::string> schema2registry_;
-    std::map<std::string, std::string> registry2schema_;
+    const static QMap<QString, QString> m_schema2Registry;
+    QMap<QString, QString> m_registry2Schema;
 
-    sigc::connection switch_desktop_icon_[2];
+    QTimer *m_hideDesktopIconTimer;
+    QTimer *m_showDesktopIconTimer;
 
-    FontconfigMonitor fontconfig_monitor_;
+    FontconfigMonitor *m_fontconfigMonitor;
 };
 }  // namespace Kiran

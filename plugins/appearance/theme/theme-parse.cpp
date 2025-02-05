@@ -1,168 +1,159 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/appearance/theme/theme-parse.h"
+#include "theme-parse.h"
+#include <QFileInfo>
+#include <QSettings>
 
-#include <gtkmm.h>
 namespace Kiran
 {
 #define META_GROUP_NAME "X-GNOME-Metatheme"
 
-std::map<ThemeMonitorType, AppearanceThemeType> ThemeParse::monitor2theme_ = {
+QMap<int, int> ThemeParse::m_monitor2Theme = {
     {ThemeMonitorType::THEME_MONITOR_TYPE_META, APPEARANCE_THEME_TYPE_META},
     {ThemeMonitorType::THEME_MONITOR_TYPE_GTK, APPEARANCE_THEME_TYPE_GTK},
     {ThemeMonitorType::THEME_MONITOR_TYPE_METACITY, APPEARANCE_THEME_TYPE_METACITY},
     {ThemeMonitorType::THEME_MONITOR_TYPE_ICON, APPEARANCE_THEME_TYPE_ICON},
     {ThemeMonitorType::THEME_MONITOR_TYPE_CURSOR, APPEARANCE_THEME_TYPE_CURSOR}};
 
-ThemeParse::ThemeParse(std::shared_ptr<ThemeMonitorInfo> monitor_info) : monitor_info_(monitor_info)
+ThemeParse::ThemeParse(QSharedPointer<ThemeMonitorInfo> monitorInfo) : m_monitorInfo(monitorInfo)
 {
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse()
+QSharedPointer<ThemeBase> ThemeParse::parse()
 {
-    switch (this->monitor_info_->get_type())
+    switch (m_monitorInfo->getType())
     {
     case ThemeMonitorType::THEME_MONITOR_TYPE_META:
-        return this->parse_meta();
+        return parseMeta();
     case ThemeMonitorType::THEME_MONITOR_TYPE_GTK:
-        return this->parse_gtk();
+        return parseGtk();
     case ThemeMonitorType::THEME_MONITOR_TYPE_METACITY:
-        return this->parse_metacity();
+        return parseMetacity();
     case ThemeMonitorType::THEME_MONITOR_TYPE_ICON:
-        return this->parse_icon();
+        return parseIcon();
     case ThemeMonitorType::THEME_MONITOR_TYPE_CURSOR:
-        return this->parse_cursor();
+        return parseCursor();
         break;
     default:
         return nullptr;
     }
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse_base()
+QSharedPointer<ThemeBase> ThemeParse::parseBase()
 {
-    auto iter = ThemeParse::monitor2theme_.find(this->monitor_info_->get_type());
-    RETURN_VAL_IF_TRUE(iter == ThemeParse::monitor2theme_.end(), nullptr);
+    auto iter = ThemeParse::m_monitor2Theme.find(m_monitorInfo->getType());
+    RETURN_VAL_IF_TRUE(iter == ThemeParse::m_monitor2Theme.end(), nullptr);
 
-    auto base = std::make_shared<ThemeBase>();
-    base->type = iter->second;
-    base->priority = this->monitor_info_->get_priority();
-    base->path = this->get_theme_path(this->monitor_info_->get_path(), base->type);
-    base->name = Glib::path_get_basename(base->path);
+    auto base = QSharedPointer<ThemeBase>::create();
+    base->type = AppearanceThemeType(iter.value());
+    base->priority = m_monitorInfo->getPriority();
+    base->path = getThemePath(m_monitorInfo->getPath(), base->type);
+    base->name = QFileInfo(base->path).baseName();
     return base;
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse_meta()
+QSharedPointer<ThemeBase> ThemeParse::parseMeta()
 {
-    auto index_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "index.theme"});
-    RETURN_VAL_IF_FALSE(Glib::file_test(index_file, Glib::FILE_TEST_IS_REGULAR), nullptr);
+    auto indexFile = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("index.theme");
+    RETURN_VAL_IF_FALSE(QFileInfo(indexFile).isFile(), nullptr);
 
-    auto meta = std::make_shared<ThemeMeta>();
-    this->file_base(meta, AppearanceThemeType::APPEARANCE_THEME_TYPE_META);
+    auto meta = QSharedPointer<ThemeMeta>::create();
+    fileBase(meta, AppearanceThemeType::APPEARANCE_THEME_TYPE_META);
 
     // Gtk/Metacity/Icon三个主题必须设置，否则解析失败；Cursor主题可选
 
-    Glib::KeyFile key_file;
-    try
-    {
-        key_file.load_from_file(index_file);
-        meta->gtk_theme = key_file.get_string(META_GROUP_NAME, "GtkTheme");
-        meta->metacity_theme = key_file.get_string(META_GROUP_NAME, "MetacityTheme");
-        meta->icon_theme = key_file.get_string(META_GROUP_NAME, "IconTheme");
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_DEBUG_APPEARANCE("%s", e.what().c_str());
-        return nullptr;
-    }
+    QSettings settings(indexFile, QSettings::IniFormat);
 
-    IGNORE_EXCEPTION(meta->cursor_theme = key_file.get_string(META_GROUP_NAME, "CursorTheme"));
+    settings.beginGroup(META_GROUP_NAME);
+    meta->gtk_theme = settings.value("GtkTheme").toString();
+    meta->metacity_theme = settings.value("MetacityTheme").toString();
+    meta->icon_theme = settings.value("IconTheme").toString();
+    meta->cursor_theme = settings.value("CursorTheme").toString();
+    settings.endGroup();
 
     return meta;
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse_gtk()
+QSharedPointer<ThemeBase> ThemeParse::parseGtk()
 {
-    std::string css_file;
-    if (gtk_get_major_version() == GTK2_MAJOR)
-    {
-        css_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "gtkrc"});
-    }
-    else
-    {
-        css_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "gtk.css"});
-    }
-    RETURN_VAL_IF_FALSE(Glib::file_test(css_file, Glib::FILE_TEST_IS_REGULAR), nullptr);
+    auto cssFile = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("gtk.css");
+    QFileInfo fileInfo(cssFile);
 
-    std::shared_ptr<ThemeBase> base = std::make_shared<ThemeBase>();
-    return this->file_base(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK);
+    RETURN_VAL_IF_FALSE(fileInfo.exists() && fileInfo.isFile(), nullptr);
+
+    auto base = QSharedPointer<ThemeBase>::create();
+    return fileBase(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK);
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse_metacity()
+QSharedPointer<ThemeBase> ThemeParse::parseMetacity()
 {
-    auto theme_1_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "metacity-theme-1.xml"});
-    auto theme_2_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "metacity-theme-1.xml"});
-    auto theme_3_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "metacity-theme-3.xml"});
+    auto theme1File = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("metacity-theme-1.xml");
+    auto theme2File = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("metacity-theme-2.xml");
+    auto theme3File = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("metacity-theme-3.xml");
 
-    if (!Glib::file_test(theme_1_file, Glib::FILE_TEST_IS_REGULAR) &&
-        !Glib::file_test(theme_2_file, Glib::FILE_TEST_IS_REGULAR) &&
-        !Glib::file_test(theme_3_file, Glib::FILE_TEST_IS_REGULAR))
-    {
-        return nullptr;
-    }
+    QFileInfo file1Info(theme1File);
+    QFileInfo file2Info(theme2File);
+    QFileInfo file3Info(theme3File);
 
-    std::shared_ptr<ThemeBase> base = std::make_shared<ThemeBase>();
-    return this->file_base(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY);
+    RETURN_VAL_IF_TRUE(!file1Info.isFile() && !file2Info.isFile() && !file3Info.isFile(), nullptr);
+
+    auto base = QSharedPointer<ThemeBase>::create();
+    return fileBase(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY);
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse_icon()
+QSharedPointer<ThemeBase> ThemeParse::parseIcon()
 {
-    auto index_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "index.theme"});
-    RETURN_VAL_IF_FALSE(Glib::file_test(index_file, Glib::FILE_TEST_IS_REGULAR), nullptr);
+    auto indexFile = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("index.theme");
+    QFileInfo fileInfo(indexFile);
 
-    std::shared_ptr<ThemeBase> base = std::make_shared<ThemeBase>();
-    return this->file_base(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON);
+    RETURN_VAL_IF_FALSE(fileInfo.isFile(), nullptr);
+
+    auto base = QSharedPointer<ThemeBase>::create();
+    return fileBase(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON);
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::parse_cursor()
+QSharedPointer<ThemeBase> ThemeParse::parseCursor()
 {
-    auto left_ptr_file = Glib::build_filename(std::vector<std::string>{this->monitor_info_->get_path(), "left_ptr"});
-    RETURN_VAL_IF_FALSE(Glib::file_test(left_ptr_file, Glib::FILE_TEST_IS_REGULAR), nullptr);
+    auto leftPtrFile = QString("%1/%2").arg(m_monitorInfo->getPath()).arg("left_ptr");
+    QFileInfo fileInfo(leftPtrFile);
 
-    std::shared_ptr<ThemeBase> base = std::make_shared<ThemeBase>();
-    return this->file_base(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR);
+    RETURN_VAL_IF_FALSE(fileInfo.isFile(), nullptr);
+
+    auto base = QSharedPointer<ThemeBase>::create();
+    return fileBase(base, AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR);
 }
 
-std::shared_ptr<ThemeBase> ThemeParse::file_base(std::shared_ptr<ThemeBase> theme_base, AppearanceThemeType type)
+QSharedPointer<ThemeBase> ThemeParse::fileBase(QSharedPointer<ThemeBase> themeBase, AppearanceThemeType type)
 {
-    theme_base->type = type;
-    theme_base->priority = this->monitor_info_->get_priority();
-    theme_base->path = this->get_theme_path(this->monitor_info_->get_path(), theme_base->type);
-    theme_base->name = Glib::path_get_basename(theme_base->path);
-    return theme_base;
+    themeBase->type = type;
+    themeBase->priority = m_monitorInfo->getPriority();
+    themeBase->path = getThemePath(m_monitorInfo->getPath(), themeBase->type);
+    themeBase->name = QFileInfo(themeBase->path).baseName();
+    return themeBase;
 }
 
-std::string ThemeParse::get_theme_path(const std::string& monitor_path, AppearanceThemeType type)
+QString ThemeParse::getThemePath(const QString& monitorPath, AppearanceThemeType type)
 {
     if (type == APPEARANCE_THEME_TYPE_META ||
         type == APPEARANCE_THEME_TYPE_ICON)
     {
-        return monitor_path;
+        return monitorPath;
     }
     else
     {
-        return Glib::path_get_dirname(monitor_path);
+        return QFileInfo(monitorPath).absolutePath();
     }
 }
 }  // namespace Kiran

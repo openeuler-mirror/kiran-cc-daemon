@@ -1,71 +1,72 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include <systeminfo_dbus_stub.h>
+#pragma once
 
-#include "plugins/systeminfo/systeminfo-hardware.h"
-#include "plugins/systeminfo/systeminfo-software.h"
+#include <QDBusContext>
+
+class SystemInfoAdaptor;
 
 namespace Kiran
 {
-class SystemInfoManager : public SystemDaemon::SystemInfoStub
+
+class SystemInfoSoftware;
+class SystemInfoHardware;
+
+class SystemInfoManager : public QObject,
+                          protected QDBusContext
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QString host_name READ getHostName WRITE setHostName)
 public:
     SystemInfoManager();
     virtual ~SystemInfoManager(){};
 
-    static SystemInfoManager* get_instance() { return instance_; };
+    static SystemInfoManager* getInstance() { return m_instance; };
+    static void globalInit();
+    static void globalDeinit() { delete m_instance; };
 
-    static void global_init();
+public:
+    QString getHostName() const;
+    void setHostName(const QString& hostName);
 
-    static void global_deinit() { delete instance_; };
-
-protected:
+public Q_SLOTS:
     /**
      * @brief 获取系统信息，如果type为SYSTEMINFO_TYPE_SOFTWARE则返回SoftwareInfo结构体中的内容，
      * 如果type为SYSTEMINFO_TYPE_SOFTWARE，则返回HardwareInfo结构体中的内容。
      * @param {type} 类型请查看SystemInfoType
      * @return 返回json格式的字符串。
      */
-    virtual void GetSystemInfo(gint32 type, MethodInvocation& invocation);
-
+    QString GetSystemInfo(int type);
     /**
      * @brief 设置主机名
      * @param {host_name} 主机名
      * @return 如果调用sethostname函数失败，则返回错误，否则返回成功。
      */
-    virtual void SetHostName(const Glib::ustring& host_name, MethodInvocation& invocation);
-
-    virtual bool host_name_setHandler(const Glib::ustring& value);
-    virtual Glib::ustring host_name_get();
+    void SetHostName(const QString& hostName);
 
 private:
     void init();
 
-    void change_host_name_cb(MethodInvocation invocation, const std::string& host_name);
-
-    void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
-    void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
-    void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name);
+    void processHostNameChanged(const QDBusMessage& message, const QString& hostName);
 
 private:
-    static SystemInfoManager* instance_;
+    static SystemInfoManager* m_instance;
 
-    uint32_t dbus_connect_id_;
-    uint32_t object_register_id_;
-
-    SystemInfoSoftware software_;
-    SystemInfoHardware hardware_;
+    SystemInfoAdaptor* m_adaptor;
+    SystemInfoSoftware* m_software;
+    SystemInfoHardware* m_hardware;
 };
 }  // namespace Kiran

@@ -1,0 +1,5 @@
+{
+    "id": "greeter",
+    "description": "used for greeter settings",
+    "enabled": true
+}

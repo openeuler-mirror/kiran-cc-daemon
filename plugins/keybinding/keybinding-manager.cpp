@@ -1,411 +1,330 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/keybinding/keybinding-manager.h"
-
+#include "keybinding-manager.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QKeySequence>
+#include "custom-shortcut.h"
 #include "keybinding-i.h"
+#include "keybindingadaptor.h"
+#include "keys/keys-sound.h"
+#include "keys/keys-system.h"
+#include "keys/keys-touchpad.h"
+#include "lib/base/base.h"
+#include "system-shortcut.h"
 
 namespace Kiran
 {
-KeybindingManager::KeybindingManager() : dbus_connect_id_(0),
-                                         object_register_id_(0)
+KeybindingManager::KeybindingManager()
 {
-    this->custom_shortcuts_ = std::make_shared<CustomShortCuts>();
-    this->system_shortcuts_ = std::make_shared<SystemShortCuts>();
+    m_adaptor = new KeybindingAdaptor(this);
+    m_customShortcuts = QSharedPointer<CustomShortcuts>::create();
+    m_systemShortcuts = QSharedPointer<SystemShortcuts>::create();
+    m_keysComponents.append({new KeysSound(), new KeysTouchpad(), new KeysSystem()});
 }
 
 KeybindingManager::~KeybindingManager()
 {
-    if (this->dbus_connect_id_)
+}
+
+KeybindingManager *KeybindingManager::m_instance = nullptr;
+void KeybindingManager::globalInit()
+{
+    m_instance = new KeybindingManager();
+    m_instance->init();
+}
+
+QString KeybindingManager::AddCustomShortcut(const QString &name, const QString &action, const QString &keyComb)
+{
+    if (name.isEmpty() || action.isEmpty())
     {
-        Gio::DBus::unown_name(this->dbus_connect_id_);
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_ARGUMENT_INVALID);
     }
+
+    if (hasSameKeycomb(QString(), keyComb))
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST);
+    }
+
+    auto customShortcut = QSharedPointer<CustomShortCut>::create(name, action, keyComb);
+
+    if (!m_customShortcuts->add(customShortcut))
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
+    }
+
+    QJsonObject jsonObj;
+    jsonObj[KEYBINDING_SHORTCUT_JK_UID] = customShortcut->uid;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = tr("Custom");
+    jsonObj[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
+    auto customShortCutJson = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+
+    Q_EMIT Added(customShortCutJson);
+    return customShortcut->uid;
 }
 
-KeybindingManager *KeybindingManager::instance_ = nullptr;
-void KeybindingManager::global_init()
+void KeybindingManager::DeleteCustomShortcut(const QString &uid)
 {
-    instance_ = new KeybindingManager();
-    instance_->init();
+    if (!m_customShortcuts->remove(uid))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
+    }
+
+    QJsonObject jsonObj;
+    jsonObj[KEYBINDING_SHORTCUT_JK_UID] = uid;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = tr("Custom");
+    jsonObj[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
+    auto customShortCutJson = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+
+    Q_EMIT Deleted(customShortCutJson);
+    return;
 }
 
-void KeybindingManager::AddCustomShortcut(const Glib::ustring &name,
-                                          const Glib::ustring &action,
-                                          const Glib::ustring &key_combination,
-                                          MethodInvocation &invocation)
+QString KeybindingManager::GetCustomShortcut(const QString &uid)
 {
-    if (name.empty() || action.empty())
+    auto customShortcut = m_customShortcuts->get(uid);
+    if (!customShortcut)
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST);
+    }
+
+    QJsonObject jsonObj;
+    jsonObj[KEYBINDING_SHORTCUT_JK_UID] = uid;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = tr("Custom");
+    jsonObj[KEYBINDING_SHORTCUT_JK_NAME] = customShortcut->name;
+    jsonObj[KEYBINDING_SHORTCUT_JK_ACTION] = customShortcut->action;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = customShortcut->keyComb;
+    return QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+}
+
+QString KeybindingManager::GetSystemShortcut(const QString &uid)
+{
+    auto systemShortcut = m_systemShortcuts->get(uid);
+    if (!systemShortcut)
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST);
+    }
+
+    QJsonObject jsonObj;
+    jsonObj[KEYBINDING_SHORTCUT_JK_UID] = uid;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = systemShortcut->kind;
+    jsonObj[KEYBINDING_SHORTCUT_JK_NAME] = systemShortcut->name;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = systemShortcut->keyCombination;
+    return QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+}
+
+QString KeybindingManager::ListCustomShortcuts()
+{
+    QJsonObject jsonRoot;
+    QJsonArray jsonShortcuts;
+
+    auto customShortcuts = m_customShortcuts->get();
+    for (const auto &customShortcut : customShortcuts)
+    {
+        QJsonObject jsonShortcut;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_UID] = customShortcut->uid;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_NAME] = customShortcut->name;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_ACTION] = customShortcut->action;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = customShortcut->keyComb;
+        jsonShortcuts.append(jsonShortcut);
+    }
+    jsonRoot[KEYBINDING_SHORTCUT_JK_CUSTOM] = jsonShortcuts;
+
+    return QJsonDocument(jsonRoot).toJson(QJsonDocument::Compact);
+}
+
+QString KeybindingManager::ListShortcuts()
+{
+    QJsonObject jsonRoot;
+    QJsonArray jsonCustomShortcuts;
+    QJsonArray jsonSystemShortcuts;
+
+    auto customShortcuts = m_customShortcuts->get();
+    for (const auto &customShortcut : customShortcuts)
+    {
+        QJsonObject jsonShortcut;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_UID] = customShortcut->uid;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_NAME] = customShortcut->name;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_ACTION] = customShortcut->action;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = customShortcut->keyComb;
+        jsonCustomShortcuts.append(jsonShortcut);
+    }
+    jsonRoot[KEYBINDING_SHORTCUT_JK_CUSTOM] = jsonCustomShortcuts;
+
+    auto systemShortcuts = m_systemShortcuts->get();
+    for (const auto &systemShortcut : systemShortcuts)
+    {
+        QJsonObject jsonShortcut;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_UID] = systemShortcut->uid;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_KIND] = systemShortcut->kind;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_NAME] = systemShortcut->name;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = systemShortcut->keyCombination;
+        jsonSystemShortcuts.append(jsonShortcut);
+    }
+    jsonRoot[KEYBINDING_SHORTCUT_JK_SYSTEM] = jsonSystemShortcuts;
+
+    return QJsonDocument(jsonRoot).toJson(QJsonDocument::Compact);
+}
+
+QString KeybindingManager::ListSystemShortcuts()
+{
+    QJsonObject jsonRoot;
+    QJsonArray jsonShortcuts;
+
+    auto systemShortcuts = m_systemShortcuts->get();
+    for (const auto &systemShortcut : systemShortcuts)
+    {
+        QJsonObject jsonShortcut;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_UID] = systemShortcut->uid;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_KIND] = systemShortcut->kind;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_NAME] = systemShortcut->name;
+        jsonShortcut[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = systemShortcut->keyCombination;
+        jsonShortcuts.append(jsonShortcut);
+    }
+    jsonRoot[KEYBINDING_SHORTCUT_JK_SYSTEM] = jsonShortcuts;
+    return QJsonDocument(jsonRoot).toJson(QJsonDocument::Compact);
+}
+
+void KeybindingManager::KeybindingManager::ModifyCustomShortcut(const QString &uid,
+                                                                const QString &name,
+                                                                const QString &action,
+                                                                const QString &keyComb)
+{
+    if (name.isEmpty() || action.isEmpty())
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
     }
 
-    if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID);
-    }
-
-    if (this->has_same_keycomb(std::string(), key_combination))
+    if (hasSameKeycomb(uid, keyComb))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST);
     }
 
-    auto custom_shortcut = std::make_shared<CustomShortCut>(name, action, key_combination);
-
-    if (!this->custom_shortcuts_->add(custom_shortcut))
+    auto customShortcut = QSharedPointer<CustomShortCut>::create(uid, name, action, keyComb);
+    if (!m_customShortcuts->modify(customShortcut))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
     }
-    else
-    {
-        Json::Value values;
-        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(custom_shortcut->uid);
-        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
-        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
-        std::string signal_val = StrUtils::json2str(values);
 
-        invocation.ret(custom_shortcut->uid);
-        this->Added_signal.emit(Glib::ustring(signal_val));
-    }
+    QJsonObject jsonObj;
+    jsonObj[KEYBINDING_SHORTCUT_JK_UID] = uid;
+    jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = tr("Custom");
+    jsonObj[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
+    auto customShortCutJson = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+
+    Q_EMIT Changed(customShortCutJson);
+    return;
 }
 
-void KeybindingManager::ModifyCustomShortcut(const Glib::ustring &uid,
-                                             const Glib::ustring &name,
-                                             const Glib::ustring &action,
-                                             const Glib::ustring &key_combination,
-                                             MethodInvocation &invocation)
+void KeybindingManager::ModifySystemShortcut(const QString &uid, const QString &keyComb)
 {
-    if (name.empty() || action.empty())
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
-    }
-
-    if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID);
-    }
-
-    if (this->has_same_keycomb(uid, key_combination))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST);
-    }
-
-    auto custom_shortcut = std::make_shared<CustomShortCut>(uid, name, action, key_combination);
-    if (!this->custom_shortcuts_->modify(custom_shortcut))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
-    }
-    else
-    {
-        Json::Value values;
-        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
-        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
-        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
-        std::string signal_val = StrUtils::json2str(values);
-
-        invocation.ret();
-        this->Changed_signal.emit(Glib::ustring(signal_val));
-    }
-}
-
-void KeybindingManager::DeleteCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
-{
-    if (!this->custom_shortcuts_->remove(uid))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
-    }
-    else
-    {
-        Json::Value values;
-        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
-        values[KEYBINDING_SHORTCUT_JK_KIND] = std::string(CUSTOM_SHORTCUT_KIND);
-        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_CUSTOM;
-        std::string signal_val = StrUtils::json2str(values);
-
-        invocation.ret();
-        this->Deleted_signal.emit(Glib::ustring(signal_val));
-    }
-}
-
-void KeybindingManager::GetCustomShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
-{
-    try
-    {
-        Json::Value values;
-
-        auto custom_shortcut = this->custom_shortcuts_->get(uid.raw());
-        if (!custom_shortcut)
-        {
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST);
-        }
-        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
-        values[KEYBINDING_SHORTCUT_JK_NAME] = custom_shortcut->name;
-        values[KEYBINDING_SHORTCUT_JK_ACTION] = custom_shortcut->action;
-        values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = custom_shortcut->key_combination;
-
-        auto retval = StrUtils::json2str(values);
-        invocation.ret(retval);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_KEYBINDING("%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
-    }
-}
-
-void KeybindingManager::ListCustomShortcuts(MethodInvocation &invocation)
-{
-    try
-    {
-        Json::Value root;
-        Json::Value values;
-
-        auto custom_shortcuts = this->custom_shortcuts_->get();
-        for (const auto &shortcut : custom_shortcuts)
-        {
-            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
-            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
-            values[KEYBINDING_SHORTCUT_JK_ACTION] = shortcut.second->action;
-            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
-
-            root[KEYBINDING_SHORTCUT_JK_CUSTOM].append(values);
-        }
-
-        auto retval = StrUtils::json2str(root);
-        invocation.ret(retval);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_KEYBINDING("%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
-    }
-}
-
-void KeybindingManager::ModifySystemShortcut(const Glib::ustring &uid,
-                                             const Glib::ustring &key_combination,
-                                             MethodInvocation &invocation)
-{
-    if (ShortCutHelper::get_keystate(key_combination) == INVALID_KEYSTATE)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_INVALID);
-    }
-
-    if (this->has_same_keycomb(uid, key_combination))
+    if (hasSameKeycomb(uid, keyComb))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_ALREADY_EXIST);
     }
 
-    if (!this->system_shortcuts_->modify(uid.raw(), key_combination.raw()))
+    if (!m_systemShortcuts->modify(uid, keyComb))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_CALL_FUNCTION_FAILED);
     }
-    invocation.ret();
 }
 
-void KeybindingManager::GetSystemShortcut(const Glib::ustring &uid, MethodInvocation &invocation)
+void KeybindingManager::ResetShortcuts()
 {
-    try
-    {
-        Json::Value values;
-
-        auto system_shortcut = this->system_shortcuts_->get(uid);
-        if (!system_shortcut)
-        {
-            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_SHORTCUT_NOT_EXIST);
-        }
-
-        values[KEYBINDING_SHORTCUT_JK_UID] = std::string(uid);
-        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
-        values[KEYBINDING_SHORTCUT_JK_NAME] = system_shortcut->name;
-        values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = system_shortcut->key_combination;
-
-        auto retval = StrUtils::json2str(values);
-        invocation.ret(retval);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_KEYBINDING("%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
-    }
-}
-
-void KeybindingManager::ListSystemShortcuts(MethodInvocation &invocation)
-{
-    try
-    {
-        Json::Value root;
-        Json::Value values;
-
-        auto system_shortcuts = this->system_shortcuts_->get();
-        for (const auto &shortcut : system_shortcuts)
-        {
-            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
-            values[KEYBINDING_SHORTCUT_JK_KIND] = shortcut.second->kind;
-            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
-            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
-
-            root[KEYBINDING_SHORTCUT_JK_SYSTEM].append(values);
-        }
-
-        auto retval = StrUtils::json2str(root);
-        invocation.ret(retval);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_KEYBINDING("%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
-    }
-}
-
-void KeybindingManager::ListShortcuts(MethodInvocation &invocation)
-{
-    try
-    {
-        Json::Value root;
-
-        auto custom_shortcuts = this->custom_shortcuts_->get();
-        for (const auto &shortcut : custom_shortcuts)
-        {
-            Json::Value values;
-            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
-            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
-            values[KEYBINDING_SHORTCUT_JK_ACTION] = shortcut.second->action;
-            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
-
-            root[KEYBINDING_SHORTCUT_JK_CUSTOM].append(values);
-        }
-
-        auto system_shortcuts = this->system_shortcuts_->get();
-        for (const auto &shortcut : system_shortcuts)
-        {
-            Json::Value values;
-            values[KEYBINDING_SHORTCUT_JK_UID] = std::string(shortcut.first);
-            values[KEYBINDING_SHORTCUT_JK_KIND] = shortcut.second->kind;
-            values[KEYBINDING_SHORTCUT_JK_NAME] = shortcut.second->name;
-            values[KEYBINDING_SHORTCUT_JK_KEY_COMBINATION] = shortcut.second->key_combination;
-
-            root[KEYBINDING_SHORTCUT_JK_SYSTEM].append(values);
-        }
-
-        auto retval = StrUtils::json2str(root);
-        invocation.ret(retval);
-    }
-    catch (const std::exception &e)
-    {
-        KLOG_WARNING_KEYBINDING("%s.", e.what());
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_JSON_WRITE_EXCEPTION);
-    }
-}
-
-void KeybindingManager::ResetShortcuts(MethodInvocation &invocation)
-{
-    this->system_shortcuts_->reset();
-    invocation.ret();
+    m_systemShortcuts->reset();
 }
 
 void KeybindingManager::init()
 {
-    this->custom_shortcuts_->init();
-    this->system_shortcuts_->init();
+    m_customShortcuts->init();
+    m_systemShortcuts->init();
 
-    this->system_shortcuts_->signal_shortcut_added().connect(sigc::mem_fun(this, &KeybindingManager::system_shortcut_added));
-    this->system_shortcuts_->signal_shortcut_deleted().connect(sigc::mem_fun(this, &KeybindingManager::system_shortcut_deleted));
-    this->system_shortcuts_->signal_shortcut_changed().connect(sigc::mem_fun(this, &KeybindingManager::system_shortcut_changed));
+    for (auto keysComponent : m_keysComponents)
+    {
+        keysComponent->init();
+    }
 
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                 KEYBINDING_DBUS_NAME,
-                                                 sigc::mem_fun(this, &KeybindingManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &KeybindingManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &KeybindingManager::on_name_lost));
+    auto sessionConnection = QDBusConnection::sessionBus();
+    if (!sessionConnection.registerService(KEYBINDING_DBUS_NAME))
+    {
+        KLOG_WARNING(audio) << "Failed to register dbus name: " << KEYBINDING_DBUS_NAME;
+        return;
+    }
+
+    if (!sessionConnection.registerObject(KEYBINDING_OBJECT_PATH, KEYBINDING_DBUS_INTERFACE_NAME, this))
+    {
+        KLOG_ERROR(audio) << "Can't register object:" << sessionConnection.lastError();
+        return;
+    }
+
+    connect(m_systemShortcuts.data(), &SystemShortcuts::shortcutAdded, this, &KeybindingManager::processSystemShortcutAdded);
+    connect(m_systemShortcuts.data(), &SystemShortcuts::shortcutDeleted, this, &KeybindingManager::processSystemShortcutDeleted);
+    connect(m_systemShortcuts.data(), &SystemShortcuts::shortcutChanged, this, &KeybindingManager::processSystemShortcutChanged);
 }
 
-bool KeybindingManager::has_same_keycomb(const std::string &uid, const std::string &key_combination)
+bool KeybindingManager::hasSameKeycomb(const QString &uid, const QString &keyComb)
 {
-    auto custom_shortcut = this->custom_shortcuts_->get_by_keycomb(key_combination);
-    RETURN_VAL_IF_TRUE(custom_shortcut && custom_shortcut->uid != uid, true);
+    auto customShortcut = m_customShortcuts->getByKeyComb(keyComb);
+    RETURN_VAL_IF_TRUE(customShortcut && customShortcut->uid != uid, true);
 
-    auto system_shortcut = this->system_shortcuts_->get_by_keycomb(key_combination);
-    RETURN_VAL_IF_TRUE(system_shortcut && system_shortcut->uid != uid, true);
+    auto systemShortcut = m_systemShortcuts->getByKeycomb(keyComb);
+    RETURN_VAL_IF_TRUE(systemShortcut && systemShortcut->uid != uid, true);
 
     return false;
 }
 
-void KeybindingManager::system_shortcut_added(std::shared_ptr<SystemShortCut> system_shortcut)
+void KeybindingManager::processSystemShortcutAdded(QSharedPointer<SystemShortcut> systemShortcut)
 {
-    if (system_shortcut)
+    if (systemShortcut)
     {
-        Json::Value values;
-        values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
-        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
-        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
-        std::string signal_val = StrUtils::json2str(values);
+        QJsonObject jsonObj;
+        jsonObj[KEYBINDING_SHORTCUT_JK_UID] = systemShortcut->uid;
+        jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = systemShortcut->kind;
+        jsonObj[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
 
-        this->Added_signal.emit(Glib::ustring(signal_val));
+        auto systemShortcutStr = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+        Q_EMIT Added(systemShortcutStr);
     }
 }
 
-void KeybindingManager::system_shortcut_deleted(std::shared_ptr<SystemShortCut> system_shortcut)
+void KeybindingManager::processSystemShortcutDeleted(QSharedPointer<SystemShortcut> systemShortcut)
 {
-    if (system_shortcut)
+    if (systemShortcut)
     {
-        Json::Value values;
-        values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
-        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
-        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
-        std::string signal_val = StrUtils::json2str(values);
+        QJsonObject jsonObj;
+        jsonObj[KEYBINDING_SHORTCUT_JK_UID] = systemShortcut->uid;
+        jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = systemShortcut->kind;
+        jsonObj[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
 
-        this->Deleted_signal.emit(Glib::ustring(signal_val));
+        auto systemShortcutStr = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+        Q_EMIT Deleted(systemShortcutStr);
     }
 }
 
-void KeybindingManager::system_shortcut_changed(std::shared_ptr<SystemShortCut> system_shortcut)
+void KeybindingManager::processSystemShortcutChanged(QSharedPointer<SystemShortcut> systemShortcut)
 {
-    if (system_shortcut)
+    if (systemShortcut)
     {
-        Json::Value values;
-        values[KEYBINDING_SHORTCUT_JK_UID] = system_shortcut->uid;
-        values[KEYBINDING_SHORTCUT_JK_KIND] = system_shortcut->kind;
-        values[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
-        std::string signal_val = StrUtils::json2str(values);
+        QJsonObject jsonObj;
+        jsonObj[KEYBINDING_SHORTCUT_JK_UID] = systemShortcut->uid;
+        jsonObj[KEYBINDING_SHORTCUT_JK_KIND] = systemShortcut->kind;
+        jsonObj[KEYBINDING_SHORTCUT_JK_TYPE] = KEYBINDING_SHORTCUT_JK_SYSTEM;
 
-        this->Changed_signal.emit(Glib::ustring(signal_val));
+        auto systemShortcutStr = QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+        Q_EMIT Changed(systemShortcutStr);
     }
 }
 
-void KeybindingManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    if (!connect)
-    {
-        KLOG_WARNING_KEYBINDING("Failed to connect dbus with %s", name.c_str());
-        return;
-    }
-    try
-    {
-        this->object_register_id_ = this->register_object(connect, KEYBINDING_OBJECT_PATH);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_KEYBINDING("Register object_path %s fail: %s.", KEYBINDING_OBJECT_PATH, e.what().c_str());
-    }
-}
-
-void KeybindingManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    KLOG_DEBUG_KEYBINDING("Success to register dbus name: %s", name.c_str());
-}
-
-void KeybindingManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    KLOG_DEBUG_KEYBINDING("Failed to register dbus name: %s", name.c_str());
-}
 }  // namespace Kiran

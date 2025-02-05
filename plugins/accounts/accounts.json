@@ -1,0 +1,5 @@
+{
+    "id": "accounts",
+    "description": "access the list of user accounts and information attached to those accounts",
+    "enabled": true
+}

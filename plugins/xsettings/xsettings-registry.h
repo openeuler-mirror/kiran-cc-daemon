@@ -1,29 +1,30 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include <gdkmm.h>
-// The file must be included after gdkmm.h
-#include <gdk/gdkx.h>
+#include <xcb/xproto.h>
+#include <QMap>
+#include <QObject>
+#include <QSharedPointer>
 
-#include <map>
-
-#include "lib/base/base.h"
+class QTimer;
 
 namespace Kiran
 {
+class XcbConnection;
+
 enum class XSettingsPropType
 {
     XSETTINGS_PROP_TYPE_INT = 0,
@@ -46,110 +47,110 @@ struct XSettingsColor
 class XSettingsPropertyBase
 {
 public:
-    XSettingsPropertyBase(const std::string &name, XSettingsPropType type, uint32_t serial = 0);
+    XSettingsPropertyBase(const QString &name, XSettingsPropType type, uint32_t serial = 0);
     virtual ~XSettingsPropertyBase(){};
 
-    const std::string &get_name() const { return this->name_; };
-    XSettingsPropType get_type() const { return this->type_; };
-    void set_serial(uint32_t serial) { this->last_change_serial_ = serial; };
+    const QString &getName() const { return m_name; };
+    XSettingsPropType getType() const { return m_type; };
+    void setSerial(uint32_t serial) { m_lastChangeSerial = serial; };
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const = 0;
-    virtual std::string serialize();
+    virtual QByteArray serialize();
 
 private:
-    std::string name_;
-    XSettingsPropType type_;
-    uint32_t last_change_serial_;
+    QString m_name;
+    XSettingsPropType m_type;
+    uint32_t m_lastChangeSerial;
 };
 
-using XSettingsPropertyBaseVec = std::vector<std::shared_ptr<XSettingsPropertyBase>>;
+using XSettingsPropertyBaseList = QList<QSharedPointer<XSettingsPropertyBase>>;
 
 class XSettingsPropertyInt : public XSettingsPropertyBase
 {
 public:
-    XSettingsPropertyInt(const std::string &name, int32_t value, uint32_t serial = 0);
+    XSettingsPropertyInt(const QString &name, int32_t value, uint32_t serial = 0);
     virtual ~XSettingsPropertyInt(){};
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const;
     virtual bool operator==(const XSettingsPropertyInt &rval) const;
-    virtual std::string serialize() override;
-    int32_t get_value() { return this->value_; }
+    virtual QByteArray serialize() override;
+    int32_t getValue() { return m_value; }
 
 private:
-    int32_t value_;
+    int32_t m_value;
 };
 
 class XSettingsPropertyString : public XSettingsPropertyBase
 {
 public:
-    XSettingsPropertyString(const std::string &name, const std::string &value, uint32_t serial = 0);
+    XSettingsPropertyString(const QString &name, const QString &value, uint32_t serial = 0);
     virtual ~XSettingsPropertyString(){};
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const;
     virtual bool operator==(const XSettingsPropertyString &rval) const;
-    virtual std::string serialize() override;
-    const std::string &get_value() { return this->value_; }
+    virtual QByteArray serialize() override;
+    const QString &getValue() { return m_value; }
 
 private:
-    std::string value_;
+    QString m_value;
 };
 
 class XSettingsPropertyColor : public XSettingsPropertyBase
 {
 public:
-    XSettingsPropertyColor(const std::string &name, const XSettingsColor &value, uint32_t serial = 0);
+    XSettingsPropertyColor(const QString &name, const XSettingsColor &value, uint32_t serial = 0);
     virtual ~XSettingsPropertyColor(){};
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const;
     virtual bool operator==(const XSettingsPropertyColor &rval) const;
-    virtual std::string serialize() override;
-    const XSettingsColor &get_value() { return this->value_; }
+    virtual QByteArray serialize() override;
+    const XSettingsColor &getValue() { return m_value; }
 
 private:
-    XSettingsColor value_;
+    XSettingsColor m_value;
 };
 
-class XSettingsRegistry
+class XSettingsRegistry : public QObject
 {
+    Q_OBJECT
+
 public:
-    XSettingsRegistry();
+    XSettingsRegistry(QObject *parent = nullptr);
     virtual ~XSettingsRegistry();
 
     bool init();
 
-    bool update(const std::string &name, int32_t value);
-    bool update(const std::string &name, const Glib::ustring &value);
-    bool update(const std::string &name, const XSettingsColor &value);
-    bool update(std::shared_ptr<XSettingsPropertyBase> var);
+    bool update(const QString &name, int32_t value);
+    bool update(const QString &name, const QString &value);
+    bool update(const QString &name, const XSettingsColor &value);
+    bool update(QSharedPointer<XSettingsPropertyBase> var);
 
-    std::shared_ptr<XSettingsPropertyBase> get_property(const std::string &name);
-    XSettingsPropertyBaseVec get_properties();
+    QSharedPointer<XSettingsPropertyBase> getProperty(const QString &name) { return m_properties.value(name); };
+    XSettingsPropertyBaseList getProperties() { return m_properties.values(); };
 
-    sigc::signal<void, std::vector<Glib::ustring>> signal_properties_changed() { return this->properties_changed_; };
-
-private:
-    bool notify();
-    char byte_order();
+Q_SIGNALS:
+    void propertiesChanged(const QStringList &names);
 
 private:
-    Display *xdisplay_;
-    int32_t screen_;
+    void notify();
+    char byteOrder();
 
-    Atom selection_atom_;
-    Atom xsettings_atom_;
-    Atom manager_atom_;
+private:
+    QSharedPointer<XcbConnection> m_xcbConnection;
+    xcb_atom_t m_selectionAtom;
+    xcb_atom_t m_xsettingsAtom;
+    xcb_atom_t m_managerAtom;
     // 类型不能随意修改
-    int32_t serial_;
-    Window xsettings_window_;
+    int32_t m_serial;
+    xcb_window_t m_xsettingsWindow;
 
-    std::map<std::string, std::shared_ptr<XSettingsPropertyBase>> properties_;
+    QMap<QString, QSharedPointer<XSettingsPropertyBase>> m_properties;
     // 记录发生变化的属性，在改变后发送信号
-    std::vector<Glib::ustring> changed_properties_;
-    sigc::connection notify_handler_;
-    sigc::signal<void, std::vector<Glib::ustring>> properties_changed_;
+    QStringList m_changedProperties;
+    QTimer *m_timer;
 };
 }  // namespace Kiran

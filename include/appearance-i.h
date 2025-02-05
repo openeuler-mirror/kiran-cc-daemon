@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -29,9 +29,9 @@ extern "C"
 #define APPEARANCE_DEFAULT_DARK_GTK_THEME "Kiran-dark"
 
 #define APPEARANCE_SCHAME_ID "com.kylinsec.kiran.appearance"
-#define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktop-background"
-#define APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG "lock-screen-background"
-#define APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME "auto-switch-window-theme"
+#define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktopBackground"
+#define APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG "lockScreenBackground"
+#define APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME "autoSwitchWindowTheme"
 
     enum AppearanceFontType
     {

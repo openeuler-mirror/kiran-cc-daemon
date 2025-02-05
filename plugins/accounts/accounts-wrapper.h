@@ -1,28 +1,29 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include <grp.h>
-#include <pwd.h>
-#include <shadow.h>
+#include <QLoggingCategory>
+#include <QMap>
+#include <QObject>
+#include <QVector>
 
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "lib/base/base.h"
+struct passwd;
+struct spwd;
+struct group;
+class QFileSystemWatcher;
+class QTimer;
 
 namespace Kiran
 {
@@ -30,139 +31,98 @@ class Passwd
 {
 public:
     Passwd() = delete;
-    Passwd(struct passwd *passwd)
-    {
-        RETURN_IF_FALSE(passwd != NULL);
+    Passwd(struct passwd *passwd);
 
-        this->pw_name = POINTER_TO_STRING(passwd->pw_name);
-        this->pw_passwd = POINTER_TO_STRING(passwd->pw_passwd);
-        this->pw_uid = passwd->pw_uid;
-        this->pw_gid = passwd->pw_gid;
-        this->pw_gecos = POINTER_TO_STRING(passwd->pw_gecos);
-        this->pw_dir = POINTER_TO_STRING(passwd->pw_dir);
-        this->pw_shell = POINTER_TO_STRING(passwd->pw_shell);
-    }
-
-    std::string pw_name;   /* Username.  */
-    std::string pw_passwd; /* Hashed passphrase, if shadow database not in use (see shadow.h).  */
-    uint32_t pw_uid;       /* User ID.  */
-    uint32_t pw_gid;       /* Group ID.  */
-    std::string pw_gecos;  /* Real name.  */
-    std::string pw_dir;    /* Home directory.  */
-    std::string pw_shell;  /* Shell program.  */
+    // Username.
+    QString name;
+    // Hashed passphrase, if shadow database not in use (see shadow.h).
+    QString passwd;
+    // User ID.
+    uint32_t uid;
+    // Group ID.
+    uint32_t gid;
+    // Real name.
+    QString gecos;
+    // Home directory.
+    QString dir;
+    // Shell program.
+    QString shell;
 };
 
 class SPwd
 {
 public:
     SPwd() = delete;
-    SPwd(struct spwd *sp)
-    {
-        RETURN_IF_FALSE(sp != NULL);
-
-        this->sp_namp = POINTER_TO_STRING(sp->sp_namp);
-        if (sp->sp_pwdp)
-        {
-            this->sp_pwdp = std::make_shared<std::string>(sp->sp_pwdp);
-        }
-        this->sp_lstchg = sp->sp_lstchg;
-        this->sp_min = sp->sp_min;
-        this->sp_max = sp->sp_max;
-        this->sp_warn = sp->sp_warn;
-        this->sp_inact = sp->sp_inact;
-        this->sp_expire = sp->sp_expire;
-        this->sp_flag = sp->sp_flag;
-    }
-    std::string sp_namp;                  /* Login name.  */
-    std::shared_ptr<std::string> sp_pwdp; /* Hashed passphrase.  */
-    long int sp_lstchg;                   /* Date of last change.  */
-    long int sp_min;                      /* Minimum number of days between changes.  */
-    long int sp_max;                      /* Maximum number of days between changes.  */
-    long int sp_warn;                     /* Number of days to warn user to change the password.  */
-    long int sp_inact;                    /* Number of days the account may be inactive.  */
-    long int sp_expire;                   /* Number of days since 1970-01-01 until  account expires.  */
-    unsigned long int sp_flag;            /* Reserved.  */
+    SPwd(struct spwd *sp);
+    QString namp;           /* Login name.  */
+    QString pwdp;           /* Hashed passphrase.  */
+    long int lstchg;        /* Date of last change.  */
+    long int min;           /* Minimum number of days between changes.  */
+    long int max;           /* Maximum number of days between changes.  */
+    long int warn;          /* Number of days to warn user to change the password.  */
+    long int inact;         /* Number of days the account may be inactive.  */
+    long int expire;        /* Number of days since 1970-01-01 until  account expires.  */
+    unsigned long int flag; /* Reserved.  */
 };
 
 class Group
 {
 public:
     Group() = delete;
-    Group(struct group *grp)
-    {
-        RETURN_IF_FALSE(grp != NULL);
+    Group(struct group *grp);
 
-        this->gr_name = POINTER_TO_STRING(grp->gr_name);
-        this->gr_passwd = POINTER_TO_STRING(grp->gr_passwd);
-        this->gr_gid = grp->gr_gid;
-        for (auto pos = grp->gr_mem; pos != NULL && *pos != NULL; ++pos)
-        {
-            this->gr_mem.push_back(*pos);
-        }
-    }
-
-    std::string gr_name;             /* Group name.	*/
-    std::string gr_passwd;           /* Password.	*/
-    uint32_t gr_gid;                 /* Group ID.	*/
-    std::vector<std::string> gr_mem; /* Member list.	*/
+    QString name;             /* Group name.	*/
+    QString passwd;           /* Password.	*/
+    uint32_t gid;             /* Group ID.	*/
+    std::vector<QString> mem; /* Member list.	*/
 };
 
-enum class FileChangedType
-{
-    PASSWD_CHANGED,
-    SHADOW_CHANGED,
-    GROUP_CHANGED,
-    GDM_CHANGED,
-};
+using PasswdShadow = QPair<QSharedPointer<Passwd>, QSharedPointer<SPwd>>;
 
-using PasswdShadow = std::pair<std::shared_ptr<Passwd>, std::shared_ptr<SPwd>>;
-
-class AccountsWrapper
+class AccountsWrapper : public QObject
 {
-    // using FileChangedCallBack = void (Kiran::PasswdWrapper::*)(const Glib::RefPtr<Gio::File> &, const Glib::RefPtr<Gio::File> &, Gio::FileMonitorEvent);
+    Q_OBJECT
 
 public:
     AccountsWrapper();
 
-    static AccountsWrapper *get_instance() { return instance_; };
+    static AccountsWrapper *getInstance() { return m_instance; };
+    static void globalInit();
+    static void globalDeinit() { delete m_instance; };
 
-    static void global_init();
+    QVector<PasswdShadow> getPasswdsShadows();
+    QSharedPointer<Passwd> getPasswdByName(const QString &userName);
+    QSharedPointer<Passwd> getPasswdByUID(uint64_t uid);
+    QSharedPointer<SPwd> getSpwdByName(const QString &userName);
+    QSharedPointer<Group> getGroupByName(const QString &groupName);
+    QVector<uint32_t> getUserGroups(const QString &user, uint32_t group);
 
-    static void global_deinit() { delete instance_; };
-
-    std::vector<PasswdShadow> get_passwds_shadows();
-
-    std::shared_ptr<Passwd> get_passwd_by_name(const std::string &user_name);
-    std::shared_ptr<Passwd> get_passwd_by_uid(uint64_t uid);
-    std::shared_ptr<SPwd> get_spwd_by_name(const std::string &user_name);
-    std::shared_ptr<Group> get_group_by_name(const std::string &group_name);
-    std::vector<uint32_t> get_user_groups(const std::string &user, uint32_t group);
-
-    sigc::signal<void, FileChangedType> &signal_file_changed() { return this->file_changed_; };
+Q_SIGNALS:
+    void userChanged();
 
 private:
     void init();
 
-    void passwd_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
-    void shadow_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
-    void group_changed(const Glib::RefPtr<Gio::File> &file, const Glib::RefPtr<Gio::File> &other_file, Gio::FileMonitorEvent event_type);
+    void reloadPasswd();
+    void reloadShadow();
 
-    void reload_passwd();
-    void reload_shadow();
-
-protected:
-    sigc::signal<void, FileChangedType> file_changed_;
+private Q_SLOTS:
+    void idleReload(const QString &filePath);
+    // 配置文件更新，重新加载
+    void reload();
 
 private:
-    static AccountsWrapper *instance_;
+    static AccountsWrapper *m_instance;
+    // 监控passwd/shadow/group文件变化
+    QFileSystemWatcher *m_fsWatcher;
+    QTimer *m_reloadTimer;
 
-    Glib::RefPtr<Gio::FileMonitor> passwd_monitor_;
-    Glib::RefPtr<Gio::FileMonitor> shadow_monitor_;
-    Glib::RefPtr<Gio::FileMonitor> group_monitor_;
-
-    std::map<std::string, std::shared_ptr<Passwd>> passwds_;
-    std::map<uint64_t, std::weak_ptr<Passwd>> passwds_by_uid_;
-    std::map<std::string, std::shared_ptr<SPwd>> spwds_;
+    // <userName, Passwd>
+    QMap<QString, QSharedPointer<Passwd>> m_passwds;
+    // <userUID, Passwd>
+    QMap<uint64_t, QSharedPointer<Passwd>> m_passwdsByUID;
+    // <userName, SPwd>
+    QMap<QString, QSharedPointer<SPwd>> m_spwds;
 };
 
 }  // namespace Kiran

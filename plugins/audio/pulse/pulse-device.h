@@ -1,70 +1,76 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
 #pragma once
 
-#include "plugins/audio/pulse/pulse-node.h"
-#include "plugins/audio/pulse/pulse-port.h"
+#include <QMap>
+#include <QSharedPointer>
+#include "pulse-node.h"
+#include "pulse-port.h"
 
 namespace Kiran
 {
 struct PulseDeviceInfo : public PulseNodeInfo
 {
 public:
-    PulseDeviceInfo(const pa_sink_info *sink_info);
-    PulseDeviceInfo(const pa_source_info *source_info);
+    PulseDeviceInfo(const pa_sink_info *sinkInfo);
+    PulseDeviceInfo(const pa_source_info *sourceInfo);
 
     // 设备对应的声卡
-    uint32_t card_index;
+    uint32_t m_cardIndex;
     // 设备可用的端口
-    std::map<std::string, std::shared_ptr<PulsePort>> ports;
+    QMap<QString, QSharedPointer<PulsePort>> m_ports;
     // 活动端口
-    std::string active_port_name;
+    QString m_activePortName;
 };
 
 class PulseDevice : public PulseNode
 {
+    Q_OBJECT
+
 public:
-    PulseDevice(const PulseDeviceInfo &device_info);
-    virtual ~PulseDevice(){};
+    PulseDevice(const PulseDeviceInfo &deviceInfo);
+    virtual ~PulseDevice() {};
 
     // 设置活动的端口
-    virtual bool set_active_port(const std::string &port_name);
+    virtual bool setActivePort(const QString &portName);
 
     // 获取活动的端口
-    std::string get_active_port() { return this->active_port_name_; };
+    QString getActivePort() { return m_activePortName; };
     // 根据名字获取端口
-    std::shared_ptr<PulsePort> get_port(const std::string &port_name) { return MapHelper::get_value(this->ports_, port_name); };
+    QSharedPointer<PulsePort> get_port(const QString &portName)
+    {
+        return m_ports.value(portName);
+    };
     // 获取所有绑定端口
-    PulsePortVec get_ports() { return MapHelper::get_values(this->ports_); };
+    PulsePortVec getPorts() { return m_ports.values(); };
     // 获取声卡索引
-    uint32_t get_card_index() { return this->card_index_; };
+    uint32_t getCardIndex() { return m_cardIndex; };
 
+Q_SIGNALS:
     // 相关信号
-    sigc::signal<void, const std::string &> &signal_active_port_changed() { return this->active_port_changed_; };
+    void activePortChanged(const QString &portName);
 
 protected:
-    void update(const PulseDeviceInfo &device_info);
+    void update(const PulseDeviceInfo &deviceInfo);
 
 private:
     // card index
-    uint32_t card_index_;
+    uint32_t m_cardIndex;
     // sink ports
-    std::map<std::string, std::shared_ptr<PulsePort>> ports_;
+    QMap<QString, QSharedPointer<PulsePort>> m_ports;
     // active sink port
-    std::string active_port_name_;
-
-    sigc::signal<void, const std::string &> active_port_changed_;
+    QString m_activePortName;
 };
 }  // namespace Kiran

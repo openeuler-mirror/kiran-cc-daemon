@@ -1,35 +1,24 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME systeminfo)
 
 file(GLOB_RECURSE SYSTEMINFO_H_FILES ./*.h)
 file(GLOB_RECURSE SYSTEMINFO_CPP_FILES ./*.cpp)
 
-gen_dbus_stub(
-  SYSTEMINFO
-  systeminfo
-  com.kylinsec.
-  ${CMAKE_SOURCE_DIR}/plugins/systeminfo/com.kylinsec.Kiran.SystemDaemon.SystemInfo.xml
-)
+qt5_add_dbus_adaptor(
+  SYSTEMINFO_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SystemDaemon.SystemInfo.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/systeminfo-manager.h Kiran::SystemInfoManager)
 
 add_library(${TARGET_NAME} SHARED ${SYSTEMINFO_H_FILES} ${SYSTEMINFO_CPP_FILES}
-                                  ${SYSTEMINFO_GENERATED_STUB})
-
-set_common_shared_linker_flags()
+                                  ${SYSTEMINFO_SRCS})
 
 target_include_directories(
   ${TARGET_NAME}
-  PUBLIC ${PROJECT_BINARY_DIR}/generated ${JSONCPP_INCLUDE_DIRS}
-         ${LIBGTOP_INCLUDE_DIRS} ${GUDEV_INCLUDE_DIRS} ${GIOUNIX_INCLUDE_DIRS})
+  PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
+         ${PROJECT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+         ${LIBGTOP_INCLUDE_DIRS} ${GUDEV_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_NAME}
-  PRIVATE ${KSD_LINKER_FLAGS}
-          ${JSONCPP_LIBRARIES}
-          ${LIBGTOP_LIBRARIES}
-          ${GUDEV_LIBRARIES}
-          ${GIOUNIX_LIBRARIES}
-          lib-base
-          lib-dbus)
+  ${TARGET_NAME} PRIVATE ${KSD_LINKER_FLAGS} ${JSONCPP_LIBRARIES}
+                         ${LIBGTOP_LIBRARIES} ${GUDEV_LIBRARIES} kbase)
 
-install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/system)
+install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/system)

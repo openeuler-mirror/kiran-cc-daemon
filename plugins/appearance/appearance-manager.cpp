@@ -1,272 +1,269 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/appearance/appearance-manager.h"
-
-#include <json/json.h>
+#include "appearance-manager.h"
+#include <QGSettings>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QTime>
+#include "appearanceadaptor.h"
+#include "background/appearance-background.h"
+#include "font/appearance-font.h"
+#include "theme/appearance-theme.h"
 
 namespace Kiran
 {
-AppearanceManager::AppearanceManager() : auto_switch_window_theme_(false),
-                                         dbus_connect_id_(0),
-                                         object_register_id_(0)
+AppearanceManager::AppearanceManager()
 
 {
-    this->appearance_settings_ = Gio::Settings::create(APPEARANCE_SCHAME_ID);
+    m_appearanceSettings = new QGSettings(APPEARANCE_SCHAME_ID, "", this);
+    m_appearanceAdaptor = new AppearanceAdaptor(this);
+
+    m_appearanceTheme = new AppearanceTheme(this);
+    m_appearanceFont = new AppearanceFont(this);
+    m_appearanceBackground = new AppearanceBackground(this);
 }
 
 AppearanceManager::~AppearanceManager()
 {
-    if (this->dbus_connect_id_)
-    {
-        Gio::DBus::unown_name(this->dbus_connect_id_);
-    }
 }
 
-AppearanceManager* AppearanceManager::instance_ = nullptr;
-void AppearanceManager::global_init()
+AppearanceManager* AppearanceManager::m_instance = nullptr;
+void AppearanceManager::globalInit()
 {
-    instance_ = new AppearanceManager();
-    instance_->init();
+    m_instance = new AppearanceManager();
+    m_instance->init();
 }
 
-void AppearanceManager::GetThemes(gint32 type, MethodInvocation& invocation)
+bool AppearanceManager::getAutoSwitchWindowTheme() const
+{
+    return m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME).toBool();
+}
+
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                          \
+    QVariantMap changedProperties;                                            \
+    changedProperties.insert(QStringLiteral(#property), get##propertyHump()); \
+                                                                              \
+    QDBusMessage signalMessage = QDBusMessage::createSignal(                  \
+        APPEARANCE_OBJECT_PATH,                                               \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                    \
+        QStringLiteral("PropertiesChanged"));                                 \
+                                                                              \
+    signalMessage.setArguments({                                              \
+        APPEARANCE_DBUS_INTERFACE_NAME,                                       \
+        changedProperties,                                                    \
+        QStringList(),                                                        \
+    });                                                                       \
+    QDBusConnection::sessionBus().send(signalMessage);
+
+void AppearanceManager::EnableAutoSwitchWindowTheme()
+{
+    auto currentValue = m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME).toBool();
+    RETURN_IF_TRUE(currentValue);
+    m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, true);
+}
+
+QString AppearanceManager::GetFont(int type)
+{
+    if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_1);
+    }
+    return m_appearanceFont->getFont(AppearanceFontType(type));
+}
+
+QString AppearanceManager::GetTheme(int type)
+{
+    return m_appearanceTheme->getTheme(AppearanceThemeType(type));
+}
+
+QString AppearanceManager::GetThemes(int type)
 {
     if (type < 0 || type >= int32_t(AppearanceThemeType::APPEARANCE_THEME_TYPE_LAST))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_INVALID);
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_APPEARANCE_THEME_TYPE_INVALID);
     }
 
-    auto themes = this->appearance_theme_.get_themes_by_type(AppearanceThemeType(type));
-    Json::Value json_themes;
-    Json::FastWriter writer;
+    QJsonArray jsonThemes;
+
+    auto themes = m_appearanceTheme->getThemesByType(AppearanceThemeType(type));
     for (uint32_t i = 0; i < themes.size(); ++i)
     {
-        json_themes[i]["name"] = themes[i]->name;
-        json_themes[i]["path"] = themes[i]->path;
+        QJsonObject jsonTheme;
+        jsonTheme["name"] = themes[i]->name;
+        jsonTheme["path"] = themes[i]->path;
+        jsonThemes.append(jsonTheme);
     }
-    auto result = writer.write(json_themes);
-    invocation.ret(result);
+    return QJsonDocument(jsonThemes).toJson(QJsonDocument::Compact);
 }
 
-void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, MethodInvocation& invocation)
-{
-    ThemeKey key = std::make_pair(type, theme_name);
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->appearance_theme_.set_theme(key, error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
-
-    // 如果手动设置了GTK或者窗口标题主题，则取消主题自动切换
-    if (type == AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK ||
-        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY)
-    {
-        this->AutoSwitchWindowTheme_set(false);
-    }
-
-    invocation.ret();
-}
-
-void AppearanceManager::EnableAutoSwitchWindowTheme(MethodInvocation& invocation)
-{
-    this->AutoSwitchWindowTheme_set(true);
-    invocation.ret();
-}
-
-void AppearanceManager::GetTheme(gint32 type, MethodInvocation& invocation)
-{
-    invocation.ret(this->appearance_theme_.get_theme(AppearanceThemeType(type)));
-}
-
-void AppearanceManager::GetFont(gint32 type, MethodInvocation& invocation)
-{
-    if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_1);
-    }
-    invocation.ret(this->appearance_font_.get_font(AppearanceFontType(type)));
-}
-
-void AppearanceManager::SetFont(gint32 type, const Glib::ustring& font, MethodInvocation& invocation)
-{
-    if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_2);
-    }
-
-    if (!this->appearance_font_.set_font(AppearanceFontType(type), font))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_UNSUPPORTED);
-    }
-    invocation.ret();
-}
-
-void AppearanceManager::ResetFont(gint32 type, MethodInvocation& invocation)
+void AppearanceManager::ResetFont(int type)
 {
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_3);
     }
 
-    if (!this->appearance_font_.reset_font(AppearanceFontType(type)))
+    if (!m_appearanceFont->resetFont(AppearanceFontType(type)))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_RESET_FONT_FAILED);
     }
-    invocation.ret();
 }
 
-void AppearanceManager::SetDesktopBackground(const Glib::ustring& desktop_background, MethodInvocation& invocation)
+void AppearanceManager::SetDesktopBackground(const QString& desktopBackground)
 {
-    if (desktop_background != this->desktop_background_get() &&
-        !this->desktop_background_set(desktop_background))
+    RETURN_IF_TRUE(m_desktopBackground == desktopBackground);
+    m_desktopBackground = desktopBackground;
+
+    if (desktopBackground != m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_DESKTOP_BG).toString())
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_SET_BACKGROUND_FAILED);
+        m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, desktopBackground);
     }
-    invocation.ret();
+    SEND_PROPERTY_NOTIFY(desktop_background, DesktopBackground)
 }
 
-void AppearanceManager::SetLockScreenBackground(const Glib::ustring& lock_screen_background, MethodInvocation& invocation)
+void AppearanceManager::SetFont(int type, const QString& font)
 {
-    if (lock_screen_background != this->lock_screen_background_get() &&
-        !this->lock_screen_background_set(lock_screen_background))
+    if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_SET_LOCKSCREEN_BACKGROUND_FAILED);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_INVALID_2);
     }
-    invocation.ret();
+
+    if (!m_appearanceFont->setFont(AppearanceFontType(type), font))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_FONT_TYPE_UNSUPPORTED);
+    }
 }
 
-bool AppearanceManager::desktop_background_setHandler(const Glib::ustring& value)
+void AppearanceManager::SetLockScreenBackground(const QString& lockScreenBackground)
 {
-    RETURN_VAL_IF_TRUE(value == this->desktop_background_, false);
-    this->desktop_background_ = value;
+    RETURN_IF_TRUE(m_lockScreenBackground == lockScreenBackground);
+    m_lockScreenBackground = lockScreenBackground;
 
-    if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG) != value)
+    if (lockScreenBackground != m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG).toString())
     {
-        this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, value);
-        return true;
+        m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, lockScreenBackground);
     }
-
-    return false;
+    SEND_PROPERTY_NOTIFY(lock_screen_background, LockScreenBackground)
 }
 
-bool AppearanceManager::lock_screen_background_setHandler(const Glib::ustring& value)
+void AppearanceManager::SetTheme(int type, const QString& themeName)
 {
-    RETURN_VAL_IF_TRUE(value == this->lock_screen_background_, false);
-    this->lock_screen_background_ = value;
-
-    if (this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG) != value)
+    ThemeKey key = qMakePair(type, themeName);
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+    if (!m_appearanceTheme->setTheme(key, errorCode))
     {
-        this->appearance_settings_->set_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, value);
-        return true;
+        DBUS_ERROR_REPLY_AND_RET(errorCode);
     }
-    return false;
-}
 
-bool AppearanceManager::AutoSwitchWindowTheme_setHandler(bool value)
-{
-    RETURN_VAL_IF_TRUE(value == this->auto_switch_window_theme_, false);
-    this->auto_switch_window_theme_ = value;
-
-    if (this->appearance_settings_->get_boolean(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME) != value)
+    // 如果手动设置了GTK或者窗口标题主题，则取消主题自动切换
+    if (type == AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK ||
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY)
     {
-        this->appearance_settings_->set_boolean(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, value);
-        return true;
+        m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, false);
     }
-    return false;
 }
 
 void AppearanceManager::init()
 {
-    this->appearance_theme_.init();
-    this->appearance_font_.init();
-    this->appearance_background_.init();
+    QSignalBlocker blocker(this);
 
-    this->load_from_settings();
+    m_appearanceTheme->init();
+    m_appearanceFont->init();
+    m_appearanceBackground->init();
 
-    this->appearance_theme_.signal_theme_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_theme_changed_cb));
-    this->appearance_font_.signal_font_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_font_chnaged_cb));
-    this->appearance_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceManager::on_settings_changed_cb));
+    loadFromSettings();
 
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                 APPEARANCE_DBUS_NAME,
-                                                 sigc::mem_fun(this, &AppearanceManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &AppearanceManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &AppearanceManager::on_name_lost));
-}
-
-void AppearanceManager::load_from_settings()
-{
-    for (const auto& key : this->appearance_settings_->list_keys())
+    if (getAutoSwitchWindowTheme())
     {
-        this->on_settings_changed_cb(key);
+        autoSwitchForWindowTheme();
+    }
+
+    connect(m_appearanceTheme, &AppearanceTheme::themeChanged, this, &AppearanceManager::NotifyThemeChanged);
+    connect(m_appearanceFont, &AppearanceFont::fontChanged, this, &AppearanceManager::NotifyFontChanged);
+    connect(m_appearanceSettings, &QGSettings::changed, this, &AppearanceManager::processSettingsChanged);
+
+    auto sessionConnection = QDBusConnection::sessionBus();
+    if (!sessionConnection.registerService(APPEARANCE_DBUS_NAME))
+    {
+        KLOG_WARNING(appearance) << "Failed to register dbus name: " << APPEARANCE_DBUS_NAME;
+        return;
+    }
+
+    if (!sessionConnection.registerObject(APPEARANCE_OBJECT_PATH, APPEARANCE_DBUS_INTERFACE_NAME, this))
+    {
+        KLOG_ERROR(appearance) << "Can't register object:" << sessionConnection.lastError();
+        return;
     }
 }
 
-void AppearanceManager::auto_switch_for_window_theme()
+void AppearanceManager::loadFromSettings()
 {
-    auto current_datetime = Glib::DateTime::create_now_local();
-    auto current_hour = current_datetime.get_hour();
-    auto error_code = CCErrorCode::SUCCESS;
+    m_desktopBackground = m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_DESKTOP_BG).toString();
+    m_lockScreenBackground = m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG).toString();
+}
+
+void AppearanceManager::autoSwitchForWindowTheme()
+{
+    auto currentHour = QTime::currentTime().hour();
+    auto errorCode = CCErrorCode::SUCCESS;
 
     // 下午8点之后到早上8点之前判定为晚上，使用深色主题，否则使用浅色主题
-    auto theme_name = (current_hour < 8 || current_hour > 20) ? APPEARANCE_DEFAULT_DARK_GTK_THEME : APPEARANCE_DEFAULT_LIGHT_GTK_THEME;
-    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name),
-                                           error_code))
+    auto theme_name = (currentHour < 8 || currentHour > 20) ? APPEARANCE_DEFAULT_DARK_GTK_THEME : APPEARANCE_DEFAULT_LIGHT_GTK_THEME;
+    if (!m_appearanceTheme->setTheme(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name),
+                                     errorCode))
     {
-        KLOG_WARNING("Failed to set window gtk theme: %x.", error_code);
+        KLOG_WARNING(appearance) << "Failed to set window gtk theme. errorCode: " << errorCode;
     }
 
-    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name),
-                                           error_code))
+    if (!m_appearanceTheme->setTheme(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name),
+                                     errorCode))
     {
-        KLOG_WARNING("Failed to set window metacity theme: %x.", error_code);
+        KLOG_WARNING(appearance) << "Failed to set window metacity theme. errorCode: " << errorCode;
     }
 }
 
-void AppearanceManager::on_theme_changed_cb(ThemeKey theme_key)
+void AppearanceManager::NotifyThemeChanged(ThemeKey themeKey)
 {
-    this->ThemeChanged_signal.emit(theme_key.first, theme_key.second);
+    Q_EMIT ThemeChanged(themeKey.first, themeKey.second);
 }
 
-void AppearanceManager::on_font_chnaged_cb(AppearanceFontType type, const std::string& font)
+void AppearanceManager::NotifyFontChanged(AppearanceFontType type, const QString& font)
 {
-    this->FontChanged_signal.emit(int32_t(type), font);
+    Q_EMIT FontChanged(type, font);
 }
 
-void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)
+void AppearanceManager::processSettingsChanged(const QString& key)
 {
-    KLOG_DEBUG_APPEARANCE("The %s setting changed", key.c_str());
-
-    switch (shash(key.c_str()))
+    switch (shash(key.toLatin1().data()))
     {
     case CONNECT(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, _hash):
     {
-        this->desktop_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_DESKTOP_BG));
+        SetDesktopBackground(m_appearanceSettings->get(key).toString());
         break;
     }
     case CONNECT(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, _hash):
     {
-        this->lock_screen_background_set(this->appearance_settings_->get_string(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG));
+        SetLockScreenBackground(m_appearanceSettings->get(key).toString());
         break;
     }
     case CONNECT(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, _hash):
     {
-        this->AutoSwitchWindowTheme_set(this->appearance_settings_->get_boolean(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME));
-        if (this->AutoSwitchWindowTheme_get())
+        if (getAutoSwitchWindowTheme())
         {
-            this->auto_switch_for_window_theme();
+            autoSwitchForWindowTheme();
         }
         break;
     }
@@ -275,30 +272,4 @@ void AppearanceManager::on_settings_changed_cb(const Glib::ustring& key)
     }
 }
 
-void AppearanceManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
-{
-    if (!connect)
-    {
-        KLOG_WARNING_APPEARANCE("Failed to connect dbus with %s", name.c_str());
-        return;
-    }
-    try
-    {
-        this->object_register_id_ = this->register_object(connect, APPEARANCE_OBJECT_PATH);
-    }
-    catch (const Glib::Error& e)
-    {
-        KLOG_WARNING_APPEARANCE("Register object_path %s fail: %s.", APPEARANCE_OBJECT_PATH, e.what().c_str());
-    }
-}
-
-void AppearanceManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
-{
-    KLOG_DEBUG_APPEARANCE("Success to register dbus name: %s", name.c_str());
-}
-
-void AppearanceManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection>& connect, Glib::ustring name)
-{
-    KLOG_WARNING_APPEARANCE("Failed to register dbus name: %s", name.c_str());
-}
 }  // namespace  Kiran

@@ -66,7 +66,7 @@
         </method>
 
         <method name="SetIconFile">
-            <arg name="filename" direction="in" type="s">
+            <arg name="filepath" direction="in" type="s">
                 <description>The absolute filename of a png file to use as the users icon.</description>
             </arg>
             <description>Sets the users icon.</description>
@@ -138,38 +138,6 @@
             </arg>
             <description>Set user password expiry information which contain expiration_time, last_change_time, min_days_between_changes,
             max_days_between_changes, days_to_warn, inactive_days_after_expiration</description>
-        </method>
-
-        <method name="AddAuthItem">
-            <arg type="i" name="mode" direction="in">
-                <description>The authentication mode which could be fingerprint, face, etc. Refer to AccountsAuthMode in accounts-i.h</description>
-            </arg>
-            <arg type="s" name="name" direction="in">
-                <description>the name of the authentication item. For example fingerprint 1, fingerprint 2, etc.</description>
-            </arg>
-            <arg type="s" name="data_id" direction="in">
-                <description>The identity of the collected data for the authentication item.</description>
-            </arg>
-            <description>Add an auth item for a mode. Return error if the name already exists or the method is unsupported.</description>
-        </method>
-
-        <method name="DelAuthItem">
-            <arg type="i" name="mode" direction="in" />
-            <arg type="s" name="name" direction="in" />
-            <description>Delete an auth item by name. Return error if the name doesn't exist or the method is unsupported.</description>
-        </method>
-
-        <method name="GetAuthItems">
-            <arg type="i" name="mode" direction="in" />
-            <arg type="s" name="auth_items_json" direction="out">
-                <description>The json string is an array that every item contains name and the identity of the collected data.</description>
-            </arg>
-        </method>
-
-        <method name="EnableAuthMode">
-            <arg type="i" name="mode" direction="in" />
-            <arg type="b" name="enabled" direction="in" />
-            <description>Enable or disable the authentication mode.</description>
         </method>
 
         <property name="uid" type="t" access="read">
@@ -246,10 +214,6 @@
             <description>Whether this is a 'system' account, like 'root' or 'nobody'.
             System accounts should normally not appear in lists of users, and ListCachedUsers 
             will not include such accounts.</description>
-        </property>
-
-        <property name="auth_modes" type="i" access="read">
-            <description>Bitwise OR the enabled authentication mode.</description>
         </property>
 
         <property name="password_expiration_policy" type="s" access="read">

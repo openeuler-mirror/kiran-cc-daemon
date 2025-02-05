@@ -1,39 +1,33 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME audio)
 
 file(GLOB_RECURSE AUDIO_H_FILES ./*.h)
 file(GLOB_RECURSE AUDIO_CPP_FILES ./*.cpp)
 
-gen_dbus_stub(
-  AUDIO audio com.kylinsec.
-  ${CMAKE_SOURCE_DIR}/plugins/audio/com.kylinsec.Kiran.SessionDaemon.Audio.xml)
-gen_dbus_stub(
-  AUDIO_DEVICE
-  audio_device
-  com.kylinsec.
-  ${CMAKE_SOURCE_DIR}/plugins/audio/com.kylinsec.Kiran.SessionDaemon.Audio.Device.xml
-)
-gen_dbus_stub(
-  AUDIO_STREAM
-  audio_stream
-  com.kylinsec.
-  ${CMAKE_SOURCE_DIR}/plugins/audio/com.kylinsec.Kiran.SessionDaemon.Audio.Stream.xml
-)
+qt5_add_dbus_adaptor(
+  AUDIO_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SessionDaemon.Audio.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/audio-manager.h Kiran::AudioManager)
+
+qt5_add_dbus_adaptor(
+  AUDIO_DEVICE_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SessionDaemon.Audio.Device.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/audio-device.h Kiran::AudioDevice)
+
+qt5_add_dbus_adaptor(
+  AUDIO_STREAM_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SessionDaemon.Audio.Stream.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/audio-stream.h Kiran::AudioStream)
 
 add_library(
-  ${TARGET_NAME} SHARED
-  ${AUDIO_H_FILES} ${AUDIO_CPP_FILES} ${AUDIO_GENERATED_STUB}
-  ${AUDIO_DEVICE_GENERATED_STUB} ${AUDIO_STREAM_GENERATED_STUB})
-
-set_common_shared_linker_flags()
+  ${TARGET_NAME} SHARED ${AUDIO_H_FILES} ${AUDIO_CPP_FILES} ${AUDIO_SRCS}
+                        ${AUDIO_DEVICE_SRCS} ${AUDIO_STREAM_SRCS})
 
 target_include_directories(
-  ${TARGET_NAME} PUBLIC ${PROJECT_BINARY_DIR}/generated
-                        ${LIBPULSE_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS})
+  ${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${LIBPULSE_INCLUDE_DIRS}
+                         ${LIBPULSE_MAINLOOP_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_NAME} PRIVATE ${KSD_LINKER_FLAGS} ${LIBPULSE_LIBRARIES}
-                         ${JSONCPP_LIBRARIES} lib-base)
+  ${TARGET_NAME} PRIVATE ${LIBPULSE_LIBRARIES} ${LIBPULSE_MAINLOOP_LIBRARIES}
+                         kbase Qt5::Widgets)
 
-install(TARGETS ${TARGET_NAME} DESTINATION ${KCC_PLUGIN_DIR}/session)
+install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

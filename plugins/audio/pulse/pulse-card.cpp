@@ -1,78 +1,90 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/pulse/pulse-card.h"
+#include "pulse-card.h"
+#include "lib/base/base.h"
+#include "pulse-card-port.h"
+#include "pulse-card-profile.h"
+#include "pulse-stream.h"
 
 namespace Kiran
 {
-PulseCard::PulseCard(const pa_card_info *card_info) : index_(card_info->index),
-                                                      name_(POINTER_TO_STRING(card_info->name))
+PulseCard::PulseCard(const pa_card_info *cardInfo) : m_index(cardInfo->index),
+                                                     m_name(POINTER_TO_STRING(cardInfo->name))
 {
-    this->load(card_info);
+    load(cardInfo);
 }
 
-void PulseCard::update(const pa_card_info *card_info)
+void PulseCard::update(const pa_card_info *cardInfo)
 {
-    RETURN_IF_FALSE(card_info != NULL);
+    RETURN_IF_FALSE(cardInfo != NULL);
 
-    std::string active_profile_name;
+    QString activeProfileName;
 
     // 只有active profile可能会发生变化，因此其他属性不进行更新
-    if (card_info->active_profile2 != NULL)
+    if (cardInfo->active_profile2 != NULL)
     {
-        active_profile_name = POINTER_TO_STRING(card_info->active_profile2->name);
+        activeProfileName = POINTER_TO_STRING(cardInfo->active_profile2->name);
     }
 
-    if (this->active_profile_name_ != active_profile_name)
+    if (m_activeProfileName != activeProfileName)
     {
-        this->active_profile_name_ = active_profile_name;
-        auto active_profile = this->get_profile(this->active_profile_name_);
-        this->active_profile_changed_.emit(active_profile);
+        m_activeProfileName = activeProfileName;
+        auto activeProfile = getProfile(m_activeProfileName);
+        Q_EMIT activeProfileChanged(activeProfile);
     }
 }
 
-void PulseCard::load(const pa_card_info *card_info)
+void PulseCard::load(const pa_card_info *cardInfo)
 {
-    RETURN_IF_FALSE(card_info != NULL);
+    RETURN_IF_FALSE(cardInfo != NULL);
 
-    this->card_ports_.clear();
-    this->card_profiles_.clear();
-    this->active_profile_name_.clear();
+    m_cardPorts.clear();
+    m_cardProfiles.clear();
+    m_activeProfileName.clear();
 
-    for (uint32_t i = 0; i < card_info->n_ports; ++i)
+    for (uint32_t i = 0; i < cardInfo->n_ports; ++i)
     {
-        auto card_port = std::make_shared<PulseCardPort>(card_info->ports[i]);
-        auto iter = this->card_ports_.emplace(card_port->get_name(), card_port);
-        if (!iter.second)
+        auto cardPort = QSharedPointer<PulseCardPort>::create(cardInfo->ports[i]);
+        auto portName = cardPort->getName();
+        if (m_cardPorts.contains(portName))
         {
-            KLOG_WARNING_AUDIO("The port %s is already exist.", card_port->get_name().c_str());
+            KLOG_WARNING(audio) << "The port" << portName << "is already exist.";
+        }
+        else
+        {
+            m_cardPorts.insert(portName, cardPort);
         }
     }
 
-    for (uint32_t i = 0; i < card_info->n_profiles; ++i)
+    for (uint32_t i = 0; i < cardInfo->n_profiles; ++i)
     {
-        auto card_profile = std::make_shared<PulseCardProfile>(card_info->profiles2[i]);
-        auto iter = this->card_profiles_.emplace(card_profile->get_name(), card_profile);
-        if (!iter.second)
+        auto card_profile = QSharedPointer<PulseCardProfile>::create(cardInfo->profiles2[i]);
+        auto profileName = card_profile->getName();
+        if (m_cardProfiles.contains(profileName))
         {
-            KLOG_WARNING_AUDIO("The profile %s is already exist.", card_profile->get_name().c_str());
+            KLOG_WARNING(audio) << "The profile" << profileName << "is already exist.";
+        }
+        else
+        {
+            m_cardProfiles.insert(profileName, card_profile);
         }
     }
 
-    if (card_info->active_profile2 != NULL)
+    if (cardInfo->active_profile2 != NULL)
     {
-        this->active_profile_name_ = POINTER_TO_STRING(card_info->active_profile2->name);
+        m_activeProfileName = POINTER_TO_STRING(cardInfo->active_profile2->name);
     }
 }
 

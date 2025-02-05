@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME kiran-power-backlight-helper)
 
 file(GLOB_RECURSE POWER_BACKLIGHT_HELPER_H_FILES ./*.h)
@@ -11,6 +9,6 @@ add_executable(
   ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower.cpp
   ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower-device.cpp)
 
-target_link_libraries(${TARGET_NAME} PRIVATE lib-base)
+target_link_libraries(${TARGET_NAME} PRIVATE kbase)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}/)

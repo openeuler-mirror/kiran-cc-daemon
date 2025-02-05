@@ -1,312 +1,309 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/xsettings/xsettings-registry.h"
+#include "xsettings-registry.h"
+#include <xcb/xcb.h>
+#include <QTimer>
+#include "lib/base/base.h"
+#include "lib/xcb/xcb-connection.h"
 
-#include <gdk/gdkx.h>
 namespace Kiran
 {
 #define XSETTINGS_PAD(n, m) ((n + m - 1) & (~(m - 1)))
 
-XSettingsPropertyBase::XSettingsPropertyBase(const std::string &name,
+XSettingsPropertyBase::XSettingsPropertyBase(const QString &name,
                                              XSettingsPropType type,
-                                             uint32_t serial) : name_(name),
-                                                                type_(type),
-                                                                last_change_serial_(serial)
+                                             uint32_t serial) : m_name(name),
+                                                                m_type(type),
+                                                                m_lastChangeSerial(serial)
 {
 }
 
-std::string XSettingsPropertyBase::serialize()
+QByteArray XSettingsPropertyBase::serialize()
 {
-    std::string data;
-    data.push_back(char(this->type_));
-    data.push_back('\0');
+    QByteArray data;
+    data.push_back(char(m_type));
+    data.push_back(char('\0'));
 
     // 类型不能随意修改
-    uint16_t name_len = this->name_.length();
-    uint16_t name_len_pad = XSETTINGS_PAD(name_len, 4) - name_len;
-    data.append(std::string((char *)&name_len, 2));
-    data.append(this->name_);
-    data.append(std::string(name_len_pad, '\0'));
-    data.append(std::string((char *)&this->last_change_serial_, 4));
+    uint16_t nameLen = m_name.length();
+    uint16_t nameLenPad = XSETTINGS_PAD(nameLen, 4) - nameLen;
+    data.append(QByteArray((const char *)&nameLen, 2));
+    data.append(m_name.toUtf8());
+    data.append(QByteArray(nameLenPad, '\0'));
+    data.append(QByteArray((const char *)&m_lastChangeSerial, 4));
     return data;
 }
 
-XSettingsPropertyInt::XSettingsPropertyInt(const std::string &name,
+XSettingsPropertyInt::XSettingsPropertyInt(const QString &name,
                                            int32_t value,
                                            uint32_t serial) : XSettingsPropertyBase(name, XSettingsPropType::XSETTINGS_PROP_TYPE_INT, serial),
-                                                              value_(value)
+                                                              m_value(value)
 {
 }
 
 bool XSettingsPropertyInt::operator==(const XSettingsPropertyBase &rval) const
 {
-    if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_INT)
+    if (rval.getType() != XSettingsPropType::XSETTINGS_PROP_TYPE_INT)
     {
-        KLOG_WARNING_XSETTINGS("Unsupported.");
+        KLOG_WARNING(xsettings) << "Unsupported.";
         return false;
     }
-    return this->operator==(dynamic_cast<const XSettingsPropertyInt &>(rval));
+    return operator==(dynamic_cast<const XSettingsPropertyInt &>(rval));
 }
 
 bool XSettingsPropertyInt::operator==(const XSettingsPropertyInt &rval) const
 {
-    return (this->get_name() == rval.get_name() && this->value_ == rval.value_);
+    return (getName() == rval.getName() && m_value == rval.m_value);
 }
 
-std::string XSettingsPropertyInt::serialize()
+QByteArray XSettingsPropertyInt::serialize()
 {
-    std::string data;
-    data = this->XSettingsPropertyBase::serialize();
-    data.append(std::string((char *)&this->value_, 4));
+    QByteArray data;
+    data = XSettingsPropertyBase::serialize();
+    data.append(QByteArray((const char *)&m_value, 4));
     return data;
 }
 
-XSettingsPropertyString::XSettingsPropertyString(const std::string &name,
-                                                 const std::string &value,
+XSettingsPropertyString::XSettingsPropertyString(const QString &name,
+                                                 const QString &value,
                                                  uint32_t serial) : XSettingsPropertyBase(name, XSettingsPropType::XSETTINGS_PROP_TYPE_STRING, serial),
-                                                                    value_(value)
+                                                                    m_value(value)
 {
 }
 
 bool XSettingsPropertyString::operator==(const XSettingsPropertyBase &rval) const
 {
-    if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_STRING)
+    if (rval.getType() != XSettingsPropType::XSETTINGS_PROP_TYPE_STRING)
     {
-        KLOG_WARNING_XSETTINGS("Unsupported.");
+        KLOG_WARNING(xsettings) << "Unsupported.";
         return false;
     }
-    return this->operator==(dynamic_cast<const XSettingsPropertyString &>(rval));
+    return operator==(dynamic_cast<const XSettingsPropertyString &>(rval));
 }
 
 bool XSettingsPropertyString::operator==(const XSettingsPropertyString &rval) const
 {
-    return (this->get_name() == rval.get_name() && this->value_ == rval.value_);
+    return (getName() == rval.getName() && m_value == rval.m_value);
 }
 
-std::string XSettingsPropertyString::serialize()
+QByteArray XSettingsPropertyString::serialize()
 {
-    std::string data;
-    data = this->XSettingsPropertyBase::serialize();
-    uint32_t str_len = this->value_.length();
-    uint32_t str_len_pad = XSETTINGS_PAD(str_len, 4) - str_len;
-    data.append(std::string((char *)&str_len, 4));
-    data.append(this->value_);
-    data.append(std::string(str_len_pad, '\0'));
+    QByteArray data;
+    data = XSettingsPropertyBase::serialize();
+    uint32_t strLen = m_value.length();
+    uint32_t strLenPad = XSETTINGS_PAD(strLen, 4) - strLen;
+    data.append(QByteArray((const char *)&strLen, 4));
+    data.append(m_value.toUtf8());
+    data.append(QByteArray(strLenPad, '\0'));
     return data;
 }
 
-XSettingsPropertyColor::XSettingsPropertyColor(const std::string &name,
+XSettingsPropertyColor::XSettingsPropertyColor(const QString &name,
                                                const XSettingsColor &value,
                                                uint32_t serial) : XSettingsPropertyBase(name, XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR, serial),
-                                                                  value_(value)
+                                                                  m_value(value)
 {
 }
 
 bool XSettingsPropertyColor::operator==(const XSettingsPropertyBase &rval) const
 {
-    if (rval.get_type() != XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR)
+    if (rval.getType() != XSettingsPropType::XSETTINGS_PROP_TYPE_COLOR)
     {
-        KLOG_WARNING_XSETTINGS("Unsupported.");
+        KLOG_WARNING(xsettings) << "Unsupported.";
         return false;
     }
-    return this->operator==(dynamic_cast<const XSettingsPropertyColor &>(rval));
+    return operator==(dynamic_cast<const XSettingsPropertyColor &>(rval));
 }
 
 bool XSettingsPropertyColor::operator==(const XSettingsPropertyColor &rval) const
 {
-    return (this->get_name() == rval.get_name() && this->value_ == rval.value_);
+    return (getName() == rval.getName() && m_value == rval.m_value);
 }
 
-std::string XSettingsPropertyColor::serialize()
+QByteArray XSettingsPropertyColor::serialize()
 {
-    std::string data;
-    data = this->XSettingsPropertyBase::serialize();
-    data.append(std::string((char *)&this->value_.red, 2));
-    data.append(std::string((char *)&this->value_.green, 2));
-    data.append(std::string((char *)&this->value_.blue, 2));
-    data.append(std::string((char *)&this->value_.alpha, 2));
+    QByteArray data;
+    data = XSettingsPropertyBase::serialize();
+    data.append(QByteArray((const char *)&m_value.red, 2));
+    data.append(QByteArray((const char *)&m_value.green, 2));
+    data.append(QByteArray((const char *)&m_value.blue, 2));
+    data.append(QByteArray((const char *)&m_value.alpha, 2));
     return data;
 }
 
-XSettingsRegistry::XSettingsRegistry() : xdisplay_(gdk_x11_display_get_xdisplay(gdk_display_get_default())),
-                                         screen_(gdk_x11_screen_get_screen_number(gdk_screen_get_default())),
-                                         serial_(0)
+XSettingsRegistry::XSettingsRegistry(QObject *parent) : QObject(parent),
+                                                        m_serial(0)
 {
-    auto name = fmt::format("_XSETTINGS_S{0}", this->screen_);
-    this->selection_atom_ = XInternAtom(this->xdisplay_, name.c_str(), False);
-    this->xsettings_atom_ = XInternAtom(this->xdisplay_, "_XSETTINGS_SETTINGS", False);
-    this->manager_atom_ = XInternAtom(this->xdisplay_, "MANAGER", False);
+    m_xcbConnection = XcbConnection::getDefault();
+
+    auto name = QString("_XSETTINGS_S%1").arg(m_xcbConnection->getDefaultScreenNumber());
+    auto reply = XCB_REPLY(xcb_intern_atom, m_xcbConnection->getConnection(), false, name.size(), name.toUtf8().data());
+    m_selectionAtom = reply ? reply->atom : XCB_ATOM_NONE;
+
+    reply = XCB_REPLY(xcb_intern_atom, m_xcbConnection->getConnection(), false, strlen("_XSETTINGS_SETTINGS"), "_XSETTINGS_SETTINGS");
+    m_xsettingsAtom = reply ? reply->atom : XCB_ATOM_NONE;
+
+    reply = XCB_REPLY(xcb_intern_atom, m_xcbConnection->getConnection(), false, strlen("MANAGER"), "MANAGER");
+    m_managerAtom = reply ? reply->atom : XCB_ATOM_NONE;
+
+    m_timer = new QTimer(this);
 }
 
 XSettingsRegistry::~XSettingsRegistry()
 {
-    if (this->xsettings_window_)
-    {
-        XDestroyWindow(this->xdisplay_, this->xsettings_window_);
-    }
 }
 
 bool XSettingsRegistry::init()
 {
     // 检查是否有其他xsettings插件已经在运行
-    if (XGetSelectionOwner(this->xdisplay_, this->selection_atom_) != None)
+
+    auto xcbConnection = m_xcbConnection->getConnection();
+    auto rootWindow = m_xcbConnection->getDefaultScreen()->root;
+
+    auto reply = XCB_REPLY(xcb_get_selection_owner, xcbConnection, m_selectionAtom);
+    if (reply && reply->owner != XCB_NONE)
     {
-        KLOG_WARNING_XSETTINGS("You can only run one xsettings manager at a time.");
+        KLOG_WARNING(xsettings) << "You can only run one xsettings manager at a time.";
         return false;
     }
 
-    this->xsettings_window_ = XCreateSimpleWindow(this->xdisplay_,
-                                                  RootWindow(this->xdisplay_, this->screen_),
-                                                  0, 0, 10, 10, 0,
-                                                  WhitePixel(this->xdisplay_, this->screen_),
-                                                  WhitePixel(this->xdisplay_, this->screen_));
+    m_xsettingsWindow = xcb_generate_id(xcbConnection);
+    xcb_create_window(xcbConnection,
+                      XCB_COPY_FROM_PARENT,  // depth -- same as root
+                      m_xsettingsWindow,     // window id
+                      rootWindow,            // root window id
+                      0, 0, 10, 10,
+                      0,                     // border width
+                      XCB_COPY_FROM_PARENT,  // window class
+                      XCB_COPY_FROM_PARENT,  // visual
+                      0,                     // value mask
+                      nullptr);              // value list
 
-    XSelectInput(this->xdisplay_, this->xsettings_window_, PropertyChangeMask);
-    g_autoptr(GdkWindow) xsettings_gdk_window = gdk_x11_window_foreign_new_for_display(gdk_display_get_default(),
-                                                                                       this->xsettings_window_);
-
-    auto timestamp = gdk_x11_get_server_time(xsettings_gdk_window);
-
-    XSetSelectionOwner(this->xdisplay_, this->selection_atom_, this->xsettings_window_, timestamp);
+    auto name = QString("_XSETTINGS_S%1").arg(m_xcbConnection->getDefaultScreenNumber());
+    xcb_set_selection_owner(xcbConnection, m_xsettingsWindow, m_selectionAtom, XCB_TIME_CURRENT_TIME);
     // 判断设置Owner是否成功
-    if (XGetSelectionOwner(this->xdisplay_, this->selection_atom_) != this->xsettings_window_)
+    auto getSelectionReply = XCB_REPLY(xcb_get_selection_owner, xcbConnection, m_selectionAtom);
+    if (!getSelectionReply)
     {
+        KLOG_WARNING(xsettings) << "Failed to get selection owner for" << name;
         return false;
     }
+    if (getSelectionReply->owner != m_xsettingsWindow)
+    {
+        KLOG_WARNING(xsettings) << "Failed to set selection owner" << m_xsettingsWindow
+                                << "for" << name << "which not equal to" << getSelectionReply->owner;
+        return false;
+    }
+
+    KLOG_INFO(xsettings) << "Success to set owner selection" << name << "to" << m_xsettingsWindow
+                         << ", parent window is" << rootWindow;
 
     // 其他客户端通过监听"MANAGER"事件来感知Xsettings Owner是否创建
-    XClientMessageEvent xev;
+    xcb_client_message_event_t event;
+    event.type = XCB_CLIENT_MESSAGE;
+    event.window = rootWindow;
+    event.format = 32;
+    event.type = m_managerAtom;
+    event.data.data32[0] = XCB_TIME_CURRENT_TIME;
+    event.data.data32[1] = m_selectionAtom;
+    event.data.data32[2] = m_xsettingsWindow;
+    event.data.data32[3] = 0;
+    event.data.data32[4] = 0;
+    xcb_send_event(xcbConnection, false, rootWindow, XCB_EVENT_MASK_STRUCTURE_NOTIFY, (char *)&event);
 
-    xev.type = ClientMessage;
-    xev.window = RootWindow(this->xdisplay_, this->screen_);
-    xev.message_type = this->manager_atom_;
-    xev.format = 32;
-    xev.data.l[0] = timestamp;
-    xev.data.l[1] = this->selection_atom_;
-    xev.data.l[2] = this->xsettings_window_;
-    xev.data.l[3] = 0; /* manager specific data */
-    xev.data.l[4] = 0; /* manager specific data */
-
-    XSendEvent(this->xdisplay_,
-               RootWindow(this->xdisplay_, this->screen_),
-               False,
-               StructureNotifyMask, (XEvent *)&xev);
+    connect(m_timer, &QTimer::timeout, this, &XSettingsRegistry::notify);
 
     return true;
 }
 
-bool XSettingsRegistry::update(const std::string &name, int32_t value)
+bool XSettingsRegistry::update(const QString &name, int32_t value)
 {
-    auto var = std::make_shared<XSettingsPropertyInt>(name, value, this->serial_);
-    return this->update(var);
+    auto var = QSharedPointer<XSettingsPropertyInt>::create(name, value, m_serial);
+    return update(var);
 }
 
-bool XSettingsRegistry::update(const std::string &name, const Glib::ustring &value)
+bool XSettingsRegistry::update(const QString &name, const QString &value)
 {
-    auto var = std::make_shared<XSettingsPropertyString>(name, value.raw(), this->serial_);
-    return this->update(var);
+    auto var = QSharedPointer<XSettingsPropertyString>::create(name, value, m_serial);
+    return update(var);
 }
 
-bool XSettingsRegistry::update(const std::string &name, const XSettingsColor &value)
+bool XSettingsRegistry::update(const QString &name, const XSettingsColor &value)
 {
-    auto var = std::make_shared<XSettingsPropertyColor>(name, value, this->serial_);
-    return this->update(var);
+    auto var = QSharedPointer<XSettingsPropertyColor>::create(name, value, m_serial);
+    return update(var);
 }
 
-bool XSettingsRegistry::update(std::shared_ptr<XSettingsPropertyBase> var)
+bool XSettingsRegistry::update(QSharedPointer<XSettingsPropertyBase> var)
 {
     RETURN_VAL_IF_TRUE(var == nullptr, true);
-    auto old_var = this->get_property(var->get_name());
-    if (old_var != nullptr && *old_var == *var)
+    auto oldVar = getProperty(var->getName());
+    if (oldVar != nullptr && *oldVar == *var)
     {
         return true;
     }
 
-    this->changed_properties_.push_back(var->get_name());
-    this->properties_.erase(var->get_name());
-    auto iter = this->properties_.emplace(var->get_name(), var);
+    m_changedProperties.push_back(var->getName());
+    m_properties.remove(var->getName());
+    m_properties.insert(var->getName(), var);
 
     // 空闲时修改，因为update可能会被连续调用多次。
-    if (!this->notify_handler_)
-    {
-        this->notify_handler_ = Glib::signal_idle().connect(sigc::mem_fun(this, &XSettingsRegistry::notify));
-    }
-    return iter.second;
+    m_timer->start(100);
+    return true;
 }
 
-std::shared_ptr<XSettingsPropertyBase> XSettingsRegistry::get_property(const std::string &name)
+void XSettingsRegistry::notify()
 {
-    auto iter = this->properties_.find(name);
-    if (iter == this->properties_.end())
-    {
-        return nullptr;
-    }
-    return iter->second;
-}
+    QByteArray data;
 
-XSettingsPropertyBaseVec XSettingsRegistry::get_properties()
-{
-    XSettingsPropertyBaseVec retval;
-    for (auto &iter : this->properties_)
-    {
-        retval.push_back(iter.second);
-    }
-    return retval;
-}
-
-bool XSettingsRegistry::notify()
-{
-    KLOG_DEBUG_XSETTINGS("Notify changed properties to other client.");
-
-    std::string data;
+    m_timer->stop();
 
     // 注意：填充的相关变量类型不能随意修改
-
     // 填充head：byte-order + pad + SERIAL + N_SETTINGS
-    int32_t nsettings = this->properties_.size();
-    data.push_back(this->byte_order());
-    data.append(std::string("\0\0\0", 3));
-    data.append(std::string((char *)&this->serial_, 4));
-    data.append(std::string((char *)&nsettings, 4));
-    ++this->serial_;
+    int32_t nsettings = m_properties.size();
+    data.push_back(byteOrder());
+    data.append(QByteArray("\0\0\0", 3));
+    data.append(QByteArray((const char *)&m_serial, 4));
+    data.append(QByteArray((const char *)&nsettings, 4));
+    ++m_serial;
 
     // 填充body
-    for (const auto &iter : this->properties_)
+    for (const auto &property : m_properties)
     {
-        data.append(iter.second->serialize());
+        data.append(property->serialize());
     }
 
-    XChangeProperty(this->xdisplay_,
-                    this->xsettings_window_,
-                    this->xsettings_atom_,
-                    this->xsettings_atom_,
-                    8,
-                    PropModeReplace,
-                    const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(data.c_str())),
-                    data.length());
+    KLOG_INFO(xsettings) << "Changed _XSETTINGS_SETTINGS properties to" << data;
 
-    auto changed_properties = std::move(this->changed_properties_);
-    this->properties_changed_.emit(changed_properties);
+    xcb_change_property(m_xcbConnection->getConnection(),
+                        XCB_PROP_MODE_REPLACE,
+                        m_xsettingsWindow,
+                        m_xsettingsAtom,
+                        m_xsettingsAtom,
+                        8,
+                        data.length(),
+                        data.data());
 
-    return false;
+    auto changedProperties = std::move(m_changedProperties);
+    Q_EMIT propertiesChanged(changedProperties);
 }
 
-char XSettingsRegistry::byte_order()
+char XSettingsRegistry::byteOrder()
 {
     uint32_t myint = 0x01020304;
-    return (*reinterpret_cast<char *>(&myint) == 1) ? MSBFirst : LSBFirst;
+    return (*reinterpret_cast<char *>(&myint) == 1) ? XCB_IMAGE_ORDER_MSB_FIRST : XCB_IMAGE_ORDER_LSB_FIRST;
 }
 
 }  // namespace Kiran

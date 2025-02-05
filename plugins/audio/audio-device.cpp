@@ -1,100 +1,221 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/audio-device.h"
-
-#include <json/json.h>
+#include "audio-device.h"
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "audio-i.h"
-#include "plugins/audio/audio-utils.h"
+#include "audio-utils.h"
+#include "deviceadaptor.h"
+#include "lib/base/base.h"
+#include "pulse/pulse-device.h"
 
 namespace Kiran
 {
-AudioDevice::AudioDevice(std::shared_ptr<PulseDevice> device) : device_(device),
-                                                                object_register_id_(0)
+AudioDevice::AudioDevice(QSharedPointer<PulseDevice> device) : m_device(device)
 {
-    this->mute_ = this->device_->get_mute();
-    this->volume_ = AudioUtils::volume_absolute2range(this->device_->get_volume(),
-                                                      this->device_->get_min_volume(),
-                                                      this->device_->get_max_volume());
-    this->balance_ = this->device_->get_balance();
-    this->fade_ = this->device_->get_fade();
-    this->active_port_ = this->device_->get_active_port();
+    m_adaptor = new DeviceAdaptor(this);
 
-    this->device_->signal_node_info_changed().connect(sigc::mem_fun(this, &AudioDevice::on_node_info_changed_cb));
-    this->device_->signal_active_port_changed().connect(sigc::mem_fun(this, &AudioDevice::on_active_port_changed_cb));
+    m_mute = m_device->getMute();
+    m_volume = AudioUtils::volumeAbsolute2range(m_device->getVolume(),
+                                                m_device->getMinVolume(),
+                                                m_device->getMaxVolume());
+    m_balance = m_device->getBalance();
+    m_fade = m_device->getFade();
+    m_activePort = m_device->getActivePort();
+
+    connect(m_device.data(), &PulseDevice::nodeInfoChanged, this, &AudioDevice::processNodeInfoChanged);
+    connect(m_device.data(), &PulseDevice::activePortChanged, this, &AudioDevice::setActivePort);
 }
 
 AudioDevice::~AudioDevice()
 {
-    this->dbus_unregister();
+    dbusUnregister();
 }
 
-bool AudioDevice::init(const std::string &object_path_prefix)
-{
-    RETURN_VAL_IF_FALSE(this->device_, false);
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                                \
+    QVariantMap changedProperties;                                                  \
+    changedProperties.insert(QStringLiteral(#property), this->get##propertyHump()); \
+                                                                                    \
+    QDBusMessage message = QDBusMessage::createSignal(                              \
+        this->m_objectPath,                                                         \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                          \
+        QStringLiteral("PropertiesChanged"));                                       \
+                                                                                    \
+    message.setArguments({                                                          \
+        QStringLiteral(AUDIO_DEVICE_DBUS_INTERFACE_NAME),                           \
+        changedProperties,                                                          \
+        QStringList(),                                                              \
+    });                                                                             \
+                                                                                    \
+    QDBusConnection::sessionBus().send(message);
 
-    this->object_path_ = fmt::format("{0}{1}", object_path_prefix, this->device_->get_index());
-    return this->dbus_register();
+bool AudioDevice::init(const QString &objectPathPrefix)
+{
+    RETURN_VAL_IF_FALSE(m_device, false);
+
+    m_objectPath = QString("%1%2").arg(objectPathPrefix).arg(m_device->getIndex());
+    return dbusRegister();
 }
 
-double AudioDevice::base_volume_get()
+double AudioDevice::getBaseVolume() const
 {
-    auto volume = this->device_->get_base_volume();
-    return AudioUtils::volume_absolute2range(volume, this->device_->get_min_volume(), this->device_->get_max_volume());
+    auto volume = m_device->getBaseVolume();
+    return AudioUtils::volumeAbsolute2range(volume, m_device->getMinVolume(), m_device->getMaxVolume());
 }
 
-void AudioDevice::SetActivePort(const Glib::ustring &name, MethodInvocation &invocation)
+uint AudioDevice::getCardIndex() const
 {
-    KLOG_DEBUG_AUDIO("Set %s as active port.", name.c_str());
+    return m_device->getCardIndex();
+}
 
-    if (!this->device_->set_active_port(name))
+uint AudioDevice::getIndex() const
+{
+    return m_device->getIndex();
+}
+
+QString AudioDevice::getName() const
+{
+    return m_device->getName();
+}
+
+uint AudioDevice::getState() const
+{
+    return m_device->getFlags();
+}
+
+void AudioDevice::setActivePort(const QString &activePort)
+{
+    if (m_activePort != activePort)
+    {
+        m_activePort = activePort;
+        SEND_PROPERTY_NOTIFY(active_port, ActivePort)
+    }
+}
+
+void AudioDevice::setBalance(double balance)
+{
+    if (std::fabs(m_balance - balance) > EPS)
+    {
+        m_balance = balance;
+        SEND_PROPERTY_NOTIFY(balance, Balance)
+    }
+}
+
+void AudioDevice::setFade(double fade)
+{
+    if (std::fabs(m_fade - fade) > EPS)
+    {
+        m_fade = fade;
+        SEND_PROPERTY_NOTIFY(fade, Fade);
+    }
+}
+
+void AudioDevice::setMute(bool mute)
+{
+    if (std::fabs(m_mute - mute) > EPS)
+    {
+        m_mute = mute;
+        SEND_PROPERTY_NOTIFY(mute, Mute)
+    }
+}
+
+void AudioDevice::setVolume(double volume)
+{
+    if (std::fabs(m_volume - volume) > EPS)
+    {
+        m_volume = volume;
+        SEND_PROPERTY_NOTIFY(volume, Volume)
+    }
+}
+
+QString AudioDevice::GetPorts()
+{
+    QJsonArray jsonPorts;
+
+    for (auto port : m_device->getPorts())
+    {
+        QJsonObject jsonPort;
+        jsonPort["name"] = port->getName();
+        jsonPort["description"] = port->getDescription();
+        jsonPort["priority"] = int(port->getPriority());
+        jsonPort["available"] = port->getAvailable();
+        jsonPorts.append(jsonPort);
+    }
+    return QJsonDocument(jsonPorts).toJson(QJsonDocument::Compact);
+}
+
+QString AudioDevice::GetProperty(const QString &key)
+{
+    return m_device->getProperty(key);
+}
+
+void AudioDevice::SetActivePort(const QString &name)
+{
+    if (!m_device->setActivePort(name))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_SET_SINK_ACTIVE_PORT_FAILED);
     }
-    invocation.ret();
 }
 
-void AudioDevice::GetPorts(MethodInvocation &invocation)
+void AudioDevice::SetBalance(double balance)
 {
-    Json::Value values;
-    Json::FastWriter writer;
-
-    auto ports = this->device_->get_ports();
-    for (uint32_t i = 0; i < ports.size(); ++i)
+    if (balance < -1 || balance > 1)
     {
-        values[i]["name"] = ports[i]->get_name();
-        values[i]["description"] = ports[i]->get_description();
-        values[i]["priority"] = ports[i]->get_priority();
-        values[i]["available"] = ports[i]->get_available();
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_BALANCE_RANGE_INVLAID);
     }
 
-    auto result = writer.write(values);
-    invocation.ret(result);
+    if (!m_device->setBalance(balance))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_BALANCE_FAILED);
+    }
 }
 
-void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
+void AudioDevice::SetFade(double fade)
+{
+    if (fade < -1 || fade > 1)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_FADE_RANGE_INVLAID);
+    }
+
+    if (!m_device->setFade(fade))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_FADE_FAILED);
+    }
+}
+
+void AudioDevice::SetMute(bool mute)
+{
+    if (!m_device->setMute(mute))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED);
+    }
+}
+
+void AudioDevice::SetVolume(double volume)
 {
     if (volume < 0 || volume > 1.0 + EPS)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID);
     }
 
-    auto volume_absolute = AudioUtils::volume_range2absolute(volume,
-                                                             this->device_->get_min_volume(),
-                                                             this->device_->get_max_volume());
+    auto volumeAbsolute = AudioUtils::volumeRange2absolute(volume,
+                                                           m_device->getMinVolume(),
+                                                           m_device->getMaxVolume());
 
-    if (!this->device_->set_volume(volume_absolute))
+    if (!m_device->setVolume(volumeAbsolute))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_VOLUME_FAILED);
     }
@@ -102,137 +223,56 @@ void AudioDevice::SetVolume(double volume, MethodInvocation &invocation)
     // 如果音量大于0，则取消静音
     if (volume > EPS)
     {
-        this->device_->set_mute(false);
+        m_device->setMute(false);
     }
-    invocation.ret();
 }
 
-void AudioDevice::SetBalance(double balance, MethodInvocation &invocation)
+bool AudioDevice::dbusRegister()
 {
-    if (balance < -1 || balance > 1)
+    KLOG_INFO(audio) << "Register object path" << m_objectPath;
+
+    RETURN_VAL_IF_FALSE(m_device, false);
+
+    auto sessionConnection = QDBusConnection::sessionBus();
+    if (!sessionConnection.registerObject(m_objectPath, AUDIO_DEVICE_DBUS_INTERFACE_NAME, this))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_BALANCE_RANGE_INVLAID);
-    }
-
-    if (!this->device_->set_balance(balance))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_BALANCE_FAILED);
-    }
-    invocation.ret();
-}
-
-void AudioDevice::SetFade(double fade, MethodInvocation &invocation)
-{
-    if (fade < -1 || fade > 1)
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_FADE_RANGE_INVLAID);
-    }
-
-    if (!this->device_->set_fade(fade))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_FADE_FAILED);
-    }
-    invocation.ret();
-}
-
-void AudioDevice::SetMute(bool mute, MethodInvocation &invocation)
-{
-    if (!this->device_->set_mute(mute))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_AUDIO_DEVICE_SET_MUTE_FAILED);
-    }
-
-    invocation.ret();
-}
-
-void AudioDevice::GetProperty(const Glib::ustring &key, MethodInvocation &invocation)
-{
-    auto value = this->device_->get_property(key);
-    invocation.ret(value);
-}
-
-#define SET_COMMON_PROPERTY(property, type)                    \
-    bool AudioDevice::property##_setHandler(type value)        \
-    {                                                          \
-        RETURN_VAL_IF_TRUE(this->property##_ == value, false); \
-        this->property##_ = value;                             \
-        return true;                                           \
-    }
-
-#define SET_DOUBLE_PROPERTY(property)                     \
-    bool AudioDevice::property##_setHandler(double value) \
-    {                                                     \
-        if (std::fabs(this->property##_ - value) < EPS)   \
-        {                                                 \
-            return false;                                 \
-        }                                                 \
-        this->property##_ = value;                        \
-        return true;                                      \
-    }
-
-SET_COMMON_PROPERTY(mute, bool)
-SET_DOUBLE_PROPERTY(volume)
-SET_DOUBLE_PROPERTY(balance)
-SET_DOUBLE_PROPERTY(fade)
-SET_COMMON_PROPERTY(active_port, const Glib::ustring &)
-
-bool AudioDevice::dbus_register()
-{
-    KLOG_DEBUG_AUDIO("register object path: %s.", this->object_path_.c_str());
-    RETURN_VAL_IF_FALSE(this->device_, false);
-
-    try
-    {
-        this->dbus_connect_ = Gio::DBus::Connection::get_sync(Gio::DBus::BUS_TYPE_SESSION);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_AUDIO("Failed to get session bus: %s.", e.what().c_str());
+        KLOG_ERROR(audio) << "Can't register object:" << sessionConnection.lastError();
         return false;
     }
 
-    this->object_register_id_ = this->register_object(this->dbus_connect_, this->object_path_.c_str());
     return true;
 }
 
-void AudioDevice::dbus_unregister()
+void AudioDevice::dbusUnregister()
 {
-    if (this->object_register_id_)
-    {
-        this->unregister_object();
-        this->object_register_id_ = 0;
-    }
+    auto sessionConnection = QDBusConnection::sessionBus();
+    sessionConnection.unregisterObject(m_objectPath);
 }
 
-void AudioDevice::on_node_info_changed_cb(PulseNodeField field)
+void AudioDevice::processNodeInfoChanged(int32_t field)
 {
     switch (field)
     {
     case PulseNodeField::PULSE_NODE_FIELD_BALANCE:
-        this->balance_set(this->device_->get_balance());
+        setBalance(m_device->getBalance());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_FADE:
-        this->fade_set(this->device_->get_fade());
+        setFade(m_device->getFade());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_MUTE:
-        this->mute_set(this->device_->get_mute());
+        setMute(m_device->getMute());
         break;
     case PulseNodeField::PULSE_NODE_FIELD_VOLUME:
     {
-        auto volume_range = AudioUtils::volume_absolute2range(this->device_->get_volume(),
-                                                              this->device_->get_min_volume(),
-                                                              this->device_->get_max_volume());
-        this->volume_set(volume_range);
+        auto volume = AudioUtils::volumeAbsolute2range(m_device->getVolume(),
+                                                       m_device->getMinVolume(),
+                                                       m_device->getMaxVolume());
+        setVolume(volume);
         break;
     }
     default:
         break;
     }
-}
-
-void AudioDevice::on_active_port_changed_cb(const std::string &active_port_name)
-{
-    this->active_port_set(active_port_name);
 }
 
 }  // namespace Kiran

@@ -26,18 +26,6 @@
             </arg>
         </method>
 
-        <method name="FindUserByAuthData">
-            <arg name="mode" direction="in" type="i">
-                <description>The authentication mode which could be fingerprint, face, etc. Refer to AccountsAuthMode in accounts-i.h</description>
-            </arg>
-            <arg name="data_id" direction="in" type="s">
-                <description>The identity of the collected data for the authentication item.</description>
-            </arg>
-            <arg name="user" direction="out" type="o">
-                <description>Object path of the new user.</description>
-            </arg>
-        </method>
-
         <method name="CreateUser">
             <arg name="name" direction="in" type="s">
                 <description>The username for the new user</description>
@@ -65,15 +53,8 @@
             </arg>
         </method>
 
-        <!--<method name="SetGlobalAuthModes">
-            <arg name="auth_modes" direction="in" type="i">
-                <description>Bitwise OR the enabled authorization mode.</description>
-            </arg>>
-            <description>Set the global enabled authentication modes. It will reset to all users using the auth_modes
-            and also use the auth_modes when user is added.</description>
-        </method>-->
-
         <property name="rsa_public_key" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false" />
             <description>The RSA public key.</description>
         </property>
 

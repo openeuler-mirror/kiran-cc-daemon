@@ -12,15 +12,33 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/display/display-manager.h"
-
+#include "display-manager.h"
+#include <kscreen/config.h>
+#include <kscreen/configmonitor.h>
+#include <kscreen/getconfigoperation.h>
+#include <kscreen/output.h>
+#include <kscreen/setconfigoperation.h>
+#include <QFileInfo>
+#include <QGSettings>
+#include <QPluginLoader>
+#include <QProcess>
+#include <QSet>
+#include <QSize>
+#include <QStandardPaths>
 #include <fstream>
-
-#include <glib/gi18n.h>
 #include "config.h"
+#include "display-i.h"
+#include "display-monitor.h"
+#include "display-util.h"
+#include "display.hxx"
+#include "displayadaptor.h"
 #include "lib/base/base.h"
-#include "plugins/display/display-util.h"
 #include "xsettings-i.h"
+
+uint qHash(const QSize &size)
+{
+    return size.width() * size.height();
+}
 
 namespace Kiran
 {
@@ -38,214 +56,239 @@ namespace Kiran
 
 #define DEFAULT_MAX_SCREEN_RECORD_NUMBER 100
 
-DisplayManager::DisplayManager(XrandrManager *xrandr_manager) : xrandr_manager_(xrandr_manager),
-                                                                default_style_(DisplayStyle::DISPLAY_STYLE_EXTEND),
-                                                                window_scaling_factor_(0),
-                                                                dynamic_scaling_window_(false),
-                                                                max_screen_record_number_(DEFAULT_MAX_SCREEN_RECORD_NUMBER),
-                                                                dbus_connect_id_(0),
-                                                                object_register_id_(0)
+DisplayManager::DisplayManager() : m_currentConfig(nullptr),
+                                   m_defaultStyle(DisplayStyle::DISPLAY_STYLE_EXTEND),
+                                   m_windowScalingFactor(0),
+                                   m_dynamicScalingWindow(false),
+                                   m_maxScreenRecordNumber(DEFAULT_MAX_SCREEN_RECORD_NUMBER)
 {
-    this->config_file_path_ = Glib::build_filename(Glib::get_user_config_dir(),
-                                                   DISPLAY_CONF_DIR,
-                                                   DISPLAY_FILE_NAME);
+    m_displayAdaptor = new DisplayAdaptor(this);
+    m_configFilePath = QString("%1/%2/%3")
+                           .arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
+                           .arg(DISPLAY_CONF_DIR)
+                           .arg(DISPLAY_FILE_NAME);
 
-    this->display_settings_ = Gio::Settings::create(DISPLAY_SCHEMA_ID);
-    this->xsettings_settings_ = Gio::Settings::create(XSETTINGS_SCHEMA_ID);
+    m_configMonitor = KScreen::ConfigMonitor::instance();
+    m_displaySettings = new QGSettings(DISPLAY_SCHEMA_ID, "", this);
+    m_xsettingsSettings = new QGSettings(XSETTINGS_SCHEMA_ID, "", this);
 }
 
 DisplayManager::~DisplayManager()
 {
-    if (this->dbus_connect_id_)
-    {
-        Gio::DBus::unown_name(this->dbus_connect_id_);
-    }
 }
 
-DisplayManager *DisplayManager::instance_ = nullptr;
-void DisplayManager::global_init(XrandrManager *xrandr_manager)
+DisplayManager *DisplayManager::m_instance = nullptr;
+void DisplayManager::globalInit()
 {
-    instance_ = new DisplayManager(xrandr_manager);
-    instance_->init();
+    m_instance = new DisplayManager();
+    m_instance->preInit();
 }
 
-DisplayMonitorVec DisplayManager::get_connected_monitors()
+QList<QSharedPointer<DisplayMonitor>> DisplayManager::getConnectedMonitors()
 {
-    DisplayMonitorVec monitors;
-    for (const auto &iter : this->monitors_)
+    QList<QSharedPointer<DisplayMonitor>> monitors;
+    for (const auto &monitor : m_monitors)
     {
-        if (iter.second->connected_get())
+        if (monitor->getConnected())
         {
-            monitors.push_back(iter.second);
+            monitors.push_back(monitor);
         }
     }
     return monitors;
 }
 
-DisplayMonitorVec DisplayManager::get_enabled_monitors()
+QList<QSharedPointer<DisplayMonitor>> DisplayManager::getEnabledMonitors()
 {
-    DisplayMonitorVec monitors;
-    for (const auto &iter : this->monitors_)
+    QList<QSharedPointer<DisplayMonitor>> monitors;
+    for (const auto &monitor : m_monitors)
     {
-        if (iter.second->enabled_get())
+        if (monitor->getEnabled())
         {
-            monitors.push_back(iter.second);
+            monitors.push_back(monitor);
         }
     }
     return monitors;
 }
 
-void DisplayManager::ListMonitors(MethodInvocation &invocation)
+uint DisplayManager::getDefaultStyle() const
 {
-    std::vector<Glib::ustring> object_paths;
-    for (const auto &iter : this->monitors_)
-    {
-        object_paths.push_back(iter.second->get_object_path());
-    }
-    invocation.ret(object_paths);
+    return m_defaultStyle;
 }
 
-void DisplayManager::SwitchStyle(guint32 style, MethodInvocation &invocation)
+QString DisplayManager::getPrimary() const
 {
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->switch_style(DisplayStyle(style), error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
-    invocation.ret();
+    return m_primary;
+}
+int DisplayManager::getWindowScalingFactor() const
+{
+    return m_windowScalingFactor;
 }
 
-void DisplayManager::SetDefaultStyle(guint32 style, MethodInvocation &invocation)
+#define SEND_PROPERTY_NOTIFY(property, propertyHump)                          \
+    QVariantMap changedProperties;                                            \
+    changedProperties.insert(QStringLiteral(#property), get##propertyHump()); \
+                                                                              \
+    QDBusMessage signalMessage = QDBusMessage::createSignal(                  \
+        DISPLAY_OBJECT_PATH,                                                  \
+        QStringLiteral("org.freedesktop.DBus.Properties"),                    \
+        QStringLiteral("PropertiesChanged"));                                 \
+                                                                              \
+    signalMessage.setArguments({                                              \
+        DISPLAY_DBUS_INTERFACE_NAME,                                          \
+        changedProperties,                                                    \
+        QStringList(),                                                        \
+    });                                                                       \
+    QDBusConnection::sessionBus().send(signalMessage);
+
+void DisplayManager::setDefaultStyle(uint style)
+{
+    RETURN_IF_TRUE(m_defaultStyle == DisplayStyle(style));
+
+    m_defaultStyle = DisplayStyle(style);
+    if (m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toInt() != int32_t(m_defaultStyle))
+    {
+        m_displaySettings->set(DISPLAY_SCHEMA_STYLE, m_defaultStyle);
+    }
+
+    SEND_PROPERTY_NOTIFY(default_style, DefaultStyle)
+}
+
+void DisplayManager::setPrimary(const QString &name)
+{
+    m_primary = name;
+    SEND_PROPERTY_NOTIFY(primary, Primary)
+}
+
+void DisplayManager::setWindowScalingFactor(int window_scaling_factor)
+{
+    m_windowScalingFactor = window_scaling_factor;
+    SEND_PROPERTY_NOTIFY(window_scaling_factor, WindowScalingFactor)
+}
+
+void DisplayManager::ApplyChanges()
+{
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+    if (!apply(errorCode))
+    {
+        DBUS_ERROR_REPLY_AND_RET(errorCode);
+    }
+}
+
+QStringList DisplayManager::ListMonitors()
+{
+    QStringList objectPaths;
+    for (const auto &monitor : m_monitors)
+    {
+        objectPaths.push_back(monitor->getObjectPath());
+    }
+    return objectPaths;
+}
+
+void DisplayManager::RestoreChanges()
+{
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+    if (!switchStyle(m_defaultStyle, errorCode))
+    {
+        DBUS_ERROR_REPLY_AND_RET(errorCode);
+    }
+}
+
+void DisplayManager::Save()
+{
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+
+    if (!saveConfig(errorCode))
+    {
+        DBUS_ERROR_REPLY_AND_RET(errorCode);
+    }
+}
+
+void DisplayManager::SetDefaultStyle(uint style)
 {
     if (style >= DisplayStyle::DISPLAY_STYLE_LAST)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_UNKNOWN_DISPLAY_STYLE_2);
     }
-    this->default_style_set(style);
-    invocation.ret();
+    setDefaultStyle(style);
 }
 
-void DisplayManager::ApplyChanges(MethodInvocation &invocation)
+void DisplayManager::DisplayManager::SetPrimary(const QString &name)
 {
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->apply(error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
-    invocation.ret();
-}
-
-void DisplayManager::RestoreChanges(MethodInvocation &invocation)
-{
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->switch_style(this->default_style_, error_code))
-    {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
-    invocation.ret();
-}
-
-void DisplayManager::SetPrimary(const Glib::ustring &name, MethodInvocation &invocation)
-{
-    KLOG_DEBUG_DISPLAY("Set primary name to: %s.", name.c_str());
+    KLOG_INFO(display) << "Set primary name to" << name;
 
     if (name.length() == 0)
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_PRIMARY_MONITOR_IS_EMPTY);
     }
 
-    if (!this->get_monitor_by_name(name))
+    if (!getMonitorByName(name))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_NOTFOUND_PRIMARY_MONITOR_BY_NAME);
     }
 
-    this->primary_set(name);
-    invocation.ret();
+    setPrimary(name);
 }
 
-void DisplayManager::Save(MethodInvocation &invocation)
+void DisplayManager::SetWindowScalingFactor(int windowScalingFactor)
 {
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
+    RETURN_IF_TRUE(getWindowScalingFactor() == windowScalingFactor)
 
-    if (!this->save_config(error_code))
+    if (!m_dynamicScalingWindow)
     {
-        DBUS_ERROR_REPLY_AND_RET(error_code);
-    }
+        auto result = QProcess::startDetached("/usr/bin/notify-send",
+                                              QStringList() << tr("\"The scaling rate can only take effect after logging out and logging in again\""));
 
-    invocation.ret();
-}
-
-void DisplayManager::SetWindowScalingFactor(gint32 window_scaling_factor, MethodInvocation &invocation)
-{
-    if (this->window_scaling_factor_get() == window_scaling_factor)
-    {
-        invocation.ret();
-        return;
-    }
-
-    if (!this->dynamic_scaling_window_)
-    {
-        std::string standard_error;
-        auto command_line = fmt::format("/usr/bin/notify-send \"{0}\"", _("The scaling rate can only take effect after logging out and logging in again"));
-        Glib::spawn_command_line_sync(command_line, nullptr, &standard_error);
-        if (!standard_error.empty())
+        if (!result)
         {
-            KLOG_WARNING_DISPLAY("Failed to run notify-send: %s", standard_error.c_str());
+            KLOG_WARNING(display) << "Failed to run notify-send";
         }
     }
 
-    if (!this->window_scaling_factor_set(window_scaling_factor))
+    setWindowScalingFactor(windowScalingFactor);
+}
+
+void DisplayManager::SwitchStyle(uint style)
+{
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+    if (!switchStyle(DisplayStyle(style), errorCode))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_2);
+        DBUS_ERROR_REPLY_AND_RET(errorCode);
     }
-
-    invocation.ret();
 }
 
-bool DisplayManager::default_style_setHandler(guint32 value)
+void DisplayManager::preInit()
 {
-    RETURN_VAL_IF_TRUE(this->default_style_ == DisplayStyle(value), true);
+    connect(new KScreen::GetConfigOperation,
+            &KScreen::GetConfigOperation::finished,
+            this,
+            [this](KScreen::ConfigOperation *op)
+            {
+                if (op->hasError())
+                {
+                    KLOG_WARNING(display) << "Failed to get init configuration" << op->errorString();
+                    return;
+                }
 
-    this->default_style_ = DisplayStyle(value);
-
-    if (this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE) != int32_t(this->default_style_))
-    {
-        this->display_settings_->set_enum(DISPLAY_SCHEMA_STYLE, int32_t(this->default_style_));
-    }
-    return true;
-}
-
-bool DisplayManager::primary_setHandler(const Glib::ustring &value)
-{
-    this->primary_ = value.raw();
-    return true;
-}
-
-bool DisplayManager::window_scaling_factor_setHandler(gint32 value)
-{
-    this->window_scaling_factor_ = value;
-    return true;
+                this->m_currentConfig = qobject_cast<KScreen::GetConfigOperation *>(op)->config();
+                this->init();
+            });
 }
 
 void DisplayManager::init()
 {
-    this->load_settings();
-    this->load_monitors();
-    this->load_config();
+    loadSettings();
+    loadMonitors();
+    loadConfig();
 
-    this->display_settings_->signal_changed().connect(sigc::mem_fun(this, &DisplayManager::display_settings_changed));
-    this->xrandr_manager_->signal_resources_changed().connect(sigc::mem_fun(this, &DisplayManager::resources_changed));
+    m_configMonitor->addConfig(m_currentConfig);
 
-    this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
-                                                 DISPLAY_DBUS_NAME,
-                                                 sigc::mem_fun(this, &DisplayManager::on_bus_acquired),
-                                                 sigc::mem_fun(this, &DisplayManager::on_name_acquired),
-                                                 sigc::mem_fun(this, &DisplayManager::on_name_lost));
+    connect(m_displaySettings, &QGSettings::changed, this, &DisplayManager::processSettingsChanged);
+    connect(m_configMonitor, &KScreen::ConfigMonitor::configurationChanged, this, &DisplayManager::processConfigureChanged);
 
-    CCErrorCode error_code = CCErrorCode::SUCCESS;
-    if (!this->switch_style_and_save(this->default_style_, error_code))
+    CCErrorCode errorCode = CCErrorCode::SUCCESS;
+    if (!switchStyleAndSave(m_defaultStyle, errorCode))
     {
-        KLOG_WARNING_DISPLAY("%s.", CC_ERROR2STR(error_code).c_str());
+        KLOG_WARNING(display) << KCD_ERROR2STR(errorCode);
     }
 
     /* window_scaling_factor的初始化顺序：
@@ -253,35 +296,49 @@ void DisplayManager::init()
        2. 读取monitor.xml中维护的window-scaling-factor值 （switch_style_and_save）
        3. 如果第2步和第1步的值不相同，则说明在上一次进入会话时用户修改了缩放率，需要在这一次进入会话时生效，
           因此需要将monitor.xml中的缩放率更新到xsettings中的window-scaling-factor属性中*/
-    if (this->window_scaling_factor_ != this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR))
+    if (m_windowScalingFactor != m_xsettingsSettings->get(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt())
     {
-        this->xsettings_settings_->set_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, this->window_scaling_factor_);
+        m_xsettingsSettings->set(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
+    }
+
+    auto sessionConnection = QDBusConnection::sessionBus();
+    if (!sessionConnection.registerService(DISPLAY_DBUS_NAME))
+    {
+        KLOG_WARNING(appearance) << "Failed to register dbus name: " << DISPLAY_DBUS_NAME;
+        return;
+    }
+
+    if (!sessionConnection.registerObject(DISPLAY_OBJECT_PATH, DISPLAY_DBUS_INTERFACE_NAME, this))
+    {
+        KLOG_ERROR(appearance) << "Can't register object:" << sessionConnection.lastError();
+        return;
     }
 }
 
-void DisplayManager::load_settings()
+void DisplayManager::loadSettings()
 {
-    this->default_style_ = DisplayStyle(this->display_settings_->get_enum(DISPLAY_SCHEMA_STYLE));
-    this->dynamic_scaling_window_ = this->display_settings_->get_boolean(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW);
-    this->window_scaling_factor_ = this->xsettings_settings_->get_int(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR);
-    this->max_screen_record_number_ = this->display_settings_->get_int(DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER);
+    m_defaultStyle = DisplayStyle(m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toInt());
+    m_dynamicScalingWindow = m_displaySettings->get(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW).toBool();
+    m_windowScalingFactor = m_xsettingsSettings->get(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt();
+    m_maxScreenRecordNumber = m_displaySettings->get(DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER).toInt();
 }
 
-void DisplayManager::load_monitors()
+void DisplayManager::loadMonitors()
 {
     // 加载主显示器
-    auto primary_output = this->xrandr_manager_->get_primary_output();
-    auto primary_name = primary_output ? primary_output->name : std::string();
-    this->primary_set(primary_name);
+
+    auto primaryOutput = m_currentConfig->primaryOutput();
+    auto primaryName = primaryOutput ? primaryOutput->name() : QString();
+    setPrimary(primaryName);
 
     // 删除已经不存在的monitor
-    for (auto iter = this->monitors_.begin(); iter != this->monitors_.end();)
+    for (auto iter = m_monitors.begin(); iter != m_monitors.end();)
     {
-        auto output = this->xrandr_manager_->get_output(iter->first);
-        if (!output || !output->connection)
+        auto output = m_currentConfig->output(iter.key());
+        if (!output || !output->isConnected())
         {
-            iter->second->dbus_unregister();
-            this->monitors_.erase(iter++);
+            iter.value()->dbusUnregister();
+            m_monitors.erase(iter++);
         }
         else
         {
@@ -289,91 +346,65 @@ void DisplayManager::load_monitors()
         }
     }
 
-    auto outputs = this->xrandr_manager_->get_connected_outputs();
+    auto outputs = m_currentConfig->connectedOutputs();
+
     for (const auto &output : outputs)
     {
-        auto uid = this->xrandr_manager_->gen_uid(output);
-
-        MonitorInfo monitor_info;
-        monitor_info.id = output->id;
-        monitor_info.uid = uid;
-        monitor_info.name = output->name;
-        monitor_info.connected = output->connection;
-        monitor_info.modes = output->modes;
-        monitor_info.npreferred = output->npreferred;
-
-        auto crtc = this->xrandr_manager_->get_crtc(output->crtc);
-        if (!crtc)
+        auto iter = m_monitors.find(output->id());
+        if (iter == m_monitors.end())
         {
-            monitor_info.enabled = false;
+            auto monitor = QSharedPointer<DisplayMonitor>::create(output);
+            m_monitors.insert(output->id(), monitor);
+            monitor->dbusRegister();
         }
         else
         {
-            monitor_info.enabled = true;
-            monitor_info.x = crtc->x;
-            monitor_info.y = crtc->y;
-            monitor_info.rotation = DisplayRotationType(crtc->rotation & ROTATION_ALL_MASK);
-            monitor_info.reflect = DisplayReflectType(crtc->rotation & REFLECT_ALL_MASK);
-            monitor_info.rotations = this->xrandr_manager_->get_rotations(crtc);
-            monitor_info.reflects = this->xrandr_manager_->get_reflects(crtc);
-            monitor_info.mode = crtc->mode;
-        }
-
-        auto iter = this->monitors_.find(output->id);
-        if (iter == this->monitors_.end())
-        {
-            auto monitor = std::make_shared<DisplayMonitor>(monitor_info);
-            this->monitors_.emplace(output->id, monitor);
-            monitor->dbus_register();
-        }
-        else
-        {
-            iter->second->update(monitor_info);
+            iter.value()->update(output);
         }
     }
 }
 
-void DisplayManager::load_config()
+void DisplayManager::loadConfig()
 {
-    if (Glib::file_test(this->config_file_path_, Glib::FILE_TEST_EXISTS))
+    if (QFileInfo::exists(m_configFilePath))
     {
         try
         {
-            this->display_config_ = display(this->config_file_path_, xml_schema::Flags::dont_validate);
+            m_displayConfig = display(m_configFilePath.toStdString(), xml_schema::Flags::dont_validate);
         }
         catch (const xml_schema::Exception &e)
         {
-            KLOG_WARNING_DISPLAY("Failed to load config file: %s: %s", this->config_file_path_.c_str(), e.what());
-            this->display_config_ = nullptr;
+            KLOG_WARNING(display) << "Failed to load config file" << m_configFilePath << ". Error:" << e.what();
+            m_displayConfig = nullptr;
         }
     }
     else
     {
-        KLOG_DEBUG_DISPLAY("Displaymanager load config file %s is not exist.", this->config_file_path_.c_str());
+        KLOG_DEBUG(display) << m_configFilePath << "is not exist.";
     }
     return;
 }
 
-bool DisplayManager::apply_config(CCErrorCode &error_code)
+bool DisplayManager::applyConfig(CCErrorCode &errorCode)
 {
-    if (!this->display_config_)
+    if (!m_displayConfig)
     {
-        error_code = CCErrorCode::ERROR_DISPLAY_CONFIG_IS_EMPTY;
+        errorCode = CCErrorCode::ERROR_DISPLAY_CONFIG_IS_EMPTY;
         return false;
     }
 
-    auto monitors_id = this->get_monitors_uid();
-    const auto &screens = this->display_config_->screen();
+    auto monitorsUID = getMonitorsUID();
+    const auto &screens = m_displayConfig->screen();
     bool result = false;
 
     for (const auto &screen : screens)
     {
         const auto &monitors = screen.monitor();
-        auto monitors_config_id = this->get_c_monitors_uid(monitors);
-        if (monitors_id == monitors_config_id)
+        auto monitorsConfigID = getCMonitorsUID(monitors);
+        if (monitorsUID == monitorsConfigID)
         {
-            KLOG_DEBUG_DISPLAY("Match ids and the ids is %s.", monitors_id.c_str());
-            if (this->apply_screen_config(screen, error_code))
+            KLOG_INFO(display) << "Match ids and the ids is" << monitorsUID;
+            if (applyScreenConfig(screen, errorCode))
             {
                 result = true;
                 break;
@@ -381,147 +412,145 @@ bool DisplayManager::apply_config(CCErrorCode &error_code)
         }
     }
 
-    if (!result && error_code == CCErrorCode::SUCCESS)
+    if (!result && errorCode == CCErrorCode::SUCCESS)
     {
-        error_code = CCErrorCode::ERROR_DISPLAY_CONFIG_ITEM_NOTFOUND;
+        errorCode = CCErrorCode::ERROR_DISPLAY_CONFIG_ITEM_NOTFOUND;
     }
     return result;
 }
 
-bool DisplayManager::apply_screen_config(const ScreenConfigInfo &screen_config, CCErrorCode &error_code)
+bool DisplayManager::applyScreenConfig(const ScreenConfigInfo &screenConfig, CCErrorCode &errorCode)
 {
-    const auto &c_monitors = screen_config.monitor();
+    const auto &cMonitors = screenConfig.monitor();
 
-    this->primary_set(screen_config.primary());
-    this->window_scaling_factor_set(screen_config.window_scaling_factor());
+    setPrimary(screenConfig.primary().c_str());
+    setWindowScalingFactor(screenConfig.window_scaling_factor());
 
-    for (const auto &c_monitor : c_monitors)
+    for (const auto &cMonitor : cMonitors)
     {
-        auto monitor = this->match_best_monitor(c_monitor.uid(), c_monitor.name());
+        auto monitor = matchBestMonitor(cMonitor.uid().c_str(), cMonitor.name().c_str());
 
         if (!monitor)
         {
-            KLOG_WARNING_DISPLAY("Cannot find monitor for uid=%s, name=%s.",
-                                 c_monitor.uid().c_str(),
-                                 c_monitor.name().c_str());
+            KLOG_WARNING(display) << "Cannot find monitor, uid is" << cMonitor.uid().c_str()
+                                  << ", name is" << cMonitor.name().c_str();
             return false;
         }
 
         /* 一般情况下uid相同时name也是相同的，但是有些特殊情况会出现不一样，这里uid主要是为了唯一标识一台显示器，
            而name是用来区分显示器接口的，比如有一台显示器最开始是接入在HDMI-1，后面改到HDMI-2了，那么在能获取到edid的
            情况下uid是不变的，但是name会发生变化。如果出现name不一样的情况下这里仅仅记录日志，方便后续跟踪问题。*/
-        if (c_monitor.name() != monitor->name_get())
+        if (cMonitor.name() != monitor->getName().toStdString())
         {
-            KLOG_DEBUG_DISPLAY("The monitor name is dismatch. config name: %s, monitor name: %s.",
-                               c_monitor.name().c_str(),
-                               monitor->name_get().c_str());
+            KLOG_INFO(display) << "The monitor name is dismatch. config name is" << cMonitor.name().c_str()
+                               << ", monitor name is" << monitor->getName();
         }
 
-        if (!c_monitor.enabled())
+        if (!cMonitor.enabled())
         {
-            monitor->enabled_set(false);
-            monitor->x_set(0);
-            monitor->y_set(0);
-            monitor->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
-            monitor->reflect_set(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
-            monitor->current_mode_set(0);
+            monitor->setEnabled(false);
+            monitor->setX(0);
+            monitor->setY(0);
+            monitor->setRotation(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
+            monitor->setReflect(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
+            monitor->setCurrentMode(0);
         }
         else
         {
             // 只有在显示器开启状态下才能取匹配mode，因为显示器关闭状态下c_monitor里面保持的分辨率都是0x0
-            auto mode = monitor->match_best_mode(c_monitor.width(), c_monitor.height(), c_monitor.refresh_rate());
+            auto mode = monitor->matchBestMode(cMonitor.width(), cMonitor.height(), cMonitor.refresh_rate());
             if (!mode)
             {
-                KLOG_WARNING_DISPLAY("Cannot match the mode. width: %d, height: %d, refresh: %.2f.",
-                                     c_monitor.width(),
-                                     c_monitor.height(),
-                                     c_monitor.refresh_rate());
+                KLOG_WARNING(display) << "Cannot match the mode. width:" << cMonitor.width()
+                                      << ", height:" << cMonitor.height()
+                                      << ", refresh:" << cMonitor.refresh_rate();
                 return false;
             }
 
-            monitor->enabled_set(true);
-            monitor->x_set(c_monitor.x());
-            monitor->y_set(c_monitor.y());
-            monitor->rotation_set(uint16_t(DisplayUtil::str_to_rotation(c_monitor.rotation())));
-            monitor->reflect_set(uint16_t(DisplayUtil::str_to_reflect(c_monitor.reflect())));
-            monitor->current_mode_set(mode->id);
+            monitor->setEnabled(true);
+            monitor->setX(cMonitor.x());
+            monitor->setY(cMonitor.y());
+            monitor->setRotation(uint16_t(DisplayUtil::rotationStr2Enum(cMonitor.rotation().c_str())));
+            monitor->setReflect(uint16_t(DisplayUtil::reflectStr2Enum(cMonitor.reflect().c_str())));
+            monitor->setCurrentMode(mode->id().toInt());
         }
     }
 
     return true;
 }
 
-void DisplayManager::fill_screen_config(ScreenConfigInfo &screen_config)
+void DisplayManager::fillScreenConfig(ScreenConfigInfo &screenConfig)
 {
-    screen_config.timestamp((uint32_t)time(NULL));
-    screen_config.primary(this->primary_);
-    screen_config.window_scaling_factor(this->window_scaling_factor_);
+    screenConfig.timestamp((uint32_t)time(NULL));
+    screenConfig.primary(m_primary.toStdString());
+    screenConfig.window_scaling_factor(m_windowScalingFactor);
 
-    for (auto &iter : this->monitors_)
+    for (auto &monitor : m_monitors)
     {
-        auto mode = this->xrandr_manager_->get_mode(iter.second->current_mode_get());
+        auto output = m_currentConfig->output(monitor->getID());
+        auto mode = output->currentMode();
 
-        if (!mode || !iter.second->enabled_get())
+        if (!mode || !monitor->getEnabled())
         {
-            MonitorConfigInfo c_monitor(iter.second->get_uid(),
-                                        iter.second->name_get().raw(),
-                                        false,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        DisplayUtil::rotation_to_str(DisplayRotationType::DISPLAY_ROTATION_0),
-                                        DisplayUtil::reflect_to_str(DisplayReflectType::DISPLAY_REFLECT_NORMAL),
-                                        0.0);
+            MonitorConfigInfo cMonitor(monitor->getUID().toStdString(),
+                                       monitor->getName().toStdString(),
+                                       false,
+                                       0,
+                                       0,
+                                       0,
+                                       0,
+                                       DisplayUtil::rotationEnum2str(DisplayRotationType::DISPLAY_ROTATION_0).toStdString(),
+                                       DisplayUtil::reflectEnum2str(DisplayReflectType::DISPLAY_REFLECT_NORMAL).toStdString(),
+                                       0.0);
 
-            screen_config.monitor().push_back(std::move(c_monitor));
+            screenConfig.monitor().push_back(std::move(cMonitor));
         }
         else
         {
-            MonitorConfigInfo c_monitor(iter.second->get_uid(),
-                                        iter.second->name_get().raw(),
-                                        true,
-                                        iter.second->x_get(),
-                                        iter.second->y_get(),
-                                        mode->width,
-                                        mode->height,
-                                        DisplayUtil::rotation_to_str(DisplayRotationType(iter.second->rotation_get())),
-                                        DisplayUtil::reflect_to_str(DisplayReflectType(iter.second->reflect_get())),
-                                        mode->refresh_rate);
-            screen_config.monitor().push_back(std::move(c_monitor));
+            MonitorConfigInfo cMonitor(monitor->getUID().toStdString(),
+                                       monitor->getName().toStdString(),
+                                       true,
+                                       monitor->getX(),
+                                       monitor->getY(),
+                                       mode->size().width(),
+                                       mode->size().height(),
+                                       DisplayUtil::rotationEnum2str(DisplayRotationType(monitor->getRotation())).toStdString(),
+                                       DisplayUtil::reflectEnum2str(DisplayReflectType(monitor->getReflect())).toStdString(),
+                                       mode->refreshRate());
+            screenConfig.monitor().push_back(std::move(cMonitor));
         }
     }
 }
 
-bool DisplayManager::save_config(CCErrorCode &error_code)
+bool DisplayManager::saveConfig(CCErrorCode &errorCode)
 {
-    if (!this->display_config_)
+    if (!m_displayConfig)
     {
-        this->display_config_ = std::unique_ptr<DisplayConfigInfo>(new DisplayConfigInfo());
+        m_displayConfig = std::unique_ptr<DisplayConfigInfo>(new DisplayConfigInfo());
     }
 
     // 禁止保存没有开启任何显示器的配置，这可能会导致下次进入会话屏幕无法显示
-    if (this->get_enabled_monitors().size() == 0)
+    if (getEnabledMonitors().size() == 0)
     {
-        KLOG_WARNING_DISPLAY("It is forbidden to save the configuration without any display turned on, "
-                             "which may cause the next session screen not to be displayed.");
-        error_code = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
+        KLOG_WARNING(display) << "It is forbidden to save the configuration without any display turned on, "
+                                 "which may cause the next session screen not to be displayed.";
+        errorCode = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
         return false;
     }
 
-    auto monitors_uid = this->get_monitors_uid();
-    auto &c_screens = this->display_config_->screen();
+    auto monitorsUID = getMonitorsUID();
+    auto &cScreens = m_displayConfig->screen();
     bool matched = false;
-    ScreenConfigInfo used_config(0, "", 0);
+    ScreenConfigInfo usedConfig(0, "", 0);
 
-    this->fill_screen_config(used_config);
-    for (auto &c_screen : c_screens)
+    fillScreenConfig(usedConfig);
+    for (auto &cScreen : cScreens)
     {
-        auto &c_monitors = c_screen.monitor();
-        auto c_monitors_uid = this->get_c_monitors_uid(c_monitors);
-        if (monitors_uid == c_monitors_uid)
+        auto &cMonitors = cScreen.monitor();
+        auto c_monitors_uid = getCMonitorsUID(cMonitors);
+        if (monitorsUID == c_monitors_uid)
         {
-            c_screen = used_config;
+            cScreen = usedConfig;
             matched = true;
             break;
         }
@@ -529,13 +558,13 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
 
     if (!matched)
     {
-        this->display_config_->screen().push_back(used_config);
+        m_displayConfig->screen().push_back(usedConfig);
     }
 
-    if (c_screens.size() > this->max_screen_record_number_)
+    if (cScreens.size() > m_maxScreenRecordNumber)
     {
-        auto oldest_screen = c_screens.begin();
-        for (auto iter = c_screens.begin(); iter != c_screens.end(); iter++)
+        auto oldest_screen = cScreens.begin();
+        for (auto iter = cScreens.begin(); iter != cScreens.end(); iter++)
         {
             if ((*iter).timestamp() < (*oldest_screen).timestamp())
             {
@@ -543,446 +572,408 @@ bool DisplayManager::save_config(CCErrorCode &error_code)
             }
         }
 
-        if (oldest_screen != c_screens.end())
+        if (oldest_screen != cScreens.end())
         {
-            c_screens.erase(oldest_screen);
+            cScreens.erase(oldest_screen);
         }
     }
 
-    RETURN_VAL_IF_FALSE(this->save_to_file(error_code), false);
+    RETURN_VAL_IF_FALSE(saveToFile(errorCode), false);
 
     return true;
 }
 
-bool DisplayManager::apply(CCErrorCode &error_code)
+bool DisplayManager::apply(CCErrorCode &errorCode)
 {
     // 如果使用的是nvidia驱动，当没有接入任何显示器时,会将output的分辨率设置为8x8，导致底部面板不可见且后面无法恢复。
-    if (this->get_enabled_monitors().size() == 0)
+    if (getEnabledMonitors().size() == 0)
     {
-        KLOG_WARNING_DISPLAY("Cannot find enabled monitor.");
-        error_code = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
+        KLOG_WARNING(display) << "Cannot find enabled monitor.";
+        errorCode = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
         return false;
     }
 
-    if (this->dynamic_scaling_window_)
+    if (m_dynamicScalingWindow)
     {
         // 应用缩放因子
-        auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
-        if (!this->xsettings_settings_->set_value(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
-        {
-            error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
-            return false;
-        }
+        m_xsettingsSettings->set(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
     }
 
-    // 应用xrandr
-    std::string cmdline = XRANDR_CMD;
-    std::shared_ptr<DisplayMonitor> primary_monitor;
-
-    /* 加上auto为了确保屏幕大小和显示器之间的缝隙能够自适应。
-       例如在扩展屏模式下拔掉一个显示器后，默认屏幕大小还是两个显示器大小之和，如果不做自适应的话被拔掉的显示器上面的窗口就看不到了
-    */
-    cmdline.append(" --auto");
+    QSharedPointer<DisplayMonitor> primaryMonitor;
 
     // 如果没有设置主显示器，这里会默认使用第一个遍历到的显示器作为主显示器，因为必须要在已开启的显示器中设置一个主显示器，否则可能出现鼠标键盘操作卡顿情况
-    for (const auto &iter : this->monitors_)
+    for (const auto &monitor : m_monitors)
     {
-        const auto &monitor = iter.second;
-        if (!monitor->enabled_get())
+        if (!monitor->getEnabled())
         {
             continue;
         }
 
-        if (!primary_monitor || monitor->name_get() == this->primary_)
+        if (!primaryMonitor || monitor->getName() == m_primary)
         {
-            primary_monitor = monitor;
+            primaryMonitor = monitor;
         }
     }
 
-    for (const auto &iter : this->monitors_)
+    KScreen::OutputList outputs;
+    for (const auto &monitor : m_monitors)
     {
-        auto tmp = iter.second->generate_cmdline(primary_monitor == iter.second);
-        cmdline.push_back(' ');
-        cmdline.append(tmp);
+        auto output = monitor->getOutput();
+        outputs.insert(output->id(), output);
     }
+    m_currentConfig->setOutputs(outputs);
 
-    try
+    auto setop = new KScreen::SetConfigOperation(m_currentConfig);
+    if (!setop->exec())
     {
-        std::string standard_error;
-        int32_t exit_status = 0;
-
-        KLOG_INFO_DISPLAY("Cmdline is %s.", cmdline.c_str());
-        Glib::spawn_command_line_sync(cmdline, nullptr, &standard_error, &exit_status);
-
-        if (!standard_error.empty() || exit_status != 0)
-        {
-            error_code = CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED;
-            KLOG_WARNING_DISPLAY("Failed to run xrandr: %s.", standard_error.c_str());
-            return false;
-        }
-    }
-    catch (const Glib::Error &e)
-    {
-        error_code = CCErrorCode::ERROR_DISPLAY_EXEC_XRANDR_FAILED;
-        KLOG_WARNING_DISPLAY("Failed to run xrandr: %s.", e.what().c_str());
+        errorCode = CCErrorCode::ERROR_DISPLAY_APPLY_FAILED;
+        KLOG_WARNING(display) << "Failed to apply display config which error is" << setop->errorString();
         return false;
     }
+
     return true;
 }
 
-bool DisplayManager::switch_style(DisplayStyle style, CCErrorCode &error_code)
+bool DisplayManager::switchStyle(DisplayStyle style, CCErrorCode &errorCode)
 {
-    KLOG_DEBUG_DISPLAY("Switch style to %s.", this->style_enum2str(style).c_str());
+    KLOG_INFO(display) << "Switch style to" << styleEnum2str(style);
+
     switch (style)
     {
     case DisplayStyle::DISPLAY_STYLE_MIRRORS:
-        RETURN_VAL_IF_FALSE(this->switch_to_mirrors(error_code), false);
+        RETURN_VAL_IF_FALSE(switchToMirrors(errorCode), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_EXTEND:
-        this->switch_to_extend();
+        switchToExtend();
         break;
     case DisplayStyle::DISPLAY_STYLE_CUSTOM:
-        RETURN_VAL_IF_FALSE(this->switch_to_custom(error_code), false);
+        RETURN_VAL_IF_FALSE(switchToCustom(errorCode), false);
         break;
     case DisplayStyle::DISPLAY_STYLE_AUTO:
-        this->switch_to_auto();
+        switchToAuto();
         break;
     default:
-        error_code = CCErrorCode::ERROR_DISPLAY_UNKNOWN_DISPLAY_STYLE_1;
+        errorCode = CCErrorCode::ERROR_DISPLAY_UNKNOWN_DISPLAY_STYLE_1;
         return false;
     }
 
     // 因为自定义模式下可能由于参数错误导致设置失败，为了增强鲁棒性，这里再做一次扩展模式的设置尝试
-    if (!this->apply(error_code))
+    if (!apply(errorCode))
     {
-        KLOG_WARNING_DISPLAY("The first apply failed: %s, try use extend mode", CC_ERROR2STR(error_code).c_str());
-        this->switch_to_extend();
-        error_code = CCErrorCode::SUCCESS;
-        if (!this->apply(error_code))
+        KLOG_WARNING(display) << "The first apply failed:" << KCD_ERROR2STR(errorCode) << ",try use extend mode ";
+        switchToExtend();
+        errorCode = CCErrorCode::SUCCESS;
+        if (!apply(errorCode))
         {
-            KLOG_WARNING_DISPLAY("The second apply also failed: %s.", CC_ERROR2STR(error_code).c_str());
+            KLOG_WARNING(display) << "The second apply also failed:" << KCD_ERROR2STR(errorCode);
             return false;
         }
     }
     return true;
 }
 
-Glib::ustring DisplayManager::style_enum2str(DisplayStyle style)
+QString DisplayManager::styleEnum2str(DisplayStyle style)
 {
-    Glib::ustring style_info;
+    QString styleInfo;
     switch (style)
     {
     case DisplayStyle::DISPLAY_STYLE_MIRRORS:
-        style_info = "mirrors";
+        styleInfo = "mirrors";
         break;
     case DisplayStyle::DISPLAY_STYLE_EXTEND:
-        style_info = "extend";
+        styleInfo = "extend";
         break;
     case DisplayStyle::DISPLAY_STYLE_CUSTOM:
-        style_info = "custom";
+        styleInfo = "custom";
         break;
     case DisplayStyle::DISPLAY_STYLE_AUTO:
-        style_info = "auto";
+        styleInfo = "auto";
         break;
     default:
-        style_info = "";
+        styleInfo = "";
         break;
     }
-    return style_info;
+    return styleInfo;
 }
 
-bool DisplayManager::switch_style_and_save(DisplayStyle style, CCErrorCode &error_code)
+bool DisplayManager::switchStyleAndSave(DisplayStyle style, CCErrorCode &error_code)
 {
-    RETURN_VAL_IF_FALSE(this->switch_style(style, error_code), false);
-    RETURN_VAL_IF_FALSE(this->save_config(error_code), false);
+    RETURN_VAL_IF_FALSE(switchStyle(style, error_code), false);
+    RETURN_VAL_IF_FALSE(saveConfig(error_code), false);
     return true;
 }
 
-bool DisplayManager::switch_to_mirrors(CCErrorCode &error_code)
+bool DisplayManager::switchToMirrors(CCErrorCode &errorCode)
 {
-    auto monitors = this->get_connected_monitors();
-    auto modes = this->monitors_common_modes(monitors);
+    auto connectedMonitors = getConnectedMonitors();
 
-    if (modes.size() == 0)
+    QSet<QSize> sameSizes;
+    const QSize maxScreenSize = m_currentConfig->screen()->maxSize();
+
+    // 计算所有显示器拥有的相同分辨率放入sameSizes
+    for (const auto &monitor : connectedMonitors)
     {
-        error_code = CCErrorCode::ERROR_DISPLAY_COMMON_MODE_NOTFOUND;
-        return false;
-    }
-
-    auto width = modes[0]->width;
-    auto height = modes[0]->height;
-
-    for (auto monitor : monitors)
-    {
-        monitor->enabled_set(true);
-        monitor->x_set(0);
-        monitor->y_set(0);
-
-        auto match_modes = monitor->get_modes_by_size(width, height);
-        if (match_modes.size() > 0)
+        auto output = monitor->getOutput();
+        QSet<QSize> modeSizes;
+        for (const auto &mode : output->modes())
         {
-            monitor->current_mode_set(match_modes[0]->id);
+            const QSize size = mode->size();
+            if (size.width() > maxScreenSize.width() || size.height() > maxScreenSize.height())
+            {
+                continue;
+            }
+            modeSizes.insert(mode->size());
+        }
+
+        if (sameSizes.size() == 0)
+        {
+            sameSizes = modeSizes;
         }
         else
         {
-            // 这里理论上不可能执行到,所以这里只打印日志,不返回错误
-            KLOG_WARNING_DISPLAY("Cannot match mod %ux%u for monitor %s.", width, height, monitor->name_get().c_str());
+            sameSizes.intersect(modeSizes);
         }
 
-        monitor->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
-        monitor->reflect_set(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
+        if (sameSizes.size() == 0)
+        {
+            break;
+        }
+    }
+
+    KLOG_DEBUG(display) << "Same sizes: " << sameSizes;
+
+    if (sameSizes.size() == 0)
+    {
+        errorCode = CCErrorCode::ERROR_DISPLAY_COMMON_MODE_NOTFOUND;
+        return false;
+    }
+
+    // 如果有多个相同的，取面积最大的分辨率
+    QList<QSize> sameSizeList = sameSizes.values();
+    std::sort(sameSizeList.begin(), sameSizeList.end(), [](const QSize &s1, const QSize &s2) -> bool
+              { return s1.width() * s1.height() < s2.width() * s2.height(); });
+    const QSize biggestSize = sameSizeList.last();
+
+    // Finally, look for the mode with biggestSize and biggest refreshRate and set it
+    KLOG_DEBUG(display) << "Biggest Size: " << biggestSize;
+    KScreen::ModePtr bestMode;
+    for (auto monitor : connectedMonitors)
+    {
+        auto matchModes = monitor->getModesBySize(biggestSize.width(), biggestSize.height());
+        if (matchModes.isEmpty())
+        {
+            KLOG_WARNING(display) << "Cannot match mode" << biggestSize << "for monitor" << monitor->getName();
+            continue;
+        }
+        monitor->setEnabled(true);
+        monitor->setX(0);
+        monitor->setY(0);
+        monitor->setRotation(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
+        monitor->setReflect(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
+        monitor->setCurrentMode(matchModes[0]->id().toInt());
     }
 
     return true;
 }
 
-ModeInfoVec DisplayManager::monitors_common_modes(const DisplayMonitorVec &monitors)
-{
-    ModeInfoVec result;
-    RETURN_VAL_IF_TRUE(monitors.size() == 0, result);
-
-    result = this->xrandr_manager_->get_modes(monitors[0]->modes_get());
-
-    for (uint32_t i = 1; i < monitors.size(); ++i)
-    {
-        auto monitor = monitors[i];
-        auto iter = std::remove_if(result.begin(), result.end(), [monitor](std::shared_ptr<ModeInfo> mode) -> bool
-                                   {
-                                       auto modes = monitor->get_modes_by_size(mode->width, mode->height);
-                                       return (modes.size() == 0); });
-
-        result.erase(iter, result.end());
-    }
-    return result;
-}
-
-void DisplayManager::switch_to_extend()
+void DisplayManager::switchToExtend()
 {
     int32_t startx = 0;
-    for (const auto &iter : this->monitors_)
+    for (auto monitor : m_monitors)
     {
-        if (!iter.second->connected_get())
+        if (!monitor->getConnected())
         {
             continue;
         }
-        auto best_mode = iter.second->get_best_mode();
-        if (!best_mode)
+
+        auto bestMode = monitor->getBestMode();
+        if (!bestMode)
         {
-            KLOG_WARNING_DISPLAY("Failed to get best mode for monitor %s.", iter.second->name_get().c_str());
+            KLOG_WARNING(display) << "Failed to get best mode for monitor" << monitor->getName();
             continue;
         }
 
-        iter.second->enabled_set(true);
-        iter.second->x_set(startx);
-        iter.second->y_set(0);
-        iter.second->current_mode_set(best_mode->id);
-        iter.second->rotation_set(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
-        iter.second->reflect_set(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
+        monitor->setEnabled(true);
+        monitor->setX(startx);
+        monitor->setY(0);
+        monitor->setCurrentMode(bestMode->id().toInt());
+        monitor->setRotation(uint16_t(DisplayRotationType::DISPLAY_ROTATION_0));
+        monitor->setReflect(uint16_t(DisplayReflectType::DISPLAY_REFLECT_NORMAL));
 
-        startx += best_mode->width;
+        startx += bestMode->size().width();
     }
 }
 
-bool DisplayManager::switch_to_custom(CCErrorCode &error_code)
+bool DisplayManager::switchToCustom(CCErrorCode &errorCode)
 {
-    return this->apply_config(error_code);
+    return applyConfig(errorCode);
 }
 
-void DisplayManager::switch_to_auto()
+void DisplayManager::switchToAuto()
 {
     CCErrorCode error_code;
 
-    RETURN_IF_TRUE(this->switch_to_custom(error_code));
-    this->switch_to_extend();
+    RETURN_IF_TRUE(switchToCustom(error_code));
+    switchToExtend();
 }
 
-std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor(uint32_t id)
-{
-    auto iter = this->monitors_.find(id);
-    if (iter != this->monitors_.end())
-    {
-        return iter->second;
-    }
-    return nullptr;
-}
+// QSharedPointer<DisplayMonitor> DisplayManager::get_monitor(uint32_t id)
+// {
+//     auto iter = monitors_.find(id);
+//     if (iter != monitors_.end())
+//     {
+//         return iter->second;
+//     }
+//     return nullptr;
+// }
 
-std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_uid(const std::string &uid)
+// QSharedPointer<DisplayMonitor> DisplayManager::get_monitor_by_uid(const QString &uid)
+// {
+//     for (const auto &iter : monitors_)
+//     {
+//         if (iter.second->get_uid() == uid)
+//         {
+//             return iter.second;
+//         }
+//     }
+//     return nullptr;
+// }
+
+QSharedPointer<DisplayMonitor> DisplayManager::getMonitorByName(const QString &name)
 {
-    for (const auto &iter : this->monitors_)
+    for (const auto &monitor : m_monitors)
     {
-        if (iter.second->get_uid() == uid)
+        if (monitor->getName() == name)
         {
-            return iter.second;
+            return monitor;
         }
     }
     return nullptr;
 }
 
-std::shared_ptr<DisplayMonitor> DisplayManager::get_monitor_by_name(const std::string &name)
+QSharedPointer<DisplayMonitor> DisplayManager::matchBestMonitor(const QString &uid, const QString &name)
 {
-    for (const auto &iter : this->monitors_)
+    QSharedPointer<DisplayMonitor> retval;
+    for (const auto &monitor : m_monitors)
     {
-        if (iter.second->name_get() == name)
+        if (!retval && monitor->getUID() == uid)
         {
-            return iter.second;
-        }
-    }
-    return nullptr;
-}
-
-std::shared_ptr<DisplayMonitor> DisplayManager::match_best_monitor(const std::string &uid,
-                                                                   const std::string &name)
-{
-    std::shared_ptr<DisplayMonitor> retval;
-    for (const auto &iter : this->monitors_)
-    {
-        if (!retval && iter.second->get_uid() == uid)
-        {
-            retval = iter.second;
+            retval = monitor;
         }
 
         // 完美匹配则直接退出
-        if (iter.second->get_uid() == uid && iter.second->name_get() == name)
+        if (monitor->getUID() == uid && monitor->getName() == name)
         {
-            retval = iter.second;
+            retval = monitor;
             break;
         }
     }
     return retval;
 }
 
-std::string DisplayManager::get_monitors_uid()
+QString DisplayManager::getMonitorsUID()
 {
-    std::vector<std::string> result;
-    for (const auto &iter : this->monitors_)
+    QStringList result;
+    for (const auto &monitor : m_monitors)
     {
-        result.push_back(iter.second->get_uid());
+        result.push_back(monitor->getUID());
     }
-    std::sort(result.begin(), result.end(), std::less<std::string>());
-    return StrUtils::join(result, MONITOR_JOIN_CHAR);
+    std::sort(result.begin(), result.end(), std::less<QString>());
+    return result.join(MONITOR_JOIN_CHAR);
 }
 
-std::string DisplayManager::get_output_names()
+QString DisplayManager::getMonitorNames()
 {
-    std::vector<std::string> result;
-    for (const auto &iter : this->monitors_)
+    QStringList result;
+    for (const auto &monitor : m_monitors)
     {
-        result.push_back(iter.second->name_get());
+        result.push_back(monitor->getName());
     }
-    std::sort(result.begin(), result.end(), std::less<std::string>());
-    return StrUtils::join(result, MONITOR_JOIN_CHAR);
+    std::sort(result.begin(), result.end(), std::less<QString>());
+    return result.join(MONITOR_JOIN_CHAR);
 }
 
-std::string DisplayManager::get_c_monitors_uid(const ScreenConfigInfo::MonitorSequence &monitors)
+QString DisplayManager::getCMonitorsUID(const ScreenConfigInfo::MonitorSequence &monitors)
 {
-    std::vector<std::string> result;
+    QStringList result;
     for (const auto &monitor : monitors)
     {
-        result.push_back(monitor.uid());
+        result.push_back(monitor.uid().data());
     }
-    std::sort(result.begin(), result.end(), std::less<std::string>());
-    return StrUtils::join(result, MONITOR_JOIN_CHAR);
+    std::sort(result.begin(), result.end(), std::less<QString>());
+    return result.join(MONITOR_JOIN_CHAR);
 }
 
-bool DisplayManager::save_to_file(CCErrorCode &error_code)
+bool DisplayManager::saveToFile(CCErrorCode &errorCode)
 {
     // 文件不存在则先尝试创建对应的目录
-    if (!Glib::file_test(this->config_file_path_, Glib::FILE_TEST_EXISTS))
+    if (!QFileInfo::exists(m_configFilePath))
     {
-        auto dirname = Glib::path_get_dirname(this->config_file_path_);
-        if (g_mkdir_with_parents(dirname.c_str(),
-                                 0775) != 0)
+        auto configDir = QFileInfo(m_configFilePath).dir();
+        if (!configDir.mkpath(configDir.path()))
         {
-            error_code = CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED;
-            KLOG_WARNING_DISPLAY("Failed to create directory %s.", dirname.c_str());
+            errorCode = CCErrorCode::ERROR_DISPLAY_SAVE_CREATE_FILE_FAILED;
+            KLOG_WARNING(display) << "Failed to create directory" << configDir.path();
             return false;
         }
     }
 
     try
     {
-        std::ofstream ofs(this->config_file_path_, std::ios_base::out);
-        display(ofs, *this->display_config_.get());
+        std::ofstream ofs(m_configFilePath.toLatin1().data(), std::ios_base::out);
+        display(ofs, *m_displayConfig.get());
         ofs.close();
     }
     catch (const xml_schema::Exception &e)
     {
-        KLOG_WARNING_DISPLAY("%s", e.what());
-        error_code = CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED;
+        KLOG_WARNING(display) << e.what();
+        errorCode = CCErrorCode::ERROR_DISPLAY_WRITE_CONF_FILE_FAILED;
         return false;
     }
     return true;
 }
 
-void DisplayManager::resources_changed()
+void DisplayManager::processConfigureChanged()
 {
-    auto old_monitors_uid = this->get_monitors_uid();
-    auto old_output_names = this->get_output_names();
-    this->load_monitors();
-    auto new_monitors_uid = this->get_monitors_uid();
-    auto new_output_names = this->get_output_names();
+    auto oldMonitorsUID = getMonitorsUID();
+    auto oldMonitorNames = getMonitorNames();
+    loadMonitors();
+    auto newMonitorsUID = getMonitorsUID();
+    auto newMonitorNames = getMonitorNames();
 
-    auto screen_changed_adaptation = this->display_settings_->get_boolean(SCREEN_CHANGED_ADAPT);
+    auto screenChangedAdaptation = m_displaySettings->get(SCREEN_CHANGED_ADAPT).toBool();
 
-    KLOG_INFO("check display resource changed, the old monitor uid and output names is %s/%s, "
-              "the new monitor uid and names is %s/%s",
-              old_monitors_uid.c_str(),
-              old_output_names.c_str(),
-              new_monitors_uid.c_str(),
-              new_output_names.c_str());
+    KLOG_INFO(display) << "check display resource changed, "
+                       << "the old monitor uid and names is" << oldMonitorsUID << "/" << oldMonitorNames
+                       << ", the new monitor uid and names is" << newMonitorsUID << "/" << newMonitorNames;
 
     /* 如果uid不相同且连接的接口不一样，说明设备硬件发生了变化，此时需要重新进行设置。这里不能只判断uid是否变化，因为有可能出现 */
-    if (screen_changed_adaptation &&
-        (old_monitors_uid != new_monitors_uid || old_output_names != new_output_names))
+    if (screenChangedAdaptation &&
+        (oldMonitorsUID != newMonitorsUID || oldMonitorNames != newMonitorNames))
     {
-        CCErrorCode error_code = CCErrorCode::SUCCESS;
-        if (!this->switch_style_and_save(this->default_style_, error_code))
+        CCErrorCode errorCode = CCErrorCode::SUCCESS;
+        if (!switchStyleAndSave(m_defaultStyle, errorCode))
         {
-            KLOG_WARNING_DISPLAY("%s", CC_ERROR2STR(error_code).c_str());
+            KLOG_WARNING(display) << KCD_ERROR2STR(errorCode);
         }
     }
-    this->MonitorsChanged_signal.emit(true);
+
+    Q_EMIT MonitorsChanged(true);
 }
 
-void DisplayManager::display_settings_changed(const Glib::ustring &key)
+void DisplayManager::processSettingsChanged(const QString &key)
 {
-    KLOG_DEBUG_DISPLAY("The %s settings changed.", key.c_str());
-
-    switch (shash(key.c_str()))
+    switch (shash(key.toLatin1().data()))
     {
     case CONNECT(DISPLAY_SCHEMA_STYLE, _hash):
     {
-        auto style = this->display_settings_->get_enum(key);
-        this->default_style_set(style);
+        auto style = m_displaySettings->get(key).toInt();
+        setDefaultStyle(style);
     }
     break;
+    default:
+        break;
     }
 }
 
-void DisplayManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    if (!connect)
-    {
-        KLOG_WARNING_DISPLAY("Failed to connect dbus with %s", name.c_str());
-        return;
-    }
-    try
-    {
-        this->object_register_id_ = this->register_object(connect, DISPLAY_OBJECT_PATH);
-    }
-    catch (const Glib::Error &e)
-    {
-        KLOG_WARNING_DISPLAY("Register object_path %s fail: %s.", DISPLAY_OBJECT_PATH, e.what().c_str());
-    }
-}
-
-void DisplayManager::on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    KLOG_DEBUG_DISPLAY("Success to register dbus name: %s", name.c_str());
-}
-
-void DisplayManager::on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)
-{
-    KLOG_WARNING_DISPLAY("Failed to register dbus name: %s", name.c_str());
-}
 }  // namespace Kiran

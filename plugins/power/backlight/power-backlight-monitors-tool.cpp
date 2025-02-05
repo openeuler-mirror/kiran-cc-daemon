@@ -1,93 +1,89 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-monitors-tool.h"
+#include "power-backlight-monitors-tool.h"
+#include <QFileSystemWatcher>
+#include <QProcess>
 #include "config.h"
-#include "plugins/power/backlight/power-backlight-monitor-tool.h"
+#include "power-backlight-monitor-tool.h"
 
 namespace Kiran
 {
-#define POWER_BACKLIGHT_HELPER KCC_INSTALL_BINDIR "/kiran-power-backlight-helper"
+#define POWER_BACKLIGHT_HELPER KCD_INSTALL_BINDIR "/kiran-power-backlight-helper"
 
 PowerBacklightMonitorsTool::PowerBacklightMonitorsTool()
 {
-    auto backlight_dir = this->get_backlight_dir();
-    if (!backlight_dir.empty())
+    m_brightnessWatcher = new QFileSystemWatcher(this);
+
+    auto backlightDir = getBacklightDir();
+    if (!backlightDir.isEmpty())
     {
-        auto filename = Glib::build_filename(backlight_dir, "brightness");
-        this->brightness_monitor_ = FileUtils::make_monitor_file(filename,
-                                                                 sigc::mem_fun(this, &PowerBacklightMonitorsTool::on_brightness_changed),
-                                                                 Gio::FILE_MONITOR_NONE);
+        auto fileName = QString("%1/%2").arg(backlightDir, "brightness");
+        m_brightnessWatcher->addPath(fileName);
     }
+
+    connect(m_brightnessWatcher, &QFileSystemWatcher::fileChanged, this, &PowerBacklightMonitorsTool::processBrightnessChanged);
 }
 
-bool PowerBacklightMonitorsTool::support_backlight()
+bool PowerBacklightMonitorsTool::supportBacklight()
 {
-    try
+    // TODO:这里去掉了pkexec，需要测试是否有权限
+    QProcess process;
+    process.start(POWER_BACKLIGHT_HELPER, QStringList{"--support-backlight"});
+    process.waitForFinished();
+
+    if (process.exitCode() != 0)
     {
-        std::string standard_output;
-        int32_t exit_status = 0;
-        auto cmdline = fmt::format("pkexec {0} --support-backlight", POWER_BACKLIGHT_HELPER);
-        Glib::spawn_command_line_sync(cmdline, &standard_output, nullptr, &exit_status);
-        RETURN_VAL_IF_TRUE(exit_status != 0, false);
-        return (std::strtol(standard_output.c_str(), nullptr, 0) == 1);
+        auto command = QString("%1 --support-backlight").arg(POWER_BACKLIGHT_HELPER);
+        KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
+        return false;
     }
-    catch (const Glib::Error &e)
+    else
     {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
+        auto output = process.readAllStandardOutput();
+        return (output.toInt() == 1);
     }
-    return false;
 }
 
 void PowerBacklightMonitorsTool::init()
 {
-    this->backlight_monitors_.clear();
-    this->backlight_monitors_.push_back(std::make_shared<PowerBacklightMonitorTool>());
+    m_backlightMonitors.clear();
+    m_backlightMonitors.push_back(QSharedPointer<PowerBacklightMonitorTool>::create());
 }
 
-std::string PowerBacklightMonitorsTool::get_backlight_dir()
+QString PowerBacklightMonitorsTool::getBacklightDir()
 {
-    try
+    // TODO:这里去掉了pkexec，需要测试是否有权限
+    QProcess process;
+    process.start(POWER_BACKLIGHT_HELPER, QStringList{"--get-backlight-dir"});
+    process.waitForFinished();
+
+    if (process.exitCode() != 0)
     {
-        std::string standard_output;
-        int32_t exit_status = 0;
-        auto cmdline = fmt::format("pkexec {0} --get-backlight-dir", POWER_BACKLIGHT_HELPER);
-        Glib::spawn_command_line_sync(cmdline, &standard_output, nullptr, &exit_status);
-        RETURN_VAL_IF_TRUE(exit_status != 0, std::string());
-        return standard_output;
+        auto command = QString("%1 --get-backlight-dir").arg(POWER_BACKLIGHT_HELPER);
+        KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
+        return QString();
     }
-    catch (const Glib::Error &e)
+    else
     {
-        KLOG_WARNING_POWER("%s.", e.what().c_str());
+        return process.readAllStandardOutput();
     }
-    return std::string();
 }
 
-void PowerBacklightMonitorsTool::on_brightness_changed(const Glib::RefPtr<Gio::File> &file,
-                                                       const Glib::RefPtr<Gio::File> &other_file,
-                                                       Gio::FileMonitorEvent event_type)
+void PowerBacklightMonitorsTool::processBrightnessChanged(const QString &path)
 {
-    switch (event_type)
-    {
-    case Gio::FILE_MONITOR_EVENT_CHANGED:
-    {
-        this->brightness_changed_.emit();
-        break;
-    }
-    default:
-        break;
-    }
+    Q_EMIT brightnessChanged();
 }
 
 }  // namespace Kiran

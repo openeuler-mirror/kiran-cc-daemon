@@ -1,61 +1,61 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/audio/pulse/pulse-sink.h"
-#include "plugins/audio/pulse/pulse-context.h"
-#include "plugins/audio/pulse/pulse-port.h"
+#include "pulse-sink.h"
+#include "pulse-context.h"
+#include "pulse-port.h"
 
 namespace Kiran
 {
-PulseSink::PulseSink(std::shared_ptr<PulseContext> context,
-                     const pa_sink_info *sink_info) : PulseDevice(PulseDeviceInfo(sink_info)),
-                                                      context_(context)
+PulseSink::PulseSink(QSharedPointer<PulseContext> context,
+                     const pa_sink_info *sinkInfo) : PulseDevice(PulseDeviceInfo(sinkInfo)),
+                                                     m_context(context)
 {
-    if (sink_info->flags & PA_SINK_DECIBEL_VOLUME)
+    if (sinkInfo->flags & PA_SINK_DECIBEL_VOLUME)
     {
-        this->flags_ = AudioNodeState(this->flags_ | AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
+        m_flags = AudioNodeState(m_flags | AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
     }
     else
     {
-        this->flags_ = AudioNodeState(this->flags_ & ~AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
+        m_flags = AudioNodeState(m_flags & ~AudioNodeState::AUDIO_NODE_STATE_HAS_DECIBEL);
     }
 }
 
-void PulseSink::update(const pa_sink_info *sink_info)
+void PulseSink::update(const pa_sink_info *sinkInfo)
 {
-    RETURN_IF_FALSE(sink_info != NULL);
-    this->PulseDevice::update(PulseDeviceInfo(sink_info));
+    RETURN_IF_FALSE(sinkInfo != NULL);
+    PulseDevice::update(PulseDeviceInfo(sinkInfo));
 }
 
-bool PulseSink::set_active_port(const std::string &port_name)
+bool PulseSink::setActivePort(const QString &portName)
 {
     // 避免死循环
-    RETURN_VAL_IF_TRUE(port_name == this->get_active_port(), true);
+    RETURN_VAL_IF_TRUE(portName == getActivePort(), true);
 
-    auto port = this->get_port(port_name);
+    auto port = get_port(portName);
     RETURN_VAL_IF_FALSE(port, false);
-    return this->context_->set_sink_active_port(this->get_index(), port_name);
+    return m_context->setSinkActivePort(getIndex(), portName);
 }
 
-bool PulseSink::set_mute(int32_t mute)
+bool PulseSink::setMute(int32_t mute)
 {
-    return this->context_->set_sink_mute(this->get_index(), mute);
+    return m_context->setSinkMute(getIndex(), mute);
 }
 
-bool PulseSink::set_cvolume(const pa_cvolume &cvolume)
+bool PulseSink::setCvolume(const pa_cvolume &cvolume)
 {
-    return this->context_->set_sink_volume(this->get_index(), &cvolume);
+    return m_context->setSinkVolume(getIndex(), &cvolume);
 }
 
 }  // namespace Kiran

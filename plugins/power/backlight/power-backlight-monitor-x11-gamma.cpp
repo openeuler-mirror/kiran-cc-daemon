@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "plugins/power/backlight/power-backlight-monitor-x11-gamma.h"
-
-#include <X11/Xatom.h>
+#include "power-backlight-monitor-x11-gamma.h"
+#include <xcb/randr.h>
+#include <xcb/xcb.h>
 #include <algorithm>
 
 namespace Kiran
@@ -22,28 +22,38 @@ namespace Kiran
 #define GAMMA_MIN_BRIGHTNESS 0
 #define GAMMA_MAX_BRIGHTNESS 100
 
-PowerBacklightMonitorX11Gamma::PowerBacklightMonitorX11Gamma(RROutput output,
-                                                             RRCrtc crtc) : output_(output),
-                                                                            crtc_(crtc)
+PowerBacklightMonitorX11Gamma::PowerBacklightMonitorX11Gamma(xcb_randr_output_t output,
+                                                             xcb_randr_crtc_t crtc) : m_output(output),
+                                                                                      m_crtc(crtc)
 {
-    this->display_ = gdk_display_get_default();
-    this->xdisplay_ = GDK_DISPLAY_XDISPLAY(this->display_);
+    m_xcbConnection = xcb_connect(NULL, NULL);
 }
 
-bool PowerBacklightMonitorX11Gamma::set_brightness_value(int32_t brightness_value)
+PowerBacklightMonitorX11Gamma ::~PowerBacklightMonitorX11Gamma()
 {
-    RETURN_VAL_IF_TRUE(this->crtc_ == None, false);
-
-    auto size = XRRGetCrtcGammaSize(this->xdisplay_, this->crtc_);
-
-    if (!size)
+    if (m_xcbConnection)
     {
-        KLOG_WARNING_POWER("Gamma size is 0.");
+        xcb_disconnect(m_xcbConnection);
+    }
+}
+
+bool PowerBacklightMonitorX11Gamma::setBrightnessValue(int32_t brightnessValue)
+{
+    RETURN_VAL_IF_TRUE(m_crtc == 0, false);
+
+    auto reply = XCB_REPLY(xcb_randr_get_crtc_gamma_size, m_xcbConnection, m_crtc);
+
+    if (!reply)
+    {
+        KLOG_WARNING(power) << "Failed to get crct gamma size";
         return false;
     }
-    else
+
+    auto size = reply->size;
+    if (size == 0)
     {
-        // KLOG_DEBUG_POWER("The gamma size is %d.", size);
+        KLOG_WARNING(power) << "Gamma size is 0.";
+        return false;
     }
 
     /*
@@ -54,94 +64,95 @@ bool PowerBacklightMonitorX11Gamma::set_brightness_value(int32_t brightness_valu
      */
     if (size > 65536)
     {
-        KLOG_WARNING_POWER("Gamma correction table is impossibly large.");
+        KLOG_WARNING(power) << "Gamma correction table is impossibly large.";
         return false;
     }
 
-    auto crtc_gamma = XRRAllocGamma(size);
-    if (!crtc_gamma)
-    {
-        KLOG_WARNING_POWER("Gamma allocation failed.");
-        return false;
-    }
+    auto red = new uint16_t[size];
+    auto green = new uint16_t[size];
+    auto blue = new uint16_t[size];
+    auto gammaInfo = getGammaInfo();
+    auto gammaRed = 1.0 / gammaInfo.red;
+    auto gammaGreen = 1.0 / gammaInfo.green;
+    auto gammaBlue = 1.0 / gammaInfo.blue;
+    auto gammaBrightness = (double)brightnessValue / 100.0;
 
-    SCOPE_EXIT(
-        {
-            if (crtc_gamma != nullptr)
-            {
-                XRRFreeGamma(crtc_gamma);
-            }
-        });
-
-    auto gamma_info = this->get_gamma_info();
-    auto gamma_red = 1.0 / gamma_info.red;
-    auto gamma_green = 1.0 / gamma_info.green;
-    auto gamma_blue = 1.0 / gamma_info.blue;
-    auto gamma_brightness = (double)brightness_value / 100.0;
+    SCOPE_EXIT({
+        delete[] red;
+        delete[] green;
+        delete[] blue;
+    });
 
     for (int i = 0; i < size; i++)
     {
-        if (gamma_red == 1.0 && gamma_brightness == 1.0)
+        if (gammaRed == 1.0 && gammaBrightness == 1.0)
         {
-            crtc_gamma->red[i] = (double)i / (double)(size - 1) * 65535.0;
+            red[i] = uint16_t((double)i / (double)(size - 1) * 65535.0);
         }
         else
         {
-            crtc_gamma->red[i] = std::min(pow((double)i / (double)(size - 1),
-                                              gamma_red) *
-                                              gamma_brightness,
-                                          (double)1.0) *
-                                 65535.0;
+            red[i] = uint16_t(std::min(pow((double)i / (double)(size - 1),
+                                           gammaRed) *
+                                           gammaBrightness,
+                                       (double)1.0) *
+                              65535.0);
         }
 
-        if (gamma_green == 1.0 && gamma_brightness == 1.0)
+        if (gammaGreen == 1.0 && gammaBrightness == 1.0)
         {
-            crtc_gamma->green[i] = (double)i / (double)(size - 1) * 65535.0;
+            green[i] = uint16_t((double)i / (double)(size - 1) * 65535);
         }
         else
         {
-            crtc_gamma->green[i] = std::min(pow((double)i / (double)(size - 1),
-                                                gamma_green) *
-                                                gamma_brightness,
-                                            1.0) *
-                                   65535.0;
+            green[i] = uint16_t(std::min(pow((double)i / (double)(size - 1),
+                                             gammaGreen) *
+                                             gammaBrightness,
+                                         1.0) *
+                                65535.0);
         }
 
-        if (gamma_blue == 1.0 && gamma_brightness == 1.0)
+        if (gammaBlue == 1.0 && gammaBrightness == 1.0)
         {
-            crtc_gamma->blue[i] = (double)i / (double)(size - 1) * 65535.0;
+            blue[i] = uint16_t((double)i / (double)(size - 1) * 65535.0);
         }
         else
         {
-            crtc_gamma->blue[i] = std::min(pow((double)i / (double)(size - 1),
-                                               gamma_blue) *
-                                               gamma_brightness,
-                                           1.0) *
-                                  65535.0;
+            blue[i] = uint16_t(std::min(pow((double)i / (double)(size - 1),
+                                            gammaBlue) *
+                                            gammaBrightness,
+                                        1.0) *
+                               65535.0);
         }
     }
 
-    XRRSetCrtcGamma(this->xdisplay_, this->crtc_, crtc_gamma);
+    auto cookie = xcb_randr_set_crtc_gamma(m_xcbConnection, m_crtc, size, red, green, blue);
+    auto error = xcb_request_check(m_xcbConnection, cookie);
+    if (error)
+    {
+        KLOG_WARNING(power) << "Failed to set crtc gamma, xcb error:" << error->error_code;
+        free(error);
+        return false;
+    }
 
     return true;
 }
 
-int32_t PowerBacklightMonitorX11Gamma::get_brightness_value()
+int32_t PowerBacklightMonitorX11Gamma::getBrightnessValue()
 {
-    auto gamma_info = this->get_gamma_info();
-    RETURN_VAL_IF_TRUE(gamma_info.brightness >= 1.0, 1);
-    RETURN_VAL_IF_TRUE(gamma_info.brightness <= 0.001, 0);
-    return std::min(int32_t((gamma_info.brightness * GAMMA_MAX_BRIGHTNESS) + 0.5), GAMMA_MAX_BRIGHTNESS);
+    auto gammaInfo = getGammaInfo();
+    RETURN_VAL_IF_TRUE(gammaInfo.brightness >= 1.0, 1);
+    RETURN_VAL_IF_TRUE(gammaInfo.brightness <= 0.001, 0);
+    return std::min(int32_t((gammaInfo.brightness * GAMMA_MAX_BRIGHTNESS) + 0.5), GAMMA_MAX_BRIGHTNESS);
 }
 
-bool PowerBacklightMonitorX11Gamma::get_brightness_range(int32_t &min, int32_t &max)
+bool PowerBacklightMonitorX11Gamma::getBrightnessRange(int32_t &min, int32_t &max)
 {
     min = GAMMA_MIN_BRIGHTNESS;
     max = GAMMA_MAX_BRIGHTNESS;
     return true;
 }
 
-int PowerBacklightMonitorX11Gamma::find_last_non_clamped(unsigned short array[], int size)
+int PowerBacklightMonitorX11Gamma::findLastNonClamped(unsigned short array[], int size)
 {
     int i;
     for (i = size - 1; i > 0; i--)
@@ -152,25 +163,36 @@ int PowerBacklightMonitorX11Gamma::find_last_non_clamped(unsigned short array[],
     return 0;
 }
 
-GammaInfo PowerBacklightMonitorX11Gamma::get_gamma_info()
+GammaInfo PowerBacklightMonitorX11Gamma::getGammaInfo()
 {
-    GammaInfo gamma_info;
+    GammaInfo gammaInfo;
 
-    RETURN_VAL_IF_TRUE(this->crtc_ == 0, gamma_info);
+    RETURN_VAL_IF_TRUE(m_crtc == 0, gammaInfo);
 
-    auto size = XRRGetCrtcGammaSize(this->xdisplay_, this->crtc_);
+    auto gammaSizeReply = XCB_REPLY(xcb_randr_get_crtc_gamma_size, m_xcbConnection, m_crtc);
+    if (!gammaSizeReply)
+    {
+        KLOG_WARNING(power) << "Failed to get crct gamma size";
+        return gammaInfo;
+    }
+
+    auto size = gammaSizeReply->size;
     if (!size)
     {
-        KLOG_WARNING_POWER("Gamma size is 0.");
-        return gamma_info;
+        KLOG_WARNING(power) << "Gamma size is 0.";
+        return gammaInfo;
     }
 
-    auto crtc_gamma = XRRGetCrtcGamma(this->xdisplay_, this->crtc_);
-    if (!crtc_gamma)
+    auto gammaReply = XCB_REPLY(xcb_randr_get_crtc_gamma, m_xcbConnection, m_crtc);
+    if (!gammaReply)
     {
-        KLOG_WARNING_POWER("Failed to get gamma for output(%d).", (int)this->output_);
-        return gamma_info;
+        KLOG_WARNING(power) << "Failed to get gamma for output" << m_output;
+        return gammaInfo;
     }
+
+    auto red = xcb_randr_get_crtc_gamma_red(gammaReply.get());
+    auto green = xcb_randr_get_crtc_gamma_green(gammaReply.get());
+    auto blue = xcb_randr_get_crtc_gamma_blue(gammaReply.get());
 
     /*
      * Here is a bit tricky because gamma is a whole curve for each
@@ -186,52 +208,53 @@ GammaInfo PowerBacklightMonitorX11Gamma::get_gamma_info()
      * clamped and i1 at i2/2. Note that if i2 = 1 (as in most normal
      * cases), then b = v2.
      */
-    auto last_red = find_last_non_clamped(crtc_gamma->red, size);
-    auto last_green = find_last_non_clamped(crtc_gamma->green, size);
-    auto last_blue = find_last_non_clamped(crtc_gamma->blue, size);
-    auto best_array = crtc_gamma->red;
-    auto last_best = last_red;
-    if (last_green > last_best)
+    auto lastRed = findLastNonClamped(red, size);
+    auto lastGreen = findLastNonClamped(green, size);
+    auto lastBlue = findLastNonClamped(blue, size);
+    auto bestArray = red;
+    auto lastBest = lastRed;
+    if (lastGreen > lastBest)
     {
-        last_best = last_green;
-        best_array = crtc_gamma->green;
+        lastBest = lastGreen;
+        bestArray = green;
     }
-    if (last_blue > last_best)
+    if (lastBlue > lastBest)
     {
-        last_best = last_blue;
-        best_array = crtc_gamma->blue;
+        lastBest = lastBlue;
+        bestArray = blue;
     }
-    if (last_best == 0)
-        last_best = 1;
+    if (lastBest == 0)
+        lastBest = 1;
 
-    auto middle = last_best / 2;
+    auto middle = lastBest / 2;
     auto i1 = (double)(middle + 1) / size;
-    auto v1 = (double)(best_array[middle]) / 65535;
-    auto i2 = (double)(last_best + 1) / size;
-    auto v2 = (double)(best_array[last_best]) / 65535;
+    auto v1 = (double)(bestArray[middle]) / 65535;
+    auto i2 = (double)(lastBest + 1) / size;
+    auto v2 = (double)(bestArray[lastBest]) / 65535;
     if (v2 >= 0.0001)
     {
-        if ((last_best + 1) == size)
+        if ((lastBest + 1) == size)
         {
-            gamma_info.brightness = v2;
+            gammaInfo.brightness = v2;
         }
         else
         {
-            gamma_info.brightness = exp((log(v2) * log(i1) - log(v1) * log(i2)) / log(i1 / i2));
+            gammaInfo.brightness = exp((log(v2) * log(i1) - log(v1) * log(i2)) / log(i1 / i2));
         }
-        gamma_info.red = log((double)(crtc_gamma->red[last_red / 2]) / gamma_info.brightness / 65535) / log((double)((last_red / 2) + 1) / size);
-        gamma_info.green = log((double)(crtc_gamma->green[last_green / 2]) / gamma_info.brightness / 65535) / log((double)((last_green / 2) + 1) / size);
-        gamma_info.blue = log((double)(crtc_gamma->blue[last_blue / 2]) / gamma_info.brightness / 65535) / log((double)((last_blue / 2) + 1) / size);
+        gammaInfo.red = log((double)(red[lastRed / 2]) / gammaInfo.brightness / 65535) / log((double)((lastRed / 2) + 1) / size);
+        gammaInfo.green = log((double)(green[lastGreen / 2]) / gammaInfo.brightness / 65535) / log((double)((lastGreen / 2) + 1) / size);
+        gammaInfo.blue = log((double)(blue[lastBlue / 2]) / gammaInfo.brightness / 65535) / log((double)((lastBlue / 2) + 1) / size);
     }
 
-    XRRFreeGamma(crtc_gamma);
-
-    KLOG_DEBUG_POWER("Gamma info: red(%.2f), green(%.2f), blue(%.2f), brightness(%.2f).",
-                     gamma_info.red,
-                     gamma_info.green,
-                     gamma_info.blue,
-                     gamma_info.brightness);
-    return gamma_info;
+    KLOG_DEBUG(power) << "Gamma info: red("
+                      << gammaInfo.red
+                      << "), green("
+                      << gammaInfo.green
+                      << "), blue("
+                      << gammaInfo.blue
+                      << "), brightness("
+                      << gammaInfo.brightness << ").";
+    return gammaInfo;
 }
 
 }  // namespace Kiran

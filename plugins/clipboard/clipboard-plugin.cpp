@@ -1,44 +1,30 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2024 ~ 2025 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
- * Author:     meizhigang <meizhigang@kylinos.com.cn>
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
+ * Author:     tangjie02 <tangjie02@kylinsec.com.cn>
  */
 
-#include "plugins/clipboard/clipboard-plugin.h"
-#include <gtk3-log-i.h>
-#include "plugins/clipboard/clipboard-manager.h"
-
-PLUGIN_EXPORT_FUNC_DEF(ClipboardPlugin);
+#include "clipboard-plugin.h"
+#include "clipboard-manager.h"
 
 namespace Kiran
 {
-ClipboardPlugin::ClipboardPlugin()
-{
-}
-
-ClipboardPlugin::~ClipboardPlugin()
-{
-}
 
 void ClipboardPlugin::activate()
 {
-    KLOG_DEBUG_CLIPBOARD("Active clipboard plugin.");
-
-    ClipboardManager::global_init();
+    ClipboardManager::globalInit();
 }
 
 void ClipboardPlugin::deactivate()
 {
-    KLOG_DEBUG_CLIPBOARD("Deactive clipboard plugin.");
-
-    ClipboardManager::global_deinit();
+    ClipboardManager::globalDeinit();
 }
 }  // namespace Kiran

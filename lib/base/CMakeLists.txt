@@ -1,31 +1,30 @@
-cmake_minimum_required(VERSION 3.0)
-
-set(TARGET_NAME lib-base)
+set(TARGET_NAME kbase)
 
 file(GLOB_RECURSE BASE_H_FILES ./*.h)
 file(GLOB_RECURSE BASE_CPP_FILES ./*.cpp)
 
 set(ALL_FILES ${BASE_H_FILES} ${BASE_CPP_FILES})
 
-add_library(${TARGET_NAME} STATIC ${ALL_FILES})
+# 更新ts文件
+set(TS_FILES
+    "${PROJECT_SOURCE_DIR}/translations/${PROJECT_NAME}-${TARGET_NAME}.zh_CN.ts"
+)
+
+execute_process(COMMAND lupdate-qt5 -no-obsolete ${BASE_H_FILES}
+                        ${BASE_CPP_FILES} -ts ${TS_FILES})
+
+# 生成qm文件，qt_create_translation会导致cmake clean把ts文件删掉
+qt5_add_translation(QM_FILES ${TS_FILES})
+
+add_library(${TARGET_NAME} STATIC ${ALL_FILES} ${QM_FILES})
 
 target_include_directories(
   ${TARGET_NAME}
-  PUBLIC ${PROJECT_SOURCE_DIR}
-         ${PROJECT_SOURCE_DIR}/include
-         ${PROJECT_BINARY_DIR}
-         ${GIOMM_INCLUDE_DIRS}
-         ${KLOG_GTK3_INCLUDE_DIRS}
-         ${FMT_INCLUDE_DIRS}
-         ${JSONCPP_INCLUDE_DIRS})
-
-target_include_directories(${TARGET_NAME} PRIVATE ${CRYPTOPP_INCLUDE_DIRS})
-
-target_compile_options(${TARGET_NAME} PUBLIC ${KSD_COMPILER_FLAGS}
-                                             ${GIOMM_COMPILER_FLAGS})
+  PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
+         ${PROJECT_BINARY_DIR} ${KLOG_QT5_INCLUDE_DIRS} ${FMT_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_NAME} PUBLIC ${GIOMM_LIBRARIES} ${KLOG_GTK3_LIBRARIES}
-                        ${FMT_LIBRARIES} ${JSONCPP_LIBRARIES})
+  ${TARGET_NAME} PUBLIC ${KLOG_QT5_LIBRARIES} ${FMT_LIBRARIES} Qt5::Core
+                        Qt5::DBus)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${CRYPTOPP_LIBRARIES})

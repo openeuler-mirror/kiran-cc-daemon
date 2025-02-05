@@ -50,91 +50,40 @@ CryptoHelper::~CryptoHelper()
 {
 }
 
-std::string CryptoHelper::md5(const std::string &message)
+void CryptoHelper::generateRSAKey(uint32_t keyLength, QString &privateKey, QString &publicKey)
 {
-    std::string result;
-    Weak::MD5 md5;
-    StringSource(message, true, new HashFilter(md5, new HexEncoder(new StringSink(result))));
-    return result;
-}
-
-std::string CryptoHelper::md5_file(const std::string &filename)
-{
+    std::string stlPrivateKey;
+    std::string stlPublicKey;
     try
     {
-        std::string result;
-        Weak::MD5 md5;
-        FileSource(filename.c_str(), true, new HashFilter(md5, new HexEncoder(new StringSink(result))));
-        return result;
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return std::string();
-    }
-}
-
-std::string CryptoHelper::base64_encrypt(const std::string &message)
-{
-    try
-    {
-        std::string result;
-        StringSource(message, true, new Base64Encoder(new StringSink(result)));
-        return result;
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return std::string();
-    }
-}
-
-std::string CryptoHelper::base64_decrypt(const std::string &message)
-{
-    try
-    {
-        std::string result;
-        StringSource(message, true, new Base64Decoder(new StringSink(result)));
-        return result;
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return std::string();
-    }
-}
-
-void CryptoHelper::generate_rsa_key(uint32_t key_length,
-                                    std::string &private_key,
-                                    std::string &public_key)
-{
-    try
-    {
-        RSAES_OAEP_SHA_Decryptor rsa_decryptor(global_rng(), key_length);
-        HexEncoder private_sink(new Base64Encoder(new StringSink(private_key)));
+        RSAES_OAEP_SHA_Decryptor rsa_decryptor(global_rng(), keyLength);
+        HexEncoder private_sink(new Base64Encoder(new StringSink(stlPrivateKey)));
         rsa_decryptor.AccessMaterial().Save(private_sink);
         private_sink.MessageEnd();
 
         RSAES_OAEP_SHA_Encryptor rsa_encryptor(rsa_decryptor);
-        HexEncoder public_sink(new Base64Encoder(new StringSink(public_key)));
+        HexEncoder public_sink(new Base64Encoder(new StringSink(stlPublicKey)));
         rsa_encryptor.AccessMaterial().Save(public_sink);
         public_sink.MessageEnd();
+
+        privateKey = QString::fromStdString(stlPrivateKey);
+        publicKey = QString::fromStdString(stlPublicKey);
     }
     catch (const CryptoPP::Exception &e)
     {
         KLOG_WARNING("%s.", e.what());
+        return;
     }
 }
 
-std::string CryptoHelper::rsa_encrypt(const std::string &public_key,
-                                      const std::string &message)
+QString CryptoHelper::rsaEncrypt(const QString &publicKey, const QString &message)
 {
-    RETURN_VAL_IF_TRUE(message.empty(), std::string());
+    RETURN_VAL_IF_TRUE(message.isEmpty(), QString());
 
     try
     {
         RandomPool random_pool;
-        StringSource public_source(public_key, true, new Base64Decoder(new HexDecoder));
+        StringSource public_source(publicKey.toStdString(), true, new Base64Decoder(new HexDecoder));
         RSAES_OAEP_SHA_Encryptor rsa_encryptor(public_source);
 
         if (message.size() > rsa_encryptor.FixedMaxPlaintextLength())
@@ -142,28 +91,28 @@ std::string CryptoHelper::rsa_encrypt(const std::string &public_key,
             KLOG_WARNING("The length(%d) of message is greater than the value(%d) which FixedMaxPlaintextLength return.",
                          message.size(),
                          rsa_encryptor.FixedMaxPlaintextLength());
-            return std::string();
+            return QString();
         }
 
         std::string result;
-        StringSource(message, true, new PK_EncryptorFilter(random_pool, rsa_encryptor, new HexEncoder(new StringSink(result))));
-        return result;
+        StringSource(message.toStdString(), true, new PK_EncryptorFilter(random_pool, rsa_encryptor, new HexEncoder(new StringSink(result))));
+        return QString::fromStdString(result);
     }
     catch (const CryptoPP::Exception &e)
     {
         KLOG_WARNING("%s.", e.what());
-        return std::string();
+        return QString();
     }
 }
 
-std::string CryptoHelper::rsa_decrypt(const std::string &private_key, const std::string &ciphertext)
+QString CryptoHelper::rsaDecrypt(const QString &privateKey, const QString &ciphertext)
 {
-    RETURN_VAL_IF_TRUE(ciphertext.empty(), std::string());
+    RETURN_VAL_IF_TRUE(ciphertext.isEmpty(), QString());
 
     try
     {
         RandomPool random_pool;
-        StringSource private_source(private_key, true, new Base64Decoder(new HexDecoder));
+        StringSource private_source(privateKey.toStdString(), true, new Base64Decoder(new HexDecoder));
         RSAES_OAEP_SHA_Decryptor priv(private_source);
 
         // 需要先HexDecoder后才能比较大小
@@ -176,97 +125,13 @@ std::string CryptoHelper::rsa_decrypt(const std::string &private_key, const std:
         // }
 
         std::string result;
-        StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(random_pool, priv, new StringSink(result))));
-        return result;
+        StringSource(ciphertext.toStdString(), true, new HexDecoder(new PK_DecryptorFilter(random_pool, priv, new StringSink(result))));
+        return QString::fromStdString(result);
     }
     catch (const CryptoPP::Exception &e)
     {
         KLOG_WARNING("%s.", e.what());
-        return std::string();
-    }
-}
-
-bool CryptoHelper::rsa_sign_file(const std::string &private_filename,
-                                 const std::string &message_filename,
-                                 const std::string &signature_filename)
-{
-    try
-    {
-        FileSource priv_file(private_filename.c_str(), true, new Base64Decoder(new HexDecoder));
-
-        RSASS<PKCS1v15, SHA1>::Signer priv(priv_file);
-        FileSource(message_filename.c_str(), true, new SignerFilter(global_rng(), priv, new HexEncoder(new FileSink(signature_filename.c_str()))));
-        return true;
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return false;
-    }
-}
-
-bool CryptoHelper::rsa_verify_file(const std::string &public_filename,
-                                   const std::string &message_filename,
-                                   const std::string &signature_filename)
-{
-    try
-    {
-        FileSource pub_file(public_filename.c_str(), true, new Base64Decoder(new HexDecoder));
-        RSASS<PKCS1v15, SHA1>::Verifier pub(pub_file);
-
-        FileSource signature_file(signature_filename.c_str(), true, new HexDecoder);
-        RETURN_VAL_IF_FALSE(signature_file.MaxRetrievable() == pub.SignatureLength(), false);
-
-        SecByteBlock signature(pub.SignatureLength());
-        signature_file.Get(signature, signature.size());
-
-        SignatureVerificationFilter *verifier_filter = new SignatureVerificationFilter(pub);
-        verifier_filter->Put(signature, pub.SignatureLength());
-        FileSource(message_filename.c_str(), true, verifier_filter);
-
-        return verifier_filter->GetLastResult();
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return false;
-    }
-}
-
-std::string CryptoHelper::des_encrypt(const std::string &message, const std::string &key)
-{
-    try
-    {
-        std::string result;
-        ECB_Mode<DES>::Encryption encoder;
-        // 这里的key长度必须为8
-        encoder.SetKey(reinterpret_cast<const byte *>(key.c_str()), key.length());
-        // auto key = get_des_key();
-        // encoder.SetKey(key, key.size());
-        StringSource(message, true, new StreamTransformationFilter(encoder, new Base64Encoder(new StringSink(result))));
-        return result;
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return std::string();
-    }
-}
-
-std::string CryptoHelper::des_decrypt(const std::string &message, const std::string &key)
-{
-    try
-    {
-        std::string result;
-        ECB_Mode<DES>::Decryption decoder;
-        decoder.SetKey(reinterpret_cast<const byte *>(key.c_str()), key.length());
-        StringSource(message, true, new Base64Decoder(new StreamTransformationFilter(decoder, new StringSink(result))));
-        return result;
-    }
-    catch (const CryptoPP::Exception &e)
-    {
-        KLOG_WARNING("%s.", e.what());
-        return std::string();
+        return QString();
     }
 }
 

@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -48,6 +48,22 @@ extern "C"
 
 #define KEYBINDING_SHORTCUT_JK_CUSTOM "custom"
 #define KEYBINDING_SHORTCUT_JK_SYSTEM "system"
+
+// keys
+#define KEYS_SCHEMA_ID "com.kylinsec.kiran.keys"
+
+// sound keys
+#define KEYS_SCHEMA_VOLUME_STEP "volume-step"
+
+// system keys
+#define KEYS_SCHEMA_HELP "help"
+#define KEYS_SCHEMA_EMAIL "email"
+#define KEYS_SCHEMA_SCREENSAVER "screensaver"
+#define KEYS_SCHEMA_SHOW_DESKTOP "show-desktop"
+#define KEYS_SCHEMA_START_MENU "start-menu"
+#define KEYS_SCHEMA_LOGOUT "logout"
+#define KEYS_SCHEMA_POWER "power"
+#define KEYS_SCHEMA_HOME "home"
 
 #ifdef __cplusplus
 }
