@@ -14,6 +14,7 @@
 
 #include "keybinding-utils.h"
 #include <QKeySequence>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
@@ -21,12 +22,41 @@ KeybindingUtils::KeybindingUtils()
 {
 }
 
-bool KeybindingUtils::isValidKeySequence(const QString& str)
+bool KeybindingUtils::isValidKeySequence(const QString& keyCombGtk)
 {
-    if (str.isEmpty() || !QKeySequence::fromString(str).isEmpty())
+    if (keyCombGtk.isEmpty() || keyCombGtk.compare("disabled", Qt::CaseInsensitive) == 0)
     {
         return true;
     }
-    return false;
+
+    auto keyCombQt = KeybindingUtils::keyCombGtk2Qt(keyCombGtk);
+    return (QKeySequence::fromString(keyCombQt).toString().isEmpty() == false);
+}
+
+QString KeybindingUtils::keyCombGtk2Qt(const QString& keyCombGtk)
+{
+    auto keyCombQt = keyCombGtk;
+    keyCombQt.replace(QRegExp("<super>", Qt::CaseInsensitive), "<Meta>");
+    keyCombQt.replace(QRegExp("<control>", Qt::CaseInsensitive), "<Ctrl>");
+    keyCombQt.replace("<", "");
+    keyCombQt.replace(">", "+");
+    return keyCombQt;
+}
+
+QString KeybindingUtils::keyCombQt2Gtk(const QString& keyCombQt)
+{
+    RETURN_VAL_IF_TRUE(keyCombQt.isEmpty(), QString());
+
+    QString keyCombGtk;
+    auto keyCombQtTokens = keyCombQt.split("+");
+
+    for (int i = 0; i + 1 < keyCombQtTokens.size(); i++)
+    {
+        keyCombGtk.append(QString("<%1>").arg(keyCombQtTokens[i]));
+    }
+    keyCombGtk.append(keyCombQtTokens.last());
+    keyCombGtk.replace(QRegExp("<meta>", Qt::CaseInsensitive), "<Super>");
+    // keyCombGtk.replace(QRegExp("<ctrl>", Qt::CaseInsensitive), "<Control>");
+    return keyCombGtk;
 }
 }  // namespace Kiran

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME keybinding)
 
 file(GLOB_RECURSE KEYBINDING_H_FILES ./*.h)
@@ -57,6 +55,17 @@ qt5_add_dbus_interface(
   ${PROJECT_SOURCE_DIR}/plugins/touchpad/com.kylinsec.Kiran.SessionDaemon.TouchPad.xml
   touchpad_dbus_proxy)
 
+# 更新ts文件
+set(TS_FILES
+    "${PROJECT_SOURCE_DIR}/translations/${PROJECT_NAME}-${TARGET_NAME}.zh_CN.ts"
+)
+
+execute_process(COMMAND lupdate-qt5 -no-obsolete ${KEYBINDING_H_FILES}
+                        ${KEYBINDING_CPP_FILES} -ts ${TS_FILES})
+
+# 生成qm文件，qt_create_translation会导致cmake clean把ts文件删掉
+qt5_add_translation(QM_FILES ${TS_FILES})
+
 add_library(
   ${TARGET_NAME} SHARED
   ${KEYBINDING_H_FILES}
@@ -65,7 +74,8 @@ add_library(
   ${KGLOBAL_ACCEL_SRCS}
   ${AUDIO_DBUS_SRCS}
   ${AUDIO_DEVICE_DBUS_SRCS}
-  ${TOUCHPAD_DBUS_SRCS})
+  ${TOUCHPAD_DBUS_SRCS}
+  ${QM_FILES})
 
 target_include_directories(
   ${TARGET_NAME}
@@ -75,7 +85,8 @@ target_include_directories(
           ${CMAKE_CURRENT_BINARY_DIR}
           ${GSETTINGS_QT_INCLUDE_DIRS}
           ${GLIB2_INCLUDE_DIRS}
-          ${LIBXML2_INCLUDE_DIRS})
+          ${LIBXML2_INCLUDE_DIRS}
+          ${Qt5XDG_INCLUDE_DIRS})
 
 target_link_libraries(
   ${TARGET_NAME}
@@ -84,10 +95,15 @@ target_link_libraries(
           ${GSETTINGS_QT_LIBRARIES}
           ${GLIB2_LIBRARIES}
           ${LIBXML2_LIBRARIES}
+          ${Qt5XDG_LIBRARIES}
           kbase
           kxcb
+          kosdwindow
           KF5::GlobalAccel
           KF5::XmlGui
-          KF5::WindowSystem)
+          KF5::WindowSystem
+          KF5::Service
+          KF5::KIOCore)
 
+install(FILES ${QM_FILES} DESTINATION ${KCD_INSTALL_TRANSLATIONDIR})
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

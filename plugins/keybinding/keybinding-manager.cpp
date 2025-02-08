@@ -43,6 +43,7 @@ KeybindingManager *KeybindingManager::m_instance = nullptr;
 void KeybindingManager::globalInit()
 {
     m_instance = new KeybindingManager();
+
     m_instance->init();
 }
 
@@ -197,10 +198,10 @@ QString KeybindingManager::ListSystemShortcuts()
     return QJsonDocument(jsonRoot).toJson(QJsonDocument::Compact);
 }
 
-void KeybindingManager::KeybindingManager::ModifyCustomShortcut(const QString &uid,
-                                                                const QString &name,
-                                                                const QString &action,
-                                                                const QString &keyComb)
+void KeybindingManager::ModifyCustomShortcut(const QString &uid,
+                                             const QString &name,
+                                             const QString &action,
+                                             const QString &keyComb)
 {
     if (name.isEmpty() || action.isEmpty())
     {
@@ -248,13 +249,13 @@ void KeybindingManager::ResetShortcuts()
 
 void KeybindingManager::init()
 {
-    m_customShortcuts->init();
-    m_systemShortcuts->init();
-
     for (auto keysComponent : m_keysComponents)
     {
         keysComponent->init();
     }
+
+    m_customShortcuts->init();
+    m_systemShortcuts->init();
 
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(KEYBINDING_DBUS_NAME))
@@ -276,6 +277,11 @@ void KeybindingManager::init()
 
 bool KeybindingManager::hasSameKeycomb(const QString &uid, const QString &keyComb)
 {
+    if (keyComb.isEmpty() || keyComb.compare("disabled", Qt::CaseInsensitive) == 0)
+    {
+        return false;
+    }
+
     auto customShortcut = m_customShortcuts->getByKeyComb(keyComb);
     RETURN_VAL_IF_TRUE(customShortcut && customShortcut->uid != uid, true);
 

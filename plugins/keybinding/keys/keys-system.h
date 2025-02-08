@@ -32,8 +32,10 @@ public:
     virtual void init();
 
 private:
+    void launchHelp();
     void lockScreen();
     void showdesktop();
+    void popupStartMenu();
     void logout();
     void shutdown();
     void openHome();

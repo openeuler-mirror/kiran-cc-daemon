@@ -34,9 +34,9 @@ public:
     // 获取空闲状态
     bool getIdle() { return m_isIdle; };
     // 空闲状态是否禁用
-    bool getIdleInhibited() { return isIdleInhibited; };
+    bool getIdleInhibited() { return m_isIdleInhibited; };
     // 挂起状态是否禁用
-    bool getSuspendInhibited() { return isSuspendInhibited; };
+    bool getSuspendInhibited() { return m_isSuspendInhibited; };
 
     // 挂机
     bool canSuspend();
@@ -66,7 +66,7 @@ private Q_SLOTS:
 
 private:
     bool m_isIdle;
-    bool isIdleInhibited;
-    bool isSuspendInhibited;
+    bool m_isIdleInhibited;
+    bool m_isSuspendInhibited;
 };
 }  // namespace Kiran

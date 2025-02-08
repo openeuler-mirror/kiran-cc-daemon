@@ -28,9 +28,11 @@
 
 namespace Kiran
 {
-PowerManager::PowerManager(PowerWrapperManager* wrapper_manager, PowerBacklight* backlight) : m_wrapperManager(wrapper_manager),
-                                                                                              m_backlight(backlight)
+PowerManager::PowerManager(PowerWrapperManager* wrapperManager,
+                           PowerBacklight* backlight) : m_wrapperManager(wrapperManager),
+                                                        m_backlight(backlight)
 {
+    m_powerAdaptor = new PowerAdaptor(this);
     m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
     m_upowerClient = m_wrapperManager->getDefaultUpower();
     m_profiles = m_wrapperManager->getDefaultProfiles();
@@ -161,37 +163,37 @@ int PowerManager::GetBrightness(int device)
 
 int PowerManager::GetEventAction(int event)
 {
-    int32_t action = PowerAction::POWER_ACTION_NOTHING;
+    QString actionStr;
 
     switch (event)
     {
     case PowerEvent::POWER_EVENT_RELEASE_POWEROFF:
-        action = m_powerSettings->get(POWER_SCHEMA_BUTTON_POWER_ACTION).toInt();
+        actionStr = m_powerSettings->get(POWER_SCHEMA_BUTTON_POWER_ACTION).toString();
         break;
     case PowerEvent::POWER_EVENT_PRESSED_SLEEP:
     case PowerEvent::POWER_EVENT_PRESSED_SUSPEND:
-        action = m_powerSettings->get(POWER_SCHEMA_BUTTON_SUSPEND_ACTION).toInt();
+        actionStr = m_powerSettings->get(POWER_SCHEMA_BUTTON_SUSPEND_ACTION).toString();
         break;
     case PowerEvent::POWER_EVENT_PRESSED_HIBERNATE:
-        action = m_powerSettings->get(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION).toInt();
+        actionStr = m_powerSettings->get(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION).toString();
         break;
     case PowerEvent::POWER_EVENT_LID_CLOSED:
-        action = m_powerSettings->get(POWER_SCHEMA_LID_CLOSED_ACTION).toInt();
+        actionStr = m_powerSettings->get(POWER_SCHEMA_LID_CLOSED_ACTION).toString();
         break;
     case PowerEvent::POWER_EVENT_BATTERY_CHARGE_ACTION:
-        action = m_powerSettings->get(POWER_SCHEMA_BATTERY_CRITICAL_ACTION).toInt();
+        actionStr = m_powerSettings->get(POWER_SCHEMA_BATTERY_CRITICAL_ACTION).toString();
         break;
     default:
         DBUS_ERROR_REPLY_AND_RETVAL(-1, CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_2);
     }
-
-    return action;
+    return PowerUtils::eventActionStr2Enum(actionStr);
 }
 
 QString PowerManager::GetIdleAction(int device, int supply)
 {
     int idleTimeout = 0;
     int action = PowerAction::POWER_ACTION_NOTHING;
+    QString actionStr;
 
     switch (device)
     {
@@ -201,15 +203,16 @@ QString PowerManager::GetIdleAction(int device, int supply)
         {
         case PowerSupplyMode::POWER_SUPPLY_MODE_BATTERY:
             idleTimeout = m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME).toInt();
-            action = m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION).toInt();
+            actionStr = m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION).toString();
             break;
         case PowerSupplyMode::POWER_SUPPLY_MODE_AC:
             idleTimeout = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_TIME).toInt();
-            action = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION).toInt();
+            actionStr = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION).toString();
             break;
         default:
             DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_3);
         }
+        action = PowerUtils::computerActionStr2Enum(actionStr);
         break;
     }
     case PowerDeviceType::POWER_DEVICE_TYPE_BACKLIGHT:
@@ -218,15 +221,16 @@ QString PowerManager::GetIdleAction(int device, int supply)
         {
         case PowerSupplyMode::POWER_SUPPLY_MODE_BATTERY:
             idleTimeout = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME).toInt();
-            action = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION).toInt();
+            actionStr = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION).toString();
             break;
         case PowerSupplyMode::POWER_SUPPLY_MODE_AC:
             idleTimeout = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME).toInt();
-            action = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION).toInt();
+            actionStr = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION).toString();
             break;
         default:
             DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_4);
         }
+        action = PowerUtils::monitorActionStr2Enum(actionStr);
         break;
     }
     default:
@@ -280,23 +284,25 @@ void PowerManager::SetEventAction(int event, int action)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_UNKNOWN_ACTION_2);
     }
 
+    auto actionStr = PowerUtils::eventActionEnum2Str(action);
+
     switch (event)
     {
     case PowerEvent::POWER_EVENT_RELEASE_POWEROFF:
-        m_powerSettings->set(POWER_SCHEMA_BUTTON_POWER_ACTION, action);
+        m_powerSettings->set(POWER_SCHEMA_BUTTON_POWER_ACTION, actionStr);
         break;
     case PowerEvent::POWER_EVENT_PRESSED_SLEEP:
     case PowerEvent::POWER_EVENT_PRESSED_SUSPEND:
-        m_powerSettings->set(POWER_SCHEMA_BUTTON_SUSPEND_ACTION, action);
+        m_powerSettings->set(POWER_SCHEMA_BUTTON_SUSPEND_ACTION, actionStr);
         break;
     case PowerEvent::POWER_EVENT_PRESSED_HIBERNATE:
-        m_powerSettings->set(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION, action);
+        m_powerSettings->set(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION, actionStr);
         break;
     case PowerEvent::POWER_EVENT_LID_CLOSED:
-        m_powerSettings->set(POWER_SCHEMA_LID_CLOSED_ACTION, action);
+        m_powerSettings->set(POWER_SCHEMA_LID_CLOSED_ACTION, actionStr);
         break;
     case PowerEvent::POWER_EVENT_BATTERY_CHARGE_ACTION:
-        m_powerSettings->set(POWER_SCHEMA_BATTERY_CRITICAL_ACTION, action);
+        m_powerSettings->set(POWER_SCHEMA_BATTERY_CRITICAL_ACTION, actionStr);
         break;
     default:
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_1);
@@ -319,15 +325,16 @@ void PowerManager::SetIdleAction(int device, int supply, int idleTimeout, int ac
     {
     case PowerDeviceType::POWER_DEVICE_TYPE_COMPUTER:
     {
+        auto actionStr = PowerUtils::computerActionEnum2Str(action);
         switch (supply)
         {
         case PowerSupplyMode::POWER_SUPPLY_MODE_BATTERY:
             m_powerSettings->set(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME, idleTimeout);
-            m_powerSettings->set(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION, action);
+            m_powerSettings->set(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION, actionStr);
             break;
         case PowerSupplyMode::POWER_SUPPLY_MODE_AC:
             m_powerSettings->set(POWER_SCHEMA_COMPUTER_AC_IDLE_TIME, idleTimeout);
-            m_powerSettings->set(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION, action);
+            m_powerSettings->set(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION, actionStr);
             break;
         default:
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_1);
@@ -336,15 +343,16 @@ void PowerManager::SetIdleAction(int device, int supply, int idleTimeout, int ac
     }
     case PowerDeviceType::POWER_DEVICE_TYPE_BACKLIGHT:
     {
+        auto actionStr = PowerUtils::monitorActionEnum2Str(action);
         switch (supply)
         {
         case PowerSupplyMode::POWER_SUPPLY_MODE_BATTERY:
             m_powerSettings->set(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME, idleTimeout);
-            m_powerSettings->set(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION, action);
+            m_powerSettings->set(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION, actionStr);
             break;
         case PowerSupplyMode::POWER_SUPPLY_MODE_AC:
             m_powerSettings->set(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME, idleTimeout);
-            m_powerSettings->set(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION, action);
+            m_powerSettings->set(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION, actionStr);
             break;
         default:
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_2);

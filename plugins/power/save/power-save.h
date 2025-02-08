@@ -20,17 +20,13 @@
 
 class QGSettings;
 
-namespace KScreen
-{
-class Dpms;
-}
-
 namespace Kiran
 {
 class PowerWrapperManager;
 class PowerBacklight;
 class PowerSaveComputer;
 class PowerProfiles;
+class PowerSaveDpms;
 
 class PowerSave : public QObject
 {
@@ -73,7 +69,7 @@ private:
     PowerWrapperManager* m_wrapperManager;
     PowerBacklight* m_backlight;
 
-    KScreen::Dpms* m_dpms;
+    PowerSaveDpms* m_dpms;
     QGSettings* m_powerSettings;
     QSharedPointer<PowerProfiles> m_profiles;
 

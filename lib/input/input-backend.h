@@ -31,7 +31,9 @@ public:
     InputBackend();
     virtual ~InputBackend(){};
 
-    static InputBackend* getDefault();
+    static InputBackend* getInstance() { return m_instance; };
+    static void globalInit();
+    static void globalDeinit() { delete m_instance; };
 
     virtual bool isValid() { return false; };
 

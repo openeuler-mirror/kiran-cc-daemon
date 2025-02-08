@@ -18,15 +18,19 @@
 #include <QKeySequence>
 #include "keybinding-i.h"
 #include "lib/base/base.h"
+#include "lib/osdwindow/osd-window.h"
 #include "touchpad-i.h"
 #include "touchpad_dbus_proxy.h"
 
 namespace Kiran
 {
 
-#define ACTION_NAME_TOUCHPAD_TOGGLE "touchpad-toggle"
-#define ACTION_NAME_TOUCHPAD_ON "touchpad-on"
-#define ACTION_NAME_TOUCHPAD_OFF "touchpad-off"
+#define ACTION_NAME_TOUCHPAD_TOGGLE "touchpadToggle"
+#define ACTION_NAME_TOUCHPAD_ON "touchpadOn"
+#define ACTION_NAME_TOUCHPAD_OFF "touchpadOff"
+
+#define IMAGE_TOUCHPAD_ENABLED "osd-touchpad-enabled"
+#define IMAGE_TOUCHPAD_DISABLED "osd-touchpad-disabled"
 
 KeysTouchpad::KeysTouchpad() : KeysComponent("Touchpad", tr("Touchpad")),
                                m_touchpadProxy(nullptr),
@@ -71,7 +75,7 @@ void KeysTouchpad::enableTouchpad(bool enable)
 {
     if (!m_hasTouchpadDevice)
     {
-        // TODO：如果没有触摸板，则显示禁用图标
+        OSDWindow::getInstance()->showIcon(IMAGE_TOUCHPAD_DISABLED);
         return;
     }
 
@@ -80,13 +84,19 @@ void KeysTouchpad::enableTouchpad(bool enable)
                                                       "org.freedesktop.DBus.Properties",
                                                       "Set");
 
-    // TODO:测试第三个参数是否生效
     sendMessage << QString(TOUCHPAD_DBUS_INTERFACE_NAME)
                 << QString("touchpad_enabled")
                 << QVariant::fromValue(QDBusVariant(enable));
     QDBusConnection::sessionBus().asyncCall(sendMessage);
 
-    // TODO:显示禁用或启用图标
+    if (enable)
+    {
+        OSDWindow::getInstance()->showIcon(IMAGE_TOUCHPAD_ENABLED);
+    }
+    else
+    {
+        OSDWindow::getInstance()->showIcon(IMAGE_TOUCHPAD_DISABLED);
+    }
 }
 
 void KeysTouchpad::triggerShortCut(const QString &name)

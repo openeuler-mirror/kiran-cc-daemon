@@ -77,14 +77,14 @@ bool PowerBacklightMonitorsController::brightnessDown()
 
 void PowerBacklightMonitorsController::loadBacklightMonitors()
 {
-    auto monitorBacklightPolicy = m_settings->get(POWER_SCHEMA_MONITOR_BACKLIGHT_POLICY).toInt();
+    auto monitorBacklightPolicy = m_settings->get(POWER_SCHEMA_MONITOR_BACKLIGHT_POLICY).toString();
 
-    switch (monitorBacklightPolicy)
+    switch (shash(monitorBacklightPolicy.toUtf8().data()))
     {
-    case PowerMonitorBacklightPolicy::POWER_MONITOR_BACKLIGHT_POLICY_TOOL:
+    case "tool"_hash:
         m_backlightMonitors = QSharedPointer<PowerBacklightMonitorsTool>::create();
         break;
-    case PowerMonitorBacklightPolicy::POWER_MONITOR_BACKLIGHT_POLICY_X11:
+    case "x11"_hash:
         m_backlightMonitors = QSharedPointer<PowerBacklightMonitorsX11>::create();
         break;
     default:

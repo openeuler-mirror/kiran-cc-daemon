@@ -13,7 +13,6 @@
  */
 
 #include "power-save.h"
-#include <KScreenDpms/Dpms>
 #include <QGSettings>
 #include "../backlight/power-backlight-interface.h"
 #include "../backlight/power-backlight.h"
@@ -22,6 +21,7 @@
 #include "../wrapper/power-wrapper-manager.h"
 #include "power-i.h"
 #include "power-save-computer.h"
+#include "power-save-dpms.h"
 
 namespace Kiran
 {
@@ -38,7 +38,11 @@ PowerSave::PowerSave(PowerWrapperManager* wrapperManager,
                                                   m_cpuSaverCookie(0),
                                                   m_cpuSaverTimestamp(0)
 {
-    m_dpms = new KScreen::Dpms(this);
+#ifdef WITH_DPMS_KDE
+    m_dpms = new PowerSaveDpmsKDE(this);
+#else
+    m_dpms = new PowerSaveDpmsX11(this);
+#endif
     m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
     m_profiles = m_wrapperManager->getDefaultProfiles();
     m_saveComputer = new PowerSaveComputer(this);
@@ -62,16 +66,16 @@ bool PowerSave::doSave(PowerAction action, QString& error)
     switch (action)
     {
     case PowerAction::POWER_ACTION_DISPLAY_ON:
-        m_dpms->switchMode(KScreen::Dpms::Mode::On);
+        m_dpms->setLevel(PowerDpmsLevel::POWER_DPMS_LEVEL_ON);
         break;
     case PowerAction::POWER_ACTION_DISPLAY_STANDBY:
-        m_dpms->switchMode(KScreen::Dpms::Mode::Standby);
+        m_dpms->setLevel(PowerDpmsLevel::POWER_DPMS_LEVEL_STANDBY);
         break;
     case PowerAction::POWER_ACTION_DISPLAY_SUSPEND:
-        m_dpms->switchMode(KScreen::Dpms::Mode::Suspend);
+        m_dpms->setLevel(PowerDpmsLevel::POWER_DPMS_LEVEL_SUSPEND);
         break;
     case PowerAction::POWER_ACTION_DISPLAY_OFF:
-        m_dpms->switchMode(KScreen::Dpms::Mode::Off);
+        m_dpms->setLevel(PowerDpmsLevel::POWER_DPMS_LEVEL_OFF);
         break;
     case PowerAction::POWER_ACTION_COMPUTER_SUSPEND:
         m_saveComputer->suspend();

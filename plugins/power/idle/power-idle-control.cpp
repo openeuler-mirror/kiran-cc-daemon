@@ -15,6 +15,7 @@
 #include "power-idle-control.h"
 #include <QGSettings>
 #include "../backlight/power-backlight.h"
+#include "../power-utils.h"
 #include "../save/power-save.h"
 #include "../wrapper/power-upower.h"
 #include "../wrapper/power-wrapper-manager.h"
@@ -61,18 +62,22 @@ void PowerIdleControl::updateIdleTimer()
     if (m_upowerClient->getOnBattery())
     {
         m_computerIdleTime = m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_TIME).toInt();
-        m_computerIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION).toInt());
+        auto computerIdleActionStr = m_powerSettings->get(POWER_SCHEMA_COMPUTER_BATTERY_IDLE_ACTION).toString();
+        m_computerIdleAction = PowerAction(PowerUtils::computerActionStr2Enum(computerIdleActionStr));
 
         m_displayIdleTime = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_TIME).toInt();
-        m_displayIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION).toInt());
+        auto displayIdleActionStr = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_BATTERY_IDLE_ACTION).toString();
+        m_displayIdleAction = PowerAction(PowerUtils::monitorActionStr2Enum(displayIdleActionStr));
     }
     else
     {
         m_computerIdleTime = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_TIME).toInt();
-        m_computerIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION).toInt());
+        auto computerIdleActionStr = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION).toString();
+        m_computerIdleAction = PowerAction(PowerUtils::computerActionStr2Enum(computerIdleActionStr));
 
         m_displayIdleTime = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_TIME).toInt();
-        m_displayIdleAction = PowerAction(m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION).toInt());
+        auto displayIdleActionStr = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION).toString();
+        m_displayIdleAction = PowerAction(PowerUtils::monitorActionStr2Enum(displayIdleActionStr));
     }
 
     m_idleTimer->setIdleTimeout(PowerIdleMode::POWER_IDLE_MODE_BLANK, m_displayIdleTime);

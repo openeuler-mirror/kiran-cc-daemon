@@ -1,4 +1,4 @@
-set(TARGET_NAME osdwindow)
+set(TARGET_NAME kosdwindow)
 
 file(GLOB_RECURSE OSD_H_FILES ./*.h)
 file(GLOB_RECURSE OSD_CPP_FILES ./*.cpp)

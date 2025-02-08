@@ -158,13 +158,13 @@ MemInfo SystemInfoHardware::getMemInfo()
     if (memInfo.totalSize == 0)
     {
         memInfo.totalSize = getMemorySizeWithLshw();
-        KLOG_DEBUG(systeminfo) << "Get total size with lshw" << memInfo.totalSize;
+        KLOG_INFO(systeminfo) << "Get total size with lshw" << memInfo.totalSize;
     }
 
     if (memInfo.totalSize == 0)
     {
         memInfo.totalSize = memInfo.availableSize;
-        KLOG_DEBUG(systeminfo) << "Get total size with libgtop" << memInfo.totalSize;
+        KLOG_INFO(systeminfo) << "Get total size with libgtop" << memInfo.totalSize;
     }
 
     KLOG_INFO(systeminfo) << "Use total size is" << memInfo.totalSize << ", available size is " << memInfo.availableSize;

@@ -24,7 +24,11 @@ ClipboardManager *ClipboardManager::m_instance = nullptr;
 ClipboardManager::ClipboardManager()
 {
     m_clipboard = KSystemClipboard::instance();
-    memset(m_clipboardDatas, 0, sizeof(m_clipboardDatas));
+
+    for (int i = 0; i < QClipboard::FindBuffer; i++)
+    {
+        m_clipboardDatas[i] = QSharedPointer<ClipboardData>();
+    }
 
     connect(m_clipboard, &KSystemClipboard::changed, this, &ClipboardManager::processClipboardChanged);
 }
@@ -71,6 +75,7 @@ void ClipboardManager::processClipboardChanged(QClipboard::Mode mode)
         if (m_clipboardDatas[mode])
         {
             auto newMimeData = m_clipboardDatas[mode]->mimeData();
+            // TODO: 偶发QXcbClipboard::setMimeData: Cannot set X11 selection owner报错，还不清楚复现场景
             m_clipboard->setMimeData(newMimeData, mode);
         }
     }

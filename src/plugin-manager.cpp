@@ -35,6 +35,7 @@ namespace Kiran
 
 #define SESSION_DAEMON_SCHAME_ID "com.kylinsec.kiran.session-daemon"
 #define SESSION_DAEMON_SCHEMA_KEY_ENABLED_PLUGINS "enabled-plugins"
+#define SESSION_DAEMON_SCHEMA_KEY_DISABLED_PLUGINS "disabled-plugins"
 
 #define SYSTEM_PLUGIN_CONFIG_NAME "plugin_options"
 
@@ -204,6 +205,11 @@ SessionPluginManager::SessionPluginManager(const QString& pluginDir) : PluginMan
 {
     m_sessionSettings = new QGSettings(SESSION_DAEMON_SCHAME_ID, "", this);
     m_enabledPlugins = m_sessionSettings->get(SESSION_DAEMON_SCHEMA_KEY_ENABLED_PLUGINS).toStringList();
+    auto disabledPlugins = m_sessionSettings->get(SESSION_DAEMON_SCHEMA_KEY_DISABLED_PLUGINS).toStringList();
+    for (auto disabledPlugin : disabledPlugins)
+    {
+        m_enabledPlugins.removeAll(disabledPlugin);
+    }
 }
 
 void SessionPluginManager::init()

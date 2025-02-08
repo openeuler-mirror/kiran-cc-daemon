@@ -18,6 +18,7 @@
 
 class KActionCollection;
 class QGSettings;
+class KGlobalAccelComponentInterface;
 
 namespace Kiran
 {
@@ -33,15 +34,27 @@ public:
     virtual void triggerShortCut(const QString &name) = 0;
 
 protected:
-    bool registerShortCut(const QKeySequence &key, const QString &name, const QString &displayName);
+    // 对于win键，需要监听键盘弹起信号，所以isPressed应该为false
+    bool registerShortCut(const QKeySequence &key,
+                          const QString &name,
+                          const QString &displayName,
+                          bool isPressed = true);
 
-public:
-    KeysComponent();
+private:
+    void processShortcutPressed(const QString &componentUnique,
+                                const QString &actionUnique,
+                                qlonglong timestamp);
+
+    void processShortcutReleased(const QString &componentUnique,
+                                 const QString &actionUnique,
+                                 qlonglong timestamp);
 
 protected:
     QGSettings *m_settings;
 
 private:
     KActionCollection *m_actionCollection;
+    KGlobalAccelComponentInterface *m_componentInterface;
+    bool m_pressedTriggered;
 };
 }  // namespace Kiran

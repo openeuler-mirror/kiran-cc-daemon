@@ -43,10 +43,10 @@ uint qHash(const QSize &size)
 namespace Kiran
 {
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
-#define DISPLAY_SCHEMA_STYLE "display-style"
-#define DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW "dynamic-scaling-window"
-#define DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER "max-screen-record-number"
-#define SCREEN_CHANGED_ADAPT "screen-changed-adaptation"
+#define DISPLAY_SCHEMA_STYLE "displayStyle"
+#define DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW "dynamicScalingWindow"
+#define DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER "maxScreenRecordNumber"
+#define DISPLAY_SCHEMA_SCREEN_CHANGED_ADAPT "screenChangedAdaptation"
 
 #define DISPLAY_CONF_DIR "kylinsec/" PROJECT_NAME "/display"
 #define DISPLAY_FILE_NAME "display.xml"
@@ -145,9 +145,10 @@ void DisplayManager::setDefaultStyle(uint style)
     RETURN_IF_TRUE(m_defaultStyle == DisplayStyle(style));
 
     m_defaultStyle = DisplayStyle(style);
-    if (m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toInt() != int32_t(m_defaultStyle))
+    auto defaultStyleFromSettings = styleStr2Enum(m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toString());
+    if (defaultStyleFromSettings != int32_t(m_defaultStyle))
     {
-        m_displaySettings->set(DISPLAY_SCHEMA_STYLE, m_defaultStyle);
+        m_displaySettings->set(DISPLAY_SCHEMA_STYLE, styleEnum2Str(m_defaultStyle));
     }
 
     SEND_PROPERTY_NOTIFY(default_style, DefaultStyle)
@@ -235,8 +236,8 @@ void DisplayManager::SetWindowScalingFactor(int windowScalingFactor)
 
     if (!m_dynamicScalingWindow)
     {
-        auto result = QProcess::startDetached("/usr/bin/notify-send",
-                                              QStringList() << tr("\"The scaling rate can only take effect after logging out and logging in again\""));
+        auto tipsInfo = QString("%1").arg(tr("The scaling rate can only take effect after logging out and logging in again."));
+        auto result = QProcess::startDetached("/usr/bin/notify-send", QStringList() << tipsInfo);
 
         if (!result)
         {
@@ -317,7 +318,7 @@ void DisplayManager::init()
 
 void DisplayManager::loadSettings()
 {
-    m_defaultStyle = DisplayStyle(m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toInt());
+    m_defaultStyle = DisplayStyle(styleStr2Enum(m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toString()));
     m_dynamicScalingWindow = m_displaySettings->get(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW).toBool();
     m_windowScalingFactor = m_xsettingsSettings->get(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt();
     m_maxScreenRecordNumber = m_displaySettings->get(DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER).toInt();
@@ -636,7 +637,7 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
 
 bool DisplayManager::switchStyle(DisplayStyle style, CCErrorCode &errorCode)
 {
-    KLOG_INFO(display) << "Switch style to" << styleEnum2str(style);
+    KLOG_INFO(display) << "Switch style to" << styleEnum2Str(style);
 
     switch (style)
     {
@@ -670,30 +671,6 @@ bool DisplayManager::switchStyle(DisplayStyle style, CCErrorCode &errorCode)
         }
     }
     return true;
-}
-
-QString DisplayManager::styleEnum2str(DisplayStyle style)
-{
-    QString styleInfo;
-    switch (style)
-    {
-    case DisplayStyle::DISPLAY_STYLE_MIRRORS:
-        styleInfo = "mirrors";
-        break;
-    case DisplayStyle::DISPLAY_STYLE_EXTEND:
-        styleInfo = "extend";
-        break;
-    case DisplayStyle::DISPLAY_STYLE_CUSTOM:
-        styleInfo = "custom";
-        break;
-    case DisplayStyle::DISPLAY_STYLE_AUTO:
-        styleInfo = "auto";
-        break;
-    default:
-        styleInfo = "";
-        break;
-    }
-    return styleInfo;
 }
 
 bool DisplayManager::switchStyleAndSave(DisplayStyle style, CCErrorCode &error_code)
@@ -941,7 +918,7 @@ void DisplayManager::processConfigureChanged()
     auto newMonitorsUID = getMonitorsUID();
     auto newMonitorNames = getMonitorNames();
 
-    auto screenChangedAdaptation = m_displaySettings->get(SCREEN_CHANGED_ADAPT).toBool();
+    auto screenChangedAdaptation = m_displaySettings->get(DISPLAY_SCHEMA_SCREEN_CHANGED_ADAPT).toBool();
 
     KLOG_INFO(display) << "check display resource changed, "
                        << "the old monitor uid and names is" << oldMonitorsUID << "/" << oldMonitorNames
@@ -967,13 +944,51 @@ void DisplayManager::processSettingsChanged(const QString &key)
     {
     case CONNECT(DISPLAY_SCHEMA_STYLE, _hash):
     {
-        auto style = m_displaySettings->get(key).toInt();
+        auto style = DisplayStyle(styleStr2Enum(m_displaySettings->get(key).toString()));
         setDefaultStyle(style);
     }
     break;
     default:
         break;
     }
+}
+
+QString DisplayManager::styleEnum2Str(int style)
+{
+    switch (style)
+    {
+    case DisplayStyle::DISPLAY_STYLE_MIRRORS:
+        return "mirrors";
+    case DisplayStyle::DISPLAY_STYLE_EXTEND:
+        return "extend";
+    case DisplayStyle::DISPLAY_STYLE_CUSTOM:
+        return "custom";
+    case DisplayStyle::DISPLAY_STYLE_AUTO:
+        return "auto";
+    default:
+        KLOG_WARNING(display) << "Unknown style enum value" << style << ", use auto style instead.";
+        return "auto";
+    }
+    return "auto";
+}
+
+int DisplayManager::styleStr2Enum(QString style)
+{
+    switch (shash(style.toUtf8().data()))
+    {
+    case "mirrors"_hash:
+        return DisplayStyle::DISPLAY_STYLE_MIRRORS;
+    case "extend"_hash:
+        return DisplayStyle::DISPLAY_STYLE_EXTEND;
+    case "custom"_hash:
+        return DisplayStyle::DISPLAY_STYLE_CUSTOM;
+    case "auto"_hash:
+        return DisplayStyle::DISPLAY_STYLE_AUTO;
+    default:
+        KLOG_WARNING(display) << "Unknown style" << style << ", use auto style instead.";
+        break;
+    }
+    return DisplayStyle::DISPLAY_STYLE_AUTO;
 }
 
 }  // namespace Kiran

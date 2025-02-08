@@ -51,9 +51,9 @@ namespace Kiran
 #define KIRAN_ACCOUNTS_USER_INTERFACE "com.kylinsec.Kiran.SystemDaemon.Accounts.User"
 
 User::User(PasswdShadow passwdShadow) : m_passwdShadow(passwdShadow),
+                                        m_automaticLogin(0),
                                         m_locked(false),
                                         m_passwordMode(0),
-                                        m_automaticLogin(0),
                                         m_systemAccount(false),
                                         m_settings(nullptr)
 
@@ -442,11 +442,6 @@ void User::setPasswordModeAuthenticated(const QDBusMessage &message, int mode)
         QDBusConnection::systemBus().send(message.createReply());
         return;
     }
-
-    // freeze_notify();
-    // SCOPE_EXIT({
-    //     thaw_notify();
-    // });
 
     if (mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN) ||
         mode == int32_t(AccountsPasswordMode::ACCOUNTS_PASSWORD_MODE_NONE))

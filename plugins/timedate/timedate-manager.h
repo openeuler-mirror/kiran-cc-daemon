@@ -113,9 +113,8 @@ private:
     // 停止NTP服务
     bool stopNTPUnit(const QString &name, CCErrorCode &errorCode);
     // NTP服务是否开启
-    bool ntpIsActive();
-
-    QString getUnitObjectPath();
+    bool ntpIsActive(const QString &name);
+    QString getUnitObjectPath(const QString &name);
 
     QVector<ZoneInfo> getZoneInfos();
 

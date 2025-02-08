@@ -45,7 +45,6 @@ void PowerBacklightMonitorsX11::init()
     auto xcbConnection = m_xcbConnection->getConnection();
     auto defaultScreen = m_xcbConnection->getDefaultScreen();
 
-    auto root = QX11Info::appRootWindow();
     xcb_randr_select_input(xcbConnection, defaultScreen->root, XCB_RANDR_NOTIFY_MASK_SCREEN_CHANGE | XCB_RANDR_NOTIFY_MASK_OUTPUT_PROPERTY);
     m_extensionSupported = true;
 

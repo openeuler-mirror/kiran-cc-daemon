@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include "config.h"
+#include "lib/base/misc-utils.h"
 #include "src/plugin-manager.h"
 
 int main(int argc, char* argv[])
@@ -33,6 +34,8 @@ int main(int argc, char* argv[])
     {
         fprintf(stderr, "Failed to init kiran-log.");
     }
+
+    Kiran::MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("kbase"));
 
     Kiran::SystemPluginManager::globalInit(KCD_SYSTEM_PLUGIN_DIR);
 

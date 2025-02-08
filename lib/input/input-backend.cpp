@@ -25,20 +25,16 @@ InputBackend::InputBackend()
 }
 
 InputBackend* InputBackend::m_instance = nullptr;
-InputBackend* InputBackend::getDefault()
+void InputBackend::globalInit()
 {
-    if (!m_instance)
+    if (qGuiApp->platformName() == "wayland")
     {
-        if (qGuiApp->platformName() == "wayland")
-        {
-            m_instance = new WaylandKwinBackend();
-        }
-        else
-        {
-            m_instance = new XInputBackend();
-        }
+        m_instance = new WaylandKwinBackend();
     }
-    return m_instance;
+    else
+    {
+        m_instance = new XInputBackend();
+    }
 }
 
 }  // namespace Kiran

@@ -16,6 +16,8 @@
 
 #include "plugin-i.h"
 
+class QTranslator;
+
 namespace Kiran
 {
 class PowerPlugin : public QObject, public IPlugin
@@ -28,5 +30,8 @@ class PowerPlugin : public QObject, public IPlugin
 public:
     virtual void activate();
     virtual void deactivate();
+
+private:
+    QTranslator *m_translator = nullptr;
 };
 }  // namespace Kiran

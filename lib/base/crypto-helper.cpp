@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2022 ~ 2023 KylinSec Co., Ltd. 
+ * Copyright (c) 2022 ~ 2023 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -86,11 +86,12 @@ QString CryptoHelper::rsaEncrypt(const QString &publicKey, const QString &messag
         StringSource public_source(publicKey.toStdString(), true, new Base64Decoder(new HexDecoder));
         RSAES_OAEP_SHA_Encryptor rsa_encryptor(public_source);
 
-        if (message.size() > rsa_encryptor.FixedMaxPlaintextLength())
+        if (message.size() > int(rsa_encryptor.FixedMaxPlaintextLength()))
         {
-            KLOG_WARNING("The length(%d) of message is greater than the value(%d) which FixedMaxPlaintextLength return.",
-                         message.size(),
-                         rsa_encryptor.FixedMaxPlaintextLength());
+            KLOG_WARNING() << "The length(" << message.size()
+                           << ") of message is greater than the value("
+                           << rsa_encryptor.FixedMaxPlaintextLength()
+                           << ") which FixedMaxPlaintextLength return.";
             return QString();
         }
 

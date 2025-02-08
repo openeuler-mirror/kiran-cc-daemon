@@ -140,6 +140,7 @@ QSharedPointer<PolkitProxy> PolkitProxy::getDefault()
 void PolkitProxy::checkAuthorization(const QString &action,
                                      bool userInteraction,
                                      const QDBusMessage &message,
+                                     const QString &handlerName,
                                      checkAuthHandler handler)
 {
     auto checkAuthData = QSharedPointer<CheckAuthData>::create();
@@ -147,6 +148,7 @@ void PolkitProxy::checkAuthorization(const QString &action,
     checkAuthData->timer.start();
     checkAuthData->cancelString = QString("%1-%2").arg(PROJECT_NAME).arg(quint64(&checkAuthData->timer));
     checkAuthData->message = message;
+    checkAuthData->handlerName = handlerName;
     checkAuthData->handler = handler;
 
     auto sendMessage = QDBusMessage::createMethodCall(POLKIT_DBUS_NAME,
@@ -164,6 +166,8 @@ void PolkitProxy::checkAuthorization(const QString &action,
                 << QVariant::fromValue(uint(userInteraction ? 1 : 0))
                 << checkAuthData->cancelString;
 
+    KLOG_INFO() << "Call CheckAuthorization to start authentication for handler" << handlerName;
+
     auto call = QDBusConnection::systemBus().asyncCall(sendMessage);
     auto watcher = new QDBusPendingCallWatcher(call, this);
     connect(watcher, &QDBusPendingCallWatcher::finished, std::bind(&PolkitProxy::onFinishCheckAuth, this, std::placeholders::_1, checkAuthData));
@@ -178,11 +182,13 @@ void PolkitProxy::onCancelCheckAuth(QSharedPointer<CheckAuthData> checkAuthData)
                                                       "CancelCheckAuthorization");
     sendMessage << checkAuthData->cancelString;
 
-    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block, DBUS_TIMEOUT_MS);
+    KLOG_INFO() << "Call CheckAuthorization timeout, so call CancelCheckAuthorization to cancel auth to handler" << checkAuthData->handlerName;
 
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block, DBUS_TIMEOUT_MS);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING() << "Call CancelCheckAuthorization failed: " << replyMessage.errorMessage();
+        KLOG_WARNING() << "Call CancelCheckAuthorization failed to handler" << checkAuthData->handlerName
+                       << "which error message is" << replyMessage.errorMessage();
     }
 
     checkAuthData->timer.disconnect();
@@ -200,13 +206,15 @@ void PolkitProxy::onFinishCheckAuth(QDBusPendingCallWatcher *watcher, QSharedPoi
 
     if (reply.isError())
     {
-        KLOG_WARNING() << "Call CancelCheckAuthorization failed: " << reply.error().message();
+        KLOG_WARNING() << "Call CheckAuthorization failed to handler" << checkAuthData->handlerName
+                       << "which error message is" << reply.error().message();
     }
     else
     {
         auto checkAuthResult = reply.value();
         isSuccess = checkAuthResult.is_authorized;
-        KLOG_DEBUG() << "IsAuthorized: " << checkAuthResult.is_authorized << ", isChallenge: " << checkAuthResult.is_challenge;
+        KLOG_INFO() << "The authorized result of handler" << checkAuthData->handlerName << "is" << checkAuthResult.is_authorized
+                    << "which challenge is" << checkAuthResult.is_challenge;
     }
 
     if (isSuccess)

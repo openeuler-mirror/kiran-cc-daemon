@@ -46,9 +46,9 @@ enum SystemShortcutDesktopType
     SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE,
 };
 
-struct SystemShortcutMate
+struct MateSystemShortcut
 {
-    SystemShortcutMate() : gsettings(nullptr){};
+    MateSystemShortcut() : gsettings(nullptr){};
     // 分类名
     QString kind;
     // 快捷键名称
@@ -61,7 +61,7 @@ struct SystemShortcutMate
     QString settingsKey;
 };
 
-struct SystemShortcutKDE
+struct KDESystemShortcut
 {
     // 分类名
     QString componentUniqueName;
@@ -77,15 +77,15 @@ struct SystemShortcutKDE
     QList<QKeySequence> defaultKeys;
 };
 
-struct SystemShortcutMix
+struct MixSystemShortcut
 {
-    SystemShortcutMix() : desktopType(SYSTEM_SHORTCUT_DESKTOP_TYPE_UNKNOWN){};
-    virtual ~SystemShortcutMix(){};
+    MixSystemShortcut() : desktopType(SYSTEM_SHORTCUT_DESKTOP_TYPE_UNKNOWN){};
+    virtual ~MixSystemShortcut(){};
     QString uid;
     SystemShortcutDesktopType desktopType;
     // 这里偷懒没有用union，因为非POD类型需要自己定义构造和析够。反正也不会有太多内存开销，后续完全迁移到kf5后可以去掉对mate的兼容
-    SystemShortcutMate mate;
-    SystemShortcutKDE kde;
+    MateSystemShortcut mate;
+    KDESystemShortcut kde;
 };
 
 class SystemShortcuts : public QObject
@@ -118,19 +118,21 @@ Q_SIGNALS:
     void shortcutChanged(QSharedPointer<SystemShortcut> shortcut);
 
 private:
+    void initMateShortcuts();
+    // 将mate和kglobalaccel的快捷键合并到一起返回
+    QMap<QString, QSharedPointer<MixSystemShortcut>> getMixShortcuts();
     // 通过kglobalaccel获取系统快捷键
-    void initKSystemShortcuts();
+    QMap<QString, QSharedPointer<MixSystemShortcut>> getKShortcuts();
     // 根据配置文件加载系统快捷键，主要是兼容旧的方式（marco系统快捷键）
-    void initMarcoSystemShortcuts();
     bool shouldShowKey(const KeyListEntry &entry);
-    QSharedPointer<SystemShortcut> mix2common(QSharedPointer<SystemShortcutMix> systemShortCutMix);
-    QString keys2Str(const QList<QKeySequence> &keys);
-    QStringList buildActionId(const SystemShortcutKDE &systemshortKDE);
+    QSharedPointer<SystemShortcut> mix2common(QSharedPointer<MixSystemShortcut> systemShortCutMix);
+    QString keys2GtkStr(const QList<QKeySequence> &keys);
+    QStringList buildActionId(const KDESystemShortcut &systemshortKDE);
     void processSettingsChanged(const QString &key, const QString &schemaID);
 
 private:
     KGlobalAccelInterface *m_globalAccelInterface;
-    QMap<QString, QSharedPointer<SystemShortcutMix>> m_shortcutMixs;
+    QMap<QString, QSharedPointer<MixSystemShortcut>> m_mateShortcuts;
     QMap<QString, QGSettings *> m_gsettingsSet;
 };
 

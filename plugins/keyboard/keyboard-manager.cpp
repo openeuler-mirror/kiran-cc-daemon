@@ -31,12 +31,12 @@
 namespace Kiran
 {
 #define KEYBOARD_SCHEMA_ID "com.kylinsec.kiran.keyboard"
-#define KEYBOARD_SCHEMA_MODIFIER_LOCK_ENABLED "modifier-lock-enabled"
-#define KEYBOARD_SCHEMA_CAPSLOCK_TIPS_ENABLED "capslock-tips-enabled"
-#define KEYBOARD_SCHEMA_NUMLOCK_TIPS_ENABLED "numlock-tips-enabled"
-#define KEYBOARD_SCHEMA_REPEAT_ENABLED "repeat-enabled"
-#define KEYBOARD_SCHEMA_REPEAT_DELAY "repeat-delay"
-#define KEYBOARD_SCHEMA_REPEAT_INTERVAL "repeat-interval"
+#define KEYBOARD_SCHEMA_MODIFIER_LOCK_ENABLED "modifierLockEnabled"
+#define KEYBOARD_SCHEMA_CAPSLOCK_TIPS_ENABLED "capslockTipsEnabled"
+#define KEYBOARD_SCHEMA_NUMLOCK_TIPS_ENABLED "numlockTipsEnabled"
+#define KEYBOARD_SCHEMA_REPEAT_ENABLED "repeatEnabled"
+#define KEYBOARD_SCHEMA_REPEAT_DELAY "repeatDelay"
+#define KEYBOARD_SCHEMA_REPEAT_INTERVAL "repeatInterval"
 #define KEYBOARD_SCHEMA_LAYOUTS "layouts"
 #define KEYBOARD_SCHEMA_OPTIONS "options"
 
@@ -385,7 +385,7 @@ void KeyboardManager::loadXkbRules()
         return;
     }
 
-    for (size_t i = 0; i < xkbRules.layouts.size(); ++i)
+    for (int i = 0; i < xkbRules.layouts.size(); ++i)
     {
         auto &layoutName = xkbRules.layouts[i].name;
         auto countryName = ISOTranslation::getInstance()->getLocaleCountryName(layoutName.toUpper());
@@ -400,7 +400,7 @@ void KeyboardManager::loadXkbRules()
 
         KLOG_DEBUG(keyboard) << "name is" << layoutName << ", value is" << m_validLayouts[layoutName];
 
-        for (size_t j = 0; j < xkbRules.layouts[i].variants.size(); ++j)
+        for (int j = 0; j < xkbRules.layouts[i].variants.size(); ++j)
         {
             auto layoutVariant = layoutName + " " + xkbRules.layouts[i].variants[j].name;
             auto variantDesc = ISOTranslation::getInstance()->getLocaleString(xkbRules.layouts[i].variants[j].description, DEFAULT_DESC_DELIMETERS);

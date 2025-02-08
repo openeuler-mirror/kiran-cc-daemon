@@ -15,6 +15,9 @@
 #pragma once
 
 #include "plugin-i.h"
+
+class QTranslator;
+
 namespace Kiran
 {
 
@@ -28,5 +31,8 @@ class KeybindingPlugin : public QObject, public IPlugin
 public:
     virtual void activate();
     virtual void deactivate();
+
+private:
+    QTranslator *m_translator = nullptr;
 };
 }  // namespace Kiran

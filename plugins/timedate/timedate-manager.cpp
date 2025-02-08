@@ -70,9 +70,9 @@ namespace Kiran
 TimedateManager *TimedateManager::m_instance = nullptr;
 const QStringList TimedateManager::m_ntpUnitsPaths = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
 
-TimedateManager::TimedateManager() : m_localRtc(false),
-                                     m_ntpActive(false),
-                                     m_ntpUnitInterface(nullptr)
+TimedateManager::TimedateManager() : m_ntpUnitInterface(nullptr),
+                                     m_localRtc(false),
+                                     m_ntpActive(false)
 {
     m_adaptor = new TimeDateAdaptor(this);
     m_timedateFormat = new TimedateFormat(this);
@@ -298,6 +298,7 @@ void TimedateManager::SetLocalRTC(bool local, bool adjustSystem)
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_RTC_LOCAL,
                                                   true,
                                                   this->message(),
+                                                  QStringLiteral("TimedateManager::SetLocalRTC"),
                                                   std::bind(&TimedateManager::finishSetRtcLocal, this, std::placeholders::_1, local, adjustSystem));
 }
 
@@ -314,6 +315,7 @@ void TimedateManager::SetNTP(bool active)
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_NTP_ACTIVE,
                                                   true,
                                                   this->message(),
+                                                  QStringLiteral("TimedateManager::SetNTP"),
                                                   std::bind(&TimedateManager::finishSetNTPActive, this, std::placeholders::_1, active));
 }
 
@@ -330,6 +332,7 @@ void TimedateManager::SetTime(qlonglong requestedTime, bool relative)
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_TIME,
                                                   true,
                                                   this->message(),
+                                                  QStringLiteral("TimedateManager::SetTime"),
                                                   std::bind(&TimedateManager::funishSetTime, this, std::placeholders::_1, requestTime, requestedTime, relative));
 }
 
@@ -347,6 +350,7 @@ void TimedateManager::SetTimezone(const QString &timeZone)
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_TIMEZONE,
                                                   true,
                                                   this->message(),
+                                                  QStringLiteral("TimedateManager::SetTimezone"),
                                                   std::bind(&TimedateManager::finishSetTimezone, this, std::placeholders::_1, timeZone));
 }
 
@@ -361,13 +365,13 @@ void TimedateManager::init()
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(TIMEDATE_DBUS_NAME))
     {
-        KLOG_WARNING() << "Failed to register dbus name: " << TIMEDATE_DBUS_NAME;
+        KLOG_WARNING(timedate) << "Failed to register dbus name: " << TIMEDATE_DBUS_NAME;
         return;
     }
 
     if (!systemConnection.registerObject(TIMEDATE_OBJECT_PATH, TIMEDATE_DBUS_INTERFACE_NAME, this))
     {
-        KLOG_ERROR() << "Can't register object:" << systemConnection.lastError();
+        KLOG_ERROR(timedate) << "Can't register object:" << systemConnection.lastError();
         return;
     }
 
@@ -382,7 +386,7 @@ void TimedateManager::init()
     m_timeZone = TimedateUtil::getTimezone();
     m_localRtc = TimedateUtil::isLocalRtc();
     initNTPUnits();
-    m_ntpActive = ntpIsActive();
+    m_ntpActive = ntpIsActive(m_ntpUnitName);
     m_timedateFormat->init();
 
     connect(m_fileWatcher, SIGNAL(fileChanged(const QString &)), this, SLOT(processFilesChanged(const QString &)));
@@ -395,22 +399,32 @@ void TimedateManager::initNTPUnits()
     auto ntpUnits = getNTPUnits();
     CCErrorCode errorCode = CCErrorCode::SUCCESS;
 
+    // 优先选择已经激活的NTP服务，如果都没有激活则选择第一个NTP服务
     m_ntpUnitName.clear();
     for (auto &ntpUnit : ntpUnits)
     {
-        if (ntpUnit == ntpUnits.front())
+        if (ntpIsActive(ntpUnit))
         {
             m_ntpUnitName = ntpUnit;
-            continue;
-        }
-
-        if (!stopNTPUnit(ntpUnit, errorCode))
-        {
-            KLOG_WARNING(timedate) << KCD_ERROR2STR(errorCode);
+            break;
         }
     }
 
-    auto unitObjectPath = getUnitObjectPath();
+    if (m_ntpUnitName.isEmpty())
+    {
+        m_ntpUnitName = ntpUnits.front();
+    }
+
+    KLOG_INFO(timedate) << "Use" << m_ntpUnitName << "as default NTP service, other NTP service will be stopped.";
+
+    // 关闭掉其他NTP服务，避免冲突
+    for (auto &ntpUnit : ntpUnits)
+    {
+        CONTINUE_IF_TRUE(ntpUnit == m_ntpUnitName)
+        stopNTPUnit(ntpUnit, errorCode);
+    }
+
+    auto unitObjectPath = getUnitObjectPath(m_ntpUnitName);
 
     if (unitObjectPath.length() > 0)
     {
@@ -419,10 +433,9 @@ void TimedateManager::initNTPUnits()
                                                 SYSTEMD_UNIT_INTERFACE,
                                                 QDBusConnection::systemBus(),
                                                 this);
-
         QDBusConnection::systemBus().connect(SYSTEMD_NAME,
                                              unitObjectPath,
-                                             SYSTEMD_UNIT_INTERFACE,
+                                             QStringLiteral("org.freedesktop.DBus.Properties"),
                                              "PropertiesChanged",
                                              this,
                                              SLOT(processNTPUnitPropsChanged(const QDBusMessage &)));
@@ -482,54 +495,61 @@ QStringList TimedateManager::getNTPUnits()
 
 bool TimedateManager::startNTPUnit(const QString &name, CCErrorCode &errorCode)
 {
-    auto arguments = QList<QVariant>{name, QString("replace")};
-    if (!callSystemdNoresult("StartUnit", arguments))
+    KLOG_INFO(timedate) << "Start and enable NTP service" << name;
+
+    auto startUnitArguments = QList<QVariant>{name, QString("replace")};
+    if (!callSystemdNoresult("StartUnit", startUnitArguments))
     {
         errorCode = CCErrorCode::ERROR_TIMEDATE_START_NTP_FAILED;
         return false;
     }
-    else
-    {
-        auto arguments = QList<QVariant>{QStringList(name), false, true};
-        callSystemdNoresult("EnableUnitFiles", arguments);
-        callSystemdNoresult("Reload", QList<QVariant>());
-    }
+
+    auto enableUnitArguments = QList<QVariant>{QStringList(name), false, true};
+    callSystemdNoresult("EnableUnitFiles", enableUnitArguments);
+    callSystemdNoresult("Reload", QList<QVariant>());
     return true;
 }
 
 bool TimedateManager::stopNTPUnit(const QString &name, CCErrorCode &errorCode)
 {
-    auto arguments = QList<QVariant>{name, QString("replace")};
-    if (!callSystemdNoresult("StopUnit", arguments))
+    KLOG_INFO(timedate) << "Stop and disable NTP service" << name;
+
+    auto stopUnitArguments = QList<QVariant>{name, QString("replace")};
+    if (!callSystemdNoresult("StopUnit", stopUnitArguments))
     {
         errorCode = CCErrorCode::ERROR_TIMEDATE_STOP_NTP_FAILED;
         return false;
     }
-    else
-    {
-        auto arguments = QList<QVariant>{QStringList(name), false};
-        callSystemdNoresult("DisableUnitFiles", arguments);
-        callSystemdNoresult("Reload", QList<QVariant>());
-    }
+
+    auto disableUnitArguments = QList<QVariant>{QStringList(name), false};
+    callSystemdNoresult("DisableUnitFiles", disableUnitArguments);
+    callSystemdNoresult("Reload", QList<QVariant>());
     return true;
 }
 
-bool TimedateManager::ntpIsActive()
+bool TimedateManager::ntpIsActive(const QString &name)
 {
-    RETURN_VAL_IF_FALSE(m_ntpUnitInterface, false);
-    auto state = m_ntpUnitInterface->property(UNIT_PROP_ACTIVE_STATE).toString();
+    auto ntpObjectPath = getUnitObjectPath(name);
+    RETURN_VAL_IF_TRUE(ntpObjectPath.size() <= 0, false);
+
+    QDBusInterface ntpUnitInterface(SYSTEMD_NAME,
+                                    ntpObjectPath,
+                                    SYSTEMD_UNIT_INTERFACE,
+                                    QDBusConnection::systemBus());
+
+    auto state = ntpUnitInterface.property(UNIT_PROP_ACTIVE_STATE).toString();
     return (state == "active" || state == "activating");
 }
 
-QString TimedateManager::getUnitObjectPath()
+QString TimedateManager::getUnitObjectPath(const QString &name)
 {
-    RETURN_VAL_IF_TRUE(m_ntpUnitName.size() <= 0, QString());
+    RETURN_VAL_IF_TRUE(name.size() <= 0, QString());
 
-    auto arguments = QList<QVariant>{m_ntpUnitName};
+    auto arguments = QList<QVariant>{name};
     auto replyMessage = callSystemd("LoadUnit", arguments);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING() << "Call Get failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(timedate) << "Call LoadUnit failed: " << replyMessage.errorMessage();
         return QString();
     }
 
@@ -596,7 +616,7 @@ bool TimedateManager::callSystemdNoresult(const QString &methodName, const QList
     auto replyMessage = callSystemd(methodName, arguments);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING() << "Call Get failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(timedate) << "Call Get failed: " << replyMessage.errorMessage();
         return false;
     }
     return true;
@@ -637,6 +657,9 @@ bool TimedateManager::syncHWClock(bool hctosys, bool local, bool utc)
     {
         arguments.append("--utc");
     }
+
+    auto command = QString("%1 %2").arg(HWCLOCK_PATH).arg(arguments.join(" "));
+    KLOG_INFO(timedate) << "Execute" << command << "to sync hardware clock";
 
     m_hwSyncProcess->setProgram(HWCLOCK_PATH);
     m_hwSyncProcess->setArguments(arguments);
@@ -788,8 +811,9 @@ void TimedateManager::finishSetTimezone(const QDBusMessage &message, const QStri
     bool successed = false;
     do
     {
-        if (symlink(link.toLatin1().data(), tmp.toLatin1().data()))
-            break;
+        KLOG_INFO(timedate) << "Set symbol link of" << LOCALTIME_PATH << "to" << link;
+
+        if (symlink(link.toLatin1().data(), tmp.toLatin1().data())) break;
 
         setLocaltimeFileContext(tmp);
 

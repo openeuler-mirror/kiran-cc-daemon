@@ -177,11 +177,11 @@ QVector<uint32_t> AccountsWrapper::getUserGroups(const QString &user, uint32_t g
 
 void AccountsWrapper::init()
 {
-    connect(m_fsWatcher, SIGNAL(fileChanged(const QString &)), this, SLOT(idleReload(const QString &)));
-    connect(m_reloadTimer, SIGNAL(timeout()), this, SLOT(reload()));
-
     reloadPasswd();
     reloadShadow();
+
+    connect(m_fsWatcher, SIGNAL(fileChanged(const QString &)), this, SLOT(idleReload(const QString &)));
+    connect(m_reloadTimer, SIGNAL(timeout()), this, SLOT(reload()));
 }
 
 void AccountsWrapper::reloadPasswd()
@@ -215,6 +215,8 @@ void AccountsWrapper::reloadPasswd()
         }
 
     } while (pwent != NULL);
+
+    KLOG_INFO(accounts) << "Load passwd information from " << PATH_PASSWD << "which contains users" << m_passwds.keys();
 }
 void AccountsWrapper::reloadShadow()
 {
@@ -250,6 +252,8 @@ void AccountsWrapper::reloadShadow()
     } while (shadowEntry != NULL);
 
     fclose(fp);
+
+    KLOG_INFO(accounts) << "Load shadow information from " << PATH_SHADOW << "which contains users" << m_spwds.keys();
 }
 
 void AccountsWrapper::idleReload(const QString &filePath)

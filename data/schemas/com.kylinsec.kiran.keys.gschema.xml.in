@@ -51,11 +51,6 @@
       <summary>Show desktop</summary>
       <description>Binding to show the desktop.</description>
     </key>
-    <key name="start-menu" type="s">
-      <default>'&lt;Super&gt;'</default>
-      <summary>Show the panel's main menu of kiran</summary>
-      <description>Binding to the panel's main menu of kiran.</description>
-    </key>
     <key name="help" type="s">
       <default>''</default>
       <summary>Launch help browser</summary>

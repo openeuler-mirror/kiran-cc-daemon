@@ -18,6 +18,7 @@
 #include <QSharedPointer>
 
 class QGSettings;
+class PowerAdaptor;
 
 namespace Kiran
 {
@@ -119,7 +120,7 @@ private:
 
 private:
     static PowerManager *m_instance;
-
+    PowerAdaptor *m_powerAdaptor;
     PowerWrapperManager *m_wrapperManager;
     PowerBacklight *m_backlight;
     QSharedPointer<PowerUPower> m_upowerClient;

@@ -72,7 +72,7 @@ void ThemeMonitor::init()
             iconThemePath = QString("%1/%2").arg(QDir::homePath()).arg(iconThemePath);
         }
 
-        addIconThemeParent(iconThemePaths[i], i++);
+        addIconThemeParent(iconThemePaths[i], i);
     }
 
     connect(m_filesWatcher, &QFileSystemWatcher::directoryChanged, this, &ThemeMonitor::updateThemeWhenDirChange);

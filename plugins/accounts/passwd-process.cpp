@@ -305,7 +305,7 @@ QString PasswdProcess::translationPasswdTips(const QString &passwdTips)
 
     bool translationSuccess = true;
     auto trimPasswdTipsParts = trimPasswdTips.split('-');
-    for (uint32_t i = 0; i < trimPasswdTipsParts.size(); ++i)
+    for (int i = 0; i < trimPasswdTipsParts.size(); ++i)
     {
         auto trimPasswdTipsPart = trimPasswdTipsParts[i].trimmed();
         trimPasswdTipsParts[i] = translationWithGettext(trimPasswdTipsPart);

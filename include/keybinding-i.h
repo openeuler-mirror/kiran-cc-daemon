@@ -23,6 +23,8 @@ extern "C"
 #define KEYBINDING_OBJECT_PATH "/com/kylinsec/Kiran/SessionDaemon/Keybinding"
 #define KEYBINDING_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SessionDaemon.Keybinding"
 
+#define KGLOBALACCEL_DBUS_NAME "org.kde.kglobalaccel"
+
 /* The example of the shotcut list in json.
 {"system":[
            {"key_combination":"key_comb_1","kind":"kind_1","name":"name_1","uid":"uid_1"},
@@ -53,14 +55,13 @@ extern "C"
 #define KEYS_SCHEMA_ID "com.kylinsec.kiran.keys"
 
 // sound keys
-#define KEYS_SCHEMA_VOLUME_STEP "volume-step"
+#define KEYS_SCHEMA_VOLUME_STEP "volumeStep"
 
 // system keys
 #define KEYS_SCHEMA_HELP "help"
 #define KEYS_SCHEMA_EMAIL "email"
 #define KEYS_SCHEMA_SCREENSAVER "screensaver"
-#define KEYS_SCHEMA_SHOW_DESKTOP "show-desktop"
-#define KEYS_SCHEMA_START_MENU "start-menu"
+#define KEYS_SCHEMA_SHOW_DESKTOP "showDesktop"
 #define KEYS_SCHEMA_LOGOUT "logout"
 #define KEYS_SCHEMA_POWER "power"
 #define KEYS_SCHEMA_HOME "home"

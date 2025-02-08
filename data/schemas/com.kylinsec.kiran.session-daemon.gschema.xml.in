@@ -2,8 +2,12 @@
 <schemalist gettext-domain="@PROJECT_NAME@">
     <schema id="com.kylinsec.kiran.session-daemon" path="/com/kylinsec/kiran/session-daemon/">
         <key name="enabled-plugins" type="as">
-            <default>['appearance', 'audio', 'clipboard', 'display', 'keybinding', 'keyboard', 'mouse', 'touchpad', 'xsettings']</default>
+            <default>['appearance', 'audio', 'clipboard', 'display', 'keybinding', 'keyboard', 'mouse', 'power', 'touchpad', 'xsettings']</default>
             <description>Enabled plugins list.</description>
+        </key>
+        <key name="disabled-plugins" type="as">
+            <default>[]</default>
+            <description>Disabled plugins list which prior to enabled plugins list.</description>
         </key>
     </schema>
 </schemalist>
