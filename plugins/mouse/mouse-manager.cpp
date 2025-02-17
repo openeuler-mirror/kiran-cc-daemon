@@ -43,7 +43,7 @@ MouseManager::MouseManager() : m_leftHanded(false),
 {
     m_adaptor = new MouseAdaptor(this);
     m_mouseSettings = new QGSettings(MOUSE_SCHEMA_ID, "", this);
-    m_inputBackend = InputBackend::getDefault();
+    m_inputBackend = InputBackend::getInstance();
 }
 
 MouseManager::~MouseManager()

@@ -18,9 +18,15 @@
 #include "lib/osdwindow/osd-window.h"
 
 #include <X11/XKBlib.h>
+
+#define XK_MISCELLANY
+#include <X11/keysymdef.h>
+#undef XK_MISCELLANY
+
 #define explicit explicit_is_keyword_in_cpp
 #include <xcb/xkb.h>
 #undef explicit
+
 #include <QX11Info>
 #include "keyboard-manager.h"
 #include "xkb-help.h"
@@ -69,15 +75,15 @@ void ModifierLockManager::init()
 {
     auto dpy = QX11Info::display();
 
-    // TODO:
-    // m_capslockMask = XkbKeysymToModifiers(dpy, XK_Caps_Lock);
-    // m_numlockMask = XkbKeysymToModifiers(dpy, XK_Num_Lock);
-    // m_capslockKeycode = XKeysymToKeycode(dpy, XK_Caps_Lock);
-    // m_numlockKeycode = XKeysymToKeycode(dpy, XK_Num_Lock);
+    m_capslockMask = XkbKeysymToModifiers(dpy, XK_Caps_Lock);
+    m_numlockMask = XkbKeysymToModifiers(dpy, XK_Num_Lock);
+    m_capslockKeycode = XKeysymToKeycode(dpy, XK_Caps_Lock);
+    m_numlockKeycode = XKeysymToKeycode(dpy, XK_Num_Lock);
 
-    KLOG_DEBUG("Xkb keysym capslock mask:%d, keycode:%d; numlock mask:%d, keycode:%d.",
-               m_capslockMask, m_capslockKeycode,
-               m_numlockMask, m_numlockKeycode);
+    KLOG_DEBUG(keyboard) << "Init xkb keysym information. capslock mask is" << m_capslockMask
+                         << ", keycode is" << m_capslockKeycode
+                         << ", numlock mask is" << m_numlockMask
+                         << ", keycode is" << m_numlockKeycode;
 
     if (QCoreApplication::instance() != nullptr && XkbHelp::xkbSupported(m_xkbEventBase))
     {
@@ -89,30 +95,10 @@ void ModifierLockManager::init()
         }
         QCoreApplication::instance()->installNativeEventFilter(this);
     }
-
-    // if (!XkbSelectEventDetails(dpy,
-    //                            XkbUseCoreKbd,
-    //                            XkbStateNotifyMask,
-    //                            XkbModifierLockMask,
-    //                            XkbModifierLockMask))
-    // {
-    //     KLOG_ERROR("Select event details failed.");
-    //     return CCErrorCode::ERROR_FAILED;
-    // }
-
-    // return CCErrorCode::SUCCESS;
-
-    // gdk_window_add_filter(NULL,
-    //                       &ModifierLockManager::window_event,
-    //                       this);
-
-    return;
 }
 
 void ModifierLockManager::setLockAction(xcb_keycode_t keycode, uint8_t mods)
 {
-    KLOG_DEBUG("Choose action keycode:%d, mods:%d.", keycode, mods);
-
     if (keycode == m_capslockKeycode)
     {
         RETURN_IF_FALSE(m_keyboardManager->getCapslockTipsEnabled());
@@ -120,11 +106,11 @@ void ModifierLockManager::setLockAction(xcb_keycode_t keycode, uint8_t mods)
         bool capslockEnable = !!(m_capslockMask & mods);
         if (capslockEnable)
         {
-            OSDWindow::getDefault()->showIcon(IMAGE_CAPSLOCK_ENABLED);
+            OSDWindow::getInstance()->showIcon(IMAGE_CAPSLOCK_ENABLED);
         }
         else
         {
-            OSDWindow::getDefault()->showIcon(IMAGE_CAPSLOCK_DISABLED);
+            OSDWindow::getInstance()->showIcon(IMAGE_CAPSLOCK_DISABLED);
         }
     }
     else if (keycode == m_numlockKeycode)
@@ -134,11 +120,11 @@ void ModifierLockManager::setLockAction(xcb_keycode_t keycode, uint8_t mods)
         bool numlock_enable = !!(m_numlockMask & mods);
         if (numlock_enable)
         {
-            OSDWindow::getDefault()->showIcon(IMAGE_NUMLOCK_ENABLED);
+            OSDWindow::getInstance()->showIcon(IMAGE_NUMLOCK_ENABLED);
         }
         else
         {
-            OSDWindow::getDefault()->showIcon(IMAGE_NUMLOCK_DISABLED);
+            OSDWindow::getInstance()->showIcon(IMAGE_NUMLOCK_DISABLED);
         }
     }
     else

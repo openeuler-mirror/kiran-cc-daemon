@@ -13,6 +13,7 @@
  */
 
 #include "keys-sound.h"
+#include <QDBusMessage>
 #include <QDBusPendingCallWatcher>
 #include <QDBusServiceWatcher>
 #include <QGSettings>
@@ -22,16 +23,23 @@
 #include "audio_device_dbus_proxy.h"
 #include "keybinding-i.h"
 #include "lib/base/base.h"
+#include "lib/osdwindow/osd-window.h"
 
 namespace Kiran
 {
 
-#define ACTION_NAME_VOLUME_MUTE "volume-mute"
-#define ACTION_NAME_VOLUME_DOWN "volume-down"
-#define ACTION_NAME_VOLUME_UP "volume-up"
-#define ACTION_NAME_MIC_VOLUME_MUTE "mic-volume-mute"
-#define ACTION_NAME_MIC_VOLUME_DOWN "mic-volume-down"
-#define ACTION_NAME_MIC_VOLUME_UP "mic-volume-up"
+#define IMAGE_VOLUME_MUTED "osd-audio-volume-muted"
+#define IMAGE_VOLUME_OFF "osd-audio-volume-off"
+#define IMAGE_VOLUME_LOW "osd-audio-volume-low"
+#define IMAGE_VOLUME_MEDIUM "osd-audio-volume-medium"
+#define IMAGE_VOLUME_HIGH "osd-audio-volume-high"
+
+#define ACTION_NAME_VOLUME_MUTE "volumeMute"
+#define ACTION_NAME_VOLUME_DOWN "volumeDown"
+#define ACTION_NAME_VOLUME_UP "volumeUp"
+#define ACTION_NAME_MIC_VOLUME_MUTE "micVolumeMute"
+#define ACTION_NAME_MIC_VOLUME_DOWN "micVolumeDown"
+#define ACTION_NAME_MIC_VOLUME_UP "micVolumeUp"
 #define ACTION_NAME_MEDIA "media"
 #define ACTION_NAME_PLAY "play"
 #define ACTION_NAME_PAUSE "pause"
@@ -87,9 +95,17 @@ void KeysSound::initAudioProxy()
     }
 
     m_audioProxy = new AudioProxy(AUDIO_DBUS_NAME, AUDIO_OBJECT_PATH, QDBusConnection::sessionBus(), this);
+    if (m_audioProxy->state() == AudioState::AUDIO_STATE_READY)
+    {
+        updateAudioDevice();
+    }
 
-    updateAudioDevice();
-    // TODO: 测试不监听state属性变化有没有问题
+    QDBusConnection::sessionBus().connect(AUDIO_DBUS_NAME,
+                                          AUDIO_OBJECT_PATH,
+                                          QStringLiteral("org.freedesktop.DBus.Properties"),
+                                          "PropertiesChanged",
+                                          this,
+                                          SLOT(processPropertiesChanged(const QDBusMessage &)));
     connect(m_audioProxy, &AudioProxy::DefaultSinkChange, this, &KeysSound::updateAudioSinkDevice);
     connect(m_audioProxy, &AudioProxy::DefaultSourceChange, this, &KeysSound::updateAudioSourceDevice);
 }
@@ -110,7 +126,7 @@ void KeysSound::muteDevice(AudioDeviceProxy *deviceProxy)
                 mutedWatcher->deleteLater();
                 if (newMuted)
                 {
-                    // TODO：显示图标
+                    OSDWindow::getInstance()->showIcon(IMAGE_VOLUME_MUTED);
                 }
             });
 }
@@ -167,12 +183,32 @@ void KeysSound::setDeviceVolume(AudioDeviceProxy *deviceProxy, double volume)
     connect(volumeWatcher,
             &QDBusPendingCallWatcher::finished,
             this,
-            [this](QDBusPendingCallWatcher *volumeWatcher)
+            [this, volume](QDBusPendingCallWatcher *volumeWatcher)
             {
                 QDBusPendingReply<> volumeReply = *volumeWatcher;
                 volumeWatcher->deleteLater();
-                // TODO：显示图标
+                OSDWindow::getInstance()->showIcon(volume2Icon(volume));
             });
+}
+
+QString KeysSound::volume2Icon(double volume)
+{
+    if (volume < 0.25)
+    {
+        return IMAGE_VOLUME_OFF;
+    }
+    else if (volume < 0.5)
+    {
+        return IMAGE_VOLUME_LOW;
+    }
+    else if (volume < 0.75)
+    {
+        return IMAGE_VOLUME_MEDIUM;
+    }
+    else
+    {
+        return IMAGE_VOLUME_HIGH;
+    }
 }
 
 void KeysSound::updateAudioDevice()
@@ -189,9 +225,9 @@ void KeysSound::updateAudioSinkDevice()
             this,
             [this](QDBusPendingCallWatcher *defaultSinkWatcher)
             {
-                QDBusPendingReply<QDBusObjectPath> defaultSinkReply = *defaultSinkWatcher;
+                QDBusPendingReply<QString> defaultSinkReply = *defaultSinkWatcher;
                 defaultSinkWatcher->deleteLater();
-                this->m_audioSinkDeviceProxy = new AudioDeviceProxy(AUDIO_DBUS_NAME, defaultSinkReply.value().path(), QDBusConnection::sessionBus(), this);
+                this->m_audioSinkDeviceProxy = new AudioDeviceProxy(AUDIO_DBUS_NAME, defaultSinkReply.value(), QDBusConnection::sessionBus(), this);
             });
 }
 
@@ -203,9 +239,9 @@ void KeysSound::updateAudioSourceDevice()
             this,
             [this](QDBusPendingCallWatcher *defaultSourceWatcher)
             {
-                QDBusPendingReply<QDBusObjectPath> defaultSourceReply = *defaultSourceWatcher;
+                QDBusPendingReply<QString> defaultSourceReply = *defaultSourceWatcher;
                 defaultSourceWatcher->deleteLater();
-                this->m_audioSourceDeviceProxy = new AudioDeviceProxy(AUDIO_DBUS_NAME, defaultSourceReply.value().path(), QDBusConnection::sessionBus(), this);
+                this->m_audioSourceDeviceProxy = new AudioDeviceProxy(AUDIO_DBUS_NAME, defaultSourceReply.value(), QDBusConnection::sessionBus(), this);
             });
 }
 
@@ -241,6 +277,22 @@ void KeysSound::triggerShortCut(const QString &name)
         break;
     default:
         break;
+    }
+}
+
+void KeysSound::processPropertiesChanged(const QDBusMessage &message)
+{
+    QList<QVariant> args = message.arguments();
+    RETURN_IF_TRUE(args.count() != 3);
+
+    QVariantMap changedProperties = qdbus_cast<QVariantMap>(args.at(1).value<QDBusArgument>());
+    auto iter = changedProperties.find("state");
+    RETURN_IF_TRUE(iter == changedProperties.end());
+    auto state = iter.value().toInt();
+    KLOG_INFO(keybinding) << "Audio state changed to" << state;
+    if (state == AudioState::AUDIO_STATE_READY)
+    {
+        updateAudioDevice();
     }
 }
 

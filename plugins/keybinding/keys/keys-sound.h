@@ -19,6 +19,7 @@
 class AudioProxy;
 class AudioDeviceProxy;
 class QDBusServiceWatcher;
+class QDBusMessage;
 
 namespace Kiran
 {
@@ -43,6 +44,7 @@ private:
     void upDeviceVolume(AudioDeviceProxy *deviceProxy);
     // 设置设备音量
     void setDeviceVolume(AudioDeviceProxy *deviceProxy, double volume);
+    QString volume2Icon(double volume);
 
     void updateAudioDevice();
     void updateAudioSinkDevice();
@@ -50,6 +52,9 @@ private:
 
 private:
     virtual void triggerShortCut(const QString &name);
+
+private Q_SLOTS:
+    void processPropertiesChanged(const QDBusMessage &message);
 
 private:
     AudioProxy *m_audioProxy;

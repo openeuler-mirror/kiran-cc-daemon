@@ -18,6 +18,7 @@
 #include <QSharedPointer>
 
 class KeybindingAdaptor;
+class QDBusServiceWatcher;
 
 namespace Kiran
 {

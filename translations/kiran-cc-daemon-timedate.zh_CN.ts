@@ -8,7 +8,7 @@
         <location filename="../plugins/timedate/timedate-format.cpp" line="119"/>
         <location filename="../plugins/timedate/timedate-format.cpp" line="120"/>
         <source>%b %d %Y</source>
-        <translation type="unfinished"></translation>
+        <translation>%Y年%m月%d日</translation>
     </message>
 </context>
 </TS>

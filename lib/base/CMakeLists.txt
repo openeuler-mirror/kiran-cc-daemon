@@ -27,4 +27,5 @@ target_link_libraries(
   ${TARGET_NAME} PUBLIC ${KLOG_QT5_LIBRARIES} ${FMT_LIBRARIES} Qt5::Core
                         Qt5::DBus)
 
+install(FILES ${QM_FILES} DESTINATION ${KCD_INSTALL_TRANSLATIONDIR})
 target_link_libraries(${TARGET_NAME} PRIVATE ${CRYPTOPP_LIBRARIES})

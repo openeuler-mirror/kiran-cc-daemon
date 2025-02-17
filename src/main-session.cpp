@@ -18,6 +18,9 @@
 #include <QCommandLineParser>
 #include <QFileInfo>
 #include "config.h"
+#include "lib/base/misc-utils.h"
+#include "lib/input/input-backend.h"
+#include "lib/osdwindow/osd-window.h"
 #include "src/plugin-manager.h"
 #include "src/session-guarder.h"
 
@@ -43,6 +46,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to init kiran-log.");
     }
 
+    Kiran::MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("kbase"));
+
+    Kiran::OSDWindow::globalInit();
+    Kiran::InputBackend::globalInit();
     Kiran::SessionPluginManager::globalInit(KCD_SESSION_PLUGIN_DIR);
     Kiran::SessionGuarder::globalInit();
     auto sessionGuarder = Kiran::SessionGuarder::getInstance();
@@ -52,6 +59,8 @@ int main(int argc, char *argv[])
 
     Kiran::SessionGuarder::globalDeinit();
     Kiran::SessionPluginManager::globalDeinit();
+    Kiran::InputBackend::globalDeinit();
+    Kiran::OSDWindow::globalDeinit();
 
     return retval;
 }

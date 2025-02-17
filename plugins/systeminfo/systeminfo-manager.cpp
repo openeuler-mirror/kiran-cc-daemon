@@ -100,7 +100,7 @@ QString SystemInfoManager::GetSystemInfo(int type)
         values.insert("mem", jsonMem);
 
         QJsonArray disksValue;
-        for (uint32_t i = 0; i < hardwareInfo.disksInfo.size(); ++i)
+        for (int i = 0; i < hardwareInfo.disksInfo.size(); ++i)
         {
             QJsonObject diskValue;
             diskValue["name"] = hardwareInfo.disksInfo[i].name;
@@ -112,7 +112,7 @@ QString SystemInfoManager::GetSystemInfo(int type)
         values.insert("disks", disksValue);
 
         QJsonArray ethsValue;
-        for (uint32_t i = 0; i < hardwareInfo.ethsInfo.size(); ++i)
+        for (int i = 0; i < hardwareInfo.ethsInfo.size(); ++i)
         {
             QJsonObject ethValue;
             ethValue["model"] = hardwareInfo.ethsInfo[i].model;
@@ -122,7 +122,7 @@ QString SystemInfoManager::GetSystemInfo(int type)
         values.insert("eths", ethsValue);
 
         QJsonArray graphicsValue;
-        for (uint32_t i = 0; i < hardwareInfo.graphicsInfo.size(); ++i)
+        for (int i = 0; i < hardwareInfo.graphicsInfo.size(); ++i)
         {
             QJsonObject graphicValue;
             graphicValue["model"] = hardwareInfo.graphicsInfo[i].model;
@@ -144,6 +144,7 @@ void SystemInfoManager::SetHostName(const QString& hostName)
     PolkitProxy::getDefault()->checkAuthorization(AUTH_SET_HOST_NAME,
                                                   true,
                                                   this->message(),
+                                                  QStringLiteral("SystemInfoManager::SetHostName"),
                                                   std::bind(&SystemInfoManager::processHostNameChanged, this, std::placeholders::_1, hostName));
 }
 

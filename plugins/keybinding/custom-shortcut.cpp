@@ -22,6 +22,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include "config.h"
+#include "keybinding-utils.h"
 #include "lib/base/base.h"
 
 namespace Kiran
@@ -44,6 +45,7 @@ CustomShortcuts::CustomShortcuts()
 
     m_settings = new QSettings(m_confFilePath, QSettings::IniFormat, this);
     m_actionCollection = new KActionCollection(this);
+    m_actionCollection->setComponentName("Custom");
     m_actionCollection->setComponentDisplayName(tr("Custom"));
 }
 
@@ -205,7 +207,18 @@ QString CustomShortcuts::genUid()
 
 bool CustomShortcuts::checkValid(QSharedPointer<CustomShortCut> shortcut)
 {
-    // TODO：待实现
+    if (shortcut->name.length() == 0 ||
+        shortcut->action.length() == 0)
+    {
+        KLOG_WARNING(keybinding) << "The name or action is null string";
+        return false;
+    }
+
+    if (!KeybindingUtils::isValidKeySequence(shortcut->keyComb))
+    {
+        KLOG_WARNING(keybinding) << "The format of the key combination" << shortcut->keyComb << "is invalid.";
+        return false;
+    }
     return true;
 }
 
@@ -222,7 +235,9 @@ void CustomShortcuts::registerShortcut(QSharedPointer<CustomShortCut> shortcut)
                 std::bind(&CustomShortcuts::triggerAction, this, std::placeholders::_1, customAction));
     }
 
-    KGlobalAccel::self()->setShortcut(customAction, QList<QKeySequence>() << shortcut->keyComb);
+    KGlobalAccel::self()->setShortcut(customAction,
+                                      QList<QKeySequence>() << KeybindingUtils::keyCombGtk2Qt(shortcut->keyComb),
+                                      KGlobalAccel::NoAutoloading);
 }
 
 void CustomShortcuts::unregisterShortcut(QSharedPointer<CustomShortCut> shortcut)
@@ -276,15 +291,13 @@ void CustomShortcuts::triggerAction(bool checked, QAction *action)
         arguments.append(argv[i]);
     }
 
-    auto exitCode = QProcess::execute(program, arguments);
-    if (exitCode != 0)
+    KLOG_INFO(keybinding) << "Execute custom shortcut command" << shortcut->action;
+
+    if (!QProcess::startDetached(program, arguments))
     {
-        KLOG_WARNING(keybinding) << "Execute action" << shortcut->action << "failed, exit code is " << exitCode;
+        KLOG_WARNING(keybinding) << "Execute command" << shortcut->action << "failed.";
         return;
     }
-
-    KLOG_INFO(keybinding) << "Execute action" << shortcut->action << "success.";
-    return;
 }
 
 }  // namespace Kiran

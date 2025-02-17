@@ -17,28 +17,27 @@
 #include <QDesktopWidget>
 #include <QIcon>
 #include <QTimer>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
 // dialog show timeout seconds
-#define ICON_SHOW_TIMOUT_MSEC 3000
+#define ICON_SHOW_TIMOUT_MSEC 2000
 #define ICON_SIZE 120
 
 OSDWindow::OSDWindow()
 {
     m_timer = new QTimer(this);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::BypassWindowManagerHint);
+    setAttribute(Qt::WA_TranslucentBackground);
 }
 
 OSDWindow *OSDWindow::m_instance = nullptr;
-OSDWindow *OSDWindow::getDefault()
+
+void OSDWindow::globalInit()
 {
-    if (!m_instance)
-    {
-        m_instance = new OSDWindow();
-        m_instance->init();
-    }
-    return m_instance;
+    m_instance = new OSDWindow();
+    m_instance->init();
 }
 
 void OSDWindow::init()
@@ -57,6 +56,7 @@ void OSDWindow::showIcon(const QString &iconName)
     auto pixmap = icon.pixmap(QSize(ICON_SIZE, ICON_SIZE));
     setPixmap(pixmap);
 
+    // TODO:应该在主显示器中间
     auto desktop = QApplication::desktop();
     auto screenWidth = desktop->width();
     auto screenHeight = desktop->height();

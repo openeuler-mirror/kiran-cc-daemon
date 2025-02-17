@@ -17,6 +17,7 @@
 #include <QTimer>
 #include "../backlight/power-backlight-interface.h"
 #include "../backlight/power-backlight.h"
+#include "../power-utils.h"
 #include "../save/power-save.h"
 #include "../wrapper/power-screensaver.h"
 #include "../wrapper/power-upower-device.h"
@@ -126,20 +127,22 @@ void PowerEventControl::chargeActionEvent(QSharedPointer<PowerUPowerDevice> devi
         return;
     }
 
-    PowerAction action = PowerAction::POWER_ACTION_NOTHING;
+    QString actionStr;
 
     switch (device_props.type)
     {
     case UP_DEVICE_KIND_BATTERY:
-        action = PowerAction(m_powerSettings->get(POWER_SCHEMA_BATTERY_CRITICAL_ACTION).toInt());
+        actionStr = m_powerSettings->get(POWER_SCHEMA_BATTERY_CRITICAL_ACTION).toString();
         break;
     case UP_DEVICE_KIND_UPS:
-        action = PowerAction(m_powerSettings->get(POWER_SCHEMA_UPS_CRITICAL_ACTION).toInt());
+        actionStr = m_powerSettings->get(POWER_SCHEMA_UPS_CRITICAL_ACTION).toString();
         break;
         // Ignore other type
     default:
         return;
     }
+
+    auto action = PowerAction(PowerUtils::eventActionStr2Enum(actionStr));
 
     // 电量过低执行节能操作，延时执行让用户处理一些紧急事务，notification模块中会进行提示
     QTimer::singleShot(POWER_CRITICAL_ACTION_DELAY * 1000, std::bind(&PowerEventControl::doChargeCriticalAction, this, action));
@@ -157,26 +160,28 @@ void PowerEventControl::doChargeCriticalAction(PowerAction action)
 void PowerEventControl::processButtonChanged(PowerEvent evnet)
 {
     QString error;
-    PowerAction action = PowerAction::POWER_ACTION_NOTHING;
 
     switch (evnet)
     {
     case POWER_EVENT_RELEASE_POWEROFF:
     {
-        action = PowerAction(m_powerSettings->get(POWER_SCHEMA_BUTTON_POWER_ACTION).toInt());
+        auto actionStr = m_powerSettings->get(POWER_SCHEMA_BUTTON_POWER_ACTION).toString();
+        auto action = PowerAction(PowerUtils::eventActionStr2Enum(actionStr));
         PowerSave::getInstance()->doSave(action, error);
         break;
     }
     case POWER_EVENT_PRESSED_SLEEP:
     case POWER_EVENT_PRESSED_SUSPEND:
     {
-        action = PowerAction(m_powerSettings->get(POWER_SCHEMA_BUTTON_SUSPEND_ACTION).toInt());
+        auto actionStr = m_powerSettings->get(POWER_SCHEMA_BUTTON_SUSPEND_ACTION).toString();
+        auto action = PowerAction(PowerUtils::eventActionStr2Enum(actionStr));
         PowerSave::getInstance()->doSave(action, error);
         break;
     }
     case POWER_EVENT_PRESSED_HIBERNATE:
     {
-        action = PowerAction(m_powerSettings->get(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION).toInt());
+        auto actionStr = m_powerSettings->get(POWER_SCHEMA_BUTTON_HIBERNATE_ACTION).toString();
+        auto action = PowerAction(PowerUtils::eventActionStr2Enum(actionStr));
         PowerSave::getInstance()->doSave(action, error);
         break;
     }
@@ -192,7 +197,8 @@ void PowerEventControl::processButtonChanged(PowerEvent evnet)
     }
     case POWER_EVENT_LID_CLOSED:
     {
-        action = PowerAction(m_powerSettings->get(POWER_SCHEMA_LID_CLOSED_ACTION).toInt());
+        auto actionStr = m_powerSettings->get(POWER_SCHEMA_LID_CLOSED_ACTION).toString();
+        auto action = PowerAction(PowerUtils::eventActionStr2Enum(actionStr));
         PowerSave::getInstance()->doSave(action, error);
         if (m_lidClosedThrottle)
         {

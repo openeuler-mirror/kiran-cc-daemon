@@ -121,12 +121,14 @@ ushort GreeterManager::getScaleMode() const
 #define WRITE_LIGHTDM_SETTINGS(key, value)                                \
     KConfig lightdmSettings(LIGHTDM_PROFILE_PATH, KConfig::SimpleConfig); \
     auto group = lightdmSettings.group(LIGHTDM_GROUP_NAME);               \
+    KLOG_INFO(greeter) << "Set" << key << "to" << value;                  \
     group.writeEntry(key, value);                                         \
     group.sync();
 
 #define WRITE_GREETER_SETTINGS(key, value)                                 \
     QSettings greeterSettings(GREETER_PROFILE_PATH, QSettings::IniFormat); \
     auto concatKey = QString("%1/%2").arg(GREETER_GROUP_NAME).arg(key);    \
+    KLOG_INFO(greeter) << "Set" << key << "to" << value;                   \
     greeterSettings.setValue(concatKey, value);
 
 void GreeterManager::setAllowManualLogin(bool allow)
@@ -289,7 +291,6 @@ void GreeterManager::loadPropsFromSettings()
 {
     KConfig lightdmSettings(LIGHTDM_PROFILE_PATH, KConfig::SimpleConfig);
     QSettings greeterSettings(GREETER_PROFILE_PATH, QSettings::IniFormat);
-    int scaleMode = GREETER_SCALING_MODE_AUTO;
     int scaleFactor = 1;
 
     greeterSettings.beginGroup(GREETER_GROUP_NAME);

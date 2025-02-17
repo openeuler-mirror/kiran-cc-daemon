@@ -27,8 +27,9 @@ class OSDWindow : public QLabel
 public:
     OSDWindow();
     virtual ~OSDWindow(){};
-
-    static OSDWindow* getDefault();
+    static OSDWindow* getInstance() { return m_instance; };
+    static void globalInit();
+    static void globalDeinit() { delete m_instance; };
 
     void showIcon(const QString& iconName);
 

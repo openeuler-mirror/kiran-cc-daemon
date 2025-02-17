@@ -18,13 +18,18 @@
 
 namespace Kiran
 {
+
 class KeybindingUtils
 {
 public:
     KeybindingUtils();
     virtual ~KeybindingUtils(){};
 
-    static bool isValidKeySequence(const QString& str);
+    static bool isValidKeySequence(const QString& keyCombGtk);
+    // 转换为QKeySequence能识别的字符串，例如<ctrl>k -> ctrl+k
+    static QString keyCombGtk2Qt(const QString& keyCombGtk);
+    // ctrl+k -> <ctrl>k
+    static QString keyCombQt2Gtk(const QString& keyCombQt);
 };  // namespace KS
 
 }  // namespace Kiran

@@ -28,14 +28,14 @@ namespace Kiran
 #define X_HASH(X) CONNECT(X, _hash)
 
 #define TOUCHPAD_SCHEMA_ID "com.kylinsec.kiran.touchpad"
-#define TOUCHPAD_SCHEMA_LEFT_HANDED "left-handed"
-#define TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING "disable-while-typing"
-#define TOUCHPAD_SCHEMA_TAP_TO_CLICK "tap-to-click"
-#define TOUCHPAD_SCHEMA_CLICK_METHOD "click-method"
-#define TOUCHPAD_SCHEMA_SCROLL_METHOD "scroll-method"
-#define TOUCHPAD_SCHEMA_NATURAL_SCROLL "natural-scroll"
-#define TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED "touchpad-enabled"
-#define TOUCHPAD_SCHEMA_MOTION_ACCELERATION "motion-acceleration"
+#define TOUCHPAD_SCHEMA_LEFT_HANDED "leftHanded"
+#define TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING "disableWhileTyping"
+#define TOUCHPAD_SCHEMA_TAP_TO_CLICK "tapToClick"
+#define TOUCHPAD_SCHEMA_CLICK_METHOD "clickMethod"
+#define TOUCHPAD_SCHEMA_SCROLL_METHOD "scrollMethod"
+#define TOUCHPAD_SCHEMA_NATURAL_SCROLL "naturalScroll"
+#define TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED "touchpadEnabled"
+#define TOUCHPAD_SCHEMA_MOTION_ACCELERATION "motionAcceleration"
 
 #define TOUCHPAD_PROP_LEFT_HANDED "libinput Left Handed Enabled"
 #define TOUCHPAD_PROP_DISABLE_WHILE_TYPING "libinput Disable While Typing Enabled"
@@ -61,7 +61,7 @@ TouchPadManager::TouchPadManager() : m_hasTouchpad(false),
 {
     m_adaptor = new TouchPadAdaptor(this);
     m_touchpadSettings = new QGSettings(TOUCHPAD_SCHEMA_ID, "", this);
-    m_inputBackend = InputBackend::getDefault();
+    m_inputBackend = InputBackend::getInstance();
 }
 
 TouchPadManager::~TouchPadManager()
@@ -95,6 +95,7 @@ void TouchPadManager::setClickMethod(int clickMethod)
 {
     RETURN_IF_TRUE(clickMethod == getClickMethod());
 
+    m_clickMethod = clickMethod;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_CLICK_METHOD).toInt() != clickMethod)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_CLICK_METHOD, clickMethod);
@@ -113,6 +114,7 @@ void TouchPadManager::setDisableWhileTyping(bool disableWhileTyping)
 {
     RETURN_IF_TRUE(disableWhileTyping == getDisableWhileTyping());
 
+    m_disableWhileTyping = disableWhileTyping;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING).toBool() != disableWhileTyping)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_DISABLE_WHILE_TYPING, disableWhileTyping);
@@ -136,6 +138,7 @@ void TouchPadManager::setLeftHanded(bool leftHanded)
 {
     RETURN_IF_TRUE(leftHanded == getLeftHanded());
 
+    m_leftHanded = leftHanded;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_LEFT_HANDED).toBool() != leftHanded)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_LEFT_HANDED, leftHanded);
@@ -149,6 +152,7 @@ void TouchPadManager::setMotionAcceleration(double motionAcceleration)
 {
     RETURN_IF_TRUE(std::fabs(motionAcceleration - getMotionAcceleration()) < EPS);
 
+    m_motionAcceleration = motionAcceleration;
     if (std::fabs(m_touchpadSettings->get(TOUCHPAD_SCHEMA_MOTION_ACCELERATION).toDouble() - motionAcceleration) > EPS)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_MOTION_ACCELERATION, motionAcceleration);
@@ -162,6 +166,7 @@ void TouchPadManager::setNaturalScroll(bool naturalScroll)
 {
     RETURN_IF_TRUE(naturalScroll == getNaturalScroll());
 
+    m_naturalScroll = naturalScroll;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_NATURAL_SCROLL).toBool() != naturalScroll)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_NATURAL_SCROLL, naturalScroll);
@@ -175,6 +180,7 @@ void TouchPadManager::setScrollMethod(int scrollMethod)
 {
     RETURN_IF_TRUE(scrollMethod == getScrollMethod());
 
+    m_scrollMethod = scrollMethod;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_SCROLL_METHOD).toInt() != scrollMethod)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_SCROLL_METHOD, scrollMethod);
@@ -188,6 +194,7 @@ void TouchPadManager::setTapToClick(bool tapToClick)
 {
     RETURN_IF_TRUE(tapToClick == getTapToClick());
 
+    m_tapToClick = tapToClick;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_TAP_TO_CLICK).toBool() != tapToClick)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_TAP_TO_CLICK, tapToClick);
@@ -206,6 +213,7 @@ void TouchPadManager::setTouchpadEnabled(bool touchpadEnabled)
 {
     RETURN_IF_TRUE(touchpadEnabled == getTouchpadEnabled());
 
+    m_touchpadEnabled = touchpadEnabled;
     if (m_touchpadSettings->get(TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED).toBool() != touchpadEnabled)
     {
         m_touchpadSettings->set(TOUCHPAD_SCHEMA_TOUCHPAD_ENABLED, touchpadEnabled);

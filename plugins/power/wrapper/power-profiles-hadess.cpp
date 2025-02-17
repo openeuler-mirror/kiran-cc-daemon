@@ -39,10 +39,9 @@ PowerProfilesHadess::PowerProfilesHadess()
 
 void PowerProfilesHadess::init()
 {
-    // TODO:测试第三个参数是否正确？应该是org.freedesktop.DBus.Properties?
     QDBusConnection::systemBus().connect(PROFILES_HADESS_DBUS_NAME,
                                          PROFILES_HADESS_DBUS_OBJECT_PATH,
-                                         PROFILES_HADESS_DBUS_INTERFACE,
+                                         QStringLiteral("org.freedesktop.DBus.Properties"),
                                          "PropertiesChanged",
                                          this,
                                          SLOT(processPropertiesChanged(const QDBusMessage &)));
@@ -56,7 +55,6 @@ bool PowerProfilesHadess::switchProfile(int32_t profileMode)
                                                       "org.freedesktop.DBus.Properties",
                                                       "Set");
 
-    // TODO:测试第三个参数是否生效
     sendMessage << QString(PROFILES_HADESS_DBUS_INTERFACE)
                 << QString(PROFILES_HADESS_DBUS_PROP_ACTIVE_PROFILE)
                 << QVariant::fromValue(QDBusVariant(profileModeStr));

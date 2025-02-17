@@ -48,7 +48,6 @@ QList<QSharedPointer<InputDevice>> XInputBackend::getDevices() const
     QList<QSharedPointer<InputDevice>> inputDevices;
 
     auto reply = XCB_REPLY(xcb_input_list_input_devices, m_xcbConnection->getConnection());
-    auto xcbDevices = xcb_input_list_input_devices_devices(reply.get());
     auto xcbDeviceIter = xcb_input_list_input_devices_devices_iterator(reply.get());
     auto xcbDeviceNameIter = xcb_input_list_input_devices_names_iterator(reply.get());
     QStringList inputDeviceNames;

@@ -24,16 +24,15 @@ namespace Kiran
 QSharedPointer<PowerProfiles> PowerProfiles::create()
 {
     QGSettings powerSettings(POWER_SCHEMA_ID, "");
-    // TODO: 枚举类型用toInt是否有问题
-    auto profilesPolicy = powerSettings.get(POWER_SCHEMA_PROFILE_POLICY).toInt();
-    switch (profilesPolicy)
+    auto profilesPolicy = powerSettings.get(POWER_SCHEMA_PROFILE_POLICY).toString();
+    switch (shash(profilesPolicy.toUtf8().data()))
     {
-    case PowerProfilePolicy::POWER_PROFILE_POLICY_HADESS:
-        return QSharedPointer<PowerProfilesHadess>();
-    case PowerProfilePolicy::POWER_PROFILE_POLICY_TUNED:
-        return QSharedPointer<PowerProfilesTuned>();
+    case "hadess"_hash:
+        return QSharedPointer<PowerProfilesHadess>::create();
+    case "tuned"_hash:
+        return QSharedPointer<PowerProfilesTuned>::create();
     default:
-        return QSharedPointer<PowerProfilesTuned>();
+        return QSharedPointer<PowerProfilesTuned>::create();
     }
 }
 }  // namespace Kiran

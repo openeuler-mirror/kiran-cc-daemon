@@ -13,9 +13,12 @@
  */
 
 #include "power-plugin.h"
+#include <QTranslator>
 #include "backlight/power-backlight.h"
+#include "config.h"
 #include "event/power-event-control.h"
 #include "idle/power-idle-control.h"
+#include "lib/base/misc-utils.h"
 #include "notification/power-notification-manager.h"
 #include "power-manager.h"
 #include "save/power-save.h"
@@ -26,6 +29,8 @@ namespace Kiran
 
 void PowerPlugin::activate()
 {
+    m_translator = MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("power"));
+
     PowerWrapperManager::globalInit();
     PowerBacklight::globalInit();
     PowerManager::globalInit(PowerWrapperManager::getInstance(), PowerBacklight::getInstance());
@@ -44,5 +49,7 @@ void PowerPlugin::deactivate()
     PowerManager::globalDeinit();
     PowerBacklight::globalDeinit();
     PowerWrapperManager::globalDeinit();
+
+    MiscUtils::removeTranslator(m_translator);
 }
 }  // namespace Kiran

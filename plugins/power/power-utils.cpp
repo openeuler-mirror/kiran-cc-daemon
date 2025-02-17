@@ -70,6 +70,106 @@ QString PowerUtils::actionEnum2str(uint32_t action)
     };
 }
 
+QString PowerUtils::eventActionEnum2Str(int eventAction)
+{
+    switch (eventAction)
+    {
+    case POWER_ACTION_DISPLAY_OFF:
+        return "blank";
+    case POWER_ACTION_COMPUTER_SUSPEND:
+        return "suspend";
+    case POWER_ACTION_COMPUTER_SHUTDOWN:
+        return "shutdown";
+    case POWER_ACTION_COMPUTER_HIBERNATE:
+        return "hibernate";
+    default:
+        break;
+    }
+    return "nothing";
+}
+
+int PowerUtils::eventActionStr2Enum(QString eventActionStr)
+{
+    switch (shash(eventActionStr.toUtf8().data()))
+    {
+    case "blank"_hash:
+        return POWER_ACTION_DISPLAY_OFF;
+    case "suspend"_hash:
+        return POWER_ACTION_COMPUTER_SUSPEND;
+    case "shutdown"_hash:
+        return POWER_ACTION_COMPUTER_SHUTDOWN;
+    case "hibernate"_hash:
+        return POWER_ACTION_COMPUTER_HIBERNATE;
+    default:
+        break;
+    }
+    return POWER_ACTION_NOTHING;
+}
+
+QString PowerUtils::monitorActionEnum2Str(int monitorAction)
+{
+    switch (monitorAction)
+    {
+    case POWER_ACTION_DISPLAY_STANDBY:
+        return "standby";
+    case POWER_ACTION_DISPLAY_SUSPEND:
+        return "suspend";
+    case POWER_ACTION_DISPLAY_OFF:
+        return "off";
+    default:
+        break;
+    }
+    return "nothing";
+}
+
+int PowerUtils::monitorActionStr2Enum(QString monitorActionStr)
+{
+    switch (shash(monitorActionStr.toUtf8().data()))
+    {
+    case "standby"_hash:
+        return POWER_ACTION_DISPLAY_STANDBY;
+    case "suspend"_hash:
+        return POWER_ACTION_DISPLAY_SUSPEND;
+    case "off"_hash:
+        return POWER_ACTION_DISPLAY_OFF;
+    default:
+        break;
+    }
+    return POWER_ACTION_NOTHING;
+}
+
+QString PowerUtils::computerActionEnum2Str(int computerAction)
+{
+    switch (computerAction)
+    {
+    case POWER_ACTION_COMPUTER_SUSPEND:
+        return "suspend";
+    case POWER_ACTION_COMPUTER_SHUTDOWN:
+        return "shutdown";
+    case POWER_ACTION_COMPUTER_HIBERNATE:
+        return "hibernate";
+    default:
+        break;
+    }
+    return "nothing";
+}
+
+int PowerUtils::computerActionStr2Enum(QString computerActionStr)
+{
+    switch (shash(computerActionStr.toUtf8().data()))
+    {
+    case "suspend"_hash:
+        return POWER_ACTION_COMPUTER_SUSPEND;
+    case "shutdown"_hash:
+        return POWER_ACTION_COMPUTER_SHUTDOWN;
+    case "hibernate"_hash:
+        return POWER_ACTION_COMPUTER_HIBERNATE;
+    default:
+        break;
+    }
+    return POWER_ACTION_NOTHING;
+}
+
 QString PowerUtils::eventEnum2str(uint32_t event)
 {
     switch (event)

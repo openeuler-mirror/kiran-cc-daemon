@@ -42,8 +42,8 @@ namespace Kiran
 #define LOGIN1_DBUS_OBJECT_PATH "/org/freedesktop/login1"
 #define LOGIN1_MANAGER_DBUS_INTERFACE "org.freedesktop.login1.Manager"
 
-AccountsManager::AccountsManager(AccountsWrapper *accountsWrapper) : m_accountsWrapper(accountsWrapper),
-                                                                     m_adaptor(nullptr)
+AccountsManager::AccountsManager(AccountsWrapper *accountsWrapper) : m_adaptor(nullptr),
+                                                                     m_accountsWrapper(accountsWrapper)
 {
     m_lightdmFileWatcher = new QFileSystemWatcher(QStringList{LIGHTDM_PROFILE_PATH}, this);
     auto systemConnection = QDBusConnection::systemBus();
@@ -146,6 +146,7 @@ void AccountsManager::DeleteUser(qulonglong uid, bool removeFiles)
     PolkitProxy::getDefault()->checkAuthorization(AUTH_USER_ADMIN,
                                                   true,
                                                   this->message(),
+                                                  QStringLiteral("AccountsManager::DeleteUser"),
                                                   std::bind(&AccountsManager::deleteUserAuthenticated, this, std::placeholders::_1, uid, removeFiles));
 
     return;
@@ -291,19 +292,21 @@ void AccountsManager::deleteUserAuthenticated(const QDBusMessage &message,
 
 void AccountsManager::init()
 {
-    connect(m_accountsWrapper, SIGNAL(userChanged()), this, SLOT(reloadUsers()));
-    connect(m_lightdmFileWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path)
-            { this->updateAutomaticLogin(); });
-
     CryptoHelper::generateRSAKey(RSA_KEY_LENGTH, m_rsaPrivateKey, m_rsaPublicKey);
     reloadUsers();
     updateAutomaticLogin();
+
+    connect(m_accountsWrapper, SIGNAL(userChanged()), this, SLOT(reloadUsers()));
+    connect(m_lightdmFileWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path)
+            { this->updateAutomaticLogin(); });
 }
 
 void AccountsManager::updateAutomaticLogin()
 {
     auto userName = getAutomaticLoginUserFromSettings();
     setAutomaticLoginUser(userName);
+
+    KLOG_INFO(accounts) << "The automatic login user is" << userName;
 }
 
 void AccountsManager::setAutomaticLoginUserToSettings(const QString &userName)
@@ -355,7 +358,7 @@ QMap<QString, QSharedPointer<User>> AccountsManager::loadUsers()
         users.insert(user->getUserName(), user);
     }
 
-    KLOG_INFO(accounts) << "Ignore some user:" << skipUsersName;
+    KLOG_INFO(accounts) << "Load user list which ignored users contain" << skipUsersName;
     return users;
 }
 
@@ -383,13 +386,14 @@ QSharedPointer<User> AccountsManager::findAndCreateUserByID(uint64_t uid)
     auto pwent = m_accountsWrapper->getPasswdByUID(uid);
     if (!pwent)
     {
+        KLOG_WARNING(accounts) << "Unable to lookup user name" << uid;
         return nullptr;
     }
 
     auto user = m_users.value(QString(pwent->name));
     if (!user)
     {
-        KLOG_DEBUG(accounts) << "Unable to lookup user by uid " << uid;
+        KLOG_INFO(accounts) << "Unable to lookup object for user" << uid << ", prepare to add it.";
         auto spent = m_accountsWrapper->getSpwdByName(pwent->name);
         user = addNewUserForPwent(pwent, spent);
         m_explicitlyRequestedUsers.insert(pwent->name);

@@ -68,7 +68,7 @@ public:
 
     void setDefaultStyle(uint style);
     void setPrimary(const QString& name);
-    void setWindowScalingFactor(int window_scaling_factor);
+    void setWindowScalingFactor(int windowScalingFactor);
 
 public Q_SLOTS:
     // 应用之前通过dbus调用做的修改
@@ -84,7 +84,7 @@ public Q_SLOTS:
     // 设置主显示器
     void SetPrimary(const QString& name);
     // 设置窗口缩放因子
-    void SetWindowScalingFactor(int window_scaling_factor);
+    void SetWindowScalingFactor(int windowScalingFactor);
     // 切换显示模式
     void SwitchStyle(uint style);
 Q_SIGNALS:  // SIGNALS
@@ -144,7 +144,8 @@ private:
     void processConfigureChanged();
     void processSettingsChanged(const QString& key);
 
-    QString styleEnum2str(DisplayStyle style);
+    QString styleEnum2Str(int style);
+    int styleStr2Enum(QString style);
 
 private:
     static DisplayManager* m_instance;

@@ -50,10 +50,10 @@ QString ISOTranslation::getLocaleCountryName(const QString &code)
 
 QString ISOTranslation::getLocaleString(const QString &str, const QString &delimeters)
 {
-    size_t start = 0;
+    int start = 0;
     QString result;
 
-    for (size_t pos = 0; pos < str.length(); ++pos)
+    for (int pos = 0; pos < str.length(); ++pos)
     {
         if (delimeters.contains(str.at(pos)))
         {

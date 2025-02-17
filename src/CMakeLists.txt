@@ -37,8 +37,8 @@ target_include_directories(
                                    ${GSETTINGS_QT_INCLUDE_DIRS})
 
 target_link_libraries(
-  ${TARGET_SESSION_DAEMON} PRIVATE ${GSETTINGS_QT_LIBRARIES} kbase Qt5::DBus
-                                   Qt5::Widgets)
+  ${TARGET_SESSION_DAEMON} PRIVATE ${GSETTINGS_QT_LIBRARIES} kbase kosdwindow
+                                   kinput Qt5::DBus Qt5::Widgets)
 
 install(TARGETS ${TARGET_SESSION_DAEMON}
         DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

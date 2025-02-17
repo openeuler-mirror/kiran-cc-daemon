@@ -65,10 +65,9 @@ PowerUPowerDevice::PowerUPowerDevice(const QString& objectPath) : m_objectPath(o
                                                  this);
 
     loadDeviceProps();
-    // TODO:测试第三个参数是否正确？应该是org.freedesktop.DBus.Properties?
     QDBusConnection::systemBus().connect(UPOWER_DEVICE_DBUS_NAME,
                                          m_objectPath,
-                                         UPOWER_DEVICE_DBUS_INTERFACE,
+                                         QStringLiteral("org.freedesktop.DBus.Properties"),
                                          "PropertiesChanged",
                                          this,
                                          SLOT(processPropertiesChanged(const QDBusMessage&)));

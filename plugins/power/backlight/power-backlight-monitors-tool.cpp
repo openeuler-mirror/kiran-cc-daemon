@@ -38,7 +38,6 @@ PowerBacklightMonitorsTool::PowerBacklightMonitorsTool()
 
 bool PowerBacklightMonitorsTool::supportBacklight()
 {
-    // TODO:这里去掉了pkexec，需要测试是否有权限
     QProcess process;
     process.start(POWER_BACKLIGHT_HELPER, QStringList{"--support-backlight"});
     process.waitForFinished();
@@ -64,14 +63,13 @@ void PowerBacklightMonitorsTool::init()
 
 QString PowerBacklightMonitorsTool::getBacklightDir()
 {
-    // TODO:这里去掉了pkexec，需要测试是否有权限
     QProcess process;
-    process.start(POWER_BACKLIGHT_HELPER, QStringList{"--get-backlight-dir"});
+    process.start(POWER_BACKLIGHT_HELPER, QStringList{"--get-backlight-directory"});
     process.waitForFinished();
 
     if (process.exitCode() != 0)
     {
-        auto command = QString("%1 --get-backlight-dir").arg(POWER_BACKLIGHT_HELPER);
+        auto command = QString("%1 --get-backlight-directory").arg(POWER_BACKLIGHT_HELPER);
         KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
         return QString();
     }

@@ -163,9 +163,9 @@ void DisplayMonitor::setEnabled(bool enabled)
 
 void DisplayMonitor::setID(uint id)
 {
-    if (m_output->id() != id)
+    if (m_output->id() != int(id))
     {
-        m_output->setId(id);
+        m_output->setId(int(id));
         SEND_PROPERTY_NOTIFY(id, ID);
     }
 }

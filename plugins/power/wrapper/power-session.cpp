@@ -44,16 +44,16 @@ enum GsmInhibitorFlag
 };
 
 PowerSession::PowerSession() : m_isIdle(false),
-                               isIdleInhibited(false),
-                               isSuspendInhibited(false)
+                               m_isIdleInhibited(false),
+                               m_isSuspendInhibited(false)
 {
 }
 
 void PowerSession::init()
 {
     m_isIdle = getIdle();
-    isIdleInhibited = getInhibited(GSM_INHIBITOR_FLAG_IDLE);
-    isSuspendInhibited = getInhibited(GSM_INHIBITOR_FLAG_SUSPEND);
+    m_isIdleInhibited = getInhibited(GSM_INHIBITOR_FLAG_IDLE);
+    m_isSuspendInhibited = getInhibited(GSM_INHIBITOR_FLAG_SUSPEND);
 
     QDBusConnection::sessionBus().connect(MATE_SESSION_DBUS_NAME,
                                           MATE_SESSION_DBUS_OBJECT,
@@ -230,10 +230,10 @@ void PowerSession::processInhibitorChanged(const QDBusMessage& message)
     auto isIdleInhibited = getInhibited(GSM_INHIBITOR_FLAG_IDLE);
     auto isSuspendInhibited = getInhibited(GSM_INHIBITOR_FLAG_SUSPEND);
 
-    if (isIdleInhibited != isIdleInhibited || isSuspendInhibited != isSuspendInhibited)
+    if (m_isIdleInhibited != isIdleInhibited || m_isSuspendInhibited != isSuspendInhibited)
     {
-        isIdleInhibited = isIdleInhibited;
-        isSuspendInhibited = isSuspendInhibited;
+        m_isIdleInhibited = isIdleInhibited;
+        m_isSuspendInhibited = isSuspendInhibited;
         Q_EMIT inhibitorChanged();
     }
 }

@@ -35,7 +35,7 @@ target_compile_definitions(${TARGET_NAME}
                            PRIVATE -DKCC_ISO_CODES_PREFIX="${ISO_CODES_PREFIX}")
 
 target_link_libraries(
-  ${TARGET_NAME} PRIVATE ${LIBXML2_LIBRARIES} ${GSETTINGS_QT_LIBRARIES} kbase osdwindow
-                         Qt5::X11Extras Qt5::Widgets)
+  ${TARGET_NAME} PRIVATE ${LIBXML2_LIBRARIES} ${GSETTINGS_QT_LIBRARIES} kbase
+                         kosdwindow Qt5::X11Extras Qt5::Widgets)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

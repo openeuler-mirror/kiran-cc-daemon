@@ -13,18 +13,25 @@
  */
 
 #include "display-plugin.h"
+#include <QTranslator>
+#include "config.h"
 #include "display-manager.h"
+#include "lib/base/misc-utils.h"
 
 namespace Kiran
 {
 
 void DisplayPlugin::activate()
 {
+    m_translator = MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("display"));
+
     DisplayManager::globalInit();
 }
 
 void DisplayPlugin::deactivate()
 {
     DisplayManager::globalDeinit();
+
+    MiscUtils::removeTranslator(m_translator);
 }
 }  // namespace Kiran

@@ -31,6 +31,7 @@ namespace Kiran
         PolkitProxy::getDefault()->checkAuthorization(action,                                                        \
                                                       true,                                                          \
                                                       this->message(),                                               \
+                                                      QString("%1::%2").arg(#className).arg(#funName),               \
                                                       std::bind(&className::callback, this, std::placeholders::_1)); \
     }
 
@@ -41,6 +42,7 @@ namespace Kiran
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                \
                                                       true,                                                                  \
                                                       this->message(),                                                       \
+                                                      QString("%1::%2").arg(#className).arg(#funName),                       \
                                                       std::bind(&className::callback, this, std::placeholders::_1, value1)); \
     }
 
@@ -51,27 +53,8 @@ namespace Kiran
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                        \
                                                       true,                                                                          \
                                                       this->message(),                                                               \
+                                                      QString("%1::%2").arg(#className).arg(#funName),                               \
                                                       std::bind(&className::callback, this, std::placeholders::_1, value1, value2)); \
-    }
-
-#define CHECK_AUTH_WITH_3ARGS(className, funName, callback, action, arg1Type, arg2Type, arg3Type)                                            \
-    void className::funName(arg1Type value1, arg2Type value2, arg3Type value3)                                                               \
-    {                                                                                                                                        \
-        this->setDelayedReply(true);                                                                                                         \
-        PolkitProxy::getDefault()->checkAuthorization(action,                                                                                \
-                                                      true,                                                                                  \
-                                                      this->message(),                                                                       \
-                                                      std::bind(&className::callback, this, std::placeholders::_1, value1, value2, value3)); \
-    }
-
-#define CHECK_AUTH_WITH_4ARGS(className, funName, callback, action, arg1Type, arg2Type, arg3Type, arg4Type)                                          \
-    void className::funName(arg1Type value1, arg2Type value2, arg3Type value3, arg4Type value4)                                                      \
-    {                                                                                                                                                \
-        this->setDelayedReply(true);                                                                                                                 \
-        PolkitProxy::getDefault()->checkAuthorization(action,                                                                                        \
-                                                      true,                                                                                          \
-                                                      this->message(),                                                                               \
-                                                      std::bind(&className::callback, this, std::placeholders::_1, value1, value2, value3, value4)); \
     }
 
 #define CHECK_AUTH_WITH_0ARGS_AND_RETVAL(className, retType, funName, callback, action)                              \
@@ -81,30 +64,9 @@ namespace Kiran
         PolkitProxy::getDefault()->checkAuthorization(action,                                                        \
                                                       true,                                                          \
                                                       this->message(),                                               \
+                                                      QString("%1::%2").arg(#className).arg(#funName),               \
                                                       std::bind(&className::callback, this, std::placeholders::_1)); \
         return retType();                                                                                            \
-    }
-
-#define CHECK_AUTH_WITH_1ARGS_AND_RETVAL(className, retType, funName, callback, action, arg1Type)                            \
-    retType className::funName(arg1Type value1)                                                                              \
-    {                                                                                                                        \
-        this->setDelayedReply(true);                                                                                         \
-        PolkitProxy::getDefault()->checkAuthorization(action,                                                                \
-                                                      true,                                                                  \
-                                                      this->message(),                                                       \
-                                                      std::bind(&className::callback, this, std::placeholders::_1, value1)); \
-        return retType();                                                                                                    \
-    }
-
-#define CHECK_AUTH_WITH_3ARGS_AND_RETVAL(className, retType, funName, callback, action, arg1Type, arg2Type, arg3Type)                        \
-    retType className::funName(arg1Type value1, arg2Type value2, arg3Type value3)                                                            \
-    {                                                                                                                                        \
-        this->setDelayedReply(true);                                                                                                         \
-        PolkitProxy::getDefault()->checkAuthorization(action,                                                                                \
-                                                      true,                                                                                  \
-                                                      this->message(),                                                                       \
-                                                      std::bind(&className::callback, this, std::placeholders::_1, value1, value2, value3)); \
-        return retType();                                                                                                                    \
     }
 
 #define CHECK_AUTH_WITH_4ARGS_AND_RETVAL(className, retType, funName, callback, action, arg1Type, arg2Type, arg3Type, arg4Type)                      \
@@ -114,6 +76,7 @@ namespace Kiran
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                                        \
                                                       true,                                                                                          \
                                                       this->message(),                                                                               \
+                                                      QString("%1::%2").arg(#className).arg(#funName),                                               \
                                                       std::bind(&className::callback, this, std::placeholders::_1, value1, value2, value3, value4)); \
         return retType();                                                                                                                            \
     }
@@ -135,12 +98,14 @@ public:
         QTimer timer;
         QString cancelString;
         QDBusMessage message;
+        QString handlerName;
         checkAuthHandler handler;
     };
 
     void checkAuthorization(const QString &action,
                             bool userInteraction,
                             const QDBusMessage &message,
+                            const QString &handlerName,
                             checkAuthHandler handler);
 
 private:

@@ -34,6 +34,7 @@ PowerEventButton::PowerEventButton(QObject *parent) : QObject(parent),
 {
     m_upowerClient = PowerWrapperManager::getInstance()->getDefaultUpower();
     m_actionCollection = new KActionCollection(this);
+    m_actionCollection->setComponentName("Power Management");
     m_actionCollection->setComponentDisplayName(tr("Power Management"));
     m_buttonTimer = new QElapsedTimer();
     m_powerOffTimer = new QTimer(this);
@@ -103,10 +104,11 @@ void PowerEventButton::init()
                    tr("Toggle Keyboard Backlight"),
                    PowerEvent::POWER_EVENT_PRESSED_KBD_BRIGHT_TOGGLE);
 
-    registerButton(Qt::Key_ScreenSaver,
-                   QLatin1String("Lock Screen"),
-                   tr("Lock Screen"),
-                   PowerEvent::POWER_EVENT_PRESSED_LOCK);
+    // 因为keybinding中已经将super+L作为锁屏的快捷键，且Key_ScreenSaver按键不常用，所以这里先不注册锁屏的快捷键
+    // registerButton(Qt::Key_ScreenSaver,
+    //                QLatin1String("Lock Screen"),
+    //                tr("Lock Screen"),
+    //                PowerEvent::POWER_EVENT_PRESSED_LOCK);
 
     m_buttonTimer->start();
 

@@ -3,7 +3,6 @@ set(TARGET_NAME timedate)
 file(GLOB_RECURSE TIMEDATE_H_FILES ./*.h)
 file(GLOB_RECURSE TIMEDATE_CPP_FILES ./*.cpp)
 
-pkg_search_module(SELINUX REQUIRED libselinux)
 
 qt5_add_dbus_adaptor(
   TIMEDATE_SRCS

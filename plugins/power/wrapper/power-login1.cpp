@@ -13,6 +13,7 @@
  */
 
 #include "power-login1.h"
+#include <fcntl.h>
 #include <glib.h>
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -54,11 +55,8 @@ int32_t PowerLogin1::inhibit(const QString& what)
     }
     else
     {
-        // TODO:测试返回值是否正确
         auto systemdInhibitFd = replyMessage.arguments().takeFirst().value<QDBusUnixFileDescriptor>();
-        auto fd = systemdInhibitFd.fileDescriptor();
-        KLOG_INFO(power) << "Inhibit file descriptor: " << fd;
-        return fd;
+        return fcntl(systemdInhibitFd.fileDescriptor(), F_DUPFD_CLOEXEC, 0);
     }
     return -1;
 }

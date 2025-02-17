@@ -41,6 +41,7 @@ QSharedPointer<EWMH> EWMH::getDefault()
     if (m_instance.isNull())
     {
         m_instance = QSharedPointer<EWMH>::create();
+        m_instance->init();
     }
     return m_instance;
 }
@@ -70,8 +71,9 @@ QStringList EWMH::getWmKeybindings()
 QString EWMH::getWmProperty(xcb_atom_t atom)
 {
     auto utf8StringAtom = m_xcbConnection->getAtom("UTF8_STRING");
-    RETURN_VAL_IF_TRUE(utf8StringAtom == XCB_ATOM_NONE, QString());
 
+    RETURN_VAL_IF_TRUE(atom == XCB_ATOM_NONE, QString());
+    RETURN_VAL_IF_TRUE(utf8StringAtom == XCB_ATOM_NONE, QString());
     RETURN_VAL_IF_TRUE(m_wmWindow == XCB_ATOM_NONE, QString());
 
     auto propertyReply = XCB_REPLY(xcb_get_property,
@@ -86,7 +88,7 @@ QString EWMH::getWmProperty(xcb_atom_t atom)
         propertyReply->type != utf8StringAtom ||
         propertyReply->format != 8)
     {
-        KLOG_WARNING(xsettings) << "Failed to get window manager property for atom" << atom;
+        KLOG_WARNING() << "Failed to get window manager property for atom" << atom;
         return QString();
     }
 
@@ -110,7 +112,7 @@ void EWMH::init()
 
     if (!rootWindowPropertyReply)
     {
-        KLOG_WARNING(xsettings) << "Failed to get window attributes for root window";
+        KLOG_WARNING() << "Failed to get window attributes for root window";
     }
 
     auto existedEvents = rootWindowPropertyReply ? rootWindowPropertyReply->your_event_mask : XCB_EVENT_MASK_NO_EVENT;
@@ -140,14 +142,14 @@ void EWMH::updateWmWindow()
                                 1);
     if (!wmXidReply || wmXidReply->type != XCB_ATOM_WINDOW || wmXidReply->format != 32)
     {
-        KLOG_WARNING(xsettings) << "Failed to get property for" << NET_SUPPORTING_WM_CHECK;
+        KLOG_WARNING() << "Failed to get property for" << NET_SUPPORTING_WM_CHECK;
         return;
     }
-    auto wmXid = *((xcb_window_t*)xcb_get_property_value(wmXidReply.get()));
+    m_wmWindow = *((xcb_window_t*)xcb_get_property_value(wmXidReply.get()));
 
     const quint32 interestedEvents[] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
     xcb_change_window_attributes(m_xcbConnection->getConnection(),
-                                 wmXid,
+                                 m_wmWindow,
                                  XCB_CW_EVENT_MASK,
                                  interestedEvents);
 

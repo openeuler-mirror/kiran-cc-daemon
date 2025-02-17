@@ -22,17 +22,14 @@
 
 int main(int argc, char* argv[])
 {
-    auto programName = QString("kiran-power-backlight-helper");
-
     QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName(programName);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
     QTranslator translator;
     Kiran::PowerBacklightHelper backlightHelper;
 
-    klog_qt5_init(QString(), "kylinsec-system", PROJECT_NAME, programName);
+    klog_qt5_init(QString(), "kylinsec-system", PROJECT_NAME, QCoreApplication::applicationName());
 
-    if (!translator.load(QLocale(), qAppName(), ".", KCD_INSTALL_TRANSLATIONDIR, ".qm"))
+    if (!translator.load(QLocale(), QCoreApplication::applicationName(), ".", KCD_INSTALL_TRANSLATIONDIR, ".qm"))
     {
         KLOG_WARNING() << "Load translator failed!";
     }

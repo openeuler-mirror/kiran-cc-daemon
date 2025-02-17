@@ -13,18 +13,25 @@
  */
 
 #include "keybinding-plugin.h"
+#include <QTranslator>
+#include "config.h"
 #include "keybinding-manager.h"
+#include "lib/base/misc-utils.h"
 
 namespace Kiran
 {
 
 void KeybindingPlugin::activate()
 {
+    m_translator = MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("keybinding"));
+
     KeybindingManager::globalInit();
 }
 
 void KeybindingPlugin::deactivate()
 {
     KeybindingManager::globalDeinit();
+
+    MiscUtils::removeTranslator(m_translator);
 }
 }  // namespace Kiran

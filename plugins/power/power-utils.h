@@ -18,6 +18,7 @@
 
 namespace Kiran
 {
+
 class PowerUtils : public QObject
 {
     Q_OBJECT
@@ -28,6 +29,12 @@ public:
 
     static QString getTimeTranslation(uint32_t seconds);
     static QString actionEnum2str(uint32_t action);
+    static QString eventActionEnum2Str(int eventAction);
+    static int eventActionStr2Enum(QString eventActionStr);
+    static QString monitorActionEnum2Str(int monitorAction);
+    static int monitorActionStr2Enum(QString monitorActionStr);
+    static QString computerActionEnum2Str(int computerAction);
+    static int computerActionStr2Enum(QString computerActionStr);
     static QString eventEnum2str(uint32_t event);
     static QString deviceEnum2str(uint32_t device);
     static QString supplyEnum2str(uint32_t supply);

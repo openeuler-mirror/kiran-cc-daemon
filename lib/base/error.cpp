@@ -159,13 +159,6 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_DISPLAY_COMMON_MODE_NOTFOUND:
         errorDesc = tr("The mode of monitors which contain resolution and refresh rate is no intersection.");
         break;
-    case CCErrorCode::ERROR_DISPLAY_SET_AUTO_MODE_FAILED:
-        errorDesc = tr("Auto mode is set failed.");
-        break;
-    case CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1:
-    case CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_2:
-        errorDesc = tr("Failed to set the window scaling factor.");
-        break;
     case CCErrorCode::ERROR_DISPLAY_CONFIG_IS_EMPTY:
         errorDesc = tr("The custom configuration file isn't found.");
         break;
@@ -247,35 +240,14 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_ALREADY_EXIST:
         errorDesc = tr("The layout already exist.");
         break;
-    case CCErrorCode::ERROR_KEYBOARD_LAYOUT_SET_FAILED:
-        errorDesc = tr("Failed to set the layout.");
-        break;
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_NOT_EXIST:
         errorDesc = tr("The layout is no exist.");
-        break;
-    case CCErrorCode::ERROR_KEYBOARD_LAYOUT_UPDATE_FAILED:
-        errorDesc = tr("Failed to update the layout.");
         break;
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_ALREADY_EXIST:
         errorDesc = tr("The layout option already exist.");
         break;
-    case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_SET_FAILED:
-        errorDesc = tr("Failed to set the layout option.");
-        break;
     case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_NOT_EXIST:
         errorDesc = tr("The layout option is no exist.");
-        break;
-    case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_UPDATE_FAILED:
-        errorDesc = tr("Failed to update the layout option.");
-        break;
-    case CCErrorCode::ERROR_KEYBOARD_LAYOUT_OPTION_CLEAR_FAILED:
-        errorDesc = tr("Failed to clear the layout option.");
-        break;
-    case CCErrorCode::ERROR_KEYBOARD_SWITCH_CAPSLOCK_TIPS_FAILED:
-        errorDesc = tr("Failed to switch the capslock tips.");
-        break;
-    case CCErrorCode::ERROR_KEYBOARD_SWITCH_NUMLOCK_TIPS_FAILED:
-        errorDesc = tr("Failed to switch the numlock tips.");
         break;
     case CCErrorCode::ERROR_KEYBINDING_CUSTOM_SHORTCUT_NOT_EXIST:
         errorDesc = tr("The custom shortcut isn't exist.");
@@ -310,9 +282,6 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_1:
     case CCErrorCode::ERROR_POWER_EVENT_UNSUPPORTED_2:
         errorDesc = tr("Unsupported power event.");
-        break;
-    case CCErrorCode::ERROR_POWER_SET_ACTION_FAILED:
-        errorDesc = tr("Failed to set the action.");
         break;
     case CCErrorCode::ERROR_POWER_SET_BRIGHTNESS_FAILED:
         errorDesc = tr("Failed to set brightness.");

@@ -41,7 +41,7 @@ extern "C"
 #define DISPLAY_ROTATION_ALL_MASK 0xf
 #define DISPLAY_REFLECT_ALL_MASK 0x30
 
-    // 显示模式，只有在下列情况会使用显示模式进行设置：
+    // 显示模式，必须跟gsettings中的枚举值对应，只有在下列情况会使用显示模式进行设置：
     // 1. 程序第一次启动
     // 2. 有连接设备删除和添加时
     // 3. 显示调用dbus接口进行切换显示模式
