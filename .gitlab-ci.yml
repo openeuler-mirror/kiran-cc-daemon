@@ -1,6 +1,15 @@
 variables:
-  RPM_BUILD_REQUIRES: 'cmake make systemd-devel libselinux-devel gettext gcc-c++ intltool libX11-devel xerces-c-devel xsd fontconfig-devel jsoncpp-devel cairomm-devel kiran-log-gtk3-devel fmt-devel python3-jinja2 gdbus-codegen-glibmm gtest-devel libnotify-devel pulseaudio-libs-devel libxml++-devel gtkmm30-devel libgtop2-devel libgudev-devel cryptopp-devel libwnck3-devel'
+  RPM_BUILD_REQUIRES: 'cmake make systemd-devel libselinux-devel gettext gcc-c++ intltool libX11-devel xerces-c-devel xsd fontconfig-devel jsoncpp-devel cairomm-devel kiran-log-gtk3-devel fmt-devel python3-jinja2 gdbus-codegen-glibmm gtest-devel libnotify-devel pulseaudio-libs-devel libxml++-devel gtkmm30-devel libgtop2-devel libgudev-devel cryptopp-devel libwnck3-devel qt5-qtbase-devel qt5-linguist kiran-log-qt5-devel gsettings-qt-devel kf5-kconfig-devel kf5-kconfig-devel xcb-util-image-devel kf5-kglobalaccel-devel kf5-kxmlgui-devel libkscreen-qt5-devel kf5-kwindowsystem-devel qt5-qtx11extras-devel kf5-kguiaddons-devel libqtxdg-devel kf5-kservice-devel kf5-kio-devel'
 
+  EXTRA_DNF_REPOS: |
+                   [KylinSec_3.5.2_Customize_Kiran2.7]
+                   name=Kiran2.7(standard_x86_64)
+                   type=rpm-md
+                   baseurl=http://build.kylinsec.com.cn:82/KylinSec:/3.5.2:/Customize:/Kiran2.7/standard_x86_64/
+                   gpgcheck=1
+                   gpgkey=http://build.kylinsec.com.cn:82/KylinSec:/3.5.2:/Customize:/Kiran2.7/standard_x86_64/repodata/repomd.xml.key
+                   enabled=1
+  DEFAULT_IMAGE: kylinsec-3.5.2
 include:
   - project: 'os/ks-devops'
     ref: main
