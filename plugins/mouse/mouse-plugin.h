@@ -17,7 +17,6 @@
 #include "plugin-i.h"
 namespace Kiran
 {
-
 class MousePlugin : public QObject, public IPlugin
 {
     Q_OBJECT

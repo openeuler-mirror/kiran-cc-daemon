@@ -22,7 +22,6 @@ class KSystemClipboard;
 
 namespace Kiran
 {
-
 class ClipboardData;
 
 class ClipboardManager : public QObject

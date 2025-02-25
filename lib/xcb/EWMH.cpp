@@ -92,7 +92,7 @@ QString EWMH::getWmProperty(xcb_atom_t atom)
         return QString();
     }
 
-    auto propertyValue = QByteArray((const char*)xcb_get_property_value(propertyReply.get()),
+    auto propertyValue = QByteArray(static_cast<const char*>(xcb_get_property_value(propertyReply.get())),
                                     xcb_get_property_value_length(propertyReply.get()));
 
     return QString(propertyValue);
@@ -145,7 +145,7 @@ void EWMH::updateWmWindow()
         KLOG_WARNING() << "Failed to get property for" << NET_SUPPORTING_WM_CHECK;
         return;
     }
-    m_wmWindow = *((xcb_window_t*)xcb_get_property_value(wmXidReply.get()));
+    m_wmWindow = *(static_cast<xcb_window_t*>(xcb_get_property_value(wmXidReply.get())));
 
     const quint32 interestedEvents[] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
     xcb_change_window_attributes(m_xcbConnection->getConnection(),

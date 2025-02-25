@@ -54,7 +54,7 @@ class CCError : public QObject
 
 public:
     CCError();
-    virtual ~CCError() {};
+    virtual ~CCError(){};
 
     static QString getErrorDesc(CCErrorCode errorCode, bool attachErrorCode = true);
 };

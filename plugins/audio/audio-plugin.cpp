@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 void AudioPlugin::activate()
 {
     PulseBackend::globalInit();

@@ -14,11 +14,12 @@ execute_process(
 # 生成qm文件，qt_create_translation会导致cmake clean把ts文件删掉
 qt5_add_translation(BACKLIGHT_QM_FILES ${TS_FILES})
 
-
 add_executable(
   ${TARGET_NAME}
-  ${POWER_BACKLIGHT_HELPER_H_FILES} ${POWER_BACKLIGHT_HELPER_CPP_FILES}
-  ${BACKLIGHT_QM_FILES} ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower.cpp
+  ${POWER_BACKLIGHT_HELPER_H_FILES}
+  ${POWER_BACKLIGHT_HELPER_CPP_FILES}
+  ${BACKLIGHT_QM_FILES}
+  ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower.cpp
   ${PROJECT_SOURCE_DIR}/plugins/power/wrapper/power-upower-device.cpp)
 
 target_link_libraries(${TARGET_NAME} PRIVATE kbase)

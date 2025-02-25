@@ -27,7 +27,6 @@ class Output;
 
 namespace Kiran
 {
-
 class DisplayMonitor : public QObject,
                        protected QDBusContext
 {

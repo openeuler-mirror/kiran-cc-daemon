@@ -77,11 +77,12 @@ bool PowerBacklightMonitorX11Gamma::setBrightnessValue(int32_t brightnessValue)
     auto gammaBlue = 1.0 / gammaInfo.blue;
     auto gammaBrightness = (double)brightnessValue / 100.0;
 
-    SCOPE_EXIT({
-        delete[] red;
-        delete[] green;
-        delete[] blue;
-    });
+    SCOPE_EXIT(
+        {
+            delete[] red;
+            delete[] green;
+            delete[] blue;
+        });
 
     for (int i = 0; i < size; i++)
     {

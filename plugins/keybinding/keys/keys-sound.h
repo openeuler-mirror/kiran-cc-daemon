@@ -23,7 +23,6 @@ class QDBusMessage;
 
 namespace Kiran
 {
-
 class KeysSound : public KeysComponent
 {
     Q_OBJECT
@@ -32,7 +31,7 @@ public:
     KeysSound();
     virtual ~KeysSound(){};
 
-    virtual void init();
+    virtual void init() override;
 
 private:
     void initAudioProxy();
@@ -51,7 +50,7 @@ private:
     void updateAudioSourceDevice();
 
 private:
-    virtual void triggerShortCut(const QString &name);
+    virtual void triggerShortCut(const QString &name) override;
 
 private Q_SLOTS:
     void processPropertiesChanged(const QDBusMessage &message);

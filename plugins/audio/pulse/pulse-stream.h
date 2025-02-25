@@ -37,7 +37,7 @@ class PulseStream : public PulseNode
 
 public:
     PulseStream(const PulseStreamInfo &streamInfo);
-    virtual ~PulseStream() {};
+    virtual ~PulseStream(){};
 
 protected:
     void update(const PulseStreamInfo &streamInfo);

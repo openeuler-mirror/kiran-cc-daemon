@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class XcbConnection;
 
 class XSettingsXResource : public QObject

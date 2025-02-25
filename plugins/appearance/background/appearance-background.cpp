@@ -172,7 +172,7 @@ bool AppearanceBackground::canDrawBackground()
                                   0,
                                   1);
     RETURN_VAL_IF_TRUE(!cajaXidReply || cajaXidReply->type != XCB_ATOM_WINDOW || cajaXidReply->format != 32, true);
-    auto cajaXid = *((xcb_window_t *)xcb_get_property_value(cajaXidReply.get()));
+    auto cajaXid = *(static_cast<xcb_window_t *>(xcb_get_property_value(cajaXidReply.get())));
 
     auto cajaWmClassAtomReply = XCB_REPLY(xcb_intern_atom,
                                           xcbConnection->getConnection(),
@@ -510,8 +510,8 @@ void AppearanceBackground::setXPixmapToRoot(xcb_pixmap_t xpixmap)
                 esetRootPixmapPropertyReply->type == XCB_ATOM_PIXMAP &&
                 esetRootPixmapPropertyReply->format == 32)
             {
-                auto xRootPixmap = *(xcb_pixmap_t *)xcb_get_property_value(xRootPixmapPropertyReply.get());
-                auto esetRootPixmap = *(xcb_pixmap_t *)xcb_get_property_value(esetRootPixmapPropertyReply.get());
+                auto xRootPixmap = *static_cast<xcb_pixmap_t *>(xcb_get_property_value(xRootPixmapPropertyReply.get()));
+                auto esetRootPixmap = *static_cast<xcb_pixmap_t *>(xcb_get_property_value(esetRootPixmapPropertyReply.get()));
                 if (xRootPixmap && xRootPixmap == esetRootPixmap)
                 {
                     xcb_kill_client(xcbConnection->getConnection(), xRootPixmap);

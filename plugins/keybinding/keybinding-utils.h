@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class KeybindingUtils
 {
 public:

@@ -24,7 +24,6 @@
 
 namespace Kiran
 {
-
 #define ACTION_NAME_TOUCHPAD_TOGGLE "touchpadToggle"
 #define ACTION_NAME_TOUCHPAD_ON "touchpadOn"
 #define ACTION_NAME_TOUCHPAD_OFF "touchpadOff"

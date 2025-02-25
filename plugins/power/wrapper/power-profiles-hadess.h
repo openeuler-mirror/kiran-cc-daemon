@@ -28,11 +28,11 @@ public:
     PowerProfilesHadess();
     virtual ~PowerProfilesHadess(){};
 
-    virtual void init();
-    virtual bool switchProfile(int32_t profileMode);
-    virtual uint32_t holdProfile(int32_t profileMode, const QString &reason);
-    virtual void releaseProfile(uint32_t cookie);
-    virtual int32_t getActiveProfile();
+    virtual void init() override;
+    virtual bool switchProfile(int32_t profileMode) override;
+    virtual uint32_t holdProfile(int32_t profileMode, const QString &reason) override;
+    virtual void releaseProfile(uint32_t cookie) override;
+    virtual int32_t getActiveProfile() override;
 
 private:
     QString porfileModeEnum2Str(int32_t profileMode);

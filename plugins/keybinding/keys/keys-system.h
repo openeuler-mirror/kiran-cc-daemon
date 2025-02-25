@@ -20,7 +20,6 @@ class QGSettings;
 
 namespace Kiran
 {
-
 class KeysSystem : public KeysComponent
 {
     Q_OBJECT
@@ -29,7 +28,7 @@ public:
     KeysSystem();
     virtual ~KeysSystem(){};
 
-    virtual void init();
+    virtual void init() override;
 
 private:
     void launchHelp();
@@ -44,7 +43,7 @@ private:
     void openControlCenter();
 
 private:
-    virtual void triggerShortCut(const QString &name);
+    virtual void triggerShortCut(const QString &name) override;
 };
 
 }  // namespace Kiran

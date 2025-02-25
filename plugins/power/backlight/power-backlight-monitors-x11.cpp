@@ -23,7 +23,8 @@
 
 namespace Kiran
 {
-PowerBacklightMonitorsX11::PowerBacklightMonitorsX11() : m_eventBase(0),
+PowerBacklightMonitorsX11::PowerBacklightMonitorsX11() : m_xcbSocketNotifier(nullptr),
+                                                         m_eventBase(0),
                                                          m_errorBase(0),
                                                          m_extensionSupported(false),
                                                          m_backlightAtom(XCB_ATOM_NONE)

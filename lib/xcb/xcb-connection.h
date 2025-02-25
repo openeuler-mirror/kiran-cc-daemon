@@ -22,7 +22,6 @@ typedef struct xcb_connection_t xcb_connection_t;
 
 namespace Kiran
 {
-
 class XcbConnection : public QObject
 {
     Q_OBJECT

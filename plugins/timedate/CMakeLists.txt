@@ -3,7 +3,6 @@ set(TARGET_NAME timedate)
 file(GLOB_RECURSE TIMEDATE_H_FILES ./*.h)
 file(GLOB_RECURSE TIMEDATE_CPP_FILES ./*.cpp)
 
-
 qt5_add_dbus_adaptor(
   TIMEDATE_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SystemDaemon.TimeDate.xml
@@ -19,8 +18,9 @@ qt5_add_translation(QM_FILES ${TS_FILES})
 
 set(TIME_ZONES_TS_FILES
     "${PROJECT_SOURCE_DIR}/translations/${PROJECT_NAME}-timezones.zh_CN.ts")
-execute_process(COMMAND lupdate-qt5 -no-obsolete ${CMAKE_CURRENT_SOURCE_DIR}/timezones.txt -ts
-                        ${TIME_ZONES_TS_FILES})
+execute_process(
+  COMMAND lupdate-qt5 -no-obsolete ${CMAKE_CURRENT_SOURCE_DIR}/timezones.txt
+          -ts ${TIME_ZONES_TS_FILES})
 qt5_add_translation(TIME_ZONES_QM_FILES ${TIME_ZONES_TS_FILES})
 
 add_library(
@@ -48,4 +48,5 @@ install(
   DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${PROJECT_NAME}/system/timedate/)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/system)
-install(FILES ${QM_FILES} ${TIME_ZONES_QM_FILES} DESTINATION ${KCD_INSTALL_TRANSLATIONDIR})
+install(FILES ${QM_FILES} ${TIME_ZONES_QM_FILES}
+        DESTINATION ${KCD_INSTALL_TRANSLATIONDIR})

@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 class PowerBacklightPercentage;
 
 // 背光设备的亮度控制管理

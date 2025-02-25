@@ -5,7 +5,7 @@ add_subdirectory(systeminfo)
 add_subdirectory(greeter)
 
 # session
-add_subdirectory(audio) 
+add_subdirectory(audio)
 add_subdirectory(appearance)
 # add_subdirectory(bluetooth)
 add_subdirectory(display)

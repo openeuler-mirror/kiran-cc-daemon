@@ -17,25 +17,13 @@
 
 namespace Kiran
 {
-PulseStreamInfo::PulseStreamInfo(const pa_sink_input_info *sinkInputInfo) : PulseNodeInfo(PulseNodeInfo{.index = sinkInputInfo->index,
-                                                                                                        .name = POINTER_TO_STRING(sinkInputInfo->name),
-                                                                                                        .channelMap = sinkInputInfo->channel_map,
-                                                                                                        .cvolume = sinkInputInfo->volume,
-                                                                                                        .mute = sinkInputInfo->mute,
-                                                                                                        .baseVolume = 0,
-                                                                                                        .proplist = sinkInputInfo->proplist}),
+PulseStreamInfo::PulseStreamInfo(const pa_sink_input_info *sinkInputInfo) : PulseNodeInfo(sinkInputInfo),
                                                                             hasVolume(sinkInputInfo->has_volume),
                                                                             volumeWritable(sinkInputInfo->volume_writable)
 {
 }
 
-PulseStreamInfo::PulseStreamInfo(const pa_source_output_info *sourceOutputInfo) : PulseNodeInfo(PulseNodeInfo{.index = sourceOutputInfo->index,
-                                                                                                              .name = POINTER_TO_STRING(sourceOutputInfo->name),
-                                                                                                              .channelMap = sourceOutputInfo->channel_map,
-                                                                                                              .cvolume = sourceOutputInfo->volume,
-                                                                                                              .mute = sourceOutputInfo->mute,
-                                                                                                              .baseVolume = 0,
-                                                                                                              .proplist = sourceOutputInfo->proplist}),
+PulseStreamInfo::PulseStreamInfo(const pa_source_output_info *sourceOutputInfo) : PulseNodeInfo(sourceOutputInfo),
                                                                                   hasVolume(sourceOutputInfo->has_volume),
                                                                                   volumeWritable(sourceOutputInfo->volume_writable)
 {
@@ -47,7 +35,7 @@ PulseStream::PulseStream(const PulseStreamInfo &streamInfo) : PulseNode(streamIn
     if (!streamInfo.hasVolume)
     {
         m_flags = AudioNodeState(m_flags & ~(AudioNodeState::AUDIO_NODE_STATE_VOLUME_READABLE |
-                                           AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
+                                             AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
     }
 
     /* freedeskotp wiki: For playback devices it might be advisable to extend the scale beyond PA_VOLUME_NORM as well,

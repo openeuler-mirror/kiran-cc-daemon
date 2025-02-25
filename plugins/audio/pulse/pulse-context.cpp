@@ -757,7 +757,11 @@ void PulseContext::processSubscribeEvent(pa_context *context,
 void PulseContext::processServerInfo(pa_context *context, const pa_server_info *serverInfo, void *userdata)
 {
     PulseContext *self = static_cast<PulseContext *>(userdata);
-    RETURN_IF_FALSE(self != NULL && self->m_context == context);
+
+    if (self == NULL || self->m_context != context)
+    {
+        return;
+    }
 
     Q_EMIT self->serverInfoChanged(serverInfo);
     // 服务器信息的回调函数是最后一个回调函数

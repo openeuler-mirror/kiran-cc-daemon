@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class KeyboardPlugin : public QObject, public IPlugin
 {
     Q_OBJECT

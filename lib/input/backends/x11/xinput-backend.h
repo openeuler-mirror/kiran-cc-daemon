@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 class XcbConnection;
 
 class XInputBackend : public InputBackend
@@ -30,9 +29,9 @@ public:
     XInputBackend();
     virtual ~XInputBackend(){};
 
-    virtual bool isValid();
+    virtual bool isValid() override;
 
-    virtual QList<QSharedPointer<InputDevice>> getDevices() const;
+    virtual QList<QSharedPointer<InputDevice>> getDevices() const override;
 
 private:
     QSharedPointer<XcbConnection> m_xcbConnection;

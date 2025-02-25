@@ -26,7 +26,6 @@
 
 namespace Kiran
 {
-
 double XSettingsUtils::getDPIFromXServer()
 {
     auto xcbConnection = XcbConnection::getDefault();

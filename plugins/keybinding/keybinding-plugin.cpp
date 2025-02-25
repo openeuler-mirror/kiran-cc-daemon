@@ -20,7 +20,6 @@
 
 namespace Kiran
 {
-
 void KeybindingPlugin::activate()
 {
     m_translator = MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("keybinding"));

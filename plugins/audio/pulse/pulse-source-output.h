@@ -29,7 +29,7 @@ class PulseSourceOutput : public PulseStream
 public:
     PulseSourceOutput(QSharedPointer<PulseContext> context,
                       const pa_source_output_info *sourceOutputInfo);
-    virtual ~PulseSourceOutput() {};
+    virtual ~PulseSourceOutput(){};
 
     void update(const pa_source_output_info *sourceOutputInfo);
 

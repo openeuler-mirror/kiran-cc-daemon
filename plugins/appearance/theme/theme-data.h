@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 struct ThemeBase;
 
 // 主题类型和主题名
@@ -92,4 +91,4 @@ struct ThemeMeta : public ThemeBase
 };
 
 using ThemeInfoVec = std::vector<QSharedPointer<ThemeBase>>;
-}
+}  // namespace Kiran

@@ -78,6 +78,10 @@ enum PulseSourceOutputEvent
 
 struct PulseServerInfo
 {
+    PulseServerInfo();
+    PulseServerInfo(const PulseServerInfo &other);
+    PulseServerInfo(const pa_server_info *serverInfo);
+
     // 启动PulseAudio服务器的用户名
     QString userName;
     // PulseAudio服务器的主机名

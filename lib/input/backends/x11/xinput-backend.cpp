@@ -22,7 +22,6 @@
 
 namespace Kiran
 {
-
 XInputBackend::XInputBackend()
 {
     m_xcbConnection = XcbConnection::getDefault();
@@ -54,7 +53,7 @@ QList<QSharedPointer<InputDevice>> XInputBackend::getDevices() const
 
     while (xcbDeviceNameIter.rem > 0 && xcbDeviceIter.rem > 0)
     {
-        auto xcbDeviceName = QByteArray((const char*)xcb_str_name(xcbDeviceNameIter.data),
+        auto xcbDeviceName = QByteArray(static_cast<const char*>(xcb_str_name(xcbDeviceNameIter.data)),
                                         xcb_str_name_length(xcbDeviceNameIter.data));
         auto xcbDevice = xcbDeviceIter.data;
         xcb_str_next(&xcbDeviceNameIter);

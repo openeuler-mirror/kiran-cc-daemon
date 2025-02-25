@@ -36,7 +36,7 @@ class ClipboardUrlsData : public ClipboardData
 public:
     ClipboardUrlsData(const QList<QUrl>& urls);
 
-    virtual QMimeData* mimeData() const;
+    virtual QMimeData* mimeData() const override;
 
 private:
     QList<QUrl> m_urls;
@@ -48,7 +48,7 @@ class ClipboardTextData : public ClipboardData
 public:
     ClipboardTextData(const QString& text);
 
-    virtual QMimeData* mimeData() const;
+    virtual QMimeData* mimeData() const override;
 
 private:
     QString m_text;
@@ -60,7 +60,7 @@ class ClipboardImageData : public ClipboardData
 public:
     ClipboardImageData(const QImage& image);
 
-    virtual QMimeData* mimeData() const;
+    virtual QMimeData* mimeData() const override;
 
 private:
     QImage m_image;

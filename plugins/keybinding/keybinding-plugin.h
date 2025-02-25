@@ -20,7 +20,6 @@ class QTranslator;
 
 namespace Kiran
 {
-
 class KeybindingPlugin : public QObject, public IPlugin
 {
     Q_OBJECT

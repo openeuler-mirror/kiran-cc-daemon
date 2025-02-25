@@ -28,9 +28,9 @@ public:
     PowerBacklightMonitorsX11();
     virtual ~PowerBacklightMonitorsX11();
 
-    virtual void init();
+    virtual void init() override;
     // 获取所有显示器亮度设置对象
-    virtual PowerBacklightAbsoluteList getMonitors() { return m_backlightMonitors; }
+    virtual PowerBacklightAbsoluteList getMonitors() override { return m_backlightMonitors; }
 
 private:
     bool initXrandr();

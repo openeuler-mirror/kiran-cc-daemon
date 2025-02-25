@@ -277,12 +277,13 @@ void CustomShortcuts::triggerAction(bool checked, QAction *action)
         return;
     }
 
-    SCOPE_EXIT({
-        if (argv)
+    SCOPE_EXIT(
         {
-            g_strfreev(argv);
-        }
-    });
+            if (argv)
+            {
+                g_strfreev(argv);
+            }
+        });
 
     auto program = QString(argv[0]);
     QStringList arguments;

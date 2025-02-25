@@ -30,7 +30,7 @@ class PulseSinkInput : public PulseStream
 public:
     PulseSinkInput(QSharedPointer<PulseContext> context,
                    const pa_sink_input_info *sinkInputInfo);
-    virtual ~PulseSinkInput() {};
+    virtual ~PulseSinkInput(){};
 
     void update(const pa_sink_input_info *sinkInputInfo);
 

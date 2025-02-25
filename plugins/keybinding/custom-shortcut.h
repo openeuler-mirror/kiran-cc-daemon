@@ -23,7 +23,6 @@ class QAction;
 
 namespace Kiran
 {
-
 struct CustomShortCut
 {
     CustomShortCut() = default;

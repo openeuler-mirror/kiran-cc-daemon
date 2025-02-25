@@ -32,12 +32,12 @@ public:
     XInputDevice(const QString &deviceName, xcb_input_device_info_t *deviceInfo);
     virtual ~XInputDevice();
     // 判断设备是否存在指定的属性名
-    bool hasProperty(const QString &name);
+    bool hasProperty(const QString &name) override;
     // 判断设备是否为触摸板
-    bool isTouchpad();
+    bool isTouchpad() override;
     // 设置属性值
-    void setProperty(const QString &name, const QVector<bool> &values);
-    void setProperty(const QString &name, float value);
+    void setProperty(const QString &name, const QVector<bool> &values) override;
+    void setProperty(const QString &name, float value) override;
 
     operator bool() const
     {

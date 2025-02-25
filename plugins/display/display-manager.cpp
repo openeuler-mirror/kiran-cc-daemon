@@ -388,6 +388,8 @@ void DisplayManager::loadConfig()
 
 bool DisplayManager::applyConfig(CCErrorCode &errorCode)
 {
+    errorCode = CCErrorCode::SUCCESS;
+
     if (!m_displayConfig)
     {
         errorCode = CCErrorCode::ERROR_DISPLAY_CONFIG_IS_EMPTY;
@@ -413,11 +415,12 @@ bool DisplayManager::applyConfig(CCErrorCode &errorCode)
         }
     }
 
-    if (!result && errorCode == CCErrorCode::SUCCESS)
+    if (!result)
     {
         errorCode = CCErrorCode::ERROR_DISPLAY_CONFIG_ITEM_NOTFOUND;
+        return false;
     }
-    return result;
+    return true;
 }
 
 bool DisplayManager::applyScreenConfig(const ScreenConfigInfo &screenConfig, CCErrorCode &errorCode)

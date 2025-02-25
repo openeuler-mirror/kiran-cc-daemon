@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 XcbConnection::XcbConnection(QObject *parent) : QObject(parent)
 {
     m_connection = QX11Info::connection();

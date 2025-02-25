@@ -34,7 +34,6 @@ class ConfigMonitor;
 
 namespace Kiran
 {
-
 class DisplayMonitor;
 
 class DisplayManager : public QObject,

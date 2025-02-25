@@ -24,6 +24,6 @@ class PulseCardPort : public PulsePort
 
 public:
     PulseCardPort(const pa_card_port_info *cardPortInfo);
-    virtual ~PulseCardPort() {};
+    virtual ~PulseCardPort(){};
 };
 }  // namespace Kiran

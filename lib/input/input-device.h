@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class InputDevice : public QObject
 {
     Q_OBJECT

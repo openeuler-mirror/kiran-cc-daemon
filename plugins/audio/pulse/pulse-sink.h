@@ -26,7 +26,7 @@ class PulseSink : public PulseDevice
 
 public:
     PulseSink(QSharedPointer<PulseContext> context, const pa_sink_info *sinkInfo);
-    virtual ~PulseSink() {};
+    virtual ~PulseSink(){};
 
     void update(const pa_sink_info *sinkInfo);
 

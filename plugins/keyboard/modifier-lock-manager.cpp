@@ -51,7 +51,12 @@ typedef union
     xcb_xkb_state_notify_event_t stateNotify;
 } XkbEvent;
 
-ModifierLockManager::ModifierLockManager(KeyboardManager *keyboardManager) : m_keyboardManager(keyboardManager)
+ModifierLockManager::ModifierLockManager(KeyboardManager *keyboardManager) : m_keyboardManager(keyboardManager),
+                                                                             m_xkbEventBase(0),
+                                                                             m_capslockMask(0),
+                                                                             m_numlockMask(0),
+                                                                             m_capslockKeycode(0),
+                                                                             m_numlockKeycode(0)
 {
 }
 

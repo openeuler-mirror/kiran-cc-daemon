@@ -22,7 +22,6 @@
 
 namespace Kiran
 {
-
 DisplayMonitor::DisplayMonitor(const KScreen::OutputPtr output)
 {
     qDBusRegisterMetaType<quint32List>();

@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class WaylandKwinBackend : public InputBackend
 {
     Q_OBJECT
@@ -27,9 +26,9 @@ public:
     WaylandKwinBackend();
     virtual ~WaylandKwinBackend(){};
 
-    virtual bool isValid();
+    virtual bool isValid() override;
 
-    virtual QList<QSharedPointer<InputDevice>> getDevices() const { return QList<QSharedPointer<InputDevice>>(); };
+    virtual QList<QSharedPointer<InputDevice>> getDevices() const override { return QList<QSharedPointer<InputDevice>>(); };
 };
 
 }  // namespace Kiran

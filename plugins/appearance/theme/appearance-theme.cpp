@@ -21,7 +21,6 @@
 
 namespace Kiran
 {
-
 #define MARCO_SCHEMA_ID "org.mate.Marco.general"
 #define MARCO_SCHEMA_KEY_THEME "theme"
 

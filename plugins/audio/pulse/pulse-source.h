@@ -26,7 +26,7 @@ class PulseSource : public PulseDevice
 
 public:
     PulseSource(QSharedPointer<PulseContext> context, const pa_source_info *source_info);
-    virtual ~PulseSource() {};
+    virtual ~PulseSource(){};
 
     void update(const pa_source_info *source_info);
 
