@@ -627,6 +627,11 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
     }
     m_currentConfig->setOutputs(outputs);
 
+    if (primaryMonitor)
+    {
+        m_currentConfig->setPrimaryOutput(primaryMonitor->getOutput());
+    }
+
     auto setop = new KScreen::SetConfigOperation(m_currentConfig);
     if (!setop->exec())
     {
