@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class TouchPadPlugin : public QObject, public IPlugin
 {
     Q_OBJECT

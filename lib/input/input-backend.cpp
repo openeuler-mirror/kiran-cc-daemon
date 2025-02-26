@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 InputBackend::InputBackend()
 {
 }

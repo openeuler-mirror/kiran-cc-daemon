@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class XSettingsPlugin : public QObject, public IPlugin
 {
     Q_OBJECT

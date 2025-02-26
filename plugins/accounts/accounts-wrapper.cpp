@@ -193,13 +193,6 @@ void AccountsWrapper::reloadPasswd()
         return;
     }
 
-    SCOPE_EXIT({
-        if (fp)
-        {
-            fclose(fp);
-        }
-    });
-
     m_passwds.clear();
     m_passwdsByUID.clear();
     struct passwd *pwent;
@@ -217,6 +210,8 @@ void AccountsWrapper::reloadPasswd()
     } while (pwent != NULL);
 
     KLOG_INFO(accounts) << "Load passwd information from " << PATH_PASSWD << "which contains users" << m_passwds.keys();
+
+    fclose(fp);
 }
 void AccountsWrapper::reloadShadow()
 {

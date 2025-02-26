@@ -20,7 +20,6 @@ class QTranslator;
 
 namespace Kiran
 {
-
 class DisplayPlugin : public QObject, public IPlugin
 {
     Q_OBJECT
@@ -29,7 +28,11 @@ class DisplayPlugin : public QObject, public IPlugin
     Q_INTERFACES(Kiran::IPlugin)
 
 public:
-    virtual void activate();
+    DisplayPlugin();
+
+public:
+    virtual void
+    activate();
     virtual void deactivate();
 
 private:

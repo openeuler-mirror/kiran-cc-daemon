@@ -27,7 +27,6 @@
 
 namespace Kiran
 {
-
 #define IMAGE_VOLUME_MUTED "osd-audio-volume-muted"
 #define IMAGE_VOLUME_OFF "osd-audio-volume-off"
 #define IMAGE_VOLUME_LOW "osd-audio-volume-low"

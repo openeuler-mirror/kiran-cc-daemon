@@ -251,11 +251,11 @@ msgstr "调用媒体播放机的键绑定。"
 
 #: ../data/schemas/com.kylinsec.kiran.media-keys.gschema.xml.in.h:49
 msgid "Play (or play/pause)"
-msgstr "播放(或播放/暂停"
+msgstr "播放(或播放/暂停)"
 
 #: ../data/schemas/com.kylinsec.kiran.media-keys.gschema.xml.in.h:50
 msgid "Binding to start playback (or toggle play/pause)."
-msgstr "开始回放或切换 播放/暂停 的键绑定。"
+msgstr "开始回放(或切换 播放/暂停)的键绑定。"
 
 #: ../data/schemas/com.kylinsec.kiran.media-keys.gschema.xml.in.h:51
 msgid "Pause playback"

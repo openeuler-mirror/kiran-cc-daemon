@@ -25,7 +25,6 @@ class QDBusMessage;
 
 namespace Kiran
 {
-
 class PowerUPowerDevice;
 struct UPowerDeviceProps;
 

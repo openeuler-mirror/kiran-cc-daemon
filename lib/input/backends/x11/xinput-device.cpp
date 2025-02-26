@@ -109,7 +109,7 @@ void XInputDevice::setProperty(const QString &name, const QVector<bool> &values)
         getPropertyReply->format == 8 &&
         getPropertyReply->num_items > 0)
     {
-        auto oldValues = (uint8_t *)xcb_input_get_device_property_items(getPropertyReply.get());
+        auto oldValues = static_cast<uint8_t *>(xcb_input_get_device_property_items(getPropertyReply.get()));
         if (values.size() > int(getPropertyReply->num_items))
         {
             KLOG_WARNING() << "Ignore the remaining value. the number of property set is" << values.size()

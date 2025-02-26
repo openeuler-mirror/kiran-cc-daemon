@@ -17,7 +17,6 @@
 
 namespace Kiran
 {
-
 void TouchPadPlugin::activate()
 {
     TouchPadManager::globalInit();

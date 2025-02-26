@@ -212,7 +212,7 @@ bool XSettingsRegistry::init()
 
     // 其他客户端通过监听"MANAGER"事件来感知Xsettings Owner是否创建
     xcb_client_message_event_t event;
-    event.type = XCB_CLIENT_MESSAGE;
+    event.response_type = XCB_CLIENT_MESSAGE;
     event.window = rootWindow;
     event.format = 32;
     event.type = m_managerAtom;
@@ -302,8 +302,11 @@ void XSettingsRegistry::notify()
 
 char XSettingsRegistry::byteOrder()
 {
+    // sonarqube block off
+    // 在指定机器上，下面的三元运算符永远为true，所以sonarqube会报code smell，这是正常的
     uint32_t myint = 0x01020304;
     return (*reinterpret_cast<char *>(&myint) == 1) ? XCB_IMAGE_ORDER_MSB_FIRST : XCB_IMAGE_ORDER_LSB_FIRST;
+    // sonarqube block on
 }
 
 }  // namespace Kiran

@@ -52,10 +52,10 @@ CryptoHelper::~CryptoHelper()
 
 void CryptoHelper::generateRSAKey(uint32_t keyLength, QString &privateKey, QString &publicKey)
 {
-    std::string stlPrivateKey;
-    std::string stlPublicKey;
     try
     {
+        std::string stlPrivateKey;
+        std::string stlPublicKey;
         RSAES_OAEP_SHA_Decryptor rsa_decryptor(global_rng(), keyLength);
         HexEncoder private_sink(new Base64Encoder(new StringSink(stlPrivateKey)));
         rsa_decryptor.AccessMaterial().Save(private_sink);

@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class PowerUtils : public QObject
 {
     Q_OBJECT

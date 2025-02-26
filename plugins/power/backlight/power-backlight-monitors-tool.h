@@ -30,9 +30,9 @@ public:
 
     static bool supportBacklight();
 
-    virtual void init();
+    virtual void init() override;
     // 获取所有显示器亮度设置对象
-    virtual PowerBacklightAbsoluteList getMonitors() { return m_backlightMonitors; };
+    virtual PowerBacklightAbsoluteList getMonitors() override { return m_backlightMonitors; };
 
 private:
     QString getBacklightDir();

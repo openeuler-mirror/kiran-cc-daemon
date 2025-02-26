@@ -22,7 +22,6 @@ class AppearanceAdaptor;
 
 namespace Kiran
 {
-
 class AppearanceTheme;
 class AppearanceFont;
 class AppearanceBackground;

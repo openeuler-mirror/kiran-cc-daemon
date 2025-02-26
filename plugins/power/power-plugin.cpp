@@ -26,7 +26,6 @@
 
 namespace Kiran
 {
-
 void PowerPlugin::activate()
 {
     m_translator = MiscUtils::installTranslator(QString("%1-%2").arg(PROJECT_NAME).arg("power"));

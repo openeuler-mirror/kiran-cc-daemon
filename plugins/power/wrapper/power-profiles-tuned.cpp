@@ -102,7 +102,6 @@ uint32_t PowerProfilesTuned::holdProfile(int32_t profileMode, const QString &)
 
 int32_t PowerProfilesTuned::getActiveProfile()
 {
-    QString profileModeStr;
     auto sendMessage = QDBusMessage::createMethodCall(PROFILES_TUNED_DBUS_NAME,
                                                       PROFILES_TUNED_DBUS_OBJECT_PATH,
                                                       PROFILES_TUNED_DBUS_INTERFACE,
@@ -116,7 +115,7 @@ int32_t PowerProfilesTuned::getActiveProfile()
     }
     else
     {
-        profileModeStr = replyMessage.arguments().takeFirst().value<QString>();
+        auto profileModeStr = replyMessage.arguments().takeFirst().value<QString>();
         return porfileModeStr2Enum(profileModeStr);
     }
 }

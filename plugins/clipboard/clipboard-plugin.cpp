@@ -17,7 +17,6 @@
 
 namespace Kiran
 {
-
 void ClipboardPlugin::activate()
 {
     ClipboardManager::globalInit();

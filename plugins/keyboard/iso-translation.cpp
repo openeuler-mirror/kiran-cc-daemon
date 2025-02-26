@@ -25,7 +25,6 @@
 
 namespace Kiran
 {
-
 ISOTranslation *ISOTranslation::m_instance = nullptr;
 void ISOTranslation::globalInit()
 {

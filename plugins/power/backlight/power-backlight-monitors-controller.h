@@ -46,9 +46,9 @@ public:
     virtual int32_t getBrightness() override;
 
     // 增加亮度
-    bool brightnessUp();
+    virtual bool brightnessUp() override;
     // 降低亮度
-    bool brightnessDown();
+    virtual bool brightnessDown() override;
 
 private:
     void loadBacklightMonitors();

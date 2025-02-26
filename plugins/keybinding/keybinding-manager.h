@@ -22,7 +22,6 @@ class QDBusServiceWatcher;
 
 namespace Kiran
 {
-
 class CustomShortcuts;
 class SystemShortcuts;
 class SystemShortcut;

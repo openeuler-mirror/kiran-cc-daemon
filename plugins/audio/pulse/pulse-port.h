@@ -31,7 +31,7 @@ public:
               uint32_t priority,
               int32_t available);
 
-    virtual ~PulsePort() {};
+    virtual ~PulsePort(){};
 
     const QString &getName() const { return m_name; };
     const QString &getDescription() const { return m_description; };

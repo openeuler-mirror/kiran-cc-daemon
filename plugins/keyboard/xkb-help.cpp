@@ -21,7 +21,6 @@
 
 namespace Kiran
 {
-
 bool XkbHelp::xkbSupported(int &xkbEventBase)
 {
     if (!QX11Info::isPlatformX11())

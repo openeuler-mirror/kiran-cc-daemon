@@ -65,7 +65,7 @@ void XSettingsXResource::updateProperties()
         bool more = false;
         if (reply && reply->format == 8 && reply->type == XCB_ATOM_STRING)
         {
-            resourceProperties += QByteArray((const char *)xcb_get_property_value(reply.get()), xcb_get_property_value_length(reply.get()));
+            resourceProperties += QByteArray(static_cast<const char *>(xcb_get_property_value(reply.get())), xcb_get_property_value_length(reply.get()));
             offset += xcb_get_property_value_length(reply.get());
             more = reply->bytes_after != 0;
         }

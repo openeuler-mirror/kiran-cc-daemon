@@ -17,7 +17,6 @@
 
 namespace Kiran
 {
-
 void SystemInfoPlugin::activate()
 {
     SystemInfoManager::globalInit();

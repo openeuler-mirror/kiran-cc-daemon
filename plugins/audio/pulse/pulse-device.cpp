@@ -17,14 +17,7 @@
 
 namespace Kiran
 {
-PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sinkInfo) : PulseNodeInfo(PulseNodeInfo{.index = sinkInfo->index,
-                                                                                             .name = POINTER_TO_STRING(sinkInfo->name),
-                                                                                             .channelMap = sinkInfo->channel_map,
-                                                                                             .cvolume = sinkInfo->volume,
-                                                                                             .mute = sinkInfo->mute,
-                                                                                             .baseVolume = sinkInfo->base_volume,
-                                                                                             .proplist = sinkInfo->proplist}),
-
+PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sinkInfo) : PulseNodeInfo(sinkInfo),
                                                                  m_cardIndex(sinkInfo->card)
 {
     for (uint32_t i = 0; i < sinkInfo->n_ports; ++i)
@@ -47,13 +40,7 @@ PulseDeviceInfo::PulseDeviceInfo(const pa_sink_info *sinkInfo) : PulseNodeInfo(P
     }
 }
 
-PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *sourceInfo) : PulseNodeInfo(PulseNodeInfo{.index = sourceInfo->index,
-                                                                                                 .name = POINTER_TO_STRING(sourceInfo->name),
-                                                                                                 .channelMap = sourceInfo->channel_map,
-                                                                                                 .cvolume = sourceInfo->volume,
-                                                                                                 .mute = sourceInfo->mute,
-                                                                                                 .baseVolume = sourceInfo->base_volume,
-                                                                                                 .proplist = sourceInfo->proplist}),
+PulseDeviceInfo::PulseDeviceInfo(const pa_source_info *sourceInfo) : PulseNodeInfo(sourceInfo),
                                                                      m_cardIndex(sourceInfo->card)
 {
     for (uint32_t i = 0; i < sourceInfo->n_ports; ++i)

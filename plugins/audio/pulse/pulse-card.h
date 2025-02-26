@@ -21,7 +21,6 @@
 
 namespace Kiran
 {
-
 class PulseCardProfile;
 class PulseCardPort;
 class PulseNode;

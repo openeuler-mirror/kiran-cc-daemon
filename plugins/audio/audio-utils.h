@@ -19,8 +19,8 @@ namespace Kiran
 class AudioUtils
 {
 public:
-    AudioUtils() {};
-    virtual ~AudioUtils() {};
+    AudioUtils(){};
+    virtual ~AudioUtils(){};
 
     // 音量范围转绝对值
     static uint32_t volumeRange2absolute(double range,

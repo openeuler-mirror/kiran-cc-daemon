@@ -17,7 +17,6 @@
 
 namespace Kiran
 {
-
 void XSettingsPlugin::activate()
 {
     XSettingsManager::globalInit();

@@ -43,14 +43,21 @@ enum PulseNodeField
 struct PulseNodeInfo
 {
 public:
-    uint32_t index;
+    PulseNodeInfo();
+    PulseNodeInfo(const PulseNodeInfo &other);
+    PulseNodeInfo(const pa_sink_info *sinkInfo);
+    PulseNodeInfo(const pa_source_info *sourceInfo);
+    PulseNodeInfo(const pa_sink_input_info *sinkInputInfo);
+    PulseNodeInfo(const pa_source_output_info *sourceOutputInfo);
+
+    uint index;
     QString name;
     // 控制声道
     pa_channel_map channelMap;
     // 声音
     pa_cvolume cvolume;
     // 静音
-    int32_t mute;
+    int mute;
     // 基本音量，一般又硬件决定
     pa_volume_t baseVolume;
     // 属性
@@ -64,7 +71,7 @@ class PulseNode : public QObject
 public:
     PulseNode(const PulseNodeInfo &nodeInfo);
 
-    virtual ~PulseNode() {};
+    virtual ~PulseNode(){};
 
     uint32_t getIndex() { return m_index; };
     const QString &getName() { return m_name; };

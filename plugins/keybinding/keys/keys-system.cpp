@@ -33,7 +33,6 @@
 
 namespace Kiran
 {
-
 #define ACTION_NAME_HELP "help"
 #define ACTION_NAME_EMAIL "email"
 #define ACTION_NAME_SCREENSAVER "screensaver"

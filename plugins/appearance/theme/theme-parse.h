@@ -22,14 +22,13 @@
 
 namespace Kiran
 {
-
 class ThemeParse : public QObject
 {
     Q_OBJECT
 
 public:
     ThemeParse(QSharedPointer<ThemeMonitorInfo> monitorInfo);
-    virtual ~ThemeParse() {};
+    virtual ~ThemeParse(){};
 
     QSharedPointer<ThemeBase> parse();
     QSharedPointer<ThemeBase> parseBase();

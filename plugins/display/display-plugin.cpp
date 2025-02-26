@@ -20,6 +20,10 @@
 
 namespace Kiran
 {
+DisplayPlugin::DisplayPlugin()
+{
+    m_translator = nullptr;
+}
 
 void DisplayPlugin::activate()
 {

@@ -20,7 +20,6 @@ class SystemInfoAdaptor;
 
 namespace Kiran
 {
-
 class SystemInfoSoftware;
 class SystemInfoHardware;
 

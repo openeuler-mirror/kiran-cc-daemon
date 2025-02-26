@@ -49,7 +49,7 @@ class PowerSaveDpmsKDE : public PowerSaveDpms
 
 public:
     PowerSaveDpmsKDE(QObject *parent = nullptr);
-    virtual void setLevel(PowerDpmsLevel level);
+    virtual void setLevel(PowerDpmsLevel level) override;
 
 private:
     KScreen::Dpms *m_dpms;
@@ -64,7 +64,7 @@ class PowerSaveDpmsX11 : public PowerSaveDpms
 public:
     PowerSaveDpmsX11(QObject *parent = nullptr);
     // 设置节能模式
-    virtual void setLevel(PowerDpmsLevel level);
+    virtual void setLevel(PowerDpmsLevel level) override;
 
 private:
     uint16_t levelK2Xcb(PowerDpmsLevel level);

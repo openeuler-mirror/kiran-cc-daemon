@@ -22,7 +22,6 @@ class QFileSystemWatcher;
 
 namespace Kiran
 {
-
 class GreeterManager : public QObject,
                        protected QDBusContext
 {

@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 void KeyboardPlugin::activate()
 {
     ISOTranslation::globalInit();

@@ -18,7 +18,6 @@
 
 namespace Kiran
 {
-
 class XkbHelp : public QObject
 {
     Q_OBJECT

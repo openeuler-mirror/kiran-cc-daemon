@@ -24,7 +24,6 @@
 
 namespace Kiran
 {
-
 #define SYSTEM_DAEMON_DBUS_NAME "com.kylinsec.Kiran.SystemDaemon"
 #define SYSTEM_DAEMON_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon"
 #define SYSTEM_DAEMON_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SystemDaemon"

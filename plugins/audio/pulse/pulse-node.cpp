@@ -18,6 +18,70 @@
 
 namespace Kiran
 {
+PulseNodeInfo::PulseNodeInfo() : index(0),
+                                 mute(0),
+                                 baseVolume(0),
+                                 proplist(NULL)
+{
+    memset(&channelMap, 0, sizeof(channelMap));
+    memset(&cvolume, 0, sizeof(cvolume));
+}
+
+PulseNodeInfo::PulseNodeInfo(const PulseNodeInfo &other)
+{
+    this->index = other.index;
+    this->name = other.name;
+    this->channelMap = other.channelMap;
+    this->cvolume = other.cvolume;
+    this->mute = other.mute;
+    this->baseVolume = other.baseVolume;
+    this->proplist = other.proplist;
+}
+
+PulseNodeInfo::PulseNodeInfo(const pa_sink_info *sinkInfo)
+{
+    this->index = sinkInfo->index;
+    this->name = POINTER_TO_STRING(sinkInfo->name);
+    this->channelMap = sinkInfo->channel_map;
+    this->cvolume = sinkInfo->volume;
+    this->mute = sinkInfo->mute;
+    this->baseVolume = sinkInfo->base_volume;
+    this->proplist = sinkInfo->proplist;
+}
+
+PulseNodeInfo::PulseNodeInfo(const pa_source_info *sourceInfo)
+{
+    this->index = sourceInfo->index;
+    this->name = POINTER_TO_STRING(sourceInfo->name);
+    this->channelMap = sourceInfo->channel_map;
+    this->cvolume = sourceInfo->volume;
+    this->mute = sourceInfo->mute;
+    this->baseVolume = sourceInfo->base_volume;
+    this->proplist = sourceInfo->proplist;
+}
+
+PulseNodeInfo::PulseNodeInfo(const pa_sink_input_info *sinkInputInfo)
+{
+    this->index = sinkInputInfo->index;
+    this->name = POINTER_TO_STRING(sinkInputInfo->name);
+    this->channelMap = sinkInputInfo->channel_map;
+    this->cvolume = sinkInputInfo->volume;
+    this->mute = sinkInputInfo->mute;
+    this->baseVolume = 0;
+    this->proplist = sinkInputInfo->proplist;
+}
+
+PulseNodeInfo::PulseNodeInfo(const pa_source_output_info *sourceOutputInfo)
+{
+    this->index = sourceOutputInfo->index;
+    this->name = POINTER_TO_STRING(sourceOutputInfo->name);
+    this->channelMap = sourceOutputInfo->channel_map;
+    this->cvolume = sourceOutputInfo->volume;
+    this->mute = sourceOutputInfo->mute;
+    this->baseVolume = 0;
+    this->proplist = sourceOutputInfo->proplist;
+}
+
 PulseNode::PulseNode(const PulseNodeInfo &nodeInfo) : m_flags(AudioNodeState::AUDIO_NODE_STATE_NONE),
                                                       m_index(nodeInfo.index),
                                                       m_name(nodeInfo.name),
@@ -29,8 +93,6 @@ PulseNode::PulseNode(const PulseNodeInfo &nodeInfo) : m_flags(AudioNodeState::AU
                                                       m_balance(0.0),
                                                       m_fade(0.0)
 {
-    updateFlags();
-
     // 解析所有属性
     void *state = NULL;
     auto key = pa_proplist_iterate(nodeInfo.proplist, &state);
@@ -206,8 +268,6 @@ void PulseNode::updateFlags()
     {
         m_flags = AudioNodeState(m_flags & ~(AudioNodeState::AUDIO_NODE_STATE_VOLUME_READABLE |
                                              AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
-
-        setMute(true);
     }
 
     KLOG_DEBUG(audio) << "Flags after updated: " << m_flags;

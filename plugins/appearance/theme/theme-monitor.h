@@ -36,12 +36,11 @@ class QFileSystemWatcher;
 
 namespace Kiran
 {
-
 class ThemeMonitorInfo
 {
 public:
     ThemeMonitorInfo(ThemeMonitorType type, int32_t priority, const QString &path);
-    virtual ~ThemeMonitorInfo() {};
+    virtual ~ThemeMonitorInfo(){};
 
     ThemeMonitorType getType() { return this->m_type; }
     int32_t getPriority() { return this->m_priority; }
@@ -63,7 +62,7 @@ class ThemeMonitor : public QObject
 
 public:
     ThemeMonitor(QObject *parent = nullptr);
-    virtual ~ThemeMonitor() {};
+    virtual ~ThemeMonitor(){};
 
     void init();
 

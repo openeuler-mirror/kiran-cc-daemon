@@ -25,7 +25,7 @@ class SessionGuarder : public QObject
 
 public:
     SessionGuarder();
-    virtual ~SessionGuarder() {};
+    virtual ~SessionGuarder(){};
 
     static SessionGuarder* getInstance() { return m_instance; };
 

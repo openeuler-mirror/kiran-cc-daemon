@@ -26,7 +26,7 @@ class PulseCardProfile : public QObject
 
 public:
     PulseCardProfile(const pa_card_profile_info2 *cardProfileInfo);
-    virtual ~PulseCardProfile() {};
+    virtual ~PulseCardProfile(){};
 
     const QString &getName() const { return m_name; };
     const QString &getDescription() const { return m_description; };

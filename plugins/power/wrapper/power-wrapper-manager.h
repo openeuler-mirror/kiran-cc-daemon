@@ -19,7 +19,6 @@
 
 namespace Kiran
 {
-
 class PowerLogin1;
 class PowerScreenSaver;
 class PowerSession;

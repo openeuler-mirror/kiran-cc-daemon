@@ -20,7 +20,6 @@ class QDBusMessage;
 
 namespace Kiran
 {
-
 struct SwitchProfileResult
 {
     bool successed;
@@ -35,13 +34,13 @@ public:
     PowerProfilesTuned();
     virtual ~PowerProfilesTuned(){};
 
-    virtual void init();
-    virtual bool switchProfile(int32_t profileMode);
+    virtual void init() override;
+    virtual bool switchProfile(int32_t profileMode) override;
     // 这里永远返回0，因为不支持hold操作
-    virtual uint32_t holdProfile(int32_t profileMode, const QString& reason);
+    virtual uint32_t holdProfile(int32_t profileMode, const QString& reason) override;
     // 不支持该操作，什么都不执行
-    virtual void releaseProfile(uint32_t cookie){};
-    virtual int32_t getActiveProfile();
+    virtual void releaseProfile(uint32_t cookie) override{};
+    virtual int32_t getActiveProfile() override;
 
 private:
     QString porfileModeEnum2Str(int32_t profileMode);

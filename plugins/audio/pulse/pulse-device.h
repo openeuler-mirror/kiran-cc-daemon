@@ -41,7 +41,7 @@ class PulseDevice : public PulseNode
 
 public:
     PulseDevice(const PulseDeviceInfo &deviceInfo);
-    virtual ~PulseDevice() {};
+    virtual ~PulseDevice(){};
 
     // 设置活动的端口
     virtual bool setActivePort(const QString &portName);

@@ -17,7 +17,6 @@
 
 namespace Kiran
 {
-
 void MousePlugin::activate()
 {
     MouseManager::globalInit();

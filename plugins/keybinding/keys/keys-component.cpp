@@ -26,7 +26,6 @@
 
 namespace Kiran
 {
-
 KeysComponent::KeysComponent(const QString &componentName,
                              const QString &displayName) : m_componentInterface(nullptr),
                                                            m_pressedTriggered(false)
@@ -129,7 +128,8 @@ void KeysComponent::processShortcutReleased(const QString &componentUnique,
                                    this->triggerShortCut(actionUnique);
                                    // showdesktop功能在定时器中不会立即触发（可能是在xcb缓存队列中），因此这里进行强制同步处理
                                    QGuiApplication::sync();
-                               } });
+                               }
+                           });
     }
 }
 

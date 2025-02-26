@@ -26,6 +26,37 @@ namespace Kiran
 {
 #define MAX_RECONNECTION_NUM 50
 
+PulseServerInfo::PulseServerInfo() : cookie(0)
+{
+    sampleSpec.format = PA_SAMPLE_INVALID;
+    sampleSpec.rate = 0;
+    sampleSpec.channels = 0;
+}
+PulseServerInfo::PulseServerInfo(const PulseServerInfo &other)
+{
+    this->userName = other.userName;
+    this->hostName = other.hostName;
+    this->serverName = other.serverName;
+    this->serverVersion = other.serverVersion;
+    this->serverName = other.serverName;
+    this->sampleSpec = other.sampleSpec;
+    this->defaultSinkName = other.defaultSinkName;
+    this->defaultSourceName = other.defaultSourceName;
+    this->cookie = other.cookie;
+}
+
+PulseServerInfo::PulseServerInfo(const pa_server_info *serverInfo)
+{
+    this->userName = POINTER_TO_STRING(serverInfo->user_name);
+    this->hostName = POINTER_TO_STRING(serverInfo->host_name);
+    this->serverVersion = POINTER_TO_STRING(serverInfo->server_version);
+    this->serverName = POINTER_TO_STRING(serverInfo->server_name);
+    this->sampleSpec = serverInfo->sample_spec;
+    this->defaultSinkName = POINTER_TO_STRING(serverInfo->default_sink_name);
+    this->defaultSourceName = POINTER_TO_STRING(serverInfo->default_source_name);
+    this->cookie = serverInfo->cookie;
+}
+
 PulseBackend::PulseBackend() : m_state(AudioState::AUDIO_STATE_IDLE),
                                m_reconnectTimer(nullptr),
                                m_reconnectionCount(0),
@@ -235,14 +266,7 @@ void PulseBackend::processServerInfoChanged(const pa_server_info *serverInfo)
     RETURN_IF_FALSE(serverInfo != NULL);
 
     auto oldServerInfo = m_serverInfo;
-    m_serverInfo = PulseServerInfo{.userName = POINTER_TO_STRING(serverInfo->user_name),
-                                   .hostName = POINTER_TO_STRING(serverInfo->host_name),
-                                   .serverVersion = POINTER_TO_STRING(serverInfo->server_version),
-                                   .serverName = POINTER_TO_STRING(serverInfo->server_name),
-                                   .sampleSpec = serverInfo->sample_spec,
-                                   .defaultSinkName = POINTER_TO_STRING(serverInfo->default_sink_name),
-                                   .defaultSourceName = POINTER_TO_STRING(serverInfo->default_source_name),
-                                   .cookie = serverInfo->cookie};
+    m_serverInfo = PulseServerInfo(serverInfo);
 
     KLOG_INFO(audio) << "Server info is changed. Username is" << m_serverInfo.userName
                      << ", hostname is" << m_serverInfo.hostName

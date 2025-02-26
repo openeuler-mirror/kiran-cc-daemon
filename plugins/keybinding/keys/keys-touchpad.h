@@ -22,7 +22,6 @@ class QDBusServiceWatcher;
 
 namespace Kiran
 {
-
 class KeysTouchpad : public KeysComponent
 {
     Q_OBJECT
@@ -31,14 +30,14 @@ public:
     KeysTouchpad();
     virtual ~KeysTouchpad(){};
 
-    virtual void init();
+    virtual void init() override;
 
 private:
     void initTouchpadProxy();
     void enableTouchpad(bool enable);
 
 private:
-    virtual void triggerShortCut(const QString &name);
+    virtual void triggerShortCut(const QString &name) override;
 
 private:
     TouchpadProxy *m_touchpadProxy;
