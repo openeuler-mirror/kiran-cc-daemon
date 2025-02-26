@@ -195,7 +195,11 @@ bool AccountsUtil::parseExitStatus(int32_t exitStatus, CCErrorCode &errorCode)
 
     if (!WIFEXITED(exitStatus))
     {
+#if GLIB_CHECK_VERSION(2, 70, 0)
         auto result = g_spawn_check_wait_status(exitStatus, &gError);
+#else
+        auto result = g_spawn_check_exit_status(exitStatus, &gError);
+#endif
 
         if (!result)
         {
