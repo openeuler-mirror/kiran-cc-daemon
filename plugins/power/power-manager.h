@@ -16,6 +16,7 @@
 
 #include <QDBusContext>
 #include <QSharedPointer>
+#include "dbus-types.h"
 
 class QGSettings;
 class PowerAdaptor;
@@ -68,7 +69,7 @@ public Q_SLOTS:
     // 获取某个事件触发时的动作
     int GetEventAction(int event);
     // 获取计算机空闲时的处理动作
-    QString GetIdleAction(int device, int supply);
+    IdleActionInfo GetIdleAction(int device, int supply);
     /**
      * @brief 设置指定设备的亮度百分比。
      * @param {device} 可以设置为显示器或者键盘
