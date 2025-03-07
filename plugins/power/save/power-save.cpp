@@ -14,6 +14,7 @@
 
 #include "power-save.h"
 #include <QGSettings>
+#include <QGuiApplication>
 #include "../backlight/power-backlight-interface.h"
 #include "../backlight/power-backlight.h"
 #include "../power-utils.h"
@@ -41,7 +42,14 @@ PowerSave::PowerSave(PowerWrapperManager* wrapperManager,
 #ifdef WITH_DPMS_KDE
     m_dpms = new PowerSaveDpmsKDE(this);
 #else
-    m_dpms = new PowerSaveDpmsX11(this);
+    if (qGuiApp->platformName() == "xcb")
+    {
+        m_dpms = new PowerSaveDpmsX11(this);
+    }
+    else
+    {
+        m_dpms = new PowerSaveDpmsDummy(this);
+    }
 #endif
     m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
     m_profiles = m_wrapperManager->getDefaultProfiles();
@@ -120,18 +128,18 @@ bool PowerSave::doDisplayDimmed()
     {
         m_displayDimmedTimestamp = time(NULL);
 
-        auto kbd_brightness_percentage = backlightKbd->getBrightness();
-        if (kbd_brightness_percentage >= 0)
+        auto kbdBrightnessPercentage = backlightKbd->getBrightness();
+        if (kbdBrightnessPercentage >= 0)
         {
             backlightKbd->setBrightness(brightnessPercentage);
-            m_kbdRestoreBrightness = kbd_brightness_percentage;
+            m_kbdRestoreBrightness = kbdBrightnessPercentage;
         }
 
-        auto monitor_brightness_percentage = backlightMonitor->getBrightness();
-        if (monitor_brightness_percentage >= 0)
+        auto monitorBrightnessPercentage = backlightMonitor->getBrightness();
+        if (monitorBrightnessPercentage >= 0)
         {
             backlightMonitor->setBrightness(brightnessPercentage);
-            m_monitorRestoreBrightness = monitor_brightness_percentage;
+            m_monitorRestoreBrightness = monitorBrightnessPercentage;
         }
 
         KLOG_INFO(power) << "The display is dimmed.";
@@ -150,9 +158,9 @@ void PowerSave::doDisplayRestoreDimmed()
 
     auto backlightKbd = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_KBD);
     auto backlightMonitor = m_backlight->getBacklightDevice(PowerDeviceType::POWER_DEVICE_TYPE_MONITOR);
-    auto kbd_brightness_percentage = backlightKbd->getBrightness();
+    auto kbdBrightnessPercentage = backlightKbd->getBrightness();
 
-    if (kbd_brightness_percentage >= 0 && m_kbdRestoreBrightness >= 0)
+    if (kbdBrightnessPercentage >= 0 && m_kbdRestoreBrightness >= 0)
     {
         backlightKbd->setBrightness(m_kbdRestoreBrightness);
         m_kbdRestoreBrightness = -1;

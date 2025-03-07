@@ -36,6 +36,8 @@ PowerManager::PowerManager(PowerWrapperManager* wrapperManager,
     m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
     m_upowerClient = m_wrapperManager->getDefaultUpower();
     m_profiles = m_wrapperManager->getDefaultProfiles();
+
+    qDBusRegisterMetaType<IdleActionInfo>();
 }
 
 PowerManager::~PowerManager()
@@ -189,7 +191,7 @@ int PowerManager::GetEventAction(int event)
     return PowerUtils::eventActionStr2Enum(actionStr);
 }
 
-QString PowerManager::GetIdleAction(int device, int supply)
+IdleActionInfo PowerManager::GetIdleAction(int device, int supply)
 {
     int idleTimeout = 0;
     int action = PowerAction::POWER_ACTION_NOTHING;
@@ -210,7 +212,7 @@ QString PowerManager::GetIdleAction(int device, int supply)
             actionStr = m_powerSettings->get(POWER_SCHEMA_COMPUTER_AC_IDLE_ACTION).toString();
             break;
         default:
-            DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_3);
+            DBUS_ERROR_REPLY_AND_RETVAL(IdleActionInfo(), CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_3);
         }
         action = PowerUtils::computerActionStr2Enum(actionStr);
         break;
@@ -228,20 +230,17 @@ QString PowerManager::GetIdleAction(int device, int supply)
             actionStr = m_powerSettings->get(POWER_SCHEMA_BACKLIGHT_AC_IDLE_ACTION).toString();
             break;
         default:
-            DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_4);
+            DBUS_ERROR_REPLY_AND_RETVAL(IdleActionInfo(), CCErrorCode::ERROR_POWER_SUPPLY_MODE_UNSUPPORTED_4);
         }
         action = PowerUtils::monitorActionStr2Enum(actionStr);
         break;
     }
     default:
-        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_2);
+        DBUS_ERROR_REPLY_AND_RETVAL(IdleActionInfo(), CCErrorCode::ERROR_POWER_DEVICE_UNSUPPORTED_2);
         break;
     }
 
-    QJsonObject jsonObj;
-    jsonObj["idle_timeout"] = idleTimeout;
-    jsonObj["action"] = action;
-    return QJsonDocument(jsonObj).toJson(QJsonDocument::Compact);
+    return IdleActionInfo(idleTimeout, action);
 }
 
 void PowerManager::SetBrightness(int device, int brightnessPercentage)

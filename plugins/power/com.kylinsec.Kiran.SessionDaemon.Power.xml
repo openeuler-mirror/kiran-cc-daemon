@@ -20,9 +20,10 @@
         </method>
 
         <method name="GetIdleAction">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IdleActionInfo"/>
             <arg type="i" name="device" direction="in" />
             <arg type="i" name="supply" direction="in" />
-            <arg type="s" name="idle_action" direction="out">
+            <arg type="(ii)" name="idle_action" direction="out">
                 <description>The field contains idle timeout and action.</description>
             </arg>
             <description>Get the idle action for the specified device on the supply.</description>

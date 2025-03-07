@@ -104,9 +104,9 @@ void PowerIdleControl::switchToNormal()
 
 void PowerIdleControl::switchToDim()
 {
-    auto display_idle_dimmed_enabled = m_powerSettings->get(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED).toBool();
-    // 这里必须要判断当前是否处于变暗状态。如果当前已经处于变暗状态，调用do_display_dimmed函数会导致display_dimmed_set_置为false。
-    if (display_idle_dimmed_enabled && !PowerSave::getInstance()->isDisplayDimmed())
+    auto displayIdleDimmedEnabled = m_powerSettings->get(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED).toBool();
+    // 这里必须要判断当前是否处于变暗状态。如果当前已经处于变暗状态，调用doDisplayDimmed函数会导致m_displayDimmedSet置为false。
+    if (displayIdleDimmedEnabled && !PowerSave::getInstance()->isDisplayDimmed())
     {
         m_displayDimmedSet = PowerSave::getInstance()->doDisplayDimmed();
     }

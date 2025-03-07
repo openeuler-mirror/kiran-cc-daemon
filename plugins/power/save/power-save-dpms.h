@@ -74,4 +74,13 @@ private:
     // dpms对该客户端是否可用
     bool m_capable;
 };
+
+class PowerSaveDpmsDummy : public PowerSaveDpms
+{
+    Q_OBJECT
+
+public:
+    PowerSaveDpmsDummy(QObject *parent = nullptr) : PowerSaveDpms(parent){};
+    virtual void setLevel(PowerDpmsLevel) override{};
+};
 }  // namespace Kiran

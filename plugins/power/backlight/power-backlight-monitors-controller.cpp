@@ -139,6 +139,8 @@ bool PowerBacklightMonitorsController::setBrightnessPercentage(QSharedPointer<Po
     {
         for (int32_t i = brightnessCurrentValue; i <= brightnessSetValue; i += step)
         {
+            KLOG_INFO(power) << "Brightness up to" << QString("%1%").arg(i);
+
             if (!absoluteMonitor->setBrightnessValue(i))
             {
                 break;
@@ -153,6 +155,8 @@ bool PowerBacklightMonitorsController::setBrightnessPercentage(QSharedPointer<Po
     {
         for (int32_t i = brightnessCurrentValue; i >= brightnessSetValue; i -= step)
         {
+            KLOG_INFO(power) << "Brightness down to" << QString("%1%").arg(i);
+
             if (!absoluteMonitor->setBrightnessValue(i))
             {
                 break;

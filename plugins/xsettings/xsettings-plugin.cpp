@@ -13,17 +13,29 @@
  */
 
 #include "xsettings-plugin.h"
+#include <QGuiApplication>
+#include "lib/base/base.h"
 #include "xsettings-manager.h"
 
 namespace Kiran
 {
 void XSettingsPlugin::activate()
 {
-    XSettingsManager::globalInit();
+    if (qGuiApp->platformName() == "xcb")
+    {
+        XSettingsManager::globalInit();
+    }
+    else
+    {
+        KLOG_INFO(xsettings) << "xsettings cannot init on xcb platform";
+    }
 }
 
 void XSettingsPlugin::deactivate()
 {
-    XSettingsManager::globalDeinit();
+    if (qGuiApp->platformName() == "xcb")
+    {
+        XSettingsManager::globalDeinit();
+    }
 }
 }  // namespace Kiran
