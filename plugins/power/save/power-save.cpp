@@ -14,6 +14,7 @@
 
 #include "power-save.h"
 #include <QGSettings>
+#include <QGuiApplication>
 #include "../backlight/power-backlight-interface.h"
 #include "../backlight/power-backlight.h"
 #include "../power-utils.h"
@@ -41,7 +42,14 @@ PowerSave::PowerSave(PowerWrapperManager* wrapperManager,
 #ifdef WITH_DPMS_KDE
     m_dpms = new PowerSaveDpmsKDE(this);
 #else
-    m_dpms = new PowerSaveDpmsX11(this);
+    if (qGuiApp->platformName() == "xcb")
+    {
+        m_dpms = new PowerSaveDpmsX11(this);
+    }
+    else
+    {
+        m_dpms = new PowerSaveDpmsDummy(this);
+    }
 #endif
     m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
     m_profiles = m_wrapperManager->getDefaultProfiles();
