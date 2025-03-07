@@ -104,7 +104,7 @@ void PowerIdleTimer::updateMode()
     auto isIdle = m_session->getIdle();
     auto idleInhibit = m_session->getIdleInhibited();
 
-    KLOG_INFO(power) << "Current system is " << (isIdle ? "idle." : "not idle.") << "idle inhibit is" << idleInhibit;
+    KLOG_INFO(power) << "Current system is" << (isIdle ? "idle." : "not idle.") << "idle inhibit is" << idleInhibit;
 
     // 如果为未空闲状态，或者禁止空闲时操作，则不进行节能处理
     if (!isIdle || idleInhibit)

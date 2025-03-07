@@ -118,10 +118,10 @@ void PowerEventControl::chargeLowEvent(QSharedPointer<PowerUPowerDevice> device)
 
 void PowerEventControl::chargeActionEvent(QSharedPointer<PowerUPowerDevice> device)
 {
-    const UPowerDeviceProps& device_props = device->getProps();
+    const UPowerDeviceProps& deviceProps = device->getProps();
 
     // 如果电池电量过低，但是未使用则忽略
-    if (device_props.type == UP_DEVICE_KIND_BATTERY &&
+    if (deviceProps.type == UP_DEVICE_KIND_BATTERY &&
         !m_upowerClient->getOnBattery())
     {
         return;
@@ -129,7 +129,7 @@ void PowerEventControl::chargeActionEvent(QSharedPointer<PowerUPowerDevice> devi
 
     QString actionStr;
 
-    switch (device_props.type)
+    switch (deviceProps.type)
     {
     case UP_DEVICE_KIND_BATTERY:
         actionStr = m_powerSettings->get(POWER_SCHEMA_BATTERY_CRITICAL_ACTION).toString();
