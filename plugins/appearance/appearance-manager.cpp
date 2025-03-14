@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd. 
+ * Copyright (c) 2020 ~ 2021 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
- * You can use this software according to the terms and conditions of the Mulan PSL v2. 
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
- *          http://license.coscl.org.cn/MulanPSL2 
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, 
- * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, 
- * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.  
- * See the Mulan PSL v2 for more details.  
- * 
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ *
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
@@ -221,17 +221,11 @@ void AppearanceManager::auto_switch_for_window_theme()
     auto error_code = CCErrorCode::SUCCESS;
 
     // 下午8点之后到早上8点之前判定为晚上，使用深色主题，否则使用浅色主题
-    auto theme_name = (current_hour < 8 || current_hour > 20) ? APPEARANCE_DEFAULT_DARK_GTK_THEME : APPEARANCE_DEFAULT_LIGHT_GTK_THEME;
-    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name),
+    auto theme_name = (current_hour < 8 || current_hour > 20) ? APPEARANCE_DEFAULT_DARK_META_THEME : APPEARANCE_DEFAULT_LIGHT_META_THEME;
+    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_META, theme_name),
                                            error_code))
     {
-        KLOG_WARNING("Failed to set window gtk theme: %x.", error_code);
-    }
-
-    if (!this->appearance_theme_.set_theme(std::make_pair(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name),
-                                           error_code))
-    {
-        KLOG_WARNING("Failed to set window metacity theme: %x.", error_code);
+        KLOG_WARNING("Failed to set window meta theme: %x.", error_code);
     }
 }
 
