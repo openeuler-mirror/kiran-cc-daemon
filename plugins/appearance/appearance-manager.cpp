@@ -221,17 +221,11 @@ void AppearanceManager::autoSwitchForWindowTheme()
     auto errorCode = CCErrorCode::SUCCESS;
 
     // 下午8点之后到早上8点之前判定为晚上，使用深色主题，否则使用浅色主题
-    auto theme_name = (currentHour < 8 || currentHour > 20) ? APPEARANCE_DEFAULT_DARK_GTK_THEME : APPEARANCE_DEFAULT_LIGHT_GTK_THEME;
-    if (!m_appearanceTheme->setTheme(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, theme_name),
+    auto theme_name = (currentHour < 8 || currentHour > 20) ? APPEARANCE_DEFAULT_DARK_META_THEME : APPEARANCE_DEFAULT_LIGHT_META_THEME;
+    if (!m_appearanceTheme->setTheme(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_META, theme_name),
                                      errorCode))
     {
-        KLOG_WARNING(appearance) << "Failed to set window gtk theme. errorCode: " << errorCode;
-    }
-
-    if (!m_appearanceTheme->setTheme(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, theme_name),
-                                     errorCode))
-    {
-        KLOG_WARNING(appearance) << "Failed to set window metacity theme. errorCode: " << errorCode;
+        KLOG_WARNING(appearance) << "Failed to set window meta theme. errorCode: " << errorCode;
     }
 }
 
