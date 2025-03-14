@@ -97,6 +97,8 @@ void XSettingsXResource::updateProperties()
                         XCB_ATOM_RESOURCE_MANAGER,
                         XCB_ATOM_STRING, 8, resourceProperties.length(),
                         resourceProperties.data());
+
+    xcb_flush(m_xcbConnection->getConnection());
 }
 
 void XSettingsXResource::updateProperty(QByteArray &props, const QString &key, const QString &value)
