@@ -296,6 +296,15 @@ void XSettingsRegistry::notify()
                         data.length(),
                         data.data());
 
+    /* 这里必须要刷新，否则数据可能在缓存中导致未立即生效，引发一些问题，例如设置QT光标不生效：
+    1. 通过控制中心前端设置光标主题
+    2. 控制中心后端收到设置光标主题dbus请求，修改gsettings的gtk-cursor-theme-name
+        2.1 启动定制器(100ms延时），定时器触发后控制中心后端执行当前函数，更新_XSETTINGS_SETTINGS
+        2.2 kiran QPA主题插件启动定时器（500ms延时），定时器触发后告知QT刷新光标主题，QT从_XSETTINGS_SETTINGS中获取数据进行刷新
+    如果2.1步中更新_XSETTINGS_SETTINGS到xserver没有立即生效（在缓存中），就会导致QT获取到的是旧的数据，导致光标主题设置失败，
+    就算后续数据更新了，QT也不会再执行刷新动作。*/
+    xcb_flush(m_xcbConnection->getConnection());
+
     auto changedProperties = std::move(m_changedProperties);
     Q_EMIT propertiesChanged(changedProperties);
 }
