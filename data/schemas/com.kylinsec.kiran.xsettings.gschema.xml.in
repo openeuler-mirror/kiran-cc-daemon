@@ -22,11 +22,11 @@
             <description>Length of the cursor blink cycle, in milleseconds.</description>
         </key>
         <key name="net-theme-name" type="s">
-            <default>'Kiran-dark'</default>
+            <default>'Kiran-white'</default>
             <description>Name of gtk theme to use.</description>
         </key>
         <key name="net-icon-theme-name" type="s">
-            <default>'Spring'</default>
+            <default>'Summer'</default>
             <description>Name of icon theme to use for icons.</description>
         </key>
         <key name="net-enable-event-sounds" type="b">
