@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setApplicationVersion(PROJECT_VERSION);
+    QApplication::setQuitOnLastWindowClosed(false);
 
     QCommandLineParser parser;
     parser.addHelpOption();

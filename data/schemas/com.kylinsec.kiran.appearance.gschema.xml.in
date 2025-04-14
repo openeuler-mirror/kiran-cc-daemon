@@ -13,6 +13,10 @@
             <default>false</default>
             <description>Whether turn on automatic window theme switching according to time.</description>
         </key>
+        <key name="show-desktop-background" type="b">
+            <default>false</default>
+            <description>Whether show desktop background.</description>
+        </key>
     </schema>
 
 </schemalist>
