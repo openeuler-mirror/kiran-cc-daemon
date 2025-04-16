@@ -34,6 +34,7 @@ extern "C"
 #define APPEARANCE_SCHEMA_KEY_DESKTOP_BG "desktopBackground"
 #define APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG "lockScreenBackground"
 #define APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME "autoSwitchWindowTheme"
+#define APPEARANCE_SCHEMA_KEY_SHOW_DESKTOP_BACKGROUND "showDesktopBackground"
 
     enum AppearanceFontType
     {
