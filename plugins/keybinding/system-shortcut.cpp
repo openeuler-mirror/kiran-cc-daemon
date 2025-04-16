@@ -335,6 +335,12 @@ QMap<QString, QSharedPointer<MixSystemShortcut>> SystemShortcuts::getKShortcuts(
             continue;
         }
 
+        // 如果注册快捷键的程序未启动，则不显示快捷键
+        if (!component.isActive().value())
+        {
+            continue;
+        }
+
         auto componentShortcutInfosReply = component.allShortcutInfos();
         componentShortcutInfosReply.waitForFinished();
         if (componentShortcutInfosReply.isError())
