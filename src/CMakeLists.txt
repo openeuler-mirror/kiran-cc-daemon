@@ -30,7 +30,7 @@ install(TARGETS ${TARGET_SYSTEM_DAEMON}
 set(TARGET_SESSION_DAEMON kiran-session-daemon)
 
 add_executable(${TARGET_SESSION_DAEMON} ${DBUS_SRCS} main-session.cpp
-                                        plugin-manager.cpp session-guarder.cpp)
+                                        plugin-manager.cpp)
 
 target_include_directories(
   ${TARGET_SESSION_DAEMON} PRIVATE ${PROJECT_SOURCE_DIR}
