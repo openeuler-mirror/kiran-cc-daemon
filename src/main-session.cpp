@@ -22,7 +22,6 @@
 #include "lib/input/input-backend.h"
 #include "lib/osdwindow/osd-window.h"
 #include "src/plugin-manager.h"
-#include "src/session-guarder.h"
 
 static void sessionEnd()
 {
@@ -52,13 +51,9 @@ int main(int argc, char *argv[])
     Kiran::OSDWindow::globalInit();
     Kiran::InputBackend::globalInit();
     Kiran::SessionPluginManager::globalInit(KCD_SESSION_PLUGIN_DIR);
-    Kiran::SessionGuarder::globalInit();
-    auto sessionGuarder = Kiran::SessionGuarder::getInstance();
-    QObject::connect(sessionGuarder, &Kiran::SessionGuarder::sessionEnd, &sessionEnd);
 
     auto retval = app.exec();
 
-    Kiran::SessionGuarder::globalDeinit();
     Kiran::SessionPluginManager::globalDeinit();
     Kiran::InputBackend::globalDeinit();
     Kiran::OSDWindow::globalDeinit();

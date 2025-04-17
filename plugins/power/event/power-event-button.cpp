@@ -34,7 +34,7 @@ PowerEventButton::PowerEventButton(QObject *parent) : QObject(parent),
 {
     m_upowerClient = PowerWrapperManager::getInstance()->getDefaultUpower();
     m_actionCollection = new KActionCollection(this);
-    m_actionCollection->setComponentName("Power Management");
+    m_actionCollection->setComponentName("PowerManagement");
     m_actionCollection->setComponentDisplayName(tr("Power Management"));
     m_buttonTimer = new QElapsedTimer();
     m_powerOffTimer = new QTimer(this);
