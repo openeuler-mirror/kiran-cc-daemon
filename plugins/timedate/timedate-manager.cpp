@@ -391,7 +391,7 @@ void TimedateManager::init()
     this->time_zone_ = TimedateUtil::get_timezone();
     this->local_rtc_ = TimedateUtil::is_local_rtc();
     this->init_ntp_units();
-    this->ntp_active_ = this->ntp_is_active();
+    this->ntp_active_ = this->ntp_is_active(this->ntp_unit_name_);
 
     this->timedate_format_.init();
 }
@@ -401,22 +401,32 @@ void TimedateManager::init_ntp_units()
     auto ntp_units = this->get_ntp_units();
     CCErrorCode error_code = CCErrorCode::SUCCESS;
 
+    // 优先选择已经激活的NTP服务，如果都没有激活则选择第一个NTP服务
     this->ntp_unit_name_.clear();
     for (auto &ntp_unit : ntp_units)
     {
-        if (ntp_unit == ntp_units.front())
+        if (ntp_is_active(ntp_unit))
         {
             this->ntp_unit_name_ = ntp_unit;
-            continue;
-        }
-
-        if (!this->stop_ntp_unit(ntp_unit, error_code))
-        {
-            KLOG_WARNING("%s", CC_ERROR2STR(error_code).c_str());
+            break;
         }
     }
 
-    auto unit_object_path = this->get_unit_object_path();
+    if (this->ntp_unit_name_.empty())
+    {
+        this->ntp_unit_name_ = ntp_units.front();
+    }
+
+    KLOG_INFO("Use %s as default NTP service, other NTP service will be stopped.", this->ntp_unit_name_.c_str());
+
+    // 关闭掉其他NTP服务，避免冲突
+    for (auto &ntp_unit : ntp_units)
+    {
+        CONTINUE_IF_TRUE(ntp_unit == this->ntp_unit_name_)
+        stop_ntp_unit(ntp_unit, error_code);
+    }
+
+    auto unit_object_path = this->get_unit_object_path(this->ntp_unit_name_);
 
     if (unit_object_path.length() > 0)
     {
@@ -551,12 +561,20 @@ bool TimedateManager::stop_ntp_unit(const std::string &name, CCErrorCode &error_
     return true;
 }
 
-bool TimedateManager::ntp_is_active()
+bool TimedateManager::ntp_is_active(const std::string &name)
 {
-    RETURN_VAL_IF_FALSE(this->ntp_unit_proxy_, false);
+    auto unit_object_path = get_unit_object_path(name);
+    RETURN_VAL_IF_TRUE(unit_object_path.size() <= 0, false);
+
+    auto ntp_unit_proxy = Gio::DBus::Proxy::create_for_bus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                                SYSTEMD_NAME,
+                                                                unit_object_path,
+                                                                SYSTEMD_UNIT_INTERFACE);
+
+    RETURN_VAL_IF_FALSE(ntp_unit_proxy, false);
 
     Glib::VariantBase state;
-    this->ntp_unit_proxy_->get_cached_property(state, UNIT_PROP_ACTIVE_STATE);
+    ntp_unit_proxy->get_cached_property(state, UNIT_PROP_ACTIVE_STATE);
     RETURN_VAL_IF_FALSE(state.gobj() != NULL, false);
 
     auto state_str = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(state).get();
@@ -616,11 +634,11 @@ void TimedateManager::ntp_unit_changed(const Glib::RefPtr<Gio::File> &file,
     this->init_ntp_units();
 }
 
-std::string TimedateManager::get_unit_object_path()
+std::string TimedateManager::get_unit_object_path(const std::string &unit_name)
 {
-    RETURN_VAL_IF_TRUE(this->ntp_unit_name_.size() <= 0, std::string());
+    RETURN_VAL_IF_TRUE(unit_name.size() <= 0, std::string());
 
-    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", this->ntp_unit_name_.c_str())));
+    auto result = call_systemd("LoadUnit", Glib::VariantContainerBase(g_variant_new("(s)", unit_name.c_str())));
     RETURN_VAL_IF_FALSE(result.gobj(), std::string());
     RETURN_VAL_IF_FALSE(result.get_n_children() > 0, std::string());
 
