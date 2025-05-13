@@ -194,18 +194,32 @@ void PowerUPower::on_upower_signal(const Glib::ustring &sender_name,
                                    const Glib::VariantContainerBase &parameters)
 {
     KLOG_PROFILE("sender_name: %s, signal_name: %s.", sender_name.c_str(), signal_name.c_str());
+    
+    if( parameters.get_n_children() != 1 )
+    {
+        KLOG_WARNING("Ignore Upower signal %s, parameters is invalid.", signal_name.c_str());
+        return;
+    }
+
+    if ( parameters.get_type_string() != "(o)" )
+    {
+        KLOG_WARNING("Ignore Upower signal %s, parameters is invalid.", signal_name.c_str());
+        return;
+    }
+
+    Glib::Variant<Glib::DBusObjectPathString> param;
+    parameters.get_child(param, 0);
+    auto o = param.get();
 
     switch (shash(signal_name.c_str()))
     {
-    case "DeviceAdd"_hash:
+    case "DeviceAdded"_hash:
     {
-        auto o = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(parameters).get();
         this->add_upower_device(o);
         break;
     }
     case "DeviceRemoved"_hash:
     {
-        auto o = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::DBusObjectPathString>>(parameters).get();
         this->del_upower_device(o);
         break;
     }
