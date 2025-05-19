@@ -450,12 +450,10 @@ QString SystemShortcuts::keys2GtkStr(const QList<QKeySequence> &keys)
 
 QStringList SystemShortcuts::buildActionId(const KDESystemShortcut &systemShortcutKDE)
 {
-    QStringList actionId{"", "", "", ""};
-    actionId[KGlobalAccel::ComponentUnique] = systemShortcutKDE.componentUniqueName;
-    actionId[KGlobalAccel::ComponentFriendly] = systemShortcutKDE.componentFriendlyName;
-    actionId[KGlobalAccel::ActionUnique] = systemShortcutKDE.uniqueName;
-    actionId[KGlobalAccel::ActionFriendly] = systemShortcutKDE.friendlyName;
-    return actionId;
+    return KeybindingUtils::buildActionId(systemShortcutKDE.componentUniqueName,
+                                          systemShortcutKDE.componentFriendlyName,
+                                          systemShortcutKDE.uniqueName,
+                                          systemShortcutKDE.friendlyName);
 }
 
 void SystemShortcuts::processSettingsChanged(const QString &key, const QString &schemaID)
