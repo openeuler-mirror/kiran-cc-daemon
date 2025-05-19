@@ -21,6 +21,7 @@
 #include <QGSettings>
 #include <QGuiApplication>
 #include <QTimer>
+#include "../keybinding-utils.h"
 #include "keybinding-i.h"
 #include "lib/base/base.h"
 
@@ -38,6 +39,11 @@ KeysComponent::KeysComponent(const QString &componentName,
     KGlobalAccelInterface globalAccelInterface(QStringLiteral("org.kde.kglobalaccel"),
                                                QStringLiteral("/kglobalaccel"),
                                                QDBusConnection::sessionBus());
+
+    // 触发kglobalaccel创建组件并加载配置
+    QStringList actionId = KeybindingUtils::buildActionId(componentName, displayName, QString(), QString());
+    globalAccelInterface.doRegister(actionId);
+    globalAccelInterface.unRegister(actionId);
 
     auto componentReply = globalAccelInterface.getComponent(componentName);
     componentReply.waitForFinished();
@@ -128,8 +134,7 @@ void KeysComponent::processShortcutReleased(const QString &componentUnique,
                                    this->triggerShortCut(actionUnique);
                                    // showdesktop功能在定时器中不会立即触发（可能是在xcb缓存队列中），因此这里进行强制同步处理
                                    QGuiApplication::sync();
-                               }
-                           });
+                               } });
     }
 }
 
