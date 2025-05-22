@@ -37,7 +37,6 @@ namespace Kiran
 #define ACTION_NAME_EMAIL "email"
 #define ACTION_NAME_SCREENSAVER "screensaver"
 #define ACTION_NAME_SHOW_DESKTOP "showDesktop"
-#define ACTION_NAME_START_MENU "startMenu"
 #define ACTION_NAME_LOGOUT "logout"
 #define ACTION_NAME_POWER "power"
 #define ACTION_NAME_HOME "home"
@@ -79,8 +78,6 @@ void KeysSystem::init()
     registerShortCut(KeybindingUtils::keyCombGtk2Qt(emailKey), ACTION_NAME_EMAIL, tr("Launch email client"));
     registerShortCut(KeybindingUtils::keyCombGtk2Qt(screensaverKey), ACTION_NAME_SCREENSAVER, tr("Lock screen"));
     registerShortCut(KeybindingUtils::keyCombGtk2Qt(showdesktopKey), ACTION_NAME_SHOW_DESKTOP, tr("Show desktop"));
-    // 开始菜单窗口是按下win键弹起时触发
-    registerShortCut(Qt::Key_Super_L, ACTION_NAME_START_MENU, tr("Show start menu"), false);
     registerShortCut(KeybindingUtils::keyCombGtk2Qt(logoutKey), ACTION_NAME_LOGOUT, tr("Log out"));
     registerShortCut(KeybindingUtils::keyCombGtk2Qt(powerKey), ACTION_NAME_POWER, tr("Shut down"));
     registerShortCut(KeybindingUtils::keyCombGtk2Qt(homeKey), ACTION_NAME_HOME, tr("Home folder"));
@@ -127,16 +124,6 @@ void KeysSystem::lockScreen()
 void KeysSystem::showdesktop()
 {
     KWindowSystem::setShowingDesktop(!KWindowSystem::showingDesktop());
-}
-
-void KeysSystem::popupStartMenu()
-{
-    auto sendMessage = QDBusMessage::createMethodCall(KIRAN_SHELL_DBUS_NAME,
-                                                      KIRAN_SHELL_MENU_DBUS_OBJECT_PATH,
-                                                      KIRAN_SHELL_MENU_DBUS_INTERFACE,
-                                                      "activateStartMenu");
-
-    QDBusConnection::sessionBus().asyncCall(sendMessage);
 }
 
 void KeysSystem::logout()
@@ -205,9 +192,6 @@ void KeysSystem::triggerShortCut(const QString &name)
         break;
     case CONNECT(ACTION_NAME_SHOW_DESKTOP, _hash):
         showdesktop();
-        break;
-    case CONNECT(ACTION_NAME_START_MENU, _hash):
-        popupStartMenu();
         break;
     case CONNECT(ACTION_NAME_LOGOUT, _hash):
         logout();

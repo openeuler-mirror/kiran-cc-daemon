@@ -54,6 +54,13 @@ void SystemShortcuts::init()
     /* 这里只初始化MATE的系统快捷键，因为KDE的系统快捷键依赖kglobalaccel，
        kglobalaccel并没有提供component增加/删除/变化信号，所以只能实时更新。*/
     initMateShortcuts();
+
+    /* 第一次进入会话时，kiran-session-daemon是先于marco启动的，所以initMateShortcuts
+       函数中调用getWmKeybindings返回为空，需要等待窗口管理器启动后再初始化marco快捷键信息。*/
+    connect(EWMH::getDefault().data(),
+            &EWMH::wmWindowChanged,
+            this,
+            &SystemShortcuts::initMateShortcuts);
 }
 
 bool SystemShortcuts::modify(const QString &uid, const QString &keyCombination)
@@ -187,6 +194,8 @@ void SystemShortcuts::reset()
 void SystemShortcuts::initMateShortcuts()
 {
     RETURN_IF_TRUE(qGuiApp->platformName() != QLatin1String("xcb"))
+
+    m_mateShortcuts.clear();
 
     KeyListEntriesParser parser(KCC_KEYBINDINGS_DIR);
     QVector<KeyListEntries> keys;
@@ -450,12 +459,10 @@ QString SystemShortcuts::keys2GtkStr(const QList<QKeySequence> &keys)
 
 QStringList SystemShortcuts::buildActionId(const KDESystemShortcut &systemShortcutKDE)
 {
-    QStringList actionId{"", "", "", ""};
-    actionId[KGlobalAccel::ComponentUnique] = systemShortcutKDE.componentUniqueName;
-    actionId[KGlobalAccel::ComponentFriendly] = systemShortcutKDE.componentFriendlyName;
-    actionId[KGlobalAccel::ActionUnique] = systemShortcutKDE.uniqueName;
-    actionId[KGlobalAccel::ActionFriendly] = systemShortcutKDE.friendlyName;
-    return actionId;
+    return KeybindingUtils::buildActionId(systemShortcutKDE.componentUniqueName,
+                                          systemShortcutKDE.componentFriendlyName,
+                                          systemShortcutKDE.uniqueName,
+                                          systemShortcutKDE.friendlyName);
 }
 
 void SystemShortcuts::processSettingsChanged(const QString &key, const QString &schemaID)

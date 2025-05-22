@@ -22,13 +22,18 @@ class KeybindingUtils
 {
 public:
     KeybindingUtils();
-    virtual ~KeybindingUtils(){};
+    virtual ~KeybindingUtils() {};
 
-    static bool isValidKeySequence(const QString& keyCombGtk);
+    static bool isValidKeySequence(const QString &keyCombGtk);
     // 转换为QKeySequence能识别的字符串，例如<ctrl>k -> ctrl+k
-    static QString keyCombGtk2Qt(const QString& keyCombGtk);
+    static QString keyCombGtk2Qt(const QString &keyCombGtk);
     // ctrl+k -> <ctrl>k
-    static QString keyCombQt2Gtk(const QString& keyCombQt);
+    static QString keyCombQt2Gtk(const QString &keyCombQt);
+
+    static QStringList buildActionId(const QString &componentUnique,
+                                     const QString &componentFriendly,
+                                     const QString &actionUnique,
+                                     const QString &actionFriendly);
 };  // namespace KS
 
 }  // namespace Kiran
