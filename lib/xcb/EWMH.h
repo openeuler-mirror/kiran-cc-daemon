@@ -44,10 +44,8 @@ public:
     // 获取窗口管理器名字
     QString getWmName();
 
-    // sigc::signal<void>& signal_wm_window_change() { return wm_window_changed_; }
-
 Q_SIGNALS:
-    void wmWindowChange();
+    void wmWindowChanged();
 
 private:
     void init();

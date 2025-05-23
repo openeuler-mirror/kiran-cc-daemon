@@ -145,15 +145,20 @@ void EWMH::updateWmWindow()
         KLOG_WARNING() << "Failed to get property for" << NET_SUPPORTING_WM_CHECK;
         return;
     }
-    m_wmWindow = *(static_cast<xcb_window_t*>(xcb_get_property_value(wmXidReply.get())));
+
+    auto wmWindow = *(static_cast<xcb_window_t*>(xcb_get_property_value(wmXidReply.get())));
 
     const quint32 interestedEvents[] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
     xcb_change_window_attributes(m_xcbConnection->getConnection(),
-                                 m_wmWindow,
+                                 wmWindow,
                                  XCB_CW_EVENT_MASK,
                                  interestedEvents);
 
-    Q_EMIT wmWindowChange();
+    if (m_wmWindow != wmWindow)
+    {
+        m_wmWindow = wmWindow;
+        Q_EMIT wmWindowChanged();
+    }
 }
 
 bool EWMH::nativeEventFilter(const QByteArray& eventType, void* message, long* result)

@@ -26,7 +26,7 @@ class KeysSystem : public KeysComponent
 
 public:
     KeysSystem();
-    virtual ~KeysSystem(){};
+    virtual ~KeysSystem() {};
 
     virtual void init() override;
 
@@ -34,7 +34,6 @@ private:
     void launchHelp();
     void lockScreen();
     void showdesktop();
-    void popupStartMenu();
     void logout();
     void shutdown();
     void openHome();

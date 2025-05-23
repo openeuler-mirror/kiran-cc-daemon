@@ -13,6 +13,7 @@
  */
 
 #include "keybinding-utils.h"
+#include <KGlobalAccel>
 #include <QKeySequence>
 #include "lib/base/base.h"
 
@@ -22,7 +23,7 @@ KeybindingUtils::KeybindingUtils()
 {
 }
 
-bool KeybindingUtils::isValidKeySequence(const QString& keyCombGtk)
+bool KeybindingUtils::isValidKeySequence(const QString &keyCombGtk)
 {
     if (keyCombGtk.isEmpty() || keyCombGtk.compare("disabled", Qt::CaseInsensitive) == 0)
     {
@@ -33,7 +34,7 @@ bool KeybindingUtils::isValidKeySequence(const QString& keyCombGtk)
     return (QKeySequence::fromString(keyCombQt).toString().isEmpty() == false);
 }
 
-QString KeybindingUtils::keyCombGtk2Qt(const QString& keyCombGtk)
+QString KeybindingUtils::keyCombGtk2Qt(const QString &keyCombGtk)
 {
     auto keyCombQt = keyCombGtk;
     keyCombQt.replace(QRegExp("<super>", Qt::CaseInsensitive), "<Meta>");
@@ -43,7 +44,7 @@ QString KeybindingUtils::keyCombGtk2Qt(const QString& keyCombGtk)
     return keyCombQt;
 }
 
-QString KeybindingUtils::keyCombQt2Gtk(const QString& keyCombQt)
+QString KeybindingUtils::keyCombQt2Gtk(const QString &keyCombQt)
 {
     RETURN_VAL_IF_TRUE(keyCombQt.isEmpty(), QString());
 
@@ -58,5 +59,18 @@ QString KeybindingUtils::keyCombQt2Gtk(const QString& keyCombQt)
     keyCombGtk.replace(QRegExp("<meta>", Qt::CaseInsensitive), "<Super>");
     // keyCombGtk.replace(QRegExp("<ctrl>", Qt::CaseInsensitive), "<Control>");
     return keyCombGtk;
+}
+
+QStringList KeybindingUtils::buildActionId(const QString &componentUnique,
+                                           const QString &componentFriendly,
+                                           const QString &actionUnique,
+                                           const QString &actionFriendly)
+{
+    QStringList actionId{"", "", "", ""};
+    actionId[KGlobalAccel::ComponentUnique] = componentUnique;
+    actionId[KGlobalAccel::ComponentFriendly] = componentFriendly;
+    actionId[KGlobalAccel::ActionUnique] = actionUnique;
+    actionId[KGlobalAccel::ActionFriendly] = actionFriendly;
+    return actionId;
 }
 }  // namespace Kiran
