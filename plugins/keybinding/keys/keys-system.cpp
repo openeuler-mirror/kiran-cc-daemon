@@ -37,6 +37,7 @@ namespace Kiran
 #define ACTION_NAME_EMAIL "email"
 #define ACTION_NAME_SCREENSAVER "screensaver"
 #define ACTION_NAME_SHOW_DESKTOP "showDesktop"
+#define ACTION_NAME_START_MENU "startMenu"
 #define ACTION_NAME_LOGOUT "logout"
 #define ACTION_NAME_POWER "power"
 #define ACTION_NAME_HOME "home"
@@ -86,6 +87,13 @@ void KeysSystem::init()
     registerShortCut(Qt::Key_WWW, ACTION_NAME_WWW, tr("Launch web browser"));
     registerShortCut(Qt::Key_Search, ACTION_NAME_SEARCH, tr("Search"));
     registerShortCut(Qt::Key_Tools, ACTION_NAME_CONTROL_CENTER, tr("Launch settings"));
+
+    // 开始菜单窗口是按下win键弹起时触发
+    registerShortCut(QList<QKeySequence>() << Qt::Key_Super_L << Qt::Key_Super_R,
+                     ACTION_NAME_START_MENU,
+                     tr("Show start menu"),
+                     false,
+                     true);
 }
 
 void KeysSystem::launchHelp()
@@ -124,6 +132,16 @@ void KeysSystem::lockScreen()
 void KeysSystem::showdesktop()
 {
     KWindowSystem::setShowingDesktop(!KWindowSystem::showingDesktop());
+}
+
+void KeysSystem::popupStartMenu()
+{
+    auto sendMessage = QDBusMessage::createMethodCall(KIRAN_SHELL_DBUS_NAME,
+                                                      KIRAN_SHELL_MENU_DBUS_OBJECT_PATH,
+                                                      KIRAN_SHELL_MENU_DBUS_INTERFACE,
+                                                      "activateStartMenu");
+
+    QDBusConnection::sessionBus().asyncCall(sendMessage);
 }
 
 void KeysSystem::logout()
@@ -192,6 +210,9 @@ void KeysSystem::triggerShortCut(const QString &name)
         break;
     case CONNECT(ACTION_NAME_SHOW_DESKTOP, _hash):
         showdesktop();
+        break;
+    case CONNECT(ACTION_NAME_START_MENU, _hash):
+        popupStartMenu();
         break;
     case CONNECT(ACTION_NAME_LOGOUT, _hash):
         logout();
