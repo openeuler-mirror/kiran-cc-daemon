@@ -29,6 +29,7 @@
 
 namespace Kiran
 {
+#define ACTION_NAME_START_MENU "startMenu"
 #define KCC_KEYBINDINGS_DIR KCD_INSTALL_DATADIR "/keybindings"
 
 /*
@@ -364,6 +365,12 @@ QMap<QString, QSharedPointer<MixSystemShortcut>> SystemShortcuts::getKShortcuts(
 
     for (const auto &globalShortcutInfo : globalShortcutInfos)
     {
+        // 开始菜单窗口使用win键弹出，不允许修改，所以这里需要对上层应用进行屏蔽处理
+        if (globalShortcutInfo.uniqueName() == ACTION_NAME_START_MENU)
+        {
+            continue;
+        }
+
         auto shortcutMix = QSharedPointer<MixSystemShortcut>::create();
 
         auto data = QString("%1:%2").arg(globalShortcutInfo.componentUniqueName()).arg(globalShortcutInfo.uniqueName());
