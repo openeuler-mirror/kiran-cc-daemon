@@ -28,7 +28,8 @@
 namespace Kiran
 {
 KeysComponent::KeysComponent(const QString &componentName,
-                             const QString &displayName) : m_componentInterface(nullptr)
+                             const QString &displayName) : m_componentInterface(nullptr),
+                                                           m_pressedTriggered(false)
 {
     m_settings = new QGSettings(KEYS_SCHEMA_ID, "", this);
     m_actionCollection = new KActionCollection(this);
@@ -59,16 +60,35 @@ KeysComponent::KeysComponent(const QString &componentName,
                                                                   this);
 
         connect(m_componentInterface, &KGlobalAccelComponentInterface::globalShortcutPressed, this, &KeysComponent::processShortcutPressed);
+        connect(m_componentInterface, &KGlobalAccelComponentInterface::globalShortcutReleased, this, &KeysComponent::processShortcutReleased);
     }
 }
 
 bool KeysComponent::registerShortCut(const QKeySequence &key,
                                      const QString &name,
-                                     const QString &displayName)
+                                     const QString &displayName,
+                                     bool isPressed,
+                                     bool forceUpdate)
+{
+    return registerShortCut(QList<QKeySequence>() << key, name, displayName, isPressed, forceUpdate);
+}
+
+bool KeysComponent::registerShortCut(const QList<QKeySequence> &keys,
+                                     const QString &name,
+                                     const QString &displayName,
+                                     bool isPressed,
+                                     bool forceUpdate)
 {
     QAction *globalAction = m_actionCollection->addAction(name);
     globalAction->setText(displayName);
-    return KGlobalAccel::self()->setGlobalShortcut(globalAction, QList<QKeySequence>() << key);
+    globalAction->setData(isPressed);
+
+    if (forceUpdate)
+    {
+        KGlobalAccel::self()->setShortcut(globalAction, keys, KGlobalAccel::NoAutoloading);
+    }
+
+    return KGlobalAccel::self()->setGlobalShortcut(globalAction, keys);
 }
 
 void KeysComponent::processShortcutPressed(const QString &componentUnique,
@@ -87,7 +107,51 @@ void KeysComponent::processShortcutPressed(const QString &componentUnique,
                           << "and action name is" << actionUnique
                           << "at time" << timestamp;
 
-    this->triggerShortCut(actionUnique);
+    auto action = m_actionCollection->action(actionUnique);
+    if (action && action->data().toBool())
+    {
+        m_pressedTriggered = true;
+        this->triggerShortCut(actionUnique);
+    }
+}
+
+void KeysComponent::processShortcutReleased(const QString &componentUnique,
+                                            const QString &actionUnique,
+                                            qlonglong timestamp)
+{
+    if (m_actionCollection->componentName() != componentUnique)
+    {
+        // 正常情况不会走到这里
+        KLOG_ERROR(keybinding) << "Both components" << m_actionCollection->componentName() << "and" << componentUnique << "are not same";
+        return;
+    }
+
+    KLOG_INFO(keybinding) << "Receive shortcut released signal "
+                          << "which component name is" << componentUnique
+                          << "and action name is" << actionUnique
+                          << "at time" << timestamp;
+
+    auto action = m_actionCollection->action(actionUnique);
+    if (action && !action->data().toBool())
+    {
+        m_pressedTriggered = false;
+        /* 考虑到如下场景：
+              同时存在<super>（弹出开始菜单窗口）和<super>D（显示桌面）两个快捷键，第一个快捷键是按键弹起时触发，第二个是按下时触发。
+              当<super>被按下时，会收到快捷键1（<super>）被按下信号；
+              当D被按下时，kglobalaccel首先会发送快捷键1释放信号，然后发送快捷键2按下信号；
+              当D被释放时，kglobalaccel会发送快捷键2释放信号；
+              （<super>释放时不会再触发快捷键1释放信号）
+           在这个场景中，如果不进行延时处理，两个快捷键的命令都会执行，与预期不符。所以需要针对释放信号进行延时处理，如果延时的这段时间
+           收到了按下信号，说明存在两个快捷键都被命中了，这时不应该再触发释放信号对应的快捷键命令。*/
+        QTimer::singleShot(50, [this, actionUnique]()
+                           {
+                               if (!this->m_pressedTriggered)
+                               {
+                                   this->triggerShortCut(actionUnique);
+                                   // showdesktop功能在定时器中不会立即触发（可能是在xcb缓存队列中），因此这里进行强制同步处理
+                                   QGuiApplication::sync();
+                               } });
+    }
 }
 
 }  // namespace Kiran
