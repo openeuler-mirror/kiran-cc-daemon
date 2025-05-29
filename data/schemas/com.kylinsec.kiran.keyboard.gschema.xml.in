@@ -7,12 +7,12 @@
         </key>
 
         <key name="capslock-tips-enabled" type="b">
-            <default>true</default>
+            <default>false</default>
             <description>Whether enable capslock tips.</description>
         </key>
 
         <key name="numlock-tips-enabled" type="b">
-            <default>true</default>
+            <default>false</default>
             <description>Whether enable numlock tips.</description>
         </key>
 
