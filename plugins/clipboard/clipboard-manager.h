@@ -45,5 +45,6 @@ private:
 
     KSystemClipboard *m_clipboard;
     QSharedPointer<ClipboardData> m_clipboardDatas[QClipboard::FindBuffer];
+    int m_clipboardLock[QClipboard::FindBuffer];
 };
 }  // namespace Kiran
