@@ -110,7 +110,7 @@ public:
     void setUserName(const QString &userName);
     void setXSession(const QString &xsession);
 
-public Q_SLOTS:  // METHODS
+public Q_SLOTS:  // METHODS：大写字母开头的函数均为DBus接口
     // 设置用户类型，分为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
     void SetAccountType(int account_type);
     // 设置用户是否自动登陆
