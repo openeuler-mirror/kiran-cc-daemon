@@ -367,11 +367,6 @@ void User::setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message,
     QString program("/usr/bin/chage");
     QStringList arguments;
 
-    // freeze_notify();
-    // SCOPE_EXIT({
-    //     thaw_notify();
-    // });
-
     QJsonParseError jsonError;
     auto jsonDoc = QJsonDocument::fromJson(options.toUtf8(), &jsonError);
 
@@ -385,33 +380,34 @@ void User::setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message,
 
     for (auto key : jsonRoot.keys())
     {
-        auto value = jsonRoot[key].toString();
+        auto value = jsonRoot[key].toInt();
+        auto strValue = QString("%1").arg(value);
 
         switch (shash(key.toUtf8().data()))
         {
         case CONNECT(ACCOUNTS_PEP_EXPIRATION_TIME, _hash):
             arguments.push_back("-E");
-            arguments.push_back(value);
+            arguments.push_back(strValue);
             break;
         case CONNECT(ACCOUNTS_PEP_LAST_CHANGED_TIME, _hash):
             arguments.push_back("-d");
-            arguments.push_back(value);
+            arguments.push_back(strValue);
             break;
         case CONNECT(ACCOUNTS_PEP_MIN_DAYS, _hash):
             arguments.push_back("-m");
-            arguments.push_back(value);
+            arguments.push_back(strValue);
             break;
         case CONNECT(ACCOUNTS_PEP_MAX_DAYS, _hash):
             arguments.push_back("-M");
-            arguments.push_back(value);
+            arguments.push_back(strValue);
             break;
         case CONNECT(ACCOUNTS_PEP_DAYS_TO_WARN, _hash):
             arguments.push_back("-W");
-            arguments.push_back(value);
+            arguments.push_back(strValue);
             break;
         case CONNECT(ACCOUNTS_PEP_INACTIVE_DAYS, _hash):
             arguments.push_back("-I");
-            arguments.push_back(value);
+            arguments.push_back(strValue);
             break;
         default:
             KLOG_INFO(accounts) << "The option " << key << "is ignored.";
@@ -795,17 +791,16 @@ void User::initSettings()
 
 void User::updatePasswordExpirationPolicy(QSharedPointer<SPwd> spwd)
 {
-    QJsonDocument jsonDoc;
     auto jsonObj = QJsonObject{
-        {ACCOUNTS_PEP_EXPIRATION_TIME, qlonglong(spwd->expire)},
-        {ACCOUNTS_PEP_LAST_CHANGED_TIME, qlonglong(spwd->lstchg)},
-        {ACCOUNTS_PEP_MIN_DAYS, qlonglong(spwd->min)},
-        {ACCOUNTS_PEP_MAX_DAYS, qlonglong(spwd->max)},
-        {ACCOUNTS_PEP_DAYS_TO_WARN, qlonglong(spwd->warn)},
-        {ACCOUNTS_PEP_INACTIVE_DAYS, qlonglong(spwd->inact)},
+        {ACCOUNTS_PEP_EXPIRATION_TIME, int(spwd->expire)},
+        {ACCOUNTS_PEP_LAST_CHANGED_TIME, int(spwd->lstchg)},
+        {ACCOUNTS_PEP_MIN_DAYS, int(spwd->min)},
+        {ACCOUNTS_PEP_MAX_DAYS, int(spwd->max)},
+        {ACCOUNTS_PEP_DAYS_TO_WARN, int(spwd->warn)},
+        {ACCOUNTS_PEP_INACTIVE_DAYS, int(spwd->inact)},
     };
 
-    setPasswordExpirationPolicy(jsonDoc.toJson());
+    setPasswordExpirationPolicy(QJsonDocument(jsonObj).toJson(QJsonDocument::Compact));
 }
 
 AccountsAccountType User::accountTtypeFromPwent(QSharedPointer<Passwd> passwd)
