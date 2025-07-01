@@ -266,8 +266,8 @@ void User::setIconFileAuthenticated(const QDBusMessage &message, const QString &
         QFile::remove(destFilePath);
     }
 
-    /* 将图标文件拷贝一份到系统路径中(destFilePath)，如果原始路径(filepath)的文件对所有用户都有可读权限，
-       则图标位置还是从原始路径获取，否则将图标位置改为系统路径。*/
+    /* 将图标文件拷贝一份到系统路径中(destFilePath)，如果原始路径(filepath)的文件对所有用户都有可读权限(系统自带账户图标)，
+       则图标位置还是从原始路径获取，否则将图标位置改为系统路径(用户自定义图标)。*/
     if (QFile::exists(filepath))
     {
         QFile::copy(filepath, destFilePath);
@@ -276,6 +276,7 @@ void User::setIconFileAuthenticated(const QDBusMessage &message, const QString &
         if (!fileInfo.permission(QFile::ReadOther))
         {
             iconAccessFilePath = destFilePath;
+            QFile::setPermissions(iconAccessFilePath, QFile::ReadUser | QFile::WriteUser | QFile::ReadOther);
         }
     }
 
