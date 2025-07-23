@@ -8,6 +8,9 @@ set(KCD_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME})
 set(enable-plugin-accounts
     "true"
     CACHE STRING "Enable plugin accounts")
+set(enable-plugin-groups
+    "true"
+    CACHE STRING "Enable plugin groups")
 set(enable-plugin-greeter
     "true"
     CACHE STRING "Enable plugin greeter")

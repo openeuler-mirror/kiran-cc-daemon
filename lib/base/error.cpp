@@ -113,6 +113,25 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_ACCOUNTS_USRE_CURRENT_PASSWORD_DISMATCH:
         errorDesc = tr("The current password is dismatch.");
         break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_1:
+    case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_2:
+        errorDesc = tr("No group found.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_ALREADY_EXIST:
+        errorDesc = tr("The group already exists.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_UNKNOWN_CALLER_GID:
+        errorDesc = tr("Invalid caller gid.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_UNKNOWN_CALLER_NAME:
+        errorDesc = tr("Invalid caller group name.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_USER_ALREADY_IN_GROUP:
+        errorDesc = tr("The user already in the group.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_IN_GROUP:
+        errorDesc = tr("The user isn't in the group.");
+        break;
     case CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID:
     case CCErrorCode::ERROR_AUDIO_STREAM_VOLUME_RANGE_INVLAID:
         errorDesc = tr("The range of volume is between 0 and 1.0.");
