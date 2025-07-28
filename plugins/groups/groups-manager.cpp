@@ -15,11 +15,14 @@
 #include "groups-manager.h"
 #include <kiran-log/qt5-log-i.h>
 #include <QDBusConnection>
+#include "config-groups.h"
 #include "group.h"
 #include "groups-i.h"
+#include "groups-util.h"
 #include "groups-wrapper.h"
 #include "groupsadaptor.h"
 #include "lib/base/base.h"
+#include "lib/base/polkit-proxy.h"
 
 namespace Kiran
 {
@@ -206,12 +209,74 @@ QDBusObjectPath GroupsManager::FindGroupByID(uint32_t gid)
     return QDBusObjectPath();
 }
 
-QDBusObjectPath GroupsManager::CreateGroup(const QString &name)
+CHECK_AUTH_WITH_1ARGS_AND_RETVAL(GroupsManager,
+                                 QDBusObjectPath,
+                                 CreateGroup,
+                                 createGroupAuthenticated,
+                                 AUTH_GROUP_ADMIN,
+                                 const QString &);
+
+void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
+                                             const QString &name)
 {
+    auto groupEntry = m_groupsWrapper->getGroupEntryByName(name);
+    if (groupEntry)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_ALREADY_EXIST);
+    }
+
+    KLOG_INFO() << "Create group" << name;
+
+    auto program = QString("/usr/sbin/groupadd");
+    QStringList arguments = {"--", name};
+
+    SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
+
+    auto group = findAndCreateGroupByName(name);
+    if (group)
+    {
+        // 创建组时默认为非主组
+        /**
+         * 只有在创建用户或者使用sudo usermod -g newgroup username命令才能修改主组，
+         * 这些操作会修改/etc/passwd文件变化，重新加载组信息
+         */
+        group->setLocalGroup(true);
+
+        auto replyMessage = message.createReply(group->getObjectPath());
+        QDBusConnection::systemBus().send(replyMessage);
+    }
+    else
+    {
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_3);
+    }
+
+    return;
 }
 
-void GroupsManager::DeleteGroup(uint32_t gid)
+CHECK_AUTH_WITH_1ARGS(GroupsManager,
+                      DeleteGroup,
+                      deleteGroupAuthenticated,
+                      AUTH_GROUP_ADMIN,
+                      uint32_t);
+
+void GroupsManager::deleteGroupAuthenticated(const QDBusMessage &message,
+                                             uint32_t gid)
 {
+    auto groupEntry = m_groupsWrapper->getGroupEntryByID(gid);
+    if (!groupEntry)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_4);
+    }
+
+    KLOG_INFO() << "Delete group" << groupEntry->name << "with gid" << gid;
+
+    auto program = QString("/usr/sbin/groupdel");
+    QStringList arguments = {"--", groupEntry->name};
+
+    SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
+    QDBusConnection::systemBus().send(message.createReply());
+
+    return;
 }
 
 }  // namespace Kiran

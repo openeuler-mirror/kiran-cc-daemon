@@ -53,6 +53,7 @@ public:
     QMap<QString, QSharedPointer<GroupEntry>> getGroups();
     QSharedPointer<GroupEntry> getGroupEntryByID(uint32_t gid);
     QSharedPointer<GroupEntry> getGroupEntryByName(QString name);
+    bool isUserExist(const QString &userName);
 
 signals:
     void groupsChanged();
@@ -69,6 +70,7 @@ private:
 private:
     static GroupsWrapper *m_instance;
     QMap<QString, QSharedPointer<GroupEntry>> m_groups;
+    QStringList m_pwUsers;
 
     QFileSystemWatcher *m_fsWatcher;
     QTimer *m_reloadTimer;

@@ -14,13 +14,16 @@
 
 #pragma once
 
+#include <QDBusContext>
+#include <QDBusMessage>
 #include <QDBusObjectPath>
 #include "groups-wrapper.h"
 
 class GroupAdaptor;
 namespace Kiran
 {
-class Group : public QObject
+class Group : public QObject,
+              protected QDBusContext
 {
     Q_OBJECT
 
@@ -79,10 +82,16 @@ public:
      * @brief 修改组id
      * @param 新组id
      */
-    void ChangeGroupId(uint32_t newGid);
+    void ChangeGroupID(uint32_t newGid);
 
 signals:
     void Changed();
+
+private:
+    void addUserToGroupAuthenticated(const QDBusMessage &message, const QString &name);
+    void removeUserFromGroupAuthenticated(const QDBusMessage &message, const QString &name);
+    void changeGroupNameAuthenticated(const QDBusMessage &message, const QString &newGroupName);
+    void changeGroupIDAuthenticated(const QDBusMessage &message, uint32_t newGid);
 
 private:
     void init();

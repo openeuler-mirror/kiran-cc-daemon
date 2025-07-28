@@ -13,6 +13,9 @@ qt5_add_dbus_adaptor(
   ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SystemDaemon.Groups.Group.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/group.h Kiran::Group)
 
+  
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-groups.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/config-groups.h)
 
 # 更新ts文件
 set(TS_FILES

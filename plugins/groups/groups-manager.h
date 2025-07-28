@@ -81,6 +81,13 @@ Q_SIGNALS:
     void GroupDeleted(const QDBusObjectPath &group);
 
 private:
+    void createGroupAuthenticated(const QDBusMessage &message,
+                                  const QString &name);
+
+    void deleteGroupAuthenticated(const QDBusMessage &message,
+                                  uint32_t gid);
+
+private:
     void init();
     QMap<QString, QSharedPointer<Group>> loadGroups();
     QSharedPointer<Group> findAndCreateGroupByGID(uint32_t gid);

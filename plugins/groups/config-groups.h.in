@@ -1,0 +1,4 @@
+#pragma once
+
+#define AUTH_GROUP_ADMIN "com.kylinsec.kiran.system-daemon.groups.group-administration"
+#define AUTH_CHANGE_OWN_USER_DATA "com.kylinsec.kiran.system-daemon.groups.change-own-user-data"
