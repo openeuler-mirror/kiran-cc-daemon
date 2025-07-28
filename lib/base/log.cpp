@@ -17,6 +17,7 @@
 namespace Kiran
 {
 Q_LOGGING_CATEGORY(accounts, "kcd.accounts");
+Q_LOGGING_CATEGORY(groups, "kcd.groups");
 Q_LOGGING_CATEGORY(appearance, "kcd.appearance");
 Q_LOGGING_CATEGORY(audio, "kcd.audio");
 Q_LOGGING_CATEGORY(clipboard, "kcd.clipboard");

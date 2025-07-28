@@ -88,6 +88,21 @@ QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByName(QString name)
     return nullptr;
 }
 
+bool GroupsWrapper::isUserExist(const QString &userName)
+{
+    if (m_pwUsers.contains(userName))
+    {
+        return true;
+    }
+
+    if (getpwnam(userName.toUtf8().data()) != nullptr)
+    {
+        m_pwUsers.append(userName);
+        return true;
+    }
+    return false;
+}
+
 void GroupsWrapper::idleReload(const QString &filePath)
 {
     KLOG_INFO() << "File" << filePath << "is changed";
@@ -133,6 +148,7 @@ void GroupsWrapper::reloadPrimaryGroup()
         return;
     }
 
+    m_pwUsers.clear();
     struct passwd *pwent;
 
     do
@@ -142,6 +158,9 @@ void GroupsWrapper::reloadPrimaryGroup()
         {
             break;
         }
+        // 存储系统中的用户名
+        m_pwUsers.append(pwent->pw_name);
+
         // 查询该用户的组id,并设置该组为主组
         auto grent = getgrgid(pwent->pw_gid);
         if (grent == NULL)

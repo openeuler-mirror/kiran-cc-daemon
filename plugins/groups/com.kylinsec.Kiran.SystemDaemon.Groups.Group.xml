@@ -16,7 +16,7 @@
             <description>Remove user from group.</description>
         </method>
 
-        <method name="ChangeGroupId">
+        <method name="ChangeGroupID">
             <arg name="Gid" direction="in" type="t">
                 <summary>The new gid of the group.</summary>
             </arg>
