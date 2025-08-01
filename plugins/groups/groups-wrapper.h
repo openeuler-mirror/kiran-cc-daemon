@@ -23,7 +23,6 @@
 
 namespace Kiran
 {
-#define MINIMUM_GID 1000
 
 class GroupEntry
 {
@@ -33,7 +32,7 @@ public:
 
     QString name;    /* Group name.	*/
     QString passwd;  /* Password.	*/
-    uint32_t gid;    /* Group ID.	*/
+    qulonglong gid;  /* Group ID.	*/
     QStringList mem; /* Member list.	*/
     bool localGroup;
     bool primaryGroup;
@@ -51,7 +50,7 @@ public:
     static void globalDeinit() { delete m_instance; };
 
     QMap<QString, QSharedPointer<GroupEntry>> getGroups();
-    QSharedPointer<GroupEntry> getGroupEntryByID(uint32_t gid);
+    QSharedPointer<GroupEntry> getGroupEntryByID(qulonglong gid);
     QSharedPointer<GroupEntry> getGroupEntryByName(QString name);
     bool isUserExist(const QString &userName);
 

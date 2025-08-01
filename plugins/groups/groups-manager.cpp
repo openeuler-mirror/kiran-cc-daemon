@@ -58,8 +58,8 @@ void GroupsManager::globalInit(GroupsWrapper *groupsWrapper)
 void GroupsManager::reload()
 {
     auto newGroups = loadGroups();
-    QStringList addedGroupsName;
-    QStringList deletedGroupsName;
+    QMap<QString, QSharedPointer<Group>> addedGroups;
+    QMap<QString, QSharedPointer<Group>> deletedGroups;
 
     // 移除被删除的用户组
     for (auto iter = m_groups.begin(); iter != m_groups.end(); ++iter)
@@ -67,9 +67,7 @@ void GroupsManager::reload()
         auto iter2 = newGroups.find(iter.key());
         if (iter2 == newGroups.end())
         {
-            Q_EMIT GroupDeleted(iter.value()->getObjectPath());
-            deletedGroupsName << iter.key();
-            iter.value()->dbusUnregister();
+            deletedGroups.insert(iter.key(), iter.value());
         }
     }
 
@@ -79,15 +77,42 @@ void GroupsManager::reload()
         auto iter2 = m_groups.find(iter.key());
         if (iter2 == m_groups.end())
         {
-            Q_EMIT GroupAdded(iter.value()->getObjectPath());
-            iter.value()->dbusRegister();
-            addedGroupsName << iter.key();
+            addedGroups.insert(iter.key(), iter.value());
         }
     }
 
-    KLOG_INFO() << "Update group cache, add groups" << addedGroupsName << ", deleted groups:" << deletedGroupsName;
+    KLOG_INFO() << "Update group cache, add groups" << addedGroups.keys() << ", deleted groups:" << deletedGroups.keys();
 
     m_groups = newGroups;
+
+    // 单独处理被删除和添加的用户组。
+    // 取消注册被删除的组
+    auto iter = deletedGroups.begin();
+    while (iter != deletedGroups.end())
+    {
+        auto iter2 = m_groups.find(iter.key());
+        if (iter2 == m_groups.end())
+        {
+            Q_EMIT GroupDeleted(iter.value()->getObjectPath());
+            // 这里直接从QMap中移除，引用计数为0,调用Group析构函数，自动注销dbus对象
+            iter = deletedGroups.erase(iter);  // 安全删除并获取下一个有效迭代器
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
+    // 注册新增组
+    for (auto iter = addedGroups.begin(); iter != addedGroups.end(); ++iter)
+    {
+        auto iter2 = m_groups.find(iter.key());
+        if (iter2 != m_groups.end())
+        {
+            Q_EMIT GroupAdded(iter.value()->getObjectPath());
+            iter.value()->dbusRegister();
+        }
+    }
 }
 
 void GroupsManager::init()
@@ -120,7 +145,7 @@ QMap<QString, QSharedPointer<Group>> GroupsManager::loadGroups()
     return groups;
 }
 
-QSharedPointer<Group> GroupsManager::findAndCreateGroupByGID(uint32_t gid)
+QSharedPointer<Group> GroupsManager::findAndCreateGroupByGID(qulonglong gid)
 {
     auto groupEntry = m_groupsWrapper->getGroupEntryByID(gid);
     if (!groupEntry)
@@ -194,7 +219,7 @@ QDBusObjectPath GroupsManager::FindGroupByName(const QString &name)
     return QDBusObjectPath();
 }
 
-QDBusObjectPath GroupsManager::FindGroupByID(uint32_t gid)
+QDBusObjectPath GroupsManager::FindGroupByID(qulonglong gid)
 {
     auto group = findAndCreateGroupByGID(gid);
 
@@ -222,7 +247,7 @@ void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
     auto groupEntry = m_groupsWrapper->getGroupEntryByName(name);
     if (groupEntry)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_ALREADY_EXIST);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_ALREADY_EXIST);
     }
 
     KLOG_INFO() << "Create group" << name;
@@ -257,15 +282,15 @@ CHECK_AUTH_WITH_1ARGS(GroupsManager,
                       DeleteGroup,
                       deleteGroupAuthenticated,
                       AUTH_GROUP_ADMIN,
-                      uint32_t);
+                      qulonglong);
 
 void GroupsManager::deleteGroupAuthenticated(const QDBusMessage &message,
-                                             uint32_t gid)
+                                             qulonglong gid)
 {
     auto groupEntry = m_groupsWrapper->getGroupEntryByID(gid);
     if (!groupEntry)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_4);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_4);
     }
 
     KLOG_INFO() << "Delete group" << groupEntry->name << "with gid" << gid;

@@ -10,7 +10,7 @@
 
         <method name="FindGroupByID">
             <arg name="gid" direction="in" type="t">
-                <description>The gid to look up</description>
+                <description>Find the group with the input gid</description>
             </arg>
             <arg name="group" direction="out" type="o">
                 <description>Object path of group</description>
@@ -19,7 +19,7 @@
 
         <method name="FindGroupByName">
             <arg name="name" direction="in" type="s">
-                <description>The group to look up</description>
+                <description>Find the group with the input name</description>
             </arg>
             <arg name="group" direction="out" type="o">
                 <description>Object path of group</description>
