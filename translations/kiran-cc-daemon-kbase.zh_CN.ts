@@ -45,11 +45,13 @@
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="59"/>
+        <location filename="../lib/base/error.cpp" line="130"/>
         <source>Invalid command syntax.</source>
         <translation>命令语法无效。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="62"/>
+        <location filename="../lib/base/error.cpp" line="133"/>
         <source>Invalid argument to option.</source>
         <translation>命令参数无效。</translation>
     </message>
@@ -80,6 +82,7 @@
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="80"/>
+        <location filename="../lib/base/error.cpp" line="148"/>
         <source>Can&apos;t update group file.</source>
         <translation>不能更新group文件。</translation>
     </message>
@@ -149,338 +152,370 @@
         <translation>该组已经存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="126"/>
-        <source>Invalid caller gid.</source>
-        <translation>非法调用组id。</translation>
+        <location filename="../lib/base/error.cpp" line="136"/>
+        <source>GID already in use (and no -o).</source>
+        <translation>组id已经被使用（没有使用-o选项）。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="129"/>
-        <source>Invalid caller group name.</source>
-        <translation>非法调用组名。</translation>
+        <location filename="../lib/base/error.cpp" line="139"/>
+        <source>Specified group doesn&apos;t exist.</source>
+        <translation>指定的组不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="132"/>
+        <location filename="../lib/base/error.cpp" line="142"/>
+        <source>Can&apos;t remove user&apos;s primary group.</source>
+        <translation>无法移除用户主组。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="145"/>
+        <source>Group name already in use.</source>
+        <translation>组名已经被使用。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="151"/>
+        <source>Can&apos;t setup cleanup service.</source>
+        <translation>无法设置清理服务。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="154"/>
+        <source>Can&apos;t determine your username for use with pam.</source>
+        <translation>无法确定您用于pam的用户名。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="157"/>
+        <source>Pam returned an error, see syslog facility id groupmod for the PAM error message.</source>
+        <translation>Pam返回了一个错误，有关Pam错误消息，请参阅syslog 配置id groupmod。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="163"/>
+        <source>User is not exist.</source>
+        <translation>用户不存在。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="166"/>
         <source>The user already in the group.</source>
         <translation>该用户已经存在于组中。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="135"/>
+        <location filename="../lib/base/error.cpp" line="169"/>
         <source>The user isn&apos;t in the group.</source>
         <translation>该用户不存在于组中。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="139"/>
+        <location filename="../lib/base/error.cpp" line="173"/>
         <source>The range of volume is between 0 and 1.0.</source>
         <translation>音量范围必须在[0, 1.0]之间。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="143"/>
+        <location filename="../lib/base/error.cpp" line="177"/>
         <source>The range of balance is between -1 and 1.</source>
         <translation>平衡范围必须在[-1, 1]之间。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="147"/>
+        <location filename="../lib/base/error.cpp" line="181"/>
         <source>The sink device isn&apos;t found.</source>
         <translation>未找到输出设备。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="151"/>
+        <location filename="../lib/base/error.cpp" line="185"/>
         <source>The source device isn&apos;t found.</source>
         <translation>未找到输入设备。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="155"/>
+        <location filename="../lib/base/error.cpp" line="189"/>
         <source>The sink stream isn&apos;t found.</source>
         <translation>未找到输出流。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="158"/>
+        <location filename="../lib/base/error.cpp" line="192"/>
         <source>NTP unit is active.</source>
         <translation>NTP服务已开启。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="161"/>
+        <location filename="../lib/base/error.cpp" line="195"/>
         <source>Invalid timezone.</source>
         <translation>不合法的时区。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="164"/>
+        <location filename="../lib/base/error.cpp" line="198"/>
         <source>No NTP unit available.</source>
         <translation>没有NTP服务可用。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="168"/>
+        <location filename="../lib/base/error.cpp" line="202"/>
         <source>Unknown date format type.</source>
         <translation>未知的日期格式化类型。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="171"/>
+        <location filename="../lib/base/error.cpp" line="205"/>
         <source>Failed to start NTP unit.</source>
         <translation>开启NTP服务失败。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="174"/>
+        <location filename="../lib/base/error.cpp" line="208"/>
         <source>Failed to stop NTP unit.</source>
         <translation>停止NTP服务失败。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="178"/>
+        <location filename="../lib/base/error.cpp" line="212"/>
         <source>Unknown display style.</source>
         <translation>未知的显示类型。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="181"/>
+        <location filename="../lib/base/error.cpp" line="215"/>
         <source>The mode of monitors which contain resolution and refresh rate is no intersection.</source>
         <translation>所有显示器没有相同的分辨率和刷新率。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="184"/>
+        <location filename="../lib/base/error.cpp" line="218"/>
         <source>The custom configuration file isn&apos;t found.</source>
         <translation>未找到自定义配置文件。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="187"/>
+        <location filename="../lib/base/error.cpp" line="221"/>
         <source>Not found matched item in custom configuration file.</source>
         <translation>不能找到匹配的配置项。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="190"/>
+        <location filename="../lib/base/error.cpp" line="224"/>
         <source>The primary monitor must not be empty.</source>
         <translation>主显示器不能为空。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="193"/>
+        <location filename="../lib/base/error.cpp" line="227"/>
         <source>Not found the primary monitor.</source>
         <translation>未找到主显示器。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="196"/>
+        <location filename="../lib/base/error.cpp" line="230"/>
         <source>Cannot disable the monitor, because the number of the enabled monitor is less than 1.</source>
         <translation>不能禁用显示器，因为启用的显示器数量已经少于1个。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="199"/>
+        <location filename="../lib/base/error.cpp" line="233"/>
         <source>Exist null mode in mode list.</source>
         <translation>模式列表中存在空的模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="202"/>
+        <location filename="../lib/base/error.cpp" line="236"/>
         <source>Exist null mode in preferred mode list.</source>
         <translation>在推荐模式中存在空的模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="205"/>
+        <location filename="../lib/base/error.cpp" line="239"/>
         <source>The current mode is not exist.</source>
         <translation>当前模式不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="209"/>
+        <location filename="../lib/base/error.cpp" line="243"/>
         <source>Not found match mode.</source>
         <translation>未发现匹配的模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="212"/>
+        <location filename="../lib/base/error.cpp" line="246"/>
         <source>The mode is not exist.</source>
         <translation>当前模式不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="215"/>
+        <location filename="../lib/base/error.cpp" line="249"/>
         <source>Unknown rotation type.</source>
         <translation>未知的旋转类型。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="218"/>
+        <location filename="../lib/base/error.cpp" line="252"/>
         <source>Unknown reflect type.</source>
         <translation>未知的翻转类型。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="221"/>
+        <location filename="../lib/base/error.cpp" line="255"/>
         <source>The current settings cannot be applied.</source>
         <translation>无法应用当前设置。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="224"/>
+        <location filename="../lib/base/error.cpp" line="258"/>
         <source>Theme not exist.</source>
         <translation>主题不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="227"/>
+        <location filename="../lib/base/error.cpp" line="261"/>
         <source>Unsupported theme type.</source>
         <translation>主题类型不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="230"/>
+        <location filename="../lib/base/error.cpp" line="264"/>
         <source>Invalid theme type.</source>
         <translation>主题类型不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="235"/>
+        <location filename="../lib/base/error.cpp" line="269"/>
         <source>Invalid font type.</source>
         <translation>字体类型不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="238"/>
+        <location filename="../lib/base/error.cpp" line="272"/>
         <source>Unsupported font type.</source>
         <translation>字体类型不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="241"/>
+        <location filename="../lib/base/error.cpp" line="275"/>
         <source>An incomplete request already exists.</source>
         <translation>存在未完成的请求。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="244"/>
+        <location filename="../lib/base/error.cpp" line="278"/>
         <source>The request is canceled.</source>
         <translation>请求被取消。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="250"/>
+        <location filename="../lib/base/error.cpp" line="284"/>
         <source>The request is rejected.</source>
         <translation>请求被拒绝。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="253"/>
+        <location filename="../lib/base/error.cpp" line="287"/>
         <source>Not found adapter.</source>
         <translation>未发现适配器。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="256"/>
+        <location filename="../lib/base/error.cpp" line="290"/>
         <source>The number of the layout can&apos;t exceeds {0}.</source>
         <translation>布局数量不能超过{0}个。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="259"/>
+        <location filename="../lib/base/error.cpp" line="293"/>
         <source>The layout is invalid.</source>
         <translation>布局不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="262"/>
+        <location filename="../lib/base/error.cpp" line="296"/>
         <source>The layout already exist.</source>
         <translation>布局已存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="265"/>
+        <location filename="../lib/base/error.cpp" line="299"/>
         <source>The layout is no exist.</source>
         <translation>布局不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="268"/>
+        <location filename="../lib/base/error.cpp" line="302"/>
         <source>The layout option already exist.</source>
         <translation>布局选项已存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="271"/>
+        <location filename="../lib/base/error.cpp" line="305"/>
         <source>The layout option is no exist.</source>
         <translation>布局选项不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="274"/>
+        <location filename="../lib/base/error.cpp" line="308"/>
         <source>The custom shortcut isn&apos;t exist.</source>
         <translation>自定义快捷键不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="278"/>
+        <location filename="../lib/base/error.cpp" line="312"/>
         <source>The key combination already exist.</source>
         <translation>按键组合已经存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="282"/>
+        <location filename="../lib/base/error.cpp" line="316"/>
         <source>The key combination is invalid.</source>
         <translation>按键组合不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="285"/>
+        <location filename="../lib/base/error.cpp" line="319"/>
         <source>The system shortcut isn&apos;t exist.</source>
         <translation>系统快捷键不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="291"/>
+        <location filename="../lib/base/error.cpp" line="325"/>
         <source>Unsupported power supply mode.</source>
         <translation>不支持该供电模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="297"/>
+        <location filename="../lib/base/error.cpp" line="331"/>
         <source>Unsupported power device.</source>
         <translation>不支持该设备。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="301"/>
+        <location filename="../lib/base/error.cpp" line="335"/>
         <source>Unknown power action.</source>
         <translation>未知电源动作。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="305"/>
+        <location filename="../lib/base/error.cpp" line="339"/>
         <source>Unsupported power event.</source>
         <translation>事件不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="308"/>
+        <location filename="../lib/base/error.cpp" line="342"/>
         <source>Failed to set brightness.</source>
         <translation>设置亮度失败。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="311"/>
+        <location filename="../lib/base/error.cpp" line="345"/>
         <source>The systeminfo type is invalid.</source>
         <translation>系统信息类型不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="314"/>
+        <location filename="../lib/base/error.cpp" line="348"/>
         <source>Not found the property.</source>
         <translation>未找到该属性。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="317"/>
+        <location filename="../lib/base/error.cpp" line="351"/>
         <source>The type is mismatch.</source>
         <translation>类型不匹配。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="320"/>
+        <location filename="../lib/base/error.cpp" line="354"/>
         <source>The property is invalid.</source>
         <translation>属性不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="323"/>
+        <location filename="../lib/base/error.cpp" line="357"/>
         <source>The property must not be modified manually.</source>
         <translation>属性不能手动修改。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="326"/>
+        <location filename="../lib/base/error.cpp" line="360"/>
         <source>The property is unsupported.</source>
         <translation>属性不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="329"/>
+        <location filename="../lib/base/error.cpp" line="363"/>
         <source>Arguments invalid.</source>
         <translation>参数不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="332"/>
+        <location filename="../lib/base/error.cpp" line="366"/>
         <source>The network proxy mode is invalid.</source>
         <translation>代理模式不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="335"/>
+        <location filename="../lib/base/error.cpp" line="369"/>
         <source>The current network proxy mode is not manual.</source>
         <translation>当前代理模式不是手动模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="338"/>
+        <location filename="../lib/base/error.cpp" line="372"/>
         <source>The current network proxy mode is not auto.</source>
         <translation>当前代理模式不是自动模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="364"/>
+        <location filename="../lib/base/error.cpp" line="127"/>
+        <location filename="../lib/base/error.cpp" line="398"/>
         <source>Internel error.</source>
         <translation>内部错误。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="367"/>
-        <location filename="../lib/base/error.cpp" line="370"/>
+        <location filename="../lib/base/error.cpp" line="160"/>
+        <location filename="../lib/base/error.cpp" line="401"/>
+        <location filename="../lib/base/error.cpp" line="404"/>
         <source>Unknown error.</source>
         <translation>未知错误。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="376"/>
+        <location filename="../lib/base/error.cpp" line="410"/>
         <source> (error code: 0x%1)</source>
         <translation> (错误码：0x%1)</translation>
     </message>

@@ -50,8 +50,10 @@
             <description>The members of group.</description>
         </property>
 
-        <signal name="Changed">
-            <description>Send this signal when the group is changed.</description>
+        <signal name="GroupChanged">
+            <arg name="group" type="o">
+                <description>Object path of the group that was changed.</description>
+            </arg>
         </signal>
     </interface>
 </node>

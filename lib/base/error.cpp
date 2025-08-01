@@ -159,13 +159,7 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_UNKNOWN:
         errorDesc = tr("Unknown error.");
         break;
-    case CCErrorCode::ERROR_GROUPS_GROUP_UNKNOWN_CALLER_GID:
-        errorDesc = tr("Invalid caller gid.");
-        break;
-    case CCErrorCode::ERROR_GROUPS_GROUP_UNKNOWN_CALLER_NAME:
-        errorDesc = tr("Invalid caller group name.");
-        break;
-    case CCErrorCode::ERROR_GROUPS_GROUP_USER_EXIST:
+    case CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_EXIST:
         errorDesc = tr("User is not exist.");
         break;
     case CCErrorCode::ERROR_GROUPS_GROUP_USER_ALREADY_IN_GROUP:

@@ -41,20 +41,20 @@ public:
     void updateGroup(GroupEntry groupEntry);
 
 public:
-    Q_PROPERTY(uint32_t gid READ getGID WRITE setGID)
+    Q_PROPERTY(qulonglong gid READ getGID WRITE setGID)
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(bool local_group READ getLocalGroup WRITE setLocalGroup)
     Q_PROPERTY(bool primary_group READ getPrimaryGroup WRITE setPrimaryGroup)
     Q_PROPERTY(QStringList users READ getUsers WRITE setUsers)
 
 public:
-    uint32_t getGID() { return this->m_gid; };
+    qulonglong getGID() { return this->m_gid; };
     QString getName() { return this->m_name; };
     bool getLocalGroup() { return this->m_localGroup; };
     bool getPrimaryGroup() { return this->m_primaryGroup; };
     QStringList getUsers() { return this->m_groupUsers; };
 
-    void setGID(uint32_t gid) { this->m_gid = gid; };
+    void setGID(qulonglong gid) { this->m_gid = gid; };
     void setName(const QString &name) { this->m_name = name; };
     void setLocalGroup(bool localGroup) { this->m_localGroup = localGroup; };
     void setPrimaryGroup(bool primaryGroup) { this->m_primaryGroup = primaryGroup; };
@@ -82,16 +82,16 @@ public:
      * @brief 修改组id
      * @param 新组id
      */
-    void ChangeGroupID(uint32_t newGid);
+    void ChangeGroupID(qulonglong newGid);
 
 signals:
-    void Changed();
+    void GroupChanged(const QDBusObjectPath &group);
 
 private:
     void addUserToGroupAuthenticated(const QDBusMessage &message, const QString &name);
     void removeUserFromGroupAuthenticated(const QDBusMessage &message, const QString &name);
     void changeGroupNameAuthenticated(const QDBusMessage &message, const QString &newGroupName);
-    void changeGroupIDAuthenticated(const QDBusMessage &message, uint32_t newGid);
+    void changeGroupIDAuthenticated(const QDBusMessage &message, qulonglong newGid);
 
 private:
     void init();
@@ -100,7 +100,7 @@ private:
     GroupAdaptor *m_groupAdaptor;
     QString m_objectPath;
 
-    uint32_t m_gid;
+    qulonglong m_gid;
     QString m_name;
     bool m_localGroup;
     bool m_primaryGroup;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 ~ 2025 KylinSec Co., Ltd.
+ * Copyright (c) 2020 ~ 2025 KylinSec Co., Ltd.
  * kiran-cc-daemon is licensed under Mulan PSL v2.
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
@@ -9,7 +9,7 @@
  * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
  *
- * Author:     tangjie02 <tangjie02@kylinos.com.cn>
+ * Author:     yuanxing <yuanxing@kylinsec.com.cn>
  */
 
 #include "groups-plugin.h"

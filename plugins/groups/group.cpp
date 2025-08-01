@@ -36,7 +36,7 @@ Group::Group(GroupEntry groupEntry)
     m_primaryGroup = groupEntry.primaryGroup;
     m_groupUsers = groupEntry.mem;
 
-    m_objectPath = QString("%1/%2").arg(GROUPS_OBJECT_PATH).arg(m_gid);
+    m_objectPath = QString("%1/%2").arg(KIRAN_GROUPS_GROUP_OBJECT_PATH).arg(m_gid);
     m_groupAdaptor = new GroupAdaptor(this);
 }
 
@@ -56,7 +56,7 @@ void Group::dbusRegister()
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerObject(m_objectPath, KIRAN_GROUPS_GROUP_INTERFACE, this))
     {
-        KLOG_ERROR() << "Can't register object:" << systemConnection.lastError();
+        KLOG_ERROR() << "Can't register object:" << systemConnection.lastError().message();
         return;
     }
 }
@@ -85,27 +85,28 @@ void Group::updateGroup(GroupEntry groupEntry)
         setUsers(groupEntry.mem);
         setLocalGroup(groupEntry.localGroup);
         setPrimaryGroup(groupEntry.primaryGroup);
-        Q_EMIT Changed();
+
+        m_objectPath = QString("%1/%2").arg(KIRAN_GROUPS_GROUP_OBJECT_PATH).arg(m_gid);
+        Q_EMIT GroupChanged(getObjectPath());
     }
-    m_objectPath = QString("%1/%2").arg(KIRAN_GROUPS_GROUP_OBJECT_PATH).arg(m_gid);
 }
 
 CHECK_AUTH_WITH_1ARGS(Group,
                       AddUserToGroup,
                       addUserToGroupAuthenticated,
-                      AUTH_CHANGE_OWN_USER_DATA,
+                      AUTH_GROUP_ADMIN,
                       const QString &);
 void Group::addUserToGroupAuthenticated(const QDBusMessage &message, const QString &name)
 {
     // 判断用户是否存在
     if (!GroupsWrapper::getInstance()->isUserExist(name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_EXIST);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_EXIST);
     }
     // 判断用户是否已经在组中
     if (m_groupUsers.contains(name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_ALREADY_IN_GROUP);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_ALREADY_IN_GROUP);
     }
 
     KLOG_INFO() << "Add user" << name << "to group" << m_name;
@@ -115,15 +116,16 @@ void Group::addUserToGroupAuthenticated(const QDBusMessage &message, const QStri
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
-    // 将用户添加到组中
-    m_groupUsers.append(name);
+    // 更新组成员
+    auto groupEntry = GroupsWrapper::getInstance()->getGroupEntryByName(m_name);
+    setUsers(groupEntry->mem);
     QDBusConnection::systemBus().send(message.createReply());
 }
 
 CHECK_AUTH_WITH_1ARGS(Group,
                       RemoveUserFromGroup,
                       removeUserFromGroupAuthenticated,
-                      AUTH_CHANGE_OWN_USER_DATA,
+                      AUTH_GROUP_ADMIN,
                       const QString &);
 
 void Group::removeUserFromGroupAuthenticated(const QDBusMessage &message, const QString &name)
@@ -131,35 +133,36 @@ void Group::removeUserFromGroupAuthenticated(const QDBusMessage &message, const 
     // 判断用户是否存在
     if (!GroupsWrapper::getInstance()->isUserExist(name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_EXIST);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_EXIST);
     }
 
     // 判断用户是否在组中
     if (!m_groupUsers.contains(name))
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_IN_GROUP);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_IN_GROUP);
     }
 
-    KLOG_INFO() << "Delete user" << name << "from group" << m_name;
+    KLOG_INFO() << "Remove user" << name << "from group" << m_name;
 
     auto program = QString("/usr/sbin/groupmems");
     QStringList arguments = {"-g", m_name, "-d", name};
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
-    // 将用户从组成员中删除
-    m_groupUsers.removeAll(name);
+    // 更新组成员
+    auto groupEntry = GroupsWrapper::getInstance()->getGroupEntryByName(m_name);
+    setUsers(groupEntry->mem);
     QDBusConnection::systemBus().send(message.createReply());
 }
 
 CHECK_AUTH_WITH_1ARGS(Group,
                       ChangeGroupName,
                       changeGroupNameAuthenticated,
-                      AUTH_CHANGE_OWN_USER_DATA,
+                      AUTH_GROUP_ADMIN,
                       const QString &);
 void Group::changeGroupNameAuthenticated(const QDBusMessage &message, const QString &newGroupName)
 {
-    if (QString::compare(newGroupName, m_name, Qt::CaseInsensitive) == 0)
+    if (QString::compare(newGroupName, m_name, Qt::CaseSensitive) != 0)
     {
         KLOG_INFO() << "Change group name of" << m_name << "to" << newGroupName;
 
@@ -167,6 +170,9 @@ void Group::changeGroupNameAuthenticated(const QDBusMessage &message, const QStr
         QStringList arguments = {"-n", newGroupName, "--", m_name};
 
         SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
+
+        // 更新组名
+        setName(newGroupName);
     }
     QDBusConnection::systemBus().send(message.createReply());
 }
@@ -174,9 +180,9 @@ void Group::changeGroupNameAuthenticated(const QDBusMessage &message, const QStr
 CHECK_AUTH_WITH_1ARGS(Group,
                       ChangeGroupID,
                       changeGroupIDAuthenticated,
-                      AUTH_CHANGE_OWN_USER_DATA,
-                      uint32_t);
-void Group::changeGroupIDAuthenticated(const QDBusMessage &message, uint32_t newGid)
+                      AUTH_GROUP_ADMIN,
+                      qulonglong);
+void Group::changeGroupIDAuthenticated(const QDBusMessage &message, qulonglong newGid)
 {
     if (newGid != m_gid)
     {
@@ -187,6 +193,9 @@ void Group::changeGroupIDAuthenticated(const QDBusMessage &message, uint32_t new
         QStringList arguments = {"-g", strGID, "--", m_name};
 
         SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
+
+        // 更新组id
+        setGID(newGid);
     }
     QDBusConnection::systemBus().send(message.createReply());
 }

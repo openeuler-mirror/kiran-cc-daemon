@@ -58,7 +58,7 @@ public:
      * @param 组id
      * @return 组对应的QDBusObjectPath对象
      */
-    QDBusObjectPath FindGroupByID(uint32_t gid);
+    QDBusObjectPath FindGroupByID(qulonglong gid);
 
     /**
      * @brief 创建用户组
@@ -71,7 +71,7 @@ public:
      * @brief 删除用户组
      * @param 组id
      */
-    void DeleteGroup(uint32_t gid);
+    void DeleteGroup(qulonglong gid);
 
 protected:
     void reload();
@@ -85,12 +85,12 @@ private:
                                   const QString &name);
 
     void deleteGroupAuthenticated(const QDBusMessage &message,
-                                  uint32_t gid);
+                                  qulonglong gid);
 
 private:
     void init();
     QMap<QString, QSharedPointer<Group>> loadGroups();
-    QSharedPointer<Group> findAndCreateGroupByGID(uint32_t gid);
+    QSharedPointer<Group> findAndCreateGroupByGID(qulonglong gid);
     QSharedPointer<Group> findAndCreateGroupByName(const QString &name);
 
 private:

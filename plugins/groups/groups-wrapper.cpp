@@ -17,9 +17,10 @@
 
 namespace Kiran
 {
+#define MINIMUM_GID 1000
 
 #define PATH_PASSWD "/etc/passwd"
-#define PATH_SHADOW "/etc/shadow"
+#define PATH_SHADOW "/etc/gshadow"
 #define PATH_GROUP "/etc/group"
 
 GroupEntry::GroupEntry(group *grp)
@@ -53,7 +54,7 @@ QMap<QString, QSharedPointer<GroupEntry>> GroupsWrapper::getGroups()
     return m_groups;
 }
 
-QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByID(uint32_t gid)
+QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByID(qulonglong gid)
 {
     auto iter = m_groups.constBegin();
     while (iter != m_groups.constEnd())
@@ -62,6 +63,7 @@ QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByID(uint32_t gid)
         {
             return iter.value();
         }
+        ++iter;
     }
 
     auto grent = getgrgid(gid);
@@ -170,7 +172,6 @@ void GroupsWrapper::reloadPrimaryGroup()
         if (m_groups.contains(grent->gr_name))
         {
             m_groups[grent->gr_name]->primaryGroup = true;
-            KLOG_DEBUG() << "group " << grent->gr_name << "is a primary group.";
         }
     } while (pwent != NULL);
 
@@ -187,25 +188,15 @@ void GroupsWrapper::reloadGroups()
     }
 
     m_groups.clear();
-    struct group *grent;
+    struct group *grent = nullptr;
 
-    do
+    while ((grent = fgetgrent(fp)) != NULL)
     {
-        grent = fgetgrent(fp);
-        if (grent != NULL)
-        {
-            auto groupEntry = QSharedPointer<GroupEntry>::create(grent);
-            groupEntry->localGroup = grent->gr_gid >= MINIMUM_GID;
+        auto groupEntry = QSharedPointer<GroupEntry>::create(grent);
+        groupEntry->localGroup = grent->gr_gid >= MINIMUM_GID;
 
-            m_groups.insert(groupEntry->name, groupEntry);
-            KLOG_INFO() << "Get group entry from system."
-                        << "name: " << groupEntry->name
-                        << "gid:" << groupEntry->gid
-                        << "mem:" << groupEntry->mem
-                        << "isLocalGroup:" << groupEntry->localGroup;
-        }
-
-    } while (grent != NULL);
+        m_groups.insert(groupEntry->name, groupEntry);
+    }
 
     KLOG_INFO() << "Load group information from " << PATH_GROUP << "which contains groups" << m_groups.keys();
 
