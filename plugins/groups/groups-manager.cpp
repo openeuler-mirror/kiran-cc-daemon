@@ -234,15 +234,17 @@ QDBusObjectPath GroupsManager::FindGroupByID(qulonglong gid)
     return QDBusObjectPath();
 }
 
-CHECK_AUTH_WITH_1ARGS_AND_RETVAL(GroupsManager,
+CHECK_AUTH_WITH_2ARGS_AND_RETVAL(GroupsManager,
                                  QDBusObjectPath,
                                  CreateGroup,
                                  createGroupAuthenticated,
                                  AUTH_GROUP_ADMIN,
-                                 const QString &);
+                                 const QString &,
+                                 const QStringList &);
 
 void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
-                                             const QString &name)
+                                             const QString &name,
+                                             const QStringList &users)
 {
     auto groupEntry = m_groupsWrapper->getGroupEntryByName(name);
     if (groupEntry)
@@ -253,7 +255,13 @@ void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
     KLOG_INFO() << "Create group" << name;
 
     auto program = QString("/usr/sbin/groupadd");
-    QStringList arguments = {"--", name};
+    QStringList arguments = {name};
+
+    if (users.size() > 0)
+    {
+        arguments.append("-U");
+        arguments.append(users.join(","));
+    }
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 

@@ -65,7 +65,7 @@ public:
      * @param 组名
      * @return 组对应的QDBusObjectPath对象
      */
-    QDBusObjectPath CreateGroup(const QString &name);
+    QDBusObjectPath CreateGroup(const QString &name, const QStringList &users = QStringList());
 
     /**
      * @brief 删除用户组
@@ -82,7 +82,7 @@ Q_SIGNALS:
 
 private:
     void createGroupAuthenticated(const QDBusMessage &message,
-                                  const QString &name);
+                                  const QString &name, const QStringList &users);
 
     void deleteGroupAuthenticated(const QDBusMessage &message,
                                   qulonglong gid);

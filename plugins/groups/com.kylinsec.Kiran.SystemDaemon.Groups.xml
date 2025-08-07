@@ -30,6 +30,9 @@
             <arg name="name" direction="in" type="s">
                 <description>The group name for the new group</description>
             </arg>
+            <arg name="users" direction="in" type="as">
+                <description>The users who join to group</description>
+            </arg>
             <arg name="group" direction="out" type="o">
                 <description>Object path of the new group</description>
             </arg>
