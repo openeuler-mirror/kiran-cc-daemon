@@ -58,8 +58,8 @@ void GroupsManager::globalInit(GroupsWrapper *groupsWrapper)
 void GroupsManager::reload()
 {
     auto newGroups = loadGroups();
-    QMap<QString, QSharedPointer<Group>> addedGroups;
-    QMap<QString, QSharedPointer<Group>> deletedGroups;
+    QMap<qulonglong, QSharedPointer<Group>> addedGroups;
+    QMap<qulonglong, QSharedPointer<Group>> deletedGroups;
 
     // 移除被删除的用户组
     for (auto iter = m_groups.begin(); iter != m_groups.end(); ++iter)
@@ -122,10 +122,10 @@ void GroupsManager::init()
     connect(m_groupsWrapper, &GroupsWrapper::groupsChanged, this, &GroupsManager::reload);
 }
 
-QMap<QString, QSharedPointer<Group>> GroupsManager::loadGroups()
+QMap<qulonglong, QSharedPointer<Group>> GroupsManager::loadGroups()
 {
     auto groupEntries = GroupsWrapper::getInstance()->getGroups();
-    QMap<QString, QSharedPointer<Group>> groups;
+    QMap<qulonglong, QSharedPointer<Group>> groups;
     QSharedPointer<Group> group;
 
     for (auto iter = groupEntries.begin(); iter != groupEntries.end(); ++iter)
@@ -154,13 +154,13 @@ QSharedPointer<Group> GroupsManager::findAndCreateGroupByGID(qulonglong gid)
         return nullptr;
     }
 
-    auto group = m_groups[groupEntry->name];
+    auto group = m_groups[groupEntry->gid];
     if (!group)
     {
         group = Group::createGroup(*groupEntry);
         group->dbusRegister();
 
-        m_groups.insert(groupEntry->name, group);
+        m_groups.insert(groupEntry->gid, group);
         KLOG_INFO() << "Add new group" << group->getName() << "to groups cache.";
         Q_EMIT GroupAdded(group->getObjectPath());
     }
@@ -177,13 +177,13 @@ QSharedPointer<Group> GroupsManager::findAndCreateGroupByName(const QString &nam
         return nullptr;
     }
 
-    auto group = m_groups[groupEntry->name];
+    auto group = m_groups[groupEntry->gid];
     if (!group)
     {
         group = Group::createGroup(*groupEntry);
         group->dbusRegister();
 
-        m_groups.insert(groupEntry->name, group);
+        m_groups.insert(groupEntry->gid, group);
         KLOG_INFO() << "Add new group" << group->getName() << "to groups cache.";
         Q_EMIT GroupAdded(group->getObjectPath());
     }

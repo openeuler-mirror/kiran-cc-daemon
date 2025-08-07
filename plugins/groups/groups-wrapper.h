@@ -49,7 +49,7 @@ public:
     static void globalInit();
     static void globalDeinit() { delete m_instance; };
 
-    QMap<QString, QSharedPointer<GroupEntry>> getGroups();
+    QMap<qulonglong, QSharedPointer<GroupEntry>> getGroups();
     QSharedPointer<GroupEntry> getGroupEntryByID(qulonglong gid);
     QSharedPointer<GroupEntry> getGroupEntryByName(QString name);
     bool isUserExist(const QString &userName);
@@ -68,7 +68,7 @@ private:
 
 private:
     static GroupsWrapper *m_instance;
-    QMap<QString, QSharedPointer<GroupEntry>> m_groups;
+    QMap<qulonglong, QSharedPointer<GroupEntry>> m_groups;
     QStringList m_pwUsers;
 
     QFileSystemWatcher *m_fsWatcher;
