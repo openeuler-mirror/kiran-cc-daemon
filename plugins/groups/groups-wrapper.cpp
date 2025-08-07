@@ -49,21 +49,17 @@ void GroupsWrapper::globalInit()
     m_instance->init();
 }
 
-QMap<QString, QSharedPointer<GroupEntry>> GroupsWrapper::getGroups()
+QMap<qulonglong, QSharedPointer<GroupEntry>> GroupsWrapper::getGroups()
 {
     return m_groups;
 }
 
 QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByID(qulonglong gid)
 {
-    auto iter = m_groups.constBegin();
-    while (iter != m_groups.constEnd())
+    auto iter = m_groups.find(gid);
+    if (iter != m_groups.end())
     {
-        if (iter.value() && iter.value()->gid == gid)
-        {
-            return iter.value();
-        }
-        ++iter;
+        return iter.value();
     }
 
     auto grent = getgrgid(gid);
@@ -76,10 +72,14 @@ QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByID(qulonglong gid)
 
 QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByName(QString name)
 {
-    auto iter = m_groups.find(name);
-    if (iter != m_groups.end())
+    auto iter = m_groups.constBegin();
+    while (iter != m_groups.constEnd())
     {
-        return iter.value();
+        if (iter.value() && iter.value()->name == name)
+        {
+            return iter.value();
+        }
+        ++iter;
     }
 
     auto grent = getgrnam(name.toUtf8().data());
@@ -169,9 +169,9 @@ void GroupsWrapper::reloadPrimaryGroup()
         {
             continue;
         }
-        if (m_groups.contains(grent->gr_name))
+        if (m_groups.contains(grent->gr_gid))
         {
-            m_groups[grent->gr_name]->primaryGroup = true;
+            m_groups[grent->gr_gid]->primaryGroup = true;
         }
     } while (pwent != NULL);
 
@@ -195,7 +195,7 @@ void GroupsWrapper::reloadGroups()
         auto groupEntry = QSharedPointer<GroupEntry>::create(grent);
         groupEntry->localGroup = grent->gr_gid >= MINIMUM_GID;
 
-        m_groups.insert(groupEntry->name, groupEntry);
+        m_groups.insert(groupEntry->gid, groupEntry);
     }
 
     KLOG_INFO() << "Load group information from " << PATH_GROUP << "which contains groups" << m_groups.keys();

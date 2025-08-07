@@ -89,7 +89,7 @@ private:
 
 private:
     void init();
-    QMap<QString, QSharedPointer<Group>> loadGroups();
+    QMap<qulonglong, QSharedPointer<Group>> loadGroups();
     QSharedPointer<Group> findAndCreateGroupByGID(qulonglong gid);
     QSharedPointer<Group> findAndCreateGroupByName(const QString &name);
 
@@ -98,6 +98,6 @@ private:
     GroupsWrapper *m_groupsWrapper;
     GroupsAdaptor *m_adaptor;
 
-    QMap<QString, QSharedPointer<Group>> m_groups;
+    QMap<qulonglong, QSharedPointer<Group>> m_groups;
 };
 }  // namespace Kiran

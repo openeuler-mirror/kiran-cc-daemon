@@ -116,9 +116,6 @@ void Group::addUserToGroupAuthenticated(const QDBusMessage &message, const QStri
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
-    // 更新组成员
-    auto groupEntry = GroupsWrapper::getInstance()->getGroupEntryByName(m_name);
-    setUsers(groupEntry->mem);
     QDBusConnection::systemBus().send(message.createReply());
 }
 
@@ -149,9 +146,6 @@ void Group::removeUserFromGroupAuthenticated(const QDBusMessage &message, const 
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
-    // 更新组成员
-    auto groupEntry = GroupsWrapper::getInstance()->getGroupEntryByName(m_name);
-    setUsers(groupEntry->mem);
     QDBusConnection::systemBus().send(message.createReply());
 }
 
@@ -170,9 +164,6 @@ void Group::changeGroupNameAuthenticated(const QDBusMessage &message, const QStr
         QStringList arguments = {"-n", newGroupName, "--", m_name};
 
         SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
-
-        // 更新组名
-        setName(newGroupName);
     }
     QDBusConnection::systemBus().send(message.createReply());
 }
@@ -193,9 +184,6 @@ void Group::changeGroupIDAuthenticated(const QDBusMessage &message, qulonglong n
         QStringList arguments = {"-g", strGID, "--", m_name};
 
         SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
-
-        // 更新组id
-        setGID(newGid);
     }
     QDBusConnection::systemBus().send(message.createReply());
 }
