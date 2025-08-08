@@ -51,7 +51,7 @@ public:
 
     QMap<qulonglong, QSharedPointer<GroupEntry>> getGroups();
     QSharedPointer<GroupEntry> getGroupEntryByID(qulonglong gid);
-    QSharedPointer<GroupEntry> getGroupEntryByName(QString name);
+    QSharedPointer<GroupEntry> getGroupEntryByName(const QString &name);
     bool isUserExist(const QString &userName);
 
 signals:

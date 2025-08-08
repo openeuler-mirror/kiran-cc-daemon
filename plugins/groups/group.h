@@ -29,23 +29,23 @@ class Group : public QObject,
 
 public:
     Group() = delete;
-    Group(GroupEntry groupEntry);
+    Group(const GroupEntry &groupEntry);
     virtual ~Group();
 
-    static QSharedPointer<Group> createGroup(GroupEntry groupEntry);
+    static QSharedPointer<Group> createGroup(const GroupEntry &groupEntry);
 
     void dbusRegister();
     void dbusUnregister();
     QDBusObjectPath getObjectPath();
 
-    void updateGroup(GroupEntry groupEntry);
+    void updateGroup(const GroupEntry &groupEntry);
 
 public:
-    Q_PROPERTY(qulonglong gid READ getGID WRITE setGID)
-    Q_PROPERTY(QString name READ getName WRITE setName)
-    Q_PROPERTY(bool local_group READ getLocalGroup WRITE setLocalGroup)
-    Q_PROPERTY(bool primary_group READ getPrimaryGroup WRITE setPrimaryGroup)
-    Q_PROPERTY(QStringList users READ getUsers WRITE setUsers)
+    Q_PROPERTY(qulonglong Gid READ getGID WRITE setGID)
+    Q_PROPERTY(QString Name READ getName WRITE setName)
+    Q_PROPERTY(bool LocalGroup READ getLocalGroup WRITE setLocalGroup)
+    Q_PROPERTY(bool PrimaryGroup READ getPrimaryGroup WRITE setPrimaryGroup)
+    Q_PROPERTY(QStringList Users READ getUsers WRITE setUsers)
 
 public:
     qulonglong getGID() { return this->m_gid; };

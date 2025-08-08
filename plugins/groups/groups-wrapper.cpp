@@ -14,6 +14,7 @@
 
 #include "groups-wrapper.h"
 #include <kiran-log/qt5-log-i.h>
+#include "lib/base/base.h"
 
 namespace Kiran
 {
@@ -70,7 +71,7 @@ QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByID(qulonglong gid)
     return nullptr;
 }
 
-QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByName(QString name)
+QSharedPointer<GroupEntry> GroupsWrapper::getGroupEntryByName(const QString &name)
 {
     auto iter = m_groups.constBegin();
     while (iter != m_groups.constEnd())
@@ -107,7 +108,7 @@ bool GroupsWrapper::isUserExist(const QString &userName)
 
 void GroupsWrapper::idleReload(const QString &filePath)
 {
-    KLOG_INFO() << "File" << filePath << "is changed";
+    KLOG_INFO(groups) << "File" << filePath << "is changed";
 
     if (!m_reloadTimer->isActive())
     {
@@ -146,7 +147,7 @@ void GroupsWrapper::reloadPrimaryGroup()
     auto fp = fopen(PATH_PASSWD, "r");
     if (fp == NULL)
     {
-        KLOG_WARNING() << "Unable to open" << PATH_PASSWD << ":" << strerror(errno);
+        KLOG_WARNING(groups) << "Unable to open" << PATH_PASSWD << ":" << strerror(errno);
         return;
     }
 
@@ -183,7 +184,7 @@ void GroupsWrapper::reloadGroups()
     auto fp = fopen(PATH_GROUP, "r");
     if (fp == NULL)
     {
-        KLOG_WARNING() << "Unable to open" << PATH_GROUP << ":" << strerror(errno);
+        KLOG_WARNING(groups) << "Unable to open" << PATH_GROUP << ":" << strerror(errno);
         return;
     }
 
@@ -198,7 +199,7 @@ void GroupsWrapper::reloadGroups()
         m_groups.insert(groupEntry->gid, groupEntry);
     }
 
-    KLOG_INFO() << "Load group information from " << PATH_GROUP << "which contains groups" << m_groups.keys();
+    KLOG_INFO(groups) << "Load group information from " << PATH_GROUP << "which contains groups" << m_groups.keys();
 
     fclose(fp);
 }
