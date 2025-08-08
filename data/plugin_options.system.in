@@ -3,6 +3,11 @@ Name=Accounts
 Description=Accounts plugin
 Available=@enable-plugin-accounts@
 
+[groups]
+Name=Groups
+Description=Groups plugin
+Available=@enable-plugin-groups@
+
 [systeminfo]
 Name=SystemInfo
 Description=SystemInfo plugin

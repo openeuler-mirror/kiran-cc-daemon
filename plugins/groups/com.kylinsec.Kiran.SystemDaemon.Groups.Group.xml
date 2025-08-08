@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SystemDaemon.Groups.Group">
+        <method name="AddUserToGroup">
+            <arg name="user" direction="in" type="s">
+                <summary>The user name which add to group.</summary>
+            </arg>
+            <description>Add the user to group.</description>
+        </method>
+
+        <method name="RemoveUserFromGroup">
+            <arg name="user" direction="in" type="s">
+                <description>The user name which remove from group.</description>
+            </arg>
+            <description>Remove user from group.</description>
+        </method>
+
+        <method name="ChangeGroupID">
+            <arg name="Gid" direction="in" type="t">
+                <summary>The new gid of the group.</summary>
+            </arg>
+            <description>Change the new gid to group.</description>
+        </method>
+
+        <method name="ChangeGroupName">
+            <arg name="name" direction="in" type="s">
+                <description>The new name of group.</description>
+            </arg>
+            <description>Sets the new name to group.</description>
+        </method>
+
+        <property name="Gid" type="t" access="read">
+            <description>The gid of the group.</description>
+        </property>
+
+        <property name="Name" type="s" access="read">
+            <description>The group name of the group.</description>
+        </property>
+
+        <property name="LocalGroup" type="b" access="read">
+            <description>Whether this is a 'system' group, like 'root' or 'bin'.</description>
+        </property>
+
+        <property name="PrimaryGroup" type="b" access="read">
+            <description>Whether this is a primary group of specify user.</description>
+        </property>
+
+        <property name="Users" type="as" access="read">
+            <description>The members of group.</description>
+        </property>
+
+        <signal name="GroupChanged">
+            <arg name="group" type="o">
+                <description>Object path of the group that was changed.</description>
+            </arg>
+        </signal>
+    </interface>
+</node>
