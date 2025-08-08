@@ -31,13 +31,13 @@ GroupsManager::GroupsManager(GroupsWrapper *groupsWrapper) : m_groupsWrapper(gro
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(GROUPS_DBUS_NAME))
     {
-        KLOG_WARNING() << "Failed to register dbus name: " << GROUPS_DBUS_NAME;
+        KLOG_WARNING(groups) << "Failed to register dbus name: " << GROUPS_DBUS_NAME;
         return;
     }
 
     if (!systemConnection.registerObject(GROUPS_OBJECT_PATH, GROUPS_DBUS_INTERFACE_NAME, this))
     {
-        KLOG_ERROR() << "Can't register object:" << systemConnection.lastError();
+        KLOG_ERROR(groups) << "Can't register object:" << systemConnection.lastError();
         return;
     }
 
@@ -58,8 +58,8 @@ void GroupsManager::globalInit(GroupsWrapper *groupsWrapper)
 void GroupsManager::reload()
 {
     auto newGroups = loadGroups();
-    QMap<qulonglong, QSharedPointer<Group>> addedGroups;
-    QMap<qulonglong, QSharedPointer<Group>> deletedGroups;
+    QList<qlonglong> addedGroups;
+    QList<qlonglong> deletedGroups;
 
     // 移除被删除的用户组
     for (auto iter = m_groups.begin(); iter != m_groups.end(); ++iter)
@@ -67,7 +67,9 @@ void GroupsManager::reload()
         auto iter2 = newGroups.find(iter.key());
         if (iter2 == newGroups.end())
         {
-            deletedGroups.insert(iter.key(), iter.value());
+            deletedGroups.append(iter.key());
+            Q_EMIT GroupDeleted(iter.value()->getObjectPath());
+            iter.value()->dbusUnregister();
         }
     }
 
@@ -77,42 +79,15 @@ void GroupsManager::reload()
         auto iter2 = m_groups.find(iter.key());
         if (iter2 == m_groups.end())
         {
-            addedGroups.insert(iter.key(), iter.value());
-        }
-    }
-
-    KLOG_INFO() << "Update group cache, add groups" << addedGroups.keys() << ", deleted groups:" << deletedGroups.keys();
-
-    m_groups = newGroups;
-
-    // 单独处理被删除和添加的用户组。
-    // 取消注册被删除的组
-    auto iter = deletedGroups.begin();
-    while (iter != deletedGroups.end())
-    {
-        auto iter2 = m_groups.find(iter.key());
-        if (iter2 == m_groups.end())
-        {
-            Q_EMIT GroupDeleted(iter.value()->getObjectPath());
-            // 这里直接从QMap中移除，引用计数为0,调用Group析构函数，自动注销dbus对象
-            iter = deletedGroups.erase(iter);  // 安全删除并获取下一个有效迭代器
-        }
-        else
-        {
-            ++iter;
-        }
-    }
-
-    // 注册新增组
-    for (auto iter = addedGroups.begin(); iter != addedGroups.end(); ++iter)
-    {
-        auto iter2 = m_groups.find(iter.key());
-        if (iter2 != m_groups.end())
-        {
+            addedGroups.append(iter.key());
             Q_EMIT GroupAdded(iter.value()->getObjectPath());
             iter.value()->dbusRegister();
         }
     }
+
+    KLOG_INFO(groups) << "Update group cache, add groups which id is:" << addedGroups << ", deleted groups which id is:" << deletedGroups;
+
+    m_groups = newGroups;
 }
 
 void GroupsManager::init()
@@ -150,7 +125,7 @@ QSharedPointer<Group> GroupsManager::findAndCreateGroupByGID(qulonglong gid)
     auto groupEntry = m_groupsWrapper->getGroupEntryByID(gid);
     if (!groupEntry)
     {
-        KLOG_WARNING() << "Unable to lookup group gid" << gid;
+        KLOG_WARNING(groups) << "Unable to lookup group gid" << gid;
         return nullptr;
     }
 
@@ -161,7 +136,7 @@ QSharedPointer<Group> GroupsManager::findAndCreateGroupByGID(qulonglong gid)
         group->dbusRegister();
 
         m_groups.insert(groupEntry->gid, group);
-        KLOG_INFO() << "Add new group" << group->getName() << "to groups cache.";
+        KLOG_INFO(groups) << "Add new group" << group->getName() << "to groups cache.";
         Q_EMIT GroupAdded(group->getObjectPath());
     }
 
@@ -173,7 +148,7 @@ QSharedPointer<Group> GroupsManager::findAndCreateGroupByName(const QString &nam
     auto groupEntry = m_groupsWrapper->getGroupEntryByName(name);
     if (!groupEntry)
     {
-        KLOG_WARNING() << "Unable to lookup group name" << name;
+        KLOG_WARNING(groups) << "Unable to lookup group name" << name;
         return nullptr;
     }
 
@@ -184,7 +159,7 @@ QSharedPointer<Group> GroupsManager::findAndCreateGroupByName(const QString &nam
         group->dbusRegister();
 
         m_groups.insert(groupEntry->gid, group);
-        KLOG_INFO() << "Add new group" << group->getName() << "to groups cache.";
+        KLOG_INFO(groups) << "Add new group" << group->getName() << "to groups cache.";
         Q_EMIT GroupAdded(group->getObjectPath());
     }
 
@@ -252,7 +227,7 @@ void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_ALREADY_EXIST);
     }
 
-    KLOG_INFO() << "Create group" << name;
+    KLOG_INFO(groups) << "Create group" << name;
 
     auto program = QString("/usr/sbin/groupadd");
     QStringList arguments = {name};
@@ -301,7 +276,7 @@ void GroupsManager::deleteGroupAuthenticated(const QDBusMessage &message,
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_4);
     }
 
-    KLOG_INFO() << "Delete group" << groupEntry->name << "with gid" << gid;
+    KLOG_INFO(groups) << "Delete group" << groupEntry->name << "with gid" << gid;
 
     auto program = QString("/usr/sbin/groupdel");
     QStringList arguments = {"--", groupEntry->name};

@@ -30,23 +30,23 @@
             <description>Sets the new name to group.</description>
         </method>
 
-        <property name="gid" type="t" access="read">
+        <property name="Gid" type="t" access="read">
             <description>The gid of the group.</description>
         </property>
 
-        <property name="name" type="s" access="read">
+        <property name="Name" type="s" access="read">
             <description>The group name of the group.</description>
         </property>
 
-        <property name="local_group" type="b" access="read">
+        <property name="LocalGroup" type="b" access="read">
             <description>Whether this is a 'system' group, like 'root' or 'bin'.</description>
         </property>
 
-        <property name="primary_group" type="b" access="read">
+        <property name="PrimaryGroup" type="b" access="read">
             <description>Whether this is a primary group of specify user.</description>
         </property>
 
-        <property name="users" type="as" access="read">
+        <property name="Users" type="as" access="read">
             <description>The members of group.</description>
         </property>
 

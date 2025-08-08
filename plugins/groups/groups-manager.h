@@ -65,7 +65,7 @@ public:
      * @param 组名
      * @return 组对应的QDBusObjectPath对象
      */
-    QDBusObjectPath CreateGroup(const QString &name, const QStringList &users = QStringList());
+    QDBusObjectPath CreateGroup(const QString &name, const QStringList &users);
 
     /**
      * @brief 删除用户组

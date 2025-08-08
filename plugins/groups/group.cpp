@@ -28,7 +28,7 @@ namespace Kiran
 #define KIRAN_GROUPS_GROUP_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Groups/Group"
 #define KIRAN_GROUPS_GROUP_INTERFACE "com.kylinsec.Kiran.SystemDaemon.Groups.Group"
 
-Group::Group(GroupEntry groupEntry)
+Group::Group(const GroupEntry &groupEntry)
 {
     m_name = groupEntry.name;
     m_gid = groupEntry.gid;
@@ -45,7 +45,7 @@ Group::~Group()
     dbusUnregister();
 }
 
-QSharedPointer<Group> Group::createGroup(GroupEntry groupEntry)
+QSharedPointer<Group> Group::createGroup(const GroupEntry &groupEntry)
 {
     auto group = QSharedPointer<Group>::create(groupEntry);
     return group;
@@ -56,7 +56,7 @@ void Group::dbusRegister()
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerObject(m_objectPath, KIRAN_GROUPS_GROUP_INTERFACE, this))
     {
-        KLOG_ERROR() << "Can't register object:" << systemConnection.lastError().message();
+        KLOG_ERROR(groups) << "Can't register object:" << systemConnection.lastError().message();
         return;
     }
 }
@@ -72,21 +72,24 @@ QDBusObjectPath Group::getObjectPath()
     return QDBusObjectPath(m_objectPath);
 }
 
-void Group::updateGroup(GroupEntry groupEntry)
+void Group::updateGroup(const GroupEntry &groupEntry)
 {
+    if (m_gid != groupEntry.gid)
+    {
+        KLOG_WARNING(groups) << "Can't update group" << groupEntry.name << ", the gid is changed from" << m_gid << "to" << groupEntry.gid << "!";
+        return;
+    }
+
     if (m_name != groupEntry.name ||
-        m_gid != groupEntry.gid ||
         m_groupUsers != groupEntry.mem ||
         m_localGroup != groupEntry.localGroup ||
         m_primaryGroup != groupEntry.primaryGroup)
     {
-        setGID(groupEntry.gid);
         setName(groupEntry.name);
         setUsers(groupEntry.mem);
         setLocalGroup(groupEntry.localGroup);
         setPrimaryGroup(groupEntry.primaryGroup);
 
-        m_objectPath = QString("%1/%2").arg(KIRAN_GROUPS_GROUP_OBJECT_PATH).arg(m_gid);
         Q_EMIT GroupChanged(getObjectPath());
     }
 }
@@ -109,7 +112,7 @@ void Group::addUserToGroupAuthenticated(const QDBusMessage &message, const QStri
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_ALREADY_IN_GROUP);
     }
 
-    KLOG_INFO() << "Add user" << name << "to group" << m_name;
+    KLOG_INFO(groups) << "Add user" << name << "to group" << m_name;
 
     auto program = QString("/usr/sbin/groupmems");
     QStringList arguments = {"-g", m_name, "-a", name};
@@ -139,7 +142,7 @@ void Group::removeUserFromGroupAuthenticated(const QDBusMessage &message, const 
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_IN_GROUP);
     }
 
-    KLOG_INFO() << "Remove user" << name << "from group" << m_name;
+    KLOG_INFO(groups) << "Remove user" << name << "from group" << m_name;
 
     auto program = QString("/usr/sbin/groupmems");
     QStringList arguments = {"-g", m_name, "-d", name};
@@ -158,7 +161,7 @@ void Group::changeGroupNameAuthenticated(const QDBusMessage &message, const QStr
 {
     if (QString::compare(newGroupName, m_name, Qt::CaseSensitive) != 0)
     {
-        KLOG_INFO() << "Change group name of" << m_name << "to" << newGroupName;
+        KLOG_INFO(groups) << "Change group name of" << m_name << "to" << newGroupName;
 
         auto program = QString("/usr/sbin/groupmod");
         QStringList arguments = {"-n", newGroupName, "--", m_name};
@@ -177,7 +180,7 @@ void Group::changeGroupIDAuthenticated(const QDBusMessage &message, qulonglong n
 {
     if (newGid != m_gid)
     {
-        KLOG_INFO() << "Change group id of" << m_name << "to" << newGid;
+        KLOG_INFO(groups) << "Change group id of" << m_name << "to" << newGid;
 
         auto strGID = QString::number(newGid);
         auto program = QString("/usr/sbin/groupmod");
