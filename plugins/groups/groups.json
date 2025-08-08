@@ -1,5 +1,5 @@
 {
     "id": "groups",
     "description": "access the list of user groups and information attached to those groups",
-    "enabled": true
+    "enabled": false
 }
