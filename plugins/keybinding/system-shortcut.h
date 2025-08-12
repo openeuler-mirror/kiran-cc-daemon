@@ -48,7 +48,7 @@ enum SystemShortcutDesktopType
 
 struct MateSystemShortcut
 {
-    MateSystemShortcut() : gsettings(nullptr){};
+    MateSystemShortcut() : gsettings(nullptr) {};
     // 分类名
     QString kind;
     // 快捷键名称
@@ -79,8 +79,8 @@ struct KDESystemShortcut
 
 struct MixSystemShortcut
 {
-    MixSystemShortcut() : desktopType(SYSTEM_SHORTCUT_DESKTOP_TYPE_UNKNOWN){};
-    virtual ~MixSystemShortcut(){};
+    MixSystemShortcut() : desktopType(SYSTEM_SHORTCUT_DESKTOP_TYPE_UNKNOWN) {};
+    virtual ~MixSystemShortcut() {};
     QString uid;
     SystemShortcutDesktopType desktopType;
     // 这里偷懒没有用union，因为非POD类型需要自己定义构造和析够。反正也不会有太多内存开销，后续完全迁移到kf5后可以去掉对mate的兼容
@@ -94,7 +94,7 @@ class SystemShortcuts : public QObject
 
 public:
     SystemShortcuts();
-    virtual ~SystemShortcuts(){};
+    virtual ~SystemShortcuts() {};
 
     // 初始化
     void init();
@@ -126,7 +126,7 @@ private:
     // 根据配置文件加载系统快捷键，主要是兼容旧的方式（marco系统快捷键）
     bool shouldShowKey(const KeyListEntry &entry);
     QSharedPointer<SystemShortcut> mix2common(QSharedPointer<MixSystemShortcut> systemShortCutMix);
-    QString keys2GtkStr(const QList<QKeySequence> &keys);
+    QString keys2Str(const QList<QKeySequence> &keys);
     QStringList buildActionId(const KDESystemShortcut &systemshortKDE);
     void processSettingsChanged(const QString &key, const QString &schemaID);
 

@@ -75,13 +75,13 @@ void KeysSystem::init()
     auto powerKey = m_settings->get(KEYS_SCHEMA_POWER).toString();
     auto homeKey = m_settings->get(KEYS_SCHEMA_HOME).toString();
 
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(helpKey), ACTION_NAME_HELP, tr("Launch help browser"));
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(emailKey), ACTION_NAME_EMAIL, tr("Launch email client"));
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(screensaverKey), ACTION_NAME_SCREENSAVER, tr("Lock screen"));
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(showdesktopKey), ACTION_NAME_SHOW_DESKTOP, tr("Show desktop"));
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(logoutKey), ACTION_NAME_LOGOUT, tr("Log out"));
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(powerKey), ACTION_NAME_POWER, tr("Shut down"));
-    registerShortCut(KeybindingUtils::keyCombGtk2Qt(homeKey), ACTION_NAME_HOME, tr("Home folder"));
+    registerShortCut(helpKey, ACTION_NAME_HELP, tr("Launch help browser"));
+    registerShortCut(emailKey, ACTION_NAME_EMAIL, tr("Launch email client"));
+    registerShortCut(screensaverKey, ACTION_NAME_SCREENSAVER, tr("Lock screen"));
+    registerShortCut(showdesktopKey, ACTION_NAME_SHOW_DESKTOP, tr("Show desktop"));
+    registerShortCut(logoutKey, ACTION_NAME_LOGOUT, tr("Log out"));
+    registerShortCut(powerKey, ACTION_NAME_POWER, tr("Shut down"));
+    registerShortCut(homeKey, ACTION_NAME_HOME, tr("Home folder"));
 
     registerShortCut(Qt::Key_Calculator, ACTION_NAME_CALCULATOR, tr("Launch calculator"));
     registerShortCut(Qt::Key_WWW, ACTION_NAME_WWW, tr("Launch web browser"));

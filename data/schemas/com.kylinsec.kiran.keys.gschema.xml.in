@@ -22,7 +22,7 @@
       <description>Binding to disable the touchpad.</description>
     </key>
     <key name="power" type="s">
-      <default>'&lt;Control&gt;&lt;Alt&gt;Delete'</default>
+      <default>'Ctrl+Alt+Delete'</default>
       <summary>Shut down</summary>
       <description>Binding to shut down.</description>
     </key>
@@ -32,7 +32,7 @@
       <description>Binding to log out.</description>
     </key>
     <key name="home" type="s">
-      <default>'&lt;Super&gt;E'</default>
+      <default>'Meta+E'</default>
       <summary>Home folder</summary>
       <description>Binding to open the Home folder.</description>
     </key>
@@ -42,12 +42,12 @@
       <description>Binding to launch the email client.</description>
     </key>
     <key name="screensaver" type="s">
-      <default>'&lt;Super&gt;L'</default>
+      <default>'Meta+L'</default>
       <summary>Lock screen</summary>
       <description>Binding to lock the screen.</description>
     </key>
     <key name="show-desktop" type="s">
-      <default>'&lt;Super&gt;D'</default>
+      <default>'Meta+D'</default>
       <summary>Show desktop</summary>
       <description>Binding to show the desktop.</description>
     </key>
