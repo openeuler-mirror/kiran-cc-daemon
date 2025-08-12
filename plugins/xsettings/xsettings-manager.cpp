@@ -31,7 +31,7 @@
 namespace Kiran
 {
 #define BACKGROUND_SCHAME_ID "org.mate.background"
-#define BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS "show-desktop-icons"
+#define BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS "showDesktopIcons"
 
 const QMap<QString, QString> XSettingsManager::m_schema2Registry =
     {
@@ -87,7 +87,6 @@ XSettingsManager::XSettingsManager() : m_windowScale(0)
     m_registry = new XSettingsRegistry(this);
     m_xresource = new XSettingsXResource(this);
     m_fontconfigMonitor = new FontconfigMonitor(this);
-    m_hideDesktopIconTimer = new QTimer(this);
     m_showDesktopIconTimer = new QTimer(this);
 
     for (const auto &key : XSettingsManager::m_schema2Registry)
@@ -309,8 +308,7 @@ void XSettingsManager::init()
     connect(primaryScreen, &QScreen::virtualGeometryChanged, this, &XSettingsManager::processScreenChanged);
     connect(m_fontconfigMonitor, &FontconfigMonitor::timestampChanged, this, &XSettingsManager::processFontconfigTimestampChanged);
     connect(m_registry, &XSettingsRegistry::propertiesChanged, this, &XSettingsManager::processPropertiesChanged);
-    connect(m_hideDesktopIconTimer, &QTimer::timeout, std::bind(&XSettingsManager::delayedToggleBgDraw, this, false));
-    connect(m_showDesktopIconTimer, &QTimer::timeout, std::bind(&XSettingsManager::delayedToggleBgDraw, this, false));
+    connect(m_showDesktopIconTimer, &QTimer::timeout, this, &XSettingsManager::enableShowDesktopIcon);
 
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(XSETTINGS_DBUS_NAME))
@@ -495,7 +493,8 @@ void XSettingsManager::scaleChangeWorkarounds(int32_t scale)
         // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
         // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
 
-        // 重启marco窗口管理器
+        /* 重启marco窗口管理器，因为缩放率是在下次进入会话时生效，所以这个逻辑可能是在会话刚启动时被调用，
+           此时marco可能还未启动，获取的wmName为空。*/
         auto wmName = EWMH::getDefault()->getWmName();
         if (wmName == WM_COMMON_MARCO)
         {
@@ -503,21 +502,31 @@ void XSettingsManager::scaleChangeWorkarounds(int32_t scale)
             {
                 KLOG_WARNING(xsettings) << "There was a problem restarting marco";
             }
+            else
+            {
+                KLOG_INFO(xsettings) << "Restart marco successfully";
+            }
         }
+
         // 重启面板
         if (!QProcess::startDetached("killall", QStringList{"mate-panel", "kiran-panel"}))
         {
             KLOG_WARNING(xsettings) << "There was a problem restarting mate-panel or kiran-panel.";
         }
+        else
+        {
+            KLOG_INFO(xsettings) << "Restart panel successfully";
+        }
 
         // 重置桌面图标大小
         if (m_backgroundSettings &&
             m_backgroundSettings->get(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS).toBool() &&
-            !m_hideDesktopIconTimer->isActive() && !m_showDesktopIconTimer->isActive())
+            !m_showDesktopIconTimer->isActive())
         {
-            // 延时隐藏/显示桌面图标，给文件管理器一定的时间重绘
-            m_hideDesktopIconTimer->start(1000);
-            m_showDesktopIconTimer->start(2000);
+            KLOG_INFO(xsettings) << "Disable show-desktop-icon properties then enable to repaint the desktop icon.";
+            m_backgroundSettings->set(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, false);
+            // 延时显示桌面图标，给文件管理器一定的时间重绘
+            m_showDesktopIconTimer->start(1000);
         }
     }
 }
@@ -531,13 +540,13 @@ void XSettingsManager::processScreenChanged()
     }
 }
 
-bool XSettingsManager::delayedToggleBgDraw(bool value)
+void XSettingsManager::enableShowDesktopIcon()
 {
     if (m_backgroundSettings)
     {
-        m_backgroundSettings->set(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, value);
+        m_backgroundSettings->set(BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS, true);
     }
-    return false;
+    m_showDesktopIconTimer->stop();
 }
 
 void XSettingsManager::processFontconfigTimestampChanged()
