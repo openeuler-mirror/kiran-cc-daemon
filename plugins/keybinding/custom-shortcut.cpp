@@ -38,7 +38,7 @@ namespace Kiran
 CustomShortcuts::CustomShortcuts()
 {
     auto configLocation = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
-    m_confFilePath = QString("%1/%2/%2")
+    m_confFilePath = QString("%1/%2/%3")
                          .arg(configLocation)
                          .arg(KEYBINDING_CONF_DIR)
                          .arg(CUSTOM_SHORTCUT_FILE);
@@ -216,7 +216,6 @@ bool CustomShortcuts::checkValid(QSharedPointer<CustomShortCut> shortcut)
 
     if (!KeybindingUtils::isValidKeySequence(shortcut->keyComb))
     {
-        KLOG_WARNING(keybinding) << "The format of the key combination" << shortcut->keyComb << "is invalid.";
         return false;
     }
     return true;
@@ -235,9 +234,7 @@ void CustomShortcuts::registerShortcut(QSharedPointer<CustomShortCut> shortcut)
                 std::bind(&CustomShortcuts::triggerAction, this, std::placeholders::_1, customAction));
     }
 
-    KGlobalAccel::self()->setShortcut(customAction,
-                                      QList<QKeySequence>() << KeybindingUtils::keyCombGtk2Qt(shortcut->keyComb),
-                                      KGlobalAccel::NoAutoloading);
+    KGlobalAccel::self()->setShortcut(customAction, QList<QKeySequence>() << shortcut->keyComb, KGlobalAccel::NoAutoloading);
 }
 
 void CustomShortcuts::unregisterShortcut(QSharedPointer<CustomShortCut> shortcut)

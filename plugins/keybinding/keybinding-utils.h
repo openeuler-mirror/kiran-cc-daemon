@@ -24,7 +24,8 @@ public:
     KeybindingUtils();
     virtual ~KeybindingUtils() {};
 
-    static bool isValidKeySequence(const QString &keyCombGtk);
+    static bool isValidKeySequence(const QString &keyComb);
+    static bool isValidGtkkeyComb(const QString &keyCombGtk);
     // 转换为QKeySequence能识别的字符串，例如<ctrl>k -> ctrl+k
     static QString keyCombGtk2Qt(const QString &keyCombGtk);
     // ctrl+k -> <ctrl>k
