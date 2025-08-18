@@ -133,6 +133,7 @@ CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
     RETURN_VAL_IF_TRUE(kv_list.size() == 0, CPUInfo());
 
     CPUInfo cpu_info;
+    std::string bios_model_name;
     for (auto& iter : kv_list[0])
     {
         switch (shash(iter.first.c_str()))
@@ -143,9 +144,17 @@ CPUInfo SystemInfoHardware::get_cpu_info_by_cmd()
         case "Model name"_hash:
             cpu_info.model = iter.second;
             break;
+        case "BIOS Model name"_hash:
+            bios_model_name = iter.second;
+            break;
         default:
             break;
         }
+    }
+
+    if (cpu_info.model.empty() && !bios_model_name.empty())
+    {
+        cpu_info.model = bios_model_name;
     }
 
     return cpu_info;
