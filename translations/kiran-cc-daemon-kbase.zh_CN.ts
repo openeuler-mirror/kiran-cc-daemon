@@ -73,7 +73,7 @@
     <message>
         <location filename="../lib/base/error.cpp" line="74"/>
         <source>User to modify is logged in.</source>
-        <translation>要修改的用户已登陆。</translation>
+        <translation>要修改的用户已登录。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="77"/>

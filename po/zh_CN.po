@@ -645,11 +645,11 @@ msgstr "设置网络时间同步之前需要身份验证"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
 msgid "Greeter settings"
-msgstr "登陆设置"
+msgstr "登录设置"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:2
 msgid "Authentication is required for greeter setting."
-msgstr "登陆设置之前需要身份验证"
+msgstr "登录设置之前需要身份验证"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
 msgid "Set host name"
