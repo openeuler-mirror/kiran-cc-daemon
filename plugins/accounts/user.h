@@ -113,7 +113,7 @@ public:
 public Q_SLOTS:  // METHODS：大写字母开头的函数均为DBus接口
     // 设置用户类型，分为普通用户和管理员用户，管理员用户的定义可以参考policykit的addAdminRule规则。
     void SetAccountType(int account_type);
-    // 设置用户是否自动登陆
+    // 设置用户是否自动登录
     void SetAutomaticLogin(bool enabled);
     // 设置用户邮箱
     void SetEmail(const QString &email);
@@ -139,7 +139,7 @@ public Q_SLOTS:  // METHODS：大写字母开头的函数均为DBus接口
     void SetRealName(const QString &name);
     void SetSession(const QString &session);
     void SetSessionType(const QString &session_type);
-    // 设置用户登陆shell
+    // 设置用户登录shell
     void SetShell(const QString &shell);
     // 设置用户名
     void SetUserName(const QString &name);
@@ -182,7 +182,7 @@ private:
     void updatePasswordExpirationPolicy(QSharedPointer<SPwd> spwd);
     AccountsAccountType accountTtypeFromPwent(QSharedPointer<Passwd> passwd);
     void resetIconFile();
-    // 由于切换用户时，登陆器通过org.freedesktop.Accounts接口获取图标，Kiran设置/更新用户图标后需要同步到freedesktop
+    // 由于切换用户时，登录器通过org.freedesktop.Accounts接口获取图标，Kiran设置/更新用户图标后需要同步到freedesktop
     void syncIconFileToFreedesktop(const QString &iconFile);
     // 获取当前用户的加密密码
     QString getHashedPassphrase();

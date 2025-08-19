@@ -267,7 +267,7 @@ void AccountsManager::deleteUserAuthenticated(const QDBusMessage &message,
 
     KLOG_INFO(accounts) << "Delete user" << user->getUserName();
 
-    // 忽略取消自动登陆出错情况
+    // 忽略取消自动登录出错情况
     if (m_automaticLoginUser == user->getUserName())
     {
         setAutomaticLoginUser(QString());
