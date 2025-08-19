@@ -56,9 +56,9 @@ extern "C"
     {
         // 正常情况
         ACCOUNTS_PASSWORD_MODE_REGULAR,
-        // 登陆时需要设置密码
+        // 登录时需要设置密码
         ACCOUNTS_PASSWORD_MODE_SET_AT_LOGIN,
-        // 设置为无密码登陆
+        // 设置为无密码登录
         ACCOUNTS_PASSWORD_MODE_NONE,
         ACCOUNTS_PASSWORD_MODE_LAST
     };
