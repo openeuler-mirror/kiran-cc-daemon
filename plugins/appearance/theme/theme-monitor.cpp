@@ -94,6 +94,15 @@ QSharedPointer<ThemeMonitorInfo> ThemeMonitor::getMonitor(const QString &path)
     return m_monitors.value(path);
 }
 
+bool ThemeMonitor::hasValidMonitor(const QString &path)
+{
+    bool hasMonitor = m_monitors.contains(path);
+    bool hasFile = m_filesWatcher->files().contains(path);
+    bool hasDir = m_filesWatcher->directories().contains(path);
+
+    return hasMonitor && (hasFile || hasDir);
+}
+
 bool ThemeMonitor::addMonitor(const QString &path, QSharedPointer<ThemeMonitorInfo> monitor)
 {
     if (m_monitors.contains(path))
@@ -114,14 +123,11 @@ QSharedPointer<ThemeMonitorInfo> ThemeMonitor::createAndAddMonitor(const QString
 {
     QFileInfo fileInfo(path);
 
-    auto themeMonitor = getMonitor(path);
+    m_monitors.remove(path);
+    m_filesWatcher->addPath(path);
+    auto themeMonitor = QSharedPointer<ThemeMonitorInfo>::create(type, priority, path);
+    addMonitor(path, themeMonitor);
 
-    if (!themeMonitor)
-    {
-        m_filesWatcher->addPath(path);
-        themeMonitor = QSharedPointer<ThemeMonitorInfo>::create(type, priority, path);
-        addMonitor(path, themeMonitor);
-    }
     return themeMonitor;
 }
 
@@ -143,7 +149,7 @@ void ThemeMonitor::addMetaThemeParentChildren(QSharedPointer<ThemeMonitorInfo> m
     for (const auto &fileInfo : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot))
     {
         auto filePath = fileInfo.absoluteFilePath();
-        if (getMonitor(filePath))
+        if (hasValidMonitor(filePath))
         {
             continue;
         }
@@ -169,14 +175,14 @@ void ThemeMonitor::addMetaThemeChildren(QSharedPointer<ThemeMonitorInfo> monitor
     auto path = monitorInfo->getPath();
     // gtk
     auto gtkPath = QString("%1/gtk-3.0").arg(path);
-    if (!getMonitor(gtkPath))
+    if (!hasValidMonitor(gtkPath))
     {
         addGtkTheme(gtkPath, monitorInfo->getPriority());
     }
 
     // metacity-1
     auto metacityPath = QString("%1/metacity-1").arg(path);
-    if (!getMonitor(metacityPath))
+    if (!hasValidMonitor(metacityPath))
     {
         addMetacityTheme(metacityPath, monitorInfo->getPriority());
     }
@@ -303,6 +309,11 @@ void ThemeMonitor::updateThemeWhenDirChange(const QString &dirPath)
             delThemeAndNotify(monitorInfo->getPath(), ThemeMonitorEventType::TMET_GTK_DEL);
             m_filesWatcher->removePath(QString("%1/gtk.css").arg(monitorInfo->getPath()));
         }
+        else
+        {
+            // 这里需要重新添加，因为可能文件之前被删除过然后又重新新增了。如果之前被删除过会自动从QFileSystemWatcher中移除
+            m_filesWatcher->addPath(QString("%1/gtk.css").arg(monitorInfo->getPath()));
+        }
         break;
     }
     case THEME_MONITOR_TYPE_METACITY:
@@ -313,6 +324,12 @@ void ThemeMonitor::updateThemeWhenDirChange(const QString &dirPath)
             m_filesWatcher->removePath(QString("%1/metacity-theme-1.xml").arg(monitorInfo->getPath()));
             m_filesWatcher->removePath(QString("%1/metacity-theme-2.xml").arg(monitorInfo->getPath()));
             m_filesWatcher->removePath(QString("%1/metacity-theme-3.xml").arg(monitorInfo->getPath()));
+        }
+        else
+        {
+            m_filesWatcher->addPath(QString("%1/metacity-theme-1.xml").arg(monitorInfo->getPath()));
+            m_filesWatcher->addPath(QString("%1/metacity-theme-2.xml").arg(monitorInfo->getPath()));
+            m_filesWatcher->addPath(QString("%1/metacity-theme-3.xml").arg(monitorInfo->getPath()));
         }
         break;
     }
