@@ -111,6 +111,7 @@ CPUInfo SystemInfoHardware::getCpuInfoByCmd()
     RETURN_VAL_IF_TRUE(kvList.size() == 0, CPUInfo());
 
     CPUInfo cpuInfo;
+    QString biosModelName;
     for (auto& key : kvList[0])
     {
         auto value = kvList[0][key];
@@ -122,9 +123,17 @@ CPUInfo SystemInfoHardware::getCpuInfoByCmd()
         case "Model name"_hash:
             cpuInfo.model = value;
             break;
+        case "BIOS Model name"_hash:
+            biosModelName = value;
+            break;
         default:
             break;
         }
+    }
+
+    if (cpuInfo.model.isEmpty() && !biosModelName.isEmpty())
+    {
+        cpuInfo.model = biosModelName;
     }
 
     return cpuInfo;
