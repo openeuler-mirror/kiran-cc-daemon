@@ -305,6 +305,7 @@ void User::setLockedAuthenticated(const QDBusMessage &message, bool locked)
             setAutomaticLogin(false);
         }
     }
+    QDBusConnection::systemBus().send(message.createReply());
 }
 void User::setPasswordAuthenticated(const QDBusMessage &message, const QString &password, const QString &hint)
 {
