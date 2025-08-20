@@ -395,6 +395,7 @@ void XSettingsManager::settingsChanged(const QString &key, bool isNotify)
     case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
     case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_QT_SYNC, _hash):
+    case CONNECT(XSETTINGS_SCHEMA_RELOAD_WHEN_SCALING, _hash):
     case CONNECT(XSETTINGS_SCHEMA_XFT_DPI, _hash):
     case CONNECT(XSETTINGS_SCHEMA_FONT_DPI, _hash):
         break;
@@ -488,7 +489,9 @@ void XSettingsManager::scaleChangeWorkarounds(int32_t scale)
         }
     }
 
-    if (!isInit)
+    auto reloadWhenScaling = m_xsettingsSettings->get(XSETTINGS_SCHEMA_RELOAD_WHEN_SCALING).toBool();
+
+    if (!isInit && reloadWhenScaling)
     {
         // 理想的情况是marco/mate-panel/caja监控缩放因子的变化而自动调整自己的大小，
         // 但实际上没有实现这个功能，所以当窗口缩放因子发生变化时重置它们
@@ -509,9 +512,9 @@ void XSettingsManager::scaleChangeWorkarounds(int32_t scale)
         }
 
         // 重启面板
-        if (!QProcess::startDetached("killall", QStringList{"mate-panel", "kiran-panel"}))
+        if (!QProcess::startDetached("killall", QStringList{"mate-panel", "kiran-panel", "kiran-shell"}))
         {
-            KLOG_WARNING(xsettings) << "There was a problem restarting mate-panel or kiran-panel.";
+            KLOG_WARNING(xsettings) << "There was a problem restarting mate-panel, kiran-panel and kiran-shell.";
         }
         else
         {
