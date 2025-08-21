@@ -13,7 +13,7 @@
  */
 
 #include <libnotify/notification.h>
-
+#include <libnotify/notify.h>
 #include <QGSettings>
 #include "../power-utils.h"
 #include "../wrapper/power-upower-device.h"
@@ -33,6 +33,7 @@ PowerNotificationManager::PowerNotificationManager(PowerWrapperManager *wrapperM
                                                                                           m_deviceNotification(NULL)
 {
     m_upowerClient = m_wrapperManager->getDefaultUpower();
+    notify_init(tr("Control Center").toUtf8().data());
     m_deviceNotification = notify_notification_new(NULL, NULL, NULL);
     m_powerSettings = new QGSettings(POWER_SCHEMA_ID, "", this);
 }
