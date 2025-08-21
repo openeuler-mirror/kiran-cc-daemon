@@ -13,6 +13,8 @@
  */
 
 #include "power-profiles.h"
+#include <QDBusConnection>
+#include <QDBusConnectionInterface>
 #include <QGSettings>
 #include "lib/base/base.h"
 #include "power-i.h"
@@ -21,17 +23,52 @@
 
 namespace Kiran
 {
+
+#define PROFILES_HADESS_DBUS_NAME "net.hadess.PowerProfiles"
+
 QSharedPointer<PowerProfiles> PowerProfiles::create()
 {
     QGSettings powerSettings(POWER_SCHEMA_ID, "");
+    bool useHadness = true;
     auto profilesPolicy = powerSettings.get(POWER_SCHEMA_PROFILE_POLICY).toString();
+
     switch (shash(profilesPolicy.toUtf8().data()))
     {
+    case "auto"_hash:
+    {
+// 检测系统是否存在名为net.hadess.PowerProfiles的服务
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+        QStringList activatableNames = QDBusConnection::systemBus().interface()->activatableServiceNames().value();
+#else
+        auto reply = QDBusConnection::systemBus().interface()->callWithArgumentList(QDBus::AutoDetect,
+                                                                                    QLatin1String("ListActivatableNames"),
+                                                                                    QVariantList());
+        QStringList activatableNames = QDBusReply<QStringList>(reply).value();
+#endif
+        if (!activatableNames.contains(PROFILES_HADESS_DBUS_NAME))
+        {
+            useHadness = false;
+        }
+        break;
+    }
     case "hadess"_hash:
-        return QSharedPointer<PowerProfilesHadess>::create();
+        useHadness = true;
+        break;
     case "tuned"_hash:
-        return QSharedPointer<PowerProfilesTuned>::create();
+        useHadness = false;
+        break;
     default:
+        break;
+    }
+
+    KLOG_INFO(power) << "Use" << (useHadness ? "hadness" : "tuned") << "profiles.";
+
+    if (useHadness)
+    {
+        return QSharedPointer<PowerProfilesHadess>::create();
+    }
+    else
+    {
         return QSharedPointer<PowerProfilesTuned>::create();
     }
 }

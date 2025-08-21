@@ -78,27 +78,28 @@ bool SystemShortcuts::modify(const QString &uid, const QString &keyCombination)
     {
     case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
     {
-        if (shortcutMix->mate.keyCombination != keyCombination)
+        auto keyCombinationGtk = KeybindingUtils::keyCombQt2Gtk(keyCombination);
+        if (shortcutMix->mate.keyCombination != keyCombinationGtk)
         {
             KLOG_INFO(keybinding) << "Modify shortcut" << shortcutMix->mate.name
                                   << "from" << shortcutMix->mate.keyCombination
-                                  << "to" << keyCombination;
+                                  << "to" << keyCombinationGtk;
 
-            shortcutMix->mate.keyCombination = keyCombination;
-            shortcutMix->mate.gsettings->set(shortcutMix->mate.settingsKey, keyCombination);
+            shortcutMix->mate.keyCombination = keyCombinationGtk;
+            shortcutMix->mate.gsettings->set(shortcutMix->mate.settingsKey, keyCombinationGtk);
             Q_EMIT shortcutChanged(mix2common(shortcutMix));
         }
         break;
     }
     case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
     {
-        if (keys2GtkStr(shortcutMix->kde.keys) != keyCombination)
+        if (keys2Str(shortcutMix->kde.keys) != keyCombination)
         {
             KLOG_INFO(keybinding) << "Modify shortcut" << shortcutMix->kde.friendlyName
-                                  << "from" << keys2GtkStr(shortcutMix->kde.keys)
+                                  << "from" << keys2Str(shortcutMix->kde.keys)
                                   << "to" << keyCombination;
 
-            shortcutMix->kde.keys = (QList<QKeySequence>() << KeybindingUtils::keyCombGtk2Qt(keyCombination));
+            shortcutMix->kde.keys = (QList<QKeySequence>() << keyCombination);
             auto actionID = buildActionId(shortcutMix->kde);
             m_globalAccelInterface->setForeignShortcutKeys(actionID, shortcutMix->kde.keys);
             Q_EMIT shortcutChanged(mix2common(shortcutMix));
@@ -267,7 +268,7 @@ void SystemShortcuts::initMateShortcuts()
 
             if (shortcutMix->mate.kind.length() == 0 ||
                 shortcutMix->mate.name.length() == 0 ||
-                !KeybindingUtils::isValidKeySequence(shortcutMix->mate.keyCombination))
+                !KeybindingUtils::isValidGtkkeyComb(shortcutMix->mate.keyCombination))
             {
                 KLOG_WARNING(keybinding) << "The system shortcut is invalid. kind is" << shortcutMix->mate.kind
                                          << "and nam is" << shortcutMix->mate.name
@@ -389,8 +390,8 @@ QMap<QString, QSharedPointer<MixSystemShortcut>> SystemShortcuts::getKShortcuts(
                                << shortcutMix->kde.componentFriendlyName
                                << shortcutMix->kde.uniqueName
                                << shortcutMix->kde.friendlyName
-                               << keys2GtkStr(shortcutMix->kde.keys)
-                               << keys2GtkStr(shortcutMix->kde.defaultKeys);
+                               << keys2Str(shortcutMix->kde.keys)
+                               << keys2Str(shortcutMix->kde.defaultKeys);
     }
 
     return kSystemShortcuts;
@@ -429,14 +430,16 @@ QSharedPointer<SystemShortcut> SystemShortcuts::mix2common(QSharedPointer<MixSys
     {
     case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
     {
+        // 对外统一采用QT快捷键表示方式，方便前端处理和展示
+        auto keyCombinationQt = KeybindingUtils::keyCombGtk2Qt(shortcutMix->mate.keyCombination);
         return QSharedPointer<SystemShortcut>(new SystemShortcut{.uid = shortcutMix->uid,
                                                                  .kind = shortcutMix->mate.kind,
                                                                  .name = shortcutMix->mate.name,
-                                                                 .keyCombination = shortcutMix->mate.keyCombination});
+                                                                 .keyCombination = keyCombinationQt});
     }
     case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
     {
-        auto keyCombination = keys2GtkStr(shortcutMix->kde.keys);
+        auto keyCombination = keys2Str(shortcutMix->kde.keys);
         return QSharedPointer<SystemShortcut>(new SystemShortcut{.uid = shortcutMix->uid,
                                                                  .kind = shortcutMix->kde.componentFriendlyName,
                                                                  .name = shortcutMix->kde.friendlyName,
@@ -449,19 +452,14 @@ QSharedPointer<SystemShortcut> SystemShortcuts::mix2common(QSharedPointer<MixSys
     return nullptr;
 }
 
-QString SystemShortcuts::keys2GtkStr(const QList<QKeySequence> &keys)
+QString SystemShortcuts::keys2Str(const QList<QKeySequence> &keys)
 {
     if (keys.size() == 0)
     {
         return QString();
     }
-    // Key_Super_L键需要做一下特殊处理，否则前端界面显示是乱码
     auto keySequence0 = keys.at(0);
-    if (keySequence0 == Qt::Key_Super_L)
-    {
-        return QString("Super");
-    }
-    return KeybindingUtils::keyCombQt2Gtk(keySequence0.toString());
+    return keySequence0.toString();
 }
 
 QStringList SystemShortcuts::buildActionId(const KDESystemShortcut &systemShortcutKDE)
@@ -482,7 +480,7 @@ void SystemShortcuts::processSettingsChanged(const QString &key, const QString &
     if (shortcut)
     {
         auto value = shortcut->mate.gsettings->get(key).toString();
-        if (shortcut->mate.keyCombination != value && KeybindingUtils::isValidKeySequence(value))
+        if (shortcut->mate.keyCombination != value && KeybindingUtils::isValidGtkkeyComb(value))
         {
             shortcut->mate.keyCombination = value;
             Q_EMIT shortcutChanged(mix2common(shortcut));

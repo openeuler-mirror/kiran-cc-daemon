@@ -18,6 +18,7 @@
 #include <QKeySequence>
 #include "custom-shortcut.h"
 #include "keybinding-i.h"
+#include "keybinding-utils.h"
 #include "keybindingadaptor.h"
 #include "keys/keys-sound.h"
 #include "keys/keys-system.h"
@@ -52,6 +53,11 @@ QString KeybindingManager::AddCustomShortcut(const QString &name, const QString 
     if (name.isEmpty() || action.isEmpty())
     {
         DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_ARGUMENT_INVALID);
+    }
+
+    if (!KeybindingUtils::isValidKeySequence(keyComb))
+    {
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID);
     }
 
     if (hasSameKeycomb(QString(), keyComb))
@@ -208,6 +214,11 @@ void KeybindingManager::ModifyCustomShortcut(const QString &uid,
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
     }
 
+    if (!KeybindingUtils::isValidKeySequence(keyComb))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID);
+    }
+
     if (hasSameKeycomb(uid, keyComb))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_ALREADY_EXIST);
@@ -231,6 +242,11 @@ void KeybindingManager::ModifyCustomShortcut(const QString &uid,
 
 void KeybindingManager::ModifySystemShortcut(const QString &uid, const QString &keyComb)
 {
+    if (!KeybindingUtils::isValidKeySequence(keyComb))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_CUSTOM_KEYCOMB_INVALID);
+    }
+
     if (hasSameKeycomb(uid, keyComb))
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_KEYBINDING_SYSTEM_KEYCOMB_ALREADY_EXIST);

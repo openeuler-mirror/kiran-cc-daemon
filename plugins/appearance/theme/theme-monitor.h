@@ -40,7 +40,7 @@ class ThemeMonitorInfo
 {
 public:
     ThemeMonitorInfo(ThemeMonitorType type, int32_t priority, const QString &path);
-    virtual ~ThemeMonitorInfo(){};
+    virtual ~ThemeMonitorInfo() {};
 
     ThemeMonitorType getType() { return this->m_type; }
     int32_t getPriority() { return this->m_priority; }
@@ -62,7 +62,7 @@ class ThemeMonitor : public QObject
 
 public:
     ThemeMonitor(QObject *parent = nullptr);
-    virtual ~ThemeMonitor(){};
+    virtual ~ThemeMonitor() {};
 
     void init();
 
@@ -73,6 +73,7 @@ Q_SIGNALS:
 
 private:
     QSharedPointer<ThemeMonitorInfo> getMonitor(const QString &path);
+    bool hasValidMonitor(const QString &path);
 
     bool addMonitor(const QString &path, QSharedPointer<ThemeMonitorInfo> monitor);
 

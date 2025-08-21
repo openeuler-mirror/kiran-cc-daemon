@@ -167,5 +167,9 @@
             <default>true</default>
             <description>This setting determines whether MATE controls the scale factor for QT applications.</description>
         </key>
+        <key name="reload-when-scaling" type="b">
+            <default>false</default>
+            <description>Reload marco, caja and panel when window scaling factor is changed.</description>
+        </key>
     </schema>
 </schemalist>
