@@ -76,7 +76,7 @@ private:
     void scaleSettings();
     void scaleChangeWorkarounds(int32_t scale);
     void processScreenChanged();
-    bool delayedToggleBgDraw(bool value);
+    void enableShowDesktopIcon();
     void processFontconfigTimestampChanged();
     void processPropertiesChanged(const QStringList &properties);
 
@@ -95,7 +95,6 @@ private:
     const static QMap<QString, QString> m_schema2Registry;
     QMap<QString, QString> m_registry2Schema;
 
-    QTimer *m_hideDesktopIconTimer;
     QTimer *m_showDesktopIconTimer;
 
     FontconfigMonitor *m_fontconfigMonitor;

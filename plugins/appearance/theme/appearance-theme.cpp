@@ -331,31 +331,31 @@ void AppearanceTheme::processMonitorInfoChanged(QSharedPointer<ThemeMonitorInfo>
     RETURN_IF_FALSE(base);
 
     auto key = qMakePair(base->type, base->name);
-    auto old_theme = getTheme(key);
-    auto parsed_theme = parse.parse();
+    auto oldTheme = getTheme(key);
+    auto parsedTheme = parse.parse();
 
-    if (parsed_theme)
+    if (parsedTheme)
     {
-        replaceTheme(parsed_theme);
+        replaceTheme(parsedTheme);
     }
     else
     {
-        ThemeUniqueKey unique_key = std::make_tuple(base->type, base->name, monitorInfo->getPriority());
-        delTheme(unique_key);
+        ThemeUniqueKey uniqueKey = std::make_tuple(base->type, base->name, monitorInfo->getPriority());
+        delTheme(uniqueKey);
     }
 
     // 需要在执行替换或删除操作后再进行获取，因为不确定变动的是否为最高优先级的主题
-    auto new_theme = getTheme(key);
+    auto newTheme = getTheme(key);
 
-    if (old_theme && !new_theme)
+    if (oldTheme && !newTheme)
     {
         Q_EMIT themeDetailChanged(key, ThemeEventType::THEME_EVENT_TYPE_DEL);
     }
-    else if (!old_theme && new_theme)
+    else if (!oldTheme && newTheme)
     {
         Q_EMIT themeDetailChanged(key, ThemeEventType::THEME_EVENT_TYPE_ADD);
     }
-    else if (old_theme && new_theme)
+    else if (oldTheme && newTheme)
     {
         Q_EMIT themeDetailChanged(key, ThemeEventType::THEME_EVENT_TYPE_CHG);
     }

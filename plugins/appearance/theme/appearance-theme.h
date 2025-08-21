@@ -44,7 +44,7 @@ class AppearanceTheme : public QObject
 
 public:
     AppearanceTheme(QObject* parent = nullptr);
-    virtual ~AppearanceTheme(){};
+    virtual ~AppearanceTheme() {};
 
     void init();
 
