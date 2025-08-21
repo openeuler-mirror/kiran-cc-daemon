@@ -34,10 +34,14 @@ QString PowerUtils::getTimeTranslation(uint32_t seconds)
     minutes = minutes % 60;
 
     auto minutesTranslation = (minutes <= 1) ? tr("%1 minute") : tr("%1 minutes");
+    minutesTranslation = QString(minutesTranslation).arg(minutes);
+
     auto hoursTranslation = (hours <= 1) ? tr("%1 hour") : tr("%1 hours");
+    hoursTranslation = QString(hoursTranslation).arg(hours);
+
     if (minutes == 0)
     {
-        return QString(hoursTranslation).arg(hours);
+        return hoursTranslation;
     }
     else
     {
