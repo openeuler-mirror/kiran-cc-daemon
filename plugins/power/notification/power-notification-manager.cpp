@@ -116,25 +116,39 @@ void PowerNotificationManager::processDeviceDischarging(QSharedPointer<PowerUPow
     const UPowerDeviceProps &deviceProps = device->getProps();
     QString title;
     QString message;
+    QString remainingTimeText;
 
-    auto remainingTimeText = PowerUtils::getTimeTranslation(deviceProps.timeToEmpty);
+    /**
+    * 笔记本电池FullCharged状态下拔掉电源，TimeToEmpty更新没那么及时(D2000环境大概10s)，导致拔电通知错误的剩余时间(#93013)
+    × 如果TimeToEmtpy为一个错误的值，或无法获取到剩余时长，则不通知。
+    */
+    if (deviceProps.timeToEmpty > 0)
+    {
+        remainingTimeText = PowerUtils::getTimeTranslation(deviceProps.timeToEmpty);
+    }
 
     switch (deviceProps.type)
     {
     case UP_DEVICE_KIND_BATTERY:
     {
         title = tr("Battery Discharging");
-        message = QString(tr("%1 of battery power remaining (%2%)"))
-                      .arg(remainingTimeText)
-                      .arg(deviceProps.percentage, 0, 'f', 1);
+        if (!remainingTimeText.isEmpty())
+        {
+            message = QString(tr("%1 of battery power remaining (%2%)"))
+                          .arg(remainingTimeText)
+                          .arg(deviceProps.percentage, 0, 'f', 1);
+        }
         break;
     }
     case UP_DEVICE_KIND_UPS:
     {
         title = tr("UPS Discharging");
-        message = QString(tr("%1 of UPS backup power remaining (%2%)"))
-                      .arg(remainingTimeText)
-                      .arg(deviceProps.percentage, 0, 'f', 1);
+        if (!remainingTimeText.isEmpty())
+        {
+            message = QString(tr("%1 of UPS backup power remaining (%2%)"))
+                          .arg(remainingTimeText)
+                          .arg(deviceProps.percentage, 0, 'f', 1);
+        }
         break;
     }
     default:
