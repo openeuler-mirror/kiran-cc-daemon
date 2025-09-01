@@ -446,6 +446,8 @@ void KeyboardManager::setAutoRepeatToXkb()
     {
         XAutoRepeatOff(display);
     }
+
+    XFlush(display);
 }
 
 bool KeyboardManager::setLayoutsToXkb(const QStringList &layouts)
