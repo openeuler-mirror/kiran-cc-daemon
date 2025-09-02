@@ -645,11 +645,11 @@ msgstr "设置网络时间同步之前需要身份验证"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
 msgid "Greeter settings"
-msgstr "登陆设置"
+msgstr "登录设置"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:2
 msgid "Authentication is required for greeter setting."
-msgstr "登陆设置之前需要身份验证"
+msgstr "登录设置之前需要身份验证"
 
 #: ../data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in.h:1
 msgid "Set host name"
@@ -726,7 +726,7 @@ msgstr "指定的用户/组不存在。"
 
 #: ../lib/base/error.cpp:81
 msgid "User to modify is logged in."
-msgstr "要修改的用户已登陆。"
+msgstr "要修改的用户已登录。"
 
 #: ../lib/base/error.cpp:84
 msgid "Username already in use."

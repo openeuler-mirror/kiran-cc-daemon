@@ -560,7 +560,7 @@ void AccountsManager::delete_user_authorized_cb(MethodInvocation invocation, uin
 
     KLOG_DEBUG_ACCOUNTS("Delete user '%s' (%d)", user->user_name_get().c_str(), (int32_t)uid);
 
-    // 忽略取消自动登陆出错情况
+    // 忽略取消自动登录出错情况
     this->set_automatic_login(user, false, error_code);
     user->remove_cache_file();
 

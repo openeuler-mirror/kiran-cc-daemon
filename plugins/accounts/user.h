@@ -84,7 +84,7 @@ protected:
     virtual void SetSessionType(const Glib::ustring &session_type, MethodInvocation &invocation);
     // 设置用户主目录
     virtual void SetHomeDirectory(const Glib::ustring &homedir, MethodInvocation &invocation);
-    // 设置用户登陆shell
+    // 设置用户登录shell
     virtual void SetShell(const Glib::ustring &shell, MethodInvocation &invocation);
     // 设置用户头像文件路径
     virtual void SetIconFile(const Glib::ustring &filename, MethodInvocation &invocation);
@@ -102,7 +102,7 @@ protected:
                                      MethodInvocation &invocation);
     // 设置用户密码提示
     virtual void SetPasswordHint(const Glib::ustring &hint, MethodInvocation &invocation);
-    // 设置用户是否自动登陆
+    // 设置用户是否自动登录
     virtual void SetAutomaticLogin(bool enabled, MethodInvocation &invocation);
     // 设置用户密码过期信息
     virtual void SetPasswordExpirationPolicy(const Glib::ustring &options, MethodInvocation &invocation);
@@ -116,7 +116,7 @@ protected:
     virtual void AddAuthItem(gint32 mode, const Glib::ustring &name, const Glib::ustring &data_id, MethodInvocation &invocation);
     // 删除认证项
     virtual void DelAuthItem(gint32 mode, const Glib::ustring &name, MethodInvocation &invocation);
-    // 获取认证项，获取操作不需要加权限控制，否则登陆锁屏界面无法取到指纹数据做验证
+    // 获取认证项，获取操作不需要加权限控制，否则登录锁屏界面无法取到指纹数据做验证
     virtual void GetAuthItems(gint32 mode, MethodInvocation &invocation);
     // 开启或关闭认证，如果未开启认证，就算录入了数据也不会使用
     virtual void EnableAuthMode(gint32 mode, bool enabled, MethodInvocation &invocation);
@@ -215,7 +215,7 @@ private:
 
     void build_freedesktop_user_object_path();
 
-    // 由于切换用户时，登陆器通过org.freedesktop.Accounts接口获取图标，Kiran设置/更新用户图标后需要同步到freedesktop
+    // 由于切换用户时，登录器通过org.freedesktop.Accounts接口获取图标，Kiran设置/更新用户图标后需要同步到freedesktop
     void sync_icon_file_to_freedesktop(const Glib::ustring &icon_file);
 
 private:
