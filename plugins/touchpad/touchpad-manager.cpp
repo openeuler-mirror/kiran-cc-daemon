@@ -248,6 +248,7 @@ void TouchPadManager::init()
     setAllPropsToDevices();
 
     connect(m_touchpadSettings, &QGSettings::changed, this, &TouchPadManager::processSettingsChanged);
+    connect(m_inputBackend, &InputBackend::deviceChanged, this, &TouchPadManager::setAllPropsToDevices);
 
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(TOUCHPAD_DBUS_NAME))

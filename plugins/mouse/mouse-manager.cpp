@@ -149,6 +149,7 @@ void MouseManager::init()
     setAllPropsToDevices();
 
     connect(m_mouseSettings, &QGSettings::changed, this, &MouseManager::processSettingsChanged);
+    connect(m_inputBackend, &InputBackend::deviceChanged, this, &MouseManager::setAllPropsToDevices);
 
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(MOUSE_DBUS_NAME))
