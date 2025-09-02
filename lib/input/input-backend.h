@@ -38,6 +38,9 @@ public:
 
     virtual QList<QSharedPointer<InputDevice>> getDevices() const { return QList<QSharedPointer<InputDevice>>(); };
 
+signals:
+    void deviceChanged();
+
 private:
     static InputBackend* m_instance;
 };

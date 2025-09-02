@@ -16,15 +16,27 @@
 #include <xcb/xcb.h>
 #include <xcb/xcbext.h>
 #include <xcb/xinput.h>
+#include <QCoreApplication>
 #include "lib/base/base.h"
 #include "lib/xcb/xcb-connection.h"
 #include "xinput-device.h"
 
 namespace Kiran
 {
-XInputBackend::XInputBackend()
+XInputBackend::XInputBackend() : m_xinputOpcode(0)
 {
     m_xcbConnection = XcbConnection::getDefault();
+    
+    if (isValid())
+    {
+        registerXInputEventListener();
+        QCoreApplication::instance()->installNativeEventFilter(this);
+    }
+}
+
+XInputBackend::~XInputBackend()
+{
+    QCoreApplication::instance()->removeNativeEventFilter(this);
 }
 
 bool XInputBackend::isValid()
@@ -39,6 +51,8 @@ bool XInputBackend::isValid()
         KLOG_WARNING() << "XInput extension is not present on the X server";
         return false;
     }
+    
+    m_xinputOpcode = reply->major_opcode;
     return true;
 }
 
@@ -72,6 +86,92 @@ QList<QSharedPointer<InputDevice>> XInputBackend::getDevices() const
     }
     KLOG_DEBUG() << "Input devices contain" << inputDeviceNames;
     return inputDevices;
+}
+
+bool XInputBackend::registerXInputEventListener()
+{
+    auto connection = m_xcbConnection->getConnection();
+    
+    auto screen = m_xcbConnection->getDefaultScreen();
+    xcb_window_t window = screen->root;
+    
+    // 注册设备层次结构更改事件
+    xcb_input_event_mask_t* event_mask_ptr = static_cast<xcb_input_event_mask_t*>(
+        malloc(sizeof(xcb_input_event_mask_t) + sizeof(uint32_t))
+    );
+    
+    event_mask_ptr->deviceid = XCB_INPUT_DEVICE_ALL;
+    event_mask_ptr->mask_len = 1;
+    uint32_t* mask_ptr = reinterpret_cast<uint32_t*>(event_mask_ptr + 1);
+    *mask_ptr = XCB_INPUT_XI_EVENT_MASK_DEVICE_CHANGED | XCB_INPUT_XI_EVENT_MASK_HIERARCHY;
+    
+    xcb_input_xi_select_events(connection, window, 1, event_mask_ptr);
+    free(event_mask_ptr);
+    
+    xcb_flush(connection);
+    
+    KLOG_DEBUG() << "Registered XInput event listener";
+    return true;
+}
+
+bool XInputBackend::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED(result);
+    
+    // 只关心 xcb 事件
+    if (eventType != "xcb_generic_event_t") {
+        return false;
+    }
+    
+    xcb_generic_event_t* event = static_cast<xcb_generic_event_t*>(message);
+    
+    // XInput事件的类型从GE到GE+1，其中GE是GenericEvent类型
+    if ((event->response_type & ~0x80) == XCB_GE_GENERIC)
+    {
+        xcb_ge_generic_event_t* ge = reinterpret_cast<xcb_ge_generic_event_t*>(event);
+        
+        // 检查是否是XInput扩展事件
+        if (ge->extension == m_xinputOpcode)
+        {
+            // 设备层次结构变化事件
+            if (ge->event_type == XCB_INPUT_HIERARCHY)
+            {
+                handleHierarchyEvent(event);
+            }
+        }
+    }
+    
+    // 不阻止此事件继续传播
+    return false;
+}
+
+void XInputBackend::handleHierarchyEvent(void* event)
+{
+    xcb_input_hierarchy_event_t* hierarchy_event = reinterpret_cast<xcb_input_hierarchy_event_t*>(event);
+    
+    // 检查设备变化类型
+    bool deviceChangedFlag = false;
+    auto info = xcb_input_hierarchy_infos_iterator(hierarchy_event);
+    
+    for (int i = 0; i < hierarchy_event->num_infos; i++)
+    {
+        if (info.data->flags & (XCB_INPUT_HIERARCHY_MASK_SLAVE_ADDED | 
+                               XCB_INPUT_HIERARCHY_MASK_SLAVE_REMOVED |
+                               XCB_INPUT_HIERARCHY_MASK_DEVICE_ENABLED |
+                               XCB_INPUT_HIERARCHY_MASK_DEVICE_DISABLED))
+        {
+            deviceChangedFlag = true;
+            KLOG_DEBUG() << "Device hierarchy changed, device ID:" << info.data->deviceid;
+        }
+        
+        xcb_input_hierarchy_info_next(&info);
+    }
+    
+    if (deviceChangedFlag)
+    {
+        KLOG_DEBUG() << "Emitting deviceChanged signal";
+        Q_EMIT deviceChanged();
+    }
 }
 
 }  // namespace Kiran
