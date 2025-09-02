@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <QAbstractNativeEventFilter>
 #include <QSharedPointer>
 #include "../../input-backend.h"
 
@@ -21,20 +22,27 @@ namespace Kiran
 {
 class XcbConnection;
 
-class XInputBackend : public InputBackend
+class XInputBackend : public InputBackend, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
 public:
     XInputBackend();
-    virtual ~XInputBackend(){};
+    virtual ~XInputBackend();
 
     virtual bool isValid() override;
-
     virtual QList<QSharedPointer<InputDevice>> getDevices() const override;
+    
+    // QAbstractNativeEventFilter 接口实现
+    virtual bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+
+private:
+    bool registerXInputEventListener();
+    void handleHierarchyEvent(void* event);
 
 private:
     QSharedPointer<XcbConnection> m_xcbConnection;
+    int m_xinputOpcode;
 };
 
 }  // namespace Kiran
