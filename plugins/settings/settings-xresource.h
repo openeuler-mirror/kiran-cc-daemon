@@ -12,30 +12,34 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "xsettings-plugin.h"
-#include <QGuiApplication>
-#include "lib/base/base.h"
-#include "xsettings-manager.h"
+#pragma once
+
+#include <QSharedPointer>
+
+class QGSettings;
 
 namespace Kiran
 {
-void XSettingsPlugin::activate()
-{
-    if (qGuiApp->platformName() == "xcb")
-    {
-        XSettingsManager::globalInit();
-    }
-    else
-    {
-        KLOG_INFO(xsettings) << "xsettings cannot init on xcb platform";
-    }
-}
+class XcbConnection;
 
-void XSettingsPlugin::deactivate()
+class SettingsXResource : public QObject
 {
-    if (qGuiApp->platformName() == "xcb")
-    {
-        XSettingsManager::globalDeinit();
-    }
-}
+    Q_OBJECT
+
+public:
+    SettingsXResource(QObject *parent = nullptr);
+    virtual ~SettingsXResource() {};
+
+    void init();
+
+private:
+    // 更新Xresource属性
+    void updateProperties();
+    void updateProperty(QByteArray &props, const QString &key, const QString &value);
+    void processXsettingsChanged(const QString &key);
+
+private:
+    QSharedPointer<XcbConnection> m_xcbConnection;
+    QGSettings *m_settings;
+};
 }  // namespace Kiran

@@ -12,13 +12,14 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "xsettings-xresource.h"
+#include "settings-xresource.h"
 #include <glib.h>
 #include <xcb/xcb.h>
+#include <QGSettings>
 #include "lib/base/base.h"
 #include "lib/xcb/xcb-connection.h"
-#include "xsettings-common.h"
-#include "xsettings-manager.h"
+#include "settings-common.h"
+#include "settings-manager.h"
 
 namespace Kiran
 {
@@ -31,26 +32,27 @@ namespace Kiran
 #define XRESOURCE_PROP_XCURSOR_THEME "Xcursor.theme"
 #define XRESOURCE_PROP_XCURSOR_SIZE "Xcursor.size"
 
-XSettingsXResource::XSettingsXResource(QObject *parent) : QObject(parent)
+SettingsXResource::SettingsXResource(QObject *parent) : QObject(parent)
 {
     m_xcbConnection = XcbConnection::getDefault();
+    m_settings = new QGSettings(SETTINGS_SCHEMA_ID, "", this);
 }
 
-void XSettingsXResource::init()
+void SettingsXResource::init()
 {
     updateProperties();
 
-    connect(XSettingsManager::getInstance(), &XSettingsManager::xsettingsChanged, this, &XSettingsXResource::processXsettingsChanged);
+    connect(m_settings, &QGSettings::changed, this, &SettingsXResource::processXsettingsChanged);
 }
 
-void XSettingsXResource::updateProperties()
+void SettingsXResource::updateProperties()
 {
     char dpibuf[G_ASCII_DTOSTR_BUF_SIZE];
-    auto xsettingsManager = XSettingsManager::getInstance();
+    auto settingsManager = SettingsManager::getInstance();
     auto xcbConnection = m_xcbConnection->getConnection();
     auto rootWindow = m_xcbConnection->getDefaultScreen()->root;
 
-    RETURN_IF_TRUE(xsettingsManager == NULL);
+    RETURN_IF_TRUE(settingsManager == NULL);
 
     int offset = 0;
     QByteArray resourceProperties;
@@ -73,23 +75,23 @@ void XSettingsXResource::updateProperties()
         BREAK_IF_TRUE(!more)
     }
 
-    KLOG_INFO(xsettings) << "The Old Xresource is" << resourceProperties;
-    auto xcursorSize = QString(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettingsManager->getGtkCursorThemeSize()));
+    KLOG_INFO(settings) << "The Old Xresource is" << resourceProperties;
+    auto xcursorSize = QString(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)settingsManager->getCursorThemeSize()));
 
-    auto dpi = QString(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)xsettingsManager->getXftDPI() / 1024.0));
-    auto lcdfilter = (xsettingsManager->getXftRGBA() == "rgb") ? "lcddefault" : "none";
+    auto dpi = QString(g_ascii_dtostr(dpibuf, sizeof(dpibuf), (double)settingsManager->getXftDPI() / 1024.0));
+    auto lcdfilter = (settingsManager->getXftRGBA() == "rgb") ? "lcddefault" : "none";
 
     updateProperty(resourceProperties, XRESOURCE_PROP_XFT_DPI, dpi);
     updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_SIZE, xcursorSize);
-    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_ANTIALIAS, xsettingsManager->getXftAntialias() > 0 ? "1" : "0");
-    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_HINTING, xsettingsManager->getXftHinting() > 0 ? "1" : "0");
-    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_HINTSTYLE, xsettingsManager->getXftHintStyle());
-    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_RGBA, xsettingsManager->getXftRGBA());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_ANTIALIAS, settingsManager->getXftAntialias() > 0 ? "1" : "0");
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_HINTING, settingsManager->getXftHinting() > 0 ? "1" : "0");
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_HINTSTYLE, settingsManager->getXftHintStyle());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XFT_RGBA, settingsManager->getXftRGBA());
     updateProperty(resourceProperties, XRESOURCE_PROP_XFT_LCDFILTER, lcdfilter);
-    updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_THEME, xsettingsManager->getGtkCursorThemeName());
+    updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_THEME, settingsManager->getCursorThemeName());
     updateProperty(resourceProperties, XRESOURCE_PROP_XCURSOR_SIZE, xcursorSize);
 
-    KLOG_INFO(xsettings) << "The New Xresource is" << resourceProperties;
+    KLOG_INFO(settings) << "The New Xresource is" << resourceProperties;
 
     xcb_change_property(xcbConnection,
                         XCB_PROP_MODE_REPLACE,
@@ -101,7 +103,7 @@ void XSettingsXResource::updateProperties()
     xcb_flush(m_xcbConnection->getConnection());
 }
 
-void XSettingsXResource::updateProperty(QByteArray &props, const QString &key, const QString &value)
+void SettingsXResource::updateProperty(QByteArray &props, const QString &key, const QString &value)
 {
     auto needle = key + QString(":");
     auto foundStart = props.indexOf(needle.toUtf8());
@@ -129,18 +131,18 @@ void XSettingsXResource::updateProperty(QByteArray &props, const QString &key, c
     }
 }
 
-void XSettingsXResource::processXsettingsChanged(const QString &key)
+void SettingsXResource::processXsettingsChanged(const QString &key)
 {
     switch (shash(key.toLatin1().data()))
     {
-    case CONNECT(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_XFT_HINTING, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_XFT_RGBA, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_XFT_DPI, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
-    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
+    case CONNECT(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, _hash):
+    case CONNECT(SETTINGS_SCHEMA_XFT_ANTIALIAS, _hash):
+    case CONNECT(SETTINGS_SCHEMA_XFT_HINTING, _hash):
+    case CONNECT(SETTINGS_SCHEMA_XFT_HINT_STYLE, _hash):
+    case CONNECT(SETTINGS_SCHEMA_XFT_RGBA, _hash):
+    case CONNECT(SETTINGS_SCHEMA_XFT_DPI, _hash):
+    case CONNECT(SETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
+    case CONNECT(SETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
         updateProperties();
         break;
     default:

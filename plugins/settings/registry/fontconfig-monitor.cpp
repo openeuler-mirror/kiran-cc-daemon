@@ -66,7 +66,7 @@ void FontconfigMonitor::addFilesMonitors(FcStrList *files)
 
 void FontconfigMonitor::updateFontConfig()
 {
-    KLOG_INFO(xsettings) << "Font files is changes. so reload fontconfig";
+    KLOG_INFO(settings) << "Font files is changes. so reload fontconfig";
 
     m_timer->stop();
     if (!FcConfigUptoDate(NULL) && FcInitReinitialize())

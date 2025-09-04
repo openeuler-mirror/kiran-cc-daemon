@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SessionDaemon.Settings">
+
+        <method name="SetDoubleClickTime">
+            <arg name="double_click_time" direction="in" type="i">
+                <description>Double click time.</description>
+            </arg>
+            <description>Maximum time allowed between two clicks for them to be considered a double click (in milliseconds).</description>
+        </method>
+
+        <method name="SetDoubleClickDistance">
+            <arg name="double_click_distance" direction="in" type="i">
+                <description>Double click distance in pixels.</description>
+            </arg>
+            <description>Maximum distance allowed between two clicks for them to be considered a double click (in pixels).</description>
+        </method>
+
+        <method name="SetDndDragThreshold">
+            <arg name="dnd_drag_threshold" direction="in" type="i">
+                <description>Drag threshold in pixels.</description>
+            </arg>
+            <description>Number of pixels the cursor can move before dragging.</description>
+        </method>
+
+        <method name="SetCursorBlink">
+            <arg name="cursor_blink" direction="in" type="b">
+                <description>Whether cursor should blink.</description>
+            </arg>
+            <description>Whether the cursor should blink.</description>
+        </method>
+
+        <method name="SetCursorBlinkTime">
+            <arg name="cursor_blink_time" direction="in" type="i">
+                <description>Cursor blink cycle length in milliseconds.</description>
+            </arg>
+            <description>Length of the cursor blink cycle, in milleseconds.</description>
+        </method>
+
+        <method name="SetThemeName">
+            <arg name="theme_name" direction="in" type="s">
+                <description>Name of GTK theme.</description>
+            </arg>
+            <description>Name of gtk theme to use.</description>
+        </method>
+
+        <method name="SetIconThemeName">
+            <arg name="icon_theme_name" direction="in" type="s">
+                <description>Name of icon theme.</description>
+            </arg>
+            <description>Name of icon theme to use for icons.</description>
+        </method>
+
+        <method name="SetEnableEventSounds">
+            <arg name="enable_event_sounds" direction="in" type="b">
+                <description>Whether to play sounds on user events.</description>
+            </arg>
+            <description>Whether to play sounds on user events.</description>
+        </method>
+
+        <method name="SetSoundThemeName">
+            <arg name="sound_theme_name" direction="in" type="s">
+                <description>The XDG sound theme name.</description>
+            </arg>
+            <description>The XDG sound theme to use for event sounds.</description>
+        </method>
+
+        <method name="SetEnableInputFeedbackSounds">
+            <arg name="enable_input_feedback_sounds" direction="in" type="b">
+                <description>Whether to play sounds on input events.</description>
+            </arg>
+            <description>Whether to play sounds on input events.</description>
+        </method>
+
+        <method name="SetXftAntialias">
+            <arg name="xft_antialias" direction="in" type="i">
+                <description>Whether to antialias Xft fonts; 0=no, 1=yes, -1=default.</description>
+            </arg>
+            <description>Whether to antialias Xft fonts; 0=no, 1=yes, -1=default.</description>
+        </method>
+
+        <method name="SetXftHinting">
+            <arg name="xft_hinting" direction="in" type="i">
+                <description>Whether to hint Xft fonts; 0=no, 1=yes, -1=default.</description>
+            </arg>
+            <description>Whether to hint Xft fonts; 0=no, 1=yes, -1=default.</description>
+        </method>
+
+        <method name="SetXftHintStyle">
+            <arg name="xft_hint_style" direction="in" type="s">
+                <description>What degree of hinting to use.</description>
+            </arg>
+            <description>What degree of hinting to use; "hintnone", "hintslight", "hintmedium", or "hintfull".</description>
+        </method>
+
+        <method name="SetXftRGBA">
+            <arg name="xft_rgba" direction="in" type="s">
+                <description>Type of subpixel antialiasing.</description>
+            </arg>
+            <description>Type of subpixel antialiasing; "rgba", "rgb", "bgr", "vrgb", "vbgr".</description>
+        </method>
+
+        <method name="SetXftDPI">
+            <arg name="xft_dpi" direction="in" type="i">
+                <description>Resolution for Xft, in 1024 * dots/inch.</description>
+            </arg>
+            <description>Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not modify it manually.</description>
+        </method>
+
+        <method name="SetFontDPI">
+            <arg name="font_dpi" direction="in" type="d">
+                <description>The resolution used for converting font sizes to pixel sizes, in dots per inch.</description>
+            </arg>
+            <description>The resolution used for converting font sizes to pixel sizes, in dots per inch.</description>
+        </method>
+
+        <method name="SetCursorThemeName">
+            <arg name="cursor_theme_name" direction="in" type="s">
+                <description>Name of the cursor theme.</description>
+            </arg>
+            <description>Name of the cursor theme.</description>
+        </method>
+
+        <method name="SetCursorThemeSize">
+            <arg name="cursor_theme_size" direction="in" type="i">
+                <description>Size of the cursor referenced by cursor_theme.</description>
+            </arg>
+            <description>Size of the cursor referenced by cursor_theme.</description>
+        </method>
+
+        <method name="SetCursorBlinkTimeout">
+            <arg name="cursor_blink_timeout" direction="in" type="i">
+                <description>Time in seconds after which the cursor is hidden when blinking is enabled.</description>
+            </arg>
+            <description>Time in seconds after which the cursor is hidden when blinking is enabled.</description>
+        </method>
+
+        <method name="SetFontName">
+            <arg name="font_name" direction="in" type="s">
+                <description>Name of default font to use.</description>
+            </arg>
+            <description>Name of default font to use.</description>
+        </method>
+
+        <method name="SetKeyThemeName">
+            <arg name="key_theme_name" direction="in" type="s">
+                <description>Name of key theme RC file to load.</description>
+            </arg>
+            <description>Name of key theme RC file to load.</description>
+        </method>
+
+        <method name="SetToolbarStyle">
+            <arg name="toolbar_style" direction="in" type="s">
+                <description>Whether default toolbars have text only, text and icons, icons only, etc.</description>
+            </arg>
+            <description>Whether default toolbars have text only, text and icons, icons only, etc.</description>
+        </method>
+
+        <method name="SetToolbarIconsSize">
+            <arg name="toolbar_icons_size" direction="in" type="s">
+                <description>Size of icons in default toolbars.</description>
+            </arg>
+            <description>Size of icons in default toolbars.</description>
+        </method>
+
+        <method name="SetImPreeditStyle">
+            <arg name="im_preedit_style" direction="in" type="s">
+                <description>How to draw the input method preedit string.</description>
+            </arg>
+            <description>How to draw the input method preedit string.</description>
+        </method>
+
+        <method name="SetImStatusStyle">
+            <arg name="im_status_style" direction="in" type="s">
+                <description>How to draw the input method statusbar.</description>
+            </arg>
+            <description>How to draw the input method statusbar.</description>
+        </method>
+
+        <method name="SetImModule">
+            <arg name="im_module" direction="in" type="s">
+                <description>Name of the input method module used by GTK+.</description>
+            </arg>
+            <description>Name of the input method module used by GTK+.</description>
+        </method>
+
+        <method name="SetMenuImages">
+            <arg name="menu_images" direction="in" type="b">
+                <description>Whether images should be shown in menus.</description>
+            </arg>
+            <description>Whether images should be shown in menus.</description>
+        </method>
+
+        <method name="SetButtonImages">
+            <arg name="button_images" direction="in" type="b">
+                <description>Whether stock icons should be shown in buttons.</description>
+            </arg>
+            <description>Whether stock icons should be shown in buttons.</description>
+        </method>
+
+        <method name="SetMenubarAccel">
+            <arg name="menubar_accel" direction="in" type="s">
+                <description>The accelerator for moving the focus to the menubar.</description>
+            </arg>
+            <description>The accelerator for moving the focus to the menubar.</description>
+        </method>
+
+        <method name="SetColorScheme">
+            <arg name="color_scheme" direction="in" type="s">
+                <description>A '\n' separated list of "name:color" as defined by the 'gtk-color-scheme' setting.</description>
+            </arg>
+            <description>A '\n' separated list of "name:color" as defined by the 'gtk-color-scheme' setting.</description>
+        </method>
+
+        <method name="SetFileChooserBackend">
+            <arg name="file_chooser_backend" direction="in" type="s">
+                <description>Module to use as the filesystem model for the GtkFileChooser widget.</description>
+            </arg>
+            <description>Module to use as the filesystem model for the GtkFileChooser widget.  Possible values are "gio" and "gtk+".</description>
+        </method>
+
+        <method name="SetDecorationLayout">
+            <arg name="decoration_layout" direction="in" type="s">
+                <description>This setting determines which buttons should be put in the titlebar of client-side decorated windows.</description>
+            </arg>
+            <description>This setting determines which buttons should be put in the titlebar of client-side decorated windows, and whether they should be placed at the left of right.</description>
+        </method>
+
+        <method name="SetShellShowsAppMenu">
+            <arg name="shell_shows_app_menu" direction="in" type="b">
+                <description>This setting determines where application menu will be displayed.</description>
+            </arg>
+            <description>This setting determines where application menu will be displayed - in a window or on a panel with MenuModel protocol.</description>
+        </method>
+
+        <method name="SetShellShowsMenubar">
+            <arg name="shell_shows_menubar" direction="in" type="b">
+                <description>This setting determines where window menubars will be displayed.</description>
+            </arg>
+            <description>This setting determines where window menubars will be displayed - in a window or on a panel with MenuModel protocol.</description>
+        </method>
+
+        <method name="SetShowInputMethodMenu">
+            <arg name="show_input_method_menu" direction="in" type="b">
+                <description>Whether the context menus of entries and text views should offer to change the input method.</description>
+            </arg>
+            <description>Whether the context menus of entries and text views  should offer to change the input method.</description>
+        </method>
+
+        <method name="SetShowUnicodeMenu">
+            <arg name="show_unicode_menu" direction="in" type="b">
+                <description>Whether the context menus of entries and text views should offer to insert control characters.</description>
+            </arg>
+            <description>Whether the context menus of entries and text views  should offer to insert control characters.</description>
+        </method>
+
+        <method name="SetAutomaticMnemonics">
+            <arg name="automatic_mnemonics" direction="in" type="b">
+                <description>Whether mnemonics should be automatically shown and hidden when the user presses the Alt key.</description>
+            </arg>
+            <description>Whether mnemonics should be automatically shown and hidden when the user presses the Alt key.</description>
+        </method>
+
+        <method name="SetEnablePrimaryPaste">
+            <arg name="enable_primary_paste" direction="in" type="b">
+                <description>If true, gtk+ uses the primary paste selection.</description>
+            </arg>
+            <description>If true, gtk+ uses the primary paste selection, usually triggered by a middle mouse button click.</description>
+        </method>
+
+        <method name="SetEnableAnimations">
+            <arg name="enable_animations" direction="in" type="b">
+                <description>Whether to enable toolkit-wide animations.</description>
+            </arg>
+            <description>Whether to enable toolkit-wide animations.</description>
+        </method>
+
+        <method name="SetDialogsUseHeader">
+            <arg name="dialogs_use_header" direction="in" type="b">
+                <description>Whether builtin GTK+ dialogs will use a header bar.</description>
+            </arg>
+            <description>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will use a header bar at the top to show action widgets, or an action area at the bottom.</description>
+        </method>
+
+        <method name="SetWindowScalingFactor">
+            <arg name="window_scaling_factor" direction="in" type="i">
+                <description>This controls the GTK scale factor.</description>
+            </arg>
+            <description>This controls the GTK scale factor that maps from window coordinates to the actual device pixels.</description>
+        </method>
+
+        <property name="DoubleClickTime" type="i" access="read">
+            <description>Double click time.</description>
+        </property>
+
+        <property name="DoubleClickDistance" type="i" access="read">
+            <description>Maximum distance allowed between two clicks for them to be considered a double click (in pixels).</description>
+        </property>
+
+        <property name="DndDragThreshold" type="i" access="read">
+            <description>Number of pixels the cursor can move before dragging.</description>
+        </property>
+
+        <property name="CursorBlink" type="b" access="read">
+            <description>Whether the cursor should blink.</description>
+        </property>
+
+        <property name="CursorBlinkTime" type="i" access="read">
+            <description>Length of the cursor blink cycle, in milleseconds.</description>
+        </property>
+
+        <property name="ThemeName" type="s" access="read">
+            <description>Name of gtk theme to use.</description>
+        </property>
+
+        <property name="IconThemeName" type="s" access="read">
+            <description>Name of icon theme to use for icons.</description>
+        </property>
+
+        <property name="EnableEventSounds" type="b" access="read">
+            <description>Whether to play sounds on user events.</description>
+        </property>
+
+        <property name="SoundThemeName" type="s" access="read">
+            <description>The XDG sound theme to use for event sounds.</description>
+        </property>
+
+        <property name="EnableInputFeedbackSounds" type="b" access="read">
+            <description>Whether to play sounds on input events.</description>
+        </property>
+
+        <property name="XftAntialias" type="i" access="read">
+            <description>Whether to antialias Xft fonts; 0=no, 1=yes, -1=default.</description>
+        </property>
+
+        <property name="XftHinting" type="i" access="read">
+            <description>Whether to hint Xft fonts; 0=no, 1=yes, -1=default.</description>
+        </property>
+
+        <property name="XftHintStyle" type="s" access="read">
+            <description>What degree of hinting to use; "hintnone", "hintslight", "hintmedium", or "hintfull".</description>
+        </property>
+
+        <property name="XftRgba" type="s" access="read">
+            <description>Type of subpixel antialiasing; "rgba", "rgb", "bgr", "vrgb", "vbgr".</description>
+        </property>
+
+        <property name="XftDPI" type="i" access="read">
+            <description>Resolution for Xft, in 1024 * dots/inch. -1 to use default value. Do not modify it manually.</description>
+        </property>
+
+        <property name="FontDPI" type="d" access="read">
+            <description>The resolution used for converting font sizes to pixel sizes, in dots per inch.</description>
+        </property>
+
+        <property name="CursorThemeName" type="s" access="read">
+            <description>Name of the cursor theme.</description>
+        </property>
+
+        <property name="CursorThemeSize" type="i" access="read">
+            <description>Size of the cursor referenced by cursor_theme.</description>
+        </property>
+
+        <property name="CursorBlinkTimeout" type="i" access="read">
+            <description>Time in seconds after which the cursor is hidden when blinking is enabled.</description>
+        </property>
+
+        <property name="FontName" type="s" access="read">
+            <description>Name of default font to use.</description>
+        </property>
+
+        <property name="KeyThemeName" type="s" access="read">
+            <description>Name of key theme RC file to load.</description>
+        </property>
+
+        <property name="ToolbarStyle" type="s" access="read">
+            <description>Whether default toolbars have text only, text and icons, icons only, etc.</description>
+        </property>
+
+        <property name="ToolbarIconsSize" type="s" access="read">
+            <description>Size of icons in default toolbars.</description>
+        </property>
+
+        <property name="ImPreeditStyle" type="s" access="read">
+            <description>How to draw the input method preedit string.</description>
+        </property>
+
+        <property name="ImStatusStyle" type="s" access="read">
+            <description>How to draw the input method statusbar.</description>
+        </property>
+
+        <property name="ImModule" type="s" access="read">
+            <description>Name of the input method module used by GTK+.</description>
+        </property>
+
+        <property name="MenuImages" type="b" access="read">
+            <description>Whether images should be shown in menus.</description>
+        </property>
+
+        <property name="ButtonImages" type="b" access="read">
+            <description>Whether stock icons should be shown in buttons.</description>
+        </property>
+
+        <property name="MenubarAccel" type="s" access="read">
+            <description>The accelerator for moving the focus to the menubar.</description>
+        </property>
+
+        <property name="ColorScheme" type="s" access="read">
+            <description>A '\n' separated list of "name:color" as defined by the 'gtk-color-scheme' setting.</description>
+        </property>
+
+        <property name="FileChooserBackend" type="s" access="read">
+            <description>Module to use as the filesystem model for the GtkFileChooser widget.  Possible values are "gio" and "gtk+".</description>
+        </property>
+
+        <property name="DecorationLayout" type="s" access="read">
+            <description>This setting determines which buttons should be put in the titlebar of client-side decorated windows, and whether they should be placed at the left of right.</description>
+        </property>
+
+        <property name="ShellShowsAppMenu" type="b" access="read">
+            <description>This setting determines where application menu will be displayed - in a window or on a panel with MenuModel protocol.</description>
+        </property>
+
+        <property name="ShellShowsMenubar" type="b" access="read">
+            <description>This setting determines where window menubars will be displayed - in a window or on a panel with MenuModel protocol.</description>
+        </property>
+
+        <property name="ShowInputMethodMenu" type="b" access="read">
+            <description>Whether the context menus of entries and text views  should offer to change the input method.</description>
+        </property>
+
+        <property name="ShowUnicodeMenu" type="b" access="read">
+            <description>Whether the context menus of entries and text views  should offer to insert control characters.</description>
+        </property>
+
+        <property name="AutomaticMnemonics" type="b" access="read">
+            <description>Whether mnemonics should be automatically shown and hidden when the user presses the Alt key.</description>
+        </property>
+
+        <property name="EnablePrimaryPaste" type="b" access="read">
+            <description>If true, gtk+ uses the primary paste selection, usually triggered by a middle mouse button click.</description>
+        </property>
+
+        <property name="EnableAnimations" type="b" access="read">
+            <description>Whether to enable toolkit-wide animations.</description>
+        </property>
+
+        <property name="DialogsUseHeader" type="b" access="read">
+            <description>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will use a header bar at the top to show action widgets, or an action area at the bottom.</description>
+        </property>
+
+        <property name="WindowScalingFactor" type="i" access="read">
+            <description>This controls the GTK scale factor that maps from window coordinates to the actual device pixels.</description>
+        </property>
+
+    </interface>
+</node>

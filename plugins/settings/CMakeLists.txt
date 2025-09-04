@@ -1,15 +1,15 @@
-set(TARGET_NAME xsettings)
+set(TARGET_NAME settings)
 
-file(GLOB_RECURSE XSETTINGS_H_FILES ./*.h)
-file(GLOB_RECURSE XSETTINGS_CPP_FILES ./*.cpp)
+file(GLOB_RECURSE SETTINGS_H_FILES ./*.h)
+file(GLOB_RECURSE SETTINGS_CPP_FILES ./*.cpp)
 
 qt5_add_dbus_adaptor(
-  XSETTINGS_SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SessionDaemon.XSettings.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsettings-manager.h Kiran::XSettingsManager)
+  SETTINGS_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/com.kylinsec.Kiran.SessionDaemon.Settings.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/settings-manager.h Kiran::SettingsManager)
 
-add_library(${TARGET_NAME} SHARED ${XSETTINGS_H_FILES} ${XSETTINGS_CPP_FILES}
-                                  ${XSETTINGS_SRCS})
+add_library(${TARGET_NAME} SHARED ${SETTINGS_H_FILES} ${SETTINGS_CPP_FILES}
+                                  ${SETTINGS_SRCS})
 
 target_include_directories(
   ${TARGET_NAME}

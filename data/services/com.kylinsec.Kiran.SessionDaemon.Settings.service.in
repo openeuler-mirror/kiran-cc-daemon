@@ -1,3 +1,3 @@
 [D-BUS Service]
-Name=com.kylinsec.Kiran.SessionDaemon.XSettings
+Name=com.kylinsec.Kiran.SessionDaemon.Settings
 Exec=@CMAKE_INSTALL_FULL_BINDIR@/kiran-session-daemon

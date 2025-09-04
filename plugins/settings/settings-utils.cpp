@@ -12,7 +12,7 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#include "xsettings-utils.h"
+#include "settings-utils.h"
 #include <X11/Xatom.h>
 #include <glib.h>
 #include <xcb/xcb.h>
@@ -22,11 +22,11 @@
 #include <QRect>
 #include <QScreen>
 #include "lib/xcb/xcb-connection.h"
-#include "xsettings-common.h"
+#include "settings-common.h"
 
 namespace Kiran
 {
-double XSettingsUtils::getDPIFromXServer()
+double SettingsUtils::getDPIFromXServer()
 {
     auto xcbConnection = XcbConnection::getDefault();
     auto defaultScreen = xcbConnection->getDefaultScreen();
@@ -38,8 +38,8 @@ double XSettingsUtils::getDPIFromXServer()
         double widthDPI;
         double heightDPI;
 
-        widthDPI = XSettingsUtils::dpiFromPixelsAndMm(defaultScreen->width_in_pixels, defaultScreen->width_in_millimeters);
-        heightDPI = XSettingsUtils::dpiFromPixelsAndMm(defaultScreen->height_in_pixels, defaultScreen->height_in_millimeters);
+        widthDPI = SettingsUtils::dpiFromPixelsAndMm(defaultScreen->width_in_pixels, defaultScreen->width_in_millimeters);
+        heightDPI = SettingsUtils::dpiFromPixelsAndMm(defaultScreen->height_in_pixels, defaultScreen->height_in_millimeters);
 
         if (widthDPI < DPI_LOW_REASONABLE_VALUE ||
             widthDPI > DPI_HIGH_REASONABLE_VALUE ||
@@ -60,7 +60,7 @@ double XSettingsUtils::getDPIFromXServer()
 /* Auto-detect the most appropriate scale factor for the primary monitor.
  * A lot of this code is shamelessly copied and adapted from Linux Mint/Cinnamon.
  */
-int XSettingsUtils::getWindowScaleAuto()
+int SettingsUtils::getWindowScaleAuto()
 {
     // 默认值不缩放
     int windowScale = 1;
@@ -90,7 +90,7 @@ int XSettingsUtils::getWindowScaleAuto()
     return windowScale;
 }
 
-bool XSettingsUtils::updateUserEnvVariable(const QString &variable, const QString &value)
+bool SettingsUtils::updateUserEnvVariable(const QString &variable, const QString &value)
 {
     auto sendMessage = QDBusMessage::createMethodCall("org.gnome.SessionManager",
                                                       "/org/gnome/SessionManager",
@@ -102,14 +102,14 @@ bool XSettingsUtils::updateUserEnvVariable(const QString &variable, const QStrin
     auto replyMessage = QDBusConnection::sessionBus().call(sendMessage, QDBus::Block);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(xsettings) << "Call Setenv return error:" << replyMessage.errorMessage();
+        KLOG_WARNING(settings) << "Call Setenv return error:" << replyMessage.errorMessage();
         return false;
     }
 
     return true;
 }
 
-double XSettingsUtils::dpiFromPixelsAndMm(int pixels, int mm)
+double SettingsUtils::dpiFromPixelsAndMm(int pixels, int mm)
 {
     double dpi;
 
@@ -121,7 +121,7 @@ double XSettingsUtils::dpiFromPixelsAndMm(int pixels, int mm)
     return dpi;
 }
 
-double XSettingsUtils::formatScaleDPI(int scale, double dpi)
+double SettingsUtils::formatScaleDPI(int scale, double dpi)
 {
     return double(CLAMP(dpi * scale, DPI_LOW_REASONABLE_VALUE, DPI_HIGH_REASONABLE_VALUE));
 }
