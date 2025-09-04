@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="@PROJECT_NAME@">
-    <schema id="com.kylinsec.kiran.xsettings" path="/com/kylinsec/kiran/xsettings/">
+
+    <enum id="com.kylinsec.kiran.settings.rgba-order">
+        <value nick="rgba" value="0"/>
+        <value nick="rgb" value="1"/>
+        <value nick="bgr" value="2"/>
+        <value nick="vrgb" value="3"/>
+        <value nick="vbgr" value="4"/>
+    </enum>
+
+    <enum id="com.kylinsec.kiran.settings.hint-style">
+        <value nick="hintnone" value="0"/>
+        <value nick="hintslight" value="1"/>
+        <value nick="hintmedium" value="2"/>
+        <value nick="hintfull" value="3"/>
+    </enum>
+
+    <schema id="com.kylinsec.kiran.settings" path="/com/kylinsec/kiran/settings/">
         <key name="net-double-click-time" type="i">
             <default>400</default>
             <description>Maximum time allowed between two clicks for them to be considered a double click (in milliseconds).</description>
@@ -49,13 +65,13 @@
             <default>1</default>
             <description>Whether to hint Xft fonts; 0=no, 1=yes, -1=default.</description>
         </key>
-        <key name="xft-hint-style" type="s">
+        <key name="xft-hint-style" enum="com.kylinsec.kiran.settings.hint-style">
             <default>'hintslight'</default>
             <description>What degree of hinting to use; "hintnone", "hintslight", "hintmedium", or "hintfull".</description>
         </key>
-        <key name="xft-rgba" type="s">
+        <key name="xft-rgba" enum="com.kylinsec.kiran.settings.rgba-order">
             <default>'rgb'</default>
-            <description>Type of subpixel antialiasing; "none", "rgb", "bgr", "vrgb", "vbgr".</description>
+            <description>Type of subpixel antialiasing; "rgba", "rgb", "bgr", "vrgb", "vbgr".</description>
         </key>
         <key name="xft-dpi" type="i">
             <default>-1</default>
@@ -72,6 +88,10 @@
         <key name="gtk-cursor-theme-size" type="i">
             <default>24</default>
             <description>Size of the cursor referenced by cursor_theme.</description>
+        </key>
+        <key name="gtk-cursor-blink-timeout" type="i">
+            <default>10</default>
+            <description>Time in seconds after which the cursor is hidden when blinking is enabled.</description>
         </key>
         <key name="gtk-font-name" type="s">
             <default>'Noto Sans CJK SC 9'</default>

@@ -20,10 +20,13 @@
 #include <QSharedPointer>
 
 class QTimer;
+class QGSettings;
 
 namespace Kiran
 {
 class XcbConnection;
+class SettingsManager;
+class FontconfigMonitor;
 
 enum class XSettingsPropType
 {
@@ -48,7 +51,7 @@ class XSettingsPropertyBase
 {
 public:
     XSettingsPropertyBase(const QString &name, XSettingsPropType type, uint32_t serial = 0);
-    virtual ~XSettingsPropertyBase(){};
+    virtual ~XSettingsPropertyBase() {};
 
     const QString &getName() const { return m_name; };
     XSettingsPropType getType() const { return m_type; };
@@ -70,7 +73,7 @@ class XSettingsPropertyInt : public XSettingsPropertyBase
 {
 public:
     XSettingsPropertyInt(const QString &name, int32_t value, uint32_t serial = 0);
-    virtual ~XSettingsPropertyInt(){};
+    virtual ~XSettingsPropertyInt() {};
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const;
@@ -86,7 +89,7 @@ class XSettingsPropertyString : public XSettingsPropertyBase
 {
 public:
     XSettingsPropertyString(const QString &name, const QString &value, uint32_t serial = 0);
-    virtual ~XSettingsPropertyString(){};
+    virtual ~XSettingsPropertyString() {};
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const;
@@ -102,7 +105,7 @@ class XSettingsPropertyColor : public XSettingsPropertyBase
 {
 public:
     XSettingsPropertyColor(const QString &name, const XSettingsColor &value, uint32_t serial = 0);
-    virtual ~XSettingsPropertyColor(){};
+    virtual ~XSettingsPropertyColor() {};
 
 public:
     virtual bool operator==(const XSettingsPropertyBase &rval) const;
@@ -114,15 +117,15 @@ private:
     XSettingsColor m_value;
 };
 
-class XSettingsRegistry : public QObject
+class RegistryXSettings : public QObject
 {
     Q_OBJECT
 
 public:
-    XSettingsRegistry(QObject *parent = nullptr);
-    virtual ~XSettingsRegistry();
+    RegistryXSettings(SettingsManager *manager);
+    virtual ~RegistryXSettings();
 
-    bool init();
+    void init();
 
     bool update(const QString &name, int32_t value);
     bool update(const QString &name, const QString &value);
@@ -132,14 +135,14 @@ public:
     QSharedPointer<XSettingsPropertyBase> getProperty(const QString &name) { return m_properties.value(name); };
     XSettingsPropertyBaseList getProperties() { return m_properties.values(); };
 
-Q_SIGNALS:
-    void propertiesChanged(const QStringList &names);
-
 private:
+    void sync2XSettings(const QString &key);
+    void processFontconfigTimestampChanged();
     void notify();
     char byteOrder();
 
 private:
+    SettingsManager *m_manager;
     QSharedPointer<XcbConnection> m_xcbConnection;
     xcb_atom_t m_selectionAtom;
     xcb_atom_t m_xsettingsAtom;
@@ -149,8 +152,10 @@ private:
     xcb_window_t m_xsettingsWindow;
 
     QMap<QString, QSharedPointer<XSettingsPropertyBase>> m_properties;
-    // 记录发生变化的属性，在改变后发送信号
-    QStringList m_changedProperties;
     QTimer *m_timer;
+
+    QGSettings *m_settings;
+    const static QMap<QString, QString> m_schema2Registry;
+    FontconfigMonitor *m_fontconfigMonitor;
 };
 }  // namespace Kiran

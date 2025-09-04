@@ -30,5 +30,5 @@ Q_LOGGING_CATEGORY(keybinding, "kcd.keybinding");
 Q_LOGGING_CATEGORY(power, "kcd.power");
 Q_LOGGING_CATEGORY(systeminfo, "kcd.systeminfo");
 Q_LOGGING_CATEGORY(timedate, "kcd.timedate");
-Q_LOGGING_CATEGORY(xsettings, "kcd.xsettings");
+Q_LOGGING_CATEGORY(settings, "kcd.settings");
 }  // namespace Kiran

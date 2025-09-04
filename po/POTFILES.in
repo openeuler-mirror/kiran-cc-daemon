@@ -3,11 +3,14 @@
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.appearance.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.display.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.keyboard.gschema.xml.in
-[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.media-keys.gschema.xml.in
+[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.keys.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in
+[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.power.gschema.xml.in
+[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.session-daemon.gschema.xml.in
+[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.settings.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in
-[type: gettext/gsettings]data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in
 data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in
-data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.Groups.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in

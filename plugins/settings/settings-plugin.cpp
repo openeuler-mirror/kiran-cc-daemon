@@ -12,31 +12,20 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
-#pragma once
-
-#include <QSharedPointer>
+#include "settings-plugin.h"
+#include <QGuiApplication>
+#include "lib/base/base.h"
+#include "settings-manager.h"
 
 namespace Kiran
 {
-class XcbConnection;
-
-class XSettingsXResource : public QObject
+void SettingsPlugin::activate()
 {
-    Q_OBJECT
+    SettingsManager::globalInit();
+}
 
-public:
-    XSettingsXResource(QObject *parent = nullptr);
-    virtual ~XSettingsXResource(){};
-
-    void init();
-
-private:
-    // 更新Xresource属性
-    void updateProperties();
-    void updateProperty(QByteArray &props, const QString &key, const QString &value);
-    void processXsettingsChanged(const QString &key);
-
-private:
-    QSharedPointer<XcbConnection> m_xcbConnection;
-};
+void SettingsPlugin::deactivate()
+{
+    SettingsManager::globalDeinit();
+}
 }  // namespace Kiran
