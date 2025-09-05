@@ -33,7 +33,7 @@
 #include "display.hxx"
 #include "displayadaptor.h"
 #include "lib/base/base.h"
-#include "xsettings-i.h"
+#include "settings-i.h"
 
 uint qHash(const QSize &size)
 {
@@ -70,7 +70,7 @@ DisplayManager::DisplayManager() : m_currentConfig(nullptr),
 
     m_configMonitor = KScreen::ConfigMonitor::instance();
     m_displaySettings = new QGSettings(DISPLAY_SCHEMA_ID, "", this);
-    m_xsettingsSettings = new QGSettings(XSETTINGS_SCHEMA_ID, "", this);
+    m_xsettingsSettings = new QGSettings(SETTINGS_SCHEMA_ID, "", this);
 }
 
 DisplayManager::~DisplayManager()
@@ -297,9 +297,9 @@ void DisplayManager::init()
        2. 读取monitor.xml中维护的window-scaling-factor值 （switch_style_and_save）
        3. 如果第2步和第1步的值不相同，则说明在上一次进入会话时用户修改了缩放率，需要在这一次进入会话时生效，
           因此需要将monitor.xml中的缩放率更新到xsettings中的window-scaling-factor属性中*/
-    if (m_windowScalingFactor != m_xsettingsSettings->get(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt())
+    if (m_windowScalingFactor != m_xsettingsSettings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt())
     {
-        m_xsettingsSettings->set(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
+        m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
     }
 
     auto sessionConnection = QDBusConnection::sessionBus();
@@ -320,7 +320,7 @@ void DisplayManager::loadSettings()
 {
     m_defaultStyle = DisplayStyle(styleStr2Enum(m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toString()));
     m_dynamicScalingWindow = m_displaySettings->get(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW).toBool();
-    m_windowScalingFactor = m_xsettingsSettings->get(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt();
+    m_windowScalingFactor = m_xsettingsSettings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt();
     m_maxScreenRecordNumber = m_displaySettings->get(DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER).toInt();
 }
 
@@ -600,7 +600,7 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
     if (m_dynamicScalingWindow)
     {
         // 应用缩放因子
-        m_xsettingsSettings->set(XSETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
+        m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
     }
 
     QSharedPointer<DisplayMonitor> primaryMonitor;

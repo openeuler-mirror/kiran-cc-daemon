@@ -14,7 +14,7 @@
 
 #include "appearance-font.h"
 #include <QGSettings>
-#include "xsettings-i.h"
+#include "settings-i.h"
 
 namespace Kiran
 {
@@ -30,7 +30,7 @@ namespace Kiran
 
 AppearanceFont::AppearanceFont(QObject* parent) : QObject(parent)
 {
-    m_xsettingsSettings = new QGSettings(XSETTINGS_SCHEMA_ID, "", this);
+    m_xsettingsSettings = new QGSettings(SETTINGS_SCHEMA_ID, "", this);
     m_interfaceSettings = new QGSettings(INTERFACE_SCHEMA_ID, "", this);
     m_marcoSettings = new QGSettings(MARCO_SCHEMA_ID, "", this);
 
@@ -42,10 +42,10 @@ AppearanceFont::AppearanceFont(QObject* parent) : QObject(parent)
 
 void AppearanceFont::init()
 {
-#define BIND_FONT_CHANGED_SIGNAL(xsettings)                                                 \
-    if (xsettings)                                                                          \
-    {                                                                                       \
-        connect(xsettings, &QGSettings::changed, this, &AppearanceFont::notifyFontChanged); \
+#define BIND_FONT_CHANGED_SIGNAL(settings)                                                 \
+    if (settings)                                                                          \
+    {                                                                                      \
+        connect(settings, &QGSettings::changed, this, &AppearanceFont::notifyFontChanged); \
     }
 
     BIND_FONT_CHANGED_SIGNAL(m_xsettingsSettings);
@@ -61,7 +61,7 @@ QString AppearanceFont::getFont(AppearanceFontType type)
     case APPEARANCE_FONT_TYPE_APPLICATION:
     {
         RETURN_VAL_IF_FALSE(m_xsettingsSettings, QString());
-        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_GTK_FONT_NAME).toString();
+        return m_xsettingsSettings->get(SETTINGS_SCHEMA_GTK_FONT_NAME).toString();
     }
     case APPEARANCE_FONT_TYPE_DOCUMENT:
     {
@@ -98,7 +98,7 @@ bool AppearanceFont::setFont(AppearanceFontType type, const QString& font)
     case APPEARANCE_FONT_TYPE_APPLICATION:
     {
         RETURN_VAL_IF_FALSE(m_xsettingsSettings, false);
-        m_xsettingsSettings->set(XSETTINGS_SCHEMA_GTK_FONT_NAME, font);
+        m_xsettingsSettings->set(SETTINGS_SCHEMA_GTK_FONT_NAME, font);
         break;
     }
     case APPEARANCE_FONT_TYPE_DOCUMENT:
@@ -139,7 +139,7 @@ bool AppearanceFont::resetFont(AppearanceFontType type)
     case APPEARANCE_FONT_TYPE_APPLICATION:
     {
         RETURN_VAL_IF_FALSE(m_xsettingsSettings, false);
-        m_xsettingsSettings->reset(XSETTINGS_SCHEMA_GTK_FONT_NAME);
+        m_xsettingsSettings->reset(SETTINGS_SCHEMA_GTK_FONT_NAME);
         break;
     }
     case APPEARANCE_FONT_TYPE_DOCUMENT:
@@ -197,7 +197,7 @@ void AppearanceFont::notifyFontChanged(const QString& key)
 {
     switch (shash(key.toStdString().c_str()))
     {
-    case CONNECT(XSETTINGS_SCHEMA_GTK_FONT_NAME, _hash):
+    case CONNECT(SETTINGS_SCHEMA_GTK_FONT_NAME, _hash):
     {
         Q_EMIT fontChanged(AppearanceFontType::APPEARANCE_FONT_TYPE_APPLICATION,
                            getFont(AppearanceFontType::APPEARANCE_FONT_TYPE_APPLICATION));

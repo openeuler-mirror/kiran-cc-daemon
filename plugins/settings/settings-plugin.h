@@ -14,22 +14,20 @@
 
 #pragma once
 
-#include "lib/base/base.h"
+#include "plugin-i.h"
+
 namespace Kiran
 {
-class XSettingsUtils
+class SettingsPlugin : public QObject, public IPlugin
 {
+    Q_OBJECT
+
+    Q_PLUGIN_METADATA(IID IPLUGIN_IID FILE "settings.json")
+    Q_INTERFACES(Kiran::IPlugin)
+
 public:
-    XSettingsUtils(){};
-    virtual ~XSettingsUtils(){};
-
-    static double getDPIFromXServer();
-    static int getWindowScaleAuto();
-    static bool updateUserEnvVariable(const QString &variable, const QString &value);
-    static double formatScaleDPI(int32_t scale, double dpi);
-
-private:
-    static double
-    dpiFromPixelsAndMm(int pixels, int mm);
+    virtual void activate();
+    virtual void deactivate();
 };
+
 }  // namespace Kiran
