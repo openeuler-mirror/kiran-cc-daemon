@@ -15,9 +15,9 @@
 #include "appearance-theme.h"
 #include <QGSettings>
 #include "lib/base/base.h"
+#include "settings-i.h"
 #include "theme-monitor.h"
 #include "theme-parse.h"
-#include "xsettings-i.h"
 
 namespace Kiran
 {
@@ -48,7 +48,7 @@ AppearanceTheme::AppearanceTheme(QObject* parent) : QObject(parent),
 {
     m_themeMonitor = new ThemeMonitor(this);
 
-    m_xsettingsSettings = new QGSettings(XSETTINGS_SCHEMA_ID, "", this);
+    m_xsettingsSettings = new QGSettings(SETTINGS_SCHEMA_ID, "", this);
 
     if (QGSettings::isSchemaInstalled(MARCO_SCHEMA_ID))
     {
@@ -159,7 +159,7 @@ QString AppearanceTheme::getTheme(AppearanceThemeType type)
     switch (type)
     {
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
-        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_NET_THEME_NAME).toString();
+        return m_xsettingsSettings->get(SETTINGS_SCHEMA_NET_THEME_NAME).toString();
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
     {
         if (m_marcoSettings)
@@ -169,9 +169,9 @@ QString AppearanceTheme::getTheme(AppearanceThemeType type)
         break;
     }
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON:
-        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME).toString();
+        return m_xsettingsSettings->get(SETTINGS_SCHEMA_NET_ICON_THEME_NAME).toString();
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR:
-        return m_xsettingsSettings->get(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME).toString();
+        return m_xsettingsSettings->get(SETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME).toString();
     default:
         break;
     }
@@ -225,21 +225,21 @@ void AppearanceTheme::setMetaTheme(QSharedPointer<ThemeMeta> theme)
 void AppearanceTheme::setGtkTheme(const QString& themeName)
 {
     RETURN_IF_TRUE(themeName.isEmpty());
-    m_xsettingsSettings->set(XSETTINGS_SCHEMA_NET_THEME_NAME, themeName);
+    m_xsettingsSettings->set(SETTINGS_SCHEMA_NET_THEME_NAME, themeName);
     Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK, themeName));
 }
 
 void AppearanceTheme::setIconTheme(const QString& themeName)
 {
     RETURN_IF_TRUE(themeName.isEmpty());
-    m_xsettingsSettings->set(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, themeName);
+    m_xsettingsSettings->set(SETTINGS_SCHEMA_NET_ICON_THEME_NAME, themeName);
     Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON, themeName));
 }
 
 void AppearanceTheme::setCursorTheme(const QString& themeName)
 {
     RETURN_IF_TRUE(themeName.isEmpty());
-    m_xsettingsSettings->set(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, themeName);
+    m_xsettingsSettings->set(SETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, themeName);
     // 由于Marco是从org.mate.peripherals-mouse读取光标主题的，所以这里要做一下适配
     if (m_mouseSettings)
     {
@@ -306,15 +306,15 @@ void AppearanceTheme::processXSettingsSettingsChanged(const QString& key)
 {
     switch (shash(key.toLatin1().data()))
     {
-    case CONNECT(XSETTINGS_SCHEMA_NET_THEME_NAME, _hash):
+    case CONNECT(SETTINGS_SCHEMA_NET_THEME_NAME, _hash):
         Q_EMIT themeChanged(QPair<AppearanceThemeType, QString>(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK,
                                                                 getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK)));
         break;
-    case CONNECT(XSETTINGS_SCHEMA_NET_ICON_THEME_NAME, _hash):
+    case CONNECT(SETTINGS_SCHEMA_NET_ICON_THEME_NAME, _hash):
         Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON,
                                       getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_ICON)));
         break;
-    case CONNECT(XSETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
+    case CONNECT(SETTINGS_SCHEMA_GTK_CURSOR_THEME_NAME, _hash):
         Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR,
                                       getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR)));
         break;

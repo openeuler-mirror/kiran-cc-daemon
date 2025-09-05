@@ -132,7 +132,7 @@ install(
         ${PROJECT_SOURCE_DIR}/include/mouse-i.h
         ${PROJECT_SOURCE_DIR}/include/power-i.h
         ${PROJECT_SOURCE_DIR}/include/touchpad-i.h
-        ${PROJECT_SOURCE_DIR}/include/xsettings-i.h
+        ${PROJECT_SOURCE_DIR}/include/settings-i.h
         ${PROJECT_SOURCE_DIR}/include/network-i.h
         ${PROJECT_SOURCE_DIR}/include/clipboard-i.h
   DESTINATION ${KCD_INSTALL_INCLUDE}/kiran-session-daemon)
