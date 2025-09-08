@@ -42,13 +42,14 @@ std::vector<PasswdShadow> AccountsWrapper::get_passwds_shadows()
     for (auto iter = this->passwds_.begin(); iter != this->passwds_.end(); ++iter)
     {
         auto spwd = this->spwds_.find(iter->first);
-        if (spwd == this->spwds_.end())
+        // 如果spwd不存在，可能是因为账户正在创建中，这个时候不作为返回值，避免出现处理空指针引起的崩溃问题
+        if (spwd != this->spwds_.end())
         {
-            passwds_shadows.push_back(std::make_pair(iter->second, nullptr));
+            passwds_shadows.push_back(std::make_pair(iter->second, spwd->second));
         }
         else
         {
-            passwds_shadows.push_back(std::make_pair(iter->second, spwd->second));
+            KLOG_DEBUG("The shadow info isn't found.");
         }
     }
 
