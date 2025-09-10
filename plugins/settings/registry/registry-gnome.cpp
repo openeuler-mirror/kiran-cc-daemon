@@ -49,7 +49,8 @@ RegistryGnome::RegistryGnome(QObject *parent) : QObject(parent),
                                                 m_settings(nullptr),
                                                 m_gnomeDesktopSettings(nullptr),
                                                 m_gnomeMouseSettings(nullptr),
-                                                m_gnomeSoundSettings(nullptr)
+                                                m_gnomeSoundSettings(nullptr),
+                                                m_gnomeXSettingsSettings(nullptr)
 {
     m_settings = new QGSettings(SETTINGS_SCHEMA_ID, "", this);
 
