@@ -58,10 +58,13 @@ void SystemShortcuts::init()
 
     /* 第一次进入会话时，kiran-session-daemon是先于marco启动的，所以initMateShortcuts
        函数中调用getWmKeybindings返回为空，需要等待窗口管理器启动后再初始化marco快捷键信息。*/
-    connect(EWMH::getDefault().data(),
-            &EWMH::wmWindowChanged,
-            this,
-            &SystemShortcuts::initMateShortcuts);
+    if (qGuiApp->platformName() == QLatin1String("xcb"))
+    {
+        connect(EWMH::getDefault().data(),
+                &EWMH::wmWindowChanged,
+                this,
+                &SystemShortcuts::initMateShortcuts);
+    }
 }
 
 bool SystemShortcuts::modify(const QString &uid, const QString &keyCombination)
