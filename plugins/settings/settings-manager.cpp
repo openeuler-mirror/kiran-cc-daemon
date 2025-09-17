@@ -33,7 +33,9 @@ namespace Kiran
 #define BACKGROUND_SCHAME_ID "org.mate.background"
 #define BACKGROUND_SCHEMA_SHOW_DESKTOP_ICONS "showDesktopIcons"
 
-SettingsManager::SettingsManager() : m_windowScale(0)
+SettingsManager::SettingsManager() : m_windowScale(0),
+                                     m_registryXsettings(nullptr),
+                                     m_xresource(nullptr)
 {
     m_settingsAdaptor = new SettingsAdaptor(this);
     m_settings = new QGSettings(SETTINGS_SCHEMA_ID, "", this);
@@ -602,7 +604,12 @@ void SettingsManager::scaleChangeWorkarounds(int32_t scale)
 
         /* 重启marco窗口管理器，因为缩放率是在下次进入会话时生效，所以这个逻辑可能是在会话刚启动时被调用，
            此时marco可能还未启动，获取的wmName为空。*/
-        auto wmName = EWMH::getDefault()->getWmName();
+        QString wmName;
+        if (qGuiApp->platformName() == QLatin1String("xcb"))
+        {
+            wmName = EWMH::getDefault()->getWmName();
+        }
+
         if (wmName == WM_COMMON_MARCO)
         {
             if (!QProcess::startDetached("marco", QStringList{"--replace"}))
