@@ -243,6 +243,11 @@ void User::setEmailAuthenticated(const QDBusMessage &message, const QString &ema
 
 void User::setHomeDirectoryAuthenticated(const QDBusMessage &message, const QString &homeDirectory)
 {
+    if (!checkDirPermissionAsHome(homeDirectory))
+    {
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR);
+    }
+
     // getHomeDirectory()或者homeDirectory可能以/结尾，也可能不以/结尾，因此这里统一去掉以/结尾后再进行比较
     if (QDir(getHomeDirectory()).absolutePath() != QDir(homeDirectory).absolutePath())
     {
@@ -607,6 +612,34 @@ void User::removeCacheFile()
 
     auto iconFilePath = QString("%1/%2").arg(ICONDIR).arg(getUserName());
     QFile::remove(iconFilePath);
+}
+
+bool User::checkDirPermissionAsHome(const QString &path)
+{
+    QFileInfo dirInfo(path);
+
+    // 判断home目录是否存在
+    if (!dirInfo.isDir())
+    {
+        KLOG_WARNING(accounts) << path << "is not directory.";
+        return false;
+    }
+
+    // 检测home目录权限
+    if (!dirInfo.permission(QFile::ReadUser | QFile::WriteUser | QFile::ExeUser))
+    {
+        KLOG_WARNING(accounts) << "Permission is not correct. It should be read/write/execute for user.";
+        return false;
+    }
+
+    // 获取home目录的uid
+    if (dirInfo.ownerId() != getUID())
+    {
+        KLOG_WARNING(accounts) << "The owner of " << path << " is not " << getUserName();
+        return false;
+    }
+
+    return true;
 }
 
 #define GET_SETTINGS_PROPERTY(property)                                          \
