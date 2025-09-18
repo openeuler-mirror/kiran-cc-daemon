@@ -139,6 +139,7 @@ private:
 
     // 保存配置到文件
     bool saveToFile(CCErrorCode& errorCode);
+    void dumpDisplayConfig();
 
     void processConfigureChanged();
     void processSettingsChanged(const QString& key);
