@@ -162,7 +162,7 @@ QDBusObjectPath AccountsManager::FindUserById(qulonglong uid)
     }
     else
     {
-        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_1);
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND);
     }
     return QDBusObjectPath();
 }
@@ -177,7 +177,7 @@ QDBusObjectPath AccountsManager::FindUserByName(const QString &name)
     }
     else
     {
-        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_2);
+        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND);
     }
     return QDBusObjectPath();
 }
@@ -205,7 +205,7 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
 
     if (pwent)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_ALREADY_EXIST);
     }
 
     KLOG_INFO(accounts) << "Create user" << name;
@@ -221,7 +221,7 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
         break;
     default:
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_ACCOUNT_TYPE);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_UNKNOWN_ACCOUNT_TYPE);
     }
     break;
     }
@@ -235,6 +235,15 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
     auto user = findAndCreateUserByName(name);
+
+    // 如果创建用户时，用户HOME目录已经存在但权限错误，则禁止创建该用户
+    if (!user->checkDirPermissionAsHome(user->getHomeDirectory()))
+    {
+        KLOG_INFO(accounts) << "Home directory permission error.";
+        deleteUserAuthenticated(message, user->getUID(), false);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR);
+    }
+
     if (user)
     {
         user->setSystemAccount(false);
@@ -243,7 +252,7 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
     }
     else
     {
-        DBUS_ERROR_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_3);
+        DBUS_ERROR_DELAY_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND);
     }
 
     return;
@@ -255,14 +264,14 @@ void AccountsManager::deleteUserAuthenticated(const QDBusMessage &message,
 {
     if (uid == 0)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_ROOT_USER);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_DELETE_ROOT_USER);
     }
 
     auto user = findAndCreateUserByID(uid);
 
     if (!user)
     {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_4);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND);
     }
 
     KLOG_INFO(accounts) << "Delete user" << user->getUserName();

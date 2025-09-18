@@ -19,127 +19,132 @@
         <translation>插件不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="44"/>
+        <location filename="../lib/base/error.cpp" line="41"/>
         <source>No user found.</source>
         <translation>没有发现用户。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="47"/>
+        <location filename="../lib/base/error.cpp" line="44"/>
         <source>The user is already logined in, Please log off the user before deleting it.</source>
         <translation>用户已经登录，请注销该用户后再删除。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="50"/>
+        <location filename="../lib/base/error.cpp" line="47"/>
         <source>The user already exists.</source>
         <translation>用户已存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="53"/>
+        <location filename="../lib/base/error.cpp" line="50"/>
         <source>Unknown account type.</source>
         <translation>未知的用户类型。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="56"/>
+        <location filename="../lib/base/error.cpp" line="53"/>
         <source>Can&apos;t update password file.</source>
         <translation>不能更新password文件。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="59"/>
+        <location filename="../lib/base/error.cpp" line="56"/>
         <location filename="../lib/base/error.cpp" line="130"/>
         <source>Invalid command syntax.</source>
         <translation>命令语法无效。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="62"/>
+        <location filename="../lib/base/error.cpp" line="59"/>
         <location filename="../lib/base/error.cpp" line="133"/>
         <source>Invalid argument to option.</source>
         <translation>命令参数无效。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="65"/>
+        <location filename="../lib/base/error.cpp" line="62"/>
         <source>UID already in use.</source>
         <translation>UID已在使用中。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="68"/>
+        <location filename="../lib/base/error.cpp" line="65"/>
         <source>Passwd file contains errors.</source>
         <translation>Passwd文件存在错误。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="71"/>
+        <location filename="../lib/base/error.cpp" line="68"/>
         <source>Specified user/group doesn&apos;t exist.</source>
         <translation>指定的用户/组不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="74"/>
+        <location filename="../lib/base/error.cpp" line="71"/>
         <source>User to modify is logged in.</source>
         <translation>要修改的用户已登录。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="77"/>
+        <location filename="../lib/base/error.cpp" line="74"/>
         <source>Username already in use.</source>
         <translation>用户名已经在使用中。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="80"/>
+        <location filename="../lib/base/error.cpp" line="77"/>
         <location filename="../lib/base/error.cpp" line="148"/>
         <source>Can&apos;t update group file.</source>
         <translation>不能更新group文件。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="83"/>
+        <location filename="../lib/base/error.cpp" line="80"/>
         <source>Insufficient space to move home dir.</source>
         <translation>空间不足，无法移动主目录。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="86"/>
+        <location filename="../lib/base/error.cpp" line="83"/>
         <source>Can&apos;t create/remove/move home directory.</source>
         <translation>不能创建/删除/移动主目录。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="90"/>
+        <location filename="../lib/base/error.cpp" line="87"/>
         <source>Can&apos;t update SELinux user mapping.</source>
         <translation>无法更新SELinux用户映射。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="93"/>
+        <location filename="../lib/base/error.cpp" line="90"/>
         <source>Can&apos;t update the subordinate uid file.</source>
         <translation>无法更新下级uid文件。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="96"/>
+        <location filename="../lib/base/error.cpp" line="93"/>
         <source>Can&apos;t update the subordinate gid file.</source>
         <translation>无法更新下级gid文件。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="99"/>
+        <location filename="../lib/base/error.cpp" line="96"/>
         <source>Refuse to delete root user.</source>
         <translation>禁止删除root用户。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="102"/>
+        <location filename="../lib/base/error.cpp" line="99"/>
         <source>Refuse to delete three authority user.</source>
         <translation>禁止删除三权用户。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="105"/>
+        <location filename="../lib/base/error.cpp" line="102"/>
         <source>User is locked.</source>
         <translation>用户被锁定。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="108"/>
+        <location filename="../lib/base/error.cpp" line="105"/>
         <source>A user is modifying the password.</source>
         <translation>有用户正在修改密码。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="111"/>
+        <location filename="../lib/base/error.cpp" line="108"/>
         <source>%1</source>
         <translation>%1</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="114"/>
+        <location filename="../lib/base/error.cpp" line="111"/>
         <source>The current password is dismatch.</source>
         <translation>当前密码不匹配。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="114"/>
+        <source>The home directory permission is error.</source>
+        <translation>家目录权限错误。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="120"/>

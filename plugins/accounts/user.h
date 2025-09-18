@@ -47,6 +47,8 @@ public:
     void updateFromPasswdShadow(PasswdShadow passwd_shadow);
     // 移除缓存文件
     void removeCacheFile();
+    // 检查path是否具备家目录权限
+    bool checkDirPermissionAsHome(const QString &path);
 
 public:  // PROPERTIES
     Q_PROPERTY(int account_type READ getAccountType WRITE setAccountType)
