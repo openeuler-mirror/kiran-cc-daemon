@@ -37,10 +37,7 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_PLUGIN_NOT_EXIST:
         errorDesc = tr("The plugin doesn't exist.");
         break;
-    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_1:
-    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_2:
-    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_3:
-    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND_4:
+    case CCErrorCode::ERROR_ACCOUNTS_USER_NOT_FOUND:
         errorDesc = tr("No user found.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_ALREADY_LOGIN:
@@ -112,6 +109,9 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USRE_CURRENT_PASSWORD_DISMATCH:
         errorDesc = tr("The current password is dismatch.");
+        break;
+    case CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR:
+        errorDesc = tr("The home directory permission is error.");
         break;
     case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_1:
     case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_2:
