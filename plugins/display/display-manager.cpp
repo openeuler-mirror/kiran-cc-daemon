@@ -277,6 +277,8 @@ void DisplayManager::preInit()
 
 void DisplayManager::init()
 {
+    KLOG_DEBUG(display) << "Current configuration:" << m_currentConfig;
+
     loadSettings();
     loadMonitors();
     loadConfig();
@@ -494,6 +496,13 @@ void DisplayManager::fillScreenConfig(ScreenConfigInfo &screenConfig)
         auto output = m_currentConfig->output(monitor->getID());
         auto mode = output->currentMode();
 
+        // 不将未接入的显示器配置存入文件配置
+        if (!output->isConnected())
+        {
+            KLOG_DEBUG(display) << "Ignore disconnect monitor: " << monitor->getName();
+            continue;
+        }
+
         if (!mode || !monitor->getEnabled())
         {
             MonitorConfigInfo cMonitor(monitor->getUID().toStdString(),
@@ -565,20 +574,23 @@ bool DisplayManager::saveConfig(CCErrorCode &errorCode)
         m_displayConfig->screen().push_back(usedConfig);
     }
 
+    KLOG_DEBUG(display) << "Save config file:" << m_configFilePath;
+    dumpDisplayConfig();
+
     if (cScreens.size() > m_maxScreenRecordNumber)
     {
-        auto oldest_screen = cScreens.begin();
+        auto oldestScreen = cScreens.begin();
         for (auto iter = cScreens.begin(); iter != cScreens.end(); iter++)
         {
-            if ((*iter).timestamp() < (*oldest_screen).timestamp())
+            if ((*iter).timestamp() < (*oldestScreen).timestamp())
             {
-                oldest_screen = iter;
+                oldestScreen = iter;
             }
         }
 
-        if (oldest_screen != cScreens.end())
+        if (oldestScreen != cScreens.end())
         {
-            cScreens.erase(oldest_screen);
+            cScreens.erase(oldestScreen);
         }
     }
 
@@ -619,19 +631,32 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
         }
     }
 
+    // 当前已连接的显示器配置
     KScreen::OutputList outputs;
     for (const auto &monitor : m_monitors)
     {
         auto output = monitor->getOutput();
         outputs.insert(output->id(), output);
     }
-    m_currentConfig->setOutputs(outputs);
 
+    // 读出已断开的显示器配置需清理
+    for (const auto &output : m_currentConfig->outputs())
+    {
+        if (!output->isConnected() && output->isEnabled())
+        {
+            output->setEnabled(false);
+            output->setCurrentModeId(QString());
+            outputs.insert(output->id(), output);
+        }
+    }
+
+    m_currentConfig->setOutputs(outputs);
     if (primaryMonitor)
     {
         m_currentConfig->setPrimaryOutput(primaryMonitor->getOutput());
     }
 
+    KLOG_INFO(display) << "Apply config:" << m_currentConfig;
     auto setop = new KScreen::SetConfigOperation(m_currentConfig);
     if (!setop->exec())
     {
@@ -797,9 +822,11 @@ bool DisplayManager::switchToCustom(CCErrorCode &errorCode)
 void DisplayManager::switchToAuto()
 {
     CCErrorCode error_code;
-
-    RETURN_IF_TRUE(switchToCustom(error_code));
-    switchToExtend();
+    if (!switchToCustom(error_code))
+    {
+        KLOG_INFO(display) << "Custom mode switch failed, use extend mode to switch.";
+        switchToExtend();
+    }
 }
 
 // QSharedPointer<DisplayMonitor> DisplayManager::get_monitor(uint32_t id)
@@ -916,6 +943,34 @@ bool DisplayManager::saveToFile(CCErrorCode &errorCode)
         return false;
     }
     return true;
+}
+
+void DisplayManager::dumpDisplayConfig()
+{
+    int screenIdx = 0;
+    const auto &configScreens = m_displayConfig->screen();
+    for (const auto &screen : configScreens)
+    {
+        KLOG_DEBUG(display).nospace() << "Screen " << screenIdx++ << ":"
+                                      << " timestamp=" << screen.timestamp()
+                                      << " primary=" << screen.primary().c_str()
+                                      << " scaling_factor=" << screen.window_scaling_factor();
+        int monitorIdx = 0;
+        const auto &screenMonitors = screen.monitor();
+        for (const auto &monitor : screenMonitors)
+        {
+            QString pos = QString(" pos(%1,%2)").arg(monitor.x()).arg(monitor.y());
+            QString modeStr = QString(" mode(%1x%2@%3)").arg(monitor.width()).arg(monitor.height()).arg(monitor.refresh_rate());
+            QString reflect = QString(" reflect(%1)").arg(monitor.reflect());
+            KLOG_DEBUG(display).nospace().noquote() << "  Monitor " << monitorIdx++ << ":"
+                                                    << " name=" << monitor.name().c_str()
+                                                    << " uid=" << monitor.uid().c_str()
+                                                    << " enabled=" << monitor.enabled()
+                                                    << (monitor.enabled() ? pos : "")
+                                                    << (monitor.enabled() ? modeStr : "")
+                                                    << (monitor.enabled() ? reflect : "");
+        }
+    }
 }
 
 void DisplayManager::processConfigureChanged()
