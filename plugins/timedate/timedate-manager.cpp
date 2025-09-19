@@ -365,7 +365,7 @@ void TimedateManager::init()
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(TIMEDATE_DBUS_NAME))
     {
-        KLOG_WARNING(timedate) << "Failed to register dbus name: " << TIMEDATE_DBUS_NAME;
+        KLOG_WARNING(timedate) << "Failed to register dbus name:" << TIMEDATE_DBUS_NAME;
         return;
     }
 
@@ -549,7 +549,7 @@ QString TimedateManager::getUnitObjectPath(const QString &name)
     auto replyMessage = callSystemd("LoadUnit", arguments);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(timedate) << "Call LoadUnit failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(timedate) << "Call LoadUnit failed:" << replyMessage.errorMessage();
         return QString();
     }
 
@@ -566,7 +566,7 @@ QVector<ZoneInfo> TimedateManager::getZoneInfos()
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        KLOG_WARNING(timedate) << "Cannot access file " << filePath;
+        KLOG_WARNING(timedate) << "Cannot access file" << filePath;
         return zoneInfos;
     }
 
@@ -616,7 +616,7 @@ bool TimedateManager::callSystemdNoresult(const QString &methodName, const QList
     auto replyMessage = callSystemd(methodName, arguments);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(timedate) << "Call Get failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(timedate) << "Call Get failed:" << replyMessage.errorMessage();
         return false;
     }
     return true;

@@ -321,7 +321,7 @@ void KeyboardManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(KEYBOARD_DBUS_NAME))
     {
-        KLOG_WARNING(audio) << "Failed to register dbus name: " << KEYBOARD_DBUS_NAME;
+        KLOG_WARNING(audio) << "Failed to register dbus name:" << KEYBOARD_DBUS_NAME;
         return;
     }
 
@@ -486,7 +486,7 @@ bool KeyboardManager::setLayoutsToXkb(const QStringList &layouts)
     auto exitCode = QProcess::execute(SETXKBMAP, arguments);
     if (exitCode != 0)
     {
-        KLOG_WARNING(keyboard) << "Failed to set layouts, exit code is " << exitCode;
+        KLOG_WARNING(keyboard) << "Failed to set layouts, exit code is" << exitCode;
         return false;
     }
 
@@ -498,7 +498,7 @@ bool KeyboardManager::setOptionsToXkb(const QStringList &options)
     auto exitCode = QProcess::execute(SETXKBMAP, QStringList{"-option"});
     if (exitCode != 0)
     {
-        KLOG_WARNING(keyboard) << "Execute command 'setxkbmap -option', exit code is " << exitCode;
+        KLOG_WARNING(keyboard) << "Execute command 'setxkbmap -option', exit code is" << exitCode;
         return false;
     }
 
@@ -515,7 +515,7 @@ bool KeyboardManager::setOptionsToXkb(const QStringList &options)
     exitCode = QProcess::execute(SETXKBMAP, arguments);
     if (exitCode != 0)
     {
-        KLOG_WARNING(keyboard) << "Failed to set options, exit code is " << exitCode;
+        KLOG_WARNING(keyboard) << "Failed to set options, exit code is" << exitCode;
         return false;
     }
 

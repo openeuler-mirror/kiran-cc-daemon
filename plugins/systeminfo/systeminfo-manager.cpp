@@ -153,7 +153,7 @@ void SystemInfoManager::init()
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(SYSTEMINFO_DBUS_NAME))
     {
-        KLOG_WARNING() << "Failed to register dbus name: " << SYSTEMINFO_DBUS_NAME;
+        KLOG_WARNING() << "Failed to register dbus name:" << SYSTEMINFO_DBUS_NAME;
         return;
     }
 

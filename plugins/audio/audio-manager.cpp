@@ -60,7 +60,7 @@ void AudioManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(AUDIO_DBUS_NAME))
     {
-        KLOG_WARNING(audio) << "Failed to register dbus name: " << AUDIO_DBUS_NAME;
+        KLOG_WARNING(audio) << "Failed to register dbus name:" << AUDIO_DBUS_NAME;
         return;
     }
 

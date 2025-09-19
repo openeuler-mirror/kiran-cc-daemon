@@ -70,7 +70,7 @@ bool AccountsUtil::getCallerPID(const QDBusMessage &message, uint32_t &pid)
     auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(accounts) << "Call GetConnectionUnixProcessID failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(accounts) << "Call GetConnectionUnixProcessID failed:" << replyMessage.errorMessage();
         return false;
     }
     pid = replyMessage.arguments().takeFirst().toUInt();
@@ -87,7 +87,7 @@ bool AccountsUtil::getCallerUID(const QDBusMessage &message, uint32_t &uid)
     auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(accounts) << "Call GetConnectionUnixUser failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(accounts) << "Call GetConnectionUnixUser failed:" << replyMessage.errorMessage();
         return false;
     }
     uid = replyMessage.arguments().takeFirst().toUInt();
@@ -110,7 +110,7 @@ void AccountsUtil::getCallerLoginUID(const QDBusMessage &message, QString &login
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            KLOG_WARNING(accounts) << "Cannot access file " << path;
+            KLOG_WARNING(accounts) << "Cannot access file" << path;
             return;
         }
 
@@ -127,7 +127,7 @@ void AccountsUtil::getCallerLoginUID(const QDBusMessage &message, QString &login
 class SetupChildProcess : public QProcess
 {
 public:
-    SetupChildProcess(const QString &loginUID) : m_loginUID(loginUID){};
+    SetupChildProcess(const QString &loginUID) : m_loginUID(loginUID) {};
 
 protected:
     virtual void setupChildProcess()

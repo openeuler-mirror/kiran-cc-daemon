@@ -49,7 +49,7 @@ AccountsManager::AccountsManager(AccountsWrapper *accountsWrapper) : m_adaptor(n
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(ACCOUNTS_DBUS_NAME))
     {
-        KLOG_WARNING(accounts) << "Failed to register dbus name: " << ACCOUNTS_DBUS_NAME;
+        KLOG_WARNING(accounts) << "Failed to register dbus name:" << ACCOUNTS_DBUS_NAME;
         return;
     }
 

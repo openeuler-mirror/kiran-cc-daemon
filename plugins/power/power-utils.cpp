@@ -174,7 +174,7 @@ int PowerUtils::computerActionStr2Enum(QString computerActionStr)
     return POWER_ACTION_NOTHING;
 }
 
-QString PowerUtils::eventEnum2str(uint32_t event)
+QString PowerUtils::eventEnum2Str(uint32_t event)
 {
     switch (event)
     {
@@ -205,7 +205,7 @@ QString PowerUtils::eventEnum2str(uint32_t event)
     }
 }
 
-QString PowerUtils::deviceEnum2str(uint32_t device)
+QString PowerUtils::deviceEnum2Str(uint32_t device)
 {
     switch (device)
     {
@@ -222,7 +222,7 @@ QString PowerUtils::deviceEnum2str(uint32_t device)
     }
 }
 
-QString PowerUtils::supplyEnum2str(uint32_t supply)
+QString PowerUtils::supplyEnum2Str(uint32_t supply)
 {
     switch (supply)
     {

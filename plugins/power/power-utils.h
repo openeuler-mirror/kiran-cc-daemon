@@ -23,8 +23,8 @@ class PowerUtils : public QObject
     Q_OBJECT
 
 public:
-    PowerUtils(){};
-    virtual ~PowerUtils(){};
+    PowerUtils() {};
+    virtual ~PowerUtils() {};
 
     static QString getTimeTranslation(uint32_t seconds);
     static QString actionEnum2str(uint32_t action);
@@ -34,8 +34,8 @@ public:
     static int monitorActionStr2Enum(QString monitorActionStr);
     static QString computerActionEnum2Str(int computerAction);
     static int computerActionStr2Enum(QString computerActionStr);
-    static QString eventEnum2str(uint32_t event);
-    static QString deviceEnum2str(uint32_t device);
-    static QString supplyEnum2str(uint32_t supply);
+    static QString eventEnum2Str(uint32_t event);
+    static QString deviceEnum2Str(uint32_t device);
+    static QString supplyEnum2Str(uint32_t supply);
 };
 }  // namespace Kiran

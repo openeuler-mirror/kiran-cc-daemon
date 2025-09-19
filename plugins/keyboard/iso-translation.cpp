@@ -101,7 +101,7 @@ void ISOTranslation::init()
 
     if (!loadISOFile(ISO_639, {"iso_639_2B_code", "iso_639_2T_code"}, m_languages, error))
     {
-        KLOG_WARNING(keyboard) << "Failed to load" << ISO_639 << ", error is " << error;
+        KLOG_WARNING(keyboard) << "Failed to load" << ISO_639 << ", error is" << error;
     }
 }
 

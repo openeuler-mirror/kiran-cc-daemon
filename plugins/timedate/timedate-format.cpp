@@ -85,6 +85,7 @@ bool TimedateFormat::setDateLongFormat(int32_t index)
 
     auto key = QString("%1/%2").arg(TIMEDATE_FORMAT_GROUP_NAME).arg(TIMEDATE_FORMAT_KEY_DATE_LONG_FORMAT_INDEX);
     m_settings->setValue(key, index);
+    KLOG_INFO(timedate) << "Set date long format to index" << index;
     return true;
 }
 
@@ -95,6 +96,7 @@ bool TimedateFormat::setDateShortFormat(int32_t index)
 
     auto key = QString("%1/%2").arg(TIMEDATE_FORMAT_GROUP_NAME).arg(TIMEDATE_FORMAT_KEY_DATE_SHORT_FORMAT_INDEX);
     m_settings->setValue(key, index);
+    KLOG_INFO(timedate) << "Set date short format to index" << index;
     return true;
 }
 
@@ -102,6 +104,7 @@ bool TimedateFormat::setHourFormat(TimedateHourFormat hourFormat)
 {
     auto key = QString("%1/%2").arg(TIMEDATE_FORMAT_GROUP_NAME).arg(TIMEDATE_FORMAT_KEY_HOUR_FORMAT);
     m_settings->setValue(key, int(hourFormat));
+    KLOG_INFO(timedate) << "Set hour format to index" << hourFormat;
     return true;
 }
 
@@ -109,6 +112,7 @@ bool TimedateFormat::setSecondsShowing(bool secondsShowing)
 {
     auto key = QString("%1/%2").arg(TIMEDATE_FORMAT_GROUP_NAME).arg(TIMEDATE_FORMAT_KEY_SECONDS_SHOWING);
     m_settings->setValue(key, secondsShowing);
+    KLOG_INFO(timedate) << "Set seconds showing to" << secondsShowing;
     return true;
 }
 
