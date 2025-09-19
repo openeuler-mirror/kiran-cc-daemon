@@ -31,7 +31,7 @@ GroupsManager::GroupsManager(GroupsWrapper *groupsWrapper) : m_groupsWrapper(gro
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(GROUPS_DBUS_NAME))
     {
-        KLOG_WARNING(groups) << "Failed to register dbus name: " << GROUPS_DBUS_NAME;
+        KLOG_WARNING(groups) << "Failed to register dbus name:" << GROUPS_DBUS_NAME;
         return;
     }
 

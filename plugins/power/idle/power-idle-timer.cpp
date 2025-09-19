@@ -44,7 +44,7 @@ void PowerIdleTimer::init()
 
 bool PowerIdleTimer::setIdleTimeout(PowerIdleMode mode, uint32_t timeout)
 {
-    KLOG_DEBUG(power) << "Set idle timeout to" << timeout << "for mode" << idleModeEnum2Str(mode);
+    KLOG_DEBUG(power) << "Set idle timeout to" << timeout << "for mode" << PowerIdleTimer::idleModeEnum2Str(mode);
 
     switch (mode)
     {
@@ -88,14 +88,12 @@ QString PowerIdleTimer::idleModeEnum2Str(PowerIdleMode mode)
 bool PowerIdleTimer::setBlankTimeout(uint32_t timeout)
 {
     m_blankTimeout = timeout;
-    updateMode();
     return true;
 }
 
 bool PowerIdleTimer::setSleepTimeout(uint32_t timeout)
 {
     m_sleepTimeout = timeout;
-    updateMode();
     return true;
 }
 
@@ -171,12 +169,13 @@ void PowerIdleTimer::processSleepTimeout()
 
 void PowerIdleTimer::processSessionIdleStatusChanged(bool isIdle)
 {
-    KLOG_DEBUG(power) << "Session idle status changed";
+    KLOG_INFO(power) << "Session idle status changed, need to update mode.";
     updateMode();
 }
 
 void PowerIdleTimer::processInhibitorChanged()
 {
+    KLOG_INFO(power) << "Session inhibitor changed, need to update mode.";
     updateMode();
 }
 

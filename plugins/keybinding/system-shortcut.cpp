@@ -254,8 +254,7 @@ void SystemShortcuts::initMateShortcuts()
             if (!shouldShowKey(keylistEntry))
             {
                 KLOG_INFO(keybinding) << "The system shortcut should not show. type is" << keylistEntries.name
-                                      << ", name is" << keylistEntry.name
-                                      << ", description is" << keylistEntry.description;
+                                      << ", name is" << keylistEntry.name;
 
                 continue;
             }

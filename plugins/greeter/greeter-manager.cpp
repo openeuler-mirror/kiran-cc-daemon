@@ -274,7 +274,7 @@ void GreeterManager::init()
     auto systemConnection = QDBusConnection::systemBus();
     if (!systemConnection.registerService(GREETER_DBUS_NAME))
     {
-        KLOG_WARNING() << "Failed to register dbus name: " << GREETER_DBUS_NAME;
+        KLOG_WARNING() << "Failed to register dbus name:" << GREETER_DBUS_NAME;
         return;
     }
 

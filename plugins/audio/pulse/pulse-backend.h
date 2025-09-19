@@ -162,8 +162,10 @@ private:
     void tryReconnection();
     // 如果断开连接，则重置数据
     void resetData();
+    // 获取连接状态的字符串表示
+    QString connectionStateEnum2String(int connectionState);
 
-    void processConnectionStateChanged(int32_t connectionState);
+    void processConnectionStateChanged(int connectionState);
     void processServerInfoChanged(const pa_server_info *serverInfo);
     void processCardInfoChanged(const pa_card_info *cardInfo);
     void processCardInfoRemoved(uint32_t index);

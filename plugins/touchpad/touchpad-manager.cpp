@@ -253,7 +253,7 @@ void TouchPadManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(TOUCHPAD_DBUS_NAME))
     {
-        KLOG_WARNING(audio) << "Failed to register dbus name: " << TOUCHPAD_DBUS_NAME;
+        KLOG_WARNING(audio) << "Failed to register dbus name:" << TOUCHPAD_DBUS_NAME;
         return;
     }
 

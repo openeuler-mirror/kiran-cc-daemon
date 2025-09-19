@@ -272,7 +272,7 @@ void KeysSound::triggerShortCut(const QString &name)
     case CONNECT(ACTION_NAME_STOP, _hash):
     case CONNECT(ACTION_NAME_PREVIOUS, _hash):
     case CONNECT(ACTION_NAME_NEXT, _hash):
-        KLOG_WARNING(keybinding) << "Not support action: " << name;
+        KLOG_WARNING(keybinding) << "Not support action:" << name;
         break;
     default:
         break;

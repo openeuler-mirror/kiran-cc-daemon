@@ -157,6 +157,8 @@ void PowerIdleControl::processSettingsChanged(const QString& key)
 
 void PowerIdleControl::processIdleModeChanged(int mode)
 {
+    KLOG_INFO(power) << "Idle mode changed to " << PowerIdleTimer::idleModeEnum2Str(PowerIdleMode(mode));
+
     switch (mode)
     {
     case PowerIdleMode::POWER_IDLE_MODE_NORMAL:

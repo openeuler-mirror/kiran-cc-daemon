@@ -221,9 +221,27 @@ void PulseBackend::resetData()
     m_sourceOutputs.clear();
 }
 
-void PulseBackend::processConnectionStateChanged(int32_t connectionState)
+QString PulseBackend::connectionStateEnum2String(int connectionState)
 {
-    KLOG_INFO(audio) << "Pulse connection state changed to" << connectionState;
+    switch (connectionState)
+    {
+    case PulseConnectionState::PULSE_CONNECTION_DISCONNECTED:
+        return "Disconnected";
+    case PulseConnectionState::PULSE_CONNECTION_CONNECTING:
+        return "Connecting";
+    case PulseConnectionState::PULSE_CONNECTION_AUTHORIZING:
+        return "Authorizing";
+    case PulseConnectionState::PULSE_CONNECTION_LOADING:
+        return "Loading";
+    case PulseConnectionState::PULSE_CONNECTION_CONNECTED:
+        return "Connected";
+    }
+    return "Other";
+}
+
+void PulseBackend::processConnectionStateChanged(int connectionState)
+{
+    KLOG_INFO(audio) << "Pulse connection state changed to" << connectionStateEnum2String(connectionState);
 
     switch (connectionState)
     {
@@ -360,7 +378,7 @@ void PulseBackend::processCardInfoRemoved(uint32_t index)
     }
     else
     {
-        KLOG_WARNING(audio) << "The card index " << index << " is not found.";
+        KLOG_WARNING(audio) << "The card index" << index << "is not found.";
     }
 }
 

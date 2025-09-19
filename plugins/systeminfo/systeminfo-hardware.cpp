@@ -176,7 +176,7 @@ MemInfo SystemInfoHardware::getMemInfo()
         KLOG_INFO(systeminfo) << "Get total size with libgtop" << memInfo.totalSize;
     }
 
-    KLOG_INFO(systeminfo) << "Use total size is" << memInfo.totalSize << ", available size is " << memInfo.availableSize;
+    KLOG_INFO(systeminfo) << "Use total size is" << memInfo.totalSize << ", available size is" << memInfo.availableSize;
     return memInfo;
 }
 
@@ -322,7 +322,7 @@ KVList SystemInfoHardware::getPcisByMajorClassID(PCIMajorClassID majorClassID)
         auto fullClassIDHex = QString::number(fullClassID, 16);
         fullClassIDHex = fullClassIDHex.rightJustified(4, '0');
 
-        KLOG_INFO(systeminfo) << "Execute command: " << QString("lspci -vmm -d ::%1").arg(fullClassIDHex);
+        KLOG_INFO(systeminfo) << "Execute command:" << QString("lspci -vmm -d ::%1").arg(fullClassIDHex);
 
         QProcess process;
         process.setEnvironment(QStringList{"LANG=en_US.UTF-8"});

@@ -59,7 +59,7 @@ bool GroupsUtil::getCallerPID(const QDBusMessage &message, uint32_t &pid)
     auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(groups) << "Call GetConnectionUnixProcessID failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(groups) << "Call GetConnectionUnixProcessID failed:" << replyMessage.errorMessage();
         return false;
     }
     pid = replyMessage.arguments().takeFirst().toUInt();
@@ -76,7 +76,7 @@ bool GroupsUtil::getCallerUID(const QDBusMessage &message, uint32_t &uid)
     auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
     if (replyMessage.type() == QDBusMessage::ErrorMessage)
     {
-        KLOG_WARNING(groups) << "Call GetConnectionUnixUser failed: " << replyMessage.errorMessage();
+        KLOG_WARNING(groups) << "Call GetConnectionUnixUser failed:" << replyMessage.errorMessage();
         return false;
     }
     uid = replyMessage.arguments().takeFirst().toUInt();
@@ -99,7 +99,7 @@ void GroupsUtil::getCallerLoginUID(const QDBusMessage &message, QString &loginUI
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            KLOG_WARNING(groups) << "Cannot access file " << path;
+            KLOG_WARNING(groups) << "Cannot access file" << path;
             return;
         }
 
