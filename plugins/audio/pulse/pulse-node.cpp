@@ -114,11 +114,11 @@ bool PulseNode::setMute(bool mute)
 
 bool PulseNode::setVolume(uint32_t volume)
 {
-    KLOG_INFO(audio) << "Set volume to " << volume;
+    KLOG_INFO(audio) << "Ready to set volume to" << volume;
 
     if (!(m_flags & AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE))
     {
-        KLOG_WARNING(audio) << "The volume isn't writable, flags is " << m_flags;
+        KLOG_WARNING(audio) << "The volume isn't writable, flags is" << m_flags;
         return false;
     }
 
@@ -134,11 +134,11 @@ bool PulseNode::setVolume(uint32_t volume)
 
 bool PulseNode::setBalance(float balance)
 {
-    KLOG_INFO(audio) << "Set balance to " << balance;
+    KLOG_INFO(audio) << "Set balance to" << balance;
 
     if (!(m_flags & AudioNodeState::AUDIO_NODE_STATE_CAN_BALANCE))
     {
-        KLOG_WARNING(audio) << "The balance is unsupported, flags is " << m_flags;
+        KLOG_WARNING(audio) << "The balance is unsupported, flags is" << m_flags;
         return false;
     }
 
@@ -154,7 +154,7 @@ bool PulseNode::setFade(float fade)
 {
     if (!(m_flags & AudioNodeState::AUDIO_NODE_STATE_CAN_FADE))
     {
-        KLOG_WARNING(audio) << "The fade is unsupported, flags is " << m_flags;
+        KLOG_WARNING(audio) << "The fade is unsupported, flags is" << m_flags;
         return false;
     }
 
@@ -232,7 +232,7 @@ bool PulseNode::setCvolume(const pa_cvolume &)
 
 void PulseNode::updateFlags()
 {
-    KLOG_DEBUG(audio) << "Flags before updated: " << m_flags;
+    KLOG_DEBUG(audio) << "Flags before updated:" << m_flags;
 
     if (pa_channel_map_valid(&m_channelMap))
     {
@@ -270,7 +270,7 @@ void PulseNode::updateFlags()
                                              AudioNodeState::AUDIO_NODE_STATE_VOLUME_WRITABLE));
     }
 
-    KLOG_DEBUG(audio) << "Flags after updated: " << m_flags;
+    KLOG_DEBUG(audio) << "Flags after updated:" << m_flags;
 }
 
 void PulseNode::updateMute(bool mute)

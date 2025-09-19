@@ -46,6 +46,11 @@ bool SystemInfoSoftware::setHostName(const QString &hostName)
         KLOG_WARNING(systeminfo) << "Call hostnamectl failed, exit code:" << process.exitCode();
         return false;
     }
+    else
+    {
+        QString command = QString("%1 set-hostname %2").arg(SET_HOSTNAME_CMD).arg(hostName);
+        KLOG_INFO(systeminfo) << "Run command" << command << "success";
+    }
     return true;
 }
 

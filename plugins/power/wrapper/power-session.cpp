@@ -104,6 +104,8 @@ void PowerSession::suspend()
         return;
     }
 
+    KLOG_INFO(power) << "Start to suspend operating system.";
+
     auto sendMessage = QDBusMessage::createMethodCall(MATE_SESSION_DBUS_NAME,
                                                       MATE_SESSION_DBUS_OBJECT,
                                                       MATE_SESSION_DBUS_INTERFACE,
@@ -114,6 +116,8 @@ void PowerSession::suspend()
     {
         KLOG_WARNING(power) << "Call Suspend return error:" << replyMessage.errorMessage();
     }
+
+    KLOG_INFO(power) << "Resume operating system from suspend.";
 }
 
 bool PowerSession::canHibernate()
@@ -143,6 +147,8 @@ void PowerSession::hibernate()
         return;
     }
 
+    KLOG_INFO(power) << "Start to hibernate operating system.";
+
     auto sendMessage = QDBusMessage::createMethodCall(MATE_SESSION_DBUS_NAME,
                                                       MATE_SESSION_DBUS_OBJECT,
                                                       MATE_SESSION_DBUS_INTERFACE,
@@ -153,6 +159,8 @@ void PowerSession::hibernate()
     {
         KLOG_WARNING(power) << "Call Hibernate return error:" << replyMessage.errorMessage();
     }
+
+    KLOG_INFO(power) << "Resume operating system from hibernate.";
 }
 
 bool PowerSession::canShutdown()
@@ -181,6 +189,8 @@ void PowerSession::shutdown()
         KLOG_WARNING("The session manager doesn't allow shutdown.");
         return;
     }
+
+    KLOG_INFO(power) << "Start to shutdown operating system.";
 
     auto sendMessage = QDBusMessage::createMethodCall(MATE_SESSION_DBUS_NAME,
                                                       MATE_SESSION_DBUS_OBJECT,

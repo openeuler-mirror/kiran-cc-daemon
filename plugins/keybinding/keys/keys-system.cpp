@@ -111,7 +111,7 @@ void KeysSystem::launchHelp()
     auto arguments = KIO::DesktopExecParser(service, QList<QUrl>()).resultingArguments();
     if (arguments.isEmpty())
     {
-        KLOG_WARNING(keybinding) << "Failed to parse arguments for " << desktopFile.fileName();
+        KLOG_WARNING(keybinding) << "Failed to parse arguments for" << desktopFile.fileName();
         return;
     }
 

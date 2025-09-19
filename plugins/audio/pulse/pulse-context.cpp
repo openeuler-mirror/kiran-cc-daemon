@@ -63,7 +63,7 @@ PulseContext::~PulseContext()
 
 bool PulseContext::connect(bool waitForDaemon)
 {
-    KLOG_INFO(audio) << "Connect to pulseaudio server which flag waitForDaemon is " << waitForDaemon;
+    KLOG_INFO(audio) << "Connect to pulseaudio server which flag waitForDaemon is" << waitForDaemon;
 
     RETURN_VAL_IF_FALSE(m_mainLoop != NULL, false);
 
@@ -110,9 +110,6 @@ void PulseContext::disconnect()
         m_context = NULL;
     }
     m_requestCount = 0;
-
-    // connection->priv->ext_streams_loading = FALSE;
-    // connection->priv->ext_streams_dirty = FALSE;
 
     setConnectionState(PulseConnectionState::PULSE_CONNECTION_DISCONNECTED);
 }
@@ -292,6 +289,7 @@ bool PulseContext::setDefaultSink(const QString &name)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_default_sink(m_context, name.toStdString().c_str(), NULL, NULL);
+    KLOG_INFO(audio) << "Set default sink to" << name;
     return processPulseOperation(op);
 }
 
@@ -301,6 +299,7 @@ bool PulseContext::setDefaultSource(const QString &name)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_default_source(m_context, name.toStdString().c_str(), NULL, NULL);
+    KLOG_INFO(audio) << "Set default source to" << name;
     return processPulseOperation(op);
 }
 
@@ -313,6 +312,7 @@ bool PulseContext::setCardProfile(const QString &card, const QString &profile)
     auto op = pa_context_set_card_profile_by_name(m_context,
                                                   card.toStdString().c_str(),
                                                   profile.toStdString().c_str(), NULL, NULL);
+    KLOG_INFO(audio) << "Set profile" << "of card" << card << "to" << profile;
     return processPulseOperation(op);
 }
 
@@ -321,6 +321,7 @@ bool PulseContext::setSinkMute(uint32_t index, int32_t mute)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_sink_mute_by_index(m_context, index, mute, NULL, NULL);
+    KLOG_INFO(audio) << "Set mute to" << mute << "which sink index is" << index;
     return processPulseOperation(op);
 }
 
@@ -330,6 +331,7 @@ bool PulseContext::setSinkVolume(uint32_t index, const pa_cvolume *volume)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_sink_volume_by_index(m_context, index, volume, NULL, NULL);
+    KLOG_INFO(audio) << "Set volume to" << pa_cvolume_max(volume) << "which sink index is" << index;
     return processPulseOperation(op);
 }
 
@@ -339,27 +341,26 @@ bool PulseContext::setSinkActivePort(uint32_t index, const QString &portName)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_sink_port_by_index(m_context, index, portName.toStdString().c_str(), NULL, NULL);
+    KLOG_INFO(audio) << "Set port to" << portName << "which sink index is" << index;
     return processPulseOperation(op);
 }
 
 bool PulseContext::setSinkInputMute(uint32_t index, int32_t mute)
 {
-    KLOG_INFO(audio) << "Set sink input mute which index is " << index << " and mute is " << mute;
-
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_sink_input_mute(m_context, index, mute, NULL, NULL);
+    KLOG_INFO(audio) << "Set mute to" << mute << "which sink input index is" << index;
     return processPulseOperation(op);
 }
 
 bool PulseContext::setSinkInputVolume(uint32_t index, const pa_cvolume *volume)
 {
-    KLOG_INFO(audio) << "Set sink volume which index is " << index;
-
     RETURN_VAL_IF_FALSE(volume != NULL, false);
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_sink_input_volume(m_context, index, volume, NULL, NULL);
+    KLOG_INFO(audio) << "Set volume to" << pa_cvolume_max(volume) << "which sink input index is" << index;
     return processPulseOperation(op);
 }
 
@@ -368,6 +369,7 @@ bool PulseContext::setSourceMute(uint32_t index, int32_t mute)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_source_mute_by_index(m_context, index, mute, NULL, NULL);
+    KLOG_INFO(audio) << "Set mute to" << mute << "which source index is" << index;
     return processPulseOperation(op);
 }
 
@@ -377,6 +379,7 @@ bool PulseContext::setSourceVolume(uint32_t index, const pa_cvolume *volume)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_source_volume_by_index(m_context, index, volume, NULL, NULL);
+    KLOG_INFO(audio) << "Set volume to" << pa_cvolume_max(volume) << "which source index is" << index;
     return processPulseOperation(op);
 }
 
@@ -386,6 +389,7 @@ bool PulseContext::setSourceActivePort(uint32_t index, const QString &portName)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_source_port_by_index(m_context, index, portName.toStdString().c_str(), NULL, NULL);
+    KLOG_INFO(audio) << "Set port to" << portName << "which source index is" << index;
     return processPulseOperation(op);
 }
 
@@ -394,6 +398,7 @@ bool PulseContext::setSourceOutputMute(uint32_t index, int32_t mute)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_source_output_mute(m_context, index, mute, NULL, NULL);
+    KLOG_INFO(audio) << "Set mute to" << mute << "which source output index is" << index;
     return processPulseOperation(op);
 }
 
@@ -403,6 +408,7 @@ bool PulseContext::setSourceOutputVolume(uint32_t index, const pa_cvolume *volum
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_set_source_output_volume(m_context, index, volume, NULL, NULL);
+    KLOG_INFO(audio) << "Set volume to" << pa_cvolume_max(volume) << "which source output index is" << index;
     return processPulseOperation(op);
 }
 
@@ -411,6 +417,7 @@ bool PulseContext::suspendSink(uint32_t index, bool suspend)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_suspend_sink_by_index(m_context, index, (int)suspend, NULL, NULL);
+    KLOG_INFO(audio) << "Suspend sink to" << suspend << "which sink index is" << index;
     return processPulseOperation(op);
 }
 
@@ -419,22 +426,25 @@ bool PulseContext::suspendSource(uint32_t index, bool suspend)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_suspend_source_by_index(m_context, index, (int)suspend, NULL, NULL);
+    KLOG_INFO(audio) << "Suspend source to" << suspend << "which source index is" << index;
     return processPulseOperation(op);
 }
 
-bool PulseContext::moveSinkInput(uint32_t index, uint32_t sink_index)
+bool PulseContext::moveSinkInput(uint32_t index, uint32_t sinkIndex)
 {
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
-    auto op = pa_context_move_sink_input_by_index(m_context, index, sink_index, NULL, NULL);
+    auto op = pa_context_move_sink_input_by_index(m_context, index, sinkIndex, NULL, NULL);
+    KLOG_INFO(audio) << "Move sink input to" << index << "which sink input index is" << sinkIndex;
     return processPulseOperation(op);
 }
 
-bool PulseContext::moveSourceOutput(uint32_t index, uint32_t source_index)
+bool PulseContext::moveSourceOutput(uint32_t index, uint32_t sourceIndex)
 {
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
-    auto op = pa_context_move_source_output_by_index(m_context, index, source_index, NULL, NULL);
+    auto op = pa_context_move_source_output_by_index(m_context, index, sourceIndex, NULL, NULL);
+    KLOG_INFO(audio) << "Move source output to" << index << "which source output index is" << sourceIndex;
     return processPulseOperation(op);
 }
 
@@ -443,6 +453,7 @@ bool PulseContext::killSinkInput(uint32_t index)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_kill_sink_input(m_context, index, NULL, NULL);
+    KLOG_INFO(audio) << "Kill sink input" << index;
     return processPulseOperation(op);
 }
 
@@ -451,21 +462,9 @@ bool PulseContext::killSourceOutput(uint32_t index)
     RETURN_VAL_IF_FALSE(m_connectionState == PulseConnectionState::PULSE_CONNECTION_CONNECTED, false);
 
     auto op = pa_context_kill_source_output(m_context, index, NULL, NULL);
+    KLOG_INFO(audio) << "Kill source output" << index;
     return processPulseOperation(op);
 }
-
-// void PulseContext::iteratePulseEvent()
-// {
-//     int retval = 0;
-
-//     while (pa_mainloop_iterate(m_mainLoop, 1, &retval) > 0)
-//         ;
-
-//     if (retval < 0)
-//     {
-//         KLOG_ERROR(audio) << "pa_mainloop_iterate failed with error code: " << retval;
-//     }
-// }
 
 void PulseContext::setConnectionState(PulseConnectionState new_state)
 {
@@ -483,7 +482,7 @@ bool PulseContext::loadLists()
     // 之前的加载请求还未完成，不允许重复加载
     if (m_requestCount > 0)
     {
-        KLOG_WARNING(audio) << "The previous request hasn't finished. The remaing request count is " << m_requestCount;
+        KLOG_WARNING(audio) << "The previous request hasn't finished. The remaing request count is" << m_requestCount;
         return false;
     }
 
@@ -522,7 +521,7 @@ bool PulseContext::loadLists()
         //     ++request_count_;
         // }
 
-        KLOG_DEBUG(audio) << "Request count is " << m_requestCount;
+        KLOG_DEBUG(audio) << "Request count is" << m_requestCount;
 
         for (auto op : opList)
         {
@@ -545,7 +544,7 @@ bool PulseContext::processPulseOperation(pa_operation *op)
 {
     if (!op)
     {
-        KLOG_WARNING(audio) << "PulseAudio operation failed: " << pa_strerror(pa_context_errno(m_context));
+        KLOG_WARNING(audio) << "PulseAudio operation failed:" << pa_strerror(pa_context_errno(m_context));
         return false;
     }
     pa_operation_unref(op);
@@ -554,12 +553,12 @@ bool PulseContext::processPulseOperation(pa_operation *op)
 
 bool PulseContext::loadListFinished()
 {
-    KLOG_DEBUG(audio) << "Request count is " << m_requestCount;
+    KLOG_DEBUG(audio) << "Request count is" << m_requestCount;
 
     // 如果小于等于0说明代码逻辑存在错误
     if (m_requestCount <= 0)
     {
-        KLOG_WARNING(audio) << "The request count is invalid. The request count is " << m_requestCount;
+        KLOG_WARNING(audio) << "The request count is invalid. The request count is" << m_requestCount;
         m_requestCount = 0;
         return false;
     }
@@ -596,7 +595,7 @@ void PulseContext::processStateChanged(pa_context *context, void *userdata)
         pa_context_set_subscribe_callback(self->m_context, &PulseContext::processSubscribeEvent, self);
         // pa_ext_stream_restore_set_subscribe_cb(self->context, pulse_restore_subscribe_cb, self);
         // auto op = pa_ext_stream_restore_subscribe(self->context, TRUE, NULL, NULL);
-        KLOG_DEBUG(audio) << "Pulse state change, state is " << state;
+        KLOG_DEBUG(audio) << "Pulse state change, state is" << state;
         /* Keep going if this operation fails */
         // process_pulse_operation(connection, op);
 
@@ -690,7 +689,7 @@ void PulseContext::processSubscribeEvent(pa_context *context,
     KLOG_DEBUG(audio) << "Receive subscribe event. "
                       << "The facility is" << event2facility(event_type)
                       << ", type is" << event2type(event_type)
-                      << ", idx is " << idx;
+                      << ", idx is" << idx;
 
     auto type = (event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK);
 

@@ -199,7 +199,7 @@ void GroupsWrapper::reloadGroups()
         m_groups.insert(groupEntry->gid, groupEntry);
     }
 
-    KLOG_INFO(groups) << "Load group information from " << PATH_GROUP << "which contains groups" << m_groups.keys();
+    KLOG_INFO(groups) << "Load group information from" << PATH_GROUP << "which contains groups" << m_groups.keys();
 
     fclose(fp);
 }

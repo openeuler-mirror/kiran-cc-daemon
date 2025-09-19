@@ -276,7 +276,7 @@ void KeybindingManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(KEYBINDING_DBUS_NAME))
     {
-        KLOG_WARNING(audio) << "Failed to register dbus name: " << KEYBINDING_DBUS_NAME;
+        KLOG_WARNING(audio) << "Failed to register dbus name:" << KEYBINDING_DBUS_NAME;
         return;
     }
 

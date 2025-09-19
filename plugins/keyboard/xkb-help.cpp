@@ -33,7 +33,7 @@ bool XkbHelp::xkbSupported(int &xkbEventBase)
 
     if (!XkbLibraryVersion(&major, &minor))
     {
-        KLOG_WARNING(keyboard) << "XKB extension " << major << '.' << minor << " != " << XkbMajorVersion << '.' << XkbMinorVersion;
+        KLOG_WARNING(keyboard) << "XKB extension" << major << '.' << minor << " !=" << XkbMajorVersion << '.' << XkbMinorVersion;
         return false;
     }
 
@@ -46,7 +46,7 @@ bool XkbHelp::xkbSupported(int &xkbEventBase)
                            &major,
                            &minor))
     {
-        KLOG_WARNING(keyboard) << "XKB extension " << major << '.' << minor << " != " << XkbMajorVersion << '.' << XkbMinorVersion;
+        KLOG_WARNING(keyboard) << "XKB extension" << major << '.' << minor << " !=" << XkbMajorVersion << '.' << XkbMinorVersion;
         return false;
     }
 

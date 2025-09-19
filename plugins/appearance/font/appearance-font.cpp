@@ -134,6 +134,8 @@ bool AppearanceFont::setFont(AppearanceFontType type, const QString& font)
 
 bool AppearanceFont::resetFont(AppearanceFontType type)
 {
+    KLOG_INFO(appearance) << "Reset" << fontEnum2Str(type) << "font";
+
     switch (type)
     {
     case APPEARANCE_FONT_TYPE_APPLICATION:
