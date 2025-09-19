@@ -30,13 +30,17 @@ bool PowerBacklightMonitorTool::setBrightnessValue(int32_t brightness_value)
     process.start("pkexec", arguments);
     process.waitForFinished();
 
+    auto command = QString("pkexec %1").arg(arguments.join(' '));
     if (process.exitCode() != 0)
     {
-        auto command = QString("pkexec %1").arg(arguments.join(' '));
         KLOG_WARNING(power) << "Run command" << command << "failed, exit code is" << process.exitCode();
         return false;
     }
-    return true;
+    else
+    {
+        KLOG_INFO(power) << "Run command" << command << "success";
+        return true;
+    }
 }
 
 int32_t PowerBacklightMonitorTool::getBrightnessValue()

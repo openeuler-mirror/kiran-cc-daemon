@@ -54,6 +54,8 @@ public:
 
     PowerIdleMode getIdleMode() { return m_mode; };
 
+    static QString idleModeEnum2Str(PowerIdleMode mode);
+
 Q_SIGNALS:
     // 发送模式变化的信号
     void modeChanged(int mode);
@@ -72,8 +74,6 @@ private:
 
     void processSessionIdleStatusChanged(bool isIdle);
     void processInhibitorChanged();
-
-    QString idleModeEnum2Str(PowerIdleMode mode);
 
 private:
     PowerIdleMode m_mode;

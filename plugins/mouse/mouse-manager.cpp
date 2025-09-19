@@ -154,7 +154,7 @@ void MouseManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(MOUSE_DBUS_NAME))
     {
-        KLOG_WARNING(audio) << "Failed to register dbus name: " << MOUSE_DBUS_NAME;
+        KLOG_WARNING(audio) << "Failed to register dbus name:" << MOUSE_DBUS_NAME;
         return;
     }
 

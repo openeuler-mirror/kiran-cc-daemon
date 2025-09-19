@@ -85,8 +85,8 @@ void XInputDevice::setProperty(const QString &name, const QVector<bool> &values)
     auto xcbConnection = m_xcbConnection->getConnection();
 
     KLOG_INFO() << "Change device" << m_deviceName
-                << "property which name is " << name
-                << "and value is " << values;
+                << "property which name is" << name
+                << "and value is" << values;
 
     auto propertyReply = XCB_REPLY(xcb_intern_atom,
                                    xcbConnection,
@@ -134,8 +134,8 @@ void XInputDevice::setProperty(const QString &name, const QVector<bool> &values)
     else
     {
         KLOG_WARNING() << "Failed to change device" << m_deviceName
-                       << "property which name is " << name
-                       << "and value is " << values;
+                       << "property which name is" << name
+                       << "and value is" << values;
     }
 }
 
@@ -144,8 +144,8 @@ void XInputDevice::setProperty(const QString &name, float value)
     auto xcbConnection = m_xcbConnection->getConnection();
 
     KLOG_INFO() << "Change device" << m_deviceName
-                << "property which name is " << name
-                << "and value is " << value;
+                << "property which name is" << name
+                << "and value is" << value;
 
     auto propertyReply = XCB_REPLY(xcb_intern_atom,
                                    xcbConnection,
@@ -191,8 +191,8 @@ void XInputDevice::setProperty(const QString &name, float value)
     else
     {
         KLOG_WARNING() << "Failed to change device" << m_deviceName
-                       << "property which name is " << name
-                       << "and value is " << value;
+                       << "property which name is" << name
+                       << "and value is" << value;
     }
 }
 

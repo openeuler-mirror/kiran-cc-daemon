@@ -49,8 +49,6 @@ void AppearanceBackground::init()
 
 void AppearanceBackground::setBackground(const QString &path)
 {
-    KLOG_INFO(appearance) << "setBackground" << path;
-
     RETURN_IF_TRUE(m_desktopBackground == path);
     m_desktopBackground = path;
 
@@ -59,13 +57,14 @@ void AppearanceBackground::setBackground(const QString &path)
 
     if (m_desktopView)
     {
+        KLOG_INFO(appearance) << "Set desktop background to" << m_desktopBackground;
         m_desktopView->setBackground(m_desktopBackground);
     }
 }
 
 void AppearanceBackground::updateBackground(const bool &isShow)
 {
-    KLOG_INFO(appearance) << "updateBackground" << isShow;
+    KLOG_INFO(appearance) << (isShow ? "Show" : "Hide") << "desktop background";
 
     if (isShow)
     {
@@ -76,6 +75,7 @@ void AppearanceBackground::updateBackground(const bool &isShow)
         m_desktopView = new DesktopView(this);
         if (!m_desktopBackground.isEmpty())
         {
+            KLOG_INFO(appearance) << "Set desktop background to" << m_desktopBackground;
             m_desktopView->setBackground(m_desktopBackground);
         }
     }

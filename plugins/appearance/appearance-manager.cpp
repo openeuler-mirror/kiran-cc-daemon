@@ -73,6 +73,7 @@ void AppearanceManager::EnableAutoSwitchWindowTheme()
     auto currentValue = m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME).toBool();
     RETURN_IF_TRUE(currentValue);
     m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, true);
+    KLOG_INFO(appearance) << "Enable auto switch window theme.";
 }
 
 QString AppearanceManager::GetFont(int type)
@@ -130,6 +131,7 @@ void AppearanceManager::SetDesktopBackground(const QString& desktopBackground)
     if (desktopBackground != m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_DESKTOP_BG).toString())
     {
         m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_DESKTOP_BG, desktopBackground);
+        KLOG_INFO(appearance) << "Set desktop background" << desktopBackground << "to settings.";
     }
     SEND_PROPERTY_NOTIFY(desktop_background, DesktopBackground)
 }
@@ -155,6 +157,7 @@ void AppearanceManager::SetLockScreenBackground(const QString& lockScreenBackgro
     if (lockScreenBackground != m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG).toString())
     {
         m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_LOCKSCREEN_BG, lockScreenBackground);
+        KLOG_INFO(appearance) << "Set lock screen background" << lockScreenBackground << "to settings.";
     }
     SEND_PROPERTY_NOTIFY(lock_screen_background, LockScreenBackground)
 }
@@ -173,6 +176,7 @@ void AppearanceManager::SetTheme(int type, const QString& themeName)
         type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY)
     {
         m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, false);
+        KLOG_INFO(appearance) << "Because of manual setting theme, disable auto switch window theme.";
     }
 }
 
@@ -198,7 +202,7 @@ void AppearanceManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(APPEARANCE_DBUS_NAME))
     {
-        KLOG_WARNING(appearance) << "Failed to register dbus name: " << APPEARANCE_DBUS_NAME;
+        KLOG_WARNING(appearance) << "Failed to register dbus name:" << APPEARANCE_DBUS_NAME;
         return;
     }
 
@@ -225,7 +229,7 @@ void AppearanceManager::autoSwitchForWindowTheme()
     if (!m_appearanceTheme->setTheme(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_META, theme_name),
                                      errorCode))
     {
-        KLOG_WARNING(appearance) << "Failed to set window meta theme. errorCode: " << errorCode;
+        KLOG_WARNING(appearance) << "Failed to set window meta theme. errorCode:" << errorCode;
     }
 }
 

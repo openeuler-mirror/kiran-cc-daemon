@@ -123,23 +123,25 @@ bool PowerEventButton::registerButton(const QKeySequence &key,
 {
     QAction *globalAction = m_actionCollection->addAction(name);
     globalAction->setText(displayName);
-    connect(globalAction, &QAction::triggered, this, [this, type]
-            { this->emitButtonSignal(type); });
+    connect(globalAction, &QAction::triggered, this, [this, type, name]
+            { this->emitButtonSignal(type, name); });
 
     return KGlobalAccel::self()->setGlobalShortcut(globalAction, QList<QKeySequence>() << key);
 }
 
 void PowerEventButton::emitPoweroffSignal()
 {
+    KLOG_INFO(power) << "PowerOff button is triggered.";
     Q_EMIT buttonChanged(POWER_EVENT_PRESSED_POWEROFF);
     m_powerOffTimer->stop();
 }
 
-void PowerEventButton::emitButtonSignal(PowerEvent type)
+void PowerEventButton::emitButtonSignal(PowerEvent type, const QString &name)
 {
     // 仅电源按键事件延迟处理，避免单次点击电源按钮短时间触发多次按键事件，导致息屏又立即唤醒
     if (type == POWER_EVENT_PRESSED_POWEROFF)
     {
+        KLOG_INFO(power) << "PowerOff button is delay triggered.";
         m_powerOffTimer->start(POWER_BUTTON_POWEROFF_TIMEOUT_MILLISECONDS);
         return;
     }
@@ -150,12 +152,15 @@ void PowerEventButton::emitButtonSignal(PowerEvent type)
         return;
     }
 
+    KLOG_INFO(power) << name << "button is triggered.";
     Q_EMIT buttonChanged(type);
     m_buttonTimer->restart();
 }
 
 void PowerEventButton::processLidChanged(bool lidIsClosed)
 {
+    KLOG_INFO(power) << "Receive lid" << (lidIsClosed ? "closed" : "opened") << "event.";
+
     if (lidIsClosed)
     {
         Q_EMIT buttonChanged(PowerEvent::POWER_EVENT_LID_CLOSED);

@@ -99,26 +99,31 @@ void PowerManager::setActiveProfile(int activeProfile)
 void PowerManager::setChargeLowDimmedEnabled(bool enabled)
 {
     m_powerSettings->set(POWER_SCHEMA_ENABLE_CHARGE_LOW_DIMMED, enabled);
+    KLOG_INFO(power) << (enabled ? "Enable" : "Disable") << "display dimmed when charge low.";
     SEND_PROPERTY_NOTIFY(ChargeLowDimmedEnabled, ChargeLowDimmedEnabled);
 }
 void PowerManager::setChargeLowSaverEnabled(bool enabled)
 {
     m_powerSettings->set(POWER_SCHEMA_ENABLE_CHARGE_LOW_SAVER, enabled);
+    KLOG_INFO(power) << (enabled ? "Enable" : "Disable") << "power saver when charge low.";
     SEND_PROPERTY_NOTIFY(ChargeLowSaverEnabled, ChargeLowSaverEnabled);
 }
 void PowerManager::setDisplayIdleDimmedEnabled(bool enabled)
 {
     m_powerSettings->set(POWER_SCHEMA_ENABLE_DISPLAY_IDLE_DIMMED, enabled);
+    KLOG_INFO(power) << (enabled ? "Enable" : "Disable") << "display dimmed when idle.";
     SEND_PROPERTY_NOTIFY(DisplayIdleDimmedEnabled, DisplayIdleDimmedEnabled);
 }
 
 void PowerManager::setLidIsPresent(bool lidIsPresent)
 {
+    KLOG_INFO(power) << (lidIsPresent ? "Lid is present" : "Lid is not present");
     SEND_PROPERTY_NOTIFY(LidIsPresent, LidIsPresent);
 }
 
 void PowerManager::setOnBattery(bool onBattery)
 {
+    KLOG_INFO(power) << "Computer is " << (onBattery ? "on battery" : "on AC");
     // 这里只做信号通知
     SEND_PROPERTY_NOTIFY(OnBattery, OnBattery);
 }
@@ -246,7 +251,7 @@ IdleActionInfo PowerManager::GetIdleAction(int device, int supply)
 void PowerManager::SetBrightness(int device, int brightnessPercentage)
 {
     KLOG_INFO(power) << "Set brightness percentage of device"
-                     << PowerUtils::deviceEnum2str(device)
+                     << PowerUtils::deviceEnum2Str(device)
                      << "to"
                      << brightnessPercentage;
 
@@ -285,6 +290,8 @@ void PowerManager::SetEventAction(int event, int action)
 
     auto actionStr = PowerUtils::eventActionEnum2Str(action);
 
+    KLOG_INFO(power) << "Set action to" << actionStr << "when" << PowerUtils::eventEnum2Str(event);
+
     switch (event)
     {
     case PowerEvent::POWER_EVENT_RELEASE_POWEROFF:
@@ -310,8 +317,8 @@ void PowerManager::SetEventAction(int event, int action)
 
 void PowerManager::SetIdleAction(int device, int supply, int idleTimeout, int action)
 {
-    KLOG_INFO(power) << "Set idle action for device" << PowerUtils::deviceEnum2str(device)
-                     << "which supply=" << PowerUtils::supplyEnum2str(supply)
+    KLOG_INFO(power) << "Set idle action for device" << PowerUtils::deviceEnum2Str(device)
+                     << "which supply=" << PowerUtils::supplyEnum2Str(supply)
                      << ", idle timeout=" << idleTimeout
                      << ", action=" << PowerUtils::actionEnum2str(action);
 
@@ -387,7 +394,7 @@ void PowerManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(POWER_DBUS_NAME))
     {
-        KLOG_WARNING(appearance) << "Failed to register dbus name: " << POWER_DBUS_NAME;
+        KLOG_WARNING(appearance) << "Failed to register dbus name:" << POWER_DBUS_NAME;
         return;
     }
 

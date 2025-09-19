@@ -301,7 +301,7 @@ QString PasswdProcess::translationPasswdTips(const QString &passwdTips)
         trimPasswdTips = trimPasswdTips.right(trimPasswdTips.length() - strlen("passwd: "));
     }
 
-    KLOG_INFO(accounts) << "Trim passwd: " << trimPasswdTips;
+    KLOG_INFO(accounts) << "Trim passwd:" << trimPasswdTips;
 
     bool translationSuccess = true;
     auto trimPasswdTipsParts = trimPasswdTips.split('-');

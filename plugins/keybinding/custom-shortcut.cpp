@@ -263,7 +263,7 @@ void CustomShortcuts::triggerAction(bool checked, QAction *action)
     g_shell_parse_argv(shortcut->action.toStdString().c_str(), &argc, &argv, &error);
     if (error)
     {
-        KLOG_WARNING(keybinding) << "Parse action" << shortcut->action << "failed, error is " << error->message;
+        KLOG_WARNING(keybinding) << "Parse action" << shortcut->action << "failed, error is" << error->message;
         g_error_free(error);
         return;
     }

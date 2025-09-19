@@ -102,7 +102,7 @@ bool KeyListEntriesParser::processKeylistEntries(const xmlpp::Node *node, KeyLis
             // no deal
             break;
         default:
-            KLOG_DEBUG(keybinding) << "Ignore node " << child->get_name().c_str();
+            KLOG_DEBUG(keybinding) << "Ignore node" << child->get_name().c_str();
             break;
         }
     }

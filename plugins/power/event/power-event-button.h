@@ -48,7 +48,7 @@ private:
                         PowerEvent type);
 
     // 发送按键信号，如果跟上一次发送的按键信号相同且时间间隔较短，则忽略该次按键信号的发送
-    void emitButtonSignal(PowerEvent type);
+    void emitButtonSignal(PowerEvent type, const QString &name);
     // 电源按钮单独处理
     void emitPoweroffSignal();
     void processLidChanged(bool lidIsClosed);

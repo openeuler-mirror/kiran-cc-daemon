@@ -379,7 +379,7 @@ void User::setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message,
 
     if (jsonDoc.isNull())
     {
-        KLOG_WARNING(accounts) << "Parser standard output failed: " << jsonError.errorString();
+        KLOG_WARNING(accounts) << "Parser standard output failed:" << jsonError.errorString();
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
     }
 
@@ -417,7 +417,7 @@ void User::setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message,
             arguments.push_back(strValue);
             break;
         default:
-            KLOG_INFO(accounts) << "The option " << key << "is ignored.";
+            KLOG_INFO(accounts) << "The option" << key << "is ignored.";
             break;
         }
     }
@@ -635,7 +635,7 @@ bool User::checkDirPermissionAsHome(const QString &path)
     // 获取home目录的uid
     if (dirInfo.ownerId() != getUID())
     {
-        KLOG_WARNING(accounts) << "The owner of " << path << " is not " << getUserName();
+        KLOG_WARNING(accounts) << "The owner of" << path << "is not" << getUserName();
         return false;
     }
 
@@ -691,6 +691,7 @@ QString User::getIconFile()
                                                                                     \
     QDBusConnection::systemBus().send(message);
 
+// SET_MEMBER_PROPERTY不用打印日志，这里只是缓存数据，并为对文件有实际操作，如果打印日志会导致日志过多
 #define SET_MEMBER_PROPERTY(propertyType, property, propertyHump, member) \
     void User::set##propertyHump(propertyType propertyValue)              \
     {                                                                     \
@@ -699,13 +700,14 @@ QString User::getIconFile()
         SEND_PROPERTY_NOTIFY(property, propertyHump)                      \
     }
 
-#define SET_SETTINGS_PROPERTY(propertyType, property, propertyHump)                  \
-    void User::set##propertyHump(propertyType propertyValue)                         \
-    {                                                                                \
-        RETURN_IF_TRUE(propertyValue == this->get##propertyHump());                  \
-        auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(#propertyHump); \
-        this->m_settings->setValue(key, propertyValue);                              \
-        SEND_PROPERTY_NOTIFY(property, propertyHump)                                 \
+#define SET_SETTINGS_PROPERTY(propertyType, property, propertyHump)                                          \
+    void User::set##propertyHump(propertyType propertyValue)                                                 \
+    {                                                                                                        \
+        RETURN_IF_TRUE(propertyValue == this->get##propertyHump());                                          \
+        auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(#propertyHump);                         \
+        this->m_settings->setValue(key, propertyValue);                                                      \
+        KLOG_INFO(accounts) << "Set" << #property << "of user" << this->m_userName << "to" << propertyValue; \
+        SEND_PROPERTY_NOTIFY(property, propertyHump)                                                         \
     }
 
 SET_MEMBER_PROPERTY(int, account_type, AccountType, m_accountType)
@@ -732,6 +734,7 @@ void User::setIconFile(const QString &iconFile)
     RETURN_IF_TRUE(iconFile == getIconFile());
     auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(KEYFILE_USER_GROUP_KEY_ICON);
     m_settings->setValue(key, iconFile);
+    KLOG_INFO(accounts) << "Set icon of user" << this->m_userName << "to" << iconFile;
     SEND_PROPERTY_NOTIFY(icon_file, IconFile)
 }
 

@@ -127,7 +127,7 @@ bool AppearanceTheme::setTheme(ThemeKey key, CCErrorCode& errorCode)
         return false;
     }
 
-    KLOG_INFO(appearance) << "Set" << themeEnum2Str(theme->type) << "theme to " << theme->name;
+    KLOG_INFO(appearance) << "Set" << themeEnum2Str(theme->type) << "theme to" << theme->name;
 
     switch (theme->type)
     {

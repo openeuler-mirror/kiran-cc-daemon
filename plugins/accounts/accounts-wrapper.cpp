@@ -209,7 +209,7 @@ void AccountsWrapper::reloadPasswd()
 
     } while (pwent != NULL);
 
-    KLOG_INFO(accounts) << "Load passwd information from " << PATH_PASSWD << "which contains users" << m_passwds.keys();
+    KLOG_INFO(accounts) << "Load passwd information from" << PATH_PASSWD << "which contains users" << m_passwds.keys();
 
     fclose(fp);
 }
@@ -248,7 +248,7 @@ void AccountsWrapper::reloadShadow()
 
     fclose(fp);
 
-    KLOG_INFO(accounts) << "Load shadow information from " << PATH_SHADOW << "which contains users" << m_spwds.keys();
+    KLOG_INFO(accounts) << "Load shadow information from" << PATH_SHADOW << "which contains users" << m_spwds.keys();
 }
 
 void AccountsWrapper::idleReload(const QString &filePath)

@@ -526,7 +526,7 @@ void SettingsManager::init()
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(SETTINGS_DBUS_NAME))
     {
-        KLOG_WARNING() << "Failed to register dbus name: " << SETTINGS_DBUS_NAME;
+        KLOG_WARNING() << "Failed to register dbus name:" << SETTINGS_DBUS_NAME;
         return;
     }
 
@@ -563,7 +563,7 @@ void SettingsManager::scaleSettings()
 
 void SettingsManager::scaleChangeWorkarounds(int32_t scale)
 {
-    KLOG_DEBUG(settings) << "window scale is " << m_windowScale << ", scale is" << scale;
+    KLOG_DEBUG(settings) << "window scale is" << m_windowScale << ", scale is" << scale;
 
     bool isInit = (!m_windowScale);
 
