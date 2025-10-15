@@ -27,7 +27,6 @@ namespace Kiran
 #define CHECK_AUTH(className, funName, callback, action)                                                             \
     void className::funName()                                                                                        \
     {                                                                                                                \
-        this->setDelayedReply(true);                                                                                 \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                        \
                                                       true,                                                          \
                                                       this->message(),                                               \
@@ -38,7 +37,6 @@ namespace Kiran
 #define CHECK_AUTH_WITH_1ARGS(className, funName, callback, action, arg1Type)                                                \
     void className::funName(arg1Type value1)                                                                                 \
     {                                                                                                                        \
-        this->setDelayedReply(true);                                                                                         \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                \
                                                       true,                                                                  \
                                                       this->message(),                                                       \
@@ -49,7 +47,6 @@ namespace Kiran
 #define CHECK_AUTH_WITH_2ARGS(className, funName, callback, action, arg1Type, arg2Type)                                              \
     void className::funName(arg1Type value1, arg2Type value2)                                                                        \
     {                                                                                                                                \
-        this->setDelayedReply(true);                                                                                                 \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                        \
                                                       true,                                                                          \
                                                       this->message(),                                                               \
@@ -60,7 +57,6 @@ namespace Kiran
 #define CHECK_AUTH_WITH_0ARGS_AND_RETVAL(className, retType, funName, callback, action)                              \
     retType className::funName()                                                                                     \
     {                                                                                                                \
-        this->setDelayedReply(true);                                                                                 \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                        \
                                                       true,                                                          \
                                                       this->message(),                                               \
@@ -72,7 +68,6 @@ namespace Kiran
 #define CHECK_AUTH_WITH_1ARGS_AND_RETVAL(className, retType, funName, callback, action, arg1Type)                            \
     retType className::funName(arg1Type value1)                                                                              \
     {                                                                                                                        \
-        this->setDelayedReply(true);                                                                                         \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                \
                                                       true,                                                                  \
                                                       this->message(),                                                       \
@@ -84,7 +79,6 @@ namespace Kiran
 #define CHECK_AUTH_WITH_2ARGS_AND_RETVAL(className, retType, funName, callback, action, arg1Type, arg2Type)                          \
     retType className::funName(arg1Type value1, arg2Type value2)                                                                     \
     {                                                                                                                                \
-        this->setDelayedReply(true);                                                                                                 \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                        \
                                                       true,                                                                          \
                                                       this->message(),                                                               \
@@ -96,7 +90,6 @@ namespace Kiran
 #define CHECK_AUTH_WITH_4ARGS_AND_RETVAL(className, retType, funName, callback, action, arg1Type, arg2Type, arg3Type, arg4Type)                      \
     retType className::funName(arg1Type value1, arg2Type value2, arg3Type value3, arg4Type value4)                                                   \
     {                                                                                                                                                \
-        this->setDelayedReply(true);                                                                                                                 \
         PolkitProxy::getDefault()->checkAuthorization(action,                                                                                        \
                                                       true,                                                                                          \
                                                       this->message(),                                                                               \
