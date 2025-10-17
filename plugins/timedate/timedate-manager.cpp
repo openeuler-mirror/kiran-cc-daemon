@@ -294,7 +294,6 @@ void TimedateManager::SetLocalRTC(bool local, bool adjustSystem)
 {
     RETURN_IF_TRUE(local == getLocalRtc())
 
-    this->setDelayedReply(true);
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_RTC_LOCAL,
                                                   true,
                                                   this->message(),
@@ -311,7 +310,6 @@ void TimedateManager::SetNTP(bool active)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_NO_NTP_UNIT);
     }
 
-    this->setDelayedReply(true);
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_NTP_ACTIVE,
                                                   true,
                                                   this->message(),
@@ -328,7 +326,6 @@ void TimedateManager::SetTime(qlonglong requestedTime, bool relative)
 
     int64_t requestTime = g_get_monotonic_time();
 
-    this->setDelayedReply(true);
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_TIME,
                                                   true,
                                                   this->message(),
@@ -346,7 +343,6 @@ void TimedateManager::SetTimezone(const QString &timeZone)
     auto currentTimezone = getTimeZone();
     RETURN_IF_TRUE(currentTimezone == timeZone);
 
-    this->setDelayedReply(true);
     PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_TIMEZONE,
                                                   true,
                                                   this->message(),
