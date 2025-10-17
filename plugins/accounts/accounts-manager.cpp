@@ -142,7 +142,6 @@ void AccountsManager::DeleteUser(qulonglong uid, bool removeFiles)
         }
     }
 
-    setDelayedReply(true);
     PolkitProxy::getDefault()->checkAuthorization(AUTH_USER_ADMIN,
                                                   true,
                                                   this->message(),

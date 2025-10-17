@@ -143,6 +143,10 @@ void PolkitProxy::checkAuthorization(const QString &action,
                                      const QString &handlerName,
                                      checkAuthHandler handler)
 {
+    // 调用该方法进行Polkit权限校验时, 应由PolkitProxy来负责回复
+    // 标记延迟回复，避免自动回复
+    message.setDelayedReply(true);
+
     auto checkAuthData = QSharedPointer<CheckAuthData>::create();
     checkAuthData->timer.setInterval(POLKIT_AUTH_CHECK_TIMEOUT * 1000);
     checkAuthData->timer.start();
