@@ -625,17 +625,17 @@ bool User::checkDirPermissionAsHome(const QString &path)
         return false;
     }
 
-    // 检测home目录权限
-    if (!dirInfo.permission(QFile::ReadUser | QFile::WriteUser | QFile::ExeUser))
-    {
-        KLOG_WARNING(accounts) << "Permission is not correct. It should be read/write/execute for user.";
-        return false;
-    }
-
     // 获取home目录的uid
     if (dirInfo.ownerId() != getUID())
     {
         KLOG_WARNING(accounts) << "The owner of" << path << "is not" << getUserName();
+        return false;
+    }
+
+    // 检测home目录权限
+    if (!dirInfo.permission(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner))
+    {
+        KLOG_WARNING(accounts) << "Permission is not correct. It should be read/write/execute for user.";
         return false;
     }
 
