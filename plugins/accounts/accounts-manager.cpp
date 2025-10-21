@@ -239,8 +239,24 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
     if (!user->checkDirPermissionAsHome(user->getHomeDirectory()))
     {
         KLOG_INFO(accounts) << "Home directory permission error.";
-        deleteUserAuthenticated(message, user->getUID(), false);
-        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR);
+        QString program("/usr/sbin/userdel");
+        QStringList arguments;
+
+        // 不移除该用户已有的HOME目录
+        arguments = QStringList({"-f", "--", user->getUserName()});
+
+        QString errMessage;
+        if (!AccountsUtil::spawnWithLoginUid(message, program, arguments, errMessage))
+        {
+            auto replyMessage = message.createErrorReply(QDBusError::Failed, errMessage);
+            QDBusConnection::systemBus().send(replyMessage);
+        }
+        else
+        {
+            DBUS_ERROR_DELAY_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR);
+        }
+        
+        return;
     }
 
     if (user)
@@ -295,7 +311,11 @@ void AccountsManager::deleteUserAuthenticated(const QDBusMessage &message,
     }
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
-    QDBusConnection::systemBus().send(message.createReply());
+
+    if( message.type() != QDBusMessage::InvalidMessage )
+    {
+        QDBusConnection::systemBus().send(message.createReply());
+    }
 }
 
 void AccountsManager::init()
