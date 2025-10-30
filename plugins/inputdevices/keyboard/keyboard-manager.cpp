@@ -454,7 +454,8 @@ void KeyboardManager::set_auto_repeat()
         XAutoRepeatOff(GDK_DISPLAY_XDISPLAY(display));
     }
 
-    XFlush(display);
+    Display* x11_display = GDK_DISPLAY_XDISPLAY(display);
+    XFlush(x11_display);
 }
 
 bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
