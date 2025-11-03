@@ -642,11 +642,12 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
     // 读出已断开的显示器配置需清理
     for (const auto &output : m_currentConfig->outputs())
     {
-        if (!output->isConnected() && output->isEnabled())
+        if (!output->isConnected())
         {
             output->setEnabled(false);
             output->setCurrentModeId(QString());
             outputs.insert(output->id(), output);
+            KLOG_INFO(display) << "Disable disconnected output:" << output->name();
         }
     }
 
