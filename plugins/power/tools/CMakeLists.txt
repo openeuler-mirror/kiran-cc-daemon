@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME kiran-power-backlight-helper)
 
 file(GLOB_RECURSE POWER_BACKLIGHT_HELPER_H_FILES ./*.h)

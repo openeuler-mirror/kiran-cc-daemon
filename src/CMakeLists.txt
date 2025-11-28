@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-
 set_common_exe_linker_flags()
 
 file(GLOB_RECURSE CORE_H_FILES ./*.h)

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 if(build-system-daemon)
   add_subdirectory(accounts)
   add_subdirectory(timedate)

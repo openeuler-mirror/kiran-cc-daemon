@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME systeminfo)
 
 file(GLOB_RECURSE SYSTEMINFO_H_FILES ./*.h)

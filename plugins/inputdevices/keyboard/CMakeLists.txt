@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-
 set(TARGET_NAME keyboard)
 
 file(GLOB_RECURSE KEYBOARD_H_FILES ./*.h)

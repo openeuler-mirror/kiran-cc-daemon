@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME clipboard)
 
 file(GLOB_RECURSE CLIPBOARD_H_FILES ./*.h)

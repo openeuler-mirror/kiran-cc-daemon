@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-
 set(TARGET_NAME lib-iso)
 
 file(GLOB_RECURSE ISO_H_FILES ./*.h)

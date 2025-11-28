@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME bluetooth)
 
 file(GLOB_RECURSE BLUETOOTH_H_FILES ./*.h)
