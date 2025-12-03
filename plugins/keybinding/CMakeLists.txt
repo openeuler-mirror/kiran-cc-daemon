@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME keybinding)
 
 file(GLOB_RECURSE KEYBINDING_H_FILES ./*.h)

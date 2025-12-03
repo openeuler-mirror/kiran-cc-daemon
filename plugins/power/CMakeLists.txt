@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME power)
 
 file(GLOB_RECURSE POWER_H_FILES ./*.h)

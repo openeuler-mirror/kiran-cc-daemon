@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-
 set(TARGET_NAME mouse)
 
 file(GLOB_RECURSE MOUSE_H_FILES ./*.h)

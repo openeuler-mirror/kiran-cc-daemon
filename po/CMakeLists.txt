@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-
 find_program(MSGFMT NAMES "msgfmt" REQUIRED)
 find_program(INTLTOOL-UPDATE NAMES "intltool-update" REQUIRED)
 

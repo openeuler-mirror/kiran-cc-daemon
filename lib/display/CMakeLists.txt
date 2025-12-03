@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME lib-display)
 
 file(GLOB_RECURSE DISPLAY_H_FILES ./*.h)

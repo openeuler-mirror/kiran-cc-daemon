@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME timedate)
 
 file(GLOB_RECURSE TIMEDATE_H_FILES ./*.h)

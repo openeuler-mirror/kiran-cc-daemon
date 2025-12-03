@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME kiran-power-status-icon)
 
 file(GLOB_RECURSE POWER_TRAY_H_FILES ./*.h)

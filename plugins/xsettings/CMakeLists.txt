@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME xsettings)
 
 file(GLOB_RECURSE XSETTINGS_H_FILES ./*.h)

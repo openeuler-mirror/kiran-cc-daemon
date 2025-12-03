@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 set(TARGET_NAME lib-osdwindow)
 
 file(GLOB_RECURSE OSD_H_FILES ./*.h)
