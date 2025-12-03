@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-
 qt5_add_dbus_adaptor(
   DBUS_SRCS ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.Plugins.xml
   ${CMAKE_SOURCE_DIR}/src/plugin-manager.h Kiran::PluginManager
