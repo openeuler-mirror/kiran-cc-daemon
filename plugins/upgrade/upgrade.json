@@ -1,0 +1,5 @@
+{
+    "id": "upgrade",
+    "description": "used for system upgrade.",
+    "enabled": true
+}

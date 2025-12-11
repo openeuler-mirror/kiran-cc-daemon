@@ -39,6 +39,7 @@ install(
     ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
     ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Greeter.service
     ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
+    ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Upgrade.service
   DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/system-services)
 
 # conf files
@@ -105,6 +106,11 @@ configure_file(./kiran-session-daemon.desktop.in
 install(FILES ${PROJECT_BINARY_DIR}/data/kiran-session-daemon.desktop
         DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/autostart)
 
+configure_file(./kcd-upgrade-notify.desktop.in
+               ${PROJECT_BINARY_DIR}/data/kcd-upgrade-notify.desktop)
+install(FILES ${PROJECT_BINARY_DIR}/data/kcd-upgrade-notify.desktop
+        DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/autostart)
+
 # keybindings
 file(GLOB KEYBINDINGS_XML_FILES ${PROJECT_SOURCE_DIR}/data/keybindings/*.xml)
 
@@ -118,6 +124,7 @@ install(
         ${PROJECT_SOURCE_DIR}/include/timedate-i.h
         ${PROJECT_SOURCE_DIR}/include/greeter-i.h
         ${PROJECT_SOURCE_DIR}/include/systeminfo-i.h
+        ${PROJECT_SOURCE_DIR}/include/upgrade-i.h
   DESTINATION ${KCD_INSTALL_INCLUDE}/kiran-system-daemon)
 
 install(
