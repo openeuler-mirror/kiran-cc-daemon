@@ -108,21 +108,35 @@ void PowerNotificationManager::on_device_discharging(std::shared_ptr<PowerUPower
     const UPowerDeviceProps &device_props = device->get_props();
     std::string title;
     std::string message;
+    std::string remaining_time_text;
 
-    auto remaining_time_text = PowerUtils::get_time_translation(device_props.time_to_empty);
+    /**
+    * 笔记本电池FullCharged状态下拔掉电源，TimeToEmpty更新没那么及时(D2000环境大概10s)，导致拔电通知错误的剩余时间(#93013,#108231)
+    * 如果TimeToEmtpy为一个错误的值，或无法获取到剩余时长，则不通知。
+    */
+    if( device_props.time_to_empty > 0 )
+    {
+        remaining_time_text = PowerUtils::get_time_translation(device_props.time_to_empty);
+    }
 
     switch (device_props.type)
     {
     case UP_DEVICE_KIND_BATTERY:
     {
         title = _("Battery Discharging");
-        message = fmt::format(_("{0} of battery power remaining ({1:.1f}%)"), remaining_time_text, device_props.percentage);
+        if( !remaining_time_text.empty() )
+        {
+            message = fmt::format(_("{0} of battery power remaining ({1:.1f}%)"), remaining_time_text, device_props.percentage);
+        }
         break;
     }
     case UP_DEVICE_KIND_UPS:
     {
         title = _("UPS Discharging");
-        message = fmt::format(_("{0} of UPS backup power remaining ({1:.1f}%)"), remaining_time_text, device_props.percentage);
+        if( !remaining_time_text.empty() )
+        {
+            message = fmt::format(_("{0} of UPS backup power remaining ({1:.1f}%)"), remaining_time_text, device_props.percentage);
+        }
         break;
     }
     default:
