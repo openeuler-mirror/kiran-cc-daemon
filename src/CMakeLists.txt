@@ -1,3 +1,5 @@
+set(CMAKE_ENABLE_EXPORTS ON)
+
 set_common_exe_linker_flags()
 
 file(GLOB_RECURSE CORE_H_FILES ./*.h)
