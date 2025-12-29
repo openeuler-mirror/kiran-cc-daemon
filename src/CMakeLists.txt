@@ -1,3 +1,5 @@
+set(CMAKE_ENABLE_EXPORTS ON)
+
 qt5_add_dbus_adaptor(
   DBUS_SRCS ${CMAKE_SOURCE_DIR}/src/com.kylinsec.Kiran.CCDaemon.Plugins.xml
   ${CMAKE_SOURCE_DIR}/src/plugin-manager.h Kiran::PluginManager
