@@ -10,12 +10,13 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(KSD REQUIRED)
 find_package(PkgConfig REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets DBus LinguistTools Test)
+find_package(Qt5 COMPONENTS Core Gui Widgets DBus LinguistTools Test Concurrent)
 
 pkg_search_module(KLOG_QT5 REQUIRED klog-qt5)
 pkg_search_module(FMT REQUIRED fmt)
 pkg_search_module(CRYPTOPP REQUIRED cryptopp)
 pkg_search_module(GLIB2 REQUIRED glib-2.0)
+pkg_search_module(GOBJECT2 REQUIRED gobject-2.0)
 find_package(KF5Config)
 
 # session
@@ -47,6 +48,7 @@ pkg_search_module(GUDEV REQUIRED gudev-1.0)
 pkg_search_module(LIBXCRYPT REQUIRED libxcrypt)
 pkg_search_module(SYSTEMD REQUIRED systemd)
 pkg_search_module(SELINUX REQUIRED libselinux)
+pkg_search_module(LIBDNF REQUIRED libdnf)
 
 configure_file(config.h.in ${PROJECT_BINARY_DIR}/config.h)
 

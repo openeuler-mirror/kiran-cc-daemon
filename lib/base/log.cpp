@@ -31,4 +31,5 @@ Q_LOGGING_CATEGORY(power, "kcd.power");
 Q_LOGGING_CATEGORY(systeminfo, "kcd.systeminfo");
 Q_LOGGING_CATEGORY(timedate, "kcd.timedate");
 Q_LOGGING_CATEGORY(settings, "kcd.settings");
+Q_LOGGING_CATEGORY(upgrade, "kcd.upgrade");
 }  // namespace Kiran

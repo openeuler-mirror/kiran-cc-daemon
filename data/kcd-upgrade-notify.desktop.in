@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=kiran system upgrade notify
+Name[zh_CN]=Kiran系统升级提醒
+Comment=Kiran system upgrade notify
+Comment[zh_CN]=Kiran系统升级提醒
+Exec=kcd-upgrade-notify
+OnlyShowIn=KIRAN;
+X-KIRAN-Autostart-Notify=true
+X-KIRAN-AutoRestart=true
+X-KIRAN-NoDisplay=true
