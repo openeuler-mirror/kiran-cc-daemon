@@ -15,6 +15,7 @@
         <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="375"/>
         <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="438"/>
         <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="570"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="675"/>
         <source>Dnf context is not initialized, please initialize it first.</source>
         <translation>Dnf 上下文没有初始化，请先初始化。</translation>
     </message>
@@ -22,6 +23,7 @@
         <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="383"/>
         <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="446"/>
         <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="578"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="683"/>
         <source>Failed to get sack.</source>
         <translation>获取dnf数据库失败！</translation>
     </message>
@@ -62,77 +64,87 @@
         <translation>获取已安装的软件包失败！%1</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="670"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="669"/>
+        <source>Package name is empty.</source>
+        <translation>软件包名为空。</translation>
+    </message>
+    <message>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="701"/>
+        <source>Package %1 is not installed.</source>
+        <translation>未安装软件包%1。</translation>
+    </message>
+    <message>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="715"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="672"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="717"/>
         <source>Downloading packages</source>
         <translation>正在下载软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="674"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="719"/>
         <source>Downloading metadata</source>
         <translation>正在下载源数据</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="676"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="721"/>
         <source>Loading cache</source>
         <translation>正在加载缓存</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="678"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="723"/>
         <source>Testing transaction</source>
         <translation>正在模拟事务</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="680"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="725"/>
         <source>Requesting data</source>
         <translation>正在请求数据</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="682"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="727"/>
         <source>Removing packages</source>
         <translation>正在移除软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="684"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="729"/>
         <source>Installing packages</source>
         <translation>正在安装软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="686"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="731"/>
         <source>Updating packages</source>
         <translation>正在升级软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="688"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="733"/>
         <source>Cleaning packages</source>
         <translation>正在清理软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="690"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="735"/>
         <source>Obsoleting packages</source>
         <translation>正在废弃软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="692"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="737"/>
         <source>Reinstalling packages</source>
         <translation>正在重新安装软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="694"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="739"/>
         <source>Downgrading packages</source>
         <translation>正在降级软件包</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="696"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="741"/>
         <source>Querying for results</source>
         <translation>正在查询结果</translation>
     </message>
     <message>
-        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="698"/>
+        <location filename="../plugins/upgrade/dnf/dnf-wrapper.cpp" line="743"/>
         <source>Unknown action</source>
         <translation>未知阶段</translation>
     </message>

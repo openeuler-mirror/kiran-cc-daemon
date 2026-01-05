@@ -127,10 +127,18 @@ QString Scanner::getUpgradePkgsJson()
         {
             continue;
         }
+        QString errorMessage;
+        auto pgkName = QString(dnf_package_get_name(pkg.data()));
+        auto currentVersion = m_dnfWrapper->getInstalledPackageVersion(pgkName, errorMessage);
+        if (!errorMessage.isEmpty())
+        {
+            KLOG_WARNING(upgrade) << "Failed to get installed package version. " << errorMessage;
+        }
         QJsonObject obj;
         obj["id"] = QString::fromUtf8(dnf_package_get_package_id(pkg.data()));
-        obj["name"] = QString(dnf_package_get_name(pkg.data()));
-        obj["version"] = QString(dnf_package_get_evr(pkg.data()));
+        obj["name"] = pgkName;
+        obj["current_version"] = currentVersion;
+        obj["latest_version"] = QString(dnf_package_get_evr(pkg.data()));
         auto downloadSize = static_cast<quint64>(dnf_package_get_downloadsize(pkg.data()));
         obj["size"] = formatSize(downloadSize);
         // 获取包的 advisory 信息
