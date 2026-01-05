@@ -29,6 +29,16 @@ extern "C"
 #define DEFAULT_CACHE_UPDATE_INTERVAL_HOURS 24  // 默认24小时更新一次缓存
 #define DEFAULT_DATE_TIME_FORMAT "yyyy-MM-dd HH:mm:ss"
 
+    // 后台状态枚举
+    enum BackendStatus
+    {
+        BACKEND_STATUS_IDLE = 0,      // 空闲
+        BACKEND_STATUS_SCANNING,      // 正在扫描
+        BACKEND_STATUS_SOLVING_DEPS,  // 正在解析依赖
+        BACKEND_STATUS_UPGRADING,     // 正在更新
+    };
+
+    // 提醒间隔枚举
     enum ReminderInterval
     {
         REMINDER_INTERVAL_NEVER = 0,       // 不提醒
@@ -38,16 +48,14 @@ extern "C"
         REMINDER_INTERVAL_LAST
     };
 
-    /**
-    * @brief Advisory 类型标志枚举
-    */
+    //类型标志枚举
     enum AdvisoryKindFlag
     {
-        ADVISORY_KIND_UNKNOWN = 0,
-        ADVISORY_KIND_SECURITY = 1 << 0,     // 安全更新
-        ADVISORY_KIND_BUGFIX = 1 << 1,       // Bug修复
-        ADVISORY_KIND_ENHANCEMENT = 1 << 2,  // 功能增强
-        ADVISORY_KIND_NEWPACKAGE = 1 << 3    // 新包
+        ADVISORY_KIND_UNKNOWN = 1 << 0,      // 未知
+        ADVISORY_KIND_SECURITY = 1 << 1,     // 安全更新
+        ADVISORY_KIND_BUGFIX = 1 << 2,       // Bug修复
+        ADVISORY_KIND_ENHANCEMENT = 1 << 3,  // 功能增强
+        ADVISORY_KIND_NEWPACKAGE = 1 << 4,   // 新包
     };
 
 #ifdef __cplusplus

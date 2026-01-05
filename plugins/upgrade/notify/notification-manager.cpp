@@ -108,6 +108,7 @@ void NotificationManager::reminder()
     {
         KLOG_ERROR(upgrade) << "Failed to scan for upgradeable packages:" << reply.error().message();
         KLOG_DEBUG(upgrade) << "Scheduling reminder in 24 hour";
+        m_scanInProgress = false;
         setNextReminder(1);
         return;
     }
@@ -115,6 +116,13 @@ void NotificationManager::reminder()
 
 void NotificationManager::handleScanResult(bool success, const QString &errorMessage)
 {
+    // 防止在控制中心中扫描导致处理扫描结束信号
+    if (!m_scanInProgress)
+    {
+        KLOG_DEBUG(upgrade) << "Scan not in progress, skipping...";
+        return;
+    }
+
     m_scanInProgress = false;
     m_hasUpgrades = false;
 

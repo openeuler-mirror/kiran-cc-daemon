@@ -27,7 +27,6 @@
 #include <QMutexLocker>
 #include <QtConcurrent>
 
-#include <upgrade-i.h>
 #include "configuration.h"
 #include "dep-solver.h"
 #include "dnf/dnf-wrapper.h"
@@ -56,6 +55,9 @@ namespace Kiran
 // 更新配置
 #define UPDATE_SECTION "update"
 #define UPDATE_CONFIG_LAST_UPDATE_TIME_KEY UPDATE_SECTION "/last-update-time"
+// 扫描配置
+#define SCAN_SECTION "scan"
+#define SCAN_CONFIG_LAST_SCAN_TIME_KEY SCAN_SECTION "/last-scan-time"
 
 #define SEND_PROPERTY_NOTIFY(property, propertyHump)                          \
     QVariantMap changedProperties;                                            \
@@ -71,7 +73,7 @@ namespace Kiran
         changedProperties,                                                    \
         QStringList(),                                                        \
     });                                                                       \
-    QDBusConnection::sessionBus().send(signalMessage);
+    QDBusConnection::systemBus().send(signalMessage);
 
 Manager::Manager(QObject *parent) : QObject(parent),
                                     m_adaptor(nullptr),
@@ -93,12 +95,23 @@ Manager::Manager(QObject *parent) : QObject(parent),
     //加载扫描模块
     m_scanner = new Scanner(this);
     connect(m_scanner, &Scanner::scanCompleted, this, [this](bool success, const QString &errorMessage)
-            { handleTaskResult(success, errorMessage, &Manager::ScanCompleted); });
+            {
+                KLOG_INFO(upgrade) << "Scan completed, success: " << success << ", error message: " << errorMessage;
+
+                handleTaskResult(success, errorMessage, &Manager::ScanCompleted);
+
+                //无论扫描是否成功，都更新最新扫描时间
+                setLatestScanTime(QDateTime::currentDateTime().toString(DEFAULT_DATE_TIME_FORMAT));
+            });
 
     //加载依赖解析模块
     m_depSolver = new DepSolver(this);
     connect(m_depSolver, &DepSolver::solveDepsCompleted, this, [this](bool success, const QString &pkgDepsJson, const QString &errorMessage)
             {
+                KLOG_INFO(upgrade) << "Solve deps completed, success: " << success
+                                   << ", pkg deps json: " << pkgDepsJson
+                                   << ", error message: " << errorMessage;
+
                 setBackendStatus(BACKEND_STATUS_IDLE);
                 emit SolveDepsCompleted(success, pkgDepsJson, errorMessage);
             });
@@ -107,12 +120,14 @@ Manager::Manager(QObject *parent) : QObject(parent),
     m_installer = new Installer(this);
     connect(m_installer, &Installer::installCompleted, this, [this](bool success, const QString &errorMessage)
             {
+                KLOG_INFO(upgrade) << "Upgrade completed, success: " << success << ", error message: " << errorMessage;
+
                 handleTaskResult(success, errorMessage, &Manager::UpgradeCompleted);
 
                 if (success)
                 {
                     //更新最新升级时间
-                    setLatestUpgradeTime(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
+                    setLatestUpgradeTime(QDateTime::currentDateTime().toString(DEFAULT_DATE_TIME_FORMAT));
                 }
             });
     connect(m_installer, &Installer::installProgressChanged, this, &Manager::UpgradePercentageChanged);
@@ -171,9 +186,11 @@ void Manager::Scan()
     auto errorCode = m_scanner->scan();
     if (errorCode != CCErrorCode::SUCCESS)
     {
+        KLOG_WARNING(upgrade) << "Scan failed: " << errorCode;
         DBUS_ERROR_REPLY_AND_RET(errorCode);
     }
 
+    KLOG_INFO(upgrade) << "Scan system upgrade packages";
     setBackendStatus(BACKEND_STATUS_SCANNING);
     QDBusConnection::systemBus().send(this->message().createReply());
 }
@@ -203,9 +220,11 @@ void Manager::SolveDeps(const QStringList &packageIDs)
     auto errorCode = m_depSolver->solveDeps(packageIDs);
     if (errorCode != CCErrorCode::SUCCESS)
     {
+        KLOG_WARNING(upgrade) << "Solve deps failed: " << errorCode;
         DBUS_ERROR_REPLY_AND_RET(errorCode);
     }
 
+    KLOG_INFO(upgrade) << "Solve deps for package IDs: " << packageIDs;
     setBackendStatus(BACKEND_STATUS_SOLVING_DEPS);
     QDBusConnection::systemBus().send(this->message().createReply());
 }
@@ -236,9 +255,11 @@ void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringLis
     auto errorCode = m_installer->install(packageIDs);
     if (errorCode != CCErrorCode::SUCCESS)
     {
+        KLOG_WARNING(upgrade) << "Upgrade failed: " << errorCode;
         DBUS_ERROR_REPLY_AND_RET(errorCode);
     }
 
+    KLOG_INFO(upgrade) << "Upgrade package IDs: " << packageIDs;
     setBackendStatus(BACKEND_STATUS_UPGRADING);
     QDBusConnection::systemBus().send(message.createReply());
 }
@@ -265,6 +286,7 @@ void Manager::setReminderIntAuthenticated(const QDBusMessage &message, int remin
 
 void Manager::setReminderInterval(int reminderInterval)
 {
+    KLOG_INFO(upgrade) << "Set reminder interval to " << reminderInterval;
     m_reminderInterval = reminderInterval;
     //写入配置文件
     if (reminderInterval != m_config->get(REMINDER_CONFIG_INTERVAL_KEY).toInt())
@@ -296,6 +318,7 @@ int Manager::getBackendStatus()
 
 void Manager::setBackendStatus(int status)
 {
+    KLOG_INFO(upgrade) << "Set backend status to " << status;
     QMutexLocker locker(&m_statusMutex);
     m_status = static_cast<BackendStatus>(status);
 }
@@ -306,6 +329,7 @@ QString Manager::getLatestUpgradeTime() const
 }
 void Manager::setLatestUpgradeTime(const QString &latestUpgradeTime)
 {
+    KLOG_INFO(upgrade) << "Set latest upgrade time to " << latestUpgradeTime;
     RETURN_IF_TRUE(m_lastUpgradeTime == latestUpgradeTime);
 
     m_lastUpgradeTime = latestUpgradeTime;
@@ -323,6 +347,7 @@ QString Manager::getLatestReminderTime() const
 }
 void Manager::setLatestReminderTime(const QString &latestReminderTime)
 {
+    KLOG_INFO(upgrade) << "Set latest reminder time to " << latestReminderTime;
     RETURN_IF_TRUE(m_latestReminderTime == latestReminderTime);
 
     m_latestReminderTime = latestReminderTime;
@@ -334,6 +359,23 @@ void Manager::setLatestReminderTime(const QString &latestReminderTime)
     SEND_PROPERTY_NOTIFY(latest_reminder_time, LatestReminderTime)
 }
 
+QString Manager::getLatestScanTime() const
+{
+    return m_latestScanTime;
+}
+void Manager::setLatestScanTime(const QString &latestScanTime)
+{
+    KLOG_INFO(upgrade) << "Set latest scan time to " << latestScanTime;
+    RETURN_IF_TRUE(m_latestScanTime == latestScanTime);
+
+    m_latestScanTime = latestScanTime;
+    if (latestScanTime != m_config->get(SCAN_CONFIG_LAST_SCAN_TIME_KEY).toString())
+    {
+        m_config->set(SCAN_CONFIG_LAST_SCAN_TIME_KEY, latestScanTime);
+    }
+
+    SEND_PROPERTY_NOTIFY(latest_scan_time, LatestScanTime)
+}
 void Manager::loadConfig()
 {
     m_config = new Configuration(CONFIG_FILE, this);
@@ -370,6 +412,11 @@ void Manager::loadConfig()
     KLOG_DEBUG(upgrade) << "Cache update interval loaded from config: "
                         << m_cacheIntvalHours << " hours";
 
+    //获取最新扫描时间
+    m_latestScanTime = m_config->get(SCAN_CONFIG_LAST_SCAN_TIME_KEY, "").toString();
+    KLOG_DEBUG(upgrade) << "Latest scan time loaded from config: "
+                        << m_latestScanTime;
+
     //监听配置变化
     connect(m_config, &Configuration::valueChanged, this, [this](const QString &key, const QVariant &value)
             {
@@ -394,6 +441,11 @@ void Manager::loadConfig()
                          m_latestReminderTime != value.toString())
                 {
                     setLatestReminderTime(value.toString());
+                }
+                else if (key == SCAN_CONFIG_LAST_SCAN_TIME_KEY &&
+                         m_latestScanTime != value.toString())
+                {
+                    setLatestScanTime(value.toString());
                 }
             });
 }

@@ -36,7 +36,7 @@
             <description>Set the reminder interval for days.</description>
         </method>
 
-        <property name="backend_status" type="u" access="read">
+        <property name="backend_status" type="i" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
             <description>The backend running status, 0: idle, 1: scanning, 2: upgrading.</description>
         </property>
@@ -44,13 +44,17 @@
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
             <description>The latest upgrade time.</description>
         </property>
-        <property name="reminder_interval" type="u" access="read">
+        <property name="reminder_interval" type="i" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
             <description>The reminder interval for days.</description>
         </property>
         <property name="latest_reminder_time" type="s" access="readwrite">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
             <description>The latest reminder time.</description>
+        </property>
+        <property name="latest_scan_time" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
+            <description>The latest scan time.</description>
         </property>
 
         <signal name="ScanCompleted">
@@ -88,6 +92,9 @@
         <signal name="UpgradeActionChanged">
             <arg name="action" type="s">
                 <description>The action of the upgrade action.</description>
+            </arg>
+            <arg name="action_hint" type="s">
+                <description>The hint of the upgrade action.</description>
             </arg>
         </signal>
     </interface>

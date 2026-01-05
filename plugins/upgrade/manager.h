@@ -15,6 +15,7 @@
 #pragma once
 
 #include <unistd.h>
+#include <upgrade-i.h>
 #include <QDBusContext>
 #include <QDateTime>
 #include <QFuture>
@@ -30,15 +31,6 @@ class UpgradeAdaptor;
 
 namespace Kiran
 {
-// 后台状态枚举
-enum BackendStatus
-{
-    BACKEND_STATUS_IDLE = 0,      // 空闲
-    BACKEND_STATUS_SCANNING,      // 正在扫描
-    BACKEND_STATUS_SOLVING_DEPS,  // 正在解析依赖
-    BACKEND_STATUS_UPGRADING,     // 正在更新
-};
-
 class DnfWrapper;
 class Scanner;
 class DepSolver;
@@ -52,7 +44,7 @@ class Manager : public QObject, protected QDBusContext
     Q_PROPERTY(QString latest_upgrade_time READ getLatestUpgradeTime WRITE setLatestUpgradeTime)
     Q_PROPERTY(int reminder_interval READ getReminderInterval WRITE setReminderInterval)
     Q_PROPERTY(QString latest_reminder_time READ getLatestReminderTime WRITE setLatestReminderTime)
-
+    Q_PROPERTY(QString latest_scan_time READ getLatestScanTime WRITE setLatestScanTime)
 public:
     static Manager *instance() { return m_instance; };
     static void globalInit();
@@ -68,6 +60,8 @@ public:  // PROPERTIES
     int getReminderInterval() const;
     // 获取最新提醒时间
     QString getLatestReminderTime() const;
+    // 获取最新扫描时间
+    QString getLatestScanTime() const;
 
     //设置后台状态
     void setBackendStatus(int status);
@@ -77,6 +71,8 @@ public:  // PROPERTIES
     void setReminderInterval(int reminderInterval);
     //设置最新提醒时间至配置文件
     void setLatestReminderTime(const QString &latestReminderTime);
+    //设置最新扫描时间至配置文件
+    void setLatestScanTime(const QString &latestScanTime);
 
     /**
      * @brief 扫描可更新包
@@ -154,6 +150,8 @@ private:
     QString m_lastUpgradeTime;
     // 最新提醒时间
     QString m_latestReminderTime;
+    // 最新扫描时间
+    QString m_latestScanTime;
 
     // 状态管理
     QMutex m_statusMutex;
