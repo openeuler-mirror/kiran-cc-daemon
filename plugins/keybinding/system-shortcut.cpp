@@ -145,7 +145,23 @@ QList<QSharedPointer<SystemShortcut>> SystemShortcuts::get()
     QList<QSharedPointer<SystemShortcut>> shortcuts;
     auto mixShortcuts = getMixShortcuts();
 
-    for (const auto &mixShortcut : mixShortcuts)
+    // 由于Kwin重复快捷键很多(切换到桌面xx,切换到屏幕xx)，统一按照显示名称排序
+    auto mixShortcutsValues = mixShortcuts.values();
+    std::sort(mixShortcutsValues.begin(), mixShortcutsValues.end(), [](const auto &a, const auto &b) -> bool {
+        if (a->desktopType != b->desktopType) {
+            return a->desktopType < b->desktopType;
+        } 
+        switch (a->desktopType) {
+        case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
+            return a->mate.name.compare(b->mate.name, Qt::CaseInsensitive) < 0;
+        case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
+            return a->kde.friendlyName.compare(b->kde.friendlyName, Qt::CaseInsensitive) < 0;
+        default:
+            return false;
+        }
+    });
+
+    for (const auto &mixShortcut : mixShortcutsValues)
     {
         auto shortcut = mix2common(mixShortcut);
         if (shortcut)
