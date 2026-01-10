@@ -19,6 +19,7 @@
 #include <QSharedPointer>
 
 class KSystemClipboard;
+typedef uint32_t xcb_atom_t;
 
 namespace Kiran
 {
@@ -38,6 +39,8 @@ public:
 
 private:
     void init();
+    xcb_atom_t getClipboardOwner();
+    bool lastIsUDAPClient();
     void processClipboardChanged(QClipboard::Mode mode);
 
 private:
@@ -46,5 +49,7 @@ private:
     KSystemClipboard *m_clipboard;
     QSharedPointer<ClipboardData> m_clipboardDatas[QClipboard::FindBuffer];
     int m_clipboardLock[QClipboard::FindBuffer];
+    // 记录上一次的剪切板拥有者
+    xcb_atom_t m_lastClipboardOwner;
 };
 }  // namespace Kiran

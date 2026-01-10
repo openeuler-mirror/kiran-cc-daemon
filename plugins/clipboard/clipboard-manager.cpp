@@ -13,9 +13,13 @@
  */
 
 #include "clipboard-manager.h"
+#include <xcb/xcb.h>
 #include <KSystemClipboard>
+#include <QGuiApplication>
 #include <QMimeData>
 #include "clipboard-data.h"
+#include "lib/base/base.h"
+#include "lib/xcb/xcb-connection.h"
 
 namespace Kiran
 {
@@ -39,7 +43,7 @@ private:
 };
 
 ClipboardManager *ClipboardManager::m_instance = nullptr;
-ClipboardManager::ClipboardManager()
+ClipboardManager::ClipboardManager() : m_lastClipboardOwner(XCB_ATOM_NONE)
 {
     m_clipboard = KSystemClipboard::instance();
 
@@ -65,6 +69,57 @@ void ClipboardManager::globalDeinit()
 
 void ClipboardManager::init()
 {
+}
+
+xcb_atom_t ClipboardManager::getClipboardOwner()
+{
+    if (qGuiApp->platformName() != "xcb")
+    {
+        return XCB_ATOM_NONE;
+    }
+
+    // 获取xcb_connection
+    auto xcbConnection = XcbConnection::getDefault();
+    auto clipboardAtomReply = XCB_REPLY(xcb_intern_atom, xcbConnection->getConnection(), false, strlen("CLIPBOARD"), "CLIPBOARD");
+
+    if (!clipboardAtomReply || clipboardAtomReply->atom == XCB_ATOM_NONE)
+    {
+        return XCB_ATOM_NONE;
+    }
+
+    auto getClipboardOwnerReply = XCB_REPLY(xcb_get_selection_owner, xcbConnection->getConnection(), clipboardAtomReply->atom);
+    return getClipboardOwnerReply ? getClipboardOwnerReply->owner : XCB_ATOM_NONE;
+}
+
+bool ClipboardManager::lastIsUDAPClient()
+{
+    if (qGuiApp->platformName() != "xcb")
+    {
+        return false;
+    }
+
+    // 获取m_clipboardOwner对应的进程
+    auto xcbConnection = XcbConnection::getDefault();
+    auto wmNameAtomReply = XCB_REPLY(xcb_intern_atom, xcbConnection->getConnection(), false, strlen("WM_NAME"), "WM_NAME");
+    RETURN_VAL_IF_TRUE(!wmNameAtomReply, false);
+
+    auto ownerWMNameReply = XCB_REPLY_UNCHECKED(xcb_get_property,
+                                                xcbConnection->getConnection(),
+                                                false,
+                                                m_lastClipboardOwner,
+                                                wmNameAtomReply->atom,
+                                                XCB_ATOM_STRING,
+                                                0,
+                                                1024);
+    RETURN_VAL_IF_TRUE(!ownerWMNameReply, false);
+
+    if (ownerWMNameReply && ownerWMNameReply->format == 8 && ownerWMNameReply->type == XCB_ATOM_STRING)
+    {
+        auto name = reinterpret_cast<const char *>(xcb_get_property_value(ownerWMNameReply.get()));
+        auto wmName = QString::fromLatin1(name, xcb_get_property_value_length(ownerWMNameReply.get()));
+        return wmName == "UDAP Client";
+    }
+    return false;
 }
 
 void ClipboardManager::processClipboardChanged(QClipboard::Mode mode)
@@ -98,11 +153,32 @@ void ClipboardManager::processClipboardChanged(QClipboard::Mode mode)
        这里也采用klipper的实现方式：当剪切版数据为空时，则将上一次选中或复制的数据拷贝到剪切版中；否则将最新数据记录到
        m_clipboardDatas中。*/
     auto mimeData = m_clipboard->mimeData(mode);
+    auto currentClipboardOwner = getClipboardOwner();
 
-    /* 当mode为QClipboard::Selection时，mimeData->formats()为空不能说明selection owner的进程退出了。所以覆盖QClipboard::Selection的内容不是很合理。
-     * 如果一定要做，应该要通过XGetSelectionOwnwer判断是否为空，因为这个功能不实现也影响不大，所以这里不打算再引入X11的代码了。*/
-    if (mimeData == nullptr || mimeData->formats().isEmpty())
+    /* 当之前的剪切版owner退出时，则由当前插件来接管并复制上次的剪切版数据到剪切版中。
+     *     1）如果是wayland协议，暂时通过剪切版内容是否为空来判断；
+     *     2）如果是x11协议，则通过剪切版owner是否为空来判断。
+     */
+    if ((mimeData == nullptr || mimeData->formats().isEmpty()) && currentClipboardOwner == XCB_ATOM_NONE)
     {
+        /* 这里是为了跟云桌面uniface进行兼容做的定制化处理，当在云桌面虚拟机中进行第二次复制时，hostos的udap-client进程
+           会先取消拥有剪切版（原因未知），然后获取剪切版的owner权限并将新复制的数据拷贝到剪切版，如果当前插件收到取消剪切版
+           owner事件时去接管剪切版owner，就有可能导致udap-client无法将数据复制到剪切版中，考虑如下异步场景：
+              1）udap-client进程取消剪切版owner权限；
+              2）udap-client进程获取剪切版owner权限；
+              3）当前插件收到取消剪切版owner权限事件，将会获取剪切版owner权限；
+              4）udap-client进程将剪切版数据复制到剪切版中；当此时udap-client已经不是剪切版owner了，所以数据复制失败。
+
+           因此，当前插件收到取消剪切版owner权限事件且上一次剪切版owner为udap-client时，不去接管剪切版owner。
+
+           关联单号 #111540
+        */
+        if (lastIsUDAPClient())
+        {
+            KLOG_DEBUG() << "Don't take over clipboard when last clipboard owner is udap-client";
+            return;
+        }
+
         if (m_clipboardDatas[mode])
         {
             auto newMimeData = m_clipboardDatas[mode]->mimeData();
@@ -120,6 +196,8 @@ void ClipboardManager::processClipboardChanged(QClipboard::Mode mode)
     {
         m_clipboardDatas[mode] = ClipboardData::createClipboardData(mimeData);
     }
+
+    m_lastClipboardOwner = currentClipboardOwner;
 }
 
 }  // namespace Kiran
