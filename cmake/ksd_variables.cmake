@@ -9,7 +9,7 @@ set(enable-plugin-accounts
     "true"
     CACHE STRING "Enable plugin accounts")
 set(enable-plugin-groups
-    "false"
+    "true"
     CACHE STRING "Enable plugin groups")
 set(enable-plugin-greeter
     "true"
