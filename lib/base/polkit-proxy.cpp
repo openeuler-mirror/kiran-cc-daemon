@@ -14,6 +14,7 @@
 
 #include "polkit-proxy.h"
 #include <qt5-log-i.h>
+#include <unistd.h>
 #include <QDBusArgument>
 #include <QDBusConnection>
 #include <QDBusMetaType>
@@ -147,6 +148,14 @@ void PolkitProxy::checkAuthorization(const QString &action,
     // 标记延迟回复，避免自动回复
     message.setDelayedReply(true);
 
+    // 这里主要用于单元测试，如果是同一个进程的DBUS调用，则不走polkit
+    auto pid = getCallerPID(message);
+    if (pid == getpid())
+    {
+        handler(message);
+        return;
+    }
+
     auto checkAuthData = QSharedPointer<CheckAuthData>::create();
     checkAuthData->timer.setInterval(POLKIT_AUTH_CHECK_TIMEOUT * 1000);
     checkAuthData->timer.start();
@@ -176,6 +185,22 @@ void PolkitProxy::checkAuthorization(const QString &action,
     auto watcher = new QDBusPendingCallWatcher(call, this);
     connect(watcher, &QDBusPendingCallWatcher::finished, std::bind(&PolkitProxy::onFinishCheckAuth, this, std::placeholders::_1, checkAuthData));
     connect(&checkAuthData->timer, &QTimer::timeout, std::bind(&PolkitProxy::onCancelCheckAuth, this, checkAuthData));
+}
+
+uint PolkitProxy::getCallerPID(const QDBusMessage &message)
+{
+    auto sendMessage = QDBusMessage::createMethodCall("org.freedesktop.DBus",
+                                                      "/org/freedesktop/DBus",
+                                                      "org.freedesktop.DBus",
+                                                      "GetConnectionUnixProcessID");
+    sendMessage << message.service();
+    auto replyMessage = QDBusConnection::systemBus().call(sendMessage, QDBus::Block);
+    if (replyMessage.type() == QDBusMessage::ErrorMessage)
+    {
+        KLOG_WARNING() << "Call GetConnectionUnixProcessID failed:" << replyMessage.errorMessage();
+        return 0;
+    }
+    return replyMessage.arguments().takeFirst().toUInt();
 }
 
 void PolkitProxy::onCancelCheckAuth(QSharedPointer<CheckAuthData> checkAuthData)

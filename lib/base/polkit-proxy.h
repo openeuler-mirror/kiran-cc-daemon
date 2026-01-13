@@ -126,6 +126,7 @@ public:
                             checkAuthHandler handler);
 
 private:
+    uint getCallerPID(const QDBusMessage &message);
     void onCancelCheckAuth(QSharedPointer<CheckAuthData> checkAuthData);
     void onFinishCheckAuth(QDBusPendingCallWatcher *watcher, QSharedPointer<CheckAuthData> checkAuthData);
 
