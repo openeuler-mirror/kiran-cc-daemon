@@ -20,16 +20,20 @@
 #include "lib/base/base.h"
 
 #include <qt5-log-i.h>
-#include <upgrade-i.h>
 #include <QElapsedTimer>
 
 typedef ::DnfPackage DnfPackage;
 typedef ::DnfSack DnfSack;
 typedef ::DnfContext DnfContext;
 
-typedef void (*percentageChangedCBType)(DnfState *, uint, gpointer);
-typedef void (*actionChangedTypeCBType)(DnfState *, DnfStateAction,
-                                        const char *, gpointer);
+typedef void (*percentageChangedCBType)(DnfState *,
+                                        uint,
+                                        gpointer);
+typedef void (*actionChangedTypeCBType)(DnfState *,
+                                        DnfStateAction,
+                                        const char *,
+                                        gpointer);
+
 // DNF 目录定义
 #define DNF_CACHE_DIR "/var/cache/dnf"
 #define DNF_SOLV_DIR "/var/cache/dnf"
@@ -621,11 +625,6 @@ QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage
             }
         }
     }
-    else
-    {
-        errorMessage = tr("Failed to get installs packages: %1").arg(error->message);
-        g_clear_error(&error);
-    }
 
     // 获取需要升级的包（包括依赖的升级）
     // 这样可以获取到已安装但有更新的依赖包
@@ -648,18 +647,58 @@ QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage
             }
         }
     }
-    else
-    {
-        // upgrades 可能为空，这是正常的，不需要警告
-        g_clear_error(&error);
-    }
 
     // 将去重后的依赖包添加到返回列表
     for (auto pkg : addedDeps.values())
     {
-        ret.append(dnf_package_get_nevra(pkg));
+        ret.append(QString::fromUtf8(dnf_package_get_package_id(pkg)));
     }
     return ret;
+}
+
+QString DnfWrapper::getInstalledPackageVersion(const QString &packageName, QString &errorMessage)
+{
+    if (packageName.isEmpty())
+    {
+        errorMessage = tr("Package name is empty.");
+        return QString();
+    }
+
+    if (!m_dnfCtx)
+    {
+        errorMessage = tr("Dnf context is not initialized, please initialize it first.");
+        return QString();
+    }
+
+    // 获取sack引用
+    auto sack = getSackRef();
+    if (sack.isNull())
+    {
+        errorMessage = tr("Failed to get sack.");
+        return QString();
+    }
+
+    HyQuery hyQuery = hy_query_create(sack.data());
+    // 按包名过滤
+    hy_query_filter(hyQuery, HY_PKG_NAME, HY_EQ, packageName.toUtf8());
+    GPtrArray *pkgList = hy_query_run(hyQuery);
+
+    QString version;
+    if (pkgList && pkgList->len > 0)
+    {
+        // 获取第一个匹配的包
+        ::DnfPackage *pkg = static_cast<::DnfPackage *>(g_ptr_array_index(pkgList, 0));
+        version = QString(dnf_package_get_evr(pkg));
+    }
+    else
+    {
+        errorMessage = tr("Package %1 is not installed.").arg(packageName);
+    }
+
+    g_ptr_array_free(pkgList, FALSE);
+    hy_query_free(hyQuery);
+
+    return version;
 }
 
 QString DnfWrapper::stateActionToString(int action)

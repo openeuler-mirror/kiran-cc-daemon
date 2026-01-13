@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <upgrade-i.h>
 #include <QDateTime>
 #include <QFileSystemWatcher>
 #include <QFutureWatcher>
@@ -35,7 +36,6 @@ struct _DnfSack;
 typedef struct _DnfSack DnfSack;
 struct _DnfPackage;
 typedef struct _DnfPackage DnfPackage;
-
 namespace Kiran
 {
 class DnfWrapper : public QObject
@@ -69,6 +69,14 @@ public:
      * @return 需要安装的包NVR列表
      */
     QStringList solvePackageDeps(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage);
+
+    /**
+     * @brief 根据包名获取系统当前已安装包的版本
+     * @param packageName 包名
+     * @param errorMessage 错误信息（如果失败）
+     * @return 包的版本信息（EVR格式），如果包未安装则返回空字符串
+     */
+    QString getInstalledPackageVersion(const QString &packageName, QString &errorMessage);
 
 private:
     explicit DnfWrapper(QObject *parent = nullptr);
