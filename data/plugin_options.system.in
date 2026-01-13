@@ -22,3 +22,8 @@ Available=@enable-plugin-timedate@
 Name=Greeter
 Description=Greeter plugin
 Available=@enable-plugin-greeter@
+
+[upgrade]
+Name=Upgrade
+Description=Upgrade plugin
+Available=@enable-plugin-upgrade@

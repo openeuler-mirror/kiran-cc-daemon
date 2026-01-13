@@ -400,6 +400,27 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:
         errorDesc = tr("Unknown error.");
         break;
+    case CCErrorCode::ERROR_UPGRADE_SCAN_NOT_COMPLETED:
+        errorDesc = tr("Scanner is not completed.");
+        break;
+    case CCErrorCode::ERROR_UPGRADE_SOLVE_DEPS_NOT_COMPLETED:
+        errorDesc = tr("Solve deps is not completed.");
+        break;
+    case CCErrorCode::ERROR_UPGRADE_INSTALL_NOT_COMPLETED:
+        errorDesc = tr("Install is not completed.");
+        break;
+    case CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY:
+        errorDesc = tr("Package IDs list is empty.");
+        break;
+    case CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY:
+        errorDesc = tr("Upgrade packages is empty.");
+        break;
+    case CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_INVALID:
+        errorDesc = tr("Reminder interval is invalid.");
+        break;
+    case CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_ALREADY_SET:
+        errorDesc = tr("Reminder interval is already set.");
+        break;
     default:
         errorDesc = tr("Unknown error.");
         break;

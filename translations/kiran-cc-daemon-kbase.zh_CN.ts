@@ -515,12 +515,47 @@
     <message>
         <location filename="../lib/base/error.cpp" line="160"/>
         <location filename="../lib/base/error.cpp" line="401"/>
-        <location filename="../lib/base/error.cpp" line="404"/>
+        <location filename="../lib/base/error.cpp" line="425"/>
         <source>Unknown error.</source>
         <translation>未知错误。</translation>
     </message>
     <message>
+        <location filename="../lib/base/error.cpp" line="404"/>
+        <source>Scanner is not completed.</source>
+        <translation>扫描未完成。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="407"/>
+        <source>Solve deps is not completed.</source>
+        <translation>解析依赖未完成。</translation>
+    </message>
+    <message>
         <location filename="../lib/base/error.cpp" line="410"/>
+        <source>Install is not completed.</source>
+        <translation>安装软件包未完成。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="413"/>
+        <source>Package IDs list is empty.</source>
+        <translation>软件包ID列表为空。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="416"/>
+        <source>Upgrade packages is empty.</source>
+        <translation>升级软件包列表为空。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="419"/>
+        <source>Reminder interval is invalid.</source>
+        <translation>更新提醒周期不合法。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="422"/>
+        <source>Reminder interval is already set.</source>
+        <translation>已经设置该更新提醒周期。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="431"/>
         <source> (error code: 0x%1)</source>
         <translation> (错误码：0x%1)</translation>
     </message>
@@ -528,7 +563,7 @@
 <context>
     <name>Kiran::PolkitProxy</name>
     <message>
-        <location filename="../lib/base/polkit-proxy.cpp" line="226"/>
+        <location filename="../lib/base/polkit-proxy.cpp" line="230"/>
         <source>Authorization failed.</source>
         <translation>认证失败。</translation>
     </message>

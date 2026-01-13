@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SystemDaemon.Upgrade">
+        <method name="Scan">
+            <description>Scan the upgradeable packages.</description>
+        </method>
+        <method name="SolveDeps">
+            <arg type="as" name="package_ids" direction="in">
+                <description>The package IDs which need to solve dependencies.</description>
+            </arg>
+            <description>Solve the dependencies of the upgrade.</description>
+        </method>
+        <method name="Upgrade">
+            <arg type="as" name="package_ids" direction="in">
+                <description>The package IDs to upgrade.</description>
+            </arg>
+            <description>Upgrade the system.</description>
+        </method>
+        <method name="GetUpgradePkgsInfo">
+            <description>Get the upgradeable packages info in json format.</description>
+            <arg type="s" name="upgrade_pkgs_info" direction="out">
+                <description>The upgradeable packages info in json format.</description>
+            </arg>
+        </method>
+        <method name="GetUpgradeLog">
+            <description>Get the upgrade log.</description>
+            <arg type="s" name="log" direction="out">
+                <description>The upgrade log, include the upgrade stage and the package IDs.</description>
+            </arg>
+        </method>
+        <method name="SetReminderInterval">
+            <arg type="i" name="interval" direction="in">
+                <description>The reminder interval for days.</description>
+            </arg>
+            <description>Set the reminder interval for days.</description>
+        </method>
+
+        <property name="backend_status" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
+            <description>The backend running status, 0: idle, 1: scanning, 2: upgrading.</description>
+        </property>
+        <property name="latest_upgrade_time" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
+            <description>The latest upgrade time.</description>
+        </property>
+        <property name="reminder_interval" type="i" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
+            <description>The reminder interval for days.</description>
+        </property>
+        <property name="latest_reminder_time" type="s" access="readwrite">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
+            <description>The latest reminder time.</description>
+        </property>
+        <property name="latest_scan_time" type="s" access="read">
+            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
+            <description>The latest scan time.</description>
+        </property>
+
+        <signal name="ScanCompleted">
+            <arg name="success" type="b">
+                <description>Whether the scan is successful.</description>
+            </arg>
+            <arg name="error_message" type="s">
+                <description>The error message of the scan.</description>
+            </arg>
+        </signal>
+        <signal name="SolveDepsCompleted">
+            <arg name="success" type="b">
+                <description>Whether the solve deps is successful.</description>
+            </arg>
+            <arg name="pkg_deps_info" type="s">
+                <description>The dependencies of the upgrade as json string.</description>
+            </arg>
+            <arg name="error_message" type="s">
+                <description>The error message of the solve deps.</description>
+            </arg>
+        </signal>
+        <signal name="UpgradeCompleted">
+            <arg name="success" type="b">
+                <description>Whether the upgrade is successful.</description>
+            </arg>
+            <arg name="error_message" type="s">
+                <description>The error message of the upgrade.</description>
+            </arg>
+        </signal>
+        <signal name="UpgradePercentageChanged">
+            <arg name="percentage" type="u">
+                <description>The percentage of the upgrade progress.</description>
+            </arg>
+        </signal>
+        <signal name="UpgradeActionChanged">
+            <arg name="action" type="s">
+                <description>The action of the upgrade action.</description>
+            </arg>
+            <arg name="action_hint" type="s">
+                <description>The hint of the upgrade action.</description>
+            </arg>
+        </signal>
+    </interface>
+</node>
