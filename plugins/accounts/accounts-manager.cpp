@@ -255,7 +255,7 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
         {
             DBUS_ERROR_DELAY_REPLY(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR);
         }
-        
+
         return;
     }
 
@@ -312,7 +312,7 @@ void AccountsManager::deleteUserAuthenticated(const QDBusMessage &message,
 
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
-    if( message.type() != QDBusMessage::InvalidMessage )
+    if (message.type() != QDBusMessage::InvalidMessage)
     {
         QDBusConnection::systemBus().send(message.createReply());
     }
