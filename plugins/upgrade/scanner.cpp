@@ -189,7 +189,7 @@ QJsonObject Scanner::getPackageAdvisoryInfo(QSharedPointer<::DnfPackage> pkg)
     // 获取包的 advisories
     GPtrArray *advisoryList = dnf_package_get_advisories(pkg.data(), HY_EQ);
     QStringList advisories;
-    AdvisoryKindFlags advisoryKindFlags = ADVISORY_KIND_UNKNOWN;
+    AdvisoryKindFlags advisoryKindFlags = ADVISORY_KIND_NONE;
 
     if (advisoryList && advisoryList->len > 0)
     {
@@ -221,6 +221,7 @@ QJsonObject Scanner::getPackageAdvisoryInfo(QSharedPointer<::DnfPackage> pkg)
             }
         }
     }
+    advisoryKindFlags = advisoryKindFlags == ADVISORY_KIND_NONE ? ADVISORY_KIND_UNKNOWN : advisoryKindFlags;
 
     advisoryInfo["advisory_kind"] = static_cast<int>(advisoryKindFlags);
 

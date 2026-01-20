@@ -51,6 +51,7 @@ extern "C"
     //类型标志枚举
     enum AdvisoryKindFlag
     {
+        ADVISORY_KIND_NONE = 0,              // 无
         ADVISORY_KIND_UNKNOWN = 1 << 0,      // 未知
         ADVISORY_KIND_SECURITY = 1 << 1,     // 安全更新
         ADVISORY_KIND_BUGFIX = 1 << 2,       // Bug修复
