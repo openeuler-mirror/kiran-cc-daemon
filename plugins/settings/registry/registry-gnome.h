@@ -39,6 +39,7 @@ private:
     QString xftHintStyle2Gnome(const QString &hintStyle);
 
 private:
+    void trySyncGnomeColorSchema();
     void sync2GnomeSettings(const QString &key);
 
 private:

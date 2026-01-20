@@ -74,7 +74,6 @@ private:
     void setIconTheme(const QString& themeName);
     void setCursorTheme(const QString& themeName);
     void setMetacityTheme(const QString& themeName);
-    void trySyncGnomeColorSchema();
     QString themeEnum2Str(AppearanceThemeType type);
 
     // xsettings插件的settings项发生变化处理
@@ -89,6 +88,5 @@ private:
     QGSettings* m_xsettingsSettings;
     QGSettings* m_marcoSettings;
     QGSettings* m_mouseSettings;
-    QGSettings* m_gnomeDesktopSettigns;
 };
 }  // namespace Kiran

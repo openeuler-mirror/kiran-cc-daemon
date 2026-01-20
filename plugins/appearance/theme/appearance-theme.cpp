@@ -29,7 +29,7 @@ namespace Kiran
 #define MOUSE_SCHEMA_KEY_CURSOR_SIZE "cursorSize"
 
 #define GNOME_DESKTOP_SCHEMA_ID "org.gnome.desktop.interface"
-#define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "color-scheme"
+#define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "colorScheme"
 
 enum GnomeDesktopColorScheme
 {
@@ -43,8 +43,7 @@ AppearanceTheme::AppearanceTheme(QObject* parent) : QObject(parent),
                                                     m_themeMonitor(nullptr),
                                                     m_xsettingsSettings(nullptr),
                                                     m_marcoSettings(nullptr),
-                                                    m_mouseSettings(nullptr),
-                                                    m_gnomeDesktopSettigns(nullptr)
+                                                    m_mouseSettings(nullptr)
 {
     m_themeMonitor = new ThemeMonitor(this);
 
@@ -58,11 +57,6 @@ AppearanceTheme::AppearanceTheme(QObject* parent) : QObject(parent),
     if (QGSettings::isSchemaInstalled(MOUSE_SCHEMA_ID))
     {
         m_mouseSettings = new QGSettings(MOUSE_SCHEMA_ID, "", this);
-    }
-
-    if (QGSettings::isSchemaInstalled(GNOME_DESKTOP_SCHEMA_ID))
-    {
-        m_gnomeDesktopSettigns = new QGSettings(GNOME_DESKTOP_SCHEMA_ID, "", this);
     }
 }
 
@@ -79,8 +73,6 @@ void AppearanceTheme::init()
             addTheme(theme);
         }
     }
-
-    trySyncGnomeColorSchema();
 
     connect(m_xsettingsSettings, &QGSettings::changed, this, &AppearanceTheme::processXSettingsSettingsChanged);
     connect(m_themeMonitor, &ThemeMonitor::themeChanged, this, &AppearanceTheme::processMonitorInfoChanged);
@@ -136,7 +128,6 @@ bool AppearanceTheme::setTheme(ThemeKey key, CCErrorCode& errorCode)
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
         setGtkTheme(theme->name);
-        trySyncGnomeColorSchema();
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
         setMetacityTheme(theme->name);
@@ -256,29 +247,6 @@ void AppearanceTheme::setMetacityTheme(const QString& themeName)
     {
         m_marcoSettings->set(MARCO_SCHEMA_KEY_THEME, themeName);
         Q_EMIT themeChanged(ThemeKey{AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, themeName});
-    }
-}
-
-void AppearanceTheme::trySyncGnomeColorSchema()
-{
-    if (!m_gnomeDesktopSettigns)
-    {
-        return;
-    }
-
-    if (!m_gnomeDesktopSettigns->keys().contains(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA))
-    {
-        return;
-    }
-
-    auto themeName = getTheme(APPEARANCE_THEME_TYPE_GTK);
-    if (themeName == APPEARANCE_DEFAULT_DARK_GTK_THEME)
-    {
-        m_gnomeDesktopSettigns->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, GNOME_COLOR_SCHEME_PREFER_DARK);
-    }
-    else
-    {
-        m_gnomeDesktopSettigns->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, GNOME_COLOR_SCHEME_PREFER_LIGHT);
     }
 }
 
