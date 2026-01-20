@@ -24,6 +24,15 @@ namespace Kiran
 #define GNOME_SOUND_SCHEMA_ID "org.gnome.desktop.sound"
 #define GNOME_XSETTINGS_SCHEMA_ID "org.gnome.settings-daemon.plugins.xsettings"
 
+#define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "colorScheme"
+enum GnomeDesktopColorScheme
+{
+    GNOME_COLOR_SCHEME_DEFAULT,
+    GNOME_COLOR_SCHEME_PREFER_DARK,
+    GNOME_COLOR_SCHEME_PREFER_LIGHT,
+    GNOME_COLOR_SCHEME_LAST
+};
+
 const QMap<QString, QString> RegistryGnome::s_schema2GnomeSchema = {
     {SETTINGS_SCHEMA_NET_THEME_NAME, "gtk-theme"},
     {SETTINGS_SCHEMA_NET_ICON_THEME_NAME, "icon-theme"},
@@ -112,11 +121,42 @@ QString RegistryGnome::xftHintStyle2Gnome(const QString &hintStyle)
     return "none";
 }
 
+void RegistryGnome::trySyncGnomeColorSchema()
+{
+    if( !m_gnomeDesktopSettings ||
+        !m_gnomeDesktopSettings->keys().contains(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA) )
+    {
+        return;
+    }
+
+    auto choices = m_gnomeDesktopSettings->choices(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA);
+    if (choices.isEmpty() || choices.size() < GNOME_COLOR_SCHEME_LAST)
+    {
+        return;
+    }
+
+    // 主题名映射到Gnome内部两套颜色方案
+    auto themeName = m_settings->get(SETTINGS_SCHEMA_NET_THEME_NAME).toString();
+    if ( themeName.contains("dark") )
+    {
+        m_gnomeDesktopSettings->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, choices.at(GNOME_COLOR_SCHEME_PREFER_DARK));
+    }
+    else
+    {
+        m_gnomeDesktopSettings->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, choices.at(GNOME_COLOR_SCHEME_PREFER_LIGHT));
+    }
+}
+
 void RegistryGnome::sync2GnomeSettings(const QString &key)
 {
     auto value = m_settings->get(key);
     auto gtkKey = s_schema2GnomeSchema[key];
     QGSettings *gtkSettings = nullptr;
+
+    if (key == SETTINGS_SCHEMA_NET_THEME_NAME)
+    {
+        trySyncGnomeColorSchema();
+    }
 
     switch (shash(key.toLatin1().data()))
     {
