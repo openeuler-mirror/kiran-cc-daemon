@@ -23,6 +23,13 @@
             <description>Set the theme name for the type.</description>
         </method>
 
+        <method name="SetCursorSize">
+            <arg type="i" name="size" direction="in">
+                <summary>The cursor size.</summary>
+            </arg>
+            <description>Set the cursor size.</description>
+        </method>
+
         <method name="EnableAutoSwitchWindowTheme">
             <description>Window theme automatically changes according to time. Cancel automatic switch when the SetTheme function is called 
             and type is gtk theme or metacity theme.</description>
@@ -36,6 +43,13 @@
                 <summary>The theme name.</summary>
             </arg>
             <description>Get the theme name for the type.</description>
+        </method>
+
+        <method name="GetCursorSize">
+            <arg type="i" name="size" direction="out">
+                <summary>The cursor size.</summary>
+            </arg>
+            <description>Get the cursor size.</description>
         </method>
 
         <method name="GetFont">

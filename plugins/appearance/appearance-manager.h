@@ -59,6 +59,8 @@ public Q_SLOTS:
     QString GetTheme(int type);
     // 获取特定类型(参考AppearanceThemeType)的主题，返回的是一个json格式的字符串，方便后续做字段兼容性扩展
     QString GetThemes(int type);
+    // 获取光标大小
+    int GetCursorSize();
     // 重置默认字体
     void ResetFont(int type);
     // 设置桌面背景
@@ -69,6 +71,8 @@ public Q_SLOTS:
     void SetLockScreenBackground(const QString& lockScreenBackground);
     // 将type类型的主题设置为theme_name。
     void SetTheme(int type, const QString& themeName);
+    // 设置光标大小
+    void SetCursorSize(int size);
 Q_SIGNALS:  // SIGNALS
     void FontChanged(int type, const QString& font);
     void ThemeChanged(int type, const QString& themeName);

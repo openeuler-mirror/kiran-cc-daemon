@@ -15,8 +15,14 @@ target_include_directories(
   ${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
                          ${GSETTINGS_QT_INCLUDE_DIRS} ${XCB_IMAGE_INCLUDE_DIRS})
 
+if(X11_Xcursor_FOUND)
+  message(STATUS "Xcursor found, enabling Xcursor support")
+  add_definitions(-DHAVE_XCURSOR)
+  target_link_libraries(${TARGET_NAME} PRIVATE X11::Xcursor)
+endif()
+
 target_link_libraries(
   ${TARGET_NAME} PRIVATE ${GSETTINGS_QT_LIBRARIES} ${XCB_IMAGE_LIBRARIES} kbase
-                         kxcb Qt5::Widgets)
+                         kxcb Qt5::Widgets Qt5::X11Extras)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

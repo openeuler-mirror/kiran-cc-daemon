@@ -110,6 +110,11 @@ QString AppearanceManager::GetThemes(int type)
     return QJsonDocument(jsonThemes).toJson(QJsonDocument::Compact);
 }
 
+int AppearanceManager::GetCursorSize()
+{
+    return m_appearanceTheme->getCursorSize();
+}
+
 void AppearanceManager::ResetFont(int type)
 {
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
@@ -179,6 +184,16 @@ void AppearanceManager::SetTheme(int type, const QString& themeName)
         m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, false);
         KLOG_INFO(appearance) << "Because of manual setting theme, disable auto switch window theme.";
     }
+}
+
+void AppearanceManager::SetCursorSize(int size)
+{
+    if (size < 24 || size > 64)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_CURSOR_SIZE_INVALID);
+    }
+
+    m_appearanceTheme->setCursorSize(size);
 }
 
 void AppearanceManager::init()
