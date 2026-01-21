@@ -418,9 +418,6 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_INVALID:
         errorDesc = tr("Reminder interval is invalid.");
         break;
-    case CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_ALREADY_SET:
-        errorDesc = tr("Reminder interval is already set.");
-        break;
     default:
         errorDesc = tr("Unknown error.");
         break;

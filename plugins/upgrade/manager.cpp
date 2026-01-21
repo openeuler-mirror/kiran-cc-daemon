@@ -235,20 +235,20 @@ void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringLis
     if (getBackendStatus() == BACKEND_STATUS_UPGRADING)
     {
         KLOG_WARNING(upgrade) << "Upgrade is already in progress";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_INSTALL_NOT_COMPLETED);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_INSTALL_NOT_COMPLETED);
     }
 
     if (packageIDs.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Package IDs list is empty";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY);
     }
 
     auto upgradePkgs = m_scanner->getUpgradePkgs();
     if (upgradePkgs.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Upgrade packages is empty";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY);
     }
 
     m_installer->setUpgradePkgs(upgradePkgs);
@@ -256,7 +256,7 @@ void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringLis
     if (errorCode != CCErrorCode::SUCCESS)
     {
         KLOG_WARNING(upgrade) << "Upgrade failed: " << errorCode;
-        DBUS_ERROR_REPLY_AND_RET(errorCode);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(errorCode);
     }
 
     KLOG_INFO(upgrade) << "Upgrade package IDs: " << packageIDs;
@@ -270,14 +270,15 @@ void Manager::setReminderIntAuthenticated(const QDBusMessage &message, int remin
     if (reminderInterval == m_reminderInterval)
     {
         KLOG_WARNING(upgrade) << "Reminder interval is already set to " << reminderInterval;
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_ALREADY_SET);
+        QDBusConnection::systemBus().send(message.createReply());
+        return;
     }
 
     if (!isValidInterval(reminderInterval))
     {
         KLOG_WARNING(upgrade) << "Invalid reminder interval value: " << reminderInterval
                               << ", resetting to default: " << DEFAULT_REMINDER_INTERVAL;
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_INVALID);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_INVALID);
     }
 
     setReminderInterval(reminderInterval);
