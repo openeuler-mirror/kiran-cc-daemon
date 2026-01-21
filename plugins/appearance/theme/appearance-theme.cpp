@@ -14,6 +14,7 @@
 
 #include "appearance-theme.h"
 #include <QGSettings>
+#include "cursor-theme.h"
 #include "lib/base/base.h"
 #include "settings-i.h"
 #include "theme-monitor.h"
@@ -73,6 +74,8 @@ void AppearanceTheme::init()
             addTheme(theme);
         }
     }
+
+    trySyncCursorTheme();
 
     connect(m_xsettingsSettings, &QGSettings::changed, this, &AppearanceTheme::processXSettingsSettingsChanged);
     connect(m_themeMonitor, &ThemeMonitor::themeChanged, this, &AppearanceTheme::processMonitorInfoChanged);
@@ -169,6 +172,21 @@ QString AppearanceTheme::getTheme(AppearanceThemeType type)
     return QString();
 }
 
+void AppearanceTheme::setCursorSize(int size)
+{
+    m_xsettingsSettings->set(SETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, size);
+    // 由于Marco是从org.mate.peripherals-mouse读取光标主题的，所以这里要做一下适配
+    if (m_mouseSettings)
+    {
+        m_mouseSettings->set(MOUSE_SCHEMA_KEY_CURSOR_SIZE, size);
+    }
+}
+
+int AppearanceTheme::getCursorSize()
+{
+    return m_xsettingsSettings->get(SETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE).toInt();
+}
+
 bool AppearanceTheme::addTheme(QSharedPointer<ThemeBase> theme)
 {
     RETURN_VAL_IF_FALSE(theme, false);
@@ -236,6 +254,7 @@ void AppearanceTheme::setCursorTheme(const QString& themeName)
     {
         m_mouseSettings->set(MOUSE_SCHEMA_KEY_CURSOR_THEME, themeName);
     }
+    trySyncCursorTheme();
     Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR, themeName));
 }
 
@@ -248,6 +267,13 @@ void AppearanceTheme::setMetacityTheme(const QString& themeName)
         m_marcoSettings->set(MARCO_SCHEMA_KEY_THEME, themeName);
         Q_EMIT themeChanged(ThemeKey{AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY, themeName});
     }
+}
+
+void AppearanceTheme::trySyncCursorTheme()
+{
+    auto cursorTheme = getTheme(APPEARANCE_THEME_TYPE_CURSOR);
+    auto cursorSize = getCursorSize();
+    CursorTheme::applyCursorTheme(cursorTheme, cursorSize);
 }
 
 QString AppearanceTheme::themeEnum2Str(AppearanceThemeType type)

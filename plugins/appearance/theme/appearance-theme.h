@@ -58,6 +58,10 @@ public:
     bool setTheme(ThemeKey key, CCErrorCode& errorCode);
     // 获取指定类型的主题名，直接从gsettings中读取
     QString getTheme(AppearanceThemeType type);
+    // 设置光标大小
+    void setCursorSize(int size);
+    // 获取光标大小
+    int getCursorSize();
 
 Q_SIGNALS:
     // 某个类型的主题设置发生了变化
@@ -74,6 +78,7 @@ private:
     void setIconTheme(const QString& themeName);
     void setCursorTheme(const QString& themeName);
     void setMetacityTheme(const QString& themeName);
+    void trySyncCursorTheme();
     QString themeEnum2Str(AppearanceThemeType type);
 
     // xsettings插件的settings项发生变化处理

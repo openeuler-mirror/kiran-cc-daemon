@@ -10,7 +10,8 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(KSD REQUIRED)
 find_package(PkgConfig REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets DBus LinguistTools Test Concurrent)
+find_package(X11 REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Widgets DBus LinguistTools Test Concurrent X11Extras)
 
 pkg_search_module(KLOG_QT5 REQUIRED klog-qt5)
 pkg_search_module(FMT REQUIRED fmt)
@@ -38,7 +39,6 @@ find_package(KF5XmlGui REQUIRED)
 find_package(KF5Screen REQUIRED)
 find_package(KF5GuiAddons REQUIRED)
 find_package(KF5WindowSystem REQUIRED)
-find_package(Qt5 COMPONENTS X11Extras)
 find_package(KF5Service)
 find_package(KF5KIO)
 
