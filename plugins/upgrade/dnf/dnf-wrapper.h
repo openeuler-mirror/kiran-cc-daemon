@@ -84,12 +84,13 @@ private:
 
     void initDnf();
 
-    bool findAndCreateSack();
+    bool findAndCreateSack(bool forceUpdate = false);
     /**
      * @brief 获取sack的引用，确保在使用期间不会被释放
+     * @param forceUpdate 是否强制更新缓存
      * @return sack的智能指针
      */
-    QSharedPointer<::DnfSack> getSackRef();
+    QSharedPointer<::DnfSack> getSackRef(bool forceUpdate = false);
 
     void updateCache();
     void cacheInvalidate();
@@ -98,6 +99,23 @@ private:
 
     //将DnfStateAction枚举转换为字符串
     QString stateActionToString(int action);
+
+    /**
+     * @brief 获取所有仓库数量
+     */
+    int getAllRepoCount();
+    /**
+     * @brief 获取sack实际加载的仓库列表
+     * @return 仓库列表
+     */
+    int getLoadedRepoCount();
+    /**
+     * @brief 检查sack中特定仓库是否存在
+     * @param sack sack对象
+     * @param repoName 仓库名称（repo ID）
+     * @return 如果仓库存在返回true，否则返回false
+     */
+    bool isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName);
 
 Q_SIGNALS:
     void cacheUpdated(bool success);
@@ -123,7 +141,7 @@ private:
 
     // 用于定期更新缓存
     QTimer *m_updateTimer{nullptr};
-    int m_updateIntervalHours{24};
+    int m_updateIntervalHours;
     QDateTime m_lastUpdateTime;
 
     // 用于延时刷新缓存
