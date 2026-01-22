@@ -15,6 +15,8 @@
 #include <glib-object.h>
 #include <glib.h>
 #include <libdnf/libdnf.h>
+#include <solv/pool.h>
+#include <solv/repo.h>
 
 #include "dnf-wrapper.h"
 #include "lib/base/base.h"
@@ -43,7 +45,11 @@ typedef void (*actionChangedTypeCBType)(DnfState *,
 namespace Kiran
 {
 DnfWrapper::DnfWrapper(QObject *parent)
-    : QObject(parent), m_dnfCtx(nullptr), m_isSackVaild(false), m_lastUpdateTime()
+    : QObject(parent),
+      m_dnfCtx(nullptr),
+      m_isSackVaild(false),
+      m_updateIntervalHours(0),
+      m_lastUpdateTime()
 {
     // 初始化dnf
     initDnf();
@@ -60,10 +66,11 @@ DnfWrapper::DnfWrapper(QObject *parent)
 
     connect(&m_cacheFutureWatcher, &QFutureWatcher<bool>::finished, this, [this]()
             {
+                m_lastUpdateTime = QDateTime::currentDateTime();
+
                 bool success = m_cacheFutureWatcher.result();
                 if (success)
                 {
-                    m_lastUpdateTime = QDateTime::currentDateTime();
                     KLOG_DEBUG(upgrade) << "Cache update completed successfully";
                 }
                 else
@@ -165,6 +172,8 @@ void DnfWrapper::initDnf()
 
 void DnfWrapper::setCacheUpdateIntvalHours(int cacheUpdateIntvalHours)
 {
+    KLOG_DEBUG(upgrade) << "set cache update intval hours from" << m_updateIntervalHours
+                        << "to" << cacheUpdateIntvalHours;
     RETURN_IF_TRUE(m_updateIntervalHours == cacheUpdateIntvalHours);
 
     if (cacheUpdateIntvalHours < 1)
@@ -187,7 +196,7 @@ void DnfWrapper::updateCache()
     }
 
     KLOG_DEBUG(upgrade) << "Starting cache update";
-    m_cacheFutureWatcher.setFuture(QtConcurrent::run(this, &DnfWrapper::findAndCreateSack));
+    m_cacheFutureWatcher.setFuture(QtConcurrent::run(this, &DnfWrapper::findAndCreateSack, true));
 }
 
 void DnfWrapper::cacheInvalidate()
@@ -231,18 +240,24 @@ void DnfWrapper::startUpdateTimer()
     }
     else
     {
+        KLOG_DEBUG(upgrade) << "Update cache right now.";
         // 立即触发更新
         QTimer::singleShot(0, this, [this]()
                            { cacheInvalidate(); });
     }
 }
 
-bool DnfWrapper::findAndCreateSack()
+bool DnfWrapper::findAndCreateSack(bool forceUpdate)
 {
     if (!m_dnfCtx)
     {
         KLOG_DEBUG(upgrade) << "Dnf context is not initialized, please initialize it first";
         return false;
+    }
+
+    if (forceUpdate)
+    {
+        m_isSackVaild = false;
     }
 
     {
@@ -275,15 +290,18 @@ bool DnfWrapper::findAndCreateSack()
         return false;
     }
 
-    // 加载系统仓库
+    //加载系统仓库，必须要加载系统仓库才能比较出可更新包
     if (!dnf_sack_load_system_repo(sack.data(), NULL, DNF_SACK_LOAD_FLAG_BUILD_CACHE,
                                    &error))
     {
-        KLOG_WARNING(upgrade) << "Failed to load system repo! error message: "
-                              << error->message;
+        KLOG_ERROR(upgrade) << "Failed to load system repo! error message: "
+                            << error->message;
+        return false;
     }
+    KLOG_INFO(upgrade) << "Load system repo successfully.";
 
     // 获取所有仓库
+    int loadedRepoCount = 0;
     g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
     GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
     if (!repos)
@@ -308,19 +326,39 @@ bool DnfWrapper::findAndCreateSack()
         g_autoptr(DnfState) dnfState = dnf_state_new();
         g_clear_error(&error);
 
-        if (!dnf_sack_add_repo(
-                sack.data(), repo, 0,
-                static_cast<DnfSackAddFlags>(DNF_SACK_ADD_FLAG_NONE |
-                                             DNF_SACK_ADD_FLAG_FILELISTS |
-                                             DNF_SACK_ADD_FLAG_UPDATEINFO),
-                dnfState, &error))
+        auto ret = dnf_sack_add_repo(
+            sack.data(), repo, 0,
+            static_cast<DnfSackAddFlags>(DNF_SACK_ADD_FLAG_NONE |
+                                         DNF_SACK_ADD_FLAG_FILELISTS |
+                                         DNF_SACK_ADD_FLAG_UPDATEINFO),
+            dnfState, &error);
+        if (!ret)
         {
             KLOG_WARNING(upgrade) << "Failed to load repo " << dnf_repo_get_id(repo)
                                   << " error message: " << error->message;
             continue;
         }
-        KLOG_DEBUG(upgrade) << "Loaded repo: " << dnf_repo_get_id(repo);
+
+        // 验证仓库是否真的被加载到sack中
+        // 因为断网且非必须源时dnf_sack_add_repo会返回true但实际未加载数据
+        auto repoId = QString::fromUtf8(dnf_repo_get_id(repo));
+        if (!isRepoLoaded(sack, repoId))
+        {
+            KLOG_WARNING(upgrade) << "Repo " << repoId
+                                  << " was not actually loaded into sack (possibly due to network issues)";
+            continue;
+        }
+
+        loadedRepoCount++;
     }
+
+    // 若没有加载任何仓库，则认为缓存失败
+    if (loadedRepoCount == 0)
+    {
+        KLOG_ERROR(upgrade) << "No repo loaded into sack.";
+        return false;
+    }
+    KLOG_INFO(upgrade) << "Loaded " << loadedRepoCount << " repos into sack successfully.";
 
     /* set up the sack for packages that should only ever be installed, never
    * updated */
@@ -346,10 +384,10 @@ bool DnfWrapper::findAndCreateSack()
     return true;
 }
 
-QSharedPointer<::DnfSack> DnfWrapper::getSackRef()
+QSharedPointer<::DnfSack> DnfWrapper::getSackRef(bool forceUpdate)
 {
     // 确保sack可用
-    if (!findAndCreateSack())
+    if (!findAndCreateSack(forceUpdate))
     {
         KLOG_ERROR(upgrade) << "Failed to create sack.";
         return QSharedPointer<::DnfSack>();
@@ -380,11 +418,24 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
         return ret;
     }
 
+    // 检查仓库数量和数据库中加载的仓库数量是否一致，如果不一致则强制更新缓存
+    bool forceUpdate = false;
+    auto loadedRepoCount = getLoadedRepoCount();
+    auto allRepoCount = getAllRepoCount();
+    KLOG_DEBUG(upgrade) << "Loaded repo number:" << loadedRepoCount
+                        << "all repo number:" << allRepoCount;
+    if (loadedRepoCount < allRepoCount)
+    {
+        //强制更新缓存
+        forceUpdate = true;
+        KLOG_INFO(upgrade) << "loaded repo number != all repo number, force update cache.";
+    }
+
     // 获取sack引用
-    auto sack = getSackRef();
+    auto sack = getSackRef(forceUpdate);
     if (sack.isNull())
     {
-        errorMessage = tr("Failed to get sack.");
+        errorMessage = tr("Failed to update cache.");
         return ret;
     }
 
@@ -736,5 +787,96 @@ QString DnfWrapper::stateActionToString(int action)
     default:
         return tr("Unknown action");
     }
+}
+
+int DnfWrapper::getLoadedRepoCount()
+{
+    int loadedRepoCount = 0;
+
+    if (!m_dnfCtx)
+    {
+        return loadedRepoCount;
+    }
+
+    Pool *pool = nullptr;
+    int repoid = 0;
+    Repo *repo = nullptr;
+
+    {
+        QMutexLocker locker(&m_sackMutex);
+        if (m_dnfSack.isNull())
+        {
+            return loadedRepoCount;
+        }
+
+        pool = dnf_sack_get_pool(m_dnfSack.data());
+    }
+
+    FOR_REPOS(repoid, repo)
+    {
+        if (repo && repo->name)
+        {
+            loadedRepoCount++;
+        }
+    }
+    return loadedRepoCount;
+}
+
+bool DnfWrapper::isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName)
+{
+    if (sack.isNull() || repoName.isEmpty())
+    {
+        return false;
+    }
+
+    Pool *pool = dnf_sack_get_pool(sack.data());
+    int repoid;
+    Repo *repo;
+
+    auto repoNameCStr = repoName.toUtf8().constData();
+    FOR_REPOS(repoid, repo)
+    {
+        if (repo && repo->name && !strcmp(repo->name, repoNameCStr))
+        {
+            KLOG_DEBUG(upgrade) << "Repository " << repoName << " added in sack";
+            return true;
+        }
+    }
+
+    KLOG_DEBUG(upgrade) << "Repository " << repoName << " not added in sack";
+    return false;
+}
+
+int DnfWrapper::getAllRepoCount()
+{
+    int enabledRepo = 0;
+
+    if (!m_dnfCtx)
+    {
+        return enabledRepo;
+    }
+
+    g_autoptr(GError) error = nullptr;
+    g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
+    GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
+    if (!repos)
+    {
+        KLOG_ERROR(upgrade) << "Failed to get repos! error message: " << error->message;
+        return enabledRepo;
+    }
+    for (uint i = 0; i < repos->len; i++)
+    {
+        auto repo = static_cast<::DnfRepo *>(g_ptr_array_index(repos, i));
+
+        //过滤”禁用源“
+        auto enabled = dnf_repo_get_enabled(repo);
+        if (enabled == DNF_REPO_ENABLED_NONE)
+        {
+            continue;
+        }
+        enabledRepo++;
+    }
+    g_ptr_array_unref(repos);
+    return enabledRepo;
 }
 }  // namespace Kiran
