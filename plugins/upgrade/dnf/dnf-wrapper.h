@@ -118,8 +118,6 @@ private:
     bool isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName);
 
 Q_SIGNALS:
-    void cacheUpdated(bool success);
-
     void installPercentageChanged(uint percentage);
     void installActionChanged(const QString &action, const QString &actionHint);
 
