@@ -24,7 +24,7 @@
             </arg>
         </method>
         <method name="GetUpgradeLog">
-            <description>Get the upgrade log.</description>
+            <description>Get the upgrade log in json format.</description>
             <arg type="s" name="log" direction="out">
                 <description>The upgrade log, include the upgrade stage and the package IDs.</description>
             </arg>
