@@ -49,6 +49,7 @@ private:
 
 private slots:
     void handleInstallAction(const QString &action, const QString &actionHint);
+    void handleInstallProgress(uint percentage);
 
 signals:
     void installProgressChanged(uint percentage);
@@ -61,7 +62,7 @@ private:
 
     QMap<QString, QSharedPointer<::DnfPackage>> m_upgradePkgs;
 
-    QString m_installLog;
-    QMutex m_installLogMutex;
+    uint m_currentPercentage;
+    QString m_installAction;
 };
 }  // namespace Kiran
