@@ -78,7 +78,6 @@ DnfWrapper::DnfWrapper(QObject *parent)
                     KLOG_WARNING(upgrade) << "Cache update failed";
                 }
 
-                emit cacheUpdated(success);
                 // 重新启动更新定时器
                 startUpdateTimer();
             });
@@ -412,6 +411,12 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
 {
     QList<QSharedPointer<::DnfPackage>> ret;
 
+    if (m_cacheFutureWatcher.isRunning())
+    {
+        errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        return ret;
+    }
+
     if (!m_dnfCtx)
     {
         errorMessage = tr("Dnf context is not initialized, please initialize it first.");
@@ -482,6 +487,12 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
 
 bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
 {
+    if (m_cacheFutureWatcher.isRunning())
+    {
+        errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        return false;
+    }
+
     if (!packages.size())
     {
         errorMessage = tr("No packages to install.");
@@ -613,6 +624,12 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
 QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
 {
     QStringList ret;
+
+    if (m_cacheFutureWatcher.isRunning())
+    {
+        errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        return ret;
+    }
 
     if (!packages.size())
     {
