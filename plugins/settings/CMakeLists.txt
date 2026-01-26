@@ -23,6 +23,6 @@ target_include_directories(
 
 target_link_libraries(
   ${TARGET_NAME} PRIVATE ${GSETTINGS_QT_LIBRARIES} ${FONTCONFIG_LIBRARIES}
-                         ${GLIB2_LIBRARIES} Qt5::Gui kbase kxcb)
+                         ${GLIB2_LIBRARIES} Qt5::Gui KF5::ConfigCore kbase kxcb)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/session)

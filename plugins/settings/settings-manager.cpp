@@ -21,6 +21,7 @@
 #include <QTimer>
 #include "lib/xcb/EWMH.h"
 #include "registry/registry-gnome.h"
+#include "registry/registry-kde.h"
 #include "registry/registry-xsettings.h"
 #include "settings-common.h"
 #include "settings-i.h"
@@ -46,6 +47,7 @@ SettingsManager::SettingsManager() : m_windowScale(0),
         m_xresource = new SettingsXResource(this);
     }
     m_registryGnome = new RegistryGnome(this);
+    m_registryKde = new RegistryKde(this);
     m_showDesktopIconTimer = new QTimer(this);
 }
 
@@ -518,7 +520,8 @@ void SettingsManager::init()
         m_xresource->init();
     }
     m_registryGnome->init();
-
+    m_registryKde->init();
+    
     connect(m_settings, &QGSettings::changed, this, &SettingsManager::settingsChanged);
     connect(primaryScreen, &QScreen::virtualGeometryChanged, this, &SettingsManager::processScreenChanged);
     connect(m_showDesktopIconTimer, &QTimer::timeout, this, &SettingsManager::enableShowDesktopIcon);
