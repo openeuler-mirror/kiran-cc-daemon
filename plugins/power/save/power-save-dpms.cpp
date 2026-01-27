@@ -32,8 +32,20 @@ PowerSaveDpmsKDE::PowerSaveDpmsKDE(QObject *parent) : PowerSaveDpms(parent)
 {
     m_dpms = new KScreen::Dpms(this);
 }
+
+bool PowerSaveDpmsKDE::isSupported() const
+{
+    return m_dpms->isSupported();
+}
+
 void PowerSaveDpmsKDE::setLevel(PowerDpmsLevel level)
 {
+    if (!m_dpms->isSupported())
+    {
+        KLOG_INFO(power) << "DPMS is not supported";
+        return;
+    }
+
     switch (level)
     {
     case PowerDpmsLevel::POWER_DPMS_LEVEL_ON:
@@ -68,7 +80,7 @@ PowerSaveDpmsX11::PowerSaveDpmsX11(QObject *parent) : PowerSaveDpms(parent),
     auto *extension = xcb_get_extension_data(xcbConnectionRaw, &xcb_dpms_id);
     if (!extension || !extension->present)
     {
-        KLOG_WARNING(power) << "DPMS extension not available";
+        KLOG_INFO(power) << "DPMS extension not available";
         return;
     }
 
@@ -83,12 +95,21 @@ PowerSaveDpmsX11::PowerSaveDpmsX11(QObject *parent) : PowerSaveDpms(parent),
     xcb_dpms_set_timeouts(xcbConnectionRaw, 0, 0, 0);
 }
 
+bool PowerSaveDpmsX11::isSupported() const
+{
+    return m_capable;
+}
+
 void PowerSaveDpmsX11::setLevel(PowerDpmsLevel level)
 {
     auto xcbConnection = XcbConnection::getDefault();
     auto xcbConnectionRaw = xcbConnection->getConnection();
 
-    RETURN_IF_FALSE(m_capable);
+    if (!m_capable)
+    {
+        KLOG_INFO(power) << "DPMS is not supported";
+        return;
+    }
 
     auto dpmsInfoReply = XCB_REPLY(xcb_dpms_info, xcbConnectionRaw);
 
