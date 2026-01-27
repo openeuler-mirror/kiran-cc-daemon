@@ -37,8 +37,9 @@ class PowerSaveDpms : public QObject
     Q_OBJECT
 
 public:
-    PowerSaveDpms(QObject *parent = nullptr) : QObject(parent){};
-    virtual void setLevel(PowerDpmsLevel level){};
+    PowerSaveDpms(QObject *parent = nullptr) : QObject(parent) {};
+    virtual bool isSupported() const = 0;
+    virtual void setLevel(PowerDpmsLevel level) = 0;
 };
 
 #ifdef WITH_DPMS_KDE
@@ -49,6 +50,7 @@ class PowerSaveDpmsKDE : public PowerSaveDpms
 
 public:
     PowerSaveDpmsKDE(QObject *parent = nullptr);
+    virtual bool isSupported() const override;
     virtual void setLevel(PowerDpmsLevel level) override;
 
 private:
@@ -63,6 +65,7 @@ class PowerSaveDpmsX11 : public PowerSaveDpms
 
 public:
     PowerSaveDpmsX11(QObject *parent = nullptr);
+    virtual bool isSupported() const override;
     // 设置节能模式
     virtual void setLevel(PowerDpmsLevel level) override;
 
@@ -80,7 +83,8 @@ class PowerSaveDpmsDummy : public PowerSaveDpms
     Q_OBJECT
 
 public:
-    PowerSaveDpmsDummy(QObject *parent = nullptr) : PowerSaveDpms(parent){};
+    PowerSaveDpmsDummy(QObject *parent = nullptr) : PowerSaveDpms(parent) {};
+    virtual bool isSupported() const override { return false; }
     virtual void setLevel(PowerDpmsLevel) override{};
 };
 }  // namespace Kiran
