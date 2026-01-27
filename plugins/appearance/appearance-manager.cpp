@@ -71,7 +71,8 @@ void AppearanceManager::SetTheme(gint32 type, const Glib::ustring& theme_name, M
 
     // 如果手动设置了GTK或者窗口标题主题，则取消主题自动切换
     if (type == AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK ||
-        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY)
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY ||
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_META)
     {
         this->AutoSwitchWindowTheme_set(false);
     }
