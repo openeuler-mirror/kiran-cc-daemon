@@ -14,6 +14,7 @@
 
 #include "appearance-theme.h"
 #include <QGSettings>
+#include "cursor-theme.h"
 #include "lib/base/base.h"
 #include "settings-i.h"
 #include "theme-monitor.h"
@@ -29,7 +30,7 @@ namespace Kiran
 #define MOUSE_SCHEMA_KEY_CURSOR_SIZE "cursorSize"
 
 #define GNOME_DESKTOP_SCHEMA_ID "org.gnome.desktop.interface"
-#define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "color-scheme"
+#define GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA "colorScheme"
 
 enum GnomeDesktopColorScheme
 {
@@ -43,8 +44,7 @@ AppearanceTheme::AppearanceTheme(QObject* parent) : QObject(parent),
                                                     m_themeMonitor(nullptr),
                                                     m_xsettingsSettings(nullptr),
                                                     m_marcoSettings(nullptr),
-                                                    m_mouseSettings(nullptr),
-                                                    m_gnomeDesktopSettigns(nullptr)
+                                                    m_mouseSettings(nullptr)
 {
     m_themeMonitor = new ThemeMonitor(this);
 
@@ -58,11 +58,6 @@ AppearanceTheme::AppearanceTheme(QObject* parent) : QObject(parent),
     if (QGSettings::isSchemaInstalled(MOUSE_SCHEMA_ID))
     {
         m_mouseSettings = new QGSettings(MOUSE_SCHEMA_ID, "", this);
-    }
-
-    if (QGSettings::isSchemaInstalled(GNOME_DESKTOP_SCHEMA_ID))
-    {
-        m_gnomeDesktopSettigns = new QGSettings(GNOME_DESKTOP_SCHEMA_ID, "", this);
     }
 }
 
@@ -80,7 +75,7 @@ void AppearanceTheme::init()
         }
     }
 
-    trySyncGnomeColorSchema();
+    trySyncCursorTheme();
 
     connect(m_xsettingsSettings, &QGSettings::changed, this, &AppearanceTheme::processXSettingsSettingsChanged);
     connect(m_themeMonitor, &ThemeMonitor::themeChanged, this, &AppearanceTheme::processMonitorInfoChanged);
@@ -136,7 +131,6 @@ bool AppearanceTheme::setTheme(ThemeKey key, CCErrorCode& errorCode)
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK:
         setGtkTheme(theme->name);
-        trySyncGnomeColorSchema();
         break;
     case AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY:
         setMetacityTheme(theme->name);
@@ -176,6 +170,21 @@ QString AppearanceTheme::getTheme(AppearanceThemeType type)
         break;
     }
     return QString();
+}
+
+void AppearanceTheme::setCursorSize(int size)
+{
+    m_xsettingsSettings->set(SETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, size);
+    // 由于Marco是从org.mate.peripherals-mouse读取光标主题的，所以这里要做一下适配
+    if (m_mouseSettings)
+    {
+        m_mouseSettings->set(MOUSE_SCHEMA_KEY_CURSOR_SIZE, size);
+    }
+}
+
+int AppearanceTheme::getCursorSize()
+{
+    return m_xsettingsSettings->get(SETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE).toInt();
 }
 
 bool AppearanceTheme::addTheme(QSharedPointer<ThemeBase> theme)
@@ -245,6 +254,7 @@ void AppearanceTheme::setCursorTheme(const QString& themeName)
     {
         m_mouseSettings->set(MOUSE_SCHEMA_KEY_CURSOR_THEME, themeName);
     }
+    trySyncCursorTheme();
     Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR, themeName));
 }
 
@@ -259,27 +269,11 @@ void AppearanceTheme::setMetacityTheme(const QString& themeName)
     }
 }
 
-void AppearanceTheme::trySyncGnomeColorSchema()
+void AppearanceTheme::trySyncCursorTheme()
 {
-    if (!m_gnomeDesktopSettigns)
-    {
-        return;
-    }
-
-    if (!m_gnomeDesktopSettigns->keys().contains(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA))
-    {
-        return;
-    }
-
-    auto themeName = getTheme(APPEARANCE_THEME_TYPE_GTK);
-    if (themeName == APPEARANCE_DEFAULT_DARK_GTK_THEME)
-    {
-        m_gnomeDesktopSettigns->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, GNOME_COLOR_SCHEME_PREFER_DARK);
-    }
-    else
-    {
-        m_gnomeDesktopSettigns->set(GNOME_DESKTOP_SCHEMA_KEY_COLOR_SCHEMA, GNOME_COLOR_SCHEME_PREFER_LIGHT);
-    }
+    auto cursorTheme = getTheme(APPEARANCE_THEME_TYPE_CURSOR);
+    auto cursorSize = getCursorSize();
+    CursorTheme::applyCursorTheme(cursorTheme, cursorSize);
 }
 
 QString AppearanceTheme::themeEnum2Str(AppearanceThemeType type)

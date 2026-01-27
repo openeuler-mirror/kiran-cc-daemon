@@ -110,6 +110,11 @@ QString AppearanceManager::GetThemes(int type)
     return QJsonDocument(jsonThemes).toJson(QJsonDocument::Compact);
 }
 
+int AppearanceManager::GetCursorSize()
+{
+    return m_appearanceTheme->getCursorSize();
+}
+
 void AppearanceManager::ResetFont(int type)
 {
     if (type < 0 || type >= int32_t(AppearanceFontType::APPEARANCE_FONT_TYPE_LAST))
@@ -173,11 +178,22 @@ void AppearanceManager::SetTheme(int type, const QString& themeName)
 
     // 如果手动设置了GTK或者窗口标题主题，则取消主题自动切换
     if (type == AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK ||
-        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY)
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY ||
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_META )
     {
         m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, false);
         KLOG_INFO(appearance) << "Because of manual setting theme, disable auto switch window theme.";
     }
+}
+
+void AppearanceManager::SetCursorSize(int size)
+{
+    if (size < 24 || size > 64)
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_APPEARANCE_CURSOR_SIZE_INVALID);
+    }
+
+    m_appearanceTheme->setCursorSize(size);
 }
 
 void AppearanceManager::init()

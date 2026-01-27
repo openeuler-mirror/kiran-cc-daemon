@@ -18,6 +18,7 @@
 #include <libintl.h>
 #include <KGlobalAccel>
 #include <QCryptographicHash>
+#include <QCollator>
 #include <QGSettings>
 #include <QGuiApplication>
 #include <functional>
@@ -146,16 +147,21 @@ QList<QSharedPointer<SystemShortcut>> SystemShortcuts::get()
     auto mixShortcuts = getMixShortcuts();
 
     // 由于Kwin重复快捷键很多(切换到桌面xx,切换到屏幕xx)，统一按照显示名称排序
+    // 使用QCollator的自然排序模式，确保数字按数值大小排序（如"切换桌面3" < "切换桌面20"）
+    QCollator collator;
+    collator.setNumericMode(true);
+    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    
     auto mixShortcutsValues = mixShortcuts.values();
-    std::sort(mixShortcutsValues.begin(), mixShortcutsValues.end(), [](const auto &a, const auto &b) -> bool {
+    std::sort(mixShortcutsValues.begin(), mixShortcutsValues.end(), [&collator](const auto &a, const auto &b) -> bool {
         if (a->desktopType != b->desktopType) {
             return a->desktopType < b->desktopType;
         } 
         switch (a->desktopType) {
         case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_MATE:
-            return a->mate.name.compare(b->mate.name, Qt::CaseInsensitive) < 0;
+            return collator.compare(a->mate.name, b->mate.name) < 0;
         case SystemShortcutDesktopType::SYSTEM_SHORTCUT_DESKTOP_TYPE_KDE:
-            return a->kde.friendlyName.compare(b->kde.friendlyName, Qt::CaseInsensitive) < 0;
+            return collator.compare(a->kde.friendlyName, b->kde.friendlyName) < 0;
         default:
             return false;
         }

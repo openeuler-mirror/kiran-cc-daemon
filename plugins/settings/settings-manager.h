@@ -26,6 +26,7 @@ namespace Kiran
 {
 class RegistryXSettings;
 class RegistryGnome;
+class RegistryKde;
 class SettingsXResource;
 
 class SettingsManager : public QObject,
@@ -196,7 +197,7 @@ private:
     RegistryXSettings *m_registryXsettings;
     RegistryGnome *m_registryGnome;
     SettingsXResource *m_xresource;
-
+    RegistryKde *m_registryKde;
     QMap<QString, QString> m_registry2Schema;
 
     QTimer *m_showDesktopIconTimer;
