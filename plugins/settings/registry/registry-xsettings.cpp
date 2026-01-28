@@ -88,10 +88,11 @@ QByteArray XSettingsPropertyBase::serialize()
     data.push_back(char('\0'));
 
     // 类型不能随意修改
-    uint16_t nameLen = m_name.length();
+    QByteArray byteName = m_name.toUtf8();
+    uint16_t nameLen = byteName.size();
     uint16_t nameLenPad = XSETTINGS_PAD(nameLen, 4) - nameLen;
     data.append(QByteArray((const char *)&nameLen, 2));
-    data.append(m_name.toUtf8());
+    data.append(byteName);
     data.append(QByteArray(nameLenPad, '\0'));
     data.append(QByteArray((const char *)&m_lastChangeSerial, 4));
     return data;
@@ -153,10 +154,12 @@ QByteArray XSettingsPropertyString::serialize()
 {
     QByteArray data;
     data = XSettingsPropertyBase::serialize();
-    uint32_t strLen = m_value.length();
+    // 需要用QByteArray::size，因为QString存储中文时，length()返回的不是实际字节数。
+    QByteArray byteValue = m_value.toUtf8();
+    uint32_t strLen = byteValue.size();
     uint32_t strLenPad = XSETTINGS_PAD(strLen, 4) - strLen;
     data.append(QByteArray((const char *)&strLen, 4));
-    data.append(m_value.toUtf8());
+    data.append(byteValue);
     data.append(QByteArray(strLenPad, '\0'));
     return data;
 }
