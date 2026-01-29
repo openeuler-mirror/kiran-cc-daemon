@@ -23,6 +23,8 @@
 
 #include <qt5-log-i.h>
 #include <QElapsedTimer>
+#include <QMetaType>
+#include <QSet>
 
 typedef ::DnfPackage DnfPackage;
 typedef ::DnfSack DnfSack;
@@ -35,6 +37,11 @@ typedef void (*actionChangedTypeCBType)(DnfState *,
                                         DnfStateAction,
                                         const char *,
                                         gpointer);
+typedef void (*packageProgressChangedCBType)(DnfState *,
+                                             const gchar *,
+                                             DnfStateAction,
+                                             guint,
+                                             gpointer);
 
 // DNF 目录定义
 #define DNF_CACHE_DIR "/var/cache/dnf"
@@ -487,21 +494,59 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
 
 bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
 {
+    // 清空之前的包状态
+    clearPackageStatus();
+    // 记录升级开始时间
+    QDateTime upgradeTime = QDateTime::currentDateTime();
+
+    // 发送升级日志信号函数
+    auto sendUpgradeHistory = [this, upgradeTime](UpgradeResult result, const QString &errMsg)
+    {
+        QStringList successPkgs;
+        QStringList failedPkgs;
+        {
+            QMutexLocker locker(&m_packageStatusMutex);
+            successPkgs = m_successPackages;
+            failedPkgs = m_failedPackages;
+        }
+        UpgradeHistory history(upgradeTime.toString(DEFAULT_DATE_TIME_FORMAT),
+                               result,
+                               errMsg,
+                               successPkgs,
+                               failedPkgs);
+        emit upgradeHistotyReady(history);
+    };
+
+    // 发送升级历史信号，初始状态为未知
+    sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_UNKNOWN, "");
+
+    // 默认软件包安装都失败
+    for (auto pkg : packages)
+    {
+        QMutexLocker locker(&m_packageStatusMutex);
+        {
+            m_failedPackages.append(dnf_package_get_package_id(pkg.data()));
+        }
+    }
+
     if (m_cacheFutureWatcher.isRunning())
     {
         errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
     if (!packages.size())
     {
         errorMessage = tr("No packages to install.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
     if (!m_dnfCtx)
     {
         errorMessage = tr("Dnf context is not initialized, please initialize it first.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
@@ -510,6 +555,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
     if (sack.isNull())
     {
         errorMessage = tr("Failed to get sack.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
@@ -553,6 +599,39 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         emit self->installActionChanged(actionStr, actionHintStr);
     };
 
+    // 跟踪包安装进度的回调
+    auto packageProgressChangedCB = [](DnfState *state,
+                                       const gchar *packageId,
+                                       DnfStateAction action,
+                                       guint percentage,
+                                       gpointer user_data)
+    {
+        auto *self = static_cast<DnfWrapper *>(user_data);
+        if (!self || !packageId)
+        {
+            return;
+        }
+        if (action != DNF_STATE_ACTION_INSTALL && action != DNF_STATE_ACTION_UPDATE)
+        {
+            return;
+        }
+        if (percentage < 100)
+        {
+            return;
+        }
+        QString pkgId = QString::fromUtf8(packageId);
+        {
+            QMutexLocker locker(&self->m_packageStatusMutex);
+            // 如果包不在成功列表中，且不在失败列表中，则添加到成功列表
+            if (!self->m_successPackages.contains(pkgId) &&
+                !self->m_failedPackages.contains(pkgId))
+            {
+                self->m_successPackages.append(pkgId);
+            }
+        }
+        KLOG_DEBUG(upgrade) << "Package installation completed: " << pkgId;
+    };
+
     g_signal_connect(
         state, "percentage-changed",
         G_CALLBACK(static_cast<percentageChangedCBType>(percentageChangedCB)),
@@ -561,6 +640,10 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         state, "action-changed",
         G_CALLBACK(static_cast<actionChangedTypeCBType>(actionChangedTypeCB)),
         this);
+    g_signal_connect(
+        state, "package-progress-changed",
+        G_CALLBACK(static_cast<packageProgressChangedCBType>(packageProgressChangedCB)),
+        this);
 
     if (!dnf_state_set_steps(state, &error, 5, /* depsolve */
                              10,               /* download */
@@ -568,6 +651,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
                              -1))
     {
         errorMessage = tr("Failed to init transaction state! error message: %1").arg(error->message);
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
@@ -586,9 +670,17 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         !dnf_state_done(state, &error))
     {
         errorMessage = tr("Failed to solve dep, error message: %1").arg(error->message);
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
     KLOG_DEBUG(upgrade) << "Depsolve finished";
+
+    // 获取计划安装和升级的包列表
+    {
+        QMutexLocker locker(&m_packageStatusMutex);
+        m_plannedPackages = getAllPackagesFromGoal(goal);
+        KLOG_DEBUG(upgrade) << "Planned packages count (installs + upgrades): " << m_plannedPackages.size();
+    }
 
     // 下载包
     KLOG_DEBUG(upgrade) << "Download started";
@@ -597,6 +689,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         !dnf_state_done(state, &error))
     {
         errorMessage = tr("Failed to download, error message: %1").arg(error->message);
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
     KLOG_DEBUG(upgrade) << "Download finished";
@@ -610,15 +703,51 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
 
     // 提交事务
     KLOG_DEBUG(upgrade) << "Commit started";
+    bool commitSuccess = false;
     if (!dnf_transaction_commit(transaction, goal.data(),
                                 dnf_state_get_child(state), &error) ||
         !dnf_state_done(state, &error))
     {
         errorMessage = tr("Failed to commit, error message: %1").arg(error->message);
-        return false;
+        commitSuccess = false;
+    }
+    else
+    {
+        commitSuccess = true;
     }
     KLOG_DEBUG(upgrade) << "Commit finished";
-    return true;
+
+    // 计算成功/失败的包列表
+    {
+        QMutexLocker locker(&m_packageStatusMutex);
+        if (commitSuccess)
+        {
+            // commit成功，所有计划安装的包都标记为成功
+            m_successPackages = m_plannedPackages;
+            m_failedPackages.clear();
+            KLOG_DEBUG(upgrade) << "Commit succeeded, all " << m_successPackages.size() << " packages marked as success";
+        }
+        else
+        {
+            // commit失败，使用通过 package-progress-changed 信号跟踪到的成功安装的包
+            // 其余包标记为失败
+            for (const QString &packageId : m_plannedPackages)
+            {
+                if (!m_successPackages.contains(packageId))
+                {
+                    m_failedPackages.append(packageId);
+                }
+            }
+            KLOG_DEBUG(upgrade) << "Commit failed, "
+                                << m_successPackages.size() << " packages installed successfully, "
+                                << m_failedPackages.size() << " packages failed";
+        }
+    }
+
+    // 发送升级日志信号
+    sendUpgradeHistory(commitSuccess ? UpgradeResult::UPGRADE_RESULT_SUCCESS : UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
+
+    return commitSuccess;
 }
 
 QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
@@ -651,8 +780,6 @@ QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage
         return ret;
     }
 
-    QMap<QString, ::DnfPackage *> addedDeps;  // 用于去重，key: 包名, value: 包对象
-
     g_autoptr(GError) error = nullptr;
     auto goal = QSharedPointer<typename std::remove_pointer<HyGoal>::type>(
         hy_goal_create(sack.data()), &hy_goal_free);
@@ -673,54 +800,8 @@ QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage
         return ret;
     }
 
-    // 获取需要安装的包（包括未安装的依赖）
-    g_autoptr(GPtrArray) installs = hy_goal_list_installs(goal.data(), &error);
-    if (installs && installs->len > 0)
-    {
-        for (uint i = 0; i < installs->len; i++)
-        {
-            auto depPkg = (::DnfPackage *)g_ptr_array_index(installs, i);
-            QString depName = QString(dnf_package_get_name(depPkg));
-            QString depVersion = QString(dnf_package_get_evr(depPkg));
-
-            // 使用包名作为key去重，如果已存在则更新为最新版本
-            if (!addedDeps.contains(depName) ||
-                dnf_package_evr_cmp(depPkg, addedDeps[depName]) > 0)
-            {
-                addedDeps[depName] = depPkg;
-                KLOG_DEBUG(upgrade) << " installs added deps packages, depName: " << depName
-                                    << ", depVersion: " << depVersion;
-            }
-        }
-    }
-
-    // 获取需要升级的包（包括依赖的升级）
-    // 这样可以获取到已安装但有更新的依赖包
-    g_autoptr(GPtrArray) upgrades = hy_goal_list_upgrades(goal.data(), &error);
-    if (upgrades && upgrades->len > 0)
-    {
-        for (uint i = 0; i < upgrades->len; i++)
-        {
-            auto depPkg = (::DnfPackage *)g_ptr_array_index(upgrades, i);
-            QString depName = QString(dnf_package_get_name(depPkg));
-            QString depVersion = QString(dnf_package_get_evr(depPkg));
-
-            // 使用包名作为key去重，如果已存在则更新为最新版本
-            if (!addedDeps.contains(depName) ||
-                dnf_package_evr_cmp(depPkg, addedDeps[depName]) > 0)
-            {
-                addedDeps[depName] = depPkg;
-                KLOG_DEBUG(upgrade) << " upgrades added deps packages, depName: " << depName
-                                    << ", depVersion: " << depVersion;
-            }
-        }
-    }
-
-    // 将去重后的依赖包添加到返回列表
-    for (auto pkg : addedDeps.values())
-    {
-        ret.append(QString::fromUtf8(dnf_package_get_package_id(pkg)));
-    }
+    // 获取所有要安装或升级的包
+    ret = getAllPackagesFromGoal(goal);
     return ret;
 }
 
@@ -895,5 +976,50 @@ int DnfWrapper::getAllRepoCount()
     }
     g_ptr_array_unref(repos);
     return enabledRepo;
+}
+void DnfWrapper::clearPackageStatus()
+{
+    QMutexLocker locker(&m_packageStatusMutex);
+    m_plannedPackages.clear();
+    m_successPackages.clear();
+    m_failedPackages.clear();
+}
+
+QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std::remove_pointer<HyGoal>::type> &goal)
+{
+    g_autoptr(GError) error = nullptr;
+    QStringList ret;
+    QSet<QString> packageIdSet;  // 用于去重
+
+    // 处理包数组
+    auto processPackageArray = [&](GPtrArray *pkgArray)
+    {
+        if (!pkgArray)
+            return;
+        for (guint i = 0; i < pkgArray->len; i++)
+        {
+            DnfPackage *pkg = static_cast<DnfPackage *>(g_ptr_array_index(pkgArray, i));
+            if (!pkg)
+                continue;
+            const gchar *packageId = dnf_package_get_package_id(pkg);
+            if (!packageId)
+                continue;
+            QString packageIdStr = QString::fromUtf8(packageId);
+            if (packageIdSet.contains(packageIdStr))
+                continue;
+            packageIdSet.insert(packageIdStr);
+            ret.append(packageIdStr);
+        }
+    };
+
+    // 获取需要安装的包（包括未安装的依赖）
+    g_autoptr(GPtrArray) installs = hy_goal_list_installs(goal.data(), &error);
+    processPackageArray(installs);
+
+    // 获取需要升级的包（包括依赖的升级）
+    g_autoptr(GPtrArray) upgrades = hy_goal_list_upgrades(goal.data(), &error);
+    processPackageArray(upgrades);
+
+    return ret;
 }
 }  // namespace Kiran

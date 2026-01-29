@@ -7,7 +7,7 @@ file(GLOB_RECURSE TEST_CPP_FILES ./*.cpp)
 
 set_source_files_properties(
   ${CMAKE_SOURCE_DIR}/plugins/upgrade/com.kylinsec.Kiran.SystemDaemon.Upgrade.xml
-  PROPERTIES CLASSNAME UpgradeProxy NO_NAMESPACE true)
+  PROPERTIES CLASSNAME UpgradeProxy NO_NAMESPACE true INCLUDE upgrade-i.h)
 
 qt5_add_dbus_interface(
   UPGRADE_SRCS

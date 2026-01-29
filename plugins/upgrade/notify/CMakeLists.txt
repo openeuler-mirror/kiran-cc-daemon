@@ -21,7 +21,8 @@ set(KSD_UPGRADE_XML ${PROJECT_SOURCE_DIR}/plugins/upgrade/com.kylinsec.Kiran.Sys
 set_source_files_properties(${KSD_UPGRADE_XML}
         PROPERTIES
         CLASSNAME KSDUpgradeProxy
-        NO_NAMESPACE true)
+        NO_NAMESPACE true
+        INCLUDE upgrade-i.h)
 kiran_qt5_add_dbus_interface(KSD_UPGRADE_SRC ${KSD_UPGRADE_XML} ksd_upgrade_proxy)
 
 add_executable(${TARGET_NAME} 
