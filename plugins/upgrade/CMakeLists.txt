@@ -28,6 +28,7 @@ add_library(${TARGET_NAME} SHARED ${UPGRADE_H_FILES}
 target_link_libraries(${TARGET_NAME} PRIVATE 
     Qt5::Concurrent
     Qt5::Widgets
+    Qt5::Sql
     kbase
     ${GLIB2_LIBRARIES}
     ${LIBDNF_LIBRARIES}

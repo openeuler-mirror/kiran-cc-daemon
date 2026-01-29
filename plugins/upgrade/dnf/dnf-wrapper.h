@@ -36,6 +36,12 @@ struct _DnfSack;
 typedef struct _DnfSack DnfSack;
 struct _DnfPackage;
 typedef struct _DnfPackage DnfPackage;
+namespace libdnf
+{
+struct Goal;
+}
+typedef struct libdnf::Goal *HyGoal;
+
 namespace Kiran
 {
 class DnfWrapper : public QObject
@@ -78,6 +84,11 @@ public:
      */
     QString getInstalledPackageVersion(const QString &packageName, QString &errorMessage);
 
+    /**
+     * @brief 清空包状态列表（在开始新的升级前调用）
+     */
+    void clearPackageStatus();
+
 private:
     explicit DnfWrapper(QObject *parent = nullptr);
     ~DnfWrapper();
@@ -117,9 +128,23 @@ private:
      */
     bool isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName);
 
+    /**
+     * @brief 从goal中获取所有要安装或升级的软件包ID列表
+     * @param goal 依赖解析后的goal对象（智能指针）
+     * @param error 错误信息指针
+     * @return 包ID列表（NVR格式），已去重
+     */
+    QStringList getAllPackagesFromGoal(const QSharedPointer<typename std::remove_pointer<HyGoal>::type> &goal);
+
 Q_SIGNALS:
     void installPercentageChanged(uint percentage);
     void installActionChanged(const QString &action, const QString &actionHint);
+
+    /**
+     * @brief 升级日志信号（传递完整的升级日志信息）
+     * @param history 升级历史记录结构体
+     */
+    void upgradeHistotyReady(const UpgradeHistory &history);
 
 private:
     static DnfWrapper *m_instance;
@@ -144,5 +169,11 @@ private:
 
     // 用于延时刷新缓存
     QTimer *m_reloadCacheTimer{nullptr};
+
+    // 包升级状态跟踪
+    QMutex m_packageStatusMutex;    // 保护包状态列表的互斥锁
+    QStringList m_plannedPackages;  // 计划安装的包列表
+    QStringList m_successPackages;  // 成功安装的包列表
+    QStringList m_failedPackages;   // 失败的包列表
 };
 }  // namespace Kiran

@@ -515,7 +515,7 @@
     <message>
         <location filename="../lib/base/error.cpp" line="160"/>
         <location filename="../lib/base/error.cpp" line="401"/>
-        <location filename="../lib/base/error.cpp" line="422"/>
+        <location filename="../lib/base/error.cpp" line="428"/>
         <source>Unknown error.</source>
         <translation>未知错误。</translation>
     </message>
@@ -550,7 +550,17 @@
         <translation>更新提醒周期不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="428"/>
+        <location filename="../lib/base/error.cpp" line="422"/>
+        <source>Upgrade history database is not open.</source>
+        <translation>无法打开升级历史记录数据库。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="425"/>
+        <source>Upgrade history database is broken.</source>
+        <translation>升级历史记录数据库被破坏。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="434"/>
         <source> (error code: 0x%1)</source>
         <translation> (错误码：0x%1)</translation>
     </message>
