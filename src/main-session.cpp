@@ -23,12 +23,16 @@
 #include "lib/osdwindow/osd-window.h"
 #include "src/plugin-manager.h"
 
-static void sessionEnd()
-{
-    Kiran::SessionPluginManager::getInstance()->deactivatePlugins();
-
-    KLOG_INFO() << "All plugins are deactivated, process is exited normally.";
-}
+/* 控制中心会话后端一般是会话管理拉起的第一个程序，一般情况下，需要控制中心会话后端进行初始化完毕后再启动其他会话程序，
+   这里的逻辑大致如此：
+      1. 定义QApplication app变量，此时会调用SmcOpenConnection函数打开xsmp连接（可自行gdb断点查看），会话管理后端会收到
+         register_client.callback函数回调，并保存clientId和连接句柄SmsConn的对应关系。
+      2. 继续调用Kiran::SessionPluginManager::globalInit初始化所有插件。
+      3. 调用app.exec函数，启动事件循环，此时控制中心后端会调用sm_setProperty(QString::fromLatin1(SmProgram), argument0)，
+         向会话管理发送自己的程序名，此时会话管理可将clientId和实际的app关联起来，知道控制中心后端已经完成初始化，此时会话管理的
+         Initialization阶段完成。
+      4. 会话管理程序开始进入下一个阶段，开始启动会话中其他程序。
+*/
 
 int main(int argc, char *argv[])
 {
