@@ -510,6 +510,17 @@ void SettingsManager::init()
 {
     auto primaryScreen = QGuiApplication::primaryScreen();
 
+    /* 如果windowScalingFactorCache不为0，则说明在上一次进入会话时用户修改了缩放率，需要在这一次进入会话时生效，
+       因此需要将windowScalingFactorCache更新到windowScalingFactor属性中 */
+    auto windowScalingFactorCache = m_settings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_CACHE).toInt();
+    if (windowScalingFactorCache >= 0 &&
+        windowScalingFactorCache != m_settings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt())
+    {
+        m_settings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, windowScalingFactorCache);
+    }
+    // 清空缓存，避免下次进入会话时再次应用缓存
+    m_settings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_CACHE, -1);
+
     scaleSettings();
 
     if (m_registryXsettings)
