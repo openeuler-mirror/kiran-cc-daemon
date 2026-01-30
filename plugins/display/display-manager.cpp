@@ -294,16 +294,6 @@ void DisplayManager::init()
         KLOG_WARNING(display) << KCD_ERROR2STR(errorCode);
     }
 
-    /* window_scaling_factor的初始化顺序：
-       1. 先读取xsettings中的window-scaling-factor属性; (load_settings)
-       2. 读取monitor.xml中维护的window-scaling-factor值 （switch_style_and_save）
-       3. 如果第2步和第1步的值不相同，则说明在上一次进入会话时用户修改了缩放率，需要在这一次进入会话时生效，
-          因此需要将monitor.xml中的缩放率更新到xsettings中的window-scaling-factor属性中*/
-    if (m_windowScalingFactor != m_xsettingsSettings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt())
-    {
-        m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
-    }
-
     auto sessionConnection = QDBusConnection::sessionBus();
     if (!sessionConnection.registerService(DISPLAY_DBUS_NAME))
     {
@@ -430,7 +420,6 @@ bool DisplayManager::applyScreenConfig(const ScreenConfigInfo &screenConfig, CCE
     const auto &cMonitors = screenConfig.monitor();
 
     setPrimary(screenConfig.primary().c_str());
-    setWindowScalingFactor(screenConfig.window_scaling_factor());
 
     for (const auto &cMonitor : cMonitors)
     {
@@ -489,7 +478,6 @@ void DisplayManager::fillScreenConfig(ScreenConfigInfo &screenConfig)
 {
     screenConfig.timestamp((uint32_t)time(NULL));
     screenConfig.primary(m_primary.toStdString());
-    screenConfig.window_scaling_factor(m_windowScalingFactor);
 
     for (auto &monitor : m_monitors)
     {
@@ -554,7 +542,7 @@ bool DisplayManager::saveConfig(CCErrorCode &errorCode)
     auto monitorsUID = getMonitorsUID();
     auto &cScreens = m_displayConfig->screen();
     bool matched = false;
-    ScreenConfigInfo usedConfig(0, "", 0);
+    ScreenConfigInfo usedConfig(0, "");
 
     fillScreenConfig(usedConfig);
     for (auto &cScreen : cScreens)
@@ -613,6 +601,10 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
     {
         // 应用缩放因子
         m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
+    }
+    else
+    {
+        m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_CACHE, m_windowScalingFactor);
     }
 
     QSharedPointer<DisplayMonitor> primaryMonitor;
@@ -954,8 +946,7 @@ void DisplayManager::dumpDisplayConfig()
     {
         KLOG_DEBUG(display).nospace() << "Screen " << screenIdx++ << ":"
                                       << " timestamp=" << screen.timestamp()
-                                      << " primary=" << screen.primary().c_str()
-                                      << " scaling_factor=" << screen.window_scaling_factor();
+                                      << " primary=" << screen.primary().c_str();
         int monitorIdx = 0;
         const auto &screenMonitors = screen.monitor();
         for (const auto &monitor : screenMonitors)

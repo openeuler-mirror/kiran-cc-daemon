@@ -57,5 +57,3 @@ void TestSystemInfo::testSetHostName()
 }  // namespace Kiran
 
 QTEST_MAIN(Kiran::TestSystemInfo)
-
-#include "test-systeminfo.moc"
