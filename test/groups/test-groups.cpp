@@ -92,5 +92,3 @@ void TestGroups::testCreateGroup()
 }  // namespace Kiran
 
 QTEST_MAIN(Kiran::TestGroups)
-
-#include "test-groups.moc"

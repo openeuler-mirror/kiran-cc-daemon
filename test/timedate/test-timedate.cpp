@@ -92,5 +92,3 @@ void TestTimedate::testNTP()
 }  // namespace Kiran
 
 QTEST_MAIN(Kiran::TestTimedate)
-
-#include "test-timedate.moc"
