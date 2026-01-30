@@ -178,6 +178,11 @@
             <description>Whether builtin GTK+ dialogs such as the file chooser, the color chooser or the font chooser will
             use a header bar at the top to show action widgets, or an action area at the bottom.</description>
         </key>
+        <key name="window-scaling-factor-cache" type="i">
+            <default>-1</default>
+            <range min="-1" max="2"/>
+            <description>The cache of window scaling factor.</description>
+        </key>
         <key name="window-scaling-factor" type="i">
             <default>0</default>
             <range min="0" max="2"/>

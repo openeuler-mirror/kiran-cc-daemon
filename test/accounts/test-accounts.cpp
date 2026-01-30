@@ -64,5 +64,3 @@ void TestAccounts::testCreateUser()
 }  // namespace Kiran
 
 QTEST_MAIN(Kiran::TestAccounts)
-
-#include "test-accounts.moc"
