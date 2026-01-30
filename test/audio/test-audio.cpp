@@ -66,5 +66,3 @@ void TestAudio::testSetVolume()
 }  // namespace Kiran
 
 QTEST_MAIN(Kiran::TestAudio)
-
-#include "test-audio.moc"

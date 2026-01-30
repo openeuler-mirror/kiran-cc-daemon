@@ -101,5 +101,3 @@ void TestAppearance::testBackground()
 }  // namespace Kiran
 
 QTEST_MAIN(Kiran::TestAppearance)
-
-#include "test-appearance.moc"
