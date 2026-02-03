@@ -84,11 +84,6 @@ public:
      */
     QString getInstalledPackageVersion(const QString &packageName, QString &errorMessage);
 
-    /**
-     * @brief 清空包状态列表（在开始新的升级前调用）
-     */
-    void clearPackageStatus();
-
 private:
     explicit DnfWrapper(QObject *parent = nullptr);
     ~DnfWrapper();
@@ -137,6 +132,11 @@ private:
     QStringList getAllPackagesFromGoal(const QSharedPointer<typename std::remove_pointer<HyGoal>::type> &goal);
 
 Q_SIGNALS:
+    /**
+     * @brief 缓存失效信号
+     */
+    void invalidate();
+
     void installPercentageChanged(uint percentage);
     void installActionChanged(const QString &action, const QString &actionHint);
 
@@ -170,10 +170,7 @@ private:
     // 用于延时刷新缓存
     QTimer *m_reloadCacheTimer{nullptr};
 
-    // 包升级状态跟踪
-    QMutex m_packageStatusMutex;    // 保护包状态列表的互斥锁
-    QStringList m_plannedPackages;  // 计划安装的包列表
-    QStringList m_successPackages;  // 成功安装的包列表
-    QStringList m_failedPackages;   // 失败的包列表
+    QStringList m_successPackages;
+    QStringList m_failedPackages;
 };
 }  // namespace Kiran

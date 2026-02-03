@@ -149,6 +149,7 @@ void DnfWrapper::initDnf()
         return;
     }
 
+    connect(this, &DnfWrapper::invalidate, this, &DnfWrapper::cacheInvalidate, Qt::QueuedConnection);
     // 监听libdnf缓存失效信号
     typedef void (*dnfCacheInvalidateCBType)(::DnfContext *, const gchar *, gpointer);
     auto callback = [](::DnfContext *ctx, const gchar *message, gpointer user_data)
@@ -158,7 +159,8 @@ void DnfWrapper::initDnf()
         KLOG_DEBUG(upgrade) << "cache invalidate because:" << message;
         if (self)
         {
-            self->cacheInvalidate();
+            // 转发信号，使其在qt线程中执行
+            emit self->invalidate();
         }
     };
     g_signal_connect(m_dnfCtx, "invalidate",
@@ -207,11 +209,8 @@ void DnfWrapper::updateCache()
 
 void DnfWrapper::cacheInvalidate()
 {
-    {
-        QMutexLocker locker(&m_sackMutex);
-        m_isSackVaild = false;
-    }
-
+    QMutexLocker locker(&m_sackMutex);
+    m_isSackVaild = false;
     m_reloadCacheTimer->start();
 }
 
@@ -364,7 +363,7 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
         KLOG_ERROR(upgrade) << "No repo loaded into sack.";
         return false;
     }
-    KLOG_INFO(upgrade) << "Loaded " << loadedRepoCount << " repos into sack successfully.";
+    KLOG_INFO(upgrade) << "Loaded " << loadedRepoCount << "remote repos into sack successfully.";
 
     /* set up the sack for packages that should only ever be installed, never
    * updated */
@@ -435,7 +434,7 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
     auto loadedRepoCount = getLoadedRepoCount();
     auto allRepoCount = getAllRepoCount();
     KLOG_DEBUG(upgrade) << "Loaded repo number:" << loadedRepoCount
-                        << "all repo number:" << allRepoCount;
+                        << ",all repo number:" << allRepoCount;
     if (loadedRepoCount < allRepoCount)
     {
         //强制更新缓存
@@ -494,26 +493,21 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
 
 bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
 {
-    // 清空之前的包状态
-    clearPackageStatus();
+    QStringList plannedPackages;
+    m_failedPackages.clear();
+    m_successPackages.clear();
+
     // 记录升级开始时间
     QDateTime upgradeTime = QDateTime::currentDateTime();
 
     // 发送升级日志信号函数
     auto sendUpgradeHistory = [this, upgradeTime](UpgradeResult result, const QString &errMsg)
     {
-        QStringList successPkgs;
-        QStringList failedPkgs;
-        {
-            QMutexLocker locker(&m_packageStatusMutex);
-            successPkgs = m_successPackages;
-            failedPkgs = m_failedPackages;
-        }
         UpgradeHistory history(upgradeTime.toString(DEFAULT_DATE_TIME_FORMAT),
                                result,
                                errMsg,
-                               successPkgs,
-                               failedPkgs);
+                               m_successPackages,
+                               m_failedPackages);
         emit upgradeHistotyReady(history);
     };
 
@@ -523,10 +517,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
     // 默认软件包安装都失败
     for (auto pkg : packages)
     {
-        QMutexLocker locker(&m_packageStatusMutex);
-        {
-            m_failedPackages.append(dnf_package_get_package_id(pkg.data()));
-        }
+        m_failedPackages.append(dnf_package_get_package_id(pkg.data()));
     }
 
     if (m_cacheFutureWatcher.isRunning())
@@ -621,7 +612,6 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         }
         QString pkgId = QString::fromUtf8(packageId);
         {
-            QMutexLocker locker(&self->m_packageStatusMutex);
             // 如果包不在成功列表中，且不在失败列表中，则添加到成功列表
             if (!self->m_successPackages.contains(pkgId) &&
                 !self->m_failedPackages.contains(pkgId))
@@ -676,11 +666,8 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
     KLOG_DEBUG(upgrade) << "Depsolve finished";
 
     // 获取计划安装和升级的包列表
-    {
-        QMutexLocker locker(&m_packageStatusMutex);
-        m_plannedPackages = getAllPackagesFromGoal(goal);
-        KLOG_DEBUG(upgrade) << "Planned packages count (installs + upgrades): " << m_plannedPackages.size();
-    }
+    plannedPackages = getAllPackagesFromGoal(goal);
+    KLOG_DEBUG(upgrade) << "Planned packages count (installs + upgrades): " << plannedPackages.size();
 
     // 下载包
     KLOG_DEBUG(upgrade) << "Download started";
@@ -718,30 +705,27 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
     KLOG_DEBUG(upgrade) << "Commit finished";
 
     // 计算成功/失败的包列表
+    m_failedPackages.clear();
+    if (commitSuccess)
     {
-        QMutexLocker locker(&m_packageStatusMutex);
-        if (commitSuccess)
+        // commit成功，所有计划安装的包都标记为成功
+        m_successPackages = plannedPackages;
+        KLOG_DEBUG(upgrade) << "Commit succeeded, all " << m_successPackages.size() << " packages marked as success";
+    }
+    else
+    {
+        // commit失败，使用通过 package-progress-changed 信号跟踪到的成功安装的包
+        // 其余包标记为失败
+        for (const QString &packageId : plannedPackages)
         {
-            // commit成功，所有计划安装的包都标记为成功
-            m_successPackages = m_plannedPackages;
-            m_failedPackages.clear();
-            KLOG_DEBUG(upgrade) << "Commit succeeded, all " << m_successPackages.size() << " packages marked as success";
-        }
-        else
-        {
-            // commit失败，使用通过 package-progress-changed 信号跟踪到的成功安装的包
-            // 其余包标记为失败
-            for (const QString &packageId : m_plannedPackages)
+            if (!m_successPackages.contains(packageId))
             {
-                if (!m_successPackages.contains(packageId))
-                {
-                    m_failedPackages.append(packageId);
-                }
+                m_failedPackages.append(packageId);
             }
-            KLOG_DEBUG(upgrade) << "Commit failed, "
-                                << m_successPackages.size() << " packages installed successfully, "
-                                << m_failedPackages.size() << " packages failed";
         }
+        KLOG_DEBUG(upgrade) << "Commit failed, "
+                            << m_successPackages.size() << " packages installed successfully, "
+                            << m_failedPackages.size() << " packages failed";
     }
 
     // 发送升级日志信号
@@ -889,35 +873,29 @@ QString DnfWrapper::stateActionToString(int action)
 
 int DnfWrapper::getLoadedRepoCount()
 {
-    int loadedRepoCount = 0;
-
-    if (!m_dnfCtx)
+    QMutexLocker locker(&m_sackMutex);
+    if (m_dnfSack.isNull())
     {
-        return loadedRepoCount;
+        return 0;
     }
 
-    Pool *pool = nullptr;
-    int repoid = 0;
-    Repo *repo = nullptr;
+    Pool *pool = dnf_sack_get_pool(m_dnfSack.data());
+    // 返回正在使用的仓库数量
+    return pool->urepos;
+}
 
+int DnfWrapper::getAllRepoCount()
+{
+    QMutexLocker locker(&m_sackMutex);
+    if (m_dnfSack.isNull())
     {
-        QMutexLocker locker(&m_sackMutex);
-        if (m_dnfSack.isNull())
-        {
-            return loadedRepoCount;
-        }
-
-        pool = dnf_sack_get_pool(m_dnfSack.data());
+        return 0;
     }
 
-    FOR_REPOS(repoid, repo)
-    {
-        if (repo && repo->name)
-        {
-            loadedRepoCount++;
-        }
-    }
-    return loadedRepoCount;
+    Pool *pool = dnf_sack_get_pool(m_dnfSack.data());
+    // 返回所有仓库数量
+    // FOR_REPOS宏中repoid从1开始，所以需要减去1
+    return pool->nrepos - 1;
 }
 
 bool DnfWrapper::isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName)
@@ -931,7 +909,8 @@ bool DnfWrapper::isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &rep
     int repoid;
     Repo *repo;
 
-    auto repoNameCStr = repoName.toUtf8().constData();
+    auto repoNameBytes = repoName.toUtf8();
+    auto repoNameCStr = repoNameBytes.constData();
     FOR_REPOS(repoid, repo)
     {
         if (repo && repo->name && !strcmp(repo->name, repoNameCStr))
@@ -943,46 +922,6 @@ bool DnfWrapper::isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &rep
 
     KLOG_DEBUG(upgrade) << "Repository " << repoName << " not added in sack";
     return false;
-}
-
-int DnfWrapper::getAllRepoCount()
-{
-    int enabledRepo = 0;
-
-    if (!m_dnfCtx)
-    {
-        return enabledRepo;
-    }
-
-    g_autoptr(GError) error = nullptr;
-    g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
-    GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
-    if (!repos)
-    {
-        KLOG_ERROR(upgrade) << "Failed to get repos! error message: " << error->message;
-        return enabledRepo;
-    }
-    for (uint i = 0; i < repos->len; i++)
-    {
-        auto repo = static_cast<::DnfRepo *>(g_ptr_array_index(repos, i));
-
-        //过滤”禁用源“
-        auto enabled = dnf_repo_get_enabled(repo);
-        if (enabled == DNF_REPO_ENABLED_NONE)
-        {
-            continue;
-        }
-        enabledRepo++;
-    }
-    g_ptr_array_unref(repos);
-    return enabledRepo;
-}
-void DnfWrapper::clearPackageStatus()
-{
-    QMutexLocker locker(&m_packageStatusMutex);
-    m_plannedPackages.clear();
-    m_successPackages.clear();
-    m_failedPackages.clear();
 }
 
 QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std::remove_pointer<HyGoal>::type> &goal)

@@ -105,7 +105,7 @@
         </signal>
         <signal name="UpgradeHistoryAdded">
         <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="UpgradeHistory"/>
-            <arg type="(sis[as][as])" name="history" direction="out">
+            <arg type="(sisasas)" name="history" direction="out">
                 <description>The added upgrade history records, include upgrade time, result (success/failed), error message, success packages, and failed packages.</description>
             </arg>
         </signal>
