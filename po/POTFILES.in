@@ -14,3 +14,4 @@ data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.Groups.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.Upgrade.policy.in
