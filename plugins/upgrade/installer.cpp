@@ -20,13 +20,16 @@
 #include <qt5-log-i.h>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtConcurrent>
 
 #include "lib/base/log.h"
 
 namespace Kiran
 {
-Installer::Installer(QObject *parent) : QObject(parent)
+Installer::Installer(QObject *parent) : QObject(parent), m_currentPercentage(0)
 {
     m_dnfWrapper = DnfWrapper::instance();
 
@@ -36,7 +39,7 @@ Installer::Installer(QObject *parent) : QObject(parent)
     // 连接 DnfWrapper 的升级进度信号，转发给外部
     connect(m_dnfWrapper, &DnfWrapper::installActionChanged, this, &Installer::handleInstallAction, Qt::QueuedConnection);
     connect(m_dnfWrapper, &DnfWrapper::installPercentageChanged,
-            this, &Installer::installProgressChanged, Qt::QueuedConnection);
+            this, &Installer::handleInstallProgress, Qt::QueuedConnection);
 }
 
 Installer::~Installer()
@@ -68,10 +71,9 @@ CCErrorCode Installer::install(const QStringList &packageIDs)
         return CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY;
     }
 
-    {
-        QMutexLocker locker(&m_installLogMutex);
-        m_installLog.clear();
-    }
+    //清空安装进度信息
+    m_currentPercentage = 0;
+    m_installAction.clear();
 
     m_installerFutureWatcher.setFuture(QtConcurrent::run(this, &Installer::doInstall, packageIDs));
     return CCErrorCode::SUCCESS;
@@ -111,18 +113,22 @@ Installer::ResultDetail Installer::doInstall(const QStringList &packageIDs)
 
 QString Installer::getInstallLog()
 {
-    {
-        QMutexLocker locker(&m_installLogMutex);
-        return m_installLog;
-    }
+    QJsonObject logObject;
+    logObject["percentage"] = static_cast<int>(m_currentPercentage);
+    logObject["action"] = m_installAction.trimmed();
+
+    QJsonDocument doc(logObject);
+    return doc.toJson(QJsonDocument::Compact);
+}
+void Installer::handleInstallProgress(uint percentage)
+{
+    m_currentPercentage = percentage;
+    emit installProgressChanged(percentage);
 }
 
 void Installer::handleInstallAction(const QString &action, const QString &actionHint)
 {
-    {
-        QMutexLocker locker(&m_installLogMutex);
-        m_installLog += action + (actionHint.isEmpty() ? "" : ":" + actionHint) + "\n";
-    }
+    m_installAction += action + (actionHint.isEmpty() ? "" : ":" + actionHint) + "\n";
     emit installActionChanged(action, actionHint);
 }
 

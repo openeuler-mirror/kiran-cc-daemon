@@ -515,7 +515,7 @@
     <message>
         <location filename="../lib/base/error.cpp" line="160"/>
         <location filename="../lib/base/error.cpp" line="401"/>
-        <location filename="../lib/base/error.cpp" line="425"/>
+        <location filename="../lib/base/error.cpp" line="428"/>
         <source>Unknown error.</source>
         <translation>未知错误。</translation>
     </message>
@@ -551,11 +551,16 @@
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="422"/>
-        <source>Reminder interval is already set.</source>
-        <translation>已经设置该更新提醒周期。</translation>
+        <source>Upgrade history database is not open.</source>
+        <translation>无法打开升级历史记录数据库。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="431"/>
+        <location filename="../lib/base/error.cpp" line="425"/>
+        <source>Upgrade history database is broken.</source>
+        <translation>升级历史记录数据库被破坏。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="434"/>
         <source> (error code: 0x%1)</source>
         <translation> (错误码：0x%1)</translation>
     </message>
@@ -563,7 +568,7 @@
 <context>
     <name>Kiran::PolkitProxy</name>
     <message>
-        <location filename="../lib/base/polkit-proxy.cpp" line="230"/>
+        <location filename="../lib/base/polkit-proxy.cpp" line="255"/>
         <source>Authorization failed.</source>
         <translation>认证失败。</translation>
     </message>

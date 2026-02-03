@@ -15,12 +15,16 @@
 #include <glib-object.h>
 #include <glib.h>
 #include <libdnf/libdnf.h>
+#include <solv/pool.h>
+#include <solv/repo.h>
 
 #include "dnf-wrapper.h"
 #include "lib/base/base.h"
 
 #include <qt5-log-i.h>
 #include <QElapsedTimer>
+#include <QMetaType>
+#include <QSet>
 
 typedef ::DnfPackage DnfPackage;
 typedef ::DnfSack DnfSack;
@@ -33,6 +37,11 @@ typedef void (*actionChangedTypeCBType)(DnfState *,
                                         DnfStateAction,
                                         const char *,
                                         gpointer);
+typedef void (*packageProgressChangedCBType)(DnfState *,
+                                             const gchar *,
+                                             DnfStateAction,
+                                             guint,
+                                             gpointer);
 
 // DNF 目录定义
 #define DNF_CACHE_DIR "/var/cache/dnf"
@@ -43,7 +52,11 @@ typedef void (*actionChangedTypeCBType)(DnfState *,
 namespace Kiran
 {
 DnfWrapper::DnfWrapper(QObject *parent)
-    : QObject(parent), m_dnfCtx(nullptr), m_isSackVaild(false), m_lastUpdateTime()
+    : QObject(parent),
+      m_dnfCtx(nullptr),
+      m_isSackVaild(false),
+      m_updateIntervalHours(0),
+      m_lastUpdateTime()
 {
     // 初始化dnf
     initDnf();
@@ -60,10 +73,11 @@ DnfWrapper::DnfWrapper(QObject *parent)
 
     connect(&m_cacheFutureWatcher, &QFutureWatcher<bool>::finished, this, [this]()
             {
+                m_lastUpdateTime = QDateTime::currentDateTime();
+
                 bool success = m_cacheFutureWatcher.result();
                 if (success)
                 {
-                    m_lastUpdateTime = QDateTime::currentDateTime();
                     KLOG_DEBUG(upgrade) << "Cache update completed successfully";
                 }
                 else
@@ -71,7 +85,6 @@ DnfWrapper::DnfWrapper(QObject *parent)
                     KLOG_WARNING(upgrade) << "Cache update failed";
                 }
 
-                emit cacheUpdated(success);
                 // 重新启动更新定时器
                 startUpdateTimer();
             });
@@ -136,6 +149,7 @@ void DnfWrapper::initDnf()
         return;
     }
 
+    connect(this, &DnfWrapper::invalidate, this, &DnfWrapper::cacheInvalidate, Qt::QueuedConnection);
     // 监听libdnf缓存失效信号
     typedef void (*dnfCacheInvalidateCBType)(::DnfContext *, const gchar *, gpointer);
     auto callback = [](::DnfContext *ctx, const gchar *message, gpointer user_data)
@@ -145,7 +159,8 @@ void DnfWrapper::initDnf()
         KLOG_DEBUG(upgrade) << "cache invalidate because:" << message;
         if (self)
         {
-            self->cacheInvalidate();
+            // 转发信号，使其在qt线程中执行
+            emit self->invalidate();
         }
     };
     g_signal_connect(m_dnfCtx, "invalidate",
@@ -165,6 +180,8 @@ void DnfWrapper::initDnf()
 
 void DnfWrapper::setCacheUpdateIntvalHours(int cacheUpdateIntvalHours)
 {
+    KLOG_DEBUG(upgrade) << "set cache update intval hours from" << m_updateIntervalHours
+                        << "to" << cacheUpdateIntvalHours;
     RETURN_IF_TRUE(m_updateIntervalHours == cacheUpdateIntvalHours);
 
     if (cacheUpdateIntvalHours < 1)
@@ -187,16 +204,13 @@ void DnfWrapper::updateCache()
     }
 
     KLOG_DEBUG(upgrade) << "Starting cache update";
-    m_cacheFutureWatcher.setFuture(QtConcurrent::run(this, &DnfWrapper::findAndCreateSack));
+    m_cacheFutureWatcher.setFuture(QtConcurrent::run(this, &DnfWrapper::findAndCreateSack, true));
 }
 
 void DnfWrapper::cacheInvalidate()
 {
-    {
-        QMutexLocker locker(&m_sackMutex);
-        m_isSackVaild = false;
-    }
-
+    QMutexLocker locker(&m_sackMutex);
+    m_isSackVaild = false;
     m_reloadCacheTimer->start();
 }
 
@@ -231,18 +245,24 @@ void DnfWrapper::startUpdateTimer()
     }
     else
     {
+        KLOG_DEBUG(upgrade) << "Update cache right now.";
         // 立即触发更新
         QTimer::singleShot(0, this, [this]()
                            { cacheInvalidate(); });
     }
 }
 
-bool DnfWrapper::findAndCreateSack()
+bool DnfWrapper::findAndCreateSack(bool forceUpdate)
 {
     if (!m_dnfCtx)
     {
         KLOG_DEBUG(upgrade) << "Dnf context is not initialized, please initialize it first";
         return false;
+    }
+
+    if (forceUpdate)
+    {
+        m_isSackVaild = false;
     }
 
     {
@@ -275,15 +295,18 @@ bool DnfWrapper::findAndCreateSack()
         return false;
     }
 
-    // 加载系统仓库
+    //加载系统仓库，必须要加载系统仓库才能比较出可更新包
     if (!dnf_sack_load_system_repo(sack.data(), NULL, DNF_SACK_LOAD_FLAG_BUILD_CACHE,
                                    &error))
     {
-        KLOG_WARNING(upgrade) << "Failed to load system repo! error message: "
-                              << error->message;
+        KLOG_ERROR(upgrade) << "Failed to load system repo! error message: "
+                            << error->message;
+        return false;
     }
+    KLOG_INFO(upgrade) << "Load system repo successfully.";
 
     // 获取所有仓库
+    int loadedRepoCount = 0;
     g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
     GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
     if (!repos)
@@ -308,19 +331,39 @@ bool DnfWrapper::findAndCreateSack()
         g_autoptr(DnfState) dnfState = dnf_state_new();
         g_clear_error(&error);
 
-        if (!dnf_sack_add_repo(
-                sack.data(), repo, 0,
-                static_cast<DnfSackAddFlags>(DNF_SACK_ADD_FLAG_NONE |
-                                             DNF_SACK_ADD_FLAG_FILELISTS |
-                                             DNF_SACK_ADD_FLAG_UPDATEINFO),
-                dnfState, &error))
+        auto ret = dnf_sack_add_repo(
+            sack.data(), repo, 0,
+            static_cast<DnfSackAddFlags>(DNF_SACK_ADD_FLAG_NONE |
+                                         DNF_SACK_ADD_FLAG_FILELISTS |
+                                         DNF_SACK_ADD_FLAG_UPDATEINFO),
+            dnfState, &error);
+        if (!ret)
         {
             KLOG_WARNING(upgrade) << "Failed to load repo " << dnf_repo_get_id(repo)
                                   << " error message: " << error->message;
             continue;
         }
-        KLOG_DEBUG(upgrade) << "Loaded repo: " << dnf_repo_get_id(repo);
+
+        // 验证仓库是否真的被加载到sack中
+        // 因为断网且非必须源时dnf_sack_add_repo会返回true但实际未加载数据
+        auto repoId = QString::fromUtf8(dnf_repo_get_id(repo));
+        if (!isRepoLoaded(sack, repoId))
+        {
+            KLOG_WARNING(upgrade) << "Repo " << repoId
+                                  << " was not actually loaded into sack (possibly due to network issues)";
+            continue;
+        }
+
+        loadedRepoCount++;
     }
+
+    // 若没有加载任何仓库，则认为缓存失败
+    if (loadedRepoCount == 0)
+    {
+        KLOG_ERROR(upgrade) << "No repo loaded into sack.";
+        return false;
+    }
+    KLOG_INFO(upgrade) << "Loaded " << loadedRepoCount << "remote repos into sack successfully.";
 
     /* set up the sack for packages that should only ever be installed, never
    * updated */
@@ -346,10 +389,10 @@ bool DnfWrapper::findAndCreateSack()
     return true;
 }
 
-QSharedPointer<::DnfSack> DnfWrapper::getSackRef()
+QSharedPointer<::DnfSack> DnfWrapper::getSackRef(bool forceUpdate)
 {
     // 确保sack可用
-    if (!findAndCreateSack())
+    if (!findAndCreateSack(forceUpdate))
     {
         KLOG_ERROR(upgrade) << "Failed to create sack.";
         return QSharedPointer<::DnfSack>();
@@ -374,17 +417,36 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
 {
     QList<QSharedPointer<::DnfPackage>> ret;
 
+    if (m_cacheFutureWatcher.isRunning())
+    {
+        errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        return ret;
+    }
+
     if (!m_dnfCtx)
     {
         errorMessage = tr("Dnf context is not initialized, please initialize it first.");
         return ret;
     }
 
+    // 检查仓库数量和数据库中加载的仓库数量是否一致，如果不一致则强制更新缓存
+    bool forceUpdate = false;
+    auto loadedRepoCount = getLoadedRepoCount();
+    auto allRepoCount = getAllRepoCount();
+    KLOG_DEBUG(upgrade) << "Loaded repo number:" << loadedRepoCount
+                        << ",all repo number:" << allRepoCount;
+    if (loadedRepoCount < allRepoCount)
+    {
+        //强制更新缓存
+        forceUpdate = true;
+        KLOG_INFO(upgrade) << "loaded repo number != all repo number, force update cache.";
+    }
+
     // 获取sack引用
-    auto sack = getSackRef();
+    auto sack = getSackRef(forceUpdate);
     if (sack.isNull())
     {
-        errorMessage = tr("Failed to get sack.");
+        errorMessage = tr("Failed to update cache.");
         return ret;
     }
 
@@ -431,15 +493,51 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
 
 bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
 {
+    QStringList plannedPackages;
+    m_failedPackages.clear();
+    m_successPackages.clear();
+
+    // 记录升级开始时间
+    QDateTime upgradeTime = QDateTime::currentDateTime();
+
+    // 发送升级日志信号函数
+    auto sendUpgradeHistory = [this, upgradeTime](UpgradeResult result, const QString &errMsg)
+    {
+        UpgradeHistory history(upgradeTime.toString(DEFAULT_DATE_TIME_FORMAT),
+                               result,
+                               errMsg,
+                               m_successPackages,
+                               m_failedPackages);
+        emit upgradeHistotyReady(history);
+    };
+
+    // 发送升级历史信号，初始状态为未知
+    sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_UNKNOWN, "");
+
+    // 默认软件包安装都失败
+    for (auto pkg : packages)
+    {
+        m_failedPackages.append(dnf_package_get_package_id(pkg.data()));
+    }
+
+    if (m_cacheFutureWatcher.isRunning())
+    {
+        errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
+        return false;
+    }
+
     if (!packages.size())
     {
         errorMessage = tr("No packages to install.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
     if (!m_dnfCtx)
     {
         errorMessage = tr("Dnf context is not initialized, please initialize it first.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
@@ -448,6 +546,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
     if (sack.isNull())
     {
         errorMessage = tr("Failed to get sack.");
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
@@ -491,6 +590,38 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         emit self->installActionChanged(actionStr, actionHintStr);
     };
 
+    // 跟踪包安装进度的回调
+    auto packageProgressChangedCB = [](DnfState *state,
+                                       const gchar *packageId,
+                                       DnfStateAction action,
+                                       guint percentage,
+                                       gpointer user_data)
+    {
+        auto *self = static_cast<DnfWrapper *>(user_data);
+        if (!self || !packageId)
+        {
+            return;
+        }
+        if (action != DNF_STATE_ACTION_INSTALL && action != DNF_STATE_ACTION_UPDATE)
+        {
+            return;
+        }
+        if (percentage < 100)
+        {
+            return;
+        }
+        QString pkgId = QString::fromUtf8(packageId);
+        {
+            // 如果包不在成功列表中，且不在失败列表中，则添加到成功列表
+            if (!self->m_successPackages.contains(pkgId) &&
+                !self->m_failedPackages.contains(pkgId))
+            {
+                self->m_successPackages.append(pkgId);
+            }
+        }
+        KLOG_DEBUG(upgrade) << "Package installation completed: " << pkgId;
+    };
+
     g_signal_connect(
         state, "percentage-changed",
         G_CALLBACK(static_cast<percentageChangedCBType>(percentageChangedCB)),
@@ -499,6 +630,10 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         state, "action-changed",
         G_CALLBACK(static_cast<actionChangedTypeCBType>(actionChangedTypeCB)),
         this);
+    g_signal_connect(
+        state, "package-progress-changed",
+        G_CALLBACK(static_cast<packageProgressChangedCBType>(packageProgressChangedCB)),
+        this);
 
     if (!dnf_state_set_steps(state, &error, 5, /* depsolve */
                              10,               /* download */
@@ -506,6 +641,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
                              -1))
     {
         errorMessage = tr("Failed to init transaction state! error message: %1").arg(error->message);
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
 
@@ -524,9 +660,14 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         !dnf_state_done(state, &error))
     {
         errorMessage = tr("Failed to solve dep, error message: %1").arg(error->message);
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
     KLOG_DEBUG(upgrade) << "Depsolve finished";
+
+    // 获取计划安装和升级的包列表
+    plannedPackages = getAllPackagesFromGoal(goal);
+    KLOG_DEBUG(upgrade) << "Planned packages count (installs + upgrades): " << plannedPackages.size();
 
     // 下载包
     KLOG_DEBUG(upgrade) << "Download started";
@@ -535,6 +676,7 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
         !dnf_state_done(state, &error))
     {
         errorMessage = tr("Failed to download, error message: %1").arg(error->message);
+        sendUpgradeHistory(UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
         return false;
     }
     KLOG_DEBUG(upgrade) << "Download finished";
@@ -548,20 +690,59 @@ bool DnfWrapper::installPackages(const QList<QSharedPointer<::DnfPackage>> &pack
 
     // 提交事务
     KLOG_DEBUG(upgrade) << "Commit started";
+    bool commitSuccess = false;
     if (!dnf_transaction_commit(transaction, goal.data(),
                                 dnf_state_get_child(state), &error) ||
         !dnf_state_done(state, &error))
     {
         errorMessage = tr("Failed to commit, error message: %1").arg(error->message);
-        return false;
+        commitSuccess = false;
+    }
+    else
+    {
+        commitSuccess = true;
     }
     KLOG_DEBUG(upgrade) << "Commit finished";
-    return true;
+
+    // 计算成功/失败的包列表
+    m_failedPackages.clear();
+    if (commitSuccess)
+    {
+        // commit成功，所有计划安装的包都标记为成功
+        m_successPackages = plannedPackages;
+        KLOG_DEBUG(upgrade) << "Commit succeeded, all " << m_successPackages.size() << " packages marked as success";
+    }
+    else
+    {
+        // commit失败，使用通过 package-progress-changed 信号跟踪到的成功安装的包
+        // 其余包标记为失败
+        for (const QString &packageId : plannedPackages)
+        {
+            if (!m_successPackages.contains(packageId))
+            {
+                m_failedPackages.append(packageId);
+            }
+        }
+        KLOG_DEBUG(upgrade) << "Commit failed, "
+                            << m_successPackages.size() << " packages installed successfully, "
+                            << m_failedPackages.size() << " packages failed";
+    }
+
+    // 发送升级日志信号
+    sendUpgradeHistory(commitSuccess ? UpgradeResult::UPGRADE_RESULT_SUCCESS : UpgradeResult::UPGRADE_RESULT_FAILED, errorMessage);
+
+    return commitSuccess;
 }
 
 QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage)
 {
     QStringList ret;
+
+    if (m_cacheFutureWatcher.isRunning())
+    {
+        errorMessage = tr("Cache update is in progress. Please wait a minute and try again.");
+        return ret;
+    }
 
     if (!packages.size())
     {
@@ -583,8 +764,6 @@ QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage
         return ret;
     }
 
-    QMap<QString, ::DnfPackage *> addedDeps;  // 用于去重，key: 包名, value: 包对象
-
     g_autoptr(GError) error = nullptr;
     auto goal = QSharedPointer<typename std::remove_pointer<HyGoal>::type>(
         hy_goal_create(sack.data()), &hy_goal_free);
@@ -605,54 +784,8 @@ QStringList DnfWrapper::solvePackageDeps(const QList<QSharedPointer<::DnfPackage
         return ret;
     }
 
-    // 获取需要安装的包（包括未安装的依赖）
-    g_autoptr(GPtrArray) installs = hy_goal_list_installs(goal.data(), &error);
-    if (installs && installs->len > 0)
-    {
-        for (uint i = 0; i < installs->len; i++)
-        {
-            auto depPkg = (::DnfPackage *)g_ptr_array_index(installs, i);
-            QString depName = QString(dnf_package_get_name(depPkg));
-            QString depVersion = QString(dnf_package_get_evr(depPkg));
-
-            // 使用包名作为key去重，如果已存在则更新为最新版本
-            if (!addedDeps.contains(depName) ||
-                dnf_package_evr_cmp(depPkg, addedDeps[depName]) > 0)
-            {
-                addedDeps[depName] = depPkg;
-                KLOG_DEBUG(upgrade) << " installs added deps packages, depName: " << depName
-                                    << ", depVersion: " << depVersion;
-            }
-        }
-    }
-
-    // 获取需要升级的包（包括依赖的升级）
-    // 这样可以获取到已安装但有更新的依赖包
-    g_autoptr(GPtrArray) upgrades = hy_goal_list_upgrades(goal.data(), &error);
-    if (upgrades && upgrades->len > 0)
-    {
-        for (uint i = 0; i < upgrades->len; i++)
-        {
-            auto depPkg = (::DnfPackage *)g_ptr_array_index(upgrades, i);
-            QString depName = QString(dnf_package_get_name(depPkg));
-            QString depVersion = QString(dnf_package_get_evr(depPkg));
-
-            // 使用包名作为key去重，如果已存在则更新为最新版本
-            if (!addedDeps.contains(depName) ||
-                dnf_package_evr_cmp(depPkg, addedDeps[depName]) > 0)
-            {
-                addedDeps[depName] = depPkg;
-                KLOG_DEBUG(upgrade) << " upgrades added deps packages, depName: " << depName
-                                    << ", depVersion: " << depVersion;
-            }
-        }
-    }
-
-    // 将去重后的依赖包添加到返回列表
-    for (auto pkg : addedDeps.values())
-    {
-        ret.append(QString::fromUtf8(dnf_package_get_package_id(pkg)));
-    }
+    // 获取所有要安装或升级的包
+    ret = getAllPackagesFromGoal(goal);
     return ret;
 }
 
@@ -736,5 +869,96 @@ QString DnfWrapper::stateActionToString(int action)
     default:
         return tr("Unknown action");
     }
+}
+
+int DnfWrapper::getLoadedRepoCount()
+{
+    QMutexLocker locker(&m_sackMutex);
+    if (m_dnfSack.isNull())
+    {
+        return 0;
+    }
+
+    Pool *pool = dnf_sack_get_pool(m_dnfSack.data());
+    // 返回正在使用的仓库数量
+    return pool->urepos;
+}
+
+int DnfWrapper::getAllRepoCount()
+{
+    QMutexLocker locker(&m_sackMutex);
+    if (m_dnfSack.isNull())
+    {
+        return 0;
+    }
+
+    Pool *pool = dnf_sack_get_pool(m_dnfSack.data());
+    // 返回所有仓库数量
+    // FOR_REPOS宏中repoid从1开始，所以需要减去1
+    return pool->nrepos - 1;
+}
+
+bool DnfWrapper::isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName)
+{
+    if (sack.isNull() || repoName.isEmpty())
+    {
+        return false;
+    }
+
+    Pool *pool = dnf_sack_get_pool(sack.data());
+    int repoid;
+    Repo *repo;
+
+    auto repoNameBytes = repoName.toUtf8();
+    auto repoNameCStr = repoNameBytes.constData();
+    FOR_REPOS(repoid, repo)
+    {
+        if (repo && repo->name && !strcmp(repo->name, repoNameCStr))
+        {
+            KLOG_DEBUG(upgrade) << "Repository " << repoName << " added in sack";
+            return true;
+        }
+    }
+
+    KLOG_DEBUG(upgrade) << "Repository " << repoName << " not added in sack";
+    return false;
+}
+
+QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std::remove_pointer<HyGoal>::type> &goal)
+{
+    g_autoptr(GError) error = nullptr;
+    QStringList ret;
+    QSet<QString> packageIdSet;  // 用于去重
+
+    // 处理包数组
+    auto processPackageArray = [&](GPtrArray *pkgArray)
+    {
+        if (!pkgArray)
+            return;
+        for (guint i = 0; i < pkgArray->len; i++)
+        {
+            DnfPackage *pkg = static_cast<DnfPackage *>(g_ptr_array_index(pkgArray, i));
+            if (!pkg)
+                continue;
+            const gchar *packageId = dnf_package_get_package_id(pkg);
+            if (!packageId)
+                continue;
+            QString packageIdStr = QString::fromUtf8(packageId);
+            if (packageIdSet.contains(packageIdStr))
+                continue;
+            packageIdSet.insert(packageIdStr);
+            ret.append(packageIdStr);
+        }
+    };
+
+    // 获取需要安装的包（包括未安装的依赖）
+    g_autoptr(GPtrArray) installs = hy_goal_list_installs(goal.data(), &error);
+    processPackageArray(installs);
+
+    // 获取需要升级的包（包括依赖的升级）
+    g_autoptr(GPtrArray) upgrades = hy_goal_list_upgrades(goal.data(), &error);
+    processPackageArray(upgrades);
+
+    return ret;
 }
 }  // namespace Kiran

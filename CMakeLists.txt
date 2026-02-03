@@ -11,7 +11,7 @@ set(CMAKE_AUTOUIC ON)
 find_package(KSD REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(X11 REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets DBus LinguistTools Test Concurrent X11Extras)
+find_package(Qt5 COMPONENTS Core Gui Widgets DBus LinguistTools Test Concurrent X11Extras Sql)
 
 pkg_search_module(KLOG_QT5 REQUIRED klog-qt5)
 pkg_search_module(FMT REQUIRED fmt)
