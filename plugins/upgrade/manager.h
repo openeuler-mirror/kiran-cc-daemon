@@ -36,6 +36,7 @@ class Scanner;
 class DepSolver;
 class Installer;
 class Configuration;
+class UpgradeHistoryDB;
 class Manager : public QObject, protected QDBusContext
 {
     Q_OBJECT
@@ -101,6 +102,13 @@ public:  // PROPERTIES
      * @note 日志包括：升级阶段、正在处理的软件包ID
      */
     QString GetUpgradeLog();
+
+    /**
+     * @brief 获取升级历史记录
+     * @return JSON格式的升级历史记录数组
+     * @note 历史记录包括：升级时间、结果（成功/失败）、错误信息、成功升级的软件包、失败的软件包
+     */
+    QString GetUpgradeHistory();
     /**
      * @brief 设置提醒间隔天数
      * @param days 提醒间隔天数,从不、一周，一月，三月
@@ -115,6 +123,9 @@ signals:
     // 升级进度信号
     void UpgradePercentageChanged(uint percentage);
     void UpgradeActionChanged(const QString &action, const QString &actionHint);
+
+    // 升级历史记录信号
+    void UpgradeHistoryAdded(const UpgradeHistory &history);
 
 private:
     Manager(QObject *parent = nullptr);
@@ -145,6 +156,7 @@ private:
     Scanner *m_scanner;
     DepSolver *m_depSolver;
     Installer *m_installer;
+    UpgradeHistoryDB *m_historyDB;
 
     // 最新升级时间
     QString m_lastUpgradeTime;

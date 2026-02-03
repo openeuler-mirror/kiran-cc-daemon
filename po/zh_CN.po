@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiran-cc-daemon 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-04 20:03+0800\n"
+"POT-Creation-Date: 2026-02-03 09:26+0800\n"
 "PO-Revision-Date: 2020-07-01 17:54+0800\n"
 "Last-Translator: tangjie02 <tangjie02@kylinos.com.cn>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -623,3 +623,19 @@ msgid ""
 "Authentication is required to control whether network time synchronization "
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Upgrade.policy.in.h:1
+msgid "Upgrade the system."
+msgstr "系统升级"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Upgrade.policy.in.h:2
+msgid "Authentication is required to upgrade the system."
+msgstr "系统升级之前需要身份验证"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Upgrade.policy.in.h:3
+msgid "Set the reminder interval for days."
+msgstr "设置提醒周期"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Upgrade.policy.in.h:4
+msgid "Authentication is required to set the reminder interval for days."
+msgstr "设置提醒周期之前需要身份验证"

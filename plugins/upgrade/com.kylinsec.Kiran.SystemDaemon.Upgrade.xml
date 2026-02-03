@@ -24,9 +24,15 @@
             </arg>
         </method>
         <method name="GetUpgradeLog">
-            <description>Get the upgrade log.</description>
+            <description>Get the upgrade log in json format.</description>
             <arg type="s" name="log" direction="out">
                 <description>The upgrade log, include the upgrade stage and the package IDs.</description>
+            </arg>
+        </method>
+        <method name="GetUpgradeHistory">
+            <description>Get the upgrade history records in json format.</description>
+            <arg type="s" name="history" direction="out">
+                <description>The upgrade history records, include upgrade time, result (success/failed), error message, success packages, and failed packages.</description>
             </arg>
         </method>
         <method name="SetReminderInterval">
@@ -95,6 +101,12 @@
             </arg>
             <arg name="action_hint" type="s">
                 <description>The hint of the upgrade action.</description>
+            </arg>
+        </signal>
+        <signal name="UpgradeHistoryAdded">
+        <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="UpgradeHistory"/>
+            <arg type="(sisasas)" name="history" direction="out">
+                <description>The added upgrade history records, include upgrade time, result (success/failed), error message, success packages, and failed packages.</description>
             </arg>
         </signal>
     </interface>

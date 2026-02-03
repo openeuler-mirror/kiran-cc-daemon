@@ -35,6 +35,7 @@
 #include "lib/base/polkit-proxy.h"
 #include "manager.h"
 #include "scanner.h"
+#include "upgrade-history-db.h"
 #include "upgradeadaptor.h"
 
 namespace Kiran
@@ -85,6 +86,9 @@ Manager::Manager(QObject *parent) : QObject(parent),
                                     m_config(nullptr),
                                     m_cacheIntvalHours(DEFAULT_CACHE_UPDATE_INTERVAL_HOURS)
 {
+    qRegisterMetaType<UpgradeHistory>("UpgradeHistory");
+    qDBusRegisterMetaType<UpgradeHistory>();
+
     // 加载DNF模块
     DnfWrapper::globalInit();
     m_dnfWrapper = DnfWrapper::instance();
@@ -132,6 +136,41 @@ Manager::Manager(QObject *parent) : QObject(parent),
             });
     connect(m_installer, &Installer::installProgressChanged, this, &Manager::UpgradePercentageChanged);
     connect(m_installer, &Installer::installActionChanged, this, &Manager::UpgradeActionChanged);
+
+    // 连接 DnfWrapper 的升级日志信号，用于记录升级历史到数据库
+    connect(
+        m_dnfWrapper, &DnfWrapper::upgradeHistotyReady, this,
+        [this](const UpgradeHistory &history)
+        {
+            // 记录升级历史到数据库
+            KLOG_DEBUG(upgrade) << "Upgrade history recorded: time=" << history.upgradeTime
+                                << ", result=" << static_cast<int>(history.result)
+                                << ", error_message=" << history.errorMessage
+                                << ", success_packages=" << history.successPackages.size()
+                                << ", failed_packages=" << history.failedPackages.size();
+
+            auto dbSuccess = m_historyDB->addHistory(history);
+            if (!dbSuccess)
+            {
+                KLOG_ERROR(upgrade) << "Failed to add upgrade history to database.";
+                return;
+            }
+            KLOG_INFO(upgrade) << "Upgrade history added to databas successfully.";
+
+            if (history.result == UpgradeResult::UPGRADE_RESULT_SUCCESS ||
+                history.result == UpgradeResult::UPGRADE_RESULT_FAILED)
+            {
+                emit UpgradeHistoryAdded(history);
+            }
+        },
+        Qt::QueuedConnection);
+
+    // 初始化升级历史数据库
+    m_historyDB = new UpgradeHistoryDB(this);
+    if (!m_historyDB->initialize())
+    {
+        KLOG_ERROR(upgrade) << "Failed to initialize upgrade history database";
+    }
 }
 
 Manager::~Manager()
@@ -235,20 +274,20 @@ void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringLis
     if (getBackendStatus() == BACKEND_STATUS_UPGRADING)
     {
         KLOG_WARNING(upgrade) << "Upgrade is already in progress";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_INSTALL_NOT_COMPLETED);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_INSTALL_NOT_COMPLETED);
     }
 
     if (packageIDs.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Package IDs list is empty";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY);
     }
 
     auto upgradePkgs = m_scanner->getUpgradePkgs();
     if (upgradePkgs.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Upgrade packages is empty";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY);
     }
 
     m_installer->setUpgradePkgs(upgradePkgs);
@@ -256,7 +295,7 @@ void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringLis
     if (errorCode != CCErrorCode::SUCCESS)
     {
         KLOG_WARNING(upgrade) << "Upgrade failed: " << errorCode;
-        DBUS_ERROR_REPLY_AND_RET(errorCode);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(errorCode);
     }
 
     KLOG_INFO(upgrade) << "Upgrade package IDs: " << packageIDs;
@@ -270,14 +309,15 @@ void Manager::setReminderIntAuthenticated(const QDBusMessage &message, int remin
     if (reminderInterval == m_reminderInterval)
     {
         KLOG_WARNING(upgrade) << "Reminder interval is already set to " << reminderInterval;
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_ALREADY_SET);
+        QDBusConnection::systemBus().send(message.createReply());
+        return;
     }
 
     if (!isValidInterval(reminderInterval))
     {
         KLOG_WARNING(upgrade) << "Invalid reminder interval value: " << reminderInterval
                               << ", resetting to default: " << DEFAULT_REMINDER_INTERVAL;
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_INVALID);
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_REMINDER_INTERVAL_INVALID);
     }
 
     setReminderInterval(reminderInterval);
@@ -304,6 +344,17 @@ int Manager::getReminderInterval() const
 QString Manager::GetUpgradeLog()
 {
     return m_installer->getInstallLog();
+}
+QString Manager::GetUpgradeHistory()
+{
+    QString history;
+    auto errorCode = m_historyDB->getHistory(history);
+    if (errorCode != CCErrorCode::SUCCESS)
+    {
+        KLOG_ERROR(upgrade) << "Failed to get upgrade history: " << errorCode;
+        DBUS_ERROR_REPLY_AND_RETVAL(QString(), errorCode);
+    }
+    return history;
 }
 QString Manager::GetUpgradePkgsInfo()
 {

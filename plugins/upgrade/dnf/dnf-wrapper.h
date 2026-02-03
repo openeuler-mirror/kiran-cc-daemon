@@ -36,6 +36,12 @@ struct _DnfSack;
 typedef struct _DnfSack DnfSack;
 struct _DnfPackage;
 typedef struct _DnfPackage DnfPackage;
+namespace libdnf
+{
+struct Goal;
+}
+typedef struct libdnf::Goal *HyGoal;
+
 namespace Kiran
 {
 class DnfWrapper : public QObject
@@ -84,12 +90,13 @@ private:
 
     void initDnf();
 
-    bool findAndCreateSack();
+    bool findAndCreateSack(bool forceUpdate = false);
     /**
      * @brief 获取sack的引用，确保在使用期间不会被释放
+     * @param forceUpdate 是否强制更新缓存
      * @return sack的智能指针
      */
-    QSharedPointer<::DnfSack> getSackRef();
+    QSharedPointer<::DnfSack> getSackRef(bool forceUpdate = false);
 
     void updateCache();
     void cacheInvalidate();
@@ -99,11 +106,45 @@ private:
     //将DnfStateAction枚举转换为字符串
     QString stateActionToString(int action);
 
+    /**
+     * @brief 获取所有仓库数量
+     */
+    int getAllRepoCount();
+    /**
+     * @brief 获取sack实际加载的仓库列表
+     * @return 仓库列表
+     */
+    int getLoadedRepoCount();
+    /**
+     * @brief 检查sack中特定仓库是否存在
+     * @param sack sack对象
+     * @param repoName 仓库名称（repo ID）
+     * @return 如果仓库存在返回true，否则返回false
+     */
+    bool isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName);
+
+    /**
+     * @brief 从goal中获取所有要安装或升级的软件包ID列表
+     * @param goal 依赖解析后的goal对象（智能指针）
+     * @param error 错误信息指针
+     * @return 包ID列表（NVR格式），已去重
+     */
+    QStringList getAllPackagesFromGoal(const QSharedPointer<typename std::remove_pointer<HyGoal>::type> &goal);
+
 Q_SIGNALS:
-    void cacheUpdated(bool success);
+    /**
+     * @brief 缓存失效信号
+     */
+    void invalidate();
 
     void installPercentageChanged(uint percentage);
     void installActionChanged(const QString &action, const QString &actionHint);
+
+    /**
+     * @brief 升级日志信号（传递完整的升级日志信息）
+     * @param history 升级历史记录结构体
+     */
+    void upgradeHistotyReady(const UpgradeHistory &history);
 
 private:
     static DnfWrapper *m_instance;
@@ -123,10 +164,13 @@ private:
 
     // 用于定期更新缓存
     QTimer *m_updateTimer{nullptr};
-    int m_updateIntervalHours{24};
+    int m_updateIntervalHours;
     QDateTime m_lastUpdateTime;
 
     // 用于延时刷新缓存
     QTimer *m_reloadCacheTimer{nullptr};
+
+    QStringList m_successPackages;
+    QStringList m_failedPackages;
 };
 }  // namespace Kiran

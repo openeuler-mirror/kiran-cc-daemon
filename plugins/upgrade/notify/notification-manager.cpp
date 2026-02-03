@@ -329,7 +329,10 @@ void NotificationManager::sendNotification()
         Q_UNUSED(user_data);
 
         KLOG_DEBUG(upgrade) << "Opening kiran-control-panel from notification action";
-        if (!QProcess::startDetached("kiran-control-panel", QStringList()))
+        if (!QProcess::startDetached("kiran-control-panel", QStringList() << "-c"
+                                                                          << "about-system"
+                                                                          << "-s"
+                                                                          << "Upgrade"))
         {
             KLOG_ERROR(upgrade) << "Failed to start kiran-control-panel";
         }
