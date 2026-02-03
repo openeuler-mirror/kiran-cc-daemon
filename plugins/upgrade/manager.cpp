@@ -160,7 +160,6 @@ Manager::Manager(QObject *parent) : QObject(parent),
             if (history.result == UpgradeResult::UPGRADE_RESULT_SUCCESS ||
                 history.result == UpgradeResult::UPGRADE_RESULT_FAILED)
             {
-                KLOG_INFO(upgrade) << "emit upgrade history added signal.";
                 emit UpgradeHistoryAdded(history);
             }
         },

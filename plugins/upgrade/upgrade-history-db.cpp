@@ -26,6 +26,7 @@
 
 #include "lib/base/log.h"
 
+#define DB_CONNECTION_PREFIX "upgrade_history_"
 namespace Kiran
 {
 const QString UpgradeHistoryDB::DB_NAME = "upgrade_history.db";
@@ -37,7 +38,7 @@ UpgradeHistoryDB::UpgradeHistoryDB(QObject *parent) : QObject(parent)
 
 UpgradeHistoryDB::~UpgradeHistoryDB()
 {
-    QSqlDatabase::removeDatabase(getDatabasePath());
+    QSqlDatabase::removeDatabase(DB_CONNECTION_PREFIX + getDatabasePath());
 }
 
 QString UpgradeHistoryDB::getDatabasePath() const
@@ -54,7 +55,7 @@ QString UpgradeHistoryDB::getDatabasePath() const
 QSqlDatabase UpgradeHistoryDB::getDatabase()
 {
     QString dbPath = getDatabasePath();
-    QString connectionName = "upgrade_history_" + dbPath;
+    QString connectionName = DB_CONNECTION_PREFIX + dbPath;
 
     QSqlDatabase db = QSqlDatabase::database(connectionName);
     if (!db.isValid())
