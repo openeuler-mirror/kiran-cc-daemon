@@ -155,3 +155,8 @@ foreach(PC_IN_FILE IN LISTS PC_IN_FILES)
   install(FILES ${PROJECT_BINARY_DIR}/data/${PC_FILE}
           DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig)
 endforeach()
+
+# shortcuts blacklist
+install(FILES kglobalaccelblacklistrc.plasma-5.27
+        DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/
+        RENAME kglobalaccelblacklistrc)
