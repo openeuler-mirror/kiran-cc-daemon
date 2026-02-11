@@ -1,0 +1,140 @@
+# KGlobalAccel 黑名单配置文件
+# 格式说明：
+# [ComponentName] - 组件名称（该组件将被加入黑名单，需要显式配置才能启用快捷键）
+# ShortcutName=true - 快捷键名称，设置为 true 表示启用该快捷键
+#
+# 注意：不在黑名单中的组件默认启用所有快捷键
+#       在黑名单中的组件，只有显式配置的快捷键才会被启用
+
+[kwin]
+# 窗口操作
+Window Grow Horizontal=true
+Window Grow Vertical=true
+Window Maximize Horizontal=true
+Window Maximize Vertical=true
+Window Maximize=true
+Window Minimize=true
+Window Fullscreen=true
+Window Resize=true
+Window Move=true
+Window Move Center=true
+Window Close=true
+Window Shade=false
+Window Raise=true
+Window Lower=true
+Toggle Window Raise/Lower=true
+Window Above Other Windows=true
+Window Below Other Windows=true
+Window On All Desktops=true
+Kill Window=true
+# Window No Border=true
+# Setup Window Shortcut=true
+
+# 窗口快速铺放
+# Window Quick Tile Left=true
+# Window Quick Tile Right=true
+# Window Quick Tile Top=true
+# Window Quick Tile Bottom=true
+# Window Quick Tile Top Left=true
+# Window Quick Tile Top Right=true
+# Window Quick Tile Bottom Left=true
+# Window Quick Tile Bottom Right=true
+
+# 窗口移动（桌面）,工作区切换
+# Window to Desktop 1=true
+# Window to Desktop 2=true
+# Window to Desktop 3=true
+# Window to Desktop 4=true
+# Window to Desktop 5=true
+# Window to Desktop 6=true
+# Window to Desktop 7=true
+# Window to Desktop 8=true
+# Window to Desktop 9=true
+# Window to Desktop 10=true
+# Window to Desktop 11=true
+# Window to Desktop 12=true
+# Window to Desktop 13=true
+# Window to Desktop 14=true
+# Window to Desktop 15=true
+# Window to Desktop 16=true
+# Window to Desktop 17=true
+# Window to Desktop 18=true
+# Window to Desktop 19=true
+# Window to Desktop 20=true
+Window to Next Desktop=true
+Window to Previous Desktop=true
+Window One Desktop Up=true
+Window One Desktop Down=true
+Window One Desktop to the Left=true
+Window One Desktop to the Right=true
+
+# 窗口移动（屏幕），这个如何理解？ 显示切换
+# Window to Screen 0=true
+# Window to Screen 1=true
+# Window to Screen 2=true
+# Window to Screen 3=true
+# Window to Screen 4=true
+# Window to Screen 5=true
+# Window to Screen 6=true
+# Window to Screen 7=true
+Window to Next Screen=true
+Window to Previous Screen=true
+Window One Screen Up=true
+Window One Screen Down=true
+Window One Screen to the Left=true
+Window One Screen to the Right=true
+
+# 窗口调整大小
+# Window Shrink Horizontal=true
+# Window Shrink Vertical=true
+# Window Pack Left=true
+# Window Pack Right=true
+# Window Pack Up=true
+# Window Pack Down=true
+
+# 窗口切换
+Switch Window Up=true
+Switch Window Down=true
+Switch Window Left=true
+Switch Window Right=true
+Walk Through Windows=true
+Walk Through Windows (Reverse)=true
+Walk Through Windows Alternative=true
+Walk Through Windows Alternative (Reverse)=true
+Walk Through Windows of Current Application=true
+Walk Through Windows of Current Application (Reverse)=true
+Walk Through Windows of Current Application Alternative=true
+Walk Through Windows of Current Application Alternative (Reverse)=true
+Activate Window Demanding Attention=true
+
+# 窗口平铺/总览
+# Expose=true
+# ExposeAll=true
+# ExposeClass=true
+# ExposeClassCurrentDesktop=true
+# Overview=true
+# Show Desktop=true
+# ShowDesktopGrid=true
+
+# 缩放相关
+# view_zoom_in=true
+# view_zoom_out=true
+# view_actual_size=true
+# MoveZoomUp=true
+# MoveZoomDown=true
+# MoveZoomLeft=true
+# MoveZoomRight=true
+
+# 鼠标操作
+# MoveMouseToCenter=true
+# MoveMouseToFocus=true
+
+# 窗口透明度
+# Increase Opacity=true
+# Decrease Opacity=true
+
+# 其他功能
+# Edit Tiles=true
+# Suspend Compositing=true
+# Toggle Night Color=true
+# Window Operations Menu=true
