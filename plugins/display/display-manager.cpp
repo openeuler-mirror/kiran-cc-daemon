@@ -44,7 +44,6 @@ namespace Kiran
 {
 #define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
 #define DISPLAY_SCHEMA_STYLE "displayStyle"
-#define DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW "dynamicScalingWindow"
 #define DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER "maxScreenRecordNumber"
 #define DISPLAY_SCHEMA_SCREEN_CHANGED_ADAPT "screenChangedAdaptation"
 
@@ -59,7 +58,6 @@ namespace Kiran
 DisplayManager::DisplayManager() : m_currentConfig(nullptr),
                                    m_defaultStyle(DisplayStyle::DISPLAY_STYLE_EXTEND),
                                    m_windowScalingFactor(0),
-                                   m_dynamicScalingWindow(false),
                                    m_maxScreenRecordNumber(DEFAULT_MAX_SCREEN_RECORD_NUMBER)
 {
     m_displayAdaptor = new DisplayAdaptor(this);
@@ -160,9 +158,11 @@ void DisplayManager::setPrimary(const QString &name)
     SEND_PROPERTY_NOTIFY(primary, Primary)
 }
 
-void DisplayManager::setWindowScalingFactor(int window_scaling_factor)
+void DisplayManager::setWindowScalingFactor(int windowScalingFactor)
 {
-    m_windowScalingFactor = window_scaling_factor;
+    RETURN_IF_TRUE(m_windowScalingFactor == windowScalingFactor);
+
+    m_windowScalingFactor = windowScalingFactor;
     SEND_PROPERTY_NOTIFY(window_scaling_factor, WindowScalingFactor)
 }
 
@@ -187,6 +187,21 @@ QStringList DisplayManager::ListMonitors()
 
 void DisplayManager::RestoreChanges()
 {
+    // 恢复缩放率
+    auto windowScalingFactorCache = m_xsettingsSettings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_CACHE).toInt();
+    auto windowScalingFactor = m_xsettingsSettings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt();
+    if (windowScalingFactorCache >= 0)
+    {
+        /* 一般只有在调用了Save函数后才会走到这个代码分支，这种情况下m_windowScalingFactor跟windowScalingFactorCache是相同的，
+           这里再设置一次是避免通过非图形工具修改缩放率导致两个值不一致。*/
+        setWindowScalingFactor(windowScalingFactorCache);
+    }
+    else
+    {
+        setWindowScalingFactor(windowScalingFactor);
+    }
+
+    // 恢复分辨率
     CCErrorCode errorCode = CCErrorCode::SUCCESS;
     if (!switchStyle(m_defaultStyle, errorCode))
     {
@@ -202,6 +217,9 @@ void DisplayManager::Save()
     {
         DBUS_ERROR_REPLY_AND_RET(errorCode);
     }
+
+    // 应用缩放因子到缓存，需要重新登录才能生效
+    m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_CACHE, m_windowScalingFactor);
 }
 
 void DisplayManager::SetDefaultStyle(uint style)
@@ -234,15 +252,12 @@ void DisplayManager::SetWindowScalingFactor(int windowScalingFactor)
 {
     RETURN_IF_TRUE(getWindowScalingFactor() == windowScalingFactor)
 
-    if (!m_dynamicScalingWindow)
-    {
-        auto tipsInfo = QString("%1").arg(tr("The scaling rate can only take effect after logging out and logging in again."));
-        auto result = QProcess::startDetached("/usr/bin/notify-send", QStringList() << tipsInfo);
+    auto tipsInfo = QString("%1").arg(tr("The scaling rate can only take effect after logging out and logging in again."));
+    auto result = QProcess::startDetached("/usr/bin/notify-send", QStringList() << tipsInfo);
 
-        if (!result)
-        {
-            KLOG_WARNING(display) << "Failed to run notify-send";
-        }
+    if (!result)
+    {
+        KLOG_WARNING(display) << "Failed to run notify-send";
     }
 
     setWindowScalingFactor(windowScalingFactor);
@@ -311,7 +326,6 @@ void DisplayManager::init()
 void DisplayManager::loadSettings()
 {
     m_defaultStyle = DisplayStyle(styleStr2Enum(m_displaySettings->get(DISPLAY_SCHEMA_STYLE).toString()));
-    m_dynamicScalingWindow = m_displaySettings->get(DISPLAY_SCHEMA_DYNAMIC_SCALING_WINDOW).toBool();
     m_windowScalingFactor = m_xsettingsSettings->get(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR).toInt();
     m_maxScreenRecordNumber = m_displaySettings->get(DISPLAY_SCHEMA_MAX_SCREEN_RECORD_NUMBER).toInt();
 }
@@ -595,16 +609,6 @@ bool DisplayManager::apply(CCErrorCode &errorCode)
         KLOG_WARNING(display) << "Cannot find enabled monitor.";
         errorCode = CCErrorCode::ERROR_DISPLAY_NO_ENABLED_MONITOR;
         return false;
-    }
-
-    if (m_dynamicScalingWindow)
-    {
-        // 应用缩放因子
-        m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR, m_windowScalingFactor);
-    }
-    else
-    {
-        m_xsettingsSettings->set(SETTINGS_SCHEMA_WINDOW_SCALING_FACTOR_CACHE, m_windowScalingFactor);
     }
 
     QSharedPointer<DisplayMonitor> primaryMonitor;
