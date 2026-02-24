@@ -165,8 +165,6 @@ private:
     QString m_primary;
     // 窗口缩放率
     int32_t m_windowScalingFactor;
-    // 开启动态缩放窗口
-    bool m_dynamicScalingWindow;
     // 可存储屏幕个数最大值
     uint32_t m_maxScreenRecordNumber;
 
