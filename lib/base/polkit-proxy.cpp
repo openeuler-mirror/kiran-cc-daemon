@@ -256,6 +256,8 @@ void PolkitProxy::onFinishCheckAuth(QDBusPendingCallWatcher *watcher, QSharedPoi
         QDBusConnection::systemBus().send(replyMessage);
     }
     checkAuthData->timer.stop();
+    // 需要断开连接，否则connect(&checkAuthData->timer, xxx)仍持有checkAuthData的QSharedPointer，引用计数无法归零，导致泄漏
+    checkAuthData->timer.disconnect();
 }
 }  // namespace Kiran
 
