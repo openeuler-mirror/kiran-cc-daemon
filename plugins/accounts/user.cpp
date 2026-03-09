@@ -827,6 +827,7 @@ void User::change_password_expiration_policy_cb(MethodInvocation invocation, con
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY);
     }
+    argv.push_back("--");
     argv.push_back(this->user_name_get());
     SPAWN_DBUS_WITH_ARGS(invocation, argv);
 
