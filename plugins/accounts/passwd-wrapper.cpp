@@ -60,6 +60,7 @@ void PasswdWrapper::exec(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
     AccountsUtil::get_caller_uid(invocation, caller_uid);
     if (caller_uid != (int32_t)user->uid_get())
     {
+        argv.push_back("--");
         argv.push_back(user->user_name_get());
     }
 
