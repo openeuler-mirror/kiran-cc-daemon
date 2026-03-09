@@ -331,6 +331,11 @@ void DisplayMonitor::SetModeById(uint id)
 
 void DisplayMonitor::SetModeBySize(uint width, uint height)
 {
+    if (width > static_cast<uint>(INT_MAX) || height > static_cast<uint>(INT_MAX))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ARGUMENT_INVALID);
+    }
+
     auto modes = getModesBySize(width, height);
 
     if (modes.size() > 0)
