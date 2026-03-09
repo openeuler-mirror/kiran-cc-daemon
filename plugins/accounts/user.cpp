@@ -427,6 +427,7 @@ void User::setPasswordExpirationPolicyAuthenticated(const QDBusMessage &message,
     {
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_PEP_EMPTY);
     }
+    arguments.push_back("--");
     arguments.push_back(getUserName());
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
     QDBusConnection::systemBus().send(message.createReply());

@@ -71,7 +71,7 @@ void PasswdProcess::changePassword(const QString &userName,
     }
     else
     {
-        start("/usr/bin/passwd", QStringList{userName}, QIODevice::ReadWrite);
+        start("/usr/bin/passwd", QStringList{"--", userName}, QIODevice::ReadWrite);
     }
     connect(this, SIGNAL(readyReadStandardOutput()), this, SLOT(processStandardOutput()));
     connect(this, SIGNAL(readyReadStandardError()), this, SLOT(processStandardError()));
