@@ -230,7 +230,7 @@ void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
     KLOG_INFO(groups) << "Create group" << name;
 
     auto program = QString("/usr/sbin/groupadd");
-    QStringList arguments = {name};
+    QStringList arguments;
 
     if (users.size() > 0)
     {
@@ -238,6 +238,7 @@ void GroupsManager::createGroupAuthenticated(const QDBusMessage &message,
         arguments.append(users.join(","));
     }
 
+    arguments.append({ "--", name });
     SPAWN_WITH_DBUS_MESSAGE(message, program, arguments);
 
     auto group = findAndCreateGroupByName(name);
