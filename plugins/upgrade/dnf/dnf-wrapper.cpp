@@ -961,9 +961,9 @@ QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std
 {
     g_autoptr(GError) error = nullptr;
     QStringList ret;
-    QSet<QString> packageIdSet;  // 用于去重
+    // 按 NVR（name-evra）去重：多个源中同一包 NVR 相同则只保留一条
+    QSet<QString> nvrKeySet;
 
-    // 处理包数组
     auto processPackageArray = [&](GPtrArray *pkgArray)
     {
         if (!pkgArray)
@@ -976,11 +976,19 @@ QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std
             const gchar *packageId = dnf_package_get_package_id(pkg);
             if (!packageId)
                 continue;
-            QString packageIdStr = QString::fromUtf8(packageId);
-            if (packageIdSet.contains(packageIdStr))
+            const gchar *name = dnf_package_get_name(pkg);
+            const gchar *evr = dnf_package_get_evr(pkg);
+            const gchar *arch = dnf_package_get_arch(pkg);
+            if (!name || !evr || !arch)
                 continue;
-            packageIdSet.insert(packageIdStr);
-            ret.append(packageIdStr);
+            auto nvrKey = QString("%1-%2.%3")
+                              .arg(QString::fromUtf8(name),
+                                   QString::fromUtf8(evr),
+                                   QString::fromUtf8(arch));
+            if (nvrKeySet.contains(nvrKey))
+                continue;
+            nvrKeySet.insert(nvrKey);
+            ret.append(QString::fromUtf8(packageId));
         }
     };
 
