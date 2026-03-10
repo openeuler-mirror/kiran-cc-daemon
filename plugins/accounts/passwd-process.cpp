@@ -318,7 +318,7 @@ QString PasswdProcess::translationPasswdTips(const QString &passwdTips)
 
     if (translationSuccess)
     {
-        trimPasswdTipsParts.join(" - ");
+        return trimPasswdTipsParts.join(" - ");
     }
 
 #define MATCH_WITH_ONE_NUMBER(pattern, translation)                      \
