@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <QHash>
 #include "keys-component.h"
 
 class QGSettings;
@@ -31,6 +32,14 @@ public:
     virtual void init() override;
 
 private:
+    void registerConfigurableShortcuts(bool forceUpdate);
+    void registerConfigurableShortCut(const QString &schemaKey, bool forceUpdate);
+    void processSettingsChanged(const QString &schemaKey);
+    void processKGlobalShortcutChanged(const QString &actionUnique);
+    QString schemaKeyByAction(const QString &actionUnique) const;
+    QString actionBySchemaKey(const QString &schemaKey) const;
+    QString displayNameByAction(const QString &actionUnique) const;
+
     void launchHelp();
     void lockScreen();
     void showdesktop();
@@ -44,6 +53,10 @@ private:
 
 private:
     virtual void triggerShortCut(const QString &name) override;
+    QHash<QString, QString> m_actionSchemaKeyMap;
+    QHash<QString, QString> m_schemaActionMap;
+    bool m_syncingFromSettings;
+    bool m_syncingFromKGlobalAccel;
 };
 
 }  // namespace Kiran

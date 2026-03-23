@@ -15,10 +15,14 @@
 #pragma once
 
 #include <QObject>
+#include <QStringList>
 
 class KActionCollection;
 class QGSettings;
 class KGlobalAccelComponentInterface;
+class KGlobalAccelInterface;
+class QAction;
+class QKeySequence;
 
 namespace Kiran
 {
@@ -32,6 +36,13 @@ public:
 public:
     virtual void init() = 0;
     virtual void triggerShortCut(const QString &name) = 0;
+
+Q_SIGNALS:
+    /*
+    @brief 当KGlobalAccel组件的快捷键发生变化时，发出信号
+    @param actionUnique 快捷键的名称
+    */
+    void shortcutChanged(const QString &actionUnique);
 
 protected:
     /*
@@ -52,6 +63,8 @@ protected:
                           const QString &displayName,
                           bool isPressed = true,
                           bool forceUpdate = false);
+    QAction *getAction(const QString &name) const;
+    QString getComponentName() const;
 
 private:
     void processShortcutPressed(const QString &componentUnique,
@@ -61,6 +74,7 @@ private:
     void processShortcutReleased(const QString &componentUnique,
                                  const QString &actionUnique,
                                  qlonglong timestamp);
+    void processYourShortcutsChanged(const QStringList &actionId, const QList<QKeySequence> &newKeys);
 
 protected:
     QGSettings *m_settings;
@@ -68,6 +82,7 @@ protected:
 private:
     KActionCollection *m_actionCollection;
     KGlobalAccelComponentInterface *m_componentInterface;
+    KGlobalAccelInterface *m_globalAccelInterface;
     bool m_pressedTriggered;
 };
 }  // namespace Kiran

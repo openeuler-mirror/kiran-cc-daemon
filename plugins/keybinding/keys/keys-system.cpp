@@ -14,6 +14,7 @@
 
 #include "keys-system.h"
 #include <KDesktopFile>
+#include <KGlobalAccel>
 #include <KIO/DesktopExecParser>
 #include <KService>
 #include <KWindowSystem>
@@ -27,9 +28,9 @@
 #include <QVariant>
 #include <XdgDefaultApps>
 #include <XdgDesktopFile>
-#include "../keybinding-utils.h"
 #include "keybinding-i.h"
 #include "lib/base/base.h"
+#include "lib/base/def.h"
 
 namespace Kiran
 {
@@ -61,27 +62,27 @@ namespace Kiran
 // 屏保锁屏后，检查锁屏状态的最大次数
 #define SCREENSAVER_LOCK_CHECK_MAX_COUNT 50
 
-KeysSystem::KeysSystem() : KeysComponent("System", tr("System"))
+KeysSystem::KeysSystem() : KeysComponent("System", tr("System")),
+                           m_syncingFromSettings(false),
+                           m_syncingFromKGlobalAccel(false)
 {
+    m_actionSchemaKeyMap.insert(ACTION_NAME_HELP, KEYS_SCHEMA_HELP);
+    m_actionSchemaKeyMap.insert(ACTION_NAME_EMAIL, KEYS_SCHEMA_EMAIL);
+    m_actionSchemaKeyMap.insert(ACTION_NAME_SCREENSAVER, KEYS_SCHEMA_SCREENSAVER);
+    m_actionSchemaKeyMap.insert(ACTION_NAME_SHOW_DESKTOP, KEYS_SCHEMA_SHOW_DESKTOP);
+    m_actionSchemaKeyMap.insert(ACTION_NAME_LOGOUT, KEYS_SCHEMA_LOGOUT);
+    m_actionSchemaKeyMap.insert(ACTION_NAME_POWER, KEYS_SCHEMA_POWER);
+    m_actionSchemaKeyMap.insert(ACTION_NAME_HOME, KEYS_SCHEMA_HOME);
+
+    for (auto iter = m_actionSchemaKeyMap.constBegin(); iter != m_actionSchemaKeyMap.constEnd(); ++iter)
+    {
+        m_schemaActionMap.insert(iter.value(), iter.key());
+    }
 }
 
 void KeysSystem::init()
 {
-    auto helpKey = m_settings->get(KEYS_SCHEMA_HELP).toString();
-    auto emailKey = m_settings->get(KEYS_SCHEMA_EMAIL).toString();
-    auto screensaverKey = m_settings->get(KEYS_SCHEMA_SCREENSAVER).toString();
-    auto showdesktopKey = m_settings->get(KEYS_SCHEMA_SHOW_DESKTOP).toString();
-    auto logoutKey = m_settings->get(KEYS_SCHEMA_LOGOUT).toString();
-    auto powerKey = m_settings->get(KEYS_SCHEMA_POWER).toString();
-    auto homeKey = m_settings->get(KEYS_SCHEMA_HOME).toString();
-
-    registerShortCut(helpKey, ACTION_NAME_HELP, tr("Launch help browser"));
-    registerShortCut(emailKey, ACTION_NAME_EMAIL, tr("Launch email client"));
-    registerShortCut(screensaverKey, ACTION_NAME_SCREENSAVER, tr("Lock screen"));
-    registerShortCut(showdesktopKey, ACTION_NAME_SHOW_DESKTOP, tr("Show desktop"));
-    registerShortCut(logoutKey, ACTION_NAME_LOGOUT, tr("Log out"));
-    registerShortCut(powerKey, ACTION_NAME_POWER, tr("Shut down"));
-    registerShortCut(homeKey, ACTION_NAME_HOME, tr("Home folder"));
+    registerConfigurableShortcuts(false);
 
     registerShortCut(Qt::Key_Calculator, ACTION_NAME_CALCULATOR, tr("Launch calculator"));
     registerShortCut(Qt::Key_WWW, ACTION_NAME_WWW, tr("Launch web browser"));
@@ -94,6 +95,118 @@ void KeysSystem::init()
                      tr("Show start menu"),
                      false,
                      true);
+
+    connect(m_settings, &QGSettings::changed, this, &KeysSystem::processSettingsChanged);
+    connect(this, &KeysComponent::shortcutChanged, this, &KeysSystem::processKGlobalShortcutChanged);
+}
+
+void KeysSystem::registerConfigurableShortcuts(bool forceUpdate)
+{
+    for (auto iter = m_actionSchemaKeyMap.constBegin(); iter != m_actionSchemaKeyMap.constEnd(); ++iter)
+    {
+        registerConfigurableShortCut(iter.value(), forceUpdate);
+    }
+}
+
+void KeysSystem::registerConfigurableShortCut(const QString &schemaKey, bool forceUpdate)
+{
+    auto actionName = actionBySchemaKey(schemaKey);
+    RETURN_IF_TRUE(actionName.isEmpty());
+
+    auto shortcut = m_settings->get(schemaKey).toString();
+    registerShortCut(shortcut, actionName, displayNameByAction(actionName), true, forceUpdate);
+}
+
+void KeysSystem::processSettingsChanged(const QString &schemaKey)
+{
+    if (m_syncingFromKGlobalAccel)
+    {
+        return;
+    }
+
+    auto actionName = actionBySchemaKey(schemaKey);
+    RETURN_IF_TRUE(actionName.isEmpty());
+
+    auto shortcut = m_settings->get(schemaKey).toString();
+    auto keySequenceList = KGlobalAccel::self()->globalShortcut(getComponentName(), actionName);
+    auto currentShortcut = keySequenceList.isEmpty() ? QStringLiteral("") : keySequenceList.first().toString();
+    RETURN_IF_TRUE(currentShortcut == shortcut);
+
+    KLOG_INFO(keybinding) << "Syncing shortcut for"
+                          << schemaKey << "from gsettings to KGlobalAccel, "
+                          << "new shortcut is" << shortcut;
+
+    /*目前m_syncingFromSettings变量的设计其实是多余的，只是为了多一层保险。实际测试中registerConfigurableShortCut
+      调用的KGlobalAccel::self()->setShortcut函数是不会发送yourShortcutsChanged信号，不确定是kglobalaccel的bug还是设计如此。
+
+      另外，就算会发送yourShortcutsChanged信号且是异步的，因为前面有RETURN_IF_TRUE(currentShortcut == shortcut);判断，
+      所以不会出现循环同步的情况。*/
+    m_syncingFromSettings = true;
+    registerConfigurableShortCut(schemaKey, true);
+    m_syncingFromSettings = false;
+}
+
+void KeysSystem::processKGlobalShortcutChanged(const QString &actionUnique)
+{
+    if (m_syncingFromSettings)
+    {
+        return;
+    }
+
+    auto schemaKey = schemaKeyByAction(actionUnique);
+    if (schemaKey.isEmpty())
+    {
+        return;
+    }
+
+    auto keySequenceList = KGlobalAccel::self()->globalShortcut(getComponentName(), actionUnique);
+    auto shortcut = keySequenceList.isEmpty() ? QStringLiteral("") : keySequenceList.first().toString();
+    auto currentShortcut = m_settings->get(schemaKey).toString();
+    RETURN_IF_TRUE(currentShortcut == shortcut);
+
+    KLOG_INFO(keybinding) << "Syncing shortcut for"
+                          << schemaKey << "from KGlobalAccel to gsettings, "
+                          << "old shortcut is" << currentShortcut << "and "
+                          << "new shortcut is" << shortcut;
+
+    m_syncingFromKGlobalAccel = true;
+    m_settings->set(schemaKey, shortcut);
+    m_syncingFromKGlobalAccel = false;
+}
+
+QString KeysSystem::schemaKeyByAction(const QString &actionUnique) const
+{
+    return m_actionSchemaKeyMap.value(actionUnique);
+}
+
+QString KeysSystem::actionBySchemaKey(const QString &schemaKey) const
+{
+    return m_schemaActionMap.value(schemaKey);
+}
+
+QString KeysSystem::displayNameByAction(const QString &actionUnique) const
+{
+    switch (shash(actionUnique.toUtf8().data()))
+    {
+    case CONNECT(ACTION_NAME_HELP, _hash):
+        return tr("Launch help browser");
+    case CONNECT(ACTION_NAME_EMAIL, _hash):
+        return tr("Launch email client");
+    case CONNECT(ACTION_NAME_SCREENSAVER, _hash):
+        return tr("Lock screen");
+    case CONNECT(ACTION_NAME_SHOW_DESKTOP, _hash):
+        return tr("Show desktop");
+    case CONNECT(ACTION_NAME_LOGOUT, _hash):
+        return tr("Log out");
+    case CONNECT(ACTION_NAME_POWER, _hash):
+        return tr("Shut down");
+    case CONNECT(ACTION_NAME_HOME, _hash):
+        return tr("Home folder");
+    default:
+        break;
+    }
+
+    return QString();
 }
 
 void KeysSystem::launchHelp()
