@@ -318,7 +318,7 @@ QString PasswdProcess::translationPasswdTips(const QString &passwdTips)
 
     if (translationSuccess)
     {
-        trimPasswdTipsParts.join(" - ");
+        return trimPasswdTipsParts.join(" - ");
     }
 
 #define MATCH_WITH_ONE_NUMBER(pattern, translation)                      \
@@ -357,13 +357,16 @@ QString PasswdProcess::translationWithGettext(const QString &messageID)
 {
     KLOG_INFO(accounts) << "Translation message" << messageID << "with gettext.";
 
+    RETURN_VAL_IF_TRUE(messageID.isEmpty(), QString());
+
 #define TRANS_WITH_DOMAIN(domainname, text)                                     \
     do                                                                          \
     {                                                                           \
         BREAK_IF_TRUE(bindtextdomain(domainname, "/usr/share/locale") == NULL); \
         BREAK_IF_TRUE(bind_textdomain_codeset(domainname, "UTF-8") == NULL);    \
-        auto translatedText = dgettext(domainname, text.toUtf8().data());       \
-        BREAK_IF_TRUE(translatedText == text.toUtf8().data())                   \
+        auto textUtf8 = text.toUtf8();                                          \
+        auto translatedText = dgettext(domainname, textUtf8.constData());       \
+        BREAK_IF_TRUE(translatedText == textUtf8.constData())                   \
         return translatedText;                                                  \
     } while (0)
 
