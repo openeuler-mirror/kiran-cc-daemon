@@ -275,6 +275,7 @@ void AppearanceManager::processSettingsChanged(const QString& key)
     }
     case CONNECT(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, _hash):
     {
+        SEND_PROPERTY_NOTIFY(AutoSwitchWindowTheme, AutoSwitchWindowTheme)
         if (getAutoSwitchWindowTheme())
         {
             autoSwitchForWindowTheme();
