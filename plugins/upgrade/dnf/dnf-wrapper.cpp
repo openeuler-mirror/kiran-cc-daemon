@@ -308,8 +308,7 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
 
     // 获取所有仓库
     int loadedRepoCount = 0;
-    g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
-    GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
+    GPtrArray *repos = dnf_repo_loader_get_repos(dnf_context_get_repo_loader(m_dnfCtx), &error);
     if (!repos)
     {
         KLOG_ERROR(upgrade) << "Failed to get repos! error message: " << error->message;
