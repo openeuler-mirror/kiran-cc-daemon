@@ -22,6 +22,7 @@
 #include <QGuiApplication>
 #include <QTimer>
 #include "../keybinding-utils.h"
+#include "../kglobalaccel-dbus-types.h"
 #include "keybinding-i.h"
 #include "lib/base/base.h"
 
@@ -29,6 +30,7 @@ namespace Kiran
 {
 KeysComponent::KeysComponent(const QString &componentName,
                              const QString &displayName) : m_componentInterface(nullptr),
+                                                           m_globalAccelInterface(nullptr),
                                                            m_pressedTriggered(false)
 {
     m_settings = new QGSettings(KEYS_SCHEMA_ID, "", this);
@@ -36,16 +38,25 @@ KeysComponent::KeysComponent(const QString &componentName,
     m_actionCollection->setComponentName(componentName);
     m_actionCollection->setComponentDisplayName(displayName);
 
-    KGlobalAccelInterface globalAccelInterface(QStringLiteral("org.kde.kglobalaccel"),
-                                               QStringLiteral("/kglobalaccel"),
-                                               QDBusConnection::sessionBus());
+    qDBusRegisterMetaType<QList<int>>();
+    qDBusRegisterMetaType<QKeySequence>();
+    qDBusRegisterMetaType<QList<QKeySequence>>();
+    qDBusRegisterMetaType<QList<QStringList>>();
+    qDBusRegisterMetaType<KGlobalShortcutInfo>();
+    qDBusRegisterMetaType<QList<KGlobalShortcutInfo>>();
+    qDBusRegisterMetaType<KGlobalAccel::MatchType>();
+
+    m_globalAccelInterface = new KGlobalAccelInterface(QStringLiteral("org.kde.kglobalaccel"),
+                                                         QStringLiteral("/kglobalaccel"),
+                                                         QDBusConnection::sessionBus(),
+                                                         this);
 
     // 触发kglobalaccel创建组件并加载配置
     QStringList actionId = KeybindingUtils::buildActionId(componentName, displayName, QString(), QString());
-    globalAccelInterface.doRegister(actionId);
-    globalAccelInterface.unRegister(actionId);
+    m_globalAccelInterface->doRegister(actionId);
+    m_globalAccelInterface->unRegister(actionId);
 
-    auto componentReply = globalAccelInterface.getComponent(componentName);
+    auto componentReply = m_globalAccelInterface->getComponent(componentName);
     componentReply.waitForFinished();
     if (componentReply.isError())
     {
@@ -54,14 +65,16 @@ KeysComponent::KeysComponent(const QString &componentName,
     else
     {
         auto componentPath = componentReply.value();
-        m_componentInterface = new KGlobalAccelComponentInterface(globalAccelInterface.service(),
+        m_componentInterface = new KGlobalAccelComponentInterface(m_globalAccelInterface->service(),
                                                                   componentPath.path(),
-                                                                  globalAccelInterface.connection(),
+                                                                  m_globalAccelInterface->connection(),
                                                                   this);
 
         connect(m_componentInterface, &KGlobalAccelComponentInterface::globalShortcutPressed, this, &KeysComponent::processShortcutPressed);
         connect(m_componentInterface, &KGlobalAccelComponentInterface::globalShortcutReleased, this, &KeysComponent::processShortcutReleased);
     }
+
+    connect(m_globalAccelInterface, &KGlobalAccelInterface::yourShortcutsChanged, this, &KeysComponent::processYourShortcutsChanged);
 }
 
 bool KeysComponent::registerShortCut(const QKeySequence &key,
@@ -89,6 +102,16 @@ bool KeysComponent::registerShortCut(const QList<QKeySequence> &keys,
     }
 
     return KGlobalAccel::self()->setGlobalShortcut(globalAction, keys);
+}
+
+QAction *KeysComponent::getAction(const QString &name) const
+{
+    return m_actionCollection->action(name);
+}
+
+QString KeysComponent::getComponentName() const
+{
+    return m_actionCollection->componentName();
 }
 
 void KeysComponent::processShortcutPressed(const QString &componentUnique,
@@ -152,6 +175,26 @@ void KeysComponent::processShortcutReleased(const QString &componentUnique,
                                    QGuiApplication::sync();
                                } });
     }
+}
+
+void KeysComponent::processYourShortcutsChanged(const QStringList &actionId, const QList<QKeySequence> &newKeys)
+{
+    Q_UNUSED(newKeys);
+
+    if (actionId.size() <= KGlobalAccel::ActionUnique || actionId.size() <= KGlobalAccel::ComponentUnique)
+    {
+        KLOG_WARNING(keybinding) << "Invalid action id from yourShortcutsChanged:" << actionId;
+        return;
+    }
+
+    auto componentUnique = actionId.at(KGlobalAccel::ComponentUnique);
+    auto actionUnique = actionId.at(KGlobalAccel::ActionUnique);
+    if (componentUnique != m_actionCollection->componentName() || actionUnique.isEmpty())
+    {
+        return;
+    }
+
+    Q_EMIT shortcutChanged(actionUnique);
 }
 
 }  // namespace Kiran

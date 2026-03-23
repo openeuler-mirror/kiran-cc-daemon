@@ -12,7 +12,7 @@ set(KGLOBALACCEL_XML
     ${KGLOBALACCEL_DBUS_INTERFACES_DIR}/kf5_org.kde.KGlobalAccel.xml)
 set_source_files_properties(
   ${KGLOBALACCEL_XML}
-  PROPERTIES INCLUDE "kglobalaccel.h"
+  PROPERTIES INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/kglobalaccel-dbus-types.h"
              NO_NAMESPACE TRUE
              CLASSNAME "KGlobalAccelInterface")
 qt5_add_dbus_interface(KGLOBAL_ACCEL_SRCS ${KGLOBALACCEL_XML}

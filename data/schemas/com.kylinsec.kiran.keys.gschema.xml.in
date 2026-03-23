@@ -6,21 +6,6 @@
       <summary>Volume step</summary>
       <description>Volume step as percentage of volume.</description>
     </key>
-    <key name="touchpad" type="s">
-      <default>'XF86TouchpadToggle'</default>
-      <summary>Toggle touchpad</summary>
-      <description>Binding to enable or disable the touchpad.</description>
-    </key>
-    <key name="touchpad-on" type="s">
-      <default>'XF86TouchpadOn'</default>
-      <summary>Enable touchpad</summary>
-      <description>Binding to enable the touchpad.</description>
-    </key>
-    <key name="touchpad-off" type="s">
-      <default>'XF86TouchpadOff'</default>
-      <summary>Disable touchpad</summary>
-      <description>Binding to disable the touchpad.</description>
-    </key>
     <key name="power" type="s">
       <default>'Ctrl+Alt+Delete'</default>
       <summary>Shut down</summary>
