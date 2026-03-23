@@ -308,7 +308,7 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
 
     // 获取所有仓库
     int loadedRepoCount = 0;
-    GPtrArray *repos = dnf_repo_loader_get_repos(dnf_context_get_repo_loader(m_dnfCtx), &error);
+    g_autoptr(GPtrArray) repos = dnf_repo_loader_get_repos(dnf_context_get_repo_loader(m_dnfCtx), &error);
     if (!repos)
     {
         KLOG_ERROR(upgrade) << "Failed to get repos! error message: " << error->message;
@@ -374,9 +374,6 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
    * kernels during system upgrades */
     dnf_sack_set_installonly_limit(
         sack.data(), dnf_context_get_installonly_limit(m_dnfCtx) + 1);
-
-    g_ptr_array_unref(repos);
-    g_clear_error(&error);
 
     // 所有操作完成后，在锁保护下更新 m_dnfSack
     {
@@ -457,6 +454,12 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
     hy_query_filter_upgrades(hyQuery, TRUE);
     hy_query_filter_latest(hyQuery, TRUE);  // 过滤出最新版本的包
     GPtrArray *pkgList = hy_query_run(hyQuery);
+    if (!pkgList)
+    {
+        errorMessage = tr("Failed to query upgrades package list.");
+        hy_query_free(hyQuery);
+        return ret;
+    }
 
     // 若多个源中存在同一个包，同一个版本，则需要去重
     for (uint i = 0; i < pkgList->len; i++)
@@ -486,7 +489,10 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
             }
         }
     }
-    g_ptr_array_free(pkgList, FALSE);
+    if (pkgList)
+    {
+        g_ptr_array_free(pkgList, FALSE);
+    }
     hy_query_free(hyQuery);
 
     return uniquePackages.values();
@@ -829,7 +835,10 @@ QString DnfWrapper::getInstalledPackageVersion(const QString &packageName, QStri
         errorMessage = tr("Package %1 is not installed.").arg(packageName);
     }
 
-    g_ptr_array_free(pkgList, FALSE);
+    if (pkgList)
+    {
+        g_ptr_array_free(pkgList, FALSE);
+    }
     hy_query_free(hyQuery);
 
     return version;

@@ -49,7 +49,11 @@ class Manager : public QObject, protected QDBusContext
 public:
     static Manager *instance() { return m_instance; };
     static void globalInit();
-    static void globalDeinit() { delete m_instance; };
+    static void globalDeinit()
+    {
+        delete m_instance;
+        m_instance = nullptr;
+    };
     void init();
 
 public:  // PROPERTIES
