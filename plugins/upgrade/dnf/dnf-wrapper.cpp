@@ -67,7 +67,7 @@ DnfWrapper::DnfWrapper(QObject *parent)
     m_reloadCacheTimer->setSingleShot(true);
     connect(m_reloadCacheTimer, &QTimer::timeout, this, [this]()
             {
-                KLOG_DEBUG(upgrade) << "Reload cache triggered......";
+                KLOG_INFO(upgrade) << "Reload cache now......";
                 updateCache();
             });
 
@@ -93,7 +93,7 @@ DnfWrapper::DnfWrapper(QObject *parent)
     m_updateTimer = new QTimer(this);
     connect(m_updateTimer, &QTimer::timeout, this, [this]()
             {
-                KLOG_DEBUG(upgrade) << "Periodic cache update triggered";
+                KLOG_INFO(upgrade) << "Periodic cache update triggered";
                 if (!m_cacheFutureWatcher.isRunning())
                 {
                     cacheInvalidate();
@@ -156,7 +156,7 @@ void DnfWrapper::initDnf()
     {
         Q_UNUSED(ctx);
         auto *self = static_cast<DnfWrapper *>(user_data);
-        KLOG_DEBUG(upgrade) << "cache invalidate because:" << message;
+        KLOG_INFO(upgrade) << "cache invalidate because:" << message;
         if (self)
         {
             // 转发信号，使其在qt线程中执行
@@ -173,7 +173,8 @@ void DnfWrapper::initDnf()
     connect(m_fileWatcher, &QFileSystemWatcher::directoryChanged, this,
             [this](const QString &path)
             {
-                KLOG_DEBUG(upgrade) << "Repository directory changed: " << path;
+                KLOG_INFO(upgrade) << "Repository directory changed: " << path;
+                KLOG_INFO(upgrade) << "Cache need to be updated.";
                 cacheInvalidate();
             });
 }
@@ -239,13 +240,13 @@ void DnfWrapper::startUpdateTimer()
 
     if (secondsUntilUpdate > 0)
     {
-        KLOG_DEBUG(upgrade) << "Next cache update in " << secondsUntilUpdate
-                            << " seconds";
+        KLOG_INFO(upgrade) << "Next cache update in " << secondsUntilUpdate
+                           << " seconds";
         m_updateTimer->start(secondsUntilUpdate * 1000);
     }
     else
     {
-        KLOG_DEBUG(upgrade) << "Update cache right now.";
+        KLOG_INFO(upgrade) << "Update cache right now.";
         // 立即触发更新
         QTimer::singleShot(0, this, [this]()
                            { cacheInvalidate(); });
@@ -307,8 +308,7 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
 
     // 获取所有仓库
     int loadedRepoCount = 0;
-    g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
-    GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
+    g_autoptr(GPtrArray) repos = dnf_repo_loader_get_repos(dnf_context_get_repo_loader(m_dnfCtx), &error);
     if (!repos)
     {
         KLOG_ERROR(upgrade) << "Failed to get repos! error message: " << error->message;
@@ -354,6 +354,7 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
             continue;
         }
 
+        KLOG_INFO(upgrade) << "Loaded remote repo: " << dnf_repo_get_id(repo);
         loadedRepoCount++;
     }
 
@@ -373,9 +374,6 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
    * kernels during system upgrades */
     dnf_sack_set_installonly_limit(
         sack.data(), dnf_context_get_installonly_limit(m_dnfCtx) + 1);
-
-    g_ptr_array_unref(repos);
-    g_clear_error(&error);
 
     // 所有操作完成后，在锁保护下更新 m_dnfSack
     {
@@ -433,13 +431,13 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
     bool forceUpdate = false;
     auto loadedRepoCount = getLoadedRepoCount();
     auto allRepoCount = getAllRepoCount();
-    KLOG_DEBUG(upgrade) << "Loaded repo number:" << loadedRepoCount
-                        << ",all repo number:" << allRepoCount;
+    KLOG_INFO(upgrade) << "Loaded repo number:" << loadedRepoCount
+                       << ",all repo number:" << allRepoCount;
     if (loadedRepoCount < allRepoCount)
     {
         //强制更新缓存
         forceUpdate = true;
-        KLOG_INFO(upgrade) << "loaded repo number != all repo number, force update cache.";
+        KLOG_INFO(upgrade) << "loaded repo number < all repo number, force update cache.";
     }
 
     // 获取sack引用
@@ -456,6 +454,12 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
     hy_query_filter_upgrades(hyQuery, TRUE);
     hy_query_filter_latest(hyQuery, TRUE);  // 过滤出最新版本的包
     GPtrArray *pkgList = hy_query_run(hyQuery);
+    if (!pkgList)
+    {
+        errorMessage = tr("Failed to query upgrades package list.");
+        hy_query_free(hyQuery);
+        return ret;
+    }
 
     // 若多个源中存在同一个包，同一个版本，则需要去重
     for (uint i = 0; i < pkgList->len; i++)
@@ -485,7 +489,10 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
             }
         }
     }
-    g_ptr_array_free(pkgList, FALSE);
+    if (pkgList)
+    {
+        g_ptr_array_free(pkgList, FALSE);
+    }
     hy_query_free(hyQuery);
 
     return uniquePackages.values();
@@ -828,7 +835,10 @@ QString DnfWrapper::getInstalledPackageVersion(const QString &packageName, QStri
         errorMessage = tr("Package %1 is not installed.").arg(packageName);
     }
 
-    g_ptr_array_free(pkgList, FALSE);
+    if (pkgList)
+    {
+        g_ptr_array_free(pkgList, FALSE);
+    }
     hy_query_free(hyQuery);
 
     return version;
@@ -871,6 +881,7 @@ QString DnfWrapper::stateActionToString(int action)
     }
 }
 
+// 获取sack实际加载的所有仓库数量，包括@System。
 int DnfWrapper::getLoadedRepoCount()
 {
     QMutexLocker locker(&m_sackMutex);
@@ -879,23 +890,53 @@ int DnfWrapper::getLoadedRepoCount()
         return 0;
     }
 
+    int loadedRepoCount = 0;
     Pool *pool = dnf_sack_get_pool(m_dnfSack.data());
-    // 返回正在使用的仓库数量
-    return pool->urepos;
+    int repoid = 0;
+    Repo *repo = nullptr;
+
+    FOR_REPOS(repoid, repo)
+    {
+        if (repo && repo->name)
+        {
+            loadedRepoCount++;
+        }
+    }
+    return loadedRepoCount;
 }
 
 int DnfWrapper::getAllRepoCount()
 {
-    QMutexLocker locker(&m_sackMutex);
-    if (m_dnfSack.isNull())
+    // 默认包含@System仓库
+    int enabledRepo = 1;
+
+    if (!m_dnfCtx)
     {
         return 0;
     }
 
-    Pool *pool = dnf_sack_get_pool(m_dnfSack.data());
-    // 返回所有仓库数量
-    // FOR_REPOS宏中repoid从1开始，所以需要减去1
-    return pool->nrepos - 1;
+    g_autoptr(GError) error = nullptr;
+    g_autoptr(DnfRepoLoader) repoLoader = dnf_repo_loader_new(m_dnfCtx);
+    GPtrArray *repos = dnf_repo_loader_get_repos(repoLoader, &error);
+    if (!repos)
+    {
+        KLOG_ERROR(upgrade) << "Failed to get repos! error message: " << error->message;
+        return enabledRepo;
+    }
+    for (uint i = 0; i < repos->len; i++)
+    {
+        auto repo = static_cast<::DnfRepo *>(g_ptr_array_index(repos, i));
+
+        //过滤”禁用源“
+        auto enabled = dnf_repo_get_enabled(repo);
+        if (enabled == DNF_REPO_ENABLED_NONE)
+        {
+            continue;
+        }
+        enabledRepo++;
+    }
+    g_ptr_array_unref(repos);
+    return enabledRepo;
 }
 
 bool DnfWrapper::isRepoLoaded(QSharedPointer<::DnfSack> sack, const QString &repoName)
@@ -928,9 +969,9 @@ QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std
 {
     g_autoptr(GError) error = nullptr;
     QStringList ret;
-    QSet<QString> packageIdSet;  // 用于去重
+    // 按 NVR（name-evra）去重：多个源中同一包 NVR 相同则只保留一条
+    QSet<QString> nvrKeySet;
 
-    // 处理包数组
     auto processPackageArray = [&](GPtrArray *pkgArray)
     {
         if (!pkgArray)
@@ -943,11 +984,19 @@ QStringList DnfWrapper::getAllPackagesFromGoal(const QSharedPointer<typename std
             const gchar *packageId = dnf_package_get_package_id(pkg);
             if (!packageId)
                 continue;
-            QString packageIdStr = QString::fromUtf8(packageId);
-            if (packageIdSet.contains(packageIdStr))
+            const gchar *name = dnf_package_get_name(pkg);
+            const gchar *evr = dnf_package_get_evr(pkg);
+            const gchar *arch = dnf_package_get_arch(pkg);
+            if (!name || !evr || !arch)
                 continue;
-            packageIdSet.insert(packageIdStr);
-            ret.append(packageIdStr);
+            auto nvrKey = QString("%1-%2.%3")
+                              .arg(QString::fromUtf8(name),
+                                   QString::fromUtf8(evr),
+                                   QString::fromUtf8(arch));
+            if (nvrKeySet.contains(nvrKey))
+                continue;
+            nvrKeySet.insert(nvrKey);
+            ret.append(QString::fromUtf8(packageId));
         }
     };
 
