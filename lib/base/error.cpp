@@ -251,6 +251,12 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_DISPLAY_UNKNOWN_REFLECT_TYPE:
         errorDesc = tr("Unknown reflect type.");
         break;
+    case CCErrorCode::ERROR_DISPLAY_ROTATION_NOT_SUPPORTED:
+        errorDesc = tr("The rotation is not supported.");
+        break;
+    case CCErrorCode::ERROR_DISPLAY_REFLECT_NOT_SUPPORTED:
+        errorDesc = tr("The reflect is not supported.");
+        break;
     case CCErrorCode::ERROR_DISPLAY_APPLY_FAILED:
         errorDesc = tr("The current settings cannot be applied.");
         break;
