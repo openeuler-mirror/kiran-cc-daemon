@@ -4,7 +4,7 @@
 <context>
     <name>Kiran::DisplayManager</name>
     <message>
-        <location filename="../plugins/display/display-manager.cpp" line="239"/>
+        <location filename="../plugins/display/display-manager.cpp" line="255"/>
         <source>The scaling rate can only take effect after logging out and logging in again.</source>
         <translation>缩放率需要注销后重新登录才能生效。</translation>
     </message>

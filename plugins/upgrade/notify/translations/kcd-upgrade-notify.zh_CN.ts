@@ -14,7 +14,7 @@
         <translation>请前往控制面板查看。</translation>
     </message>
     <message>
-        <location filename="../notification-manager.cpp" line="339"/>
+        <location filename="../notification-manager.cpp" line="342"/>
         <source>Open Control Center</source>
         <translation>打开控制面板</translation>
     </message>
