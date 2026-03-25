@@ -44,12 +44,11 @@ KeysComponent::KeysComponent(const QString &componentName,
     qDBusRegisterMetaType<QList<QStringList>>();
     qDBusRegisterMetaType<KGlobalShortcutInfo>();
     qDBusRegisterMetaType<QList<KGlobalShortcutInfo>>();
-    qDBusRegisterMetaType<KGlobalAccel::MatchType>();
 
     m_globalAccelInterface = new KGlobalAccelInterface(QStringLiteral("org.kde.kglobalaccel"),
-                                                         QStringLiteral("/kglobalaccel"),
-                                                         QDBusConnection::sessionBus(),
-                                                         this);
+                                                       QStringLiteral("/kglobalaccel"),
+                                                       QDBusConnection::sessionBus(),
+                                                       this);
 
     // 触发kglobalaccel创建组件并加载配置
     QStringList actionId = KeybindingUtils::buildActionId(componentName, displayName, QString(), QString());
