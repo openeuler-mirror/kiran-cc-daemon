@@ -15,14 +15,24 @@
 #include "display-monitor.h"
 #include <kscreen/output.h>
 #include <QDBusConnection>
+#include <QGSettings>
+#include <algorithm>
 #include "display-i.h"
 #include "display-manager.h"
 #include "lib/base/base.h"
+#include "lib/base/error.h"
 #include "monitoradaptor.h"
 
 namespace Kiran
 {
+
+#define DISPLAY_SCHEMA_ID "com.kylinsec.kiran.display"
+#define DISPLAY_SCHEMA_SUPPORTED_REFLECTS "supportedReflects"
+#define DISPLAY_SCHEMA_SUPPORTED_ROTATIONS "supportedRotations"
+
 DisplayMonitor::DisplayMonitor(const KScreen::OutputPtr output)
+    : m_monitorAdaptor(nullptr),
+      m_displaySettings(nullptr)
 {
     qDBusRegisterMetaType<quint32List>();
     qDBusRegisterMetaType<quint16List>();
@@ -31,6 +41,7 @@ DisplayMonitor::DisplayMonitor(const KScreen::OutputPtr output)
 
     m_monitorAdaptor = new MonitorAdaptor(this);
     m_output = output->clone();
+    m_displaySettings = new QGSettings(DISPLAY_SCHEMA_ID, "", this);
 }
 
 DisplayMonitor::~DisplayMonitor()
@@ -87,11 +98,8 @@ ushort DisplayMonitor::getReflect() const
 
 quint16List DisplayMonitor::getReflects() const
 {
-    // FIXME：libkscreen没有提供该接口，因此这里默认返回全部都支持
-    return quint16List{DisplayReflectType::DISPLAY_REFLECT_NORMAL,
-                       DisplayReflectType::DISPLAY_REFLECT_X,
-                       DisplayReflectType::DISPLAY_REFLECT_Y,
-                       DisplayReflectType::DISPLAY_REFLECT_XY};
+    auto reflects = m_displaySettings->get(DISPLAY_SCHEMA_SUPPORTED_REFLECTS).toStringList();
+    return reflectsStr2Enum(reflects);
 }
 
 ushort DisplayMonitor::getRotation() const
@@ -99,13 +107,11 @@ ushort DisplayMonitor::getRotation() const
     auto rotation = m_output->rotation();
     return (rotation & DISPLAY_ROTATION_ALL_MASK);
 }
+
 quint16List DisplayMonitor::getRotations() const
 {
-    // FIXME：libkscreen没有提供该接口，因此这里默认返回全部都支持
-    return quint16List{DisplayRotationType::DISPLAY_ROTATION_0,
-                       DisplayRotationType::DISPLAY_ROTATION_90,
-                       DisplayRotationType::DISPLAY_ROTATION_180,
-                       DisplayRotationType::DISPLAY_ROTATION_270};
+    auto rotations = m_displaySettings->get(DISPLAY_SCHEMA_SUPPORTED_ROTATIONS).toStringList();
+    return rotationsStr2Enum(rotations);
 }
 
 int DisplayMonitor::getX() const
@@ -355,6 +361,12 @@ void DisplayMonitor::SetPosition(int x, int y)
 }
 void DisplayMonitor::SetReflect(ushort reflect)
 {
+    auto supportedReflects = getReflects();
+    if (!supportedReflects.contains(reflect))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_REFLECT_NOT_SUPPORTED);
+    }
+
     switch (reflect)
     {
     case DisplayReflectType::DISPLAY_REFLECT_NORMAL:
@@ -370,6 +382,12 @@ void DisplayMonitor::SetReflect(ushort reflect)
 
 void DisplayMonitor::SetRotation(ushort rotation)
 {
+    auto supportedRotations = getRotations();
+    if (!supportedRotations.contains(rotation))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_DISPLAY_ROTATION_NOT_SUPPORTED);
+    }
+
     switch (rotation)
     {
     case DisplayRotationType::DISPLAY_ROTATION_0:
@@ -482,6 +500,82 @@ KScreen::ModePtr DisplayMonitor::matchBestMode(uint32_t width, uint32_t height, 
         }
     }
     return matchMode;
+}
+
+quint16List DisplayMonitor::reflectsStr2Enum(const QStringList &reflects) const
+{
+    quint16List result;
+
+    for (const auto &reflect : reflects)
+    {
+        switch (shash(reflect.toLatin1().constData()))
+        {
+        case "normal"_hash:
+            result.append(DisplayReflectType::DISPLAY_REFLECT_NORMAL);
+            break;
+        case "x"_hash:
+            result.append(DisplayReflectType::DISPLAY_REFLECT_X);
+            break;
+        case "y"_hash:
+            result.append(DisplayReflectType::DISPLAY_REFLECT_Y);
+            break;
+        case "xy"_hash:
+            result.append(DisplayReflectType::DISPLAY_REFLECT_XY);
+            break;
+        default:
+            KLOG_WARNING(display) << "Unknown reflect value in gsettings:" << reflect;
+            break;
+        }
+    }
+
+    std::sort(result.begin(), result.end());
+    result.erase(std::unique(result.begin(), result.end()), result.end());
+
+    if (result.isEmpty())
+    {
+        KLOG_WARNING(display) << "Empty supported reflects in gsettings, fallback to default list.";
+        return quint16List{DisplayReflectType::DISPLAY_REFLECT_NORMAL};
+    }
+
+    return result;
+}
+
+quint16List DisplayMonitor::rotationsStr2Enum(const QStringList &rotations) const
+{
+    quint16List result;
+
+    for (const auto &rotation : rotations)
+    {
+        switch (shash(rotation.toLatin1().constData()))
+        {
+        case "0"_hash:
+            result.append(DisplayRotationType::DISPLAY_ROTATION_0);
+            break;
+        case "90"_hash:
+            result.append(DisplayRotationType::DISPLAY_ROTATION_90);
+            break;
+        case "180"_hash:
+            result.append(DisplayRotationType::DISPLAY_ROTATION_180);
+            break;
+        case "270"_hash:
+            result.append(DisplayRotationType::DISPLAY_ROTATION_270);
+            break;
+        default:
+            KLOG_WARNING(display) << "Unknown rotation value in gsettings:" << rotation;
+            break;
+        }
+    }
+
+    std::sort(result.begin(), result.end());
+    result.erase(std::unique(result.begin(), result.end()), result.end());
+
+    if (result.isEmpty())
+    {
+        KLOG_WARNING(display) << "Empty supported rotations in gsettings, fallback to default list.";
+        return quint16List{DisplayRotationType::DISPLAY_ROTATION_0};
+    }
+
+    return result;
 }
 
 }  // namespace Kiran

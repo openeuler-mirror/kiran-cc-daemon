@@ -19,6 +19,7 @@
 #include "dbus-types.h"
 
 class MonitorAdaptor;
+class QGSettings;
 
 namespace KScreen
 {
@@ -118,9 +119,14 @@ public:
     KScreen::ModePtr matchBestMode(uint32_t width, uint32_t height, double refresh_rate);
 
 private:
+    quint16List reflectsStr2Enum(const QStringList &reflects) const;
+    quint16List rotationsStr2Enum(const QStringList &rotations) const;
+
+private:
     MonitorAdaptor *m_monitorAdaptor;
     QString m_objectPath;
     KScreen::OutputPtr m_output;
+    QGSettings *m_displaySettings;
 };
 
 }  // namespace Kiran
