@@ -333,234 +333,244 @@
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="255"/>
+        <source>The rotation is not supported.</source>
+        <translation>旋转不支持。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="258"/>
+        <source>The reflect is not supported.</source>
+        <translation>翻转不支持。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="261"/>
         <source>The current settings cannot be applied.</source>
         <translation>无法应用当前设置。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="258"/>
+        <location filename="../lib/base/error.cpp" line="264"/>
         <source>Theme not exist.</source>
         <translation>主题不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="261"/>
+        <location filename="../lib/base/error.cpp" line="267"/>
         <source>Unsupported theme type.</source>
         <translation>主题类型不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="264"/>
+        <location filename="../lib/base/error.cpp" line="270"/>
         <source>Invalid theme type.</source>
         <translation>主题类型不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="269"/>
+        <location filename="../lib/base/error.cpp" line="275"/>
         <source>Invalid font type.</source>
         <translation>字体类型不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="272"/>
+        <location filename="../lib/base/error.cpp" line="278"/>
         <source>Unsupported font type.</source>
         <translation>字体类型不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="275"/>
+        <location filename="../lib/base/error.cpp" line="281"/>
         <source>An incomplete request already exists.</source>
         <translation>存在未完成的请求。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="278"/>
+        <location filename="../lib/base/error.cpp" line="284"/>
         <source>The request is canceled.</source>
         <translation>请求被取消。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="284"/>
+        <location filename="../lib/base/error.cpp" line="290"/>
         <source>The request is rejected.</source>
         <translation>请求被拒绝。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="287"/>
+        <location filename="../lib/base/error.cpp" line="293"/>
         <source>Not found adapter.</source>
         <translation>未发现适配器。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="290"/>
+        <location filename="../lib/base/error.cpp" line="296"/>
         <source>The number of the layout can&apos;t exceeds {0}.</source>
         <translation>布局数量不能超过{0}个。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="293"/>
+        <location filename="../lib/base/error.cpp" line="299"/>
         <source>The layout is invalid.</source>
         <translation>布局不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="296"/>
+        <location filename="../lib/base/error.cpp" line="302"/>
         <source>The layout already exist.</source>
         <translation>布局已存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="299"/>
+        <location filename="../lib/base/error.cpp" line="305"/>
         <source>The layout is no exist.</source>
         <translation>布局不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="302"/>
+        <location filename="../lib/base/error.cpp" line="308"/>
         <source>The layout option already exist.</source>
         <translation>布局选项已存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="305"/>
+        <location filename="../lib/base/error.cpp" line="311"/>
         <source>The layout option is no exist.</source>
         <translation>布局选项不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="308"/>
+        <location filename="../lib/base/error.cpp" line="314"/>
         <source>The custom shortcut isn&apos;t exist.</source>
         <translation>自定义快捷键不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="312"/>
+        <location filename="../lib/base/error.cpp" line="318"/>
         <source>The key combination already exist.</source>
         <translation>按键组合已经存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="316"/>
+        <location filename="../lib/base/error.cpp" line="322"/>
         <source>The key combination is invalid.</source>
         <translation>按键组合不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="319"/>
+        <location filename="../lib/base/error.cpp" line="325"/>
         <source>The system shortcut isn&apos;t exist.</source>
         <translation>系统快捷键不存在。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="325"/>
+        <location filename="../lib/base/error.cpp" line="331"/>
         <source>Unsupported power supply mode.</source>
         <translation>不支持该供电模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="331"/>
+        <location filename="../lib/base/error.cpp" line="337"/>
         <source>Unsupported power device.</source>
         <translation>不支持该设备。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="335"/>
+        <location filename="../lib/base/error.cpp" line="341"/>
         <source>Unknown power action.</source>
         <translation>未知电源动作。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="339"/>
+        <location filename="../lib/base/error.cpp" line="345"/>
         <source>Unsupported power event.</source>
         <translation>事件不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="342"/>
+        <location filename="../lib/base/error.cpp" line="348"/>
         <source>Failed to set brightness.</source>
         <translation>设置亮度失败。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="345"/>
+        <location filename="../lib/base/error.cpp" line="351"/>
         <source>The systeminfo type is invalid.</source>
         <translation>系统信息类型不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="348"/>
+        <location filename="../lib/base/error.cpp" line="354"/>
         <source>Not found the property.</source>
         <translation>未找到该属性。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="351"/>
+        <location filename="../lib/base/error.cpp" line="357"/>
         <source>The type is mismatch.</source>
         <translation>类型不匹配。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="354"/>
+        <location filename="../lib/base/error.cpp" line="360"/>
         <source>The property is invalid.</source>
         <translation>属性不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="357"/>
+        <location filename="../lib/base/error.cpp" line="363"/>
         <source>The property must not be modified manually.</source>
         <translation>属性不能手动修改。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="360"/>
+        <location filename="../lib/base/error.cpp" line="366"/>
         <source>The property is unsupported.</source>
         <translation>属性不支持。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="363"/>
+        <location filename="../lib/base/error.cpp" line="369"/>
         <source>Arguments invalid.</source>
         <translation>参数不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="366"/>
+        <location filename="../lib/base/error.cpp" line="372"/>
         <source>The network proxy mode is invalid.</source>
         <translation>代理模式不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="369"/>
+        <location filename="../lib/base/error.cpp" line="375"/>
         <source>The current network proxy mode is not manual.</source>
         <translation>当前代理模式不是手动模式。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="372"/>
+        <location filename="../lib/base/error.cpp" line="378"/>
         <source>The current network proxy mode is not auto.</source>
         <translation>当前代理模式不是自动模式。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="127"/>
-        <location filename="../lib/base/error.cpp" line="398"/>
+        <location filename="../lib/base/error.cpp" line="404"/>
         <source>Internel error.</source>
         <translation>内部错误。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="160"/>
-        <location filename="../lib/base/error.cpp" line="401"/>
-        <location filename="../lib/base/error.cpp" line="428"/>
+        <location filename="../lib/base/error.cpp" line="407"/>
+        <location filename="../lib/base/error.cpp" line="434"/>
         <source>Unknown error.</source>
         <translation>未知错误。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="404"/>
+        <location filename="../lib/base/error.cpp" line="410"/>
         <source>Scanner is not completed.</source>
         <translation>扫描未完成。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="407"/>
+        <location filename="../lib/base/error.cpp" line="413"/>
         <source>Solve deps is not completed.</source>
         <translation>解析依赖未完成。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="410"/>
+        <location filename="../lib/base/error.cpp" line="416"/>
         <source>Install is not completed.</source>
         <translation>安装软件包未完成。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="413"/>
+        <location filename="../lib/base/error.cpp" line="419"/>
         <source>Package IDs list is empty.</source>
         <translation>软件包ID列表为空。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="416"/>
+        <location filename="../lib/base/error.cpp" line="422"/>
         <source>Upgrade packages is empty.</source>
         <translation>升级软件包列表为空。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="419"/>
+        <location filename="../lib/base/error.cpp" line="425"/>
         <source>Reminder interval is invalid.</source>
         <translation>更新提醒周期不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="422"/>
+        <location filename="../lib/base/error.cpp" line="428"/>
         <source>Upgrade history database is not open.</source>
         <translation>无法打开升级历史记录数据库。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="425"/>
+        <location filename="../lib/base/error.cpp" line="431"/>
         <source>Upgrade history database is broken.</source>
         <translation>升级历史记录数据库被破坏。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="434"/>
+        <location filename="../lib/base/error.cpp" line="440"/>
         <source> (error code: 0x%1)</source>
         <translation> (错误码：0x%1)</translation>
     </message>
