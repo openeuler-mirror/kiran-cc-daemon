@@ -358,13 +358,12 @@ bool DnfWrapper::findAndCreateSack(bool forceUpdate)
         loadedRepoCount++;
     }
 
-    // 若没有加载任何仓库，则认为缓存失败
+    KLOG_INFO(upgrade) << "Loaded " << loadedRepoCount << "remote repos into sack.";
+    // 若没有加载任何remote仓库，仅告警
     if (loadedRepoCount == 0)
     {
-        KLOG_ERROR(upgrade) << "No repo loaded into sack.";
-        return false;
+        KLOG_WARNING(upgrade) << "No remote repo loaded into sack.";
     }
-    KLOG_INFO(upgrade) << "Loaded " << loadedRepoCount << "remote repos into sack successfully.";
 
     /* set up the sack for packages that should only ever be installed, never
    * updated */
@@ -427,7 +426,7 @@ QList<QSharedPointer<::DnfPackage>> DnfWrapper::getUpgradesPackages(QString &err
         return ret;
     }
 
-    // 检查仓库数量和数据库中加载的仓库数量是否一致，如果不一致则强制更新缓存
+    // 检查repo总数和数据库中加载的repo数量是否一致，如果不一致则强制更新缓存
     bool forceUpdate = false;
     auto loadedRepoCount = getLoadedRepoCount();
     auto allRepoCount = getAllRepoCount();
@@ -881,7 +880,7 @@ QString DnfWrapper::stateActionToString(int action)
     }
 }
 
-// 获取sack实际加载的所有仓库数量，包括@System。
+// 获取sack实际加载的所有remote repo仓库数量，去掉@System仓库。
 int DnfWrapper::getLoadedRepoCount()
 {
     QMutexLocker locker(&m_sackMutex);
@@ -899,20 +898,26 @@ int DnfWrapper::getLoadedRepoCount()
     {
         if (repo && repo->name)
         {
+            KLOG_DEBUG(upgrade) << "Loaded repo: " << repo->name;
+
+            if (strcmp(repo->name, HY_SYSTEM_REPO_NAME) == 0)
+            {
+                continue;
+            }
             loadedRepoCount++;
         }
     }
     return loadedRepoCount;
 }
 
+// 获取所有remote repo数量
 int DnfWrapper::getAllRepoCount()
 {
-    // 默认包含@System仓库
-    int enabledRepo = 1;
+    int enabledRepo = 0;
 
     if (!m_dnfCtx)
     {
-        return 0;
+        return enabledRepo;
     }
 
     g_autoptr(GError) error = nullptr;
