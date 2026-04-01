@@ -122,11 +122,22 @@ std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
 {
     int32_t ngroups = 0;
     getgrouplist(user.c_str(), group, NULL, &ngroups);
+    if (ngroups <= 0)
+    {
+        return std::vector<uint32_t>();
+    }
 
     auto groups = g_new(gid_t, ngroups);
     auto res = getgrouplist(user.c_str(), group, groups, &ngroups);
+    if (res < 0)
+    {
+        g_free(groups);
+        return std::vector<uint32_t>();
+    }
 
-    return std::vector<uint32_t>(groups, groups + res);
+    auto result = std::vector<uint32_t>(groups, groups + res);
+    g_free(groups);
+    return result;
 }
 
 void AccountsWrapper::init()
@@ -188,6 +199,8 @@ void AccountsWrapper::reload_passwd()
         }
 
     } while (pwent != NULL);
+
+    fclose(fp);
 }
 void AccountsWrapper::reload_shadow()
 {

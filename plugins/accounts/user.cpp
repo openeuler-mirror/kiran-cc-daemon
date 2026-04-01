@@ -587,11 +587,12 @@ void User::change_icon_file_authorized_cb(MethodInvocation invocation, const Gli
             DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_SPAWN_READ_FILE_FAILED);
         }
 
-        auto input = Glib::wrap(g_unix_input_stream_new(std_out, false));
+        // 包装子进程输出，设置close_fd为true并配合splice的CLOSE_SOURCE标志，确保操作结束或流销毁时关闭管道FD，防止泄露。
+        auto input = Glib::wrap(g_unix_input_stream_new(std_out, true));
         gssize bytes = 0;
         try
         {
-            bytes = output->splice(input, Gio::OUTPUT_STREAM_SPLICE_CLOSE_TARGET);
+            bytes = output->splice(input, Gio::OUTPUT_STREAM_SPLICE_CLOSE_TARGET | Gio::OUTPUT_STREAM_SPLICE_CLOSE_SOURCE);
         }
         catch (const Glib::Error &e)
         {
