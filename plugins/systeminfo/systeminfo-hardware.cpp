@@ -65,6 +65,7 @@ void SystemInfoHardware::init_meminfo_with_lshw()
                                  nullptr);
 
     this->out_io_channel_ = Glib::IOChannel::create_from_fd(standard_output);
+    this->out_io_channel_->set_close_on_unref(true);
 
     this->out_io_source_ = this->out_io_channel_->create_watch(Glib::IOCondition::IO_IN | Glib::IOCondition::IO_PRI);
     this->out_io_connection_ = this->out_io_source_->connect(sigc::bind(sigc::mem_fun(this, &SystemInfoHardware::on_lshw_output), this->out_io_channel_));

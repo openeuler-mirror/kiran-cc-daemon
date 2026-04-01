@@ -117,8 +117,9 @@ void PowerBacklightMonitorsX11::load_resource()
             KLOG_WARNING("Not found output info for %d.", (int)this->resources_->outputs[i]);
             continue;
         }
+        std::unique_ptr<XRROutputInfo, void (*)(XRROutputInfo *)> output_info_ptr(output_info, XRRFreeOutputInfo);
 
-        if (!output_info->crtc)
+        if (!output_info_ptr->crtc)
         {
             KLOG_DEBUG("Not found crtc for output %d, ignore it.", (int)this->resources_->outputs[i]);
             continue;
@@ -130,7 +131,7 @@ void PowerBacklightMonitorsX11::load_resource()
         }
         else
         {
-            monitor = std::make_shared<PowerBacklightMonitorX11Gamma>(this->resources_->outputs[i], output_info->crtc);
+            monitor = std::make_shared<PowerBacklightMonitorX11Gamma>(this->resources_->outputs[i], output_info_ptr->crtc);
         }
         this->backlight_monitors_.push_back(monitor);
     }
