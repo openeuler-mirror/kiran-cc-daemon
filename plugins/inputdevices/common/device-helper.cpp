@@ -96,6 +96,14 @@ bool DeviceHelper::is_touchpad()
 
     RETURN_VAL_IF_TRUE(this->device_ == NULL, false);
 
+    // 由于之前项目上设备适配，将特殊PS2Mouse作为触摸板处理(#34878)
+    // 导致禁用触摸板功能，会禁用掉psmouse设备，导致vmware虚拟机上鼠标功能失效(VirtualPS/2 VMware VMMouse)
+    // 此处特殊处理，避免影响vmware虚拟机上鼠标功能
+    if (this->get_device_name().find("VMMouse") != std::string::npos)
+    {
+        return false;
+    }
+
     if (this->is_psmouse())
     {
         return true;
