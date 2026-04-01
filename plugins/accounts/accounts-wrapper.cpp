@@ -170,9 +170,22 @@ QVector<uint32_t> AccountsWrapper::getUserGroups(const QString &user, uint32_t g
 {
     int32_t ngroups = 0;
     getgrouplist(user.toLatin1().data(), group, NULL, &ngroups);
+    if (ngroups <= 0)
+    {
+        return QVector<uint32_t>();
+    }
+
     auto groups = new gid_t[ngroups];
     auto res = getgrouplist(user.toLatin1().data(), group, groups, &ngroups);
-    return QVector<uint32_t>(groups, groups + res);
+    if (res < 0)
+    {
+        delete[] groups;
+        return QVector<uint32_t>();
+    }
+
+    auto result = QVector<uint32_t>(groups, groups + res);
+    delete[] groups;
+    return result;
 }
 
 void AccountsWrapper::init()
