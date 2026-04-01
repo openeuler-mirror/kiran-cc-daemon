@@ -44,11 +44,15 @@ void XSettingsXResource::init()
 void XSettingsXResource::update_properties()
 {
     char dpibuf[G_ASCII_DTOSTR_BUF_SIZE];
-    auto dpy = XOpenDisplay(NULL);
     auto xsettings_manager = XSettingsManager::get_instance();
-
-    RETURN_IF_TRUE(dpy == NULL);
     RETURN_IF_TRUE(xsettings_manager == NULL);
+
+    auto dpy = XOpenDisplay(NULL);
+    if (dpy == NULL)
+    {
+        KLOG_WARNING_XSETTINGS("Failed to open display.");
+        return;
+    }
 
     auto p_porps = XResourceManagerString(dpy);
     std::string props = POINTER_TO_STRING(p_porps);

@@ -169,6 +169,7 @@ std::vector<uint32_t> ShortCutHelper::get_keycode(uint32_t key_symbol, KeyCodeFi
                 result.push_back(keys[i].keycode);
             }
         }
+        g_free(keys);
     }
 
     auto iter = std::unique(result.begin(), result.end());
