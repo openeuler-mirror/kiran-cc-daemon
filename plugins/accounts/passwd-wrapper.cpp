@@ -77,8 +77,11 @@ void PasswdWrapper::exec(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                      &standard_error);
 
         this->in_io_channel_ = Glib::IOChannel::create_from_fd(standard_input);
+        this->in_io_channel_->set_close_on_unref(true);
         this->out_io_channel_ = Glib::IOChannel::create_from_fd(standard_output);
+        this->out_io_channel_->set_close_on_unref(true);
         this->err_io_channel_ = Glib::IOChannel::create_from_fd(standard_error);
+        this->err_io_channel_->set_close_on_unref(true);
     }
     catch (const Glib::Error &e)
     {
