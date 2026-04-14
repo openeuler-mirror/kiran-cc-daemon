@@ -18,6 +18,7 @@ pkg_search_module(FMT REQUIRED fmt)
 pkg_search_module(CRYPTOPP REQUIRED cryptopp)
 pkg_search_module(GLIB2 REQUIRED glib-2.0)
 pkg_search_module(GOBJECT2 REQUIRED gobject-2.0)
+pkg_search_module(GIO_UNIX REQUIRED gio-unix-2.0)
 find_package(KF5Config)
 
 # session
