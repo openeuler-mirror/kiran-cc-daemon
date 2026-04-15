@@ -48,13 +48,6 @@ Installer::~Installer()
     {
         m_installerFutureWatcher.waitForFinished();
     }
-
-    m_upgradePkgs.clear();
-}
-
-void Installer::setUpgradePkgs(const QMap<QString, QSharedPointer<::DnfPackage>> &upgradePkgs)
-{
-    m_upgradePkgs = upgradePkgs;
 }
 
 CCErrorCode Installer::install(const QStringList &packageIDs)
@@ -84,25 +77,8 @@ Installer::ResultDetail Installer::doInstall(const QStringList &packageIDs)
     KLOG_DEBUG(upgrade) << "Starting to upgrade" << packageIDs.size() << "packages";
     QString errorMessage;
 
-    QList<QSharedPointer<::DnfPackage>> targetPackages;
-    for (const QString &packageID : packageIDs)
-    {
-        auto pkg = m_upgradePkgs.value(packageID);
-        if (!pkg.isNull())
-        {
-            targetPackages.append(pkg);
-        }
-    }
-
-    if (targetPackages.isEmpty())
-    {
-        errorMessage = tr("No matching packages found for the given package IDs");
-        KLOG_WARNING(upgrade) << errorMessage;
-        return ResultDetail{false, errorMessage};
-    }
-
     // 执行升级
-    bool success = m_dnfWrapper->installPackages(targetPackages, errorMessage);
+    bool success = m_dnfWrapper->installPackagesByIds(packageIDs, errorMessage);
     if (!success)
     {
         KLOG_WARNING(upgrade) << "Failed to upgrade packages. " << errorMessage;

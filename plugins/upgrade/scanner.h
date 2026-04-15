@@ -24,6 +24,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
+#include <QStringList>
 
 struct _DnfPackage;
 typedef struct _DnfPackage DnfPackage;
@@ -42,9 +43,19 @@ public:
     //扫描更新
     CCErrorCode scan();
     QString getUpgradePkgsJson();
-    QMap<QString, QSharedPointer<::DnfPackage>> getUpgradePkgs();
+    QStringList getUpgradePkgIDs();
 
 private:
+    struct UpgradePkgSnapshot
+    {
+        QString id;
+        QString name;
+        QString evr;
+        QString arch;
+        quint64 downloadSize{0};
+        QJsonObject advisoryInfo;
+    };
+
     struct ResultDetail
     {
         bool success;
@@ -67,7 +78,7 @@ private:
     QFutureWatcher<ResultDetail> m_scanFutureWatcher;
 
     // 可更新包
-    QMap<QString, QSharedPointer<::DnfPackage>> m_upgradePkgs;
+    QMap<QString, UpgradePkgSnapshot> m_upgradePkgs;
     QMutex m_upgradePkgsMutex;
 };
 }  // namespace Kiran

@@ -38,7 +38,17 @@ UpgradeHistoryDB::UpgradeHistoryDB(QObject *parent) : QObject(parent)
 
 UpgradeHistoryDB::~UpgradeHistoryDB()
 {
-    QSqlDatabase::removeDatabase(DB_CONNECTION_PREFIX + getDatabasePath());
+    const QString dbPath = getDatabasePath();
+    const QString connectionName = DB_CONNECTION_PREFIX + dbPath;
+
+    {
+        QSqlDatabase db = QSqlDatabase::database(connectionName, false);
+        if (db.isValid())
+        {
+            db.close();
+        }
+    }
+    QSqlDatabase::removeDatabase(connectionName);
 }
 
 QString UpgradeHistoryDB::getDatabasePath() const

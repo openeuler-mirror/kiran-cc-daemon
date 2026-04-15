@@ -45,10 +45,6 @@ namespace Kiran
 
 // 配置文件路径
 #define CONFIG_FILE "/etc/kiran-cc-daemon/system/upgrade/upgrade.conf"
-
-// 缓存配置
-#define CACHE_SECTION "cache"
-#define CACHE_CONFIG_UPDATE_INTERVAL_HOURS_KEY CACHE_SECTION "/update-interval-hours"
 // 提醒配置
 #define REMINDER_SECTION "reminder"
 #define REMINDER_CONFIG_INTERVAL_KEY REMINDER_SECTION "/interval"
@@ -83,8 +79,7 @@ Manager::Manager(QObject *parent) : QObject(parent),
                                     m_installer(nullptr),
                                     m_status(BACKEND_STATUS_IDLE),
                                     m_reminderInterval(0),
-                                    m_config(nullptr),
-                                    m_cacheIntvalHours(DEFAULT_CACHE_UPDATE_INTERVAL_HOURS)
+                                    m_config(nullptr)
 {
     qRegisterMetaType<UpgradeHistory>("UpgradeHistory");
     qDBusRegisterMetaType<UpgradeHistory>();
@@ -216,10 +211,10 @@ void Manager::init()
 
 void Manager::Scan()
 {
-    if (getBackendStatus() == BACKEND_STATUS_SCANNING)
+    if (getBackendStatus() != BACKEND_STATUS_IDLE)
     {
-        KLOG_WARNING(upgrade) << "Scanner is already in progress";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_SCAN_NOT_COMPLETED);
+        KLOG_WARNING(upgrade) << "Backend is not idle, current status: " << getBackendStatus();
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_BACKEND_NOT_IDLE);
     }
 
     auto errorCode = m_scanner->scan();
@@ -236,10 +231,10 @@ void Manager::Scan()
 
 void Manager::SolveDeps(const QStringList &packageIDs)
 {
-    if (getBackendStatus() == BACKEND_STATUS_SOLVING_DEPS)
+    if (getBackendStatus() != BACKEND_STATUS_IDLE)
     {
-        KLOG_WARNING(upgrade) << "DepSolver is already in progress";
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_SOLVE_DEPS_NOT_COMPLETED);
+        KLOG_WARNING(upgrade) << "Backend is not idle, current status: " << getBackendStatus();
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_BACKEND_NOT_IDLE);
     }
 
     if (packageIDs.isEmpty())
@@ -248,14 +243,13 @@ void Manager::SolveDeps(const QStringList &packageIDs)
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY);
     }
 
-    auto upgradePkgs = m_scanner->getUpgradePkgs();
-    if (upgradePkgs.isEmpty())
+    auto upgradePkgIDs = m_scanner->getUpgradePkgIDs();
+    if (upgradePkgIDs.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Upgrade packages is empty";
         DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY);
     }
 
-    m_depSolver->setUpgradePkgs(upgradePkgs);
     auto errorCode = m_depSolver->solveDeps(packageIDs);
     if (errorCode != CCErrorCode::SUCCESS)
     {
@@ -271,10 +265,10 @@ void Manager::SolveDeps(const QStringList &packageIDs)
 CHECK_AUTH_WITH_1ARGS(Manager, Upgrade, upgradeAuthenticated, AUTH_UPGRADE_UPGRADE, const QStringList &);
 void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringList &packageIDs)
 {
-    if (getBackendStatus() == BACKEND_STATUS_UPGRADING)
+    if (getBackendStatus() != BACKEND_STATUS_IDLE)
     {
-        KLOG_WARNING(upgrade) << "Upgrade is already in progress";
-        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_INSTALL_NOT_COMPLETED);
+        KLOG_WARNING(upgrade) << "Backend is not idle, current status: " << getBackendStatus();
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_BACKEND_NOT_IDLE);
     }
 
     if (packageIDs.isEmpty())
@@ -283,14 +277,13 @@ void Manager::upgradeAuthenticated(const QDBusMessage &message, const QStringLis
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_PACKAGE_IDS_EMPTY);
     }
 
-    auto upgradePkgs = m_scanner->getUpgradePkgs();
-    if (upgradePkgs.isEmpty())
+    auto upgradePkgIDs = m_scanner->getUpgradePkgIDs();
+    if (upgradePkgIDs.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Upgrade packages is empty";
         DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_UPGRADE_UPGRADE_PKGS_EMPTY);
     }
 
-    m_installer->setUpgradePkgs(upgradePkgs);
     auto errorCode = m_installer->install(packageIDs);
     if (errorCode != CCErrorCode::SUCCESS)
     {
@@ -457,12 +450,6 @@ void Manager::loadConfig()
     KLOG_DEBUG(upgrade) << "Latest upgrade time loaded from config: "
                         << m_lastUpgradeTime;
 
-    //获取缓存更新周期
-    m_cacheIntvalHours = m_config->get(CACHE_CONFIG_UPDATE_INTERVAL_HOURS_KEY, DEFAULT_CACHE_UPDATE_INTERVAL_HOURS).toInt();
-    m_dnfWrapper->setCacheUpdateIntvalHours(m_cacheIntvalHours);
-    KLOG_DEBUG(upgrade) << "Cache update interval loaded from config: "
-                        << m_cacheIntvalHours << " hours";
-
     //获取最新扫描时间
     m_latestScanTime = m_config->get(SCAN_CONFIG_LAST_SCAN_TIME_KEY, "").toString();
     KLOG_DEBUG(upgrade) << "Latest scan time loaded from config: "
@@ -481,12 +468,6 @@ void Manager::loadConfig()
                          m_lastUpgradeTime != value.toString())
                 {
                     setLatestUpgradeTime(value.toString());
-                }
-                else if (key == CACHE_CONFIG_UPDATE_INTERVAL_HOURS_KEY &&
-                         m_cacheIntvalHours != value.toInt())
-                {
-                    m_cacheIntvalHours = value.toInt();
-                    m_dnfWrapper->setCacheUpdateIntvalHours(value.toInt());
                 }
                 else if (key == REMINDER_CONFIG_LAST_REMINDER_TIME_KEY &&
                          m_latestReminderTime != value.toString())
