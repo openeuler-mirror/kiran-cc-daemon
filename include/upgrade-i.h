@@ -28,8 +28,7 @@ extern "C"
 #define UPGRADE_OBJECT_PATH "/com/kylinsec/Kiran/SystemDaemon/Upgrade"
 #define UPGRADE_DBUS_INTERFACE_NAME "com.kylinsec.Kiran.SystemDaemon.Upgrade"
 
-#define DEFAULT_REMINDER_INTERVAL 7             // 默认每周提醒
-#define DEFAULT_CACHE_UPDATE_INTERVAL_HOURS 24  // 默认24小时更新一次缓存
+#define DEFAULT_REMINDER_INTERVAL 7  // 默认每周提醒
 #define DEFAULT_DATE_TIME_FORMAT "yyyy-MM-dd HH:mm:ss"
 
     // 后台状态枚举

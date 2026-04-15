@@ -15,15 +15,10 @@
 #pragma once
 
 #include <QFutureWatcher>
-#include <QMap>
 #include <QObject>
-#include <QSharedPointer>
 #include <QStringList>
 
 #include <error-i.h>
-
-struct _DnfPackage;
-typedef struct _DnfPackage DnfPackage;
 
 namespace Kiran
 {
@@ -36,7 +31,6 @@ public:
     explicit DepSolver(QObject *parent = nullptr);
     ~DepSolver();
 
-    void setUpgradePkgs(const QMap<QString, QSharedPointer<::DnfPackage>> &upgradePkgs);
     CCErrorCode solveDeps(const QStringList &packageIDs);
 
 private:
@@ -54,7 +48,6 @@ signals:
 
 private:
     DnfWrapper *m_dnfWrapper;
-    QMap<QString, QSharedPointer<::DnfPackage>> m_upgradePkgs;
 
     QFutureWatcher<ResultDetail> m_solveFutureWatcher;
 };

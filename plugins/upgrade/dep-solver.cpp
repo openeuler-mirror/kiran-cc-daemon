@@ -44,13 +44,6 @@ DepSolver::~DepSolver()
     {
         m_solveFutureWatcher.waitForFinished();
     }
-
-    m_upgradePkgs.clear();
-}
-
-void DepSolver::setUpgradePkgs(const QMap<QString, QSharedPointer<::DnfPackage>> &upgradePkgs)
-{
-    m_upgradePkgs = upgradePkgs;
 }
 
 CCErrorCode DepSolver::solveDeps(const QStringList &packageIDs)
@@ -83,26 +76,9 @@ DepSolver::ResultDetail DepSolver::doSolveDeps(const QStringList &packageIDs)
         return QJsonDocument(obj).toJson(QJsonDocument::Compact);
     };
 
-    QList<QSharedPointer<::DnfPackage>> targetPackages;
-
-    for (const QString &packageID : packageIDs)
-    {
-        auto pkg = m_upgradePkgs.value(packageID);
-        if (!pkg.isNull())
-        {
-            targetPackages.append(pkg);
-        }
-    }
-
-    if (targetPackages.isEmpty())
-    {
-        KLOG_WARNING(upgrade) << "No matching packages found for the given package IDs";
-        return ResultDetail{false, makePkgDepsJson(packageIDs, QStringList()), tr("No matching packages found for the given package IDs")};
-    }
-
     // 解决依赖
     QString errorMessage;
-    QStringList deps = m_dnfWrapper->solvePackageDeps(targetPackages, errorMessage);
+    QStringList deps = m_dnfWrapper->solvePackageDepsByIds(packageIDs, errorMessage);
     if (!errorMessage.isEmpty())
     {
         KLOG_WARNING(upgrade) << "Failed to solve dependencies. " << errorMessage;
