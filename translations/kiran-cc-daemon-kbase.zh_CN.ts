@@ -525,52 +525,57 @@
     <message>
         <location filename="../lib/base/error.cpp" line="160"/>
         <location filename="../lib/base/error.cpp" line="407"/>
-        <location filename="../lib/base/error.cpp" line="434"/>
+        <location filename="../lib/base/error.cpp" line="437"/>
         <source>Unknown error.</source>
         <translation>未知错误。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="410"/>
+        <source>Backend is not idle.</source>
+        <translation>系统升级后台正忙。</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="413"/>
         <source>Scanner is not completed.</source>
         <translation>扫描未完成。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="413"/>
+        <location filename="../lib/base/error.cpp" line="416"/>
         <source>Solve deps is not completed.</source>
         <translation>解析依赖未完成。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="416"/>
+        <location filename="../lib/base/error.cpp" line="419"/>
         <source>Install is not completed.</source>
         <translation>安装软件包未完成。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="419"/>
+        <location filename="../lib/base/error.cpp" line="422"/>
         <source>Package IDs list is empty.</source>
         <translation>软件包ID列表为空。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="422"/>
+        <location filename="../lib/base/error.cpp" line="425"/>
         <source>Upgrade packages is empty.</source>
         <translation>升级软件包列表为空。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="425"/>
+        <location filename="../lib/base/error.cpp" line="428"/>
         <source>Reminder interval is invalid.</source>
         <translation>更新提醒周期不合法。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="428"/>
+        <location filename="../lib/base/error.cpp" line="431"/>
         <source>Upgrade history database is not open.</source>
         <translation>无法打开升级历史记录数据库。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="431"/>
+        <location filename="../lib/base/error.cpp" line="434"/>
         <source>Upgrade history database is broken.</source>
         <translation>升级历史记录数据库被破坏。</translation>
     </message>
     <message>
-        <location filename="../lib/base/error.cpp" line="440"/>
+        <location filename="../lib/base/error.cpp" line="443"/>
         <source> (error code: 0x%1)</source>
         <translation> (错误码：0x%1)</translation>
     </message>

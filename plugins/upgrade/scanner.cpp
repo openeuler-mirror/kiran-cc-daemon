@@ -88,27 +88,37 @@ Scanner::ResultDetail Scanner::doScan()
             continue;
         }
 
-        // 获取 package_id 需要访问 sack，确保在获取前包对象有效
-        const gchar *pkgIDStr = dnf_package_get_package_id(pkg.data());
-        if (!pkgIDStr)
+        const char *pkgIdC = dnf_package_get_package_id(pkg.data());
+        const char *nameC = dnf_package_get_name(pkg.data());
+        const char *evrC = dnf_package_get_evr(pkg.data());
+        const char *archC = dnf_package_get_arch(pkg.data());
+
+        if (!pkgIdC || !nameC || !evrC || !archC)
         {
-            KLOG_WARNING(upgrade) << "Failed to get package_id, skipping package";
+            KLOG_WARNING(upgrade) << "Failed to get package fields, skipping package";
             continue;
         }
 
-        QString pkgID = QString::fromUtf8(pkgIDStr);
+        UpgradePkgSnapshot snapshot;
+        snapshot.id = QString::fromUtf8(pkgIdC);
+        snapshot.name = QString::fromUtf8(nameC);
+        snapshot.evr = QString::fromUtf8(evrC);
+        snapshot.arch = QString::fromUtf8(archC);
+        snapshot.downloadSize = static_cast<quint64>(dnf_package_get_downloadsize(pkg.data()));
+        snapshot.advisoryInfo = getPackageAdvisoryInfo(pkg);
+
         {
             QMutexLocker locker(&m_upgradePkgsMutex);
-            m_upgradePkgs[pkgID].swap(pkg);
+            m_upgradePkgs[snapshot.id] = snapshot;
         }
-        KLOG_DEBUG(upgrade) << "Package" << pkgID << "added to upgrade packages";
+        KLOG_DEBUG(upgrade) << "Package" << snapshot.id << "added to upgrade packages";
     }
     return ResultDetail{true, QString()};
 }
 
 QString Scanner::getUpgradePkgsJson()
 {
-    QList<QSharedPointer<::DnfPackage>> packages;
+    QList<UpgradePkgSnapshot> packages;
     {
         QMutexLocker locker(&m_upgradePkgsMutex);
         packages = m_upgradePkgs.values();
@@ -123,26 +133,23 @@ QString Scanner::getUpgradePkgsJson()
     QJsonArray jsonArray;
     for (auto pkg : packages)
     {
-        if (pkg.isNull())
-        {
-            continue;
-        }
         QString errorMessage;
-        auto pgkName = QString(dnf_package_get_name(pkg.data()));
-        auto currentVersion = m_dnfWrapper->getInstalledPackageVersion(pgkName, errorMessage);
+        auto currentVersion = m_dnfWrapper->getInstalledPackageVersion(pkg.name, errorMessage);
         if (!errorMessage.isEmpty())
         {
-            KLOG_WARNING(upgrade) << "Failed to get installed package version. " << errorMessage;
+            KLOG_WARNING(upgrade) << "Failed to get installed package "
+                                  << pkg.name << " current version. "
+                                  << errorMessage;
         }
         QJsonObject obj;
-        obj["id"] = QString::fromUtf8(dnf_package_get_package_id(pkg.data()));
-        obj["name"] = pgkName;
+        obj["id"] = pkg.id;
+        obj["name"] = pkg.name;
         obj["current_version"] = currentVersion;
-        obj["latest_version"] = QString(dnf_package_get_evr(pkg.data()));
-        auto downloadSize = static_cast<quint64>(dnf_package_get_downloadsize(pkg.data()));
+        obj["latest_version"] = pkg.evr;
+        auto downloadSize = pkg.downloadSize;
         obj["size"] = formatSize(downloadSize);
-        // 获取包的 advisory 信息
-        obj["advisory_info"] = getPackageAdvisoryInfo(pkg);
+        obj["arch"] = pkg.arch;
+        obj["advisory_info"] = pkg.advisoryInfo;
 
         jsonArray.append(obj);
     }
@@ -150,11 +157,11 @@ QString Scanner::getUpgradePkgsJson()
     return doc.toJson(QJsonDocument::Indented);
 }
 
-QMap<QString, QSharedPointer<::DnfPackage>> Scanner::getUpgradePkgs()
+QStringList Scanner::getUpgradePkgIDs()
 {
     {
         QMutexLocker locker(&m_upgradePkgsMutex);
-        return m_upgradePkgs;
+        return m_upgradePkgs.keys();
     }
 }
 

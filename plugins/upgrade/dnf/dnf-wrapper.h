@@ -17,7 +17,6 @@
 #include <upgrade-i.h>
 #include <QDateTime>
 #include <QFileSystemWatcher>
-#include <QFutureWatcher>
 #include <QList>
 #include <QMap>
 #include <QMutex>
@@ -26,8 +25,6 @@
 #include <QSettings>
 #include <QSharedPointer>
 #include <QString>
-#include <QTimer>
-#include <QtConcurrent>
 
 // 前向声明 libdnf 类型
 struct _DnfContext;
@@ -53,9 +50,6 @@ public:
     static void globalInit();
     static void globalDeinit();
 
-    // 设置缓存更新周期
-    void setCacheUpdateIntvalHours(int cacheUpdateIntvalHours);
-
     /**
      * @brief 获取可更新的包列表信息
      * @return 包列表
@@ -63,18 +57,20 @@ public:
     QList<QSharedPointer<::DnfPackage>> getUpgradesPackages(QString &errorMessage);
 
     /**
-     * @brief 安装包
-     * @param packages 包列表
-     * @return 是否成功
-     */
-    bool installPackages(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage);
-
-    /**
-     * @brief 解决包依赖
-     * @param packages 包列表
+     * @brief 根据 package_id 列表解决依赖
+     * @param packageIDs package_id 列表
+     * @param errorMessage 错误信息
      * @return 需要安装的包NVR列表
      */
-    QStringList solvePackageDeps(const QList<QSharedPointer<::DnfPackage>> &packages, QString &errorMessage);
+    QStringList solvePackageDepsByIds(const QStringList &packageIDs, QString &errorMessage);
+
+    /**
+     * @brief 根据 package_id 列表安装包
+     * @param packageIDs package_id 列表
+     * @param errorMessage 错误信息
+     * @return 是否成功
+     */
+    bool installPackagesByIds(const QStringList &packageIDs, QString &errorMessage);
 
     /**
      * @brief 根据包名获取系统当前已安装包的版本
@@ -97,11 +93,17 @@ private:
      * @return sack的智能指针
      */
     QSharedPointer<::DnfSack> getSackRef(bool forceUpdate = false);
+    QList<QSharedPointer<::DnfPackage>> resolvePackagesByIds(const QSharedPointer<::DnfSack> &sack,
+                                                             const QStringList &packageIDs,
+                                                             QString &errorMessage);
+    QStringList solvePackageDepsInSack(const QSharedPointer<::DnfSack> &sack,
+                                       const QList<QSharedPointer<::DnfPackage>> &packages,
+                                       QString &errorMessage);
+    bool installPackagesInSack(const QSharedPointer<::DnfSack> &sack,
+                               const QList<QSharedPointer<::DnfPackage>> &packages,
+                               QString &errorMessage);
 
-    void updateCache();
     void cacheInvalidate();
-
-    void startUpdateTimer();
 
     //将DnfStateAction枚举转换为字符串
     QString stateActionToString(int action);
@@ -158,17 +160,6 @@ private:
 
     // 监听/etc/yum.repos.d目录下的文件变化
     QFileSystemWatcher *m_fileWatcher{nullptr};
-
-    // 监听缓存更新线程状态
-    QFutureWatcher<bool> m_cacheFutureWatcher;
-
-    // 用于定期更新缓存
-    QTimer *m_updateTimer{nullptr};
-    int m_updateIntervalHours;
-    QDateTime m_lastUpdateTime;
-
-    // 用于延时刷新缓存
-    QTimer *m_reloadCacheTimer{nullptr};
 
     QStringList m_successPackages;
     QStringList m_failedPackages;
