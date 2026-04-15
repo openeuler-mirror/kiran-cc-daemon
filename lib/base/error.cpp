@@ -406,6 +406,9 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
     case CCErrorCode::ERROR_ACCOUNTS_USER_COMMAND_UNKNOWN:
         errorDesc = tr("Unknown error.");
         break;
+    case CCErrorCode::ERROR_UPGRADE_BACKEND_NOT_IDLE:
+        errorDesc = tr("Backend is not idle.");
+        break;
     case CCErrorCode::ERROR_UPGRADE_SCAN_NOT_COMPLETED:
         errorDesc = tr("Scanner is not completed.");
         break;

@@ -16,12 +16,9 @@
 
 #include <error-i.h>
 #include <QFutureWatcher>
-#include <QMap>
 #include <QObject>
-#include <QSharedPointer>
-
-struct _DnfPackage;
-typedef struct _DnfPackage DnfPackage;
+#include <QString>
+#include <QStringList>
 
 namespace Kiran
 {
@@ -34,7 +31,6 @@ public:
     explicit Installer(QObject *parent = nullptr);
     ~Installer();
 
-    void setUpgradePkgs(const QMap<QString, QSharedPointer<::DnfPackage>> &upgradePkgs);
     CCErrorCode install(const QStringList &packageIDs);
     QString getInstallLog();
 
@@ -59,8 +55,6 @@ signals:
 private:
     DnfWrapper *m_dnfWrapper;
     QFutureWatcher<ResultDetail> m_installerFutureWatcher;
-
-    QMap<QString, QSharedPointer<::DnfPackage>> m_upgradePkgs;
 
     uint m_currentPercentage;
     QString m_installAction;
