@@ -126,5 +126,11 @@
             </arg>
         </signal>
 
+        <signal name="CursorSizeChanged">
+            <arg name="size" type="i">
+                <summary>The new cursor size.</summary>
+            </arg>
+        </signal>
+
     </interface>
 </node>

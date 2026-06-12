@@ -76,6 +76,7 @@ public Q_SLOTS:
 Q_SIGNALS:  // SIGNALS
     void FontChanged(int type, const QString& font);
     void ThemeChanged(int type, const QString& themeName);
+    void CursorSizeChanged(int size);
 
 private:
     void init();
@@ -85,6 +86,7 @@ private:
     void autoSwitchForWindowTheme();
     void NotifyThemeChanged(ThemeKey themeKey);
     void NotifyFontChanged(AppearanceFontType type, const QString& font);
+    void NotifyCursorSizeChanged(int size);
     void processSettingsChanged(const QString& key);
 
 private:
