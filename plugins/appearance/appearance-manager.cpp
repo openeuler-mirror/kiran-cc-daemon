@@ -179,7 +179,7 @@ void AppearanceManager::SetTheme(int type, const QString& themeName)
     // 如果手动设置了GTK或者窗口标题主题，则取消主题自动切换
     if (type == AppearanceThemeType::APPEARANCE_THEME_TYPE_GTK ||
         type == AppearanceThemeType::APPEARANCE_THEME_TYPE_METACITY ||
-        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_META )
+        type == AppearanceThemeType::APPEARANCE_THEME_TYPE_META)
     {
         m_appearanceSettings->set(APPEARANCE_SCHEMA_KEY_AUTO_SWITCH_WINDOW_THEME, false);
         KLOG_INFO(appearance) << "Because of manual setting theme, disable auto switch window theme.";
@@ -212,6 +212,7 @@ void AppearanceManager::init()
     }
 
     connect(m_appearanceTheme, &AppearanceTheme::themeChanged, this, &AppearanceManager::NotifyThemeChanged);
+    connect(m_appearanceTheme, &AppearanceTheme::cursorSizeChanged, this, &AppearanceManager::NotifyCursorSizeChanged);
     connect(m_appearanceFont, &AppearanceFont::fontChanged, this, &AppearanceManager::NotifyFontChanged);
     connect(m_appearanceSettings, &QGSettings::changed, this, &AppearanceManager::processSettingsChanged);
 
@@ -257,6 +258,11 @@ void AppearanceManager::NotifyThemeChanged(ThemeKey themeKey)
 void AppearanceManager::NotifyFontChanged(AppearanceFontType type, const QString& font)
 {
     Q_EMIT FontChanged(type, font);
+}
+
+void AppearanceManager::NotifyCursorSizeChanged(int size)
+{
+    Q_EMIT CursorSizeChanged(size);
 }
 
 void AppearanceManager::processSettingsChanged(const QString& key)

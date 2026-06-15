@@ -67,6 +67,7 @@ Q_SIGNALS:
     // 某个类型的主题设置发生了变化
     void themeChanged(ThemeKey key);
     void themeDetailChanged(ThemeKey key, ThemeEventType type);
+    void cursorSizeChanged(int size);
 
 private:
     bool addTheme(QSharedPointer<ThemeBase> theme);

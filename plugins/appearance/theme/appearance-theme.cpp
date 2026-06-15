@@ -312,6 +312,10 @@ void AppearanceTheme::processXSettingsSettingsChanged(const QString& key)
         Q_EMIT themeChanged(qMakePair(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR,
                                       getTheme(AppearanceThemeType::APPEARANCE_THEME_TYPE_CURSOR)));
         break;
+    case CONNECT(SETTINGS_SCHEMA_GTK_CURSOR_THEME_SIZE, _hash):
+        trySyncCursorTheme();
+        Q_EMIT cursorSizeChanged(getCursorSize());
+        break;
     default:
         break;
     }
