@@ -69,5 +69,7 @@ private:
     GtkStatusIcon* status_icon_;
     Glib::RefPtr<Gdk::Pixbuf> icon_pixbuf_;
     sigc::connection update_icon_handler_;
+    // Gtk::Settings 为进程级对象，插件卸载前必须断开，避免残留 slot
+    sigc::connection theme_changed_conn_;
 };
 }  // namespace Kiran
