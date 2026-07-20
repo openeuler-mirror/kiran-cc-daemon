@@ -97,6 +97,9 @@ private:
     std::map<std::string, std::string> registry2schema_;
 
     sigc::connection switch_desktop_icon_[2];
+    // Gdk::Screen 为进程级对象，插件卸载前必须断开，避免残留 slot
+    sigc::connection screen_size_changed_conn_;
+    sigc::connection screen_monitors_changed_conn_;
 
     FontconfigMonitor fontconfig_monitor_;
 };
