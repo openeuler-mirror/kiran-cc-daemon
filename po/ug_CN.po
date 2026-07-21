@@ -556,8 +556,8 @@ msgid "Refuse to delete root user."
 msgstr "يىلتىز ئىشلەتكۈچىنى ئۆچۈرۈشنى رەت قىلىڭ."
 
 #: ../lib/base/error.cpp:109
-msgid "Refuse to delete three authority user."
-msgstr "ئۈچ ئورگان ئىشلەتكۈچىنى ئۆچۈرۈۋېتىشنى رەت قىلىڭ."
+msgid "Refuse to delete admin user."
+msgstr "باشقۇرغۇچى ئىشلەتكۈچىنى ئۆچۈرۈۋېتىشنى رەت قىلىڭ."
 
 #: ../lib/base/error.cpp:115
 msgid "The authentication mode isn't supported."

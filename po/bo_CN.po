@@ -561,8 +561,8 @@ msgid "Refuse to delete root user."
 msgstr "མི་སུབ་པ་རྩ་སྤྱོད་མཁན། "
 
 #: ../lib/base/error.cpp:109
-msgid "Refuse to delete three authority user."
-msgstr "མི་སུབ་པ་གསུམ་དབང་ཚད་སྤྱོད་མཁན། "
+msgid "Refuse to delete admin user."
+msgstr "མི་སུབ་པ་དོ་དམ་སྤྱོད་མཁན། "
 
 #: ../lib/base/error.cpp:115
 msgid "The authentication mode isn't supported."
