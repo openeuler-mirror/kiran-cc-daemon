@@ -25,7 +25,7 @@ class AppearanceBackground
 {
 public:
     AppearanceBackground();
-    virtual ~AppearanceBackground(){};
+    virtual ~AppearanceBackground();
 
     void init();
 
@@ -69,6 +69,9 @@ private:
 
 private:
     sigc::connection delay_hander_;
+    // Gdk::Screen 为进程级对象，插件卸载前必须断开，避免残留 slot
+    sigc::connection screen_size_changed_conn_;
+    sigc::connection screen_monitors_changed_conn_;
     std::string desktop_background_;
 
     Glib::RefPtr<Gio::Settings> mate_background_settings_;
