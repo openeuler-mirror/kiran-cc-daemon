@@ -84,6 +84,9 @@ XSettingsManager::XSettingsManager() : dbus_connect_id_(0),
 
 XSettingsManager::~XSettingsManager()
 {
+    this->screen_size_changed_conn_.disconnect();
+    this->screen_monitors_changed_conn_.disconnect();
+
     if (this->dbus_connect_id_)
     {
         Gio::DBus::unown_name(this->dbus_connect_id_);
@@ -187,8 +190,11 @@ void XSettingsManager::init()
 
     this->xsettings_settings_->signal_changed().connect(sigc::bind(sigc::mem_fun(this, &XSettingsManager::settings_changed), true));
     auto screen = Gdk::Screen::get_default();
-    screen->signal_size_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_screen_changed));
-    screen->signal_monitors_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_screen_changed));
+    this->screen_size_changed_conn_ =
+        screen->signal_size_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_screen_changed));
+    this->screen_monitors_changed_conn_ =
+        screen->signal_monitors_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_screen_changed));
+
     this->fontconfig_monitor_.signal_timestamp_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_fontconfig_timestamp_changed));
     this->registry_.signal_properties_changed().connect(sigc::mem_fun(this, &XSettingsManager::on_properties_changed));
 

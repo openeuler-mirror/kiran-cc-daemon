@@ -43,7 +43,7 @@ class SystemShortCuts : public sigc::trackable
 {
 public:
     SystemShortCuts();
-    virtual ~SystemShortCuts(){};
+    virtual ~SystemShortCuts();
 
     // 初始化
     void init();
@@ -81,6 +81,8 @@ private:
     sigc::signal<void, std::shared_ptr<SystemShortCut>> shortcut_changed_;
 
     std::map<std::string, std::shared_ptr<SystemShortCut>> shortcuts_;
+    // EWMH 单例生命周期长于插件，必须在析构时断开，避免 so 卸载后残留 slot
+    sigc::connection wm_window_changed_conn_;
 };
 
 }  // namespace Kiran
