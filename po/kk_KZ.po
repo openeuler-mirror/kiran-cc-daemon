@@ -544,8 +544,8 @@ msgid "Refuse to delete root user."
 msgstr "Түбір пайдаланушысын жоюдан бас тарту."
 
 #: ../lib/base/error.cpp:109
-msgid "Refuse to delete three authority user."
-msgstr "Үш уәкілетті пайдаланушыны жоюдан бас тарту."
+msgid "Refuse to delete admin user."
+msgstr "Әкімші пайдаланушыны жоюдан бас тарту."
 
 #: ../lib/base/error.cpp:115
 msgid "The authentication mode isn't supported."

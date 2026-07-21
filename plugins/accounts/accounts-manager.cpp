@@ -591,7 +591,8 @@ bool AccountsManager::is_security_policy_user(uint64_t uid)
     {
         if (user->user_name_get().raw() == "audadm" ||
             user->user_name_get().raw() == "sysadm" ||
-            user->user_name_get().raw() == "secadm")
+            user->user_name_get().raw() == "secadm" ||
+            user->user_name_get().raw() == "netadm")
         {
             return true;
         }
