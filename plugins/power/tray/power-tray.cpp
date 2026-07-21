@@ -31,6 +31,8 @@ PowerTray::PowerTray()
 
 PowerTray::~PowerTray()
 {
+    this->theme_changed_conn_.disconnect();
+    this->update_icon_handler_.disconnect();
     g_clear_pointer(&this->status_icon_, g_object_unref);
 }
 
@@ -52,7 +54,8 @@ void PowerTray::init()
     this->upower_settings_->signal_changed().connect(sigc::mem_fun(this, &PowerTray::on_settings_changed));
     this->upower_client_->signal_device_props_changed().connect(sigc::mem_fun(this, &PowerTray::on_device_props_changed));
     // 这里需要进行延时处理，因为StatusIcon需要从x11中获取新的前景色，需要等获取到前景色后再进行更新
-    Gtk::Settings::get_default()->property_gtk_theme_name().signal_changed().connect(sigc::mem_fun0(this, &PowerTray::delay_update_status_icon));
+    this->theme_changed_conn_ =
+        Gtk::Settings::get_default()->property_gtk_theme_name().signal_changed().connect(sigc::mem_fun0(this, &PowerTray::delay_update_status_icon));
 }
 
 void PowerTray::update_status_icon()

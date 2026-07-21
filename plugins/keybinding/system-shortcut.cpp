@@ -27,12 +27,18 @@ SystemShortCuts::SystemShortCuts()
 {
 }
 
+SystemShortCuts::~SystemShortCuts()
+{
+    this->wm_window_changed_conn_.disconnect();
+}
+
 void SystemShortCuts::init()
 {
     KLOG_PROFILE("");
     this->load_system_shortcuts(this->shortcuts_);
 
-    EWMH::get_instance()->signal_wm_window_change().connect(sigc::mem_fun(this, &SystemShortCuts::wm_window_changed));
+    this->wm_window_changed_conn_ =
+        EWMH::get_instance()->signal_wm_window_change().connect(sigc::mem_fun(this, &SystemShortCuts::wm_window_changed));
 }
 
 bool SystemShortCuts::modify(const std::string &uid,

@@ -31,6 +31,13 @@ AppearanceBackground::AppearanceBackground()
     this->mate_background_settings_ = Gio::Settings::create(MATE_BACKGROUND_SCHEMA_ID);
 }
 
+AppearanceBackground::~AppearanceBackground()
+{
+    this->screen_size_changed_conn_.disconnect();
+    this->screen_monitors_changed_conn_.disconnect();
+    this->delay_hander_.disconnect();
+}
+
 void AppearanceBackground::init()
 {
     this->mate_background_settings_->signal_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_mate_background_settings_changed));
@@ -40,8 +47,10 @@ void AppearanceBackground::init()
        触发BUG的时机是在刚进入会话时(可以通过killall lightdm复现)，进入会话后再执行插件不确定是否会触发BUG
        mate是通过判断前后两次屏幕大小变化来决定是否重新绘制背景，没有说明这样做的原因，但这样做的话当显示器位置变化时显然不会对背景进行重绘，
        这和只监控size-changed信号区别不大。*/
-    screen->signal_size_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
-    screen->signal_monitors_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
+    this->screen_size_changed_conn_ =
+        screen->signal_size_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
+    this->screen_monitors_changed_conn_ =
+        screen->signal_monitors_changed().connect(sigc::mem_fun(this, &AppearanceBackground::on_screen_size_changed));
 }
 
 void AppearanceBackground::set_background(const std::string &path)
