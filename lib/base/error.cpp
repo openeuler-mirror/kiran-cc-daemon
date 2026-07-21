@@ -106,7 +106,7 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
         error_desc = _("Refuse to delete root user.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_DELETE_THREE_AUTH_USER:
-        error_desc = _("Refuse to delete three authority user.");
+        error_desc = _("Refuse to delete admin user.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_1:
     case CCErrorCode::ERROR_ACCOUNTS_USER_AUTHENTICATION_UNSUPPORTED_2:
