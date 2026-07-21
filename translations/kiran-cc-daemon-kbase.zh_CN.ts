@@ -118,8 +118,8 @@
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="99"/>
-        <source>Refuse to delete three authority user.</source>
-        <translation>禁止删除三权用户。</translation>
+        <source>Refuse to delete admin user.</source>
+        <translation>禁止删除管理员用户。</translation>
     </message>
     <message>
         <location filename="../lib/base/error.cpp" line="102"/>

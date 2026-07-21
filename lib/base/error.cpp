@@ -96,7 +96,7 @@ QString CCError::getErrorDesc(CCErrorCode errorCode, bool attachErrorCode)
         errorDesc = tr("Refuse to delete root user.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_DELETE_THREE_AUTH_USER:
-        errorDesc = tr("Refuse to delete three authority user.");
+        errorDesc = tr("Refuse to delete admin user.");
         break;
     case CCErrorCode::ERROR_ACCOUNTS_USER_IS_LOCKED:
         errorDesc = tr("User is locked.");
