@@ -462,7 +462,8 @@ bool AccountsManager::isSecurityPolicyUser(uint64_t uid)
     {
         if (user->getUserName() == "audadm" ||
             user->getUserName() == "sysadm" ||
-            user->getUserName() == "secadm")
+            user->getUserName() == "secadm" ||
+            user->getUserName() == "netadm")
         {
             return true;
         }
