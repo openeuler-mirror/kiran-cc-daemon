@@ -1,10 +1,10 @@
-# 控制中心后端
+# kiran-cc-daemon
 
-项目包含系统后端(kiran-system-daemon)和会话后端(kiran-session-daemon)两个服务。
+The project consists of two backend services: the system backend (`kiran-system-daemon`) and the session backend (`kiran-session-daemon`).
 
-## 编译安装
+## Build and Installation
 
-```
+```bash
 # yum install cmake libxml++-devel glibmm24-devel glib2-devel gtkmm30-devel systemd-devel libselinux-devel gettext gcc-c++ intltool polkit dbus-daemon libX11-devel xerces-c-devel xsd fontconfig-devel jsoncpp-devel zlog-devel gdbus-codegen-glibmm fmt-devel gtest-devel upower-devel libnotify-devel pulseaudio-libs-devel
 # mkdir build
 # cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
@@ -12,19 +12,20 @@
 # make install
 ```
 
-## 运行
+## Execution
 
-系统启动后服务会自动启动，调用DBUS接口时服务也会自动启动。
-也可以通过手动方式启动。
+These services start automatically upon system boot or when their respective D-Bus interfaces are invoked.
+
+Alternatively, you can start them manually:
 
 ### kiran-system-daemon
 
-```
+```bash
 systemctl start kiran-system-daemon.service
 ```
 
 ### kiran-session-daemon
 
-```
+```bash
 kiran-session-daemon &
 ```
