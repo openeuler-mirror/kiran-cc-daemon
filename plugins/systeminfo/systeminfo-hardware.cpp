@@ -16,7 +16,6 @@
 
 #include <gio/gunixinputstream.h>
 #include <glibmm/regex.h>
-#include <glibtop/mem.h>
 #include <gudev/gudev.h>
 #include <cinttypes>
 #include <fstream>
@@ -186,7 +185,7 @@ MemInfo SystemInfoHardware::get_mem_info()
     MemInfo mem_info;
 
     mem_info.total_size = this->get_memory_size_with_dmi();
-    mem_info.available_size = this->get_memory_size_with_libgtop();
+    mem_info.available_size = this->get_memory_size_with_meminfo();
 
     if (mem_info.total_size == 0)
     {
@@ -197,7 +196,7 @@ MemInfo SystemInfoHardware::get_mem_info()
     if (mem_info.total_size == 0)
     {
         mem_info.total_size = mem_info.available_size;
-        KLOG_DEBUG("Get total size with libgtop:%ld.", mem_info.total_size);
+        KLOG_DEBUG("Get total size with meminfo:%ld.", mem_info.total_size);
     }
 
     KLOG_DEBUG("Use total size:%ld, available size:%ld.", mem_info.total_size, mem_info.available_size);
@@ -541,12 +540,33 @@ int64_t SystemInfoHardware::get_memory_size_with_lshw()
     return this->mem_size_lshw;
 }
 
-int64_t SystemInfoHardware::get_memory_size_with_libgtop()
+int64_t SystemInfoHardware::get_memory_size_with_meminfo()
 {
-    glibtop_mem mem;
-    glibtop_get_mem(&mem);
+    auto mem_maps = this->parse_info_file(MEMINFO_FILE, MEMINFO_KEY_DELIMITER);
+    auto iter = mem_maps.find(MEMINFO_KEY_MEMTOTAL);
+    if (iter == mem_maps.end())
+    {
+        KLOG_WARNING("Failed to get %s from %s.", MEMINFO_KEY_MEMTOTAL, MEMINFO_FILE);
+        return 0;
+    }
 
-    return mem.total;
+    // 按 /proc/meminfo 单位后缀换算为字节
+    char* next = nullptr;
+    uint64_t value = strtoull(iter->second.c_str(), &next, 0);
+    for (; next && *next; ++next)
+    {
+        if (*next == 'k')
+        {
+            value *= 1024;
+            break;
+        }
+        else if (*next == 'M')
+        {
+            value *= 1024 * 1024;
+            break;
+        }
+    }
+    return static_cast<int64_t>(value);
 }
 
 int64_t SystemInfoHardware::get_memory_size_with_dmi()

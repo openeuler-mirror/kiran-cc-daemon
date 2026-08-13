@@ -128,7 +128,7 @@ std::vector<uint32_t> AccountsWrapper::get_user_groups(const std::string &user,
     }
 
     auto groups = g_new(gid_t, ngroups);
-    res = getgrouplist(user.c_str(), group, groups, &ngroups);
+    int res = getgrouplist(user.c_str(), group, groups, &ngroups);
     if (res < 0)
     {
         g_free(groups);

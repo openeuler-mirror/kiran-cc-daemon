@@ -50,7 +50,7 @@ void XSettingsXResource::update_properties()
     auto dpy = XOpenDisplay(NULL);
     if (dpy == NULL)
     {
-        KLOG_WARNING_XSETTINGS("Failed to open display.");
+        KLOG_WARNING("Failed to open display.");
         return;
     }
 

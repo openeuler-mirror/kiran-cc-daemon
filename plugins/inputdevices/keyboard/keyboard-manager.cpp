@@ -415,7 +415,8 @@ void KeyboardManager::set_auto_repeat()
         XAutoRepeatOff(GDK_DISPLAY_XDISPLAY(display));
     }
 
-    XFlush(display);
+    Display* x11_display = GDK_DISPLAY_XDISPLAY(display);
+    XFlush(x11_display);
 }
 
 bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
@@ -446,8 +447,12 @@ bool KeyboardManager::set_layouts(const std::vector<Glib::ustring> &layouts)
 
     if (join_layouts.length() <= 0)
     {
-        join_layouts = DEFAULT_LAYOUT LAYOUT_JOIN_CHAR;
-        join_variants = LAYOUT_JOIN_CHAR;
+        // 避免 GCC12 -Werror=restrict 对短字符串字面量赋值的假阳性
+        join_layouts.clear();
+        join_layouts += DEFAULT_LAYOUT;
+        join_layouts += LAYOUT_JOIN_CHAR;
+        join_variants.clear();
+        join_variants += LAYOUT_JOIN_CHAR;
     }
 
     auto cmdline = fmt::format("{0} -layout {1} -variant {2}", SETXKBMAP, join_layouts, join_variants);
