@@ -84,6 +84,11 @@ foreach(SCHEMA_IN_FILE IN LISTS SCHEMA_IN_FILES)
           DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/)
 endforeach()
 
+file(GLOB SCHEMA_OVERRIDE_FILES
+     ${PROJECT_SOURCE_DIR}/data/schemas/*.gschema.override)
+install(FILES ${SCHEMA_OVERRIDE_FILES}
+        DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/)
+
 install(
   CODE "execute_process(COMMAND glib-compile-schemas \"${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas/\")"
 )

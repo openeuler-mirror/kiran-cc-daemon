@@ -66,6 +66,14 @@ extern "C"
 #define KEYS_SCHEMA_POWER "power"
 #define KEYS_SCHEMA_HOME "home"
 
+// screenshot keys
+#define KEYS_SCHEMA_WINDOW_SCREENSHOT "windowScreenshot"
+#define KEYS_SCHEMA_FULLSCREEN_SCREENSHOT "fullscreenScreenshot"
+#define KEYS_SCHEMA_AREA_SCREENSHOT "areaScreenshot"
+#define KEYS_SCHEMA_WINDOW_SCREENSHOT_COMMAND "windowScreenshotCommand"
+#define KEYS_SCHEMA_FULLSCREEN_SCREENSHOT_COMMAND "fullscreenScreenshotCommand"
+#define KEYS_SCHEMA_AREA_SCREENSHOT_COMMAND "areaScreenshotCommand"
+
 #ifdef __cplusplus
 }
 #endif

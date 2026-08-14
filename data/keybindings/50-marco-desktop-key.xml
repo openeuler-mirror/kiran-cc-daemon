@@ -5,10 +5,6 @@
 
 	<KeyListEntry name="panel-main-menu" description="Show the panel's main menu"></KeyListEntry>
 
-	<KeyListEntry name="run-command-screenshot" description="Take a screenshot"></KeyListEntry>
-
-	<KeyListEntry name="run-command-window-screenshot" description="Take a screenshot of a window"></KeyListEntry>
-
 	<KeyListEntry name="run-command-terminal" description="Run a terminal"></KeyListEntry>
 
 	<KeyListEntry name="rename-workspace" description="Rename current workspace"></KeyListEntry>

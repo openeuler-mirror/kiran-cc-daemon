@@ -41,5 +41,35 @@
       <summary>Launch help browser</summary>
       <description>Binding to launch the help browser.</description>
     </key>
+    <key name="window-screenshot" type="s">
+      <default>''</default>
+      <summary>Window screenshot</summary>
+      <description>Binding to take a screenshot of the current window.</description>
+    </key>
+    <key name="fullscreen-screenshot" type="s">
+      <default>'Print'</default>
+      <summary>Fullscreen screenshot</summary>
+      <description>Binding to take a screenshot of the entire screen.</description>
+    </key>
+    <key name="area-screenshot" type="s">
+      <default>'Ctrl+Shift+A'</default>
+      <summary>Area screenshot</summary>
+      <description>Binding to take a screenshot of a selected area.</description>
+    </key>
+    <key name="window-screenshot-command" type="s">
+      <default>'kiran-flameshot window'</default>
+      <summary>Window screenshot command</summary>
+      <description>Command to take a screenshot of the current window.</description>
+    </key>
+    <key name="fullscreen-screenshot-command" type="s">
+      <default>'kiran-flameshot full'</default>
+      <summary>Fullscreen screenshot command</summary>
+      <description>Command to take a screenshot of the entire screen.</description>
+    </key>
+    <key name="area-screenshot-command" type="s">
+      <default>'kiran-flameshot gui'</default>
+      <summary>Area screenshot command</summary>
+      <description>Command to take a screenshot of a selected area.</description>
+    </key>
   </schema>
 </schemalist>
