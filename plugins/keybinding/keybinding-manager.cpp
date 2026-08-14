@@ -20,6 +20,7 @@
 #include "keybinding-i.h"
 #include "keybinding-utils.h"
 #include "keybindingadaptor.h"
+#include "keys/keys-screenshot.h"
 #include "keys/keys-sound.h"
 #include "keys/keys-system.h"
 #include "keys/keys-touchpad.h"
@@ -33,7 +34,7 @@ KeybindingManager::KeybindingManager()
     m_adaptor = new KeybindingAdaptor(this);
     m_customShortcuts = QSharedPointer<CustomShortcuts>::create();
     m_systemShortcuts = QSharedPointer<SystemShortcuts>::create();
-    m_keysComponents.append({new KeysSound(), new KeysTouchpad(), new KeysSystem()});
+    m_keysComponents.append({new KeysSound(), new KeysTouchpad(), new KeysSystem(), new KeysScreenshot()});
 }
 
 KeybindingManager::~KeybindingManager()

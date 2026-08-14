@@ -173,6 +173,54 @@ msgstr "启动帮助浏览器"
 msgid "Binding to launch the help browser."
 msgstr "调用帮助浏览器的键绑定。"
 
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:23
+msgid "Window screenshot"
+msgstr "窗口截图"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:24
+msgid "Binding to take a screenshot of the current window."
+msgstr "截取当前窗口的键绑定。"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:25
+msgid "Fullscreen screenshot"
+msgstr "全屏截图"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:26
+msgid "Binding to take a screenshot of the entire screen."
+msgstr "截取整个屏幕的键绑定。"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:27
+msgid "Area screenshot"
+msgstr "选区截图"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:28
+msgid "Binding to take a screenshot of a selected area."
+msgstr "截取选定区域的键绑定。"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:29
+msgid "Window screenshot command"
+msgstr "窗口截图命令"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:30
+msgid "Command to take a screenshot of the current window."
+msgstr "截取当前窗口的命令。"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:31
+msgid "Fullscreen screenshot command"
+msgstr "全屏截图命令"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:32
+msgid "Command to take a screenshot of the entire screen."
+msgstr "截取整个屏幕的命令。"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:33
+msgid "Area screenshot command"
+msgstr "选区截图命令"
+
+#: ../data/schemas/com.kylinsec.kiran.keys.gschema.xml.in.h:34
+msgid "Command to take a screenshot of a selected area."
+msgstr "截取选定区域的命令。"
+
 #: ../data/schemas/com.kylinsec.kiran.mouse.gschema.xml.in.h:1
 #: ../data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in.h:1
 msgid "Swap left and right buttons for left-handed."
