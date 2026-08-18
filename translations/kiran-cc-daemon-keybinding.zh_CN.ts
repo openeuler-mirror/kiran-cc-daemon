@@ -126,6 +126,25 @@
     </message>
 </context>
 <context>
+    <name>Kiran::KeysScreenshot</name>
+    <message>
+        <source>Screenshot</source>
+        <translation>截图</translation>
+    </message>
+    <message>
+        <source>Window screenshot</source>
+        <translation>窗口截图</translation>
+    </message>
+    <message>
+        <source>Fullscreen screenshot</source>
+        <translation>全屏截图</translation>
+    </message>
+    <message>
+        <source>Area screenshot</source>
+        <translation>选区截图</translation>
+    </message>
+</context>
+<context>
     <name>Kiran::KeysTouchpad</name>
     <message>
         <source>Touchpad</source>
