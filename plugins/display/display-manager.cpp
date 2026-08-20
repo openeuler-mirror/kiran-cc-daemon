@@ -538,11 +538,17 @@ bool DisplayManager::apply(CCErrorCode &error_code)
     }
 
     // 应用缩放因子
-    auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
-    if (!this->interface_settings_->set_value(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
+    // 修复：Qt3 业务应用在写 org.mate.interface.window-scaling-factor 键（即使值不变）时，
+    // 会触发 dconf 底层变化，导致 Qt3 应用全局设置刷新、用失效 backing store 重绘而黑屏。
+    // 因此仅当值真正变化时才写入该键，避免无意义的写入触发 Qt3 黑屏。
+    if (this->interface_settings_->get_int(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR) != this->window_scaling_factor_)
     {
-        error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
-        return false;
+        auto variant_value = Glib::Variant<gint32>::create(this->window_scaling_factor_);
+        if (!this->interface_settings_->set_value(INTERFACE_SCHEMA_WINDOW_SCALING_FACTOR, variant_value))
+        {
+            error_code = CCErrorCode::ERROR_DISPLAY_SET_WINDOW_SCALING_FACTOR_1;
+            return false;
+        }
     }
 
     // 应用xrandr
