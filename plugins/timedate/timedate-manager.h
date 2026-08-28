@@ -106,6 +106,7 @@ public Q_SLOTS:
 private:
     void init();
     void initNTPUnits();
+    void resetNtpUnitInterface();
     // 获取可用的时间同步服务
     QStringList getNTPUnits();
     // 开启NTP服务
