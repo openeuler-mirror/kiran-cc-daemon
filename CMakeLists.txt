@@ -44,7 +44,6 @@ find_package(KF5Service)
 find_package(KF5KIO)
 
 # system
-pkg_search_module(LIBGTOP REQUIRED libgtop-2.0)
 pkg_search_module(GUDEV REQUIRED gudev-1.0)
 pkg_search_module(LIBXCRYPT REQUIRED libxcrypt)
 pkg_search_module(SYSTEMD REQUIRED systemd)
