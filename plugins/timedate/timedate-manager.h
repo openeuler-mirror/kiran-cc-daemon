@@ -163,6 +163,7 @@ private:
 
     std::string ntp_unit_name_;
     Glib::RefPtr<Gio::DBus::Proxy> ntp_unit_proxy_;
+    sigc::connection ntp_unit_props_conn_;
 
     Glib::RefPtr<Gio::FileMonitor> tz_monitor_;
     Glib::RefPtr<Gio::FileMonitor> adjtime_monitor_;
