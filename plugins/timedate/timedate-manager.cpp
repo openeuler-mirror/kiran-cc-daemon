@@ -76,6 +76,16 @@ TimedateManager::TimedateManager() : dbus_connect_id_(0),
 
 TimedateManager::~TimedateManager()
 {
+    if (ntp_unit_props_conn_)
+    {
+        ntp_unit_props_conn_.disconnect();
+    }
+
+    if (ntp_unit_proxy_)
+    {
+        ntp_unit_proxy_.reset();
+    }
+
     if (this->dbus_connect_id_)
     {
         Gio::DBus::unown_name(this->dbus_connect_id_);
@@ -398,6 +408,16 @@ void TimedateManager::init()
 
 void TimedateManager::init_ntp_units()
 {
+    if (ntp_unit_props_conn_)
+    {
+        ntp_unit_props_conn_.disconnect();
+    }
+
+    if (this->ntp_unit_proxy_)
+    {
+        this->ntp_unit_proxy_.reset();
+    }
+
     auto ntp_units = this->get_ntp_units();
     CCErrorCode error_code = CCErrorCode::SUCCESS;
 
@@ -414,6 +434,11 @@ void TimedateManager::init_ntp_units()
 
     if (this->ntp_unit_name_.empty())
     {
+        if (ntp_units.empty())
+        {
+            KLOG_WARNING("No available NTP units found, skip NTP initialization.");
+            return;
+        }
         this->ntp_unit_name_ = ntp_units.front();
     }
 
@@ -434,7 +459,7 @@ void TimedateManager::init_ntp_units()
 
         if (this->ntp_unit_proxy_)
         {
-            this->ntp_unit_proxy_->signal_properties_changed().connect(sigc::mem_fun(this, &TimedateManager::ntp_unit_props_changed));
+            ntp_unit_props_conn_ = this->ntp_unit_proxy_->signal_properties_changed().connect(sigc::mem_fun(this, &TimedateManager::ntp_unit_props_changed));
         }
         else
         {
