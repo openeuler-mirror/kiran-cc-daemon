@@ -15,10 +15,10 @@ target_include_directories(
   ${TARGET_NAME}
   PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
           ${PROJECT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-          ${LIBGTOP_INCLUDE_DIRS} ${GUDEV_INCLUDE_DIRS})
+          ${GUDEV_INCLUDE_DIRS})
 
 target_link_libraries(
   ${TARGET_NAME} PRIVATE ${KSD_LINKER_FLAGS} ${JSONCPP_LIBRARIES}
-                         ${LIBGTOP_LIBRARIES} ${GUDEV_LIBRARIES} kbase)
+                         ${GUDEV_LIBRARIES} kbase)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${KCD_PLUGIN_DIR}/system)
