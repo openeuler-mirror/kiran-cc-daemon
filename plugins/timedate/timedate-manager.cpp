@@ -86,6 +86,29 @@ TimedateManager::TimedateManager() : m_ntpUnitInterface(nullptr),
 
 TimedateManager::~TimedateManager()
 {
+    resetNtpUnitInterface();
+}
+
+void TimedateManager::resetNtpUnitInterface()
+{
+    if (!m_ntpUnitInterface)
+    {
+        return;
+    }
+
+    const QString unitObjectPath = m_ntpUnitInterface->path();
+    if (!unitObjectPath.isEmpty())
+    {
+        QDBusConnection::systemBus().disconnect(SYSTEMD_NAME,
+                                                 unitObjectPath,
+                                                 QStringLiteral("org.freedesktop.DBus.Properties"),
+                                                 "PropertiesChanged",
+                                                 this,
+                                                 SLOT(processNTPUnitPropsChanged(const QDBusMessage &)));
+    }
+
+    delete m_ntpUnitInterface;
+    m_ntpUnitInterface = nullptr;
 }
 
 void TimedateManager::globalInit()
@@ -392,6 +415,8 @@ void TimedateManager::init()
 
 void TimedateManager::initNTPUnits()
 {
+    resetNtpUnitInterface();
+
     auto ntpUnits = getNTPUnits();
     CCErrorCode errorCode = CCErrorCode::SUCCESS;
 
@@ -408,6 +433,11 @@ void TimedateManager::initNTPUnits()
 
     if (m_ntpUnitName.isEmpty())
     {
+        if (ntpUnits.isEmpty())
+        {
+            KLOG_WARNING(timedate) << "No available NTP units found, skip NTP initialization.";
+            return;
+        }
         m_ntpUnitName = ntpUnits.front();
     }
 
