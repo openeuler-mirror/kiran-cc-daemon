@@ -14,7 +14,7 @@
 
 #include "systeminfo-hardware.h"
 
-#include <glibtop/mem.h>
+#include <cstdlib>
 #include <gudev/gudev.h>
 #include <QFile>
 #include <QJsonArray>
@@ -162,7 +162,7 @@ MemInfo SystemInfoHardware::getMemInfo()
     MemInfo memInfo;
 
     memInfo.totalSize = getMemorySizeWithDmi();
-    memInfo.availableSize = getMemorySizeWithLibgtop();
+    memInfo.availableSize = getMemorySizeWithMeminfo();
 
     if (memInfo.totalSize == 0)
     {
@@ -173,7 +173,7 @@ MemInfo SystemInfoHardware::getMemInfo()
     if (memInfo.totalSize == 0)
     {
         memInfo.totalSize = memInfo.availableSize;
-        KLOG_INFO(systeminfo) << "Get total size with libgtop" << memInfo.totalSize;
+        KLOG_INFO(systeminfo) << "Get total size with meminfo" << memInfo.totalSize;
     }
 
     KLOG_INFO(systeminfo) << "Use total size is" << memInfo.totalSize << ", available size is" << memInfo.availableSize;
@@ -388,12 +388,34 @@ int64_t SystemInfoHardware::getMemorySizeWithLshw()
     return m_memSizeLshw;
 }
 
-int64_t SystemInfoHardware::getMemorySizeWithLibgtop()
+int64_t SystemInfoHardware::getMemorySizeWithMeminfo()
 {
-    glibtop_mem mem;
-    glibtop_get_mem(&mem);
+    auto memMaps = parseInfoFile(MEMINFO_FILE, MEMINFO_KEY_DELIMITER);
+    auto iter = memMaps.find(MEMINFO_KEY_MEMTOTAL);
+    if (iter == memMaps.end())
+    {
+        KLOG_WARNING(systeminfo) << "Failed to get" << MEMINFO_KEY_MEMTOTAL << "from" << MEMINFO_FILE;
+        return 0;
+    }
 
-    return mem.total;
+    // 按 /proc/meminfo 单位后缀换算为字节
+    const std::string memTotal = iter.value().toStdString();
+    char *next = nullptr;
+    uint64_t value = strtoull(memTotal.c_str(), &next, 0);
+    for (; next && *next; ++next)
+    {
+        if (*next == 'k')
+        {
+            value *= 1024;
+            break;
+        }
+        else if (*next == 'M')
+        {
+            value *= 1024 * 1024;
+            break;
+        }
+    }
+    return static_cast<int64_t>(value);
 }
 
 int64_t SystemInfoHardware::getMemorySizeWithDmi()

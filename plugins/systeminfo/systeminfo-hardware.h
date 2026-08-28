@@ -132,7 +132,7 @@ private:
     void parseLshwMemoryInfo();
 
     int64_t getMemorySizeWithLshw();
-    int64_t getMemorySizeWithLibgtop();
+    int64_t getMemorySizeWithMeminfo();
     int64_t getMemorySizeWithDmi();
 
 private Q_SLOTS:
