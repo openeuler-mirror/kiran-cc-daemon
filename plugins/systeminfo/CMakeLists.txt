@@ -18,13 +18,12 @@ set_common_shared_linker_flags()
 target_include_directories(
   ${TARGET_NAME}
   PUBLIC ${PROJECT_BINARY_DIR}/generated ${JSONCPP_INCLUDE_DIRS}
-         ${LIBGTOP_INCLUDE_DIRS} ${GUDEV_INCLUDE_DIRS} ${GIOUNIX_INCLUDE_DIRS})
+         ${GUDEV_INCLUDE_DIRS} ${GIOUNIX_INCLUDE_DIRS})
 
 target_link_libraries(
   ${TARGET_NAME}
   PRIVATE ${KSD_LINKER_FLAGS}
           ${JSONCPP_LIBRARIES}
-          ${LIBGTOP_LIBRARIES}
           ${GUDEV_LIBRARIES}
           ${GIOUNIX_LIBRARIES}
           lib-base

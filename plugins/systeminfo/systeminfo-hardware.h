@@ -138,7 +138,7 @@ private:
 
     int64_t get_memory_size_with_lshw();
 
-    int64_t get_memory_size_with_libgtop();
+    int64_t get_memory_size_with_meminfo();
 
     int64_t get_memory_size_with_dmi();
 

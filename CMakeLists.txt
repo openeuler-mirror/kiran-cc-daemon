@@ -35,7 +35,6 @@ endif()
 
 if(build-system-daemon)
   pkg_search_module(SYSTEMD REQUIRED systemd)
-  pkg_search_module(LIBGTOP REQUIRED libgtop-2.0)
   pkg_search_module(GUDEV REQUIRED gudev-1.0)
 endif()
 
