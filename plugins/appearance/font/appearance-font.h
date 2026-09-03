@@ -43,9 +43,9 @@ private:
     void notifyFontChanged(const QString &key);
 
 private:
-    QGSettings *m_xsettingsSettings;
-    QGSettings *m_interfaceSettings;
-    QGSettings *m_marcoSettings;
-    QGSettings *m_cajaSettings;
+    QGSettings *m_xsettingsSettings{nullptr};
+    QGSettings *m_interfaceSettings{nullptr};
+    QGSettings *m_marcoSettings{nullptr};
+    QGSettings *m_cajaSettings{nullptr};
 };
 }  // namespace  Kiran
