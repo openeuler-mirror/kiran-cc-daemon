@@ -52,7 +52,8 @@ namespace Kiran
 KeysSound::KeysSound() : KeysComponent("Sound", tr("Sound")),
                          m_audioProxy(nullptr),
                          m_audioSinkDeviceProxy(nullptr),
-                         m_audioSourceDeviceProxy(nullptr)
+                         m_audioSourceDeviceProxy(nullptr),
+                         m_audioServiceWatcher(nullptr)
 {
     if (QDBusConnection::sessionBus().interface()->isServiceRegistered(AUDIO_DBUS_NAME))
     {
