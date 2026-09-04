@@ -29,7 +29,8 @@ namespace Kiran
 #define PROPERTY_LAST_REMINDER_TIME "latest_reminder_time"
 #define TIMEOUT_INTERVAL_MS (24 * 60 * 60 * 1000)
 NotificationManager::NotificationManager()
-    : m_upgradeProxy(nullptr),
+    : m_timer(nullptr),
+      m_upgradeProxy(nullptr),
       m_hasUpgrades(false),
       m_scanInProgress(false)
 {
