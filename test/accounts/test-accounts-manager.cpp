@@ -16,11 +16,32 @@
 #include "lib/base/base.h"
 
 #include <accounts-i.h>
+#include <pwd.h>
 #include <user_dbus_proxy.h>
 
 namespace Kiran
 {
 #define USRE_NAME_TEST001 "test001"
+#define USRE_ID_TEST001 5000
+
+void AccountsManagerProxy::CleanupUser()
+{
+    if (!this->accounts_proxy_)
+    {
+        return;
+    }
+
+    IGNORE_EXCEPTION(
+        {
+            Glib::DBusObjectPathString user_object_path = this->accounts_proxy_->FindUserByName_sync(USRE_NAME_TEST001);
+            Glib::RefPtr<Kiran::SystemDaemon::Accounts::UserProxy> user_proxy =
+                SystemDaemon::Accounts::UserProxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
+                                                                     Gio::DBus::PROXY_FLAGS_NONE,
+                                                                     ACCOUNTS_DBUS_NAME,
+                                                                     user_object_path);
+            this->accounts_proxy_->DeleteUser_sync(user_proxy->uid_get(), true);
+        });
+}
 
 void AccountsManagerProxy::SetUp()
 {
@@ -30,10 +51,13 @@ void AccountsManagerProxy::SetUp()
                                                                            ACCOUNTS_OBJECT_PATH);
 
     ASSERT_NE(!this->accounts_proxy_, true);
+
+    this->CleanupUser();
 }
 
 void AccountsManagerProxy::TearDown()
 {
+    this->CleanupUser();
 }
 
 TEST_F(AccountsManagerProxy, CreateUser)
@@ -41,22 +65,10 @@ TEST_F(AccountsManagerProxy, CreateUser)
     Glib::DBusObjectPathString user_object_path;
     Glib::RefPtr<Kiran::SystemDaemon::Accounts::UserProxy> user_proxy;
 
-    // 删除test001用户
-    IGNORE_EXCEPTION(
-        {
-            user_object_path = this->accounts_proxy_->FindUserByName_sync(USRE_NAME_TEST001);
-            user_proxy = SystemDaemon::Accounts::UserProxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
-                                                                              Gio::DBus::PROXY_FLAGS_NONE,
-                                                                              ACCOUNTS_DBUS_NAME,
-                                                                              user_object_path);
-            this->accounts_proxy_->DeleteUser_sync(user_proxy->uid_get(), true);
-        });
-
-    // 创建test001用户
     ASSERT_NO_THROW(user_object_path = this->accounts_proxy_->CreateUser_sync(USRE_NAME_TEST001,
                                                                               USRE_NAME_TEST001,
                                                                               AccountsAccountType::ACCOUNTS_ACCOUNT_TYPE_STANDARD,
-                                                                              -1));
+                                                                              USRE_ID_TEST001));
 
     ASSERT_NO_THROW(user_proxy = SystemDaemon::Accounts::UserProxy::createForBus_sync(Gio::DBus::BUS_TYPE_SYSTEM,
                                                                                       Gio::DBus::PROXY_FLAGS_NONE,
@@ -65,5 +77,9 @@ TEST_F(AccountsManagerProxy, CreateUser)
 
     ASSERT_NE(!user_proxy, true);
     ASSERT_EQ(USRE_NAME_TEST001, user_proxy->user_name_get());
+
+    struct passwd *pw = getpwnam(USRE_NAME_TEST001);
+    ASSERT_NE(pw, nullptr);
+    ASSERT_EQ(std::string(pw->pw_name), USRE_NAME_TEST001);
 }
 }  // namespace Kiran
