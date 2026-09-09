@@ -1,5 +1,6 @@
 if(build-system-daemon)
   add_subdirectory(accounts)
+  add_subdirectory(groups)
   add_subdirectory(timedate)
   add_subdirectory(systeminfo)
   add_subdirectory(greeter)

@@ -39,6 +39,7 @@ if(build-system-daemon)
     FILES
       ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.service
       ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Accounts.service
+      ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Groups.service
       ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.TimeDate.service
       ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.Greeter.service
       ${PROJECT_BINARY_DIR}/data/services/com.kylinsec.Kiran.SystemDaemon.SystemInfo.service
@@ -135,6 +136,7 @@ endif()
 # include files
 install(
   FILES ${PROJECT_SOURCE_DIR}/include/accounts-i.h
+        ${PROJECT_SOURCE_DIR}/include/groups-i.h
         ${PROJECT_SOURCE_DIR}/include/timedate-i.h
         ${PROJECT_SOURCE_DIR}/include/greeter-i.h
         ${PROJECT_SOURCE_DIR}/include/systeminfo-i.h

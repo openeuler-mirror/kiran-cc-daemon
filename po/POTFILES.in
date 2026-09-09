@@ -8,6 +8,7 @@
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.touchpad.gschema.xml.in
 [type: gettext/gsettings]data/schemas/com.kylinsec.kiran.xsettings.gschema.xml.in
 data/com.kylinsec.Kiran.SystemDaemon.Accounts.policy.in
+data/com.kylinsec.Kiran.SystemDaemon.Groups.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in
 data/com.kylinsec.Kiran.SystemDaemon.SystemInfo.policy.in

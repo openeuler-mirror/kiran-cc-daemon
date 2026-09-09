@@ -104,7 +104,7 @@ std::shared_ptr<SPwd> AccountsWrapper::get_spwd_by_name(const std::string &user_
     return nullptr;
 }
 
-std::shared_ptr<Group> AccountsWrapper::get_group_by_name(const std::string &group_name)
+std::shared_ptr<AccountsGroup> AccountsWrapper::get_group_by_name(const std::string &group_name)
 {
     auto grp = getgrnam(group_name.c_str());
     if (grp == NULL)
@@ -113,7 +113,7 @@ std::shared_ptr<Group> AccountsWrapper::get_group_by_name(const std::string &gro
     }
     else
     {
-        return std::make_shared<Group>(grp);
+        return std::make_shared<AccountsGroup>(grp);
     }
 }
 

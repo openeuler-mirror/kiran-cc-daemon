@@ -84,11 +84,11 @@ public:
     unsigned long int sp_flag;            /* Reserved.  */
 };
 
-class Group
+class AccountsGroup
 {
 public:
-    Group() = delete;
-    Group(struct group *grp)
+    AccountsGroup() = delete;
+    AccountsGroup(struct group *grp)
     {
         RETURN_IF_FALSE(grp != NULL);
 
@@ -135,7 +135,7 @@ public:
     std::shared_ptr<Passwd> get_passwd_by_name(const std::string &user_name);
     std::shared_ptr<Passwd> get_passwd_by_uid(uint64_t uid);
     std::shared_ptr<SPwd> get_spwd_by_name(const std::string &user_name);
-    std::shared_ptr<Group> get_group_by_name(const std::string &group_name);
+    std::shared_ptr<AccountsGroup> get_group_by_name(const std::string &group_name);
     std::vector<uint32_t> get_user_groups(const std::string &user, uint32_t group);
 
     sigc::signal<void, FileChangedType> &signal_file_changed() { return this->file_changed_; };
