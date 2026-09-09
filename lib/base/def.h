@@ -180,6 +180,9 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 #define KLOG_DEBUG_ACCOUNTS(format, ...) \
     KLOG_DEBUG_PLUGIN("ACCOUNTS", format, ##__VA_ARGS__)
 
+#define KLOG_DEBUG_GROUPS(format, ...) \
+    KLOG_DEBUG_PLUGIN("GROUPS", format, ##__VA_ARGS__)
+
 #define KLOG_DEBUG_APPEARANCE(format, ...) \
     KLOG_DEBUG_PLUGIN("APPEARANCE", format, ##__VA_ARGS__)
 
@@ -221,6 +224,9 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 
 #define KLOG_WARNING_ACCOUNTS(format, ...) \
     KLOG_WARNING_PLUGIN("ACCOUNTS", format, ##__VA_ARGS__)
+
+#define KLOG_WARNING_GROUPS(format, ...) \
+    KLOG_WARNING_PLUGIN("GROUPS", format, ##__VA_ARGS__)
 
 #define KLOG_WARNING_APPEARANCE(format, ...) \
     KLOG_WARNING_PLUGIN("APPEARANCE", format, ##__VA_ARGS__)
@@ -264,6 +270,9 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 #define KLOG_ERROR_ACCOUNTS(format, ...) \
     KLOG_ERROR_PLUGIN("ACCOUNTS", format, ##__VA_ARGS__)
 
+#define KLOG_ERROR_GROUPS(format, ...) \
+    KLOG_ERROR_PLUGIN("GROUPS", format, ##__VA_ARGS__)
+
 #define KLOG_ERROR_APPEARANCE(format, ...) \
     KLOG_ERROR_PLUGIN("APPEARANCE", format, ##__VA_ARGS__)
 
@@ -305,6 +314,9 @@ constexpr StringHash operator"" _hash(char const *p, size_t)
 
 #define KLOG_INFO_ACCOUNTS(format, ...) \
     KLOG_INFO_PLUGIN("ACCOUNTS", format, ##__VA_ARGS__)
+
+#define KLOG_INFO_GROUPS(format, ...) \
+    KLOG_INFO_PLUGIN("GROUPS", format, ##__VA_ARGS__)
 
 #define KLOG_INFO_APPEARANCE(format, ...) \
     KLOG_INFO_PLUGIN("APPEARANCE", format, ##__VA_ARGS__)

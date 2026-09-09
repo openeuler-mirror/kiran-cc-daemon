@@ -13,6 +13,9 @@ option(build-system-daemon "Build system daemon" ON)
 set(enable-plugin-accounts
     "true"
     CACHE STRING "Enable plugin accounts")
+set(enable-plugin-groups
+    "true"
+    CACHE STRING "Enable plugin groups")
 set(enable-plugin-appearance
     "true"
     CACHE STRING "Enable plugin appearance")

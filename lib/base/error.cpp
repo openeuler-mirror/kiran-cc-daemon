@@ -126,6 +126,61 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_ACCOUNTS_USER_MODIFY_PASSWORD_FAILED:
         error_desc = _("{0}");
         break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_1:
+    case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_2:
+    case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_3:
+    case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_4:
+        error_desc = _("No group found.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_ALREADY_EXIST:
+        error_desc = _("The group already exists.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_SPAWN_SYNC_FAILED:
+    case CCErrorCode::ERROR_GROUPS_SPAWN_EXIT_STATUS:
+        error_desc = _("Internel error.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_USAGE:
+        error_desc = _("Invalid command syntax.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_BAD_ARG:
+        error_desc = _("Invalid argument to option.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_GID_IN_USE:
+        error_desc = _("GID already in use (and no -o).");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_NOTFOUND:
+        error_desc = _("Specified group doesn't exist.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_PRIMARY_GROUP:
+        error_desc = _("Can't remove user's primary group.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_NAME_IN_USE:
+        error_desc = _("Group name already in use.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_GRP_UPDATE:
+        error_desc = _("Can't update group file.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_CLEANUP_SERVICE:
+        error_desc = _("Can't setup cleanup service.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_PAM_USERNAME:
+        error_desc = _("Can't determine your username for use with pam.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_PAM_ERROR:
+        error_desc = _("Pam returned an error, see syslog facility id groupmod for the PAM error message.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_COMMAND_UNKNOWN:
+        error_desc = _("Unknown error.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_EXIST:
+        error_desc = _("User is not exist.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_USER_ALREADY_IN_GROUP:
+        error_desc = _("The user already in the group.");
+        break;
+    case CCErrorCode::ERROR_GROUPS_GROUP_USER_NOT_IN_GROUP:
+        error_desc = _("The user isn't in the group.");
+        break;
     case CCErrorCode::ERROR_AUDIO_DEVICE_VOLUME_RANGE_INVLAID:
     case CCErrorCode::ERROR_AUDIO_STREAM_VOLUME_RANGE_INVLAID:
         error_desc = _("The range of volume is between 0 and 1.0.");

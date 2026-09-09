@@ -607,6 +607,14 @@ msgstr "更改登录屏幕设置"
 msgid "Authentication is required to change the login screen configuration"
 msgstr "更改登录屏幕设置之前需要身份验证"
 
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Groups.policy.in.h:1
+msgid "Manage groups"
+msgstr "管理用户组"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.Groups.policy.in.h:2
+msgid "Authentication is required to change group data"
+msgstr "更改用户组数据之前需要身份验证"
+
 #: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:1
 msgid "Set system time"
 msgstr "设置系统时间"
@@ -783,6 +791,54 @@ msgstr "有用户正在修改密码。"
 #: ../lib/base/error.cpp:127
 msgid "{0}"
 msgstr "{0}"
+
+#: ../lib/base/error.cpp:133
+msgid "No group found."
+msgstr "没有发现用户组。"
+
+#: ../lib/base/error.cpp:136
+msgid "The group already exists."
+msgstr "用户组已存在。"
+
+#: ../lib/base/error.cpp:149
+msgid "GID already in use (and no -o)."
+msgstr "GID已在使用中。"
+
+#: ../lib/base/error.cpp:152
+msgid "Specified group doesn't exist."
+msgstr "指定的用户组不存在。"
+
+#: ../lib/base/error.cpp:155
+msgid "Can't remove user's primary group."
+msgstr "不能移除用户的主组。"
+
+#: ../lib/base/error.cpp:158
+msgid "Group name already in use."
+msgstr "用户组名已经在使用中。"
+
+#: ../lib/base/error.cpp:164
+msgid "Can't setup cleanup service."
+msgstr "无法设置清理服务。"
+
+#: ../lib/base/error.cpp:167
+msgid "Can't determine your username for use with pam."
+msgstr "无法确定用于PAM的用户名。"
+
+#: ../lib/base/error.cpp:170
+msgid "Pam returned an error, see syslog facility id groupmod for the PAM error message."
+msgstr "PAM返回错误，请查看syslog中groupmod的PAM错误信息。"
+
+#: ../lib/base/error.cpp:176
+msgid "User is not exist."
+msgstr "用户不存在。"
+
+#: ../lib/base/error.cpp:179
+msgid "The user already in the group."
+msgstr "用户已在该用户组中。"
+
+#: ../lib/base/error.cpp:182
+msgid "The user isn't in the group."
+msgstr "用户不在该用户组中。"
 
 #: ../lib/base/error.cpp:131
 msgid "The range of volume is between 0 and 1.0."

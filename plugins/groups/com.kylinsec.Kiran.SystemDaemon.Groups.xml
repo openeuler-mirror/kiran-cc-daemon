@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="com.kylinsec.Kiran.SystemDaemon.Groups">
+        <method name="ListCachedGroups">
+            <arg name="groups" direction="out" type="ao">
+                <description>Object paths of groups</description>
+            </arg>
+        </method>
+
+        <method name="FindGroupByID">
+            <arg name="gid" direction="in" type="t">
+                <description>Find the group with the input gid</description>
+            </arg>
+            <arg name="group" direction="out" type="o">
+                <description>Object path of group</description>
+            </arg>
+        </method>
+
+        <method name="FindGroupByName">
+            <arg name="name" direction="in" type="s">
+                <description>Find the group with the input name</description>
+            </arg>
+            <arg name="group" direction="out" type="o">
+                <description>Object path of group</description>
+            </arg>
+        </method>
+
+        <method name="CreateGroup">
+            <arg name="name" direction="in" type="s">
+                <description>The group name for the new group</description>
+            </arg>
+            <arg name="users" direction="in" type="as">
+                <description>The users who join to group</description>
+            </arg>
+            <arg name="group" direction="out" type="o">
+                <description>Object path of the new group</description>
+            </arg>
+        </method>
+
+        <method name="DeleteGroup">
+            <arg name="gid" direction="in" type="t">
+                <description>The gid to delete</description>
+            </arg>
+        </method>
+
+        <signal name="GroupAdded">
+            <arg name="group" type="o">
+                <description>Object path of the group that was added.</description>
+            </arg>
+        </signal>
+
+        <signal name="GroupDeleted">
+            <arg name="group" type="o">
+                <description>Object path of the group that was deleted.</description>
+            </arg>
+        </signal>
+
+    </interface>
+</node>
