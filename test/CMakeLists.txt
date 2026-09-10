@@ -19,6 +19,20 @@ gen_dbus_stub(
 )
 
 gen_dbus_stub(
+  GROUPS
+  groups
+  com.kylinsec.
+  ${CMAKE_SOURCE_DIR}/plugins/groups/com.kylinsec.Kiran.SystemDaemon.Groups.xml
+)
+
+gen_dbus_stub(
+  GROUP
+  group
+  com.kylinsec.
+  ${CMAKE_SOURCE_DIR}/plugins/groups/com.kylinsec.Kiran.SystemDaemon.Groups.Group.xml
+)
+
+gen_dbus_stub(
   APPEARANCE
   appearance
   com.kylinsec.
@@ -55,6 +69,7 @@ gen_dbus_stub(
 
 add_executable(${TARGET_NAME} ${TEST_H_FILES} ${TEST_CPP_FILES}
                               ${ACCOUNTS_GENERATED_STUB} ${USER_GENERATED_STUB}
+                              ${GROUPS_GENERATED_STUB} ${GROUP_GENERATED_STUB}
                               ${APPEARANCE_GENERATED_STUB}
                               ${AUDIO_GENERATED_STUB} ${AUDIO_DEVICE_GENERATED_STUB}
                               ${SYSTEMINFO_GENERATED_STUB}

@@ -56,10 +56,9 @@ add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(plugins)
 
-# 单元测试构建（可选）：gtest 为可选依赖，仅开启 BUILD_TESTING 时启用
-if(BUILD_TESTING)
+# 单元测试构建（可选，见 cmake/ksd_variables.cmake 的 build-tests 选项）：
+# 仅在 build-tests=ON 时启用，此时 gtest 为必须依赖
+if(build-tests)
   pkg_search_module(GTEST REQUIRED gtest)
-endif()
-if(BUILD_TESTING AND GTEST_FOUND)
   add_subdirectory(test)
 endif()
