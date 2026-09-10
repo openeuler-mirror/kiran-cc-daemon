@@ -31,6 +31,8 @@ protected:
     // Tears down the test fixture.
     virtual void TearDown() override;
 
+    void CleanupUser();
+
     Glib::RefPtr<SystemDaemon::AccountsProxy> accounts_proxy_;
 };
 }  // namespace Kiran
