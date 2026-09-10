@@ -9,6 +9,7 @@ set(KCC_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/kiran-cc-daemon)
 
 option(build-session-daemon "Build session daemon" ON)
 option(build-system-daemon "Build system daemon" ON)
+option(build-tests "Build unit tests (requires gtest)" OFF)
 
 set(enable-plugin-accounts
     "true"
