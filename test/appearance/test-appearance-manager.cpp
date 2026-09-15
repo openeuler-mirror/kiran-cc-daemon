@@ -8,9 +8,12 @@
  * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
  * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
+ * 
+ * Author:     gaobo <gaobo@kylinsec.com.cn>
  */
 
 #include "test/appearance/test-appearance-manager.h"
+#include "test/gtest-compat.h"
 #include "lib/base/base.h"
 
 #include <appearance-i.h>
@@ -24,7 +27,7 @@ void AppearanceManagerProxy::SetUp()
     const char *session_bus = getenv("DBUS_SESSION_BUS_ADDRESS");
     if (session_bus == nullptr || *session_bus == '\0')
     {
-        GTEST_SKIP() << "DBUS_SESSION_BUS_ADDRESS is not set";
+        KIRAN_TEST_SKIP("DBUS_SESSION_BUS_ADDRESS is not set");
     }
 
     try
@@ -37,16 +40,16 @@ void AppearanceManagerProxy::SetUp()
     }
     catch (...)
     {
-        GTEST_SKIP() << "session bus is not available";
+        KIRAN_TEST_SKIP("session bus is not available");
     }
 
     auto dbus_proxy = this->appearance_proxy_ ? this->appearance_proxy_->dbusProxy() : Glib::RefPtr<Gio::DBus::Proxy>();
     if (!dbus_proxy || dbus_proxy->get_name_owner().empty())
     {
-        GTEST_SKIP() << "appearance daemon is not running";
+        // 无 GTEST_SKIP 时上面的跳过只在 SetUp 内返回，这里同时置空代理让用例体直接返回
+        this->appearance_proxy_.reset();
+        KIRAN_TEST_SKIP("appearance daemon is not running");
     }
-
-    ASSERT_NE(!this->appearance_proxy_, true);
 
     this->original_themes_[APPEARANCE_THEME_TYPE_GTK] = this->appearance_proxy_->GetTheme_sync(APPEARANCE_THEME_TYPE_GTK);
     this->original_themes_[APPEARANCE_THEME_TYPE_METACITY] = this->appearance_proxy_->GetTheme_sync(APPEARANCE_THEME_TYPE_METACITY);
@@ -89,6 +92,11 @@ void AppearanceManagerProxy::TearDown()
 
 TEST_F(AppearanceManagerProxy, SetTheme)
 {
+    if (!this->appearance_proxy_)
+    {
+        return;
+    }
+
     ASSERT_NO_THROW(this->appearance_proxy_->SetTheme_sync(APPEARANCE_THEME_TYPE_GTK, "Kiran-white"));
     auto gtkTheme = this->appearance_proxy_->GetTheme_sync(APPEARANCE_THEME_TYPE_GTK);
     ASSERT_EQ(gtkTheme, "Kiran-white");
@@ -108,6 +116,11 @@ TEST_F(AppearanceManagerProxy, SetTheme)
 
 TEST_F(AppearanceManagerProxy, SetFont)
 {
+    if (!this->appearance_proxy_)
+    {
+        return;
+    }
+
     ASSERT_NO_THROW(this->appearance_proxy_->SetFont_sync(APPEARANCE_FONT_TYPE_APPLICATION, "Noto Sans CJK SC 10"));
     auto appFont = this->appearance_proxy_->GetFont_sync(APPEARANCE_FONT_TYPE_APPLICATION);
     ASSERT_EQ(appFont, "Noto Sans CJK SC 10");
@@ -131,6 +144,11 @@ TEST_F(AppearanceManagerProxy, SetFont)
 
 TEST_F(AppearanceManagerProxy, Background)
 {
+    if (!this->appearance_proxy_)
+    {
+        return;
+    }
+
     ASSERT_NO_THROW(this->appearance_proxy_->SetDesktopBackground_sync("test.jpg"));
     ASSERT_NO_THROW(this->appearance_proxy_->SetLockScreenBackground_sync("test.jpg"));
 

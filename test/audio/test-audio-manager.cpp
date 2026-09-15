@@ -8,16 +8,17 @@
  * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
  * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
+ * 
+ * Author:     gaobo <gaobo@kylinsec.com.cn>
  */
 
 #include "test/audio/test-audio-manager.h"
+#include "test/gtest-compat.h"
 #include "lib/base/base.h"
 
 #include <audio-i.h>
-#include <chrono>
 #include <cmath>
 #include <cstdlib>
-#include <thread>
 
 namespace Kiran
 {
@@ -27,7 +28,7 @@ void AudioManagerProxy::SetUp()
     const char *session_bus = getenv("DBUS_SESSION_BUS_ADDRESS");
     if (session_bus == nullptr || *session_bus == '\0')
     {
-        GTEST_SKIP() << "DBUS_SESSION_BUS_ADDRESS is not set";
+        KIRAN_TEST_SKIP("DBUS_SESSION_BUS_ADDRESS is not set");
     }
 
     try
@@ -40,16 +41,16 @@ void AudioManagerProxy::SetUp()
     }
     catch (...)
     {
-        GTEST_SKIP() << "session bus is not available";
+        KIRAN_TEST_SKIP("session bus is not available");
     }
 
     auto dbus_proxy = this->audio_proxy_ ? this->audio_proxy_->dbusProxy() : Glib::RefPtr<Gio::DBus::Proxy>();
     if (!dbus_proxy || dbus_proxy->get_name_owner().empty())
     {
-        GTEST_SKIP() << "audio daemon is not running";
+        // 无 GTEST_SKIP 时上面的跳过只在 SetUp 内返回，这里同时置空代理让用例体直接返回
+        this->audio_proxy_.reset();
+        KIRAN_TEST_SKIP("audio daemon is not running");
     }
-
-    ASSERT_NE(!this->audio_proxy_, true);
 }
 
 void AudioManagerProxy::TearDown()
@@ -93,10 +94,16 @@ void AudioManagerProxy::TearDown()
 
 TEST_F(AudioManagerProxy, SetVolume)
 {
+    if (!this->audio_proxy_)
+    {
+        return;
+    }
+
+    // 音频后端异步启动，等待其就绪后再读取默认设备
     int retries = 0;
     while (this->audio_proxy_->state_get() != AUDIO_STATE_READY && ++retries < 30)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        g_usleep(100000);
     }
     ASSERT_EQ(this->audio_proxy_->state_get(), AUDIO_STATE_READY);
 

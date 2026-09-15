@@ -12,6 +12,8 @@
  * Author:     tangjie02 <tangjie02@kylinos.com.cn>
  */
 
+#pragma once
+
 #include <accounts_dbus_proxy.h>
 #include <giomm.h>
 #include <gtest/gtest.h>
