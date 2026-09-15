@@ -147,6 +147,11 @@
         <translation>家目录权限错误。</translation>
     </message>
     <message>
+        <location filename="../lib/base/error.cpp" line="117"/>
+        <source>The specified user ID is in the subordinate user ID (subuid) range.</source>
+        <translation>指定的用户ID处于从属用户ID(subuid)保留区间内。</translation>
+    </message>
+    <message>
         <location filename="../lib/base/error.cpp" line="120"/>
         <source>No group found.</source>
         <translation>没有发现用户组。</translation>

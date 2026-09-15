@@ -46,6 +46,8 @@ public:
                                   const QStringList &arguments,
                                   QString &error);
     // 翻译命令行返回的错误码
-    static bool parseExitStatus(int32_t exitStatus, CCErrorCode &errorCode);
+    static bool parseExitStatus(int32_t exitCode, CCErrorCode &errorCode);
+    // 判断指定的用户ID是否落入从属ID(subuid/subgid)保留区间
+    static bool isUidInSubidRange(int64_t uid);
 };
 }  // namespace Kiran

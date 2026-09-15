@@ -209,6 +209,14 @@ void AccountsManager::createUserAuthenticated(const QDBusMessage &message,
 
     KLOG_INFO(accounts) << "Create user" << name;
 
+    // 指定的用户ID不能落在subuid/subgid保留区间内：该区间是系统为普通用户预分配的从属ID池，
+    // 用作主用户ID会与用户命名空间中的ID映射发生冲突。
+    if (uid > 0 && AccountsUtil::isUidInSubidRange(uid))
+    {
+        KLOG_WARNING(accounts) << "The specified uid" << uid << "is in the subordinate id range.";
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_UID_IN_SUBID_RANGE);
+    }
+
     QString program = QString("/usr/sbin/useradd");
     QStringList arguments = {"-m", "-c", realname};
     switch (accountType)
