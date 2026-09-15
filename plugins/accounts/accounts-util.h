@@ -62,5 +62,7 @@ public:
 
     // 翻译命令行返回的错误码
     static bool parse_exit_status(int32_t exit_status, CCErrorCode &error_code);
+    // 判断指定的用户ID是否落入从属用户ID(subuid)保留区间
+    static bool is_uid_in_subid_range(int64_t uid);
 };
 }  // namespace Kiran

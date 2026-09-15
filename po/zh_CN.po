@@ -792,6 +792,10 @@ msgstr "有用户正在修改密码。"
 msgid "{0}"
 msgstr "{0}"
 
+#: ../lib/base/error.cpp:130
+msgid "The specified user ID is in the subordinate user ID (subuid) range."
+msgstr "指定的用户ID处于从属用户ID(subuid)保留区间内。"
+
 #: ../lib/base/error.cpp:133
 msgid "No group found."
 msgstr "没有发现用户组。"
