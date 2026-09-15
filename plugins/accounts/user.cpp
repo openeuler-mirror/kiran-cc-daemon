@@ -243,17 +243,21 @@ void User::setEmailAuthenticated(const QDBusMessage &message, const QString &ema
 
 void User::setHomeDirectoryAuthenticated(const QDBusMessage &message, const QString &homeDirectory)
 {
-    if (!checkDirPermissionAsHome(homeDirectory))
-    {
-        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_PERMISSION_ERROR);
-    }
-
     // getHomeDirectory()或者homeDirectory可能以/结尾，也可能不以/结尾，因此这里统一去掉以/结尾后再进行比较
     if (QDir(getHomeDirectory()).absolutePath() != QDir(homeDirectory).absolutePath())
     {
+        // usermod -m要求目标目录不存在：目标已存在时它会先改/etc/passwd再移动失败，
+        // 因此这里不调用usermod，直接报错提示目标目录已存在。
+        QFileInfo dirInfo(homeDirectory);
+        if (dirInfo.exists() || dirInfo.isSymLink())
+        {
+            DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_DIR_ALREADY_EXIST);
+        }
+
         SPAWN_WITH_DBUS_MESSAGE(message,
                                 QString("/usr/sbin/usermod"),
                                 QStringList({"-m", "-d", homeDirectory, "--", getUserName()}));
+
         setHomeDirectory(homeDirectory);
         resetIconFile();
     }
