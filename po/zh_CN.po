@@ -797,6 +797,12 @@ msgid "The specified user ID is in the subordinate user ID (subuid) range."
 msgstr "指定的用户ID处于从属用户ID(subuid)保留区间内。"
 
 #: ../lib/base/error.cpp:133
+msgid ""
+"The specified home directory already exists, so it cannot be set as the home "
+"directory of this user. Please use the usermod command to modify it manually."
+msgstr "指定的家目录已存在，无法设为该用户的家目录，请用 usermod 命令手动进行修改"
+
+#: ../lib/base/error.cpp:136
 msgid "No group found."
 msgstr "没有发现用户组。"
 

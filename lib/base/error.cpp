@@ -129,6 +129,9 @@ std::string CCError::get_error_desc(CCErrorCode error_code, bool attach_error_co
     case CCErrorCode::ERROR_ACCOUNTS_USER_UID_IN_SUBID_RANGE:
         error_desc = _("The specified user ID is in the subordinate user ID (subuid) range.");
         break;
+    case CCErrorCode::ERROR_ACCOUNTS_USER_HOME_DIR_ALREADY_EXIST:
+        error_desc = _("The specified home directory already exists, so it cannot be set as the home directory of this user. Please use the usermod command to modify it manually.");
+        break;
     case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_1:
     case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_2:
     case CCErrorCode::ERROR_GROUPS_GROUP_NOT_FOUND_3:
