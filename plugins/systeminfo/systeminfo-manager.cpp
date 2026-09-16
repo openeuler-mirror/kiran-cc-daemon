@@ -47,7 +47,9 @@ void SystemInfoManager::GetSystemInfo(gint32 type, MethodInvocation& invocation)
         case SystemInfoType::SYSTEMINFO_TYPE_SOFTWARE:
         {
             auto software_info = this->software_.get_software_info();
+            // 保留拼写错误的旧字段 kernal_name，兼容既有调用方
             values["kernal_name"] = software_info.kernel_name;
+            values["kernel_name"] = software_info.kernel_name;
             values["host_name"] = software_info.host_name;
             values["kernel_release"] = software_info.kernel_release;
             values["kernel_version"] = software_info.kernel_version;
