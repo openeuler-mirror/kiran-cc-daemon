@@ -147,7 +147,17 @@
         <translation>家目录权限错误。</translation>
     </message>
     <message>
+        <location filename="../lib/base/error.cpp" line="117"/>
+        <source>The specified user ID is in the subordinate user ID (subuid) range.</source>
+        <translation>指定的用户ID处于从属用户ID(subuid)保留区间内。</translation>
+    </message>
+    <message>
         <location filename="../lib/base/error.cpp" line="120"/>
+        <source>The specified home directory already exists, so it cannot be set as the home directory of this user. Please use the usermod command to modify it manually.</source>
+        <translation>指定的家目录已存在，无法设为该用户的家目录，请用 usermod 命令手动进行修改</translation>
+    </message>
+    <message>
+        <location filename="../lib/base/error.cpp" line="123"/>
         <source>No group found.</source>
         <translation>没有发现用户组。</translation>
     </message>
