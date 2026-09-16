@@ -507,6 +507,14 @@ void AccountsManager::create_user_authorized_cb(MethodInvocation invocation,
 
     KLOG_DEBUG_ACCOUNTS("Create user '%s'.", name.c_str());
 
+    // 指定的用户ID不能落在subuid保留区间内：该区间是系统为普通用户预分配的从属ID池，
+    // 用作主用户ID会与用户命名空间中的ID映射发生冲突。
+    if (uid > 0 && AccountsUtil::is_uid_in_subid_range(uid))
+    {
+        KLOG_WARNING_ACCOUNTS("The specified uid %" PRId64 " is in the subordinate uid range.", uid);
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_UID_IN_SUBID_RANGE);
+    }
+
     std::vector<std::string> argv = {"/usr/sbin/useradd", "-m", "-c", realname.raw()};
     switch (account_type)
     {

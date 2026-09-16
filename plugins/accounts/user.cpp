@@ -479,7 +479,16 @@ void User::change_home_dir_authorized_cb(MethodInvocation invocation, const Glib
     // home_directory_get()或者home_dir可能以/结尾，也可能不以/结尾，因此这里统一去掉以/结尾后再进行比较
     if (Glib::path_get_dirname(this->home_directory_get() + "/") != Glib::path_get_dirname(home_dir + "/"))
     {
+        // usermod -m要求目标目录不存在：目标已存在时它会先改/etc/passwd再移动失败，
+        // 因此这里不调用usermod，直接报错提示目标目录已存在。
+        struct stat dir_info;
+        if (g_lstat(home_dir.c_str(), &dir_info) == 0)
+        {
+            DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_ACCOUNTS_USER_HOME_DIR_ALREADY_EXIST);
+        }
+
         SPAWN_DBUS(invocation, "/usr/sbin/usermod", "-m", "-d", home_dir, "--", this->user_name_get().raw());
+
         this->home_directory_set(home_dir);
         this->reset_icon_file();
     }

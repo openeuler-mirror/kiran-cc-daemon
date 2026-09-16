@@ -17,6 +17,9 @@
 #include <fcntl.h>
 #include <glib/gi18n.h>
 
+#include <fstream>
+#include <sstream>
+
 enum CommandExitStatus
 {
     // success
@@ -279,6 +282,46 @@ bool AccountsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_cod
         break;
     }
     return false;
+}
+
+bool AccountsUtil::is_uid_in_subid_range(int64_t uid)
+{
+    // /etc/login.defs 中未配置 SUB_UID_MIN/MAX 时使用的默认从属用户ID区间，与 shadow-utils 的默认值保持一致
+    constexpr int64_t SUBID_DEFAULT_MIN = 100000;
+    constexpr int64_t SUBID_DEFAULT_MAX = 600100000;
+
+    int64_t sub_uid_min = SUBID_DEFAULT_MIN;
+    int64_t sub_uid_max = SUBID_DEFAULT_MAX;
+
+    // 只需要校验用户ID：组ID由系统自行分配，不会占用从属用户ID区间
+    std::ifstream login_defs("/etc/login.defs");
+    std::string line;
+    while (std::getline(login_defs, line))
+    {
+        if (line.empty() || line[0] == '#')
+        {
+            continue;
+        }
+
+        std::istringstream line_stream(line);
+        std::string key;
+        int64_t value = 0;
+        if (!(line_stream >> key >> value))
+        {
+            continue;
+        }
+
+        if (key == "SUB_UID_MIN")
+        {
+            sub_uid_min = value;
+        }
+        else if (key == "SUB_UID_MAX")
+        {
+            sub_uid_max = value;
+        }
+    }
+
+    return uid >= sub_uid_min && uid <= sub_uid_max;
 }
 
 }  // namespace Kiran
