@@ -77,7 +77,9 @@ QString SystemInfoManager::GetSystemInfo(int type)
     case SystemInfoType::SYSTEMINFO_TYPE_SOFTWARE:
     {
         auto softwareInfo = m_software->getSoftwareInfo();
+        // 保留拼写错误的旧字段 kernal_name，兼容既有调用方
         values["kernal_name"] = softwareInfo.kernelName;
+        values["kernel_name"] = softwareInfo.kernelName;
         values["host_name"] = softwareInfo.hostName;
         values["kernel_release"] = softwareInfo.kernelRelease;
         values["kernel_version"] = softwareInfo.kernelVersion;
