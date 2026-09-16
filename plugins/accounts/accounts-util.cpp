@@ -13,12 +13,12 @@
  */
 
 #include "accounts-util.h"
-#include <glib.h>
 #include <unistd.h>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QFile>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QTextStream>
 
 enum CommandExitStatus
@@ -189,27 +189,9 @@ bool AccountsUtil::spawnWithLoginUid(const QDBusMessage &message,
     return true;
 }
 
-bool AccountsUtil::parseExitStatus(int32_t exitStatus, CCErrorCode &errorCode)
+bool AccountsUtil::parseExitStatus(int32_t exitCode, CCErrorCode &errorCode)
 {
-    GError *gError = NULL;
-
-    if (!WIFEXITED(exitStatus))
-    {
-#if GLIB_CHECK_VERSION(2, 70, 0)
-        auto result = g_spawn_check_wait_status(exitStatus, &gError);
-#else
-        auto result = g_spawn_check_exit_status(exitStatus, &gError);
-#endif
-
-        if (!result)
-        {
-            KLOG_WARNING(accounts) << gError->message;
-            g_error_free(gError);
-            errorCode = CCErrorCode::ERROR_ACCOUNTS_SPAWN_EXIT_STATUS;
-        }
-        return result;
-    }
-    switch (WEXITSTATUS(exitStatus))
+    switch (exitCode)
     {
     case COMMAND_EXIT_STATUS_SUCCESS:
         return true;
@@ -263,6 +245,56 @@ bool AccountsUtil::parseExitStatus(int32_t exitStatus, CCErrorCode &errorCode)
         break;
     }
     return false;
+}
+
+bool AccountsUtil::isUidInSubidRange(int64_t uid)
+{
+    // /etc/login.defs 中未配置 SUB_UID_MIN/MAX 时使用的默认从属用户ID区间，与 shadow-utils 的默认值保持一致
+    constexpr int64_t SUBID_DEFAULT_MIN = 100000;
+    constexpr int64_t SUBID_DEFAULT_MAX = 600100000;
+
+    int64_t subUidMin = SUBID_DEFAULT_MIN;
+    int64_t subUidMax = SUBID_DEFAULT_MAX;
+
+    // 只需要校验用户ID：组ID由系统自行分配，不会占用从属用户ID区间
+    QFile file("/etc/login.defs");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        static const QRegularExpression whitespaceRegex("\\s+");
+        QTextStream stream(&file);
+        while (!stream.atEnd())
+        {
+            auto line = stream.readLine().trimmed();
+            if (line.isEmpty() || line.startsWith('#'))
+            {
+                continue;
+            }
+
+            auto fields = line.split(whitespaceRegex, Qt::SkipEmptyParts);
+            if (fields.size() < 2)
+            {
+                continue;
+            }
+
+            bool ok = false;
+            auto value = fields.at(1).toLongLong(&ok);
+            if (!ok)
+            {
+                continue;
+            }
+
+            if (fields.at(0) == "SUB_UID_MIN")
+            {
+                subUidMin = value;
+            }
+            else if (fields.at(0) == "SUB_UID_MAX")
+            {
+                subUidMax = value;
+            }
+        }
+    }
+
+    return uid >= subUidMin && uid <= subUidMax;
 }
 
 }  // namespace Kiran
