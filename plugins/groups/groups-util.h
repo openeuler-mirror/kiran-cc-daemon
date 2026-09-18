@@ -44,5 +44,8 @@ public:
                                      const std::vector<std::string> argv,
                                      std::string &error);
     static bool parse_exit_status(int32_t exit_status, CCErrorCode &error_code);
+
+    // shadow-utils 4.9 及以上版本的 groupadd 才支持 -U/--users 参数
+    static bool groupadd_supports_users();
 };
 }  // namespace Kiran
