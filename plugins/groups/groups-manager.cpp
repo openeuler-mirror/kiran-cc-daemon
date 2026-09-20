@@ -245,16 +245,32 @@ void GroupsManager::create_group_authorized_cb(MethodInvocation invocation,
     }
     KLOG_INFO_GROUPS("Create group %s, users: [%s]", name.c_str(), StrUtils::join(user_names, ", ").c_str());
 
-    std::vector<std::string> argv = {"/usr/sbin/groupadd"};
-    if (!user_names.empty())
+    if (user_names.empty())
     {
-        argv.push_back("-U");
-        argv.push_back(StrUtils::join(user_names, ","));
+        std::vector<std::string> argv = {"/usr/sbin/groupadd", "--", name.raw()};
+        SPAWN_DBUS_WITH_ARGS(invocation, argv);
     }
-    argv.push_back("--");
-    argv.push_back(name.raw());
+    else if (GroupsUtil::groupadd_supports_users())
+    {
+        std::vector<std::string> argv = {"/usr/sbin/groupadd",
+                                         "-U",
+                                         StrUtils::join(user_names, ","),
+                                         "--",
+                                         name.raw()};
+        SPAWN_DBUS_WITH_ARGS(invocation, argv);
+    }
+    else
+    {
+        // 老版本 shadow-utils 的 groupadd 不支持 -U/--users 参数，先创建组，再逐个将用户加入组
+        std::vector<std::string> argv = {"/usr/sbin/groupadd", "--", name.raw()};
+        SPAWN_DBUS_WITH_ARGS(invocation, argv);
 
-    SPAWN_DBUS_WITH_ARGS(invocation, argv);
+        for (const auto &user_name : user_names)
+        {
+            std::vector<std::string> add_user_argv = {"/usr/sbin/groupmems", "-g", name.raw(), "-a", user_name};
+            SPAWN_DBUS_WITH_ARGS(invocation, add_user_argv);
+        }
+    }
 
     auto group = this->find_and_create_group_by_name(name.raw());
     if (group)

@@ -245,4 +245,28 @@ bool GroupsUtil::parse_exit_status(int32_t exit_status, CCErrorCode &error_code)
     return false;
 }
 
+bool GroupsUtil::groupadd_supports_users()
+{
+    // shadow-utils 小于 4.9 版本的 groupadd 不支持 -U/--users 参数，且低版本没有 --version 参数，
+    // 无法直接比较版本号，这里通过 --help 的输出判断该参数是否存在
+    static const bool supported = []() {
+        std::string standard_output;
+        std::string standard_error;
+        try
+        {
+            Glib::spawn_command_line_sync("/usr/sbin/groupadd --help", &standard_output, &standard_error);
+        }
+        catch (const Glib::Error &e)
+        {
+            KLOG_WARNING_GROUPS("Failed to execute groupadd --help: %s.", e.what().c_str());
+            return false;
+        }
+
+        auto help_content = standard_output + standard_error;
+        return StrUtils::contains_oneof_substrs(help_content, {"--users", "-U,"});
+    }();
+
+    return supported;
+}
+
 }  // namespace Kiran
