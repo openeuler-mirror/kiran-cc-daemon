@@ -75,8 +75,9 @@ add_executable(${TARGET_NAME} ${TEST_H_FILES} ${TEST_CPP_FILES}
                               ${SYSTEMINFO_GENERATED_STUB}
                               ${TIMEDATE_GENERATED_STUB})
 
-# gtest >= 1.13 需要 c++14（1.13.0 起最低要求 C++14，1.12 及以下用 C++11 即可）
-if(GTEST_VERSION AND GTEST_VERSION VERSION_GREATER_EQUAL "1.13")
+# gtest >= 1.13 需要 c++14
+# VERSION_GREATER_EQUAL 需 CMake 3.7+，用 VERSION_LESS 取反以兼容低版本
+if(GTEST_VERSION AND NOT (GTEST_VERSION VERSION_LESS "1.13"))
   set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON)
 endif()
 

@@ -8,15 +8,19 @@
  * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
  * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
+ * 
+ * Author:     gaobo <gaobo@kylinsec.com.cn>
  */
 
 #include "test/timedate/test-timedate-manager.h"
+#include "test/gtest-compat.h"
 #include "lib/base/base.h"
 
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <sys/time.h>
 #include <timedate-i.h>
 #include <unistd.h>
@@ -41,21 +45,18 @@ static std::string localtime_zone()
     return target.substr(pos + 9);
 }
 
-static std::string timedatectl_show()
+static std::string run_command(const char *command)
 {
     std::string output;
     gchar *standard_output = nullptr;
     gint exit_status = 0;
     GError *error = nullptr;
 
-    if (g_spawn_command_line_sync("timedatectl show", &standard_output, nullptr, &exit_status, &error))
+    if (g_spawn_command_line_sync(command, &standard_output, nullptr, &exit_status, &error) && standard_output)
     {
-        if (standard_output)
-        {
-            output = standard_output;
-            g_free(standard_output);
-        }
+        output = standard_output;
     }
+    g_free(standard_output);
     if (error)
     {
         g_error_free(error);
@@ -63,18 +64,70 @@ static std::string timedatectl_show()
     return output;
 }
 
-static std::string timedatectl_value(const std::string &key)
+static std::string trim(const std::string &text)
 {
-    std::istringstream stream(timedatectl_show());
-    std::string line;
-    while (std::getline(stream, line))
+    const char *spaces = " \t\r\n";
+    auto begin = text.find_first_not_of(spaces);
+    if (begin == std::string::npos)
     {
-        if (line.compare(0, key.size(), key) == 0)
+        return std::string();
+    }
+    auto end = text.find_last_not_of(spaces);
+    return text.substr(begin, end - begin + 1);
+}
+
+// NTP 单元来自 /etc/systemd/ntp-units.d、/usr/lib/systemd/ntp-units.d 中列出的单元
+static std::vector<std::string> ntp_units()
+{
+    std::vector<std::string> units;
+    const char *dirs[] = {"/etc/systemd/ntp-units.d", "/usr/lib/systemd/ntp-units.d"};
+
+    for (const auto &dir : dirs)
+    {
+        GDir *directory = g_dir_open(dir, 0, nullptr);
+        if (directory == nullptr)
         {
-            return line.substr(key.size());
+            continue;
+        }
+
+        const gchar *entry = nullptr;
+        while ((entry = g_dir_read_name(directory)) != nullptr)
+        {
+            gchar *path = g_build_filename(dir, entry, nullptr);
+            gchar *contents = nullptr;
+            if (g_file_get_contents(path, &contents, nullptr, nullptr))
+            {
+                std::istringstream stream(contents);
+                std::string line;
+                while (std::getline(stream, line))
+                {
+                    line = trim(line);
+                    if (!line.empty() && line[0] != '#')
+                    {
+                        units.push_back(line);
+                    }
+                }
+                g_free(contents);
+            }
+            g_free(path);
+        }
+        g_dir_close(directory);
+    }
+    return units;
+}
+
+// 与 daemon 的 ntp_is_active() 一致：active / activating 都算开启
+static bool ntp_enabled()
+{
+    for (const auto &unit : ntp_units())
+    {
+        auto state = trim(run_command(("systemctl is-active " + unit).c_str()));
+        if (state == "active" || state == "activating")
+        {
+            return true;
         }
     }
-    return std::string();
+    return false;
 }
 
 static guint64 now_us()
@@ -95,76 +148,72 @@ void TimedateManagerProxy::SetUp()
     ASSERT_NE(!this->timedate_proxy_, true);
 
     this->original_timezone_ = localtime_zone();
-    this->original_ntp_ = (timedatectl_value("NTP=") == "yes");
-    this->snapshot_valid_ = !this->original_timezone_.empty();
+    this->original_ntp_ = ntp_enabled();
 }
 
 void TimedateManagerProxy::TearDown()
 {
-    if (!this->snapshot_valid_ || !this->timedate_proxy_)
+    if (!this->timedate_proxy_)
     {
         return;
     }
 
-    IGNORE_EXCEPTION(
-        {
-            this->timedate_proxy_->SetTimezone_sync(this->original_timezone_);
-            if (timedatectl_value("NTP=") == "yes")
-            {
-                this->timedate_proxy_->SetNTP_sync(false);
-            }
-            this->timedate_proxy_->SetTime_sync((gint64)now_us(), false);
-            this->timedate_proxy_->SetNTP_sync(this->original_ntp_);
-        });
+    IGNORE_EXCEPTION(this->timedate_proxy_->SetTimezone_sync(this->original_timezone_));
+    IGNORE_EXCEPTION(this->timedate_proxy_->SetTime_sync((gint64)now_us(), false));
+    IGNORE_EXCEPTION(this->timedate_proxy_->SetNTP_sync(this->original_ntp_));
 }
 
 TEST_F(TimedateManagerProxy, SetTime)
 {
-    if (timedatectl_value("NTP=") == "yes")
+    if (ntp_enabled())
     {
         ASSERT_NO_THROW(this->timedate_proxy_->SetNTP_sync(false));
     }
 
-    guint64 requested_us = now_us() + 5000000;
-    ASSERT_NO_THROW(this->timedate_proxy_->SetTime_sync(requested_us, false));
+    guint64 before_us = now_us();
+    gint64 mono_before_us = g_get_monotonic_time();
+    guint64 requested_us = before_us + 5000000;
 
-    // 拨钟可能非立即生效：以 now+5s 为基准，≤5s 内轮询系统时钟，命中目标(±2s)即成功，超时判未生效
+    ASSERT_NO_THROW(this->timedate_proxy_->SetTime_sync((gint64)requested_us, false));
+
     bool applied = false;
-    for (int i = 0; i < 50; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         guint64 current_us = now_us();
         guint64 diff_us = current_us > requested_us ? current_us - requested_us : requested_us - current_us;
-        if (diff_us <= 2000000)
+        if (diff_us <= 200000)
         {
             applied = true;
             break;
         }
         g_usleep(100000);
     }
-
-    ASSERT_NO_THROW(this->timedate_proxy_->SetTime_sync((gint64)now_us(), false));
+    // 恢复系统时间：原时间 + 期间已过去的单调时间
+    guint64 elapsed_us = (guint64)(g_get_monotonic_time() - mono_before_us);
+    ASSERT_NO_THROW(this->timedate_proxy_->SetTime_sync((gint64)(before_us + elapsed_us), false));
 
     ASSERT_TRUE(applied);
 }
 
 TEST_F(TimedateManagerProxy, SetTimezone)
 {
-    ASSERT_NO_THROW(this->timedate_proxy_->SetTimezone_sync("Asia/Beijing"));
-    ASSERT_EQ(localtime_zone(), "Asia/Beijing");
+    ASSERT_NO_THROW(this->timedate_proxy_->SetTimezone_sync("Asia/Shanghai"));
+    ASSERT_EQ(localtime_zone(), "Asia/Shanghai");
 }
 
 TEST_F(TimedateManagerProxy, NTP)
 {
-    if (!this->timedate_proxy_->can_ntp_get())
+    if (ntp_units().empty())
     {
-        GTEST_SKIP() << "NTP not available on this system";
+        KIRAN_TEST_SKIP("no NTP unit found in systemd ntp-units.d");
     }
 
-    ASSERT_NO_THROW(this->timedate_proxy_->SetNTP_sync(true));
-    ASSERT_EQ(timedatectl_value("NTP="), "yes");
+    // 按当前状态决定先切哪个方向，保证两次调用都真正触发启/停（避免 daemon 的幂等短路）
+    ASSERT_NO_THROW(this->timedate_proxy_->SetNTP_sync(!this->original_ntp_));
+    ASSERT_TRUE(ntp_enabled() == !this->original_ntp_);
 
-    ASSERT_NO_THROW(this->timedate_proxy_->SetNTP_sync(false));
-    ASSERT_EQ(timedatectl_value("NTP="), "no");
+    ASSERT_NO_THROW(this->timedate_proxy_->SetNTP_sync(this->original_ntp_));
+    ASSERT_TRUE(ntp_enabled() == this->original_ntp_);
 }
 
 }  // namespace Kiran
