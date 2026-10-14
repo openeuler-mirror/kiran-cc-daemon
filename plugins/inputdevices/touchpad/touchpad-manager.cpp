@@ -159,6 +159,11 @@ void TouchPadManager::init()
 
     this->touchpad_settings_->signal_changed().connect(sigc::mem_fun(this, &TouchPadManager::settings_changed));
 
+    if (XInputHelper::start_device_monitor())
+    {
+        XInputHelper::signal_device_changed().connect(sigc::mem_fun(this, &TouchPadManager::set_all_props_to_devices));
+    }
+
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  TOUCHPAD_DBUS_NAME,
                                                  sigc::mem_fun(this, &TouchPadManager::on_bus_acquired),

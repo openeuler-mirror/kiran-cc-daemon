@@ -28,6 +28,13 @@ public:
     static bool supports_xinput_devices();
     // 遍历输入设备
     static void foreach_device(std::function<void(std::shared_ptr<DeviceHelper>)> callback);
-};
 
+    // 监听输入设备热插拔（XI2 HierarchyChanged），可重复调用
+    static bool start_device_monitor();
+    static void stop_device_monitor();
+    static sigc::signal<void> &signal_device_changed();
+
+private:
+    static GdkFilterReturn on_xevent(GdkXEvent *gdk_event, GdkEvent *event, gpointer data);
+};
 }  // namespace Kiran

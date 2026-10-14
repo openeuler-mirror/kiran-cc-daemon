@@ -98,6 +98,11 @@ void MouseManager::init()
 
     this->mouse_settings_->signal_changed().connect(sigc::mem_fun(this, &MouseManager::settings_changed));
 
+    if (XInputHelper::start_device_monitor())
+    {
+        XInputHelper::signal_device_changed().connect(sigc::mem_fun(this, &MouseManager::set_all_props_to_devices));
+    }
+
     this->dbus_connect_id_ = Gio::DBus::own_name(Gio::DBus::BUS_TYPE_SESSION,
                                                  MOUSE_DBUS_NAME,
                                                  sigc::mem_fun(this, &MouseManager::on_bus_acquired),
