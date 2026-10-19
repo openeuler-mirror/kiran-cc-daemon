@@ -14,103 +14,57 @@
 
 #pragma once
 
-#include <QGuiApplication>
-#include <QPainter>
-#include <QScreen>
-#include <QVector>
+#include <QHash>
+#include <QPixmap>
 #include <QWidget>
+
+class QScreen;
+class QTimer;
 
 namespace Kiran
 {
+// 单块屏幕上的桌面背景窗口
 class DesktopBackground : public QWidget
 {
     Q_OBJECT
 public:
-    DesktopBackground(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-        // NOTE: 这个接口可能只有X11 支持
-        setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
-        showFullScreen();
-    }
+    explicit DesktopBackground(QWidget *parent = nullptr);
+    ~DesktopBackground() override = default;
 
-    void drawBackground(const QString &imagePath)
-    {
-        m_backgroundImage = imagePath;
-        update();
-    }
+    // 设置背景图，由 DesktopView 统一持有并下发给各屏幕窗口
+    void setPixmap(const QPixmap &pixmap);
 
 protected:
-    void paintEvent(QPaintEvent *event) override
-    {
-        QPainter painter(this);
-        QImage image(m_backgroundImage);
-        painter.drawImage(rect(), image);
-    }
+    void paintEvent(QPaintEvent *event) override;
 
 private:
-    QString m_backgroundImage;
+    QPixmap m_pixmap;
+    bool m_pixmapWarned;
 };
 
+// 桌面背景窗口管理
 class DesktopView : public QObject
 {
     Q_OBJECT
 public:
-    DesktopView(QObject *parent = nullptr)
-    {
-        // 监控 QGuiApplication::screens() 变化
-        connect(qApp, &QGuiApplication::primaryScreenChanged, this, &DesktopView::update);
-        connect(qApp, &QGuiApplication::screenAdded, this, &DesktopView::update);
-        connect(qApp, &QGuiApplication::screenRemoved, this, &DesktopView::update);
+    explicit DesktopView(QObject *parent = nullptr);
+    ~DesktopView() override;
 
-        update();
-    }
-    ~DesktopView()
-    {
-        while (!m_backgrounds.isEmpty())
-        {
-            auto background = m_backgrounds.takeLast();
-            delete background;
-        }
-    }
-
-    void update()
-    {
-        int screenCount = QGuiApplication::screens().size();
-        for (int i = 0; i < screenCount; ++i)
-        {
-            DesktopBackground *background;
-            if (m_backgrounds.size() < i + 1)
-            {
-                background = new DesktopBackground;
-                m_backgrounds.push_back(background);
-            }
-            else
-            {
-                background = m_backgrounds[i];
-            }
-
-            QScreen *screen = QGuiApplication::screens().at(i);
-            background->move(screen->geometry().topLeft());
-            background->update();
-        }
-
-        while (m_backgrounds.size() > screenCount)
-        {
-            auto background = m_backgrounds.takeLast();
-            delete background;
-        }
-    }
-
-    void setBackground(const QString &imagePath)
-    {
-        for (auto &background : m_backgrounds)
-        {
-            background->drawBackground(imagePath);
-        }
-    }
+    void setBackground(const QString &imagePath);
 
 private:
-    QVector<DesktopBackground *> m_backgrounds;
+    void onScreenAdded(QScreen *screen);
+    void onScreenRemoved(QScreen *screen);
+    void scheduleSync();
+    void syncScreens();
+    void relayout();
+    DesktopBackground *ensureBackground(QScreen *screen);
+
+private:
+    QHash<QScreen *, DesktopBackground *> m_backgrounds;
+    QTimer *m_syncTimer;
+    QString m_backgroundImage;
+    QPixmap m_pixmap;
+    int m_emptyRetries;
 };
 }  // namespace Kiran
