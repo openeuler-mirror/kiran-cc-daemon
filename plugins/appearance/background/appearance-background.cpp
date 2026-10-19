@@ -37,6 +37,11 @@ void AppearanceBackground::init()
     m_desktopBackground = m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_DESKTOP_BG).toString();
     if (m_appearanceSettings->get(APPEARANCE_SCHEMA_KEY_SHOW_DESKTOP_BACKGROUND).toBool())
     {
+        if (m_desktopBackground.isEmpty())
+        {
+            KLOG_WARNING(appearance) << "Show desktop background is enabled, but the background image path is empty.";
+        }
+
         m_desktopView = new DesktopView(this);
         if (!m_desktopBackground.isEmpty())
         {
