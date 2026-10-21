@@ -131,6 +131,9 @@ private:
     void finishSetTimezone(const QDBusMessage &message, const QString &timeZone);
     void finishSetRtcLocal(const QDBusMessage &message, bool local, bool adjustSystem);
     void finishSetNTPActive(const QDBusMessage &message, bool active);
+    void finishSetDateFormatByIndex(const QDBusMessage &message, int type, int index);
+    void finishSetHourFormat(const QDBusMessage &message, int format);
+    void finishSetSecondsShowing(const QDBusMessage &message, bool enabled);
 
 private Q_SLOTS:
     // 监控信号变化处理
