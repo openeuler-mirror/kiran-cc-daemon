@@ -145,6 +145,10 @@ private:
 
     void finish_set_ntp_active(MethodInvocation invocation, bool active);
 
+    void finish_set_date_format_by_index(MethodInvocation invocation, gint32 type, gint32 index);
+    void finish_set_hour_format(MethodInvocation invocation, gint32 format);
+    void finish_set_seconds_showing(MethodInvocation invocation, bool enabled);
+
     void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);
     void on_name_lost(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name);

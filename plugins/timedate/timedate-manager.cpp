@@ -62,6 +62,7 @@ namespace Kiran
 #define POLKIT_ACTION_SET_NTP_ACTIVE "com.kylinsec.kiran.system-daemon.timedate.set-ntp"
 #define POLKIT_ACTION_SET_RTC_LOCAL "com.kylinsec.kiran.system-daemon.timedate.set-local-rtc"
 #define POLKIT_ACTION_SET_TIMEZONE "com.kylinsec.kiran.system-daemon.timedate.set-timezone"
+#define POLKIT_ACTION_SET_FORMAT "com.kylinsec.kiran.system-daemon.timedate.set-format"
 #define POLKIT_AUTH_CHECK_TIMEOUT 20
 
 TimedateManager *TimedateManager::instance_ = nullptr;
@@ -212,51 +213,26 @@ void TimedateManager::GetDateFormatList(gint32 type, MethodInvocation &invocatio
 
 void TimedateManager::SetDateFormatByIndex(gint32 type, gint32 index, MethodInvocation &invocation)
 {
-    bool result = false;
-    switch (type)
-    {
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
-        result = this->date_long_format_index_set(index);
-        break;
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
-        result = this->date_short_format_index_set(index);
-        break;
-    default:
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
-    }
-
-    if (result)
-    {
-        invocation.ret();
-    }
-    else
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_DATE_FORMAT_FAILED);
-    }
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_FORMAT,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::finish_set_date_format_by_index, this, std::placeholders::_1, type, index));
 }
 
 void TimedateManager::SetHourFormat(gint32 format, MethodInvocation &invocation)
 {
-    if (!this->hour_format_set(format))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_HOUR_FORMAT_FAILED);
-    }
-    else
-    {
-        invocation.ret();
-    }
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_FORMAT,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::finish_set_hour_format, this, std::placeholders::_1, format));
 }
 
 void TimedateManager::EnableSecondsShowing(bool enabled, MethodInvocation &invocation)
 {
-    if (!this->seconds_showing_set(enabled))
-    {
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_SECONDS_SHOWING_FAILED);
-    }
-    else
-    {
-        invocation.ret();
-    }
+    AuthManager::get_instance()->start_auth_check(POLKIT_ACTION_SET_FORMAT,
+                                                  TRUE,
+                                                  invocation.getMessage(),
+                                                  std::bind(&TimedateManager::finish_set_seconds_showing, this, std::placeholders::_1, enabled));
 }
 
 bool TimedateManager::time_zone_setHandler(const Glib::ustring &value)
@@ -1028,6 +1004,55 @@ void TimedateManager::finish_set_ntp_active(MethodInvocation invocation, bool ac
 
     this->ntp_set(active);
     invocation.ret();
+}
+
+void TimedateManager::finish_set_date_format_by_index(MethodInvocation invocation, gint32 type, gint32 index)
+{
+    bool result = false;
+    switch (type)
+    {
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
+        result = this->date_long_format_index_set(index);
+        break;
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
+        result = this->date_short_format_index_set(index);
+        break;
+    default:
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
+    }
+
+    if (result)
+    {
+        invocation.ret();
+    }
+    else
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_DATE_FORMAT_FAILED);
+    }
+}
+
+void TimedateManager::finish_set_hour_format(MethodInvocation invocation, gint32 format)
+{
+    if (!this->hour_format_set(format))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_HOUR_FORMAT_FAILED);
+    }
+    else
+    {
+        invocation.ret();
+    }
+}
+
+void TimedateManager::finish_set_seconds_showing(MethodInvocation invocation, bool enabled)
+{
+    if (!this->seconds_showing_set(enabled))
+    {
+        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_SET_SECONDS_SHOWING_FAILED);
+    }
+    else
+    {
+        invocation.ret();
+    }
 }
 
 void TimedateManager::on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection> &connect, Glib::ustring name)

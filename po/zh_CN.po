@@ -651,6 +651,14 @@ msgid ""
 "shall be enabled."
 msgstr "设置网络时间同步之前需要身份验证"
 
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:9
+msgid "Set the system time display format"
+msgstr "设置系统时间显示格式"
+
+#: ../data/com.kylinsec.Kiran.SystemDaemon.TimeDate.policy.in.h:10
+msgid "Authentication is required to change the system time display format."
+msgstr "更改系统时间显示格式之前需要身份验证"
+
 #: ../data/com.kylinsec.Kiran.SystemDaemon.Greeter.policy.in.h:1
 msgid "Greeter settings"
 msgstr "登录设置"
