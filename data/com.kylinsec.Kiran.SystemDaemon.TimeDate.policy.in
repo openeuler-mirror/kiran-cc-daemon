@@ -47,4 +47,14 @@
                 </defaults>
         </action>
 
+        <action id="com.kylinsec.kiran.system-daemon.timedate.set-format">
+                <_description>Set the system time display format</_description>
+                <_message>Authentication is required to change the system time display format.</_message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
 </policyconfig>
