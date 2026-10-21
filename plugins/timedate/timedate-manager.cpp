@@ -65,6 +65,7 @@ namespace Kiran
 #define POLKIT_ACTION_SET_NTP_ACTIVE "com.kylinsec.kiran.system-daemon.timedate.set-ntp"
 #define POLKIT_ACTION_SET_RTC_LOCAL "com.kylinsec.kiran.system-daemon.timedate.set-local-rtc"
 #define POLKIT_ACTION_SET_TIMEZONE "com.kylinsec.kiran.system-daemon.timedate.set-timezone"
+#define POLKIT_ACTION_SET_FORMAT "com.kylinsec.kiran.system-daemon.timedate.set-format"
 #define POLKIT_AUTH_CHECK_TIMEOUT 20
 
 TimedateManager *TimedateManager::m_instance = nullptr;
@@ -255,7 +256,11 @@ void TimedateManager::setTimeZone(const QString &timeZone)
 
 void TimedateManager::EnableSecondsShowing(bool enabled)
 {
-    setSecondsShowing(enabled);
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_FORMAT,
+                                                  true,
+                                                  this->message(),
+                                                  QStringLiteral("TimedateManager::EnableSecondsShowing"),
+                                                  std::bind(&TimedateManager::finishSetSecondsShowing, this, std::placeholders::_1, enabled));
 }
 
 QStringList TimedateManager::GetDateFormatList(int type)
@@ -295,22 +300,20 @@ DBusZoneInfos TimedateManager::GetZoneList()
 
 void TimedateManager::SetDateFormatByIndex(int type, int index)
 {
-    switch (type)
-    {
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
-        setDateLongFormatIndex(index);
-        break;
-    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
-        setDateShortFormatIndex(index);
-        break;
-    default:
-        DBUS_ERROR_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
-    }
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_FORMAT,
+                                                  true,
+                                                  this->message(),
+                                                  QStringLiteral("TimedateManager::SetDateFormatByIndex"),
+                                                  std::bind(&TimedateManager::finishSetDateFormatByIndex, this, std::placeholders::_1, type, index));
 }
 
 void TimedateManager::SetHourFormat(int format)
 {
-    setHourFormat(format);
+    PolkitProxy::getDefault()->checkAuthorization(POLKIT_ACTION_SET_FORMAT,
+                                                  true,
+                                                  this->message(),
+                                                  QStringLiteral("TimedateManager::SetHourFormat"),
+                                                  std::bind(&TimedateManager::finishSetHourFormat, this, std::placeholders::_1, format));
 }
 
 void TimedateManager::SetLocalRTC(bool local, bool adjustSystem)
@@ -904,6 +907,35 @@ void TimedateManager::finishSetNTPActive(const QDBusMessage &message, bool activ
     }
 
     setNTP(active);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void TimedateManager::finishSetDateFormatByIndex(const QDBusMessage &message, int type, int index)
+{
+    switch (type)
+    {
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_LONG:
+        setDateLongFormatIndex(index);
+        break;
+    case TimedateDateFormatType::TIMEDATE_FORMAT_TYPE_SHORT:
+        setDateShortFormatIndex(index);
+        break;
+    default:
+        DBUS_ERROR_DELAY_REPLY_AND_RET(CCErrorCode::ERROR_TIMEDATE_UNKNOWN_DATE_FORMAT_TYPE_2);
+    }
+
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void TimedateManager::finishSetHourFormat(const QDBusMessage &message, int format)
+{
+    setHourFormat(format);
+    QDBusConnection::systemBus().send(message.createReply());
+}
+
+void TimedateManager::finishSetSecondsShowing(const QDBusMessage &message, bool enabled)
+{
+    setSecondsShowing(enabled);
     QDBusConnection::systemBus().send(message.createReply());
 }
 
