@@ -44,7 +44,6 @@ class Manager : public QObject, protected QDBusContext
     Q_PROPERTY(int backend_status READ getBackendStatus WRITE setBackendStatus)
     Q_PROPERTY(QString latest_upgrade_time READ getLatestUpgradeTime WRITE setLatestUpgradeTime)
     Q_PROPERTY(int reminder_interval READ getReminderInterval WRITE setReminderInterval)
-    Q_PROPERTY(QString latest_reminder_time READ getLatestReminderTime WRITE setLatestReminderTime)
     Q_PROPERTY(QString latest_scan_time READ getLatestScanTime WRITE setLatestScanTime)
 public:
     static Manager *instance() { return m_instance; };
@@ -63,8 +62,6 @@ public:  // PROPERTIES
     QString getLatestUpgradeTime() const;
     // 获取提醒间隔天数
     int getReminderInterval() const;
-    // 获取最新提醒时间
-    QString getLatestReminderTime() const;
     // 获取最新扫描时间
     QString getLatestScanTime() const;
 
@@ -74,8 +71,6 @@ public:  // PROPERTIES
     void setLatestUpgradeTime(const QString &latestUpgradeTime);
     //设置提醒间隔天数
     void setReminderInterval(int reminderInterval);
-    //设置最新提醒时间至配置文件
-    void setLatestReminderTime(const QString &latestReminderTime);
     //设置最新扫描时间至配置文件
     void setLatestScanTime(const QString &latestScanTime);
 
@@ -164,8 +159,6 @@ private:
 
     // 最新升级时间
     QString m_lastUpgradeTime;
-    // 最新提醒时间
-    QString m_latestReminderTime;
     // 最新扫描时间
     QString m_latestScanTime;
 
