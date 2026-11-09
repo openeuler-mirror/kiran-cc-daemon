@@ -54,10 +54,6 @@
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
             <description>The reminder interval for days.</description>
         </property>
-        <property name="latest_reminder_time" type="s" access="readwrite">
-            <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
-            <description>The latest reminder time.</description>
-        </property>
         <property name="latest_scan_time" type="s" access="read">
             <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="true" />
             <description>The latest scan time.</description>

@@ -23,6 +23,7 @@ struct _NotifyNotification;
 typedef struct _NotifyNotification NotifyNotification;
 
 class KSDUpgradeProxy;
+class QGSettings;
 namespace Kiran
 {
 class NotificationManager : public QObject
@@ -36,12 +37,14 @@ public:
 private slots:
     void reminder();
     void handleDBusPropertyChanged(const QString &name, const QVariant &value);
+    void handleSettingsChanged(const QString &key);
     void handleScanResult(bool success, const QString &errorMessage);
 
 private:
     void init();
     KSDUpgradeProxy *getUpgradeProxy();
     int getVaildIntval();
+    bool isValidReminderTime(const QString &value);
     void sendNotification();
 
     /**
@@ -68,6 +71,7 @@ private:
 private:
     QSharedPointer<NotifyNotification> m_notification;
     QTimer *m_timer;
+    QGSettings *m_settings;
     QDateTime m_latestReminderTime;
     QDateTime m_nextReminderTime;
     KSDUpgradeProxy *m_upgradeProxy;
