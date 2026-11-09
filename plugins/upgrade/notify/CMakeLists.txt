@@ -32,10 +32,12 @@ target_include_directories(
   ${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
                          ${PROJECT_SOURCE_DIR}/plugins/upgrade
                          ${CMAKE_CURRENT_BINARY_DIR} ${KLOG_QT5_INCLUDE_DIRS}
+                         ${GSETTINGS_QT_INCLUDE_DIRS}
                          ${LIBNOTIFY_INCLUDE_DIRS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE Qt5::Core Qt5::Network kbase 
-                ${KLOG_QT5_LIBRARIES} ${LIBNOTIFY_LIBRARIES})
+                ${KLOG_QT5_LIBRARIES} ${GSETTINGS_QT_LIBRARIES}
+                ${LIBNOTIFY_LIBRARIES})
 
 install(TARGETS ${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(FILES ${QM_FILES} DESTINATION ${KCD_INSTALL_TRANSLATIONDIR})
