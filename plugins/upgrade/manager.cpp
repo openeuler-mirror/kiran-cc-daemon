@@ -48,7 +48,6 @@ namespace Kiran
 // 提醒配置
 #define REMINDER_SECTION "reminder"
 #define REMINDER_CONFIG_INTERVAL_KEY REMINDER_SECTION "/interval"
-#define REMINDER_CONFIG_LAST_REMINDER_TIME_KEY REMINDER_SECTION "/last-reminder-time"
 // 更新配置
 #define UPDATE_SECTION "update"
 #define UPDATE_CONFIG_LAST_UPDATE_TIME_KEY UPDATE_SECTION "/last-update-time"
@@ -385,24 +384,6 @@ void Manager::setLatestUpgradeTime(const QString &latestUpgradeTime)
     SEND_PROPERTY_NOTIFY(latest_upgrade_time, LatestUpgradeTime)
 }
 
-QString Manager::getLatestReminderTime() const
-{
-    return m_latestReminderTime;
-}
-void Manager::setLatestReminderTime(const QString &latestReminderTime)
-{
-    KLOG_INFO(upgrade) << "Set latest reminder time to " << latestReminderTime;
-    RETURN_IF_TRUE(m_latestReminderTime == latestReminderTime);
-
-    m_latestReminderTime = latestReminderTime;
-    if (latestReminderTime != m_config->get(REMINDER_CONFIG_LAST_REMINDER_TIME_KEY).toString())
-    {
-        m_config->set(REMINDER_CONFIG_LAST_REMINDER_TIME_KEY, latestReminderTime);
-    }
-
-    SEND_PROPERTY_NOTIFY(latest_reminder_time, LatestReminderTime)
-}
-
 QString Manager::getLatestScanTime() const
 {
     return m_latestScanTime;
@@ -440,11 +421,6 @@ void Manager::loadConfig()
     KLOG_DEBUG(upgrade) << "Reminder interval loaded from config: "
                         << m_reminderInterval << " days";
 
-    //获取最新提醒时间
-    m_latestReminderTime = m_config->get(REMINDER_CONFIG_LAST_REMINDER_TIME_KEY, "").toString();
-    KLOG_DEBUG(upgrade) << "Latest reminder time loaded from config: "
-                        << m_latestReminderTime;
-
     //获取最新升级时间
     m_lastUpgradeTime = m_config->get(UPDATE_CONFIG_LAST_UPDATE_TIME_KEY, "").toString();
     KLOG_DEBUG(upgrade) << "Latest upgrade time loaded from config: "
@@ -468,11 +444,6 @@ void Manager::loadConfig()
                          m_lastUpgradeTime != value.toString())
                 {
                     setLatestUpgradeTime(value.toString());
-                }
-                else if (key == REMINDER_CONFIG_LAST_REMINDER_TIME_KEY &&
-                         m_latestReminderTime != value.toString())
-                {
-                    setLatestReminderTime(value.toString());
                 }
                 else if (key == SCAN_CONFIG_LAST_SCAN_TIME_KEY &&
                          m_latestScanTime != value.toString())

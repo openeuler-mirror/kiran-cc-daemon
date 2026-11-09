@@ -18,6 +18,7 @@
 #include <qt5-log-i.h>
 #include <upgrade-i.h>
 #include <QDBusConnection>
+#include <QGSettings>
 #include <QProcess>
 #include "ksd_upgrade_proxy.h"
 #include "lib/base/def.h"
@@ -26,10 +27,12 @@
 namespace Kiran
 {
 #define PROPERTY_REMINDER_INTERVAL "reminder_interval"
-#define PROPERTY_LAST_REMINDER_TIME "latest_reminder_time"
+#define UPGRADE_SCHEMA_ID "com.kylinsec.kiran.upgrade"
+#define SETTINGS_LATEST_REMINDER_TIME "latestReminderTime"
 #define TIMEOUT_INTERVAL_MS (24 * 60 * 60 * 1000)
 NotificationManager::NotificationManager()
     : m_timer(nullptr),
+      m_settings(nullptr),
       m_upgradeProxy(nullptr),
       m_hasUpgrades(false),
       m_scanInProgress(false)
@@ -70,8 +73,20 @@ void NotificationManager::init()
     connect(m_upgradeProxy, &KSDUpgradeProxy::dbusPropertyChanged,
             this, &NotificationManager::handleDBusPropertyChanged);
 
-    //获取最新提醒时间
-    m_latestReminderTime = QDateTime::fromString(m_upgradeProxy->latest_reminder_time(), DEFAULT_DATE_TIME_FORMAT);
+    // 初始化gsettings并获取最新提醒时间
+    m_settings = new QGSettings(UPGRADE_SCHEMA_ID, "", this);
+    connect(m_settings, &QGSettings::changed, this, &NotificationManager::handleSettingsChanged);
+
+    QString latestReminderTime = m_settings->get(SETTINGS_LATEST_REMINDER_TIME).toString();
+    if (isValidReminderTime(latestReminderTime))
+    {
+        m_latestReminderTime = QDateTime::fromString(latestReminderTime, DEFAULT_DATE_TIME_FORMAT);
+    }
+    else
+    {
+        // 空值或异常时间按未提醒处理，立即提醒
+        m_latestReminderTime = QDateTime();
+    }
 
     // 初始化定时器
     m_timer = new QTimer(this);
@@ -163,17 +178,48 @@ void NotificationManager::handleScanResult(bool success, const QString &errorMes
 void NotificationManager::handleDBusPropertyChanged(const QString &name, const QVariant &value)
 {
     KLOG_DEBUG(upgrade) << "DBus property changed: " << name << " to " << value.toString();
-    RETURN_IF_FALSE(name == PROPERTY_REMINDER_INTERVAL || name == PROPERTY_LAST_REMINDER_TIME);
+    RETURN_IF_FALSE(name == PROPERTY_REMINDER_INTERVAL);
 
-    if (name == PROPERTY_LAST_REMINDER_TIME)
+    // 清空下次提醒时间，以便基于新的提醒间隔重新计算
+    m_nextReminderTime = QDateTime();
+    // 计算下次提醒时间（基于新的提醒间隔重新计算）
+    scheduleNextReminder();
+}
+
+void NotificationManager::handleSettingsChanged(const QString &key)
+{
+    KLOG_DEBUG(upgrade) << "GSettings key changed: " << key;
+    RETURN_IF_FALSE(key == SETTINGS_LATEST_REMINDER_TIME);
+
+    QString value = m_settings->get(SETTINGS_LATEST_REMINDER_TIME).toString();
+    if (!isValidReminderTime(value))
     {
-        m_latestReminderTime = QDateTime::fromString(value.toString(), DEFAULT_DATE_TIME_FORMAT);
+        KLOG_WARNING(upgrade) << "Latest reminder time is invalid, ignoring.";
+        return;
     }
+    m_latestReminderTime = QDateTime::fromString(value, DEFAULT_DATE_TIME_FORMAT);
 
     // 清空下次提醒时间，以便基于新的上次提醒时间重新计算
     m_nextReminderTime = QDateTime();
     // 计算下次提醒时间（基于新的上次提醒时间重新计算）
     scheduleNextReminder();
+}
+
+bool NotificationManager::isValidReminderTime(const QString &value)
+{
+    if (value.isEmpty())
+    {
+        KLOG_DEBUG(upgrade) << "Latest reminder time is empty.";
+        return false;
+    }
+
+    if (!QDateTime::fromString(value, DEFAULT_DATE_TIME_FORMAT).isValid())
+    {
+        KLOG_DEBUG(upgrade) << "Invalid latest reminder time format: " << value;
+        return false;
+    }
+
+    return true;
 }
 
 KSDUpgradeProxy *NotificationManager::getUpgradeProxy()
@@ -272,7 +318,7 @@ void NotificationManager::setNextReminder(int intervalDays)
 
     // 记录本次提醒时间
     m_latestReminderTime = currentTime;
-    m_upgradeProxy->setLatest_reminder_time(currentTime.toString(DEFAULT_DATE_TIME_FORMAT));
+    m_settings->set(SETTINGS_LATEST_REMINDER_TIME, currentTime.toString(DEFAULT_DATE_TIME_FORMAT));
 
     // 从当前时间开始计算下次提醒时间
     calculateAndSetNextReminder(intervalDays, currentTime);
