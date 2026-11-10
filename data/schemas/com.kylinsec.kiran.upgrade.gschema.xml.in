@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="@PROJECT_NAME@">
+  <schema id="com.kylinsec.kiran.upgrade" path="/com/kylinsec/kiran/upgrade/">
+    <key name="latest-reminder-time" type="s">
+      <default>''</default>
+      <summary>Latest reminder time</summary>
+      <description>The latest reminder time, in yyyy-MM-dd HH:mm:ss format.</description>
+    </key>
+  </schema>
+</schemalist>
