@@ -257,8 +257,8 @@ USER_SET_ONE_PROP_AUTH(SetShell, change_shell_authorized_cb, AUTH_USER_ADMIN, co
 USER_SET_ONE_PROP_AUTH(SetIconFile, change_icon_file_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetLocked, change_locked_authorized_cb, AUTH_USER_ADMIN, bool);
 USER_SET_ONE_PROP_AUTH(SetAccountType, change_account_type_authorized_cb, AUTH_USER_ADMIN, int32_t);
-USER_SET_ONE_PROP_AUTH(SetPasswordMode, change_password_mode_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, int32_t);
-USER_SET_TWO_PROP_AUTH(SetPassword, change_password_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
+USER_SET_ONE_PROP_AUTH(SetPasswordMode, change_password_mode_authorized_cb, AUTH_USER_ADMIN, int32_t);
+USER_SET_TWO_PROP_AUTH(SetPassword, change_password_authorized_cb, AUTH_USER_ADMIN, const Glib::ustring &, const Glib::ustring &);
 USER_SET_TWO_PROP_AUTH(SetPasswordByPasswd, change_password_by_passwd_authorized_cb, AUTH_CHANGE_OWN_PASSWORD, const Glib::ustring &, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetPasswordHint, change_password_hint_authorized_cb, AUTH_CHANGE_OWN_USER_DATA, const Glib::ustring &);
 USER_SET_ONE_PROP_AUTH(SetAutomaticLogin, change_auto_login_authorized_cb, AUTH_USER_ADMIN, bool);
@@ -763,7 +763,15 @@ void User::on_exec_passwd_finished(const std::string &error_desc, MethodInvocati
     }
 }
 
-USER_AUTH_CHECK_CB(change_password_hint_authorized_cb, password_hint);
+void User::change_password_hint_authorized_cb(MethodInvocation invocation, const Glib::ustring &value)
+{
+    if (this->password_hint_get() != value)
+    {
+        this->password_hint_set(value);
+    }
+
+    invocation.ret();
+}
 
 void User::change_auto_login_authorized_cb(MethodInvocation invocation, bool auto_login)
 {

@@ -90,17 +90,20 @@
             <arg name="mode" direction="in" type="i">
                 <description>The new password mode, encoded as an integer:</description>
             </arg>
-            <description>Changes the users password mode. Note that changing the password mode has the side-effect of unlocking the account.</description>
+            <description>Changes the users password mode. Administrator authentication is always required.
+            Note that changing the password mode has the side-effect of unlocking the account.</description>
         </method>
 
         <method name="SetPassword">
             <arg name="password" direction="in" type="s">
-                <description>The crypted password.</description>
+                <description>The crypted password returned by crypt(3), not plaintext.</description>
             </arg>
             <arg name="hint" direction="in" type="s">
                 <description>The password hint.</description>
             </arg>
-            <description>Sets a new password for this user. Note that setting a password has the side-effect of unlocking the account.</description>
+            <description>Sets a new password for this user. Administrator authentication is always required.
+            The password argument must be a crypt(3) hash.
+            Note that setting a password has the side-effect of unlocking the account.</description>
         </method>
 
         <method name="SetPasswordByPasswd">
