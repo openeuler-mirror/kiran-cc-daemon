@@ -115,7 +115,7 @@ CHECK_AUTH_WITH_1ARGS(User,
 CHECK_AUTH_WITH_2ARGS(User,
                       SetPassword,
                       setPasswordAuthenticated,
-                      getAuthAction(message(), AUTH_CHANGE_OWN_PASSWORD),
+                      AUTH_USER_ADMIN,
                       const QString &,
                       const QString &)
 
@@ -141,7 +141,7 @@ CHECK_AUTH_WITH_1ARGS(User,
 CHECK_AUTH_WITH_1ARGS(User,
                       SetPasswordMode,
                       setPasswordModeAuthenticated,
-                      getAuthAction(message(), AUTH_CHANGE_OWN_USER_DATA),
+                      AUTH_USER_ADMIN,
                       int32_t)
 
 CHECK_AUTH_WITH_1ARGS(User,
@@ -723,9 +723,16 @@ SET_MEMBER_PROPERTY(const QString &, home_directory, HomeDirectory, m_homeDirect
 SET_SETTINGS_PROPERTY(const QString &, language, Language)
 SET_MEMBER_PROPERTY(bool, locked, Locked, m_locked)
 SET_MEMBER_PROPERTY(const QString &, password_expiration_policy, PasswordExpirationPolicy, m_passwordExpirationPolicy)
-SET_SETTINGS_PROPERTY(const QString &, password_hint, PasswordHint)
 SET_MEMBER_PROPERTY(int, password_mode, PasswordMode, m_passwordMode)
 SET_MEMBER_PROPERTY(const QString &, real_name, RealName, m_realName)
+
+void User::setPasswordHint(const QString &passwordHint)
+{
+    RETURN_IF_TRUE(passwordHint == this->getPasswordHint());
+    auto key = QString("%1/%2").arg(KEYFILE_USER_GROUP_NAME).arg(KEYFILE_USER_GROUP_KEY_PASSWORD_HINT);
+    this->m_settings->setValue(key, passwordHint);
+    SEND_PROPERTY_NOTIFY(password_hint, PasswordHint)
+}
 SET_SETTINGS_PROPERTY(const QString &, session, Session)
 SET_SETTINGS_PROPERTY(const QString &, session_type, SessionType)
 SET_MEMBER_PROPERTY(const QString &, shell, Shell, m_shell)
