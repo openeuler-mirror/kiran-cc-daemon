@@ -26,7 +26,8 @@ namespace Kiran
 #define PASSWD_RUN_TIMEOUT_MSEC 5000
 
 PasswdWrapper::PasswdWrapper(std::weak_ptr<User> user) : user_(user),
-                                                         state_(PASSWD_STATE_NONE)
+                                                         state_(PASSWD_STATE_NONE),
+                                                         child_pid_(0)
 {
 }
 
@@ -56,7 +57,12 @@ void PasswdWrapper::exec(Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
     this->new_password_ = new_password;
     this->passwd_timeout_ = Glib::signal_timeout().connect(sigc::mem_fun(this, &PasswdWrapper::on_passwd_timeout), PASSWD_RUN_TIMEOUT_MSEC);
 
-    AccountsUtil::get_caller_uid(invocation, caller_uid);
+    if (!AccountsUtil::get_caller_uid(invocation, caller_uid))
+    {
+        this->end_passwd(false);
+        return;
+    }
+
     if (caller_uid != (int32_t)user->uid_get())
     {
         argv.push_back("--");
