@@ -161,15 +161,41 @@ void AccountsUtil::setup_loginuid(const std::string &id)
     close(fd);
 }
 
+namespace
+{
+// 可能携带密码等敏感参数的命令，日志中仅保留 argv[0]，避免敏感参数落盘
+const char *kSensitiveCommands[] = {
+    "passwd",
+    "usermod",
+};
+
+bool is_sensitive_command(const std::string &command)
+{
+    for (const char *name : kSensitiveCommands)
+    {
+        if (command.find(name) != std::string::npos)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+}  // namespace
+
 bool AccountsUtil::spawn_with_login_uid(const Glib::RefPtr<Gio::DBus::MethodInvocation> invocation,
                                         const std::vector<std::string> argv,
                                         std::string &error)
 {
-    KLOG_DEBUG("command: %s.", StrUtils::join(argv, " ").c_str());
+    auto command = StrUtils::join(argv, " ");
+    if (is_sensitive_command(command) && !argv.empty())
+    {
+        command = argv[0];
+    }
+    KLOG_DEBUG("command: %s.", command.c_str());
 
     std::string loginuid;
     std::string standard_error;
-    int status;
+    int status = -1;
     std::string working_directory;
     CCErrorCode error_code = CCErrorCode::SUCCESS;
 
