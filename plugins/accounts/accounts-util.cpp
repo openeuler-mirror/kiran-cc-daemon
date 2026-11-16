@@ -145,6 +145,27 @@ private:
     QString m_loginUID;
 };
 
+namespace
+{
+// 可能携带密码等敏感参数的命令，日志中仅保留程序名，避免敏感参数落盘
+const char *kSensitiveCommands[] = {
+    "passwd",
+    "usermod",
+};
+
+bool isSensitiveCommand(const QString &command)
+{
+    for (const char *name : kSensitiveCommands)
+    {
+        if (command.contains(QLatin1String(name)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+}  // namespace
+
 bool AccountsUtil::spawnWithLoginUid(const QDBusMessage &message,
                                      const QString &program,
                                      const QStringList &arguments,
@@ -160,8 +181,12 @@ bool AccountsUtil::spawnWithLoginUid(const QDBusMessage &message,
     process.waitForFinished();
     auto standardError = process.readAllStandardError();
     auto exitCode = process.exitCode();
-    auto command = QString("%1 %2").arg(program).arg(arguments.join(" "));
 
+    auto command = QString("%1 %2").arg(program).arg(arguments.join(" "));
+    if (isSensitiveCommand(command))
+    {
+        command = program;
+    }
     KLOG_INFO(accounts) << "The exitcode of command" << command << "is" << exitCode << ", exit status is" << process.exitStatus();
 
     if (process.exitStatus() == QProcess::CrashExit)
